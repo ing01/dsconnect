@@ -346,6 +346,21 @@ Rails.application.routes.draw do
             end
           end
 
+          resources :ticket_boards do
+            resources :ticket_columns, only: [:create, :update, :destroy] do
+              collection do
+                patch :reorder
+              end
+            end
+          end
+
+          resources :tickets do
+            member do
+              patch :move
+            end
+            resources :ticket_conversations, only: [:create, :destroy]
+          end
+
           # Assignment V2 Routes
           resources :assignment_policies do
             resources :inboxes, only: [:index, :create, :destroy], module: :assignment_policies

@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import { emitter } from 'shared/helpers/mitt';
 import EmailTranscriptModal from './EmailTranscriptModal.vue';
 import ResolveAction from '../../buttons/ResolveAction.vue';
+import TicketsHeaderButton from './tickets/TicketsHeaderButton.vue';
 import ButtonV4 from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 
@@ -96,6 +97,7 @@ onUnmounted(() => {
       :conversation-id="currentChat.id"
       :status="currentChat.status"
     />
+    <TicketsHeaderButton />
     <div
       v-on-clickaway="() => toggleDropdown(false)"
       class="relative flex items-center group"

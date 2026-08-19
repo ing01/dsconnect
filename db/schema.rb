@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_07_133000) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_19_120003) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1497,6 +1497,55 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_07_133000) do
     t.string "icon_color", default: ""
     t.index ["account_id"], name: "index_teams_on_account_id"
     t.index ["name", "account_id"], name: "index_teams_on_name_and_account_id", unique: true
+  end
+
+  create_table "ticket_boards", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_boards_on_account_id"
+  end
+
+  create_table "ticket_columns", force: :cascade do |t|
+    t.bigint "ticket_board_id", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ticket_board_id"], name: "index_ticket_columns_on_ticket_board_id"
+    t.index ["ticket_board_id", "position"], name: "index_ticket_columns_on_ticket_board_id_and_position"
+  end
+
+  create_table "ticket_conversations", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_conversations_on_account_id"
+    t.index ["conversation_id"], name: "index_ticket_conversations_on_conversation_id"
+    t.index ["ticket_id", "conversation_id"], name: "index_ticket_conversations_on_ticket_and_conversation", unique: true
+    t.index ["ticket_id"], name: "index_ticket_conversations_on_ticket_id"
+  end
+
+  create_table "tickets", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_column_id", null: false
+    t.bigint "assignee_id"
+    t.bigint "team_id"
+    t.string "title", null: false
+    t.text "description"
+    t.integer "priority"
+    t.integer "position", default: 0, null: false
+    t.jsonb "custom_attributes", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_tickets_on_account_id"
+    t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
+    t.index ["team_id"], name: "index_tickets_on_team_id"
+    t.index ["ticket_column_id"], name: "index_tickets_on_ticket_column_id"
+    t.index ["ticket_column_id", "position"], name: "index_tickets_on_ticket_column_id_and_position"
   end
 
   create_table "user_sessions", force: :cascade do |t|

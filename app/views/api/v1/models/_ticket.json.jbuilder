@@ -1,0 +1,12 @@
+json.id resource.id
+json.title resource.title
+json.description resource.description
+json.priority resource.priority
+json.position resource.position
+json.account_id resource.account_id
+json.ticket_column_id resource.ticket_column_id
+json.assignee_id resource.assignee_id
+json.team_id resource.team_id
+json.created_at resource.created_at.to_i
+json.updated_at resource.updated_at.to_i
+json.conversation_ids resource.ticket_conversations.pluck(:conversation_id)

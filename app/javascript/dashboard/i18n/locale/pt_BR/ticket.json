@@ -1,0 +1,120 @@
+{
+  "TICKET": {
+    "HEADER": "Tickets",
+    "DESCRIPTION": "Organize chamados internos em um quadro Kanban e vincule-os às conversas relacionadas.",
+    "LOADING": "Carregando quadro de tickets...",
+    "EMPTY": {
+      "TITLE": "Nenhum quadro de tickets ainda",
+      "DESC": "Crie um quadro para começar a organizar os tickets da sua equipe.",
+      "ACTION": "Criar quadro"
+    },
+    "BOARD": {
+      "ADD_COLUMN": "Nova coluna",
+      "ADD_TICKET": "Novo ticket",
+      "NEW_BOARD": "Novo quadro"
+    },
+    "BOARD_FORM": {
+      "ADD_TITLE": "Novo quadro",
+      "EDIT_TITLE": "Renomear quadro",
+      "NAME": {
+        "LABEL": "Nome do quadro",
+        "PLACEHOLDER": "Ex.: Suporte ao Cliente",
+        "REQUIRED_ERROR": "O nome do quadro é obrigatório"
+      },
+      "SUBMIT": "Salvar",
+      "CANCEL": "Cancelar"
+    },
+    "BOARD_DELETE": {
+      "TITLE": "Apagar quadro",
+      "MESSAGE": "Tem certeza que deseja apagar o quadro",
+      "CONFIRM": "Sim, apagar",
+      "CANCEL": "Cancelar"
+    },
+    "COLUMN_FORM": {
+      "ADD_TITLE": "Nova coluna",
+      "EDIT_TITLE": "Renomear coluna",
+      "NAME": {
+        "LABEL": "Nome da coluna",
+        "PLACEHOLDER": "Ex.: Em andamento",
+        "REQUIRED_ERROR": "O nome da coluna é obrigatório"
+      },
+      "SUBMIT": "Salvar",
+      "CANCEL": "Cancelar"
+    },
+    "COLUMN_DELETE": {
+      "TITLE": "Apagar coluna",
+      "MESSAGE": "Tem certeza que deseja apagar a coluna",
+      "CONFIRM": "Sim, apagar",
+      "CANCEL": "Cancelar",
+      "HAS_TICKETS_ERROR": "Mova ou apague os tickets desta coluna antes de removê-la."
+    },
+    "FORM": {
+      "ADD_TITLE": "Novo ticket",
+      "EDIT_TITLE": "Editar ticket",
+      "TITLE": {
+        "LABEL": "Título",
+        "PLACEHOLDER": "Descreva o problema em poucas palavras",
+        "REQUIRED_ERROR": "O título é obrigatório"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Detalhes adicionais (opcional)"
+      },
+      "PRIORITY": {
+        "LABEL": "Prioridade",
+        "NONE": "Sem prioridade",
+        "LOW": "Baixa",
+        "MEDIUM": "Média",
+        "HIGH": "Alta",
+        "URGENT": "Urgente"
+      },
+      "ASSIGNEE": {
+        "LABEL": "Responsável",
+        "NONE": "Ninguém"
+      },
+      "TEAM": {
+        "LABEL": "Time",
+        "NONE": "Nenhum"
+      },
+      "CREATE": "Criar ticket",
+      "UPDATE": "Salvar alterações",
+      "CANCEL": "Cancelar"
+    },
+    "CARD": {
+      "CONVERSATIONS_LINKED": "{n} conversa vinculada | {n} conversas vinculadas"
+    },
+    "CONVERSATION_PANEL": {
+      "ADD_BUTTON": "Vincular ou criar ticket",
+      "MODAL_TITLE": "Vincular ou criar ticket",
+      "LINK_EXISTING": "Vincular existente",
+      "CREATE_NEW": "Criar novo",
+      "SEARCH_PLACEHOLDER": "Buscar tickets pelo título...",
+      "NO_RESULTS": "Nenhum ticket encontrado",
+      "LINK_ACTION": "Vincular",
+      "NO_LINKED_TICKETS": "Nenhum ticket vinculado a esta conversa ainda",
+      "NO_BOARD_ERROR": "Crie um quadro de tickets primeiro, no menu Tickets"
+    },
+    "DELETE": {
+      "TITLE": "Apagar ticket",
+      "MESSAGE": "Tem certeza que deseja apagar o ticket",
+      "CONFIRM": "Sim, apagar",
+      "CANCEL": "Cancelar"
+    },
+    "API": {
+      "SUCCESS_MESSAGE": "Ticket salvo com sucesso",
+      "ERROR_MESSAGE": "Não foi possível salvar o ticket",
+      "DELETE_SUCCESS": "Ticket removido",
+      "DELETE_ERROR": "Não foi possível remover o ticket",
+      "MOVE_ERROR": "Não foi possível mover o ticket",
+      "COLUMN_SUCCESS": "Coluna salva",
+      "COLUMN_ERROR": "Não foi possível salvar a coluna",
+      "COLUMN_DELETE_SUCCESS": "Coluna apagada",
+      "COLUMN_DELETE_ERROR": "Não foi possível apagar a coluna",
+      "BOARD_CREATE_ERROR": "Não foi possível criar o quadro",
+      "BOARD_SUCCESS": "Quadro salvo",
+      "BOARD_ERROR": "Não foi possível salvar o quadro",
+      "BOARD_DELETE_SUCCESS": "Quadro apagado",
+      "BOARD_DELETE_ERROR": "Não foi possível apagar o quadro"
+    }
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "TICKET": {
+    "HEADER": "Tickets",
+    "DESCRIPTION": "Organize internal requests on a Kanban board and link them to their related conversations.",
+    "LOADING": "Loading ticket board...",
+    "EMPTY": {
+      "TITLE": "No ticket board yet",
+      "DESC": "Create a board to start organizing your team's tickets.",
+      "ACTION": "Create board"
+    },
+    "BOARD": {
+      "ADD_COLUMN": "New column",
+      "ADD_TICKET": "New ticket",
+      "NEW_BOARD": "New board"
+    },
+    "BOARD_FORM": {
+      "ADD_TITLE": "New board",
+      "EDIT_TITLE": "Rename board",
+      "NAME": {
+        "LABEL": "Board name",
+        "PLACEHOLDER": "e.g. Customer Support",
+        "REQUIRED_ERROR": "Board name is required"
+      },
+      "SUBMIT": "Save",
+      "CANCEL": "Cancel"
+    },
+    "BOARD_DELETE": {
+      "TITLE": "Delete board",
+      "MESSAGE": "Are you sure you want to delete the board",
+      "CONFIRM": "Yes, delete",
+      "CANCEL": "Cancel"
+    },
+    "COLUMN_FORM": {
+      "ADD_TITLE": "New column",
+      "EDIT_TITLE": "Rename column",
+      "NAME": {
+        "LABEL": "Column name",
+        "PLACEHOLDER": "e.g. In progress",
+        "REQUIRED_ERROR": "Column name is required"
+      },
+      "SUBMIT": "Save",
+      "CANCEL": "Cancel"
+    },
+    "COLUMN_DELETE": {
+      "TITLE": "Delete column",
+      "MESSAGE": "Are you sure you want to delete the column",
+      "CONFIRM": "Yes, delete",
+      "CANCEL": "Cancel",
+      "HAS_TICKETS_ERROR": "Move or delete the tickets in this column before removing it."
+    },
+    "FORM": {
+      "ADD_TITLE": "New ticket",
+      "EDIT_TITLE": "Edit ticket",
+      "TITLE": {
+        "LABEL": "Title",
+        "PLACEHOLDER": "Briefly describe the issue",
+        "REQUIRED_ERROR": "Title is required"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "Additional details (optional)"
+      },
+      "PRIORITY": {
+        "LABEL": "Priority",
+        "NONE": "No priority",
+        "LOW": "Low",
+        "MEDIUM": "Medium",
+        "HIGH": "High",
+        "URGENT": "Urgent"
+      },
+      "ASSIGNEE": {
+        "LABEL": "Assignee",
+        "NONE": "Unassigned"
+      },
+      "TEAM": {
+        "LABEL": "Team",
+        "NONE": "No team"
+      },
+      "CREATE": "Create ticket",
+      "UPDATE": "Save changes",
+      "CANCEL": "Cancel"
+    },
+    "CARD": {
+      "CONVERSATIONS_LINKED": "{n} linked conversation | {n} linked conversations"
+    },
+    "CONVERSATION_PANEL": {
+      "ADD_BUTTON": "Link or create ticket",
+      "MODAL_TITLE": "Link or create ticket",
+      "LINK_EXISTING": "Link existing",
+      "CREATE_NEW": "Create new",
+      "SEARCH_PLACEHOLDER": "Search tickets by title...",
+      "NO_RESULTS": "No matching tickets found",
+      "LINK_ACTION": "Link",
+      "NO_LINKED_TICKETS": "No tickets linked to this conversation yet",
+      "NO_BOARD_ERROR": "Create a ticket board first, from the Tickets menu"
+    },
+    "DELETE": {
+      "TITLE": "Delete ticket",
+      "MESSAGE": "Are you sure you want to delete the ticket",
+      "CONFIRM": "Yes, delete",
+      "CANCEL": "Cancel"
+    },
+    "API": {
+      "SUCCESS_MESSAGE": "Ticket saved successfully",
+      "ERROR_MESSAGE": "Could not save the ticket",
+      "DELETE_SUCCESS": "Ticket deleted",
+      "DELETE_ERROR": "Could not delete the ticket",
+      "MOVE_ERROR": "Could not move the ticket",
+      "COLUMN_SUCCESS": "Column saved",
+      "COLUMN_ERROR": "Could not save the column",
+      "COLUMN_DELETE_SUCCESS": "Column deleted",
+      "COLUMN_DELETE_ERROR": "Could not delete the column",
+      "BOARD_CREATE_ERROR": "Could not create the board",
+      "BOARD_SUCCESS": "Board saved",
+      "BOARD_ERROR": "Could not save the board",
+      "BOARD_DELETE_SUCCESS": "Board deleted",
+      "BOARD_DELETE_ERROR": "Could not delete the board"
+    }
+  }
+}

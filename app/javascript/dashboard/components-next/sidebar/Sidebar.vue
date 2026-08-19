@@ -703,6 +703,13 @@ const menuItems = computed(() => {
       ],
     },
     {
+      name: 'Tickets',
+      label: t('SIDEBAR.TICKETS'),
+      icon: 'i-lucide-kanban-square',
+      to: accountScopedRoute('tickets_index'),
+      activeOn: ['tickets_index'],
+    },
+    {
       name: 'Campaigns',
       label: t('SIDEBAR.CAMPAIGNS'),
       icon: 'i-lucide-megaphone',
