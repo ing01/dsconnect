@@ -15,6 +15,15 @@ module Captain::ChatHelper
       response = attachments.any? ? chat.ask(text, with: attachments) : chat.ask(text)
       build_response(response)
     end
+  rescue RubyLLM::BadRequestError => e
+    # Some OpenAI-compatible providers (e.g. Groq) reject combining
+    # response_format: json_object with tool/function calling. Retry once
+    # without strict JSON mode - the system prompt already instructs JSON output.
+    raise e if @skip_json_mode
+
+    @skip_json_mode = true
+    Rails.logger.warn "#{self.class.name} Assistant: #{@assistant.id}, retrying without json response_format: #{e.message}"
+    retry
   rescue StandardError => e
     Rails.logger.error "#{self.class.name} Assistant: #{@assistant.id}, Error in chat completion: #{e}"
     raise e
@@ -24,7 +33,7 @@ module Captain::ChatHelper
 
   def build_chat
     llm_chat = chat(model: @model, temperature: temperature)
-    llm_chat = llm_chat.with_params(response_format: { type: 'json_object' })
+    llm_chat = llm_chat.with_params(response_format: { type: 'json_object' }) unless @skip_json_mode
 
     llm_chat = setup_tools(llm_chat)
     llm_chat = setup_system_instructions(llm_chat)

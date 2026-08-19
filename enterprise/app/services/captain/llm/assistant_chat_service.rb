@@ -30,7 +30,7 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
   private
 
   def build_tools
-    tools = [Captain::Tools::SearchDocumentationService.new(@assistant, user: nil)]
+    tools = @assistant.documents.exists? ? [Captain::Tools::SearchDocumentationService.new(@assistant, user: nil)] : []
     return tools unless custom_tools_enabled?
 
     tools + @assistant.account.captain_custom_tools.enabled.map do |ct|
@@ -44,7 +44,8 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
       content: Captain::Llm::SystemPromptsService.assistant_response_generator(
         @assistant.name, @assistant.config['product_name'], @assistant.config.merge('timezone' => inbox_timezone),
         contact: contact_attributes,
-        custom_tools: custom_tools_metadata
+        custom_tools: custom_tools_metadata,
+        include_search_documentation: @assistant.documents.exists?
       )
     }
   end

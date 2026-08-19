@@ -19,7 +19,15 @@ class Llm::BaseAiService
   end
 
   def chat(model: @model, temperature: @temperature)
-    RubyLLM.chat(model: model).with_temperature(temperature)
+    # Chatwoot only ever configures the openai_api_key/openai_api_base RubyLLM
+    # settings, so the provider is always 'openai' - pin it explicitly instead of
+    # letting RubyLLM guess, since some model ids collide with other providers'
+    # registry entries (e.g. "openai/gpt-oss-120b" is also an OpenRouter id).
+    RubyLLM.chat(model: model, provider: 'openai').with_temperature(temperature)
+  rescue RubyLLM::ModelNotFoundError
+    # Custom/self-hosted OpenAI-compatible endpoints (e.g. Groq) serve models
+    # that aren't in RubyLLM's bundled registry - assume they exist instead of failing.
+    RubyLLM.chat(model: model, provider: 'openai', assume_model_exists: true).with_temperature(temperature)
   end
 
   private

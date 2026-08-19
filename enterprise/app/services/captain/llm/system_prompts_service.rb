@@ -248,7 +248,7 @@ class Captain::Llm::SystemPromptsService
     # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
-    def assistant_response_generator(assistant_name, product_name, config = {}, contact: nil, custom_tools: [])
+    def assistant_response_generator(assistant_name, product_name, config = {}, contact: nil, custom_tools: [], include_search_documentation: true)
       assistant_citation_guidelines = if config['feature_citation']
                                         <<~CITATION_TEXT
                                           - Always include citations for any information provided, referencing the specific source (document only - skip if it was derived from a conversation).
@@ -310,7 +310,7 @@ class Captain::Llm::SystemPromptsService
         - If the answer is not provided in context sections, Respond to the customer and ask whether they want to talk to another support agent . If they ask to Chat with another agent, return `conversation_handoff' as the response in JSON response
         #{'- You MUST provide numbered citations at the appropriate places in the text.' if config['feature_citation']}
 
-        #{build_tools_section(custom_tools)}
+        #{build_tools_section(custom_tools, include_search_documentation: include_search_documentation)}
       SYSTEM_PROMPT_MESSAGE
     end
 
@@ -405,13 +405,13 @@ class Captain::Llm::SystemPromptsService
       time.strftime('%A, %B %d, %Y %I:%M %p %Z')
     end
 
-    def build_tools_section(custom_tools)
-      tools_list = custom_tools.map { |t| "- #{t[:name]}: #{t[:description]}" }.join("\n")
-      <<~TOOLS.strip
-        [Available Tools]
-        - search_documentation: Search and retrieve documentation from knowledge base
-        #{tools_list}
-      TOOLS
+    def build_tools_section(custom_tools, include_search_documentation: true)
+      lines = []
+      lines << '- search_documentation: Search and retrieve documentation from knowledge base' if include_search_documentation
+      lines += custom_tools.map { |t| "- #{t[:name]}: #{t[:description]}" }
+      return '' if lines.empty?
+
+      "[Available Tools]\n#{lines.join("\n")}"
     end
 
     def assistant_action_classifier_custom_instructions_policy
