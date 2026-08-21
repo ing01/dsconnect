@@ -131,6 +131,7 @@
         "UNNAMED_CONTACT": "Contato sem nome",
         "ACTIONS": {
           "ADD": "Adicionar contato",
+          "CREATE": "Criar novo contato",
           "REMOVE": "Remover contato"
         },
         "DIALOGS": {
@@ -154,7 +155,9 @@
           "REASSIGN_SUCCESS": "Contato reatribuído à empresa.",
           "REASSIGN_ERROR": "Não foi possível reatribuir o contato à empresa.",
           "REMOVE_SUCCESS": "Contato removido da empresa.",
-          "REMOVE_ERROR": "Não foi possível remover o contato da empresa."
+          "REMOVE_ERROR": "Não foi possível remover o contato da empresa.",
+          "CREATE_SUCCESS": "Contato criado e vinculado à empresa.",
+          "CREATE_ERROR": "Não foi possível criar o contato."
         }
       },
       "AVATAR": {

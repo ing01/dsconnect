@@ -47,6 +47,7 @@ const props = defineProps({
 const emit = defineEmits([
   'cancelContactSelection',
   'confirmContactSelection',
+  'createContact',
   'removeContact',
   'search',
   'selectContact',
@@ -192,6 +193,15 @@ const handleContactSelect = contactId => {
         class="[&>div>button]:bg-n-alpha-black2"
         @search="handleSearch"
         @update:model-value="handleContactSelect"
+      />
+      <Button
+        variant="link"
+        size="sm"
+        icon="i-lucide-user-round-plus"
+        :label="t('COMPANIES.DETAIL.CONTACTS.ACTIONS.CREATE')"
+        class="self-start !px-0 hover:!no-underline"
+        :disabled="isBusy"
+        @click="emit('createContact')"
       />
     </div>
 

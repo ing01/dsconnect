@@ -268,7 +268,7 @@ watch(
           <div class="flex items-end gap-1">
             <Input
               v-model="form.cnpj"
-              :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.CNPJ')"
+              :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.CNPJ')"
               :disabled="isUpdating"
               custom-input-class="h-8 !pt-1 !pb-1"
               class="flex-1"
@@ -285,19 +285,19 @@ watch(
           </div>
           <Input
             v-model="form.legalName"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.LEGAL_NAME')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.LEGAL_NAME')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
           <Input
             v-model="form.ie"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.IE')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.IE')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
           <Input
             v-model="form.im"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.IM')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.IM')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
@@ -320,25 +320,25 @@ watch(
         <div class="grid w-full gap-4 sm:grid-cols-2">
           <Input
             v-model="form.addressZipCode"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_ZIP_CODE')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_ZIP_CODE')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
           <Input
             v-model="form.addressStreet"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_STREET')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_STREET')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
           <Input
             v-model="form.addressNumber"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_NUMBER')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_NUMBER')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
           <Input
             v-model="form.addressComplement"
-            :placeholder="
+            :label="
               t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_COMPLEMENT')
             "
             :disabled="isUpdating"
@@ -346,7 +346,7 @@ watch(
           />
           <Input
             v-model="form.addressNeighborhood"
-            :placeholder="
+            :label="
               t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_NEIGHBORHOOD')
             "
             :disabled="isUpdating"
@@ -354,13 +354,13 @@ watch(
           />
           <Input
             v-model="form.addressCity"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_CITY')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_CITY')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
           <Input
             v-model="form.addressState"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_STATE')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_STATE')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />

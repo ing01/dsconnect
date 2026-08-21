@@ -3,6 +3,11 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
+import { useStore } from 'dashboard/composables/store';
+import {
+  DuplicateContactException,
+  ExceptionWithMessage,
+} from 'shared/helpers/CustomErrors';
 
 import Policy from 'dashboard/components/policy.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -18,11 +23,13 @@ import CompanyCredentialFormDialog from 'dashboard/components-next/Companies/Com
 import ConfirmCredentialDeleteDialog from 'dashboard/components-next/Companies/CompanyDetail/ConfirmCredentialDeleteDialog.vue';
 import CompanyProfileCard from 'dashboard/components-next/Companies/CompanyDetail/CompanyProfileCard.vue';
 import ConfirmCompanyDeleteDialog from 'dashboard/components-next/Companies/CompanyDetail/ConfirmCompanyDeleteDialog.vue';
+import CreateNewContactDialog from 'dashboard/components-next/Contacts/ContactsForm/CreateNewContactDialog.vue';
 import { useCompaniesStore } from 'dashboard/stores/companies';
 import { usePolicy } from 'dashboard/composables/usePolicy';
 
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
 const companiesStore = useCompaniesStore();
 const { t } = useI18n();
 const { checkPermissions } = usePolicy();
@@ -34,6 +41,7 @@ const canManageCredentials = computed(() =>
 const confirmDeleteDialogRef = ref(null);
 const credentialFormDialogRef = ref(null);
 const confirmDeleteCredentialDialogRef = ref(null);
+const createContactDialogRef = ref(null);
 const selectedCandidate = ref(null);
 const selectedCredential = ref(null);
 const activeSidebarTab = ref('history');
@@ -208,6 +216,32 @@ const handleRemoveContact = async contactId => {
   }
 };
 
+const openCreateContactDialog = () => {
+  createContactDialogRef.value?.dialogRef.open();
+};
+
+const handleCreateContact = async contact => {
+  try {
+    const created = await store.dispatch('contacts/create', contact);
+    createContactDialogRef.value?.onSuccess();
+    await companiesStore.attachContactToCompany(companyId.value, created.id);
+    useAlert(t('COMPANIES.DETAIL.CONTACTS.MESSAGES.CREATE_SUCCESS'));
+  } catch (error) {
+    if (error instanceof DuplicateContactException) {
+      const i18nPrefix = 'CONTACTS_LAYOUT.HEADER.ACTIONS.CONTACT_CREATION';
+      if (error.data.includes('email')) {
+        useAlert(t(`${i18nPrefix}.EMAIL_ADDRESS_DUPLICATE`));
+      } else if (error.data.includes('phone_number')) {
+        useAlert(t(`${i18nPrefix}.PHONE_NUMBER_DUPLICATE`));
+      }
+    } else if (error instanceof ExceptionWithMessage) {
+      useAlert(error.data);
+    } else {
+      useAlert(t('COMPANIES.DETAIL.CONTACTS.MESSAGES.CREATE_ERROR'));
+    }
+  }
+};
+
 const openAddCredentialDialog = () => {
   credentialFormDialogRef.value?.open();
 };
@@ -372,6 +406,7 @@ onBeforeUnmount(() => {
         :selected-contact="selectedCandidate"
         @cancel-contact-selection="clearSelectedCandidate"
         @confirm-contact-selection="handleConfirmContactSelection"
+        @create-contact="openCreateContactDialog"
         @search="handleContactSearch"
         @select-contact="contact => (selectedCandidate = contact)"
         @remove-contact="handleRemoveContact"
@@ -397,6 +432,10 @@ onBeforeUnmount(() => {
       :company="company"
       :is-loading="isDeletingCompany"
       @confirm="handleDeleteCompany"
+    />
+    <CreateNewContactDialog
+      ref="createContactDialogRef"
+      @create="handleCreateContact"
     />
     <CompanyCredentialFormDialog
       v-if="canManageCredentials"

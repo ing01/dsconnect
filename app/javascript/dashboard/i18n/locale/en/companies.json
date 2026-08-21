@@ -131,6 +131,7 @@
         "UNNAMED_CONTACT": "Unnamed contact",
         "ACTIONS": {
           "ADD": "Add contact",
+          "CREATE": "Create new contact",
           "REMOVE": "Remove contact"
         },
         "DIALOGS": {
@@ -154,7 +155,9 @@
           "REASSIGN_SUCCESS": "Contact reassigned to company.",
           "REASSIGN_ERROR": "Could not reassign contact to company.",
           "REMOVE_SUCCESS": "Contact removed from company.",
-          "REMOVE_ERROR": "Could not remove contact from company."
+          "REMOVE_ERROR": "Could not remove contact from company.",
+          "CREATE_SUCCESS": "Contact created and linked to company.",
+          "CREATE_ERROR": "Could not create the contact."
         }
       },
       "AVATAR": {

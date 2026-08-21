@@ -166,7 +166,7 @@ defineExpose({ dialogRef, onSuccess, open });
         <div class="flex items-end w-full gap-1">
           <Input
             v-model="form.cnpj"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.CNPJ')"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.CNPJ')"
             :disabled="isLoading"
             custom-input-class="h-8 !pt-1 !pb-1 [&:not(.error,.focus)]:!outline-transparent"
             class="flex-1"
