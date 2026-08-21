@@ -113,6 +113,9 @@ pt_BR:
     companies:
       domain:
         invalid: deve ser um nome de domínio válido
+      cnpj:
+        invalid: deve ser um CNPJ válido
+        lookup_failed: Não foi possível encontrar dados para este CNPJ
       search:
         query_missing: Especifique a string de busca com o parâmetro q
     messages:

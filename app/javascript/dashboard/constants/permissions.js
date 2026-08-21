@@ -5,7 +5,10 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'contact_manage',
   'report_manage',
   'knowledge_base_manage',
+  'client_credentials_manage',
 ];
+
+export const CLIENT_CREDENTIALS_PERMISSIONS = 'client_credentials_manage';
 
 export const ROLES = ['agent', 'administrator'];
 

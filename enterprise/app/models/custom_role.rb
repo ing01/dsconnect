@@ -23,6 +23,7 @@
 # - 'contact_manage': Can manage contacts.
 # - 'report_manage': Can manage reports.
 # - 'knowledge_base_manage': Can manage knowledge base portals.
+# - 'client_credentials_manage': Can view and manage sensitive client access credentials (DB/AnyDesk/RDP) on companies.
 
 class CustomRole < ApplicationRecord
   belongs_to :account
@@ -39,6 +40,7 @@ class CustomRole < ApplicationRecord
     contact_manage
     report_manage
     knowledge_base_manage
+    client_credentials_manage
   ].freeze
 
   validates :name, presence: true

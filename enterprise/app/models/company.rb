@@ -34,10 +34,14 @@ class Company < ApplicationRecord
   validates :domain, uniqueness: { scope: :account_id }, if: -> { domain.present? }
   validates :description, length: { maximum: Limits::COMPANY_DESCRIPTION_LENGTH_LIMIT }
   validates :custom_attributes, jsonb_attributes_length: true
+  validates :cnpj, uniqueness: { scope: :account_id }, if: -> { cnpj.present? }
+  validate :validate_cnpj_checksum, if: -> { cnpj.present? }
 
   belongs_to :account
   has_many :contacts, dependent: :nullify
+  has_many :company_credentials, dependent: :destroy
   before_validation :prepare_jsonb_attributes
+  before_validation :normalize_cnpj
   after_create_commit :fetch_favicon, if: -> { domain.present? }
   after_update_commit :enqueue_contact_company_name_sync, if: :saved_change_to_name?
 
@@ -67,11 +71,43 @@ class Company < ApplicationRecord
     update!(last_activity_at: activity_at)
   end
 
+  def tickets
+    Ticket.joins(conversations: :contact).where(contacts: { company_id: id }).distinct
+  end
+
   private
+
+  CNPJ_FIRST_DIGIT_WEIGHTS = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2].freeze
+  CNPJ_SECOND_DIGIT_WEIGHTS = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2].freeze
 
   def prepare_jsonb_attributes
     self.additional_attributes = {} unless additional_attributes.is_a?(Hash)
     self.custom_attributes = {} unless custom_attributes.is_a?(Hash)
+  end
+
+  def normalize_cnpj
+    self.cnpj = cnpj.gsub(/\D/, '') if cnpj.present?
+    self.cnpj = nil if cnpj.blank?
+  end
+
+  def validate_cnpj_checksum
+    errors.add(:cnpj, :invalid) unless valid_cnpj_checksum?(cnpj)
+  end
+
+  def valid_cnpj_checksum?(value)
+    return false unless value.match?(/\A\d{14}\z/)
+    return false if value.chars.uniq.length == 1
+
+    digits = value.chars.map(&:to_i)
+    first_check_digit = cnpj_check_digit(digits[0..11], CNPJ_FIRST_DIGIT_WEIGHTS)
+    second_check_digit = cnpj_check_digit(digits[0..11] + [first_check_digit], CNPJ_SECOND_DIGIT_WEIGHTS)
+
+    digits[12] == first_check_digit && digits[13] == second_check_digit
+  end
+
+  def cnpj_check_digit(digits, weights)
+    remainder = digits.each_with_index.sum { |digit, index| digit * weights[index] } % 11
+    remainder < 2 ? 0 : 11 - remainder
   end
 
   def fetch_favicon

@@ -36,6 +36,34 @@ class CompanyAPI extends ApiClient {
     return axios.get(`${this.url}/${id}/conversations`);
   }
 
+  listTickets(id) {
+    return axios.get(`${this.url}/${id}/tickets`);
+  }
+
+  lookupCnpj(cnpj) {
+    return axios.get(`${this.url}/cnpj_lookup?${buildParams({ cnpj })}`);
+  }
+
+  listCredentials(id) {
+    return axios.get(`${this.url}/${id}/credentials`);
+  }
+
+  createCredential(id, payload) {
+    return axios.post(`${this.url}/${id}/credentials`, {
+      company_credential: payload,
+    });
+  }
+
+  updateCredential(id, credentialId, payload) {
+    return axios.patch(`${this.url}/${id}/credentials/${credentialId}`, {
+      company_credential: payload,
+    });
+  }
+
+  removeCredential(id, credentialId) {
+    return axios.delete(`${this.url}/${id}/credentials/${credentialId}`);
+  }
+
   searchContacts(id, query = '', page = 1) {
     const requestURL = `${this.url}/${id}/contacts/search?${buildParams({ q: query, page })}`;
     return axios.get(requestURL);

@@ -130,6 +130,9 @@ en:
     companies:
       domain:
         invalid: must be a valid domain name
+      cnpj:
+        invalid: must be a valid CNPJ
+        lookup_failed: Could not find company data for this CNPJ
       search:
         query_missing: Specify search string with parameter q
     messages:

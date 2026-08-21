@@ -15,6 +15,12 @@ const createInitialUIFlags = () => ({
   fetchingContacts: false,
   fetchingConversations: false,
   fetchingNotes: false,
+  fetchingTickets: false,
+  fetchingCredentials: false,
+  creatingCredential: false,
+  updatingCredential: false,
+  deletingCredential: false,
+  lookingUpCnpj: false,
   searchingContacts: false,
   creatingContact: false,
   removingContact: false,
@@ -75,6 +81,8 @@ export const useCompaniesStore = createStore({
     companyContactsMeta: {},
     companyConversations: [],
     companyNotes: [],
+    companyTickets: [],
+    companyCredentials: [],
     contactSearchResults: [],
     contactSearchMeta: {},
     activeContactSearchQuery: '',
@@ -350,6 +358,138 @@ export const useCompaniesStore = createStore({
       }
     },
 
+    async getCompanyTickets(companyId) {
+      this.setUIFlag({ fetchingTickets: true });
+      this.ensureActiveCompanyContext(companyId);
+      const activeCompanyId = Number(companyId);
+      const requestToken = (this.companyTicketsRequestToken || 0) + 1;
+      this.companyTicketsRequestToken = requestToken;
+
+      try {
+        const {
+          data: { payload },
+        } = await CompanyAPI.listTickets(companyId);
+        const tickets = camelcaseKeys(payload || [], { deep: true });
+
+        if (
+          this.companyTicketsRequestToken !== requestToken ||
+          this.activeCompanyId !== activeCompanyId
+        ) {
+          return tickets;
+        }
+
+        this.companyTickets = tickets;
+        return tickets;
+      } catch (error) {
+        return throwErrorMessage(error);
+      } finally {
+        if (this.companyTicketsRequestToken === requestToken) {
+          this.setUIFlag({ fetchingTickets: false });
+        }
+      }
+    },
+
+    async lookupCnpj(cnpj) {
+      this.setUIFlag({ lookingUpCnpj: true });
+      try {
+        const { data } = await CompanyAPI.lookupCnpj(cnpj);
+        return camelcaseKeys(data || {}, { deep: true });
+      } catch (error) {
+        return throwErrorMessage(error);
+      } finally {
+        this.setUIFlag({ lookingUpCnpj: false });
+      }
+    },
+
+    async getCompanyCredentials(companyId) {
+      this.setUIFlag({ fetchingCredentials: true });
+      this.ensureActiveCompanyContext(companyId);
+      const activeCompanyId = Number(companyId);
+      const requestToken = (this.companyCredentialsRequestToken || 0) + 1;
+      this.companyCredentialsRequestToken = requestToken;
+
+      try {
+        const {
+          data: { payload },
+        } = await CompanyAPI.listCredentials(companyId);
+        const credentials = camelcaseKeys(payload || [], { deep: true });
+
+        if (
+          this.companyCredentialsRequestToken !== requestToken ||
+          this.activeCompanyId !== activeCompanyId
+        ) {
+          return credentials;
+        }
+
+        this.companyCredentials = credentials;
+        return credentials;
+      } catch (error) {
+        return throwErrorMessage(error);
+      } finally {
+        if (this.companyCredentialsRequestToken === requestToken) {
+          this.setUIFlag({ fetchingCredentials: false });
+        }
+      }
+    },
+
+    async createCredential(companyId, payload) {
+      this.setUIFlag({ creatingCredential: true });
+      try {
+        const {
+          data: { payload: created },
+        } = await CompanyAPI.createCredential(
+          companyId,
+          snakecaseKeys(payload)
+        );
+        const credential = camelcaseKeys(created, { deep: true });
+        this.companyCredentials.push(credential);
+        return credential;
+      } catch (error) {
+        return throwErrorMessage(error);
+      } finally {
+        this.setUIFlag({ creatingCredential: false });
+      }
+    },
+
+    async updateCredential(companyId, credentialId, payload) {
+      this.setUIFlag({ updatingCredential: true });
+      try {
+        const {
+          data: { payload: updated },
+        } = await CompanyAPI.updateCredential(
+          companyId,
+          credentialId,
+          snakecaseKeys(payload)
+        );
+        const credential = camelcaseKeys(updated, { deep: true });
+        const index = this.companyCredentials.findIndex(
+          c => c.id === credential.id
+        );
+        if (index === -1) this.companyCredentials.push(credential);
+        else this.companyCredentials[index] = credential;
+        return credential;
+      } catch (error) {
+        return throwErrorMessage(error);
+      } finally {
+        this.setUIFlag({ updatingCredential: false });
+      }
+    },
+
+    async deleteCredential(companyId, credentialId) {
+      this.setUIFlag({ deletingCredential: true });
+      try {
+        await CompanyAPI.removeCredential(companyId, credentialId);
+        this.companyCredentials = this.companyCredentials.filter(
+          c => c.id !== Number(credentialId)
+        );
+        return Number(credentialId);
+      } catch (error) {
+        return throwErrorMessage(error);
+      } finally {
+        this.setUIFlag({ deletingCredential: false });
+      }
+    },
+
     async searchCompanyContactCandidates({ companyId, search, page = 1 }) {
       const query = search?.trim() || '';
       if (!query) {
@@ -462,12 +602,18 @@ export const useCompaniesStore = createStore({
       this.companyConversationsRequestToken =
         (this.companyConversationsRequestToken || 0) + 1;
       this.companyNotesRequestToken = (this.companyNotesRequestToken || 0) + 1;
+      this.companyTicketsRequestToken =
+        (this.companyTicketsRequestToken || 0) + 1;
+      this.companyCredentialsRequestToken =
+        (this.companyCredentialsRequestToken || 0) + 1;
       this.contactSearchRequestToken =
         (this.contactSearchRequestToken || 0) + 1;
       this.companyContacts = [];
       this.companyContactsMeta = {};
       this.companyConversations = [];
       this.companyNotes = [];
+      this.companyTickets = [];
+      this.companyCredentials = [];
       this.contactSearchResults = [];
       this.contactSearchMeta = {};
       this.activeContactSearchQuery = '';

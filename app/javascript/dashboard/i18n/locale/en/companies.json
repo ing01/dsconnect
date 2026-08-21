@@ -50,11 +50,65 @@
           "ATTRIBUTES": "Attributes",
           "CONTACTS": "Contacts",
           "HISTORY": "History",
-          "NOTES": "Notes"
+          "NOTES": "Notes",
+          "TICKETS": "Tickets",
+          "CREDENTIALS": "Credentials"
         }
       },
       "HISTORY": {
         "EMPTY": "No conversations found for this company's contacts yet."
+      },
+      "TICKETS": {
+        "LOADING": "Loading tickets...",
+        "EMPTY": "No tickets linked to this client's conversations yet."
+      },
+      "CREDENTIALS": {
+        "LOADING": "Loading credentials...",
+        "EMPTY": "No access credentials registered for this client yet.",
+        "RESTRICTED": "You don't have permission to view this client's access credentials. Ask an administrator for access.",
+        "ACTIONS": {
+          "ADD": "Add credentials",
+          "EDIT": "Edit",
+          "DELETE": "Delete",
+          "REVEAL": "Show",
+          "HIDE": "Hide"
+        },
+        "FORM": {
+          "ADD_TITLE": "Add access credentials",
+          "EDIT_TITLE": "Edit access credentials",
+          "LABEL": { "LABEL": "Label", "PLACEHOLDER": "e.g. Production server" },
+          "SECTION_DB": "Database",
+          "DB_TYPE": { "LABEL": "Database type" },
+          "DB_NAME": { "LABEL": "Database name" },
+          "DB_HOST": { "LABEL": "Host" },
+          "DB_PORT": { "LABEL": "Port" },
+          "DB_USERNAME": { "LABEL": "Username" },
+          "DB_PASSWORD": { "LABEL": "Password" },
+          "SECTION_ANYDESK": "AnyDesk",
+          "ANYDESK_ID": { "LABEL": "AnyDesk ID" },
+          "ANYDESK_PASSWORD": { "LABEL": "AnyDesk password" },
+          "SECTION_RDP": "RDP",
+          "RDP_ADDRESS": { "LABEL": "RDP address" },
+          "RDP_USERNAME": { "LABEL": "RDP username" },
+          "RDP_PASSWORD": { "LABEL": "RDP password" },
+          "NOTES": { "LABEL": "Notes" },
+          "SAVE": "Save",
+          "CANCEL": "Cancel"
+        },
+        "DELETE": {
+          "TITLE": "Delete credentials?",
+          "DESCRIPTION": "This will permanently remove these access credentials.",
+          "CONFIRM": "Delete",
+          "CANCEL": "Cancel"
+        },
+        "MESSAGES": {
+          "CREATE_SUCCESS": "Credentials added.",
+          "CREATE_ERROR": "Could not add credentials.",
+          "UPDATE_SUCCESS": "Credentials updated.",
+          "UPDATE_ERROR": "Could not update credentials.",
+          "DELETE_SUCCESS": "Credentials removed.",
+          "DELETE_ERROR": "Could not remove credentials."
+        }
       },
       "NOTES": {
         "EMPTY": "No notes found for this company's contacts yet."
@@ -123,8 +177,30 @@
           "UPDATE_ERROR": "Could not update the company."
         },
         "FIELDS": {
-          "NAME": "Name",
-          "DOMAIN": "Domain"
+          "NAME": "Trade name",
+          "DOMAIN": "Domain",
+          "LEGAL_NAME": "Legal name (Razão Social)",
+          "CNPJ": "CNPJ",
+          "IE": "State registration (IE)",
+          "IM": "Municipal registration (IM)",
+          "ADDRESS_ZIP_CODE": "ZIP code",
+          "ADDRESS_STREET": "Street",
+          "ADDRESS_NUMBER": "Number",
+          "ADDRESS_COMPLEMENT": "Complement",
+          "ADDRESS_NEIGHBORHOOD": "Neighborhood",
+          "ADDRESS_CITY": "City",
+          "ADDRESS_STATE": "State"
+        },
+        "CNPJ_LOOKUP": {
+          "BUTTON": "Look up",
+          "LOADING": "Looking up CNPJ...",
+          "SUCCESS": "Company data found and filled in below.",
+          "ERROR": "Could not find company data for this CNPJ.",
+          "INACTIVE_WARNING": "Heads up: this CNPJ is registered as inactive with Receita Federal."
+        },
+        "SECTIONS": {
+          "FISCAL": "Fiscal information",
+          "ADDRESS": "Address"
         }
       },
       "DELETE": {

@@ -12,17 +12,30 @@ import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import CompanyContactsSidebar from 'dashboard/components-next/Companies/CompanyDetail/CompanyContactsSidebar.vue';
 import CompanyHistorySidebar from 'dashboard/components-next/Companies/CompanyDetail/CompanyHistorySidebar.vue';
 import CompanyNotesSidebar from 'dashboard/components-next/Companies/CompanyDetail/CompanyNotesSidebar.vue';
+import CompanyTicketsSidebar from 'dashboard/components-next/Companies/CompanyDetail/CompanyTicketsSidebar.vue';
+import CompanyCredentialsSidebar from 'dashboard/components-next/Companies/CompanyDetail/CompanyCredentialsSidebar.vue';
+import CompanyCredentialFormDialog from 'dashboard/components-next/Companies/CompanyDetail/CompanyCredentialFormDialog.vue';
+import ConfirmCredentialDeleteDialog from 'dashboard/components-next/Companies/CompanyDetail/ConfirmCredentialDeleteDialog.vue';
 import CompanyProfileCard from 'dashboard/components-next/Companies/CompanyDetail/CompanyProfileCard.vue';
 import ConfirmCompanyDeleteDialog from 'dashboard/components-next/Companies/CompanyDetail/ConfirmCompanyDeleteDialog.vue';
 import { useCompaniesStore } from 'dashboard/stores/companies';
+import { usePolicy } from 'dashboard/composables/usePolicy';
 
 const route = useRoute();
 const router = useRouter();
 const companiesStore = useCompaniesStore();
 const { t } = useI18n();
+const { checkPermissions } = usePolicy();
+
+const canManageCredentials = computed(() =>
+  checkPermissions(['administrator', 'client_credentials_manage'])
+);
 
 const confirmDeleteDialogRef = ref(null);
+const credentialFormDialogRef = ref(null);
+const confirmDeleteCredentialDialogRef = ref(null);
 const selectedCandidate = ref(null);
+const selectedCredential = ref(null);
 const activeSidebarTab = ref('history');
 
 const companyId = computed(() => Number(route.params.companyId));
@@ -33,6 +46,10 @@ const companyConversations = computed(
   () => companiesStore.companyConversations || []
 );
 const companyNotes = computed(() => companiesStore.companyNotes || []);
+const companyTickets = computed(() => companiesStore.companyTickets || []);
+const companyCredentials = computed(
+  () => companiesStore.companyCredentials || []
+);
 const contactSearchResults = computed(
   () => companiesStore.contactSearchResults
 );
@@ -44,6 +61,14 @@ const isFetchingConversations = computed(
   () => uiFlags.value.fetchingConversations
 );
 const isFetchingNotes = computed(() => uiFlags.value.fetchingNotes);
+const isFetchingTickets = computed(() => uiFlags.value.fetchingTickets);
+const isFetchingCredentials = computed(
+  () => uiFlags.value.fetchingCredentials
+);
+const isSavingCredential = computed(
+  () => uiFlags.value.creatingCredential || uiFlags.value.updatingCredential
+);
+const isDeletingCredential = computed(() => uiFlags.value.deletingCredential);
 const isSearchingContacts = computed(() => uiFlags.value.searchingContacts);
 const isManagingContacts = computed(
   () => uiFlags.value.creatingContact || uiFlags.value.removingContact
@@ -62,25 +87,31 @@ const breadcrumbItems = computed(() => [
     : []),
 ]);
 
-const SIDEBAR_TABS_OPTIONS = [
+const sidebarTabOptions = computed(() => [
   { key: 'HISTORY', value: 'history' },
   { key: 'NOTES', value: 'notes' },
   { key: 'CONTACTS', value: 'contacts' },
-];
+  { key: 'TICKETS', value: 'tickets' },
+  ...(canManageCredentials.value
+    ? [{ key: 'CREDENTIALS', value: 'credentials' }]
+    : []),
+]);
 
 const sidebarTabs = computed(() =>
-  SIDEBAR_TABS_OPTIONS.map(tab => ({
+  sidebarTabOptions.value.map(tab => ({
     label: {
       notes: t('COMPANIES.DETAIL.SIDEBAR.TABS.NOTES'),
       history: t('COMPANIES.DETAIL.SIDEBAR.TABS.HISTORY'),
       contacts: `${t('COMPANIES.DETAIL.SIDEBAR.TABS.CONTACTS')} (${Number(companyContactsMeta.value.totalCount || 0)})`,
+      tickets: t('COMPANIES.DETAIL.SIDEBAR.TABS.TICKETS'),
+      credentials: t('COMPANIES.DETAIL.SIDEBAR.TABS.CREDENTIALS'),
     }[tab.value],
     value: tab.value,
   }))
 );
 
 const activeSidebarTabIndex = computed(() =>
-  SIDEBAR_TABS_OPTIONS.findIndex(tab => tab.value === activeSidebarTab.value)
+  sidebarTabOptions.value.findIndex(tab => tab.value === activeSidebarTab.value)
 );
 
 const goToCompaniesIndex = () => {
@@ -117,6 +148,10 @@ const loadSidebarTab = tab => {
   if (tab === 'notes') companiesStore.getCompanyNotes(companyId.value);
   if (tab === 'history') {
     companiesStore.getCompanyConversations(companyId.value);
+  }
+  if (tab === 'tickets') companiesStore.getCompanyTickets(companyId.value);
+  if (tab === 'credentials' && canManageCredentials.value) {
+    companiesStore.getCompanyCredentials(companyId.value);
   }
 };
 
@@ -170,6 +205,55 @@ const handleRemoveContact = async contactId => {
     useAlert(t('COMPANIES.DETAIL.CONTACTS.MESSAGES.REMOVE_SUCCESS'));
   } catch {
     useAlert(t('COMPANIES.DETAIL.CONTACTS.MESSAGES.REMOVE_ERROR'));
+  }
+};
+
+const openAddCredentialDialog = () => {
+  credentialFormDialogRef.value?.open();
+};
+
+const openEditCredentialDialog = credential => {
+  credentialFormDialogRef.value?.open(credential);
+};
+
+const handleCreateCredential = async payload => {
+  try {
+    await companiesStore.createCredential(companyId.value, payload);
+    useAlert(t('COMPANIES.DETAIL.CREDENTIALS.MESSAGES.CREATE_SUCCESS'));
+    credentialFormDialogRef.value?.onSuccess();
+  } catch {
+    useAlert(t('COMPANIES.DETAIL.CREDENTIALS.MESSAGES.CREATE_ERROR'));
+  }
+};
+
+const handleUpdateCredential = async ({ id, payload }) => {
+  try {
+    await companiesStore.updateCredential(companyId.value, id, payload);
+    useAlert(t('COMPANIES.DETAIL.CREDENTIALS.MESSAGES.UPDATE_SUCCESS'));
+    credentialFormDialogRef.value?.onSuccess();
+  } catch {
+    useAlert(t('COMPANIES.DETAIL.CREDENTIALS.MESSAGES.UPDATE_ERROR'));
+  }
+};
+
+const openDeleteCredentialDialog = credential => {
+  selectedCredential.value = credential;
+  confirmDeleteCredentialDialogRef.value?.dialogRef.open();
+};
+
+const handleDeleteCredential = async () => {
+  if (!selectedCredential.value) return;
+
+  try {
+    await companiesStore.deleteCredential(
+      companyId.value,
+      selectedCredential.value.id
+    );
+    useAlert(t('COMPANIES.DETAIL.CREDENTIALS.MESSAGES.DELETE_SUCCESS'));
+    confirmDeleteCredentialDialogRef.value?.dialogRef.close();
+    selectedCredential.value = null;
+  } catch {
+    useAlert(t('COMPANIES.DETAIL.CREDENTIALS.MESSAGES.DELETE_ERROR'));
   }
 };
 
@@ -293,6 +377,19 @@ onBeforeUnmount(() => {
         @remove-contact="handleRemoveContact"
         @update:current-page="loadCompanyContactsPage"
       />
+      <CompanyTicketsSidebar
+        v-if="activeSidebarTab === 'tickets'"
+        :tickets="companyTickets"
+        :is-loading="isFetchingTickets"
+      />
+      <CompanyCredentialsSidebar
+        v-if="activeSidebarTab === 'credentials' && canManageCredentials"
+        :credentials="companyCredentials"
+        :is-loading="isFetchingCredentials"
+        @add="openAddCredentialDialog"
+        @edit="openEditCredentialDialog"
+        @delete="openDeleteCredentialDialog"
+      />
     </template>
 
     <ConfirmCompanyDeleteDialog
@@ -300,6 +397,19 @@ onBeforeUnmount(() => {
       :company="company"
       :is-loading="isDeletingCompany"
       @confirm="handleDeleteCompany"
+    />
+    <CompanyCredentialFormDialog
+      v-if="canManageCredentials"
+      ref="credentialFormDialogRef"
+      :is-loading="isSavingCredential"
+      @create="handleCreateCredential"
+      @update="handleUpdateCredential"
+    />
+    <ConfirmCredentialDeleteDialog
+      v-if="canManageCredentials"
+      ref="confirmDeleteCredentialDialogRef"
+      :is-loading="isDeletingCredential"
+      @confirm="handleDeleteCredential"
     />
   </CompaniesDetailsLayout>
 </template>

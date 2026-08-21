@@ -219,6 +219,11 @@ Rails.application.routes.draw do
               end
               resources :conversations, only: [:index]
               resources :notes, only: [:index]
+              resources :tickets, only: [:index]
+              resources :credentials, only: [:index, :show, :create, :update, :destroy]
+            end
+            collection do
+              get :cnpj_lookup
             end
           end
           resources :contacts, only: [:index, :show, :update, :create, :destroy] do

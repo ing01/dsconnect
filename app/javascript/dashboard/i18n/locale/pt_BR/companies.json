@@ -50,11 +50,65 @@
           "ATTRIBUTES": "Atributos",
           "CONTACTS": "Contatos",
           "HISTORY": "Histórico",
-          "NOTES": "Notas"
+          "NOTES": "Notas",
+          "TICKETS": "Tickets",
+          "CREDENTIALS": "Credenciais"
         }
       },
       "HISTORY": {
         "EMPTY": "Nenhuma conversa encontrada para os contatos desta empresa ainda."
+      },
+      "TICKETS": {
+        "LOADING": "Carregando tickets...",
+        "EMPTY": "Nenhum ticket vinculado às conversas deste cliente ainda."
+      },
+      "CREDENTIALS": {
+        "LOADING": "Carregando credenciais...",
+        "EMPTY": "Nenhuma credencial de acesso cadastrada para este cliente ainda.",
+        "RESTRICTED": "Você não tem permissão para ver as credenciais de acesso deste cliente. Peça acesso a um administrador.",
+        "ACTIONS": {
+          "ADD": "Adicionar credenciais",
+          "EDIT": "Editar",
+          "DELETE": "Excluir",
+          "REVEAL": "Mostrar",
+          "HIDE": "Ocultar"
+        },
+        "FORM": {
+          "ADD_TITLE": "Adicionar credenciais de acesso",
+          "EDIT_TITLE": "Editar credenciais de acesso",
+          "LABEL": { "LABEL": "Rótulo", "PLACEHOLDER": "Ex.: Servidor de produção" },
+          "SECTION_DB": "Banco de dados",
+          "DB_TYPE": { "LABEL": "Tipo do banco" },
+          "DB_NAME": { "LABEL": "Nome do banco" },
+          "DB_HOST": { "LABEL": "Host" },
+          "DB_PORT": { "LABEL": "Porta" },
+          "DB_USERNAME": { "LABEL": "Usuário" },
+          "DB_PASSWORD": { "LABEL": "Senha" },
+          "SECTION_ANYDESK": "AnyDesk",
+          "ANYDESK_ID": { "LABEL": "ID do AnyDesk" },
+          "ANYDESK_PASSWORD": { "LABEL": "Senha do AnyDesk" },
+          "SECTION_RDP": "RDP",
+          "RDP_ADDRESS": { "LABEL": "Endereço do RDP" },
+          "RDP_USERNAME": { "LABEL": "Usuário do RDP" },
+          "RDP_PASSWORD": { "LABEL": "Senha do RDP" },
+          "NOTES": { "LABEL": "Observações" },
+          "SAVE": "Salvar",
+          "CANCEL": "Cancelar"
+        },
+        "DELETE": {
+          "TITLE": "Excluir credenciais?",
+          "DESCRIPTION": "Isso removerá permanentemente estas credenciais de acesso.",
+          "CONFIRM": "Excluir",
+          "CANCEL": "Cancelar"
+        },
+        "MESSAGES": {
+          "CREATE_SUCCESS": "Credenciais adicionadas.",
+          "CREATE_ERROR": "Não foi possível adicionar as credenciais.",
+          "UPDATE_SUCCESS": "Credenciais atualizadas.",
+          "UPDATE_ERROR": "Não foi possível atualizar as credenciais.",
+          "DELETE_SUCCESS": "Credenciais removidas.",
+          "DELETE_ERROR": "Não foi possível remover as credenciais."
+        }
       },
       "NOTES": {
         "EMPTY": "Nenhuma nota encontrada para os contatos desta empresa ainda."
@@ -123,8 +177,30 @@
           "UPDATE_ERROR": "Não foi possível atualizar a empresa."
         },
         "FIELDS": {
-          "NAME": "Nome",
-          "DOMAIN": "Domínio"
+          "NAME": "Nome fantasia",
+          "DOMAIN": "Domínio",
+          "LEGAL_NAME": "Razão social",
+          "CNPJ": "CNPJ",
+          "IE": "Inscrição estadual (IE)",
+          "IM": "Inscrição municipal (IM)",
+          "ADDRESS_ZIP_CODE": "CEP",
+          "ADDRESS_STREET": "Rua",
+          "ADDRESS_NUMBER": "Número",
+          "ADDRESS_COMPLEMENT": "Complemento",
+          "ADDRESS_NEIGHBORHOOD": "Bairro",
+          "ADDRESS_CITY": "Cidade",
+          "ADDRESS_STATE": "Estado"
+        },
+        "CNPJ_LOOKUP": {
+          "BUTTON": "Buscar",
+          "LOADING": "Buscando CNPJ...",
+          "SUCCESS": "Dados da empresa encontrados e preenchidos abaixo.",
+          "ERROR": "Não foi possível encontrar dados para este CNPJ.",
+          "INACTIVE_WARNING": "Atenção: este CNPJ está cadastrado como inativo na Receita Federal."
+        },
+        "SECTIONS": {
+          "FISCAL": "Dados fiscais",
+          "ADDRESS": "Endereço"
         }
       },
       "DELETE": {

@@ -7,6 +7,10 @@ class CompanyPolicy < ApplicationPolicy
     true
   end
 
+  def cnpj_lookup?
+    true
+  end
+
   def show?
     true
   end

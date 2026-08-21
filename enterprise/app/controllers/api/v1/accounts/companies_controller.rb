@@ -31,6 +31,13 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
 
   def show; end
 
+  def cnpj_lookup
+    result = Companies::CnpjLookupService.new(params[:cnpj]).perform
+    return render json: { error: result[:error] }, status: :unprocessable_entity if result[:error].present?
+
+    render json: result[:data]
+  end
+
   def create
     @company = Current.account.companies.build(company_params)
     @company.save!
@@ -89,6 +96,17 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :domain,
       :description,
       :avatar,
+      :legal_name,
+      :cnpj,
+      :ie,
+      :im,
+      :address_zip_code,
+      :address_street,
+      :address_number,
+      :address_complement,
+      :address_neighborhood,
+      :address_city,
+      :address_state,
       additional_attributes: {},
       custom_attributes: {}
     )
