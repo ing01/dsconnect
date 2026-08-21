@@ -1,0 +1,23 @@
+{
+  "MOOD_CHECKIN": {
+    "TITLE": "How are you feeling today?",
+    "SKIP": "Not now",
+    "ERROR": "Could not record your mood. Please try again.",
+    "MOODS": {
+      "GREAT": "Great",
+      "GOOD": "Good",
+      "NEUTRAL": "Neutral",
+      "LOW": "Not great",
+      "BAD": "Bad"
+    }
+  },
+  "MOOD_CHECKINS": {
+    "HEADER": "Team mood",
+    "SUBTITLE": "Track how each team member has been feeling, day by day.",
+    "EMPTY_STATE": "No mood entries found for the selected period and filters.",
+    "FILTERS": {
+      "AGENT": "Agent",
+      "ALL_AGENTS": "All agents"
+    }
+  }
+}

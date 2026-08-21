@@ -29,6 +29,7 @@ import integrations from './integrations.json';
 import labelsMgmt from './labelsMgmt.json';
 import login from './login.json';
 import macros from './macros.json';
+import moodCheckins from './moodCheckins.json';
 import mfa from './mfa.json';
 import onboarding from './onboarding.json';
 import report from './report.json';
@@ -79,6 +80,7 @@ export default {
   ...labelsMgmt,
   ...login,
   ...macros,
+  ...moodCheckins,
   ...mfa,
   ...onboarding,
   ...report,

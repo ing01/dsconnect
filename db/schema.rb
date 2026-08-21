@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_21_090001) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1318,6 +1318,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_090001) do
     t.index ["source_id"], name: "index_messages_on_source_id"
   end
 
+  create_table "mood_entries", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "mood", null: false
+    t.date "entry_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "user_id", "entry_date"], name: "uniq_mood_entry_per_user_per_day", unique: true
+    t.index ["account_id"], name: "index_mood_entries_on_account_id"
+    t.index ["user_id"], name: "index_mood_entries_on_user_id"
+  end
+
   create_table "notes", force: :cascade do |t|
     t.text "content", null: false
     t.bigint "account_id", null: false
@@ -1712,6 +1724,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_090001) do
   add_foreign_key "company_system_modules", "companies"
   add_foreign_key "company_system_modules", "system_modules"
   add_foreign_key "inboxes", "portals"
+  add_foreign_key "mood_entries", "accounts"
+  add_foreign_key "mood_entries", "users"
   add_foreign_key "system_modules", "accounts"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).

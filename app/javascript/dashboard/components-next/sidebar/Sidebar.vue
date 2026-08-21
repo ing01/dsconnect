@@ -670,6 +670,13 @@ const menuItems = computed(() => {
       ],
     },
     {
+      name: 'Mood Checkins',
+      label: t('SIDEBAR.MOOD_CHECKINS'),
+      icon: 'i-lucide-smile',
+      to: accountScopedRoute('mood_checkins_index'),
+      activeOn: ['mood_checkins_index'],
+    },
+    {
       name: 'Reports',
       label: t('SIDEBAR.REPORTS'),
       icon: 'i-lucide-chart-spline',

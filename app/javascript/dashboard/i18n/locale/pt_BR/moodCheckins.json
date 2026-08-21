@@ -1,0 +1,23 @@
+{
+  "MOOD_CHECKIN": {
+    "TITLE": "Como você está se sentindo hoje?",
+    "SKIP": "Agora não",
+    "ERROR": "Não foi possível registrar seu humor. Tente novamente.",
+    "MOODS": {
+      "GREAT": "Ótimo",
+      "GOOD": "Bem",
+      "NEUTRAL": "Neutro",
+      "LOW": "Não muito bem",
+      "BAD": "Mal"
+    }
+  },
+  "MOOD_CHECKINS": {
+    "HEADER": "Humor da equipe",
+    "SUBTITLE": "Acompanhe como cada pessoa da equipe está se sentindo, dia a dia.",
+    "EMPTY_STATE": "Nenhum registro de humor encontrado para o período e filtros selecionados.",
+    "FILTERS": {
+      "AGENT": "Agente",
+      "ALL_AGENTS": "Todos os agentes"
+    }
+  }
+}
