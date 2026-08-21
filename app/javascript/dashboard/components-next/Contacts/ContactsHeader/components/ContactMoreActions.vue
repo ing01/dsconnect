@@ -6,18 +6,12 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 import { usePolicy } from 'dashboard/composables/usePolicy';
 
-const emit = defineEmits(['add', 'import', 'export']);
+const emit = defineEmits(['import', 'export']);
 
 const { t } = useI18n();
 const { checkPermissions } = usePolicy();
 
 const contactMenuItems = computed(() => [
-  {
-    label: t('CONTACTS_LAYOUT.HEADER.ACTIONS.CONTACT_CREATION.ADD_CONTACT'),
-    action: 'add',
-    value: 'add',
-    icon: 'i-lucide-plus',
-  },
   ...(checkPermissions(['administrator', 'contact_manage'])
     ? [
         {
@@ -46,9 +40,7 @@ const contactMenuItems = computed(() => [
 const showActionsDropdown = ref(false);
 
 const handleContactAction = ({ action }) => {
-  if (action === 'add') {
-    emit('add');
-  } else if (action === 'import') {
+  if (action === 'import') {
     emit('import');
   } else if (action === 'export') {
     emit('export');

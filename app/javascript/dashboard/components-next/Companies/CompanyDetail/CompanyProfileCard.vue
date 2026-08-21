@@ -1,6 +1,7 @@
 <script setup>
 import { computed, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { debounce } from '@chatwoot/utils';
 import { useAlert } from 'dashboard/composables';
 import { dynamicTime } from 'shared/helpers/timeHelper';
 
@@ -193,6 +194,15 @@ const handleCnpjLookup = async () => {
     cnpjLookupState.value = 'error';
   }
 };
+
+const debouncedCnpjLookup = debounce(handleCnpjLookup, 400);
+
+watch(
+  () => form.cnpj,
+  value => {
+    if (value.replace(/\D/g, '').length === 14) debouncedCnpjLookup();
+  }
+);
 </script>
 
 <template>

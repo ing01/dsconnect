@@ -1,6 +1,7 @@
 <script setup>
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { debounce } from '@chatwoot/utils';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
@@ -87,6 +88,15 @@ const handleCnpjLookup = async () => {
     cnpjLookupState.value = 'error';
   }
 };
+
+const debouncedCnpjLookup = debounce(handleCnpjLookup, 400);
+
+watch(
+  () => form.cnpj,
+  value => {
+    if (value.replace(/\D/g, '').length === 14) debouncedCnpjLookup();
+  }
+);
 
 const handleConfirm = () => {
   if (isFormInvalid.value) return;

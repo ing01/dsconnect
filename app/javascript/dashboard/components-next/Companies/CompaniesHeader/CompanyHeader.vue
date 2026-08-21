@@ -1,8 +1,11 @@
 <script setup>
+import { useI18n } from 'vue-i18n';
+import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import CompanySortMenu from './components/CompanySortMenu.vue';
-import CompanyMoreActions from './components/CompanyMoreActions.vue';
+
+const { t } = useI18n();
 
 defineProps({
   showSearch: { type: Boolean, default: true },
@@ -49,7 +52,12 @@ const emit = defineEmits(['search', 'update:sort', 'create']);
             :active-ordering="activeOrdering"
             @update:sort="emit('update:sort', $event)"
           />
-          <CompanyMoreActions @create="emit('create')" />
+          <Button
+            icon="i-lucide-plus"
+            size="sm"
+            :label="t('COMPANIES.ACTIONS.CREATE')"
+            @click="emit('create')"
+          />
         </div>
       </div>
     </div>
