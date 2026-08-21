@@ -116,6 +116,7 @@ pt_BR:
       cnpj:
         invalid: deve ser um CNPJ válido
         lookup_failed: Não foi possível encontrar dados para este CNPJ
+        too_many_requests: Muitas buscas de CNPJ agora. Aguarde um instante e tente novamente.
       search:
         query_missing: Especifique a string de busca com o parâmetro q
     messages:

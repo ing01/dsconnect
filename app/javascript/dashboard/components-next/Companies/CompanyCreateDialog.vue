@@ -19,6 +19,7 @@ const { t } = useI18n();
 const companiesStore = useCompaniesStore();
 const dialogRef = ref(null);
 const cnpjLookupState = ref('idle'); // idle | success | error
+const cnpjLookupErrorMessage = ref('');
 
 const form = reactive({
   name: '',
@@ -57,6 +58,7 @@ const resetForm = () => {
   form.addressCity = '';
   form.addressState = '';
   cnpjLookupState.value = 'idle';
+  cnpjLookupErrorMessage.value = '';
 };
 
 const open = (company = {}) => {
@@ -84,7 +86,9 @@ const handleCnpjLookup = async () => {
     form.addressCity = data.addressCity || form.addressCity;
     form.addressState = data.addressState || form.addressState;
     cnpjLookupState.value = 'success';
-  } catch {
+  } catch (error) {
+    cnpjLookupErrorMessage.value =
+      error.message || t('COMPANIES.DETAIL.PROFILE.CNPJ_LOOKUP.ERROR');
     cnpjLookupState.value = 'error';
   }
 };
@@ -166,7 +170,6 @@ defineExpose({ dialogRef, onSuccess, open });
             :disabled="isLoading"
             custom-input-class="h-8 !pt-1 !pb-1 [&:not(.error,.focus)]:!outline-transparent"
             class="flex-1"
-            @blur="handleCnpjLookup"
           />
           <Button
             :label="t('COMPANIES.DETAIL.PROFILE.CNPJ_LOOKUP.BUTTON')"
@@ -185,7 +188,7 @@ defineExpose({ dialogRef, onSuccess, open });
           v-else-if="cnpjLookupState === 'error'"
           class="text-xs text-n-ruby-11"
         >
-          {{ t('COMPANIES.DETAIL.PROFILE.CNPJ_LOOKUP.ERROR') }}
+          {{ cnpjLookupErrorMessage }}
         </p>
       </div>
       <TextArea

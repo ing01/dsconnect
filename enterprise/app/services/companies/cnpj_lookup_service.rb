@@ -14,7 +14,11 @@ class Companies::CnpjLookupService
     return { error: I18n.t('errors.companies.cnpj.invalid') } unless valid_format?
 
     response = fetch_from_provider
-    return { error: I18n.t('errors.companies.cnpj.lookup_failed') } unless response&.success?
+    return { error: too_many_requests_message } if response&.code == 429
+    unless response&.success?
+      Rails.logger.warn("[CNPJ_LOOKUP] non-success response for #{cnpj}: http_status=#{response&.code}")
+      return { error: I18n.t('errors.companies.cnpj.lookup_failed') }
+    end
 
     { data: normalize(response.parsed_response) }
   rescue Net::ReadTimeout, Net::OpenTimeout, HTTParty::Error, SocketError => e
@@ -30,6 +34,10 @@ class Companies::CnpjLookupService
 
   def valid_format?
     cnpj.match?(/\A\d{14}\z/)
+  end
+
+  def too_many_requests_message
+    I18n.t('errors.companies.cnpj.too_many_requests')
   end
 
   def fetch_from_provider

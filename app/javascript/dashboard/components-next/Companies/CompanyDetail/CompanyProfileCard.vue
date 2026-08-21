@@ -52,6 +52,7 @@ const form = reactive({
 const avatarPreviewUrl = ref('');
 const isUploadingAvatar = ref(false);
 const cnpjLookupState = ref('idle'); // idle | success | error
+const cnpjLookupErrorMessage = ref('');
 
 const uiFlags = computed(() => companiesStore.getUIFlags);
 const isUpdating = computed(() => uiFlags.value.updatingItem);
@@ -102,6 +103,7 @@ const syncForm = company => {
     form[field] = company?.[field] || '';
   });
   cnpjLookupState.value = 'idle';
+  cnpjLookupErrorMessage.value = '';
 };
 
 const isCurrentCompany = companyId => Number(props.company?.id) === companyId;
@@ -190,7 +192,9 @@ const handleCnpjLookup = async () => {
     form.addressCity = data.addressCity || form.addressCity;
     form.addressState = data.addressState || form.addressState;
     cnpjLookupState.value = 'success';
-  } catch {
+  } catch (error) {
+    cnpjLookupErrorMessage.value =
+      error.message || t('COMPANIES.DETAIL.PROFILE.CNPJ_LOOKUP.ERROR');
     cnpjLookupState.value = 'error';
   }
 };
@@ -268,7 +272,6 @@ watch(
               :disabled="isUpdating"
               custom-input-class="h-8 !pt-1 !pb-1"
               class="flex-1"
-              @blur="handleCnpjLookup"
             />
             <Button
               :label="t('COMPANIES.DETAIL.PROFILE.CNPJ_LOOKUP.BUTTON')"
@@ -306,7 +309,7 @@ watch(
           {{ t('COMPANIES.DETAIL.PROFILE.CNPJ_LOOKUP.SUCCESS') }}
         </p>
         <p v-else-if="cnpjLookupState === 'error'" class="text-xs text-n-ruby-11">
-          {{ t('COMPANIES.DETAIL.PROFILE.CNPJ_LOOKUP.ERROR') }}
+          {{ cnpjLookupErrorMessage }}
         </p>
       </div>
 

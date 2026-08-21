@@ -133,6 +133,7 @@ en:
       cnpj:
         invalid: must be a valid CNPJ
         lookup_failed: Could not find company data for this CNPJ
+        too_many_requests: Too many CNPJ lookups right now. Please wait a moment and try again.
       search:
         query_missing: Specify search string with parameter q
     messages:
