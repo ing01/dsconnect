@@ -226,6 +226,7 @@ Rails.application.routes.draw do
               get :cnpj_lookup
             end
           end
+          resources :system_modules, only: [:index, :create]
           resources :contacts, only: [:index, :show, :update, :create, :destroy] do
             collection do
               get :active

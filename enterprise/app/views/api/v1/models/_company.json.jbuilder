@@ -16,6 +16,12 @@ json.address_complement resource.address_complement
 json.address_neighborhood resource.address_neighborhood
 json.address_city resource.address_city
 json.address_state resource.address_state
+json.billing_type resource.billing_type
+json.billing_amount resource.billing_amount
+json.implementation_fee resource.implementation_fee
+json.license_expires_on resource.license_expires_on
+json.system_started_on resource.system_started_on
+json.system_modules resource.system_modules.map { |system_module| { id: system_module.id, name: system_module.name } }
 json.last_activity_at resource.last_activity_at.to_i if resource[:last_activity_at].present?
 json.created_at resource.created_at.to_i if resource[:created_at].present?
 json.updated_at resource.updated_at.to_i if resource[:updated_at].present?

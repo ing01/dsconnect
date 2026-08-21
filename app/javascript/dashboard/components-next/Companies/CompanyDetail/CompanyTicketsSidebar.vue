@@ -37,7 +37,7 @@ const priorityColor = priority =>
     <Spinner />
   </div>
 
-  <div v-else-if="tickets.length > 0" class="flex flex-col gap-2 px-6">
+  <div v-else-if="tickets.length > 0" class="flex flex-col gap-2">
     <a
       v-for="ticket in tickets"
       :key="ticket.id"
@@ -64,7 +64,7 @@ const priorityColor = priority =>
 
   <p
     v-else
-    class="py-8 px-4 mx-6 text-sm text-center rounded-xl border border-dashed border-n-strong text-n-slate-11"
+    class="py-8 px-4 text-sm text-center rounded-xl border border-dashed border-n-strong text-n-slate-11"
   >
     {{ t('COMPANIES.DETAIL.TICKETS.EMPTY') }}
   </p>

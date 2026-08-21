@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_20_100001) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_21_090001) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -768,6 +768,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_20_100001) do
     t.string "address_neighborhood"
     t.string "address_city"
     t.string "address_state"
+    t.string "billing_type"
+    t.decimal "billing_amount", precision: 12, scale: 2
+    t.decimal "implementation_fee", precision: 12, scale: 2
+    t.date "license_expires_on"
+    t.date "system_started_on"
     t.index ["account_id", "cnpj"], name: "index_companies_on_account_and_cnpj", unique: true, where: "(cnpj IS NOT NULL)"
     t.index ["account_id", "domain"], name: "index_companies_on_account_and_domain", unique: true, where: "(domain IS NOT NULL)"
     t.index ["account_id"], name: "index_companies_on_account_id"
@@ -798,6 +803,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_20_100001) do
     t.index ["company_id"], name: "index_company_credentials_on_company_id"
     t.index ["created_by_id"], name: "index_company_credentials_on_created_by_id"
     t.index ["updated_by_id"], name: "index_company_credentials_on_updated_by_id"
+  end
+
+  create_table "company_system_modules", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "system_module_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "system_module_id"], name: "index_company_system_modules_on_company_and_module", unique: true
+    t.index ["company_id"], name: "index_company_system_modules_on_company_id"
+    t.index ["system_module_id"], name: "index_company_system_modules_on_system_module_id"
   end
 
   create_table "contact_inboxes", force: :cascade do |t|
@@ -1488,6 +1503,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_20_100001) do
     t.index ["account_id"], name: "index_sla_policies_on_account_id"
   end
 
+  create_table "system_modules", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_system_modules_on_account_id_and_name", unique: true
+    t.index ["account_id"], name: "index_system_modules_on_account_id"
+  end
+
   create_table "taggings", id: :serial, force: :cascade do |t|
     t.integer "tag_id"
     t.string "taggable_type"
@@ -1685,7 +1709,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_20_100001) do
   add_foreign_key "company_credentials", "companies"
   add_foreign_key "company_credentials", "users", column: "created_by_id"
   add_foreign_key "company_credentials", "users", column: "updated_by_id"
+  add_foreign_key "company_system_modules", "companies"
+  add_foreign_key "company_system_modules", "system_modules"
   add_foreign_key "inboxes", "portals"
+  add_foreign_key "system_modules", "accounts"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").

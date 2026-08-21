@@ -50,7 +50,7 @@ const openContact = contactId => {
 </script>
 
 <template>
-  <div v-if="hasNotes" class="flex flex-col px-6">
+  <div v-if="hasNotes" class="flex flex-col">
     <div class="flex flex-col divide-y divide-n-strong">
       <div
         v-for="note in notes"
@@ -107,7 +107,7 @@ const openContact = contactId => {
 
   <p
     v-else
-    class="py-8 mx-6 px-4 text-sm text-center rounded-xl border border-dashed border-n-strong text-n-slate-11"
+    class="py-8 px-4 text-sm text-center rounded-xl border border-dashed border-n-strong text-n-slate-11"
   >
     {{ t('COMPANIES.DETAIL.NOTES.EMPTY') }}
   </p>

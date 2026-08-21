@@ -24,6 +24,7 @@ class Company < ApplicationRecord
   include Avatarable
 
   ACTIVITY_ROLLUP_INTERVAL = 5.minutes
+  BILLING_TYPES = %w[monthly annual].freeze
 
   validates :account_id, presence: true
   validates :name, presence: true, length: { maximum: Limits::COMPANY_NAME_LENGTH_LIMIT }
@@ -36,10 +37,14 @@ class Company < ApplicationRecord
   validates :custom_attributes, jsonb_attributes_length: true
   validates :cnpj, uniqueness: { scope: :account_id }, if: -> { cnpj.present? }
   validate :validate_cnpj_checksum, if: -> { cnpj.present? }
+  validates :billing_type, inclusion: { in: BILLING_TYPES }, allow_blank: true
+  validates :billing_amount, :implementation_fee, numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
 
   belongs_to :account
   has_many :contacts, dependent: :nullify
   has_many :company_credentials, dependent: :destroy
+  has_many :company_system_modules, dependent: :destroy
+  has_many :system_modules, through: :company_system_modules
   before_validation :prepare_jsonb_attributes
   before_validation :normalize_cnpj
   after_create_commit :fetch_favicon, if: -> { domain.present? }

@@ -44,7 +44,7 @@ const confirmDeleteCredentialDialogRef = ref(null);
 const createContactDialogRef = ref(null);
 const selectedCandidate = ref(null);
 const selectedCredential = ref(null);
-const activeSidebarTab = ref('history');
+const activeTab = ref('profile');
 
 const companyId = computed(() => Number(route.params.companyId));
 const company = computed(() => companiesStore.getRecord(companyId.value));
@@ -95,19 +95,21 @@ const breadcrumbItems = computed(() => [
     : []),
 ]);
 
-const sidebarTabOptions = computed(() => [
+const tabOptions = computed(() => [
+  { key: 'PROFILE', value: 'profile' },
+  { key: 'CONTACTS', value: 'contacts' },
   { key: 'HISTORY', value: 'history' },
   { key: 'NOTES', value: 'notes' },
-  { key: 'CONTACTS', value: 'contacts' },
   { key: 'TICKETS', value: 'tickets' },
   ...(canManageCredentials.value
     ? [{ key: 'CREDENTIALS', value: 'credentials' }]
     : []),
 ]);
 
-const sidebarTabs = computed(() =>
-  sidebarTabOptions.value.map(tab => ({
+const tabs = computed(() =>
+  tabOptions.value.map(tab => ({
     label: {
+      profile: t('COMPANIES.DETAIL.SIDEBAR.TABS.PROFILE'),
       notes: t('COMPANIES.DETAIL.SIDEBAR.TABS.NOTES'),
       history: t('COMPANIES.DETAIL.SIDEBAR.TABS.HISTORY'),
       contacts: `${t('COMPANIES.DETAIL.SIDEBAR.TABS.CONTACTS')} (${Number(companyContactsMeta.value.totalCount || 0)})`,
@@ -118,8 +120,8 @@ const sidebarTabs = computed(() =>
   }))
 );
 
-const activeSidebarTabIndex = computed(() =>
-  sidebarTabOptions.value.findIndex(tab => tab.value === activeSidebarTab.value)
+const activeTabIndex = computed(() =>
+  tabOptions.value.findIndex(tab => tab.value === activeTab.value)
 );
 
 const goToCompaniesIndex = () => {
@@ -151,7 +153,7 @@ const clearSelectedCandidate = () => {
   selectedCandidate.value = null;
 };
 
-const loadSidebarTab = tab => {
+const loadTabData = tab => {
   if (!companyId.value) return;
   if (tab === 'notes') companiesStore.getCompanyNotes(companyId.value);
   if (tab === 'history') {
@@ -163,9 +165,9 @@ const loadSidebarTab = tab => {
   }
 };
 
-const handleSidebarTabChange = tab => {
-  activeSidebarTab.value = tab.value;
-  loadSidebarTab(tab.value);
+const handleTabChange = tab => {
+  activeTab.value = tab.value;
+  loadTabData(tab.value);
 };
 
 const handleContactSearch = async query => {
@@ -307,12 +309,11 @@ watch(
   async id => {
     companiesStore.resetCompanyDetailState();
     clearSelectedCandidate();
-    activeSidebarTab.value = 'history';
+    activeTab.value = 'profile';
     if (!id) return;
     await Promise.allSettled([
       companiesStore.show(id),
       companiesStore.getCompanyContacts(id),
-      companiesStore.getCompanyConversations(id),
     ]);
   },
   { immediate: true }
@@ -349,53 +350,42 @@ onBeforeUnmount(() => {
     </div>
 
     <div v-else class="flex flex-col gap-6">
-      <CompanyProfileCard :company="company" :is-loading="isFetchingCompany" />
+      <TabBar
+        :tabs="tabs"
+        :initial-active-tab="activeTabIndex"
+        @tab-changed="handleTabChange"
+      />
 
-      <Policy :permissions="['administrator']">
-        <section
-          class="flex flex-col items-start w-full gap-4 pt-6 border-t border-n-strong"
-        >
-          <div class="flex flex-col gap-2">
-            <h6 class="text-base font-medium text-n-slate-12">
-              {{ t('COMPANIES.DETAIL.DELETE.SECTION_TITLE') }}
-            </h6>
-            <span class="text-sm text-n-slate-11">
-              {{ t('COMPANIES.DETAIL.DELETE.SECTION_DESCRIPTION') }}
-            </span>
-          </div>
-          <Button
-            :label="t('COMPANIES.DETAIL.DELETE.BUTTON')"
-            color="ruby"
-            :disabled="isDeletingCompany"
-            @click="openDeleteCompanyDialog"
-          />
-        </section>
-      </Policy>
-    </div>
-
-    <template #sidebarHeader>
-      <div class="px-6 pt-6 pb-3">
-        <TabBar
-          :tabs="sidebarTabs"
-          :initial-active-tab="activeSidebarTabIndex"
-          class="w-full [&>button]:w-full bg-n-alpha-black2"
-          @tab-changed="handleSidebarTabChange"
+      <div v-if="activeTab === 'profile'" class="flex flex-col gap-6">
+        <CompanyProfileCard
+          :company="company"
+          :is-loading="isFetchingCompany"
         />
+
+        <Policy :permissions="['administrator']">
+          <section
+            class="flex flex-col items-start w-full gap-4 pt-6 border-t border-n-strong"
+          >
+            <div class="flex flex-col gap-2">
+              <h6 class="text-base font-medium text-n-slate-12">
+                {{ t('COMPANIES.DETAIL.DELETE.SECTION_TITLE') }}
+              </h6>
+              <span class="text-sm text-n-slate-11">
+                {{ t('COMPANIES.DETAIL.DELETE.SECTION_DESCRIPTION') }}
+              </span>
+            </div>
+            <Button
+              :label="t('COMPANIES.DETAIL.DELETE.BUTTON')"
+              color="ruby"
+              :disabled="isDeletingCompany"
+              @click="openDeleteCompanyDialog"
+            />
+          </section>
+        </Policy>
       </div>
-    </template>
-    <template v-if="hasCompany" #sidebar>
-      <CompanyNotesSidebar
-        v-if="activeSidebarTab === 'notes'"
-        :notes="companyNotes"
-        :is-loading="isFetchingNotes"
-      />
-      <CompanyHistorySidebar
-        v-if="activeSidebarTab === 'history'"
-        :conversations="companyConversations"
-        :is-loading="isFetchingConversations"
-      />
+
       <CompanyContactsSidebar
-        v-if="activeSidebarTab === 'contacts'"
+        v-else-if="activeTab === 'contacts'"
         :company="company"
         :contacts="companyContacts"
         :meta="companyContactsMeta"
@@ -412,20 +402,30 @@ onBeforeUnmount(() => {
         @remove-contact="handleRemoveContact"
         @update:current-page="loadCompanyContactsPage"
       />
+      <CompanyHistorySidebar
+        v-else-if="activeTab === 'history'"
+        :conversations="companyConversations"
+        :is-loading="isFetchingConversations"
+      />
+      <CompanyNotesSidebar
+        v-else-if="activeTab === 'notes'"
+        :notes="companyNotes"
+        :is-loading="isFetchingNotes"
+      />
       <CompanyTicketsSidebar
-        v-if="activeSidebarTab === 'tickets'"
+        v-else-if="activeTab === 'tickets'"
         :tickets="companyTickets"
         :is-loading="isFetchingTickets"
       />
       <CompanyCredentialsSidebar
-        v-if="activeSidebarTab === 'credentials' && canManageCredentials"
+        v-else-if="activeTab === 'credentials' && canManageCredentials"
         :credentials="companyCredentials"
         :is-loading="isFetchingCredentials"
         @add="openAddCredentialDialog"
         @edit="openEditCredentialDialog"
         @delete="openDeleteCredentialDialog"
       />
-    </template>
+    </div>
 
     <ConfirmCompanyDeleteDialog
       ref="confirmDeleteDialogRef"

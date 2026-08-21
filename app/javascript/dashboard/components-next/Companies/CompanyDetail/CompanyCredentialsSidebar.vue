@@ -45,7 +45,7 @@ const SECRET_ROWS = [
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 px-6">
+  <div class="flex flex-col gap-4">
     <Button
       :label="t('COMPANIES.DETAIL.CREDENTIALS.ACTIONS.ADD')"
       size="sm"

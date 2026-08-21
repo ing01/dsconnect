@@ -45,7 +45,7 @@ const conversationInbox = conversation =>
 
   <div
     v-else-if="conversations.length > 0"
-    class="px-6 divide-y divide-n-strong [&>*:hover]:!border-y-transparent [&>*:hover+*]:!border-t-transparent"
+    class="divide-y divide-n-strong [&>*:hover]:!border-y-transparent [&>*:hover+*]:!border-t-transparent"
   >
     <ConversationCard
       v-for="conversation in conversations"
@@ -60,7 +60,7 @@ const conversationInbox = conversation =>
 
   <p
     v-else
-    class="py-8 px-4 mx-6 text-sm text-center rounded-xl border border-dashed border-n-strong text-n-slate-11"
+    class="py-8 px-4 text-sm text-center rounded-xl border border-dashed border-n-strong text-n-slate-11"
   >
     {{ t('COMPANIES.DETAIL.HISTORY.EMPTY') }}
   </p>

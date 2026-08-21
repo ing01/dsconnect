@@ -67,7 +67,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   private
 
   def resolved_companies
-    @resolved_companies ||= Current.account.companies
+    @resolved_companies ||= Current.account.companies.includes(:system_modules)
   end
 
   def set_current_page
@@ -107,8 +107,14 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :address_neighborhood,
       :address_city,
       :address_state,
+      :billing_type,
+      :billing_amount,
+      :implementation_fee,
+      :license_expires_on,
+      :system_started_on,
       additional_attributes: {},
-      custom_attributes: {}
+      custom_attributes: {},
+      system_module_ids: []
     )
   end
 

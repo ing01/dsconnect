@@ -47,6 +47,7 @@
       },
       "SIDEBAR": {
         "TABS": {
+          "PROFILE": "Perfil",
           "ATTRIBUTES": "Atributos",
           "CONTACTS": "Contatos",
           "HISTORY": "Histórico",
@@ -192,7 +193,13 @@
           "ADDRESS_COMPLEMENT": "Complemento",
           "ADDRESS_NEIGHBORHOOD": "Bairro",
           "ADDRESS_CITY": "Cidade",
-          "ADDRESS_STATE": "Estado"
+          "ADDRESS_STATE": "Estado",
+          "BILLING_TYPE": "Tipo de cobrança",
+          "BILLING_AMOUNT": "Valor pago",
+          "IMPLEMENTATION_FEE": "Valor da implantação",
+          "LICENSE_EXPIRES_ON": "Data de vencimento da licença",
+          "SYSTEM_STARTED_ON": "Data de início do uso do sistema",
+          "MODULES": "Módulos utilizados"
         },
         "CNPJ_LOOKUP": {
           "BUTTON": "Buscar",
@@ -201,9 +208,19 @@
           "ERROR": "Não foi possível encontrar dados para este CNPJ.",
           "INACTIVE_WARNING": "Atenção: este CNPJ está cadastrado como inativo na Receita Federal."
         },
+        "BILLING": {
+          "MONTHLY": "Mensalidade",
+          "ANNUAL": "Anuidade",
+          "MONTHLY_EQUIVALENT": "≈ {amount} por mês"
+        },
+        "MODULES": {
+          "ADD_PLACEHOLDER": "Nome do novo módulo",
+          "ADD_BUTTON": "Adicionar"
+        },
         "SECTIONS": {
           "FISCAL": "Dados fiscais",
-          "ADDRESS": "Endereço"
+          "ADDRESS": "Endereço",
+          "CONTRACT": "Contrato e cobrança"
         }
       },
       "DELETE": {

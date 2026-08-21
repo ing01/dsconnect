@@ -47,6 +47,7 @@
       },
       "SIDEBAR": {
         "TABS": {
+          "PROFILE": "Profile",
           "ATTRIBUTES": "Attributes",
           "CONTACTS": "Contacts",
           "HISTORY": "History",
@@ -192,7 +193,13 @@
           "ADDRESS_COMPLEMENT": "Complement",
           "ADDRESS_NEIGHBORHOOD": "Neighborhood",
           "ADDRESS_CITY": "City",
-          "ADDRESS_STATE": "State"
+          "ADDRESS_STATE": "State",
+          "BILLING_TYPE": "Billing cycle",
+          "BILLING_AMOUNT": "Amount paid",
+          "IMPLEMENTATION_FEE": "Implementation fee",
+          "LICENSE_EXPIRES_ON": "License expiration date",
+          "SYSTEM_STARTED_ON": "System start date",
+          "MODULES": "Modules in use"
         },
         "CNPJ_LOOKUP": {
           "BUTTON": "Look up",
@@ -201,9 +208,19 @@
           "ERROR": "Could not find company data for this CNPJ.",
           "INACTIVE_WARNING": "Heads up: this CNPJ is registered as inactive with Receita Federal."
         },
+        "BILLING": {
+          "MONTHLY": "Monthly",
+          "ANNUAL": "Annual",
+          "MONTHLY_EQUIVALENT": "≈ {amount} per month"
+        },
+        "MODULES": {
+          "ADD_PLACEHOLDER": "New module name",
+          "ADD_BUTTON": "Add"
+        },
         "SECTIONS": {
           "FISCAL": "Fiscal information",
-          "ADDRESS": "Address"
+          "ADDRESS": "Address",
+          "CONTRACT": "Contract & billing"
         }
       },
       "DELETE": {
