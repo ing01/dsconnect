@@ -19,7 +19,7 @@ const loadCount = async () => {
   if (!conversationId.value) return;
   try {
     const response = await TicketsAPI.getByConversation(conversationId.value);
-    linkedCount.value = response.data?.length || 0;
+    linkedCount.value = response.data?.payload?.length || 0;
   } catch (error) {
     linkedCount.value = 0;
   }

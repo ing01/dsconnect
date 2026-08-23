@@ -14,10 +14,6 @@ export default {
       type: Array,
       default: () => [],
     },
-    teams: {
-      type: Array,
-      default: () => [],
-    },
     isSubmitting: {
       type: Boolean,
       default: false,
@@ -30,7 +26,6 @@ export default {
       description: this.ticket?.description || '',
       priority: this.ticket?.priority || '',
       assigneeId: this.ticket?.assignee_id || '',
-      teamId: this.ticket?.team_id || '',
       titleError: '',
     };
   },
@@ -54,7 +49,6 @@ export default {
         description: this.description.trim(),
         priority: this.priority || null,
         assignee_id: this.assigneeId || null,
-        team_id: this.teamId || null,
       });
     },
   },
@@ -90,7 +84,7 @@ export default {
       </label>
 
       <div class="flex w-full gap-3">
-        <label class="w-1/3 mb-3">
+        <label class="w-1/2 mb-3">
           <span class="text-sm text-n-slate-11">
             {{ $t('TICKET.FORM.PRIORITY.LABEL') }}
           </span>
@@ -110,7 +104,7 @@ export default {
           </select>
         </label>
 
-        <label class="w-1/3 mb-3">
+        <label class="w-1/2 mb-3">
           <span class="text-sm text-n-slate-11">
             {{ $t('TICKET.FORM.ASSIGNEE.LABEL') }}
           </span>
@@ -121,21 +115,6 @@ export default {
             <option value="">{{ $t('TICKET.FORM.ASSIGNEE.NONE') }}</option>
             <option v-for="agent in agents" :key="agent.id" :value="agent.id">
               {{ agent.name }}
-            </option>
-          </select>
-        </label>
-
-        <label class="w-1/3 mb-3">
-          <span class="text-sm text-n-slate-11">
-            {{ $t('TICKET.FORM.TEAM.LABEL') }}
-          </span>
-          <select
-            v-model="teamId"
-            class="w-full mt-1 rounded-xl border border-n-strong bg-transparent px-3 py-2 text-sm"
-          >
-            <option value="">{{ $t('TICKET.FORM.TEAM.NONE') }}</option>
-            <option v-for="team in teams" :key="team.id" :value="team.id">
-              {{ team.name }}
             </option>
           </select>
         </label>

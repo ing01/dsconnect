@@ -355,9 +355,6 @@ Rails.application.routes.draw do
                 patch :update
               end
             end
-          end
-
-          resources :ticket_boards do
             resources :ticket_columns, only: [:create, :update, :destroy] do
               collection do
                 patch :reorder
@@ -368,8 +365,13 @@ Rails.application.routes.draw do
           resources :tickets do
             member do
               patch :move
+              patch :resolve
+              patch :reopen
+              patch :close
             end
             resources :ticket_conversations, only: [:create, :destroy]
+            resources :comments, controller: 'ticket_comments', only: [:index, :create, :destroy]
+            resources :activities, controller: 'ticket_activities', only: [:index]
           end
 
           # Assignment V2 Routes

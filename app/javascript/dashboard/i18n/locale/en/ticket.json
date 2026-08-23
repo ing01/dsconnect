@@ -1,52 +1,43 @@
 {
   "TICKET": {
     "HEADER": "Tickets",
-    "DESCRIPTION": "Organize internal requests on a Kanban board and link them to their related conversations.",
+    "DESCRIPTION": "Organize tickets on a Kanban board per Mesa (Team) and link them to their related conversations.",
     "LOADING": "Loading ticket board...",
+    "STATUS": {
+      "OPEN": "Open",
+      "RESOLVED": "Resolved",
+      "CLOSED": "Closed"
+    },
+    "FILTERS": {
+      "ALL_STATUSES": "All statuses",
+      "ALL_AGENTS": "All",
+      "CLEAR": "Clear filters"
+    },
     "EMPTY": {
-      "TITLE": "No ticket board yet",
-      "DESC": "Create a board to start organizing your team's tickets.",
-      "ACTION": "Create board"
+      "TITLE": "No Mesa yet",
+      "NO_MESA_DESC": "Ask an administrator to create a Mesa (Team) in Settings before creating tickets."
     },
     "BOARD": {
-      "ADD_COLUMN": "New column",
-      "ADD_TICKET": "New ticket",
-      "NEW_BOARD": "New board"
-    },
-    "BOARD_FORM": {
-      "ADD_TITLE": "New board",
-      "EDIT_TITLE": "Rename board",
-      "NAME": {
-        "LABEL": "Board name",
-        "PLACEHOLDER": "e.g. Customer Support",
-        "REQUIRED_ERROR": "Board name is required"
-      },
-      "SUBMIT": "Save",
-      "CANCEL": "Cancel"
-    },
-    "BOARD_DELETE": {
-      "TITLE": "Delete board",
-      "MESSAGE": "Are you sure you want to delete the board",
-      "CONFIRM": "Yes, delete",
-      "CANCEL": "Cancel"
+      "ADD_COLUMN": "New stage",
+      "ADD_TICKET": "New ticket"
     },
     "COLUMN_FORM": {
-      "ADD_TITLE": "New column",
-      "EDIT_TITLE": "Rename column",
+      "ADD_TITLE": "New stage",
+      "EDIT_TITLE": "Rename stage",
       "NAME": {
-        "LABEL": "Column name",
+        "LABEL": "Stage name",
         "PLACEHOLDER": "e.g. In progress",
-        "REQUIRED_ERROR": "Column name is required"
+        "REQUIRED_ERROR": "Stage name is required"
       },
       "SUBMIT": "Save",
       "CANCEL": "Cancel"
     },
     "COLUMN_DELETE": {
-      "TITLE": "Delete column",
-      "MESSAGE": "Are you sure you want to delete the column",
+      "TITLE": "Delete stage",
+      "MESSAGE": "Are you sure you want to delete the stage",
       "CONFIRM": "Yes, delete",
       "CANCEL": "Cancel",
-      "HAS_TICKETS_ERROR": "Move or delete the tickets in this column before removing it."
+      "HAS_TICKETS_ERROR": "Move or delete the tickets in this stage before removing it."
     },
     "FORM": {
       "ADD_TITLE": "New ticket",
@@ -73,15 +64,98 @@
         "NONE": "Unassigned"
       },
       "TEAM": {
-        "LABEL": "Team",
-        "NONE": "No team"
+        "LABEL": "Mesa",
+        "NONE": "No Mesa"
       },
       "CREATE": "Create ticket",
       "UPDATE": "Save changes",
       "CANCEL": "Cancel"
     },
     "CARD": {
-      "CONVERSATIONS_LINKED": "{n} linked conversation | {n} linked conversations"
+      "CONVERSATIONS_LINKED": "{n} linked conversation | {n} linked conversations",
+      "MENU": {
+        "OPEN": "Open ticket",
+        "EDIT": "Edit",
+        "OPEN_CONVERSATION": "Open conversation",
+        "RESOLVE": "Resolve",
+        "CLOSE": "Close",
+        "REOPEN": "Reopen"
+      }
+    },
+    "LIST": {
+      "EMPTY": "No tickets found",
+      "COLUMNS": {
+        "ID": "#",
+        "TITLE": "Title",
+        "STATUS": "Status",
+        "COMPANY": "Company",
+        "REQUESTER": "Requester",
+        "ASSIGNEE": "Assignee",
+        "MESA": "Mesa",
+        "ESTAGIO": "Stage",
+        "CREATED_AT": "Created at"
+      }
+    },
+    "SEARCH": {
+      "BUTTON": "Detailed search",
+      "TITLE": "Detailed search",
+      "DATE_FROM": "From",
+      "DATE_TO": "To",
+      "NUMBER": "Ticket number",
+      "STATUS": "Status",
+      "TITLE_FIELD": "Title",
+      "COMPANY": "Client/Company",
+      "CONTACT": "Requester/Contact",
+      "ASSIGNEE": "Agent",
+      "MESA": "Mesa",
+      "ALL_MESAS": "All Mesas",
+      "ESTAGIO": "Stage",
+      "ALL_ESTAGIOS": "All stages",
+      "SUBMIT": "Search"
+    },
+    "ACTIVITY": {
+      "EMPTY": "No activity recorded yet",
+      "SYSTEM": "System",
+      "TYPES": {
+        "CREATED": "{actor} created the ticket",
+        "STATUS_CHANGED": "{actor} changed the status",
+        "COLUMN_CHANGED": "{actor} moved the ticket",
+        "PRIORITY_CHANGED": "{actor} changed the priority",
+        "ASSIGNEE_CHANGED": "{actor} changed the assignee",
+        "TEAM_CHANGED": "{actor} changed the Mesa",
+        "COMMENT_ADDED": "{actor} added a comment",
+        "RESOLVED": "{actor} resolved the ticket",
+        "REOPENED": "{actor} reopened the ticket",
+        "CLOSED": "{actor} closed the ticket",
+        "CONVERSATION_LINKED": "{actor} linked a conversation",
+        "CONVERSATION_UNLINKED": "{actor} unlinked a conversation"
+      }
+    },
+    "COMMENTS": {
+      "INTERNAL_NOTICE": "Internal comments are only visible to your team, never to the customer.",
+      "EMPTY": "No comments yet",
+      "PLACEHOLDER": "Write an internal comment...",
+      "SUBMIT": "Comment",
+      "DELETE": "Delete",
+      "ERROR": "Could not save the comment"
+    },
+    "DETAIL": {
+      "BACK": "Back to tickets",
+      "RESOLVE": "Resolve",
+      "CLOSE": "Close",
+      "REOPEN": "Reopen",
+      "RESOLVE_SUCCESS": "Ticket resolved",
+      "REOPEN_SUCCESS": "Ticket reopened",
+      "CLOSE_SUCCESS": "Ticket closed",
+      "NO_DESCRIPTION": "No description provided",
+      "LINKED_CONVERSATIONS": "Linked conversations",
+      "NO_CONVERSATIONS": "No conversations linked to this ticket",
+      "CONVERSATION_LABEL": "Conversation #{id}",
+      "TAB_ACTIVITY": "Activity",
+      "TAB_COMMENTS": "Comments",
+      "ASSIGNMENT": "Assignment",
+      "TRANSFER": "Transfer",
+      "TEAM_TRANSFER_HINT": "To move this ticket to another Mesa, drag it to a stage on that Mesa's board."
     },
     "CONVERSATION_PANEL": {
       "ADD_BUTTON": "Link or create ticket",
@@ -92,7 +166,9 @@
       "NO_RESULTS": "No matching tickets found",
       "LINK_ACTION": "Link",
       "NO_LINKED_TICKETS": "No tickets linked to this conversation yet",
-      "NO_BOARD_ERROR": "Create a ticket board first, from the Tickets menu"
+      "NO_BOARD_ERROR": "Ask an administrator to create a Mesa (Team) first, in Settings",
+      "BOARD_LABEL": "Mesa",
+      "COLUMN_LABEL": "Stage"
     },
     "DELETE": {
       "TITLE": "Delete ticket",
@@ -106,15 +182,10 @@
       "DELETE_SUCCESS": "Ticket deleted",
       "DELETE_ERROR": "Could not delete the ticket",
       "MOVE_ERROR": "Could not move the ticket",
-      "COLUMN_SUCCESS": "Column saved",
-      "COLUMN_ERROR": "Could not save the column",
-      "COLUMN_DELETE_SUCCESS": "Column deleted",
-      "COLUMN_DELETE_ERROR": "Could not delete the column",
-      "BOARD_CREATE_ERROR": "Could not create the board",
-      "BOARD_SUCCESS": "Board saved",
-      "BOARD_ERROR": "Could not save the board",
-      "BOARD_DELETE_SUCCESS": "Board deleted",
-      "BOARD_DELETE_ERROR": "Could not delete the board"
+      "COLUMN_SUCCESS": "Stage saved",
+      "COLUMN_ERROR": "Could not save the stage",
+      "COLUMN_DELETE_SUCCESS": "Stage deleted",
+      "COLUMN_DELETE_ERROR": "Could not delete the stage"
     }
   }
 }

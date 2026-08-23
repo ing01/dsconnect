@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useStore } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import TicketsAPI from 'dashboard/api/tickets';
-import TicketBoardsAPI from 'dashboard/api/ticketBoards';
+import TeamsAPI from 'dashboard/api/teams';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 
@@ -18,18 +19,30 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'linked']);
+const emit = defineEmits(['linked']);
 
 const { t } = useI18n();
+const store = useStore();
 
 const mode = ref('link');
 const isLoading = ref(false);
 const isSubmitting = ref(false);
 const searchQuery = ref('');
 const allTickets = ref([]);
-const firstColumnId = ref(null);
+const teams = ref([]);
+const selectedTeamId = ref(null);
+const selectedColumnId = ref(null);
 const newTitle = ref('');
 const newTitleError = ref('');
+
+const selectedTeamBoard = computed(() =>
+  selectedTeamId.value
+    ? store.getters['ticketColumns/getBoard'](selectedTeamId.value)
+    : null
+);
+const columnsForSelectedTeam = computed(
+  () => selectedTeamBoard.value?.ticket_columns || []
+);
 
 const filteredTickets = computed(() => {
   const query = searchQuery.value.trim().toLowerCase();
@@ -41,19 +54,31 @@ const filteredTickets = computed(() => {
 const loadData = async () => {
   isLoading.value = true;
   try {
-    const [ticketsResponse, boardsResponse] = await Promise.all([
+    const [ticketsResponse, teamsResponse] = await Promise.all([
       TicketsAPI.get(),
-      TicketBoardsAPI.get(),
+      TeamsAPI.get(),
     ]);
-    allTickets.value = ticketsResponse.data || [];
-    const firstBoard = boardsResponse.data?.[0];
-    firstColumnId.value = firstBoard?.ticket_columns?.[0]?.id || null;
+    allTickets.value = ticketsResponse.data?.payload || [];
+    teams.value = teamsResponse.data || [];
+    selectedTeamId.value = teams.value[0]?.id || null;
+    if (selectedTeamId.value) {
+      await store.dispatch('ticketColumns/fetchBoard', selectedTeamId.value);
+    }
   } catch (error) {
     // Silent fail - the empty state covers this
   } finally {
     isLoading.value = false;
   }
 };
+
+// Whenever the selected Mesa changes (including on initial load), fetch its
+// Estagios and default to the first one, but let the agent pick another.
+watch(selectedTeamId, async teamId => {
+  selectedColumnId.value = null;
+  if (!teamId) return;
+  await store.dispatch('ticketColumns/fetchBoard', teamId);
+  selectedColumnId.value = columnsForSelectedTeam.value[0]?.id || null;
+});
 
 const linkTicket = async ticket => {
   try {
@@ -69,7 +94,7 @@ const createAndLinkTicket = async () => {
     newTitleError.value = t('TICKET.FORM.TITLE.REQUIRED_ERROR');
     return;
   }
-  if (!firstColumnId.value) {
+  if (!selectedColumnId.value) {
     useAlert(t('TICKET.CONVERSATION_PANEL.NO_BOARD_ERROR'));
     return;
   }
@@ -78,7 +103,8 @@ const createAndLinkTicket = async () => {
   try {
     await TicketsAPI.createForConversation(props.conversationId, {
       title: newTitle.value.trim(),
-      ticket_column_id: firstColumnId.value,
+      ticket_column_id: selectedColumnId.value,
+      team_id: selectedTeamId.value,
     });
     emit('linked');
   } catch (error) {
@@ -170,6 +196,43 @@ onMounted(loadData);
           :error="newTitleError"
           @input="newTitleError = ''"
         />
+
+        <p v-if="!teams.length" class="text-sm text-n-slate-11">
+          {{ t('TICKET.CONVERSATION_PANEL.NO_BOARD_ERROR') }}
+        </p>
+        <div v-else class="flex w-full gap-3">
+          <label class="w-1/2">
+            <span class="text-sm text-n-slate-11">
+              {{ t('TICKET.CONVERSATION_PANEL.BOARD_LABEL') }}
+            </span>
+            <select
+              v-model="selectedTeamId"
+              class="w-full mt-1 rounded-xl border border-n-strong bg-transparent px-3 py-2 text-sm"
+            >
+              <option v-for="team in teams" :key="team.id" :value="team.id">
+                {{ team.name }}
+              </option>
+            </select>
+          </label>
+          <label class="w-1/2">
+            <span class="text-sm text-n-slate-11">
+              {{ t('TICKET.CONVERSATION_PANEL.COLUMN_LABEL') }}
+            </span>
+            <select
+              v-model="selectedColumnId"
+              class="w-full mt-1 rounded-xl border border-n-strong bg-transparent px-3 py-2 text-sm"
+            >
+              <option
+                v-for="column in columnsForSelectedTeam"
+                :key="column.id"
+                :value="column.id"
+              >
+                {{ column.name }}
+              </option>
+            </select>
+          </label>
+        </div>
+
         <div class="flex items-center justify-end gap-2">
           <NextButton
             type="button"

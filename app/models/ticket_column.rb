@@ -1,5 +1,5 @@
 class TicketColumn < ApplicationRecord
-  belongs_to :ticket_board
+  belongs_to :team
 
   has_many :tickets, -> { order(:position) }, dependent: :restrict_with_error, inverse_of: :ticket_column
 
@@ -7,13 +7,14 @@ class TicketColumn < ApplicationRecord
 
   before_validation :set_default_position, on: :create
 
-  delegate :account, to: :ticket_board
+  delegate :account, to: :team
 
-  # Persists a new column order for a board from an ordered array of column ids.
-  def self.reorder!(ticket_board, column_ids)
+  # Persists a new column order for a team's Kanban ("Mesa de Servico") from
+  # an ordered array of column ids.
+  def self.reorder!(team, column_ids)
     transaction do
       column_ids.each_with_index do |id, index|
-        ticket_board.ticket_columns.where(id: id).update_all(position: index) # rubocop:disable Rails/SkipsModelValidations
+        team.ticket_columns.where(id: id).update_all(position: index) # rubocop:disable Rails/SkipsModelValidations
       end
     end
   end
@@ -22,7 +23,8 @@ class TicketColumn < ApplicationRecord
     {
       id: id,
       name: name,
-      position: position
+      position: position,
+      team_id: team_id
     }
   end
 
@@ -31,6 +33,6 @@ class TicketColumn < ApplicationRecord
   def set_default_position
     return if position.present? && position != 0
 
-    self.position = (ticket_board&.ticket_columns&.maximum(:position) || -1) + 1
+    self.position = (team&.ticket_columns&.maximum(:position) || -1) + 1
   end
 end

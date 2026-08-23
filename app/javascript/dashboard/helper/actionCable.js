@@ -66,6 +66,12 @@ class ActionCableConnector extends BaseActionCableConnector {
       'voice_call.outbound_connected': this.onVoiceCallOutboundConnected,
       'voice_call.outbound_accepted': this.onVoiceCallOutboundAccepted,
       'voice_call.ended': this.onVoiceCallEnded,
+      'ticket.created': this.onTicketRealtimeUpdate,
+      'ticket.updated': this.onTicketRealtimeUpdate,
+      'ticket.moved': this.onTicketRealtimeUpdate,
+      'ticket.resolved': this.onTicketRealtimeUpdate,
+      'ticket.reopened': this.onTicketRealtimeUpdate,
+      'ticket.closed': this.onTicketRealtimeUpdate,
     };
   }
 
@@ -356,6 +362,19 @@ class ActionCableConnector extends BaseActionCableConnector {
       // by filtered unread counts even when no conversation row changes.
       this.refreshConversationUnreadCountsWithFilteredRetry();
     }
+  };
+
+  // Handles ticket.created/updated/moved/resolved/reopened/closed alike:
+  // every one of those events carries the full, current ticket payload, so a
+  // single upsert into both the (per-board) Kanban state and the
+  // cross-board `tickets` module (detail page/Lista) is enough to keep
+  // every open view in sync without a refetch.
+  onTicketRealtimeUpdate = data => {
+    const { ticket } = data;
+    if (!ticket) return;
+
+    this.app.$store.dispatch('ticketColumns/applyRealtimeTicket', ticket);
+    this.app.$store.dispatch('tickets/upsertFromRealtime', ticket);
   };
 
   onVoiceCallIncoming = data => {

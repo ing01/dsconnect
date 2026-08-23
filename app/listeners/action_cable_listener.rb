@@ -145,6 +145,40 @@ class ActionCableListener < BaseListener
     broadcast(account, tokens, TEAM_CHANGED, conversation.push_event_data)
   end
 
+  # Ticket/Kanban visibility today is account-wide (TicketPolicy#index?/show?
+  # are open to every agent/admin, regardless of Mesa/team), so ticket
+  # realtime events broadcast account-wide rather than being scoped to an
+  # inbox or team.
+  def ticket_created(event)
+    ticket, account = extract_ticket_and_account(event)
+    broadcast(account, user_tokens(account, account.agents), TICKET_CREATED, ticket: ticket.push_event_data)
+  end
+
+  def ticket_updated(event)
+    ticket, account = extract_ticket_and_account(event)
+    broadcast(account, user_tokens(account, account.agents), TICKET_UPDATED, ticket: ticket.push_event_data)
+  end
+
+  def ticket_moved(event)
+    ticket, account = extract_ticket_and_account(event)
+    broadcast(account, user_tokens(account, account.agents), TICKET_MOVED, ticket: ticket.push_event_data)
+  end
+
+  def ticket_resolved(event)
+    ticket, account = extract_ticket_and_account(event)
+    broadcast(account, user_tokens(account, account.agents), TICKET_RESOLVED, ticket: ticket.push_event_data)
+  end
+
+  def ticket_reopened(event)
+    ticket, account = extract_ticket_and_account(event)
+    broadcast(account, user_tokens(account, account.agents), TICKET_REOPENED, ticket: ticket.push_event_data)
+  end
+
+  def ticket_closed(event)
+    ticket, account = extract_ticket_and_account(event)
+    broadcast(account, user_tokens(account, account.agents), TICKET_CLOSED, ticket: ticket.push_event_data)
+  end
+
   def conversation_contact_changed(event)
     conversation, account = extract_conversation_and_account(event)
     tokens = user_tokens(account, conversation.inbox.members)

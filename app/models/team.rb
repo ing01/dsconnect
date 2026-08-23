@@ -24,10 +24,17 @@ class Team < ApplicationRecord
   has_many :team_members, dependent: :destroy_async
   has_many :members, through: :team_members, source: :user
   has_many :conversations, dependent: :nullify
-  has_many :tickets, dependent: :nullify
+  # A Team is the "Mesa de Servico" a ticket belongs to; its Estagios
+  # (`ticket_columns`) are meaningless without it, so they're destroyed
+  # alongside it. Tickets, on the other hand, must never be silently
+  # orphaned/reassigned - a Mesa with open tickets can't be deleted until
+  # those tickets are moved or removed first.
+  has_many :ticket_columns, -> { order(:position) }, dependent: :destroy, inverse_of: :team
+  has_many :tickets, dependent: :restrict_with_error
 
   before_destroy :capture_filtered_unread_count_member_ids, prepend: true
   after_destroy_commit :invalidate_filtered_unread_counts_after_destroy
+  after_create_commit :provision_default_ticket_columns
 
   validates :name,
             presence: { message: I18n.t('errors.validations.presence') },
@@ -75,6 +82,15 @@ class Team < ApplicationRecord
   end
 
   private
+
+  # Every Mesa de Servico needs at least one Estagio to be usable in the
+  # Kanban, so new Teams are provisioned with a sensible default set that
+  # admins can then rename/reorder/extend freely (see TicketColumnsController).
+  DEFAULT_TICKET_COLUMN_NAMES = ['A fazer', 'Em andamento', 'Concluído'].freeze
+
+  def provision_default_ticket_columns
+    DEFAULT_TICKET_COLUMN_NAMES.each { |column_name| ticket_columns.create!(name: column_name) }
+  end
 
   def capture_filtered_unread_count_member_ids
     @filtered_unread_count_member_ids = team_members.pluck(:user_id)

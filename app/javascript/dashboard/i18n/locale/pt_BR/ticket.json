@@ -1,52 +1,43 @@
 {
   "TICKET": {
     "HEADER": "Tickets",
-    "DESCRIPTION": "Organize chamados internos em um quadro Kanban e vincule-os às conversas relacionadas.",
+    "DESCRIPTION": "Organize os tickets em um quadro Kanban por Mesa de Serviço e vincule-os às conversas relacionadas.",
     "LOADING": "Carregando quadro de tickets...",
+    "STATUS": {
+      "OPEN": "Aberto",
+      "RESOLVED": "Resolvido",
+      "CLOSED": "Finalizado"
+    },
+    "FILTERS": {
+      "ALL_STATUSES": "Todos os status",
+      "ALL_AGENTS": "Todos",
+      "CLEAR": "Limpar filtros"
+    },
     "EMPTY": {
-      "TITLE": "Nenhum quadro de tickets ainda",
-      "DESC": "Crie um quadro para começar a organizar os tickets da sua equipe.",
-      "ACTION": "Criar quadro"
+      "TITLE": "Nenhuma Mesa ainda",
+      "NO_MESA_DESC": "Peça a um administrador para criar uma Mesa de Serviço (Time) em Configurações antes de criar tickets."
     },
     "BOARD": {
-      "ADD_COLUMN": "Nova coluna",
-      "ADD_TICKET": "Novo ticket",
-      "NEW_BOARD": "Novo quadro"
-    },
-    "BOARD_FORM": {
-      "ADD_TITLE": "Novo quadro",
-      "EDIT_TITLE": "Renomear quadro",
-      "NAME": {
-        "LABEL": "Nome do quadro",
-        "PLACEHOLDER": "Ex.: Suporte ao Cliente",
-        "REQUIRED_ERROR": "O nome do quadro é obrigatório"
-      },
-      "SUBMIT": "Salvar",
-      "CANCEL": "Cancelar"
-    },
-    "BOARD_DELETE": {
-      "TITLE": "Apagar quadro",
-      "MESSAGE": "Tem certeza que deseja apagar o quadro",
-      "CONFIRM": "Sim, apagar",
-      "CANCEL": "Cancelar"
+      "ADD_COLUMN": "Novo estágio",
+      "ADD_TICKET": "Novo ticket"
     },
     "COLUMN_FORM": {
-      "ADD_TITLE": "Nova coluna",
-      "EDIT_TITLE": "Renomear coluna",
+      "ADD_TITLE": "Novo estágio",
+      "EDIT_TITLE": "Renomear estágio",
       "NAME": {
-        "LABEL": "Nome da coluna",
+        "LABEL": "Nome do estágio",
         "PLACEHOLDER": "Ex.: Em andamento",
-        "REQUIRED_ERROR": "O nome da coluna é obrigatório"
+        "REQUIRED_ERROR": "O nome do estágio é obrigatório"
       },
       "SUBMIT": "Salvar",
       "CANCEL": "Cancelar"
     },
     "COLUMN_DELETE": {
-      "TITLE": "Apagar coluna",
-      "MESSAGE": "Tem certeza que deseja apagar a coluna",
+      "TITLE": "Apagar estágio",
+      "MESSAGE": "Tem certeza que deseja apagar o estágio",
       "CONFIRM": "Sim, apagar",
       "CANCEL": "Cancelar",
-      "HAS_TICKETS_ERROR": "Mova ou apague os tickets desta coluna antes de removê-la."
+      "HAS_TICKETS_ERROR": "Mova ou apague os tickets deste estágio antes de removê-lo."
     },
     "FORM": {
       "ADD_TITLE": "Novo ticket",
@@ -73,15 +64,98 @@
         "NONE": "Ninguém"
       },
       "TEAM": {
-        "LABEL": "Time",
-        "NONE": "Nenhum"
+        "LABEL": "Mesa de Serviço",
+        "NONE": "Nenhuma"
       },
       "CREATE": "Criar ticket",
       "UPDATE": "Salvar alterações",
       "CANCEL": "Cancelar"
     },
     "CARD": {
-      "CONVERSATIONS_LINKED": "{n} conversa vinculada | {n} conversas vinculadas"
+      "CONVERSATIONS_LINKED": "{n} conversa vinculada | {n} conversas vinculadas",
+      "MENU": {
+        "OPEN": "Abrir ticket",
+        "EDIT": "Editar",
+        "OPEN_CONVERSATION": "Abrir conversa",
+        "RESOLVE": "Resolver",
+        "CLOSE": "Finalizar",
+        "REOPEN": "Reabrir"
+      }
+    },
+    "LIST": {
+      "EMPTY": "Nenhum ticket encontrado",
+      "COLUMNS": {
+        "ID": "Nº",
+        "TITLE": "Título",
+        "STATUS": "Status",
+        "COMPANY": "Cliente",
+        "REQUESTER": "Solicitante",
+        "ASSIGNEE": "Atendente",
+        "MESA": "Mesa",
+        "ESTAGIO": "Estágio",
+        "CREATED_AT": "Data"
+      }
+    },
+    "SEARCH": {
+      "BUTTON": "Busca detalhada",
+      "TITLE": "Busca detalhada",
+      "DATE_FROM": "Data inicial",
+      "DATE_TO": "Data final",
+      "NUMBER": "Número do ticket",
+      "STATUS": "Status",
+      "TITLE_FIELD": "Título",
+      "COMPANY": "Cliente/Empresa",
+      "CONTACT": "Solicitante/Contato",
+      "ASSIGNEE": "Atendente",
+      "MESA": "Mesa de Serviço",
+      "ALL_MESAS": "Todas as Mesas",
+      "ESTAGIO": "Estágio",
+      "ALL_ESTAGIOS": "Todos os estágios",
+      "SUBMIT": "Buscar"
+    },
+    "ACTIVITY": {
+      "EMPTY": "Nenhuma atividade registrada ainda",
+      "SYSTEM": "Sistema",
+      "TYPES": {
+        "CREATED": "{actor} criou o ticket",
+        "STATUS_CHANGED": "{actor} alterou o status",
+        "COLUMN_CHANGED": "{actor} moveu o ticket",
+        "PRIORITY_CHANGED": "{actor} alterou a prioridade",
+        "ASSIGNEE_CHANGED": "{actor} alterou o responsável",
+        "TEAM_CHANGED": "{actor} alterou a Mesa",
+        "COMMENT_ADDED": "{actor} adicionou um comentário",
+        "RESOLVED": "{actor} resolveu o ticket",
+        "REOPENED": "{actor} reabriu o ticket",
+        "CLOSED": "{actor} finalizou o ticket",
+        "CONVERSATION_LINKED": "{actor} vinculou uma conversa",
+        "CONVERSATION_UNLINKED": "{actor} desvinculou uma conversa"
+      }
+    },
+    "COMMENTS": {
+      "INTERNAL_NOTICE": "Comentários internos são visíveis apenas para sua equipe, nunca para o cliente.",
+      "EMPTY": "Nenhum comentário ainda",
+      "PLACEHOLDER": "Escreva um comentário interno...",
+      "SUBMIT": "Comentar",
+      "DELETE": "Excluir",
+      "ERROR": "Não foi possível salvar o comentário"
+    },
+    "DETAIL": {
+      "BACK": "Voltar para tickets",
+      "RESOLVE": "Resolver",
+      "CLOSE": "Finalizar",
+      "REOPEN": "Reabrir",
+      "RESOLVE_SUCCESS": "Ticket resolvido",
+      "REOPEN_SUCCESS": "Ticket reaberto",
+      "CLOSE_SUCCESS": "Ticket finalizado",
+      "NO_DESCRIPTION": "Nenhuma descrição informada",
+      "LINKED_CONVERSATIONS": "Conversas vinculadas",
+      "NO_CONVERSATIONS": "Nenhuma conversa vinculada a este ticket",
+      "CONVERSATION_LABEL": "Conversa #{id}",
+      "TAB_ACTIVITY": "Atividade",
+      "TAB_COMMENTS": "Comentários",
+      "ASSIGNMENT": "Atribuição",
+      "TRANSFER": "Transferir",
+      "TEAM_TRANSFER_HINT": "Para mover este ticket para outra Mesa, arraste-o até um estágio da Mesa de destino."
     },
     "CONVERSATION_PANEL": {
       "ADD_BUTTON": "Vincular ou criar ticket",
@@ -92,7 +166,9 @@
       "NO_RESULTS": "Nenhum ticket encontrado",
       "LINK_ACTION": "Vincular",
       "NO_LINKED_TICKETS": "Nenhum ticket vinculado a esta conversa ainda",
-      "NO_BOARD_ERROR": "Crie um quadro de tickets primeiro, no menu Tickets"
+      "NO_BOARD_ERROR": "Peça a um administrador para criar uma Mesa de Serviço primeiro, em Configurações",
+      "BOARD_LABEL": "Mesa",
+      "COLUMN_LABEL": "Estágio"
     },
     "DELETE": {
       "TITLE": "Apagar ticket",
@@ -106,15 +182,10 @@
       "DELETE_SUCCESS": "Ticket removido",
       "DELETE_ERROR": "Não foi possível remover o ticket",
       "MOVE_ERROR": "Não foi possível mover o ticket",
-      "COLUMN_SUCCESS": "Coluna salva",
-      "COLUMN_ERROR": "Não foi possível salvar a coluna",
-      "COLUMN_DELETE_SUCCESS": "Coluna apagada",
-      "COLUMN_DELETE_ERROR": "Não foi possível apagar a coluna",
-      "BOARD_CREATE_ERROR": "Não foi possível criar o quadro",
-      "BOARD_SUCCESS": "Quadro salvo",
-      "BOARD_ERROR": "Não foi possível salvar o quadro",
-      "BOARD_DELETE_SUCCESS": "Quadro apagado",
-      "BOARD_DELETE_ERROR": "Não foi possível apagar o quadro"
+      "COLUMN_SUCCESS": "Estágio salvo",
+      "COLUMN_ERROR": "Não foi possível salvar o estágio",
+      "COLUMN_DELETE_SUCCESS": "Estágio apagado",
+      "COLUMN_DELETE_ERROR": "Não foi possível apagar o estágio"
     }
   }
 }

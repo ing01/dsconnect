@@ -5,6 +5,18 @@ RSpec.describe Team do
     it { is_expected.to belong_to(:account) }
     it { is_expected.to have_many(:conversations) }
     it { is_expected.to have_many(:team_members) }
+    it { is_expected.to have_many(:tickets) }
+    it { is_expected.to have_many(:ticket_columns) }
+  end
+
+  describe '#provision_default_ticket_columns' do
+    it 'creates the default Kanban stages (Estagios) for a newly created Mesa' do
+      team = create(:team)
+
+      expect(team.ticket_columns.order(:position).pluck(:name)).to eq(
+        ['A fazer', 'Em andamento', 'Concluído']
+      )
+    end
   end
 
   describe 'name normalization' do

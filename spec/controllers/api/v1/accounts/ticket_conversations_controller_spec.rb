@@ -3,7 +3,8 @@ require 'rails_helper'
 RSpec.describe 'Ticket Conversations API', type: :request do
   let(:account) { create(:account) }
   let(:agent) { create(:user, account: account, role: :agent) }
-  let(:ticket) { create(:ticket, account: account) }
+  let(:ticket_column) { create(:ticket_column, team: create(:team, account: account)) }
+  let(:ticket) { create(:ticket, ticket_column: ticket_column) }
   let(:conversation) { create(:conversation, account: account) }
 
   describe 'POST .../tickets/:ticket_id/ticket_conversations' do

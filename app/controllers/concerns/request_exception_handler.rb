@@ -30,6 +30,9 @@ module RequestExceptionHandler
   rescue ActiveRecord::QueryCanceled => e
     log_handled_error(e)
     render_could_not_create_error(database_query_canceled_message)
+  rescue ActiveRecord::RecordNotDestroyed => e
+    log_handled_error(e)
+    render_could_not_create_error(e.record.errors.full_messages.join(', ').presence || e.message)
   ensure
     # to address the thread variable leak issues in Puma/Thin webserver
     Current.reset

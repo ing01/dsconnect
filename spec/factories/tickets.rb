@@ -7,6 +7,7 @@ FactoryBot.define do
 
     after(:build) do |ticket|
       ticket.account ||= ticket.ticket_column&.account || create(:account)
+      ticket.team ||= ticket.ticket_column&.team
     end
   end
 end

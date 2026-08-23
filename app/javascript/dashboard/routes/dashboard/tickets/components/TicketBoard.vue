@@ -22,15 +22,24 @@ export default {
       type: Boolean,
       default: false,
     },
+    filters: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   emits: [
     'add-ticket',
+    'open-ticket',
     'edit-ticket',
     'add-column',
     'edit-column',
     'delete-column',
     'move-ticket',
     'reorder-columns',
+    'open-conversation',
+    'resolve-ticket',
+    'reopen-ticket',
+    'close-ticket',
   ],
   data() {
     return {
@@ -83,11 +92,17 @@ export default {
           :tickets="localColumns[element.id] || []"
           :agents="agents"
           :is-admin="isAdmin"
+          :filters="filters"
           @add-ticket="$emit('add-ticket', $event)"
+          @open-ticket="$emit('open-ticket', $event)"
           @edit-ticket="$emit('edit-ticket', $event)"
           @edit-column="$emit('edit-column', $event)"
           @delete-column="$emit('delete-column', $event)"
           @move-ticket="$emit('move-ticket', $event)"
+          @open-conversation="$emit('open-conversation', $event)"
+          @resolve-ticket="$emit('resolve-ticket', $event)"
+          @reopen-ticket="$emit('reopen-ticket', $event)"
+          @close-ticket="$emit('close-ticket', $event)"
         />
       </template>
     </Draggable>

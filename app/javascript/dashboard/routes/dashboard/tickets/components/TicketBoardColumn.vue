@@ -2,6 +2,7 @@
 import Draggable from 'vuedraggable';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TicketCard from './TicketCard.vue';
+import { ticketMatchesFilters } from '../helpers/ticketFilters';
 
 export default {
   components: {
@@ -26,15 +27,36 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Filters are applied visually (v-show) rather than by shrinking the
+    // array bound to `Draggable`, so drag-and-drop keeps computing
+    // positions against the column's real, full ticket list even while a
+    // filter is active - only what's rendered is affected.
+    filters: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   emits: [
     'add-ticket',
+    'open-ticket',
     'edit-ticket',
     'edit-column',
     'delete-column',
     'move-ticket',
+    'open-conversation',
+    'resolve-ticket',
+    'reopen-ticket',
+    'close-ticket',
   ],
+  computed: {
+    visibleCount() {
+      return this.tickets.filter(ticket => this.isVisible(ticket)).length;
+    },
+  },
   methods: {
+    isVisible(ticket) {
+      return ticketMatchesFilters(ticket, this.filters);
+    },
     onChange(evt) {
       if (evt.added) {
         this.$emit('move-ticket', {
@@ -68,7 +90,7 @@ export default {
         <span
           class="text-xs text-n-slate-10 bg-n-slate-4 rounded-full px-1.5 py-0.5"
         >
-          {{ tickets.length }}
+          {{ visibleCount }}
         </span>
       </div>
       <div v-if="isAdmin" class="flex items-center gap-1">
@@ -100,9 +122,15 @@ export default {
     >
       <template #item="{ element }">
         <TicketCard
+          v-show="isVisible(element)"
           :ticket="element"
           :agents="agents"
-          @click="$emit('edit-ticket', element)"
+          @click="$emit('open-ticket', element)"
+          @edit="$emit('edit-ticket', element)"
+          @open-conversation="$emit('open-conversation', element)"
+          @resolve="$emit('resolve-ticket', element)"
+          @reopen="$emit('reopen-ticket', element)"
+          @close="$emit('close-ticket', element)"
         />
       </template>
     </Draggable>

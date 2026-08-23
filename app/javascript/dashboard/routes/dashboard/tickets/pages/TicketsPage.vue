@@ -1,148 +1,131 @@
 <script>
 import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
+import { frontendURL } from 'dashboard/helper/URLHelper';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
-import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TicketBoard from '../components/TicketBoard.vue';
 import TicketFormDialog from '../components/TicketFormDialog.vue';
 import TicketColumnFormDialog from '../components/TicketColumnFormDialog.vue';
-import TicketBoardFormDialog from '../components/TicketBoardFormDialog.vue';
+import TicketAvatarFilterRow from '../components/TicketAvatarFilterRow.vue';
+import TicketDetailedSearchModal from '../components/TicketDetailedSearchModal.vue';
 
-const DEFAULT_COLUMN_NAMES = ['A fazer', 'Em andamento', 'Concluído'];
+const LAST_TEAM_STORAGE_KEY = 'ticket-kanban-last-team-id';
 
 export default {
   components: {
     NextButton,
     Spinner,
-    Icon,
     TicketBoard,
     TicketFormDialog,
     TicketColumnFormDialog,
-    TicketBoardFormDialog,
+    TicketAvatarFilterRow,
+    TicketDetailedSearchModal,
   },
   data() {
     return {
       showTicketForm: false,
       showColumnForm: false,
-      showBoardForm: false,
       showDeleteColumnConfirm: false,
-      showDeleteBoardConfirm: false,
+      showDetailedSearch: false,
       isSubmittingTicket: false,
-      isCreatingBoard: false,
       selectedTicket: null,
       selectedColumn: null,
       targetColumnId: null,
-      selectedBoardId: null,
-      editingBoard: null,
+      selectedTeamId: null,
+      selectedAgentId: null,
     };
   },
   computed: {
     ...mapGetters({
-      boards: 'ticketBoards/getBoards',
-      boardUIFlags: 'ticketBoards/getUIFlags',
-      agents: 'agents/getAgents',
       teams: 'teams/getTeams',
+      board: 'ticketColumns/getBoard',
+      boardUIFlags: 'ticketColumns/getUIFlags',
+      teamMembersByTeam: 'teamMembers/getTeamMembers',
       currentRole: 'getCurrentRole',
+      currentAccountId: 'getCurrentAccountId',
     }),
-    board() {
-      if (this.selectedBoardId) {
-        const selected = this.boards.find(b => b.id === this.selectedBoardId);
-        if (selected) return selected;
-      }
-      return this.boards[0] || null;
+    selectedBoard() {
+      return this.selectedTeamId ? this.board(this.selectedTeamId) : null;
+    },
+    mesaAgents() {
+      return this.selectedTeamId
+        ? this.teamMembersByTeam(this.selectedTeamId)
+        : [];
     },
     isAdmin() {
       return this.currentRole === 'administrator';
     },
     isLoading() {
-      return this.boardUIFlags.isFetching && !this.board;
+      return this.boardUIFlags.isFetching && !this.selectedBoard;
+    },
+  },
+  watch: {
+    selectedTeamId(teamId) {
+      if (!teamId) return;
+      window.localStorage.setItem(LAST_TEAM_STORAGE_KEY, teamId);
+      this.selectedAgentId = null;
+      this.loadMesa(teamId);
     },
   },
   mounted() {
-    this.$store.dispatch('ticketBoards/get');
-    this.$store.dispatch('agents/get');
-    this.$store.dispatch('teams/get');
+    this.$store.dispatch('teams/get').then(() => this.pickInitialTeam());
   },
   methods: {
-    selectBoard(boardId) {
-      this.selectedBoardId = boardId;
+    pickInitialTeam() {
+      const savedId = Number(
+        window.localStorage.getItem(LAST_TEAM_STORAGE_KEY)
+      );
+      const savedTeamExists =
+        savedId && this.teams.some(team => team.id === savedId);
+      this.selectedTeamId = savedTeamExists
+        ? savedId
+        : this.teams[0]?.id || null;
+      if (this.selectedTeamId) this.loadMesa(this.selectedTeamId);
     },
-    async createBoardWithDefaultColumns(name) {
-      const board = await this.$store.dispatch('ticketBoards/create', {
-        name,
-      });
-      await Promise.all(
-        DEFAULT_COLUMN_NAMES.map(columnName =>
-          this.$store.dispatch('ticketBoards/createColumn', {
-            boardId: board.id,
-            name: columnName,
-          })
+    loadMesa(teamId) {
+      this.$store.dispatch('ticketColumns/fetchBoard', teamId);
+      this.$store.dispatch('teamMembers/get', { teamId });
+    },
+    selectTeam(teamId) {
+      this.selectedTeamId = Number(teamId);
+    },
+    selectAgentFilter(agentId) {
+      this.selectedAgentId = this.selectedAgentId === agentId ? null : agentId;
+    },
+    openTicketDetail(ticket) {
+      this.$router.push(
+        frontendURL(`accounts/${this.currentAccountId}/tickets/${ticket.id}`)
+      );
+    },
+    openConversationFromTicket(ticket) {
+      const conversationId = ticket.conversation_ids?.[0];
+      if (!conversationId) return;
+      this.$router.push(
+        frontendURL(
+          `accounts/${this.currentAccountId}/conversations/${conversationId}`
         )
       );
-      return board;
     },
-    async createDefaultBoard() {
-      this.isCreatingBoard = true;
+    async applyTransition(action, ticket) {
       try {
-        await this.createBoardWithDefaultColumns(this.$t('TICKET.HEADER'));
+        const updated = await this.$store.dispatch(
+          `tickets/${action}Ticket`,
+          ticket.id
+        );
+        this.$store.dispatch('ticketColumns/applyRealtimeTicket', updated);
       } catch (error) {
-        useAlert(this.$t('TICKET.API.BOARD_CREATE_ERROR'));
-      } finally {
-        this.isCreatingBoard = false;
+        useAlert(this.$t('TICKET.API.ERROR_MESSAGE'));
       }
     },
-    openAddBoard() {
-      this.editingBoard = null;
-      this.showBoardForm = true;
+    resolveTicket(ticket) {
+      this.applyTransition('resolve', ticket);
     },
-    openEditBoard(board) {
-      this.editingBoard = board;
-      this.showBoardForm = true;
+    reopenTicket(ticket) {
+      this.applyTransition('reopen', ticket);
     },
-    closeBoardForm() {
-      this.showBoardForm = false;
-      this.editingBoard = null;
-    },
-    async submitBoard(payload) {
-      try {
-        if (this.editingBoard) {
-          await this.$store.dispatch('ticketBoards/update', {
-            id: this.editingBoard.id,
-            ...payload,
-          });
-        } else {
-          const board = await this.createBoardWithDefaultColumns(
-            payload.name
-          );
-          this.selectedBoardId = board.id;
-        }
-        useAlert(this.$t('TICKET.API.BOARD_SUCCESS'));
-        this.closeBoardForm();
-      } catch (error) {
-        useAlert(this.$t('TICKET.API.BOARD_ERROR'));
-      }
-    },
-    confirmDeleteBoard(board) {
-      this.editingBoard = board;
-      this.showDeleteBoardConfirm = true;
-    },
-    closeDeleteBoardConfirm() {
-      this.showDeleteBoardConfirm = false;
-      this.editingBoard = null;
-    },
-    async deleteBoardConfirmed() {
-      const board = this.editingBoard;
-      this.closeDeleteBoardConfirm();
-      try {
-        await this.$store.dispatch('ticketBoards/delete', board.id);
-        if (this.selectedBoardId === board.id) {
-          this.selectedBoardId = null;
-        }
-        useAlert(this.$t('TICKET.API.BOARD_DELETE_SUCCESS'));
-      } catch (error) {
-        useAlert(this.$t('TICKET.API.BOARD_DELETE_ERROR'));
-      }
+    closeTicket(ticket) {
+      this.applyTransition('close', ticket);
     },
     openAddTicket(column) {
       this.selectedTicket = null;
@@ -163,14 +146,14 @@ export default {
       this.isSubmittingTicket = true;
       try {
         if (this.selectedTicket) {
-          await this.$store.dispatch('ticketBoards/updateTicket', {
-            boardId: this.board.id,
+          await this.$store.dispatch('ticketColumns/updateTicket', {
+            teamId: this.selectedTeamId,
             id: this.selectedTicket.id,
             ...payload,
           });
         } else {
-          await this.$store.dispatch('ticketBoards/createTicket', {
-            boardId: this.board.id,
+          await this.$store.dispatch('ticketColumns/createTicket', {
+            teamId: this.selectedTeamId,
             ticket_column_id: this.targetColumnId,
             ...payload,
           });
@@ -198,14 +181,14 @@ export default {
     async submitColumn(payload) {
       try {
         if (this.selectedColumn) {
-          await this.$store.dispatch('ticketBoards/updateColumn', {
-            boardId: this.board.id,
+          await this.$store.dispatch('ticketColumns/updateColumn', {
+            teamId: this.selectedTeamId,
             columnId: this.selectedColumn.id,
             ...payload,
           });
         } else {
-          await this.$store.dispatch('ticketBoards/createColumn', {
-            boardId: this.board.id,
+          await this.$store.dispatch('ticketColumns/createColumn', {
+            teamId: this.selectedTeamId,
             ...payload,
           });
         }
@@ -227,8 +210,8 @@ export default {
       const column = this.selectedColumn;
       this.closeDeleteColumnConfirm();
       try {
-        await this.$store.dispatch('ticketBoards/deleteColumn', {
-          boardId: this.board.id,
+        await this.$store.dispatch('ticketColumns/deleteColumn', {
+          teamId: this.selectedTeamId,
           columnId: column.id,
         });
         useAlert(this.$t('TICKET.API.COLUMN_DELETE_SUCCESS'));
@@ -238,8 +221,8 @@ export default {
     },
     async moveTicket({ ticketId, ticketColumnId, position }) {
       try {
-        await this.$store.dispatch('ticketBoards/moveTicket', {
-          boardId: this.board.id,
+        await this.$store.dispatch('ticketColumns/moveTicket', {
+          teamId: this.selectedTeamId,
           id: ticketId,
           ticketColumnId,
           position,
@@ -249,8 +232,8 @@ export default {
       }
     },
     async reorderColumns(columnIds) {
-      await this.$store.dispatch('ticketBoards/reorderColumns', {
-        boardId: this.board.id,
+      await this.$store.dispatch('ticketColumns/reorderColumns', {
+        teamId: this.selectedTeamId,
         columnIds,
       });
     },
@@ -260,7 +243,7 @@ export default {
 
 <template>
   <div class="flex flex-col h-full min-h-0 p-4 gap-4">
-    <div class="flex items-start justify-between gap-4 flex-shrink-0">
+    <div class="flex items-start justify-between gap-4 flex-shrink-0 flex-wrap">
       <div>
         <h1 class="text-xl font-medium text-n-slate-12">
           {{ $t('TICKET.HEADER') }}
@@ -269,103 +252,81 @@ export default {
           {{ $t('TICKET.DESCRIPTION') }}
         </p>
       </div>
-    </div>
 
-    <div
-      v-if="boards.length"
-      class="flex items-center gap-1 border-b border-n-weak flex-shrink-0 overflow-x-auto"
-    >
-      <div
-        v-for="item in boards"
-        :key="item.id"
-        class="group flex items-center gap-1.5 px-3 py-2 border-b-2 cursor-pointer flex-shrink-0"
-        :class="
-          board && item.id === board.id
-            ? 'border-n-brand text-n-slate-12'
-            : 'border-transparent text-n-slate-11 hover:text-n-slate-12'
-        "
-        @click="selectBoard(item.id)"
-      >
-        <span class="text-sm font-medium whitespace-nowrap">{{
-          item.name
-        }}</span>
-        <span
-          v-if="isAdmin && board && item.id === board.id"
-          class="hidden group-hover:flex items-center gap-0.5"
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <select
+          v-if="teams.length"
+          :value="selectedTeamId"
+          class="h-8 rounded-lg border border-n-strong bg-transparent px-2 text-sm text-n-slate-12"
+          @change="selectTeam($event.target.value)"
         >
-          <button
-            type="button"
-            class="flex items-center justify-center size-5 rounded hover:bg-n-slate-4"
-            @click.stop="openEditBoard(item)"
-          >
-            <Icon icon="i-lucide-pencil" class="size-3" />
-          </button>
-          <button
-            type="button"
-            class="flex items-center justify-center size-5 rounded hover:bg-n-slate-4"
-            @click.stop="confirmDeleteBoard(item)"
-          >
-            <Icon icon="i-lucide-trash-2" class="size-3" />
-          </button>
-        </span>
+          <option v-for="team in teams" :key="team.id" :value="team.id">
+            {{ team.name }}
+          </option>
+        </select>
+        <NextButton
+          icon="i-lucide-search"
+          faded
+          slate
+          size="sm"
+          :label="$t('TICKET.SEARCH.BUTTON')"
+          @click="showDetailedSearch = true"
+        />
       </div>
-      <button
-        v-if="isAdmin"
-        type="button"
-        class="flex items-center gap-1 px-2 py-1.5 text-sm text-n-slate-11 hover:text-n-slate-12 flex-shrink-0"
-        @click="openAddBoard"
-      >
-        <Icon icon="i-lucide-plus" class="size-3.5" />
-        {{ $t('TICKET.BOARD.NEW_BOARD') }}
-      </button>
     </div>
 
-    <div
-      v-if="isLoading"
-      class="flex items-center justify-center gap-2 flex-1 text-n-slate-11"
-    >
-      <Spinner />
-      <span class="text-sm">{{ $t('TICKET.LOADING') }}</span>
-    </div>
+    <TicketAvatarFilterRow
+      v-if="selectedTeamId"
+      :agents="mesaAgents"
+      :selected-agent-id="selectedAgentId"
+      @select="selectAgentFilter"
+    />
 
     <div
-      v-else-if="!board"
+      v-if="!teams.length"
       class="flex flex-1 flex-col items-center justify-center gap-3 text-center"
     >
       <h2 class="text-base font-medium text-n-slate-12">
         {{ $t('TICKET.EMPTY.TITLE') }}
       </h2>
       <p class="text-sm text-n-slate-11 max-w-sm">
-        {{ $t('TICKET.EMPTY.DESC') }}
+        {{ $t('TICKET.EMPTY.NO_MESA_DESC') }}
       </p>
-      <NextButton
-        v-if="isAdmin"
-        :label="$t('TICKET.EMPTY.ACTION')"
-        :is-loading="isCreatingBoard"
-        @click="createDefaultBoard"
-      />
+    </div>
+
+    <div
+      v-else-if="isLoading"
+      class="flex items-center justify-center gap-2 flex-1 text-n-slate-11"
+    >
+      <Spinner />
+      <span class="text-sm">{{ $t('TICKET.LOADING') }}</span>
     </div>
 
     <TicketBoard
-      v-else
-      :board="board"
-      :agents="agents"
+      v-else-if="selectedBoard"
+      :board="selectedBoard"
+      :agents="mesaAgents"
       :is-admin="isAdmin"
+      :filters="{ assigneeId: selectedAgentId }"
       class="flex-1 min-h-0"
       @add-ticket="openAddTicket"
+      @open-ticket="openTicketDetail"
       @edit-ticket="openEditTicket"
       @add-column="openAddColumn"
       @edit-column="openEditColumn"
       @delete-column="confirmDeleteColumn"
       @move-ticket="moveTicket"
       @reorder-columns="reorderColumns"
+      @open-conversation="openConversationFromTicket"
+      @resolve-ticket="resolveTicket"
+      @reopen-ticket="reopenTicket"
+      @close-ticket="closeTicket"
     />
 
     <woot-modal v-model:show="showTicketForm" :on-close="closeTicketForm">
       <TicketFormDialog
         :ticket="selectedTicket"
-        :agents="agents"
-        :teams="teams"
+        :agents="mesaAgents"
         :is-submitting="isSubmittingTicket"
         @close="closeTicketForm"
         @submit="submitTicket"
@@ -391,23 +352,12 @@ export default {
       :reject-text="$t('TICKET.COLUMN_DELETE.CANCEL')"
     />
 
-    <woot-modal v-model:show="showBoardForm" :on-close="closeBoardForm">
-      <TicketBoardFormDialog
-        :board="editingBoard"
-        @close="closeBoardForm"
-        @submit="submitBoard"
-      />
+    <woot-modal
+      v-model:show="showDetailedSearch"
+      :on-close="() => (showDetailedSearch = false)"
+      size="medium"
+    >
+      <TicketDetailedSearchModal :teams="teams" />
     </woot-modal>
-
-    <woot-delete-modal
-      v-model:show="showDeleteBoardConfirm"
-      :on-close="closeDeleteBoardConfirm"
-      :on-confirm="deleteBoardConfirmed"
-      :title="$t('TICKET.BOARD_DELETE.TITLE')"
-      :message="$t('TICKET.BOARD_DELETE.MESSAGE')"
-      :message-value="editingBoard ? ` ${editingBoard.name}` : ''"
-      :confirm-text="$t('TICKET.BOARD_DELETE.CONFIRM')"
-      :reject-text="$t('TICKET.BOARD_DELETE.CANCEL')"
-    />
   </div>
 </template>

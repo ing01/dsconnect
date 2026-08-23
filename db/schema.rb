@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_24_090000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -501,8 +501,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_captain_faq_suggestions_on_account_id"
     t.index ["account_id", "assistant_id", "status", "language"], name: "idx_cap_faq_suggestions_on_account_assistant_status_language"
+    t.index ["account_id"], name: "index_captain_faq_suggestions_on_account_id"
     t.index ["assistant_id"], name: "index_captain_faq_suggestions_on_assistant_id"
     t.index ["embedding"], name: "vector_idx_captain_faq_suggestions_embedding", opclass: :vector_cosine_ops, using: :ivfflat
   end
@@ -742,8 +742,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
     t.jsonb "phone_number_health", default: {}, null: false
     t.datetime "phone_number_health_checked_at"
     t.string "phone_number_health_error", limit: 500
-    t.index ["phone_number_health_checked_at"], name: "index_channel_whatsapp_on_phone_number_health_checked_at"
     t.index ["phone_number"], name: "index_channel_whatsapp_on_phone_number", unique: true
+    t.index ["phone_number_health_checked_at"], name: "index_channel_whatsapp_on_phone_number_health_checked_at"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -1135,10 +1135,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "inbox_id"
-    t.index ["account_id", "name", "template_type", "locale"], name: "index_email_templates_on_account_scope", unique: true, where: "(account_id IS NOT NULL) AND (inbox_id IS NULL)"
+    t.index ["account_id", "name", "template_type", "locale"], name: "index_email_templates_on_account_scope", unique: true, where: "((account_id IS NOT NULL) AND (inbox_id IS NULL))"
     t.index ["inbox_id", "name", "template_type", "locale"], name: "index_email_templates_on_inbox_scope", unique: true, where: "(inbox_id IS NOT NULL)"
     t.index ["inbox_id"], name: "index_email_templates_on_inbox_id"
-    t.index ["name", "template_type", "locale"], name: "index_email_templates_on_installation_scope", unique: true, where: "(account_id IS NULL) AND (inbox_id IS NULL)"
+    t.index ["name", "template_type", "locale"], name: "index_email_templates_on_installation_scope", unique: true, where: "((account_id IS NULL) AND (inbox_id IS NULL))"
   end
 
   create_table "folders", force: :cascade do |t|
@@ -1573,22 +1573,42 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
     t.index ["name", "account_id"], name: "index_teams_on_name_and_account_id", unique: true
   end
 
-  create_table "ticket_boards", force: :cascade do |t|
+  create_table "ticket_activities", force: :cascade do |t|
     t.bigint "account_id", null: false
-    t.string "name", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "user_id"
+    t.integer "activity_type", null: false
+    t.string "previous_value"
+    t.string "new_value"
+    t.jsonb "meta", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_ticket_boards_on_account_id"
+    t.index ["account_id"], name: "index_ticket_activities_on_account_id"
+    t.index ["ticket_id", "created_at"], name: "index_ticket_activities_on_ticket_id_and_created_at"
+    t.index ["ticket_id"], name: "index_ticket_activities_on_ticket_id"
+    t.index ["user_id"], name: "index_ticket_activities_on_user_id"
   end
 
   create_table "ticket_columns", force: :cascade do |t|
-    t.bigint "ticket_board_id", null: false
     t.string "name", null: false
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["ticket_board_id"], name: "index_ticket_columns_on_ticket_board_id"
-    t.index ["ticket_board_id", "position"], name: "index_ticket_columns_on_ticket_board_id_and_position"
+    t.bigint "team_id", null: false
+    t.index ["team_id"], name: "index_ticket_columns_on_team_id"
+  end
+
+  create_table "ticket_comments", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "user_id", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_comments_on_account_id"
+    t.index ["ticket_id", "created_at"], name: "index_ticket_comments_on_ticket_id_and_created_at"
+    t.index ["ticket_id"], name: "index_ticket_comments_on_ticket_id"
+    t.index ["user_id"], name: "index_ticket_comments_on_user_id"
   end
 
   create_table "ticket_conversations", force: :cascade do |t|
@@ -1607,7 +1627,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
     t.bigint "account_id", null: false
     t.bigint "ticket_column_id", null: false
     t.bigint "assignee_id"
-    t.bigint "team_id"
+    t.bigint "team_id", null: false
     t.string "title", null: false
     t.text "description"
     t.integer "priority"
@@ -1615,11 +1635,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
     t.jsonb "custom_attributes", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "display_id"
+    t.datetime "resolved_at"
+    t.datetime "closed_at"
+    t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id"], name: "index_tickets_on_account_id"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
+    t.index ["status"], name: "index_tickets_on_status"
     t.index ["team_id"], name: "index_tickets_on_team_id"
-    t.index ["ticket_column_id"], name: "index_tickets_on_ticket_column_id"
     t.index ["ticket_column_id", "position"], name: "index_tickets_on_ticket_column_id_and_position"
+    t.index ["ticket_column_id"], name: "index_tickets_on_ticket_column_id"
   end
 
   create_table "user_sessions", force: :cascade do |t|
@@ -1727,6 +1753,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_21_100000) do
   add_foreign_key "mood_entries", "accounts"
   add_foreign_key "mood_entries", "users"
   add_foreign_key "system_modules", "accounts"
+  add_foreign_key "ticket_columns", "teams"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").

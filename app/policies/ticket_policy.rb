@@ -1,4 +1,8 @@
 class TicketPolicy < ApplicationPolicy
+  # Kanban visibility is account-wide today, regardless of Mesa (Team), so
+  # every agent/admin can see and create tickets. Mutating a ticket
+  # (assignee/team/priority/status/deletion) is restricted to admins, the
+  # current assignee, or a member of the ticket's Mesa (team).
   def index?
     true
   end
@@ -12,14 +16,44 @@ class TicketPolicy < ApplicationPolicy
   end
 
   def update?
-    true
-  end
-
-  def destroy?
-    true
+    administrator? || assigned_to_user? || team_member?
   end
 
   def move?
-    true
+    update?
+  end
+
+  def assign?
+    update?
+  end
+
+  def resolve?
+    update?
+  end
+
+  def reopen?
+    update?
+  end
+
+  def close?
+    update?
+  end
+
+  def destroy?
+    administrator?
+  end
+
+  private
+
+  def administrator?
+    account_user&.administrator?
+  end
+
+  def assigned_to_user?
+    record.assignee_id.present? && record.assignee_id == user.id
+  end
+
+  def team_member?
+    record.team_id.present? && record.team.members.exists?(id: user.id)
   end
 end

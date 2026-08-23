@@ -1,7 +1,10 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
+import { useMapGetter } from 'dashboard/composables/store';
+import { frontendURL } from 'dashboard/helper/URLHelper';
 import TicketsAPI from 'dashboard/api/tickets';
 import CreateOrLinkTicket from './CreateOrLinkTicket.vue';
 import TicketListItem from './TicketListItem.vue';
@@ -16,6 +19,8 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const router = useRouter();
+const currentAccountId = useMapGetter('getCurrentAccountId');
 
 const tickets = ref([]);
 const isLoading = ref(false);
@@ -28,12 +33,18 @@ const loadTickets = async () => {
   isLoading.value = true;
   try {
     const response = await TicketsAPI.getByConversation(props.conversationId);
-    tickets.value = response.data || [];
+    tickets.value = response.data?.payload || [];
   } catch (error) {
     // Silent fail - not critical for UX
   } finally {
     isLoading.value = false;
   }
+};
+
+const openTicket = ticket => {
+  router.push(
+    frontendURL(`accounts/${currentAccountId.value}/tickets/${ticket.id}`)
+  );
 };
 
 const unlinkTicket = async ticketId => {
@@ -88,8 +99,9 @@ onMounted(loadTickets);
       <TicketListItem
         v-for="ticket in tickets"
         :key="ticket.id"
-        class="px-4 pt-3 pb-4 border-b border-n-weak last:border-b-0"
+        class="px-4 pt-3 pb-4 border-b border-n-weak last:border-b-0 cursor-pointer hover:bg-n-slate-2"
         :ticket="ticket"
+        @click="openTicket(ticket)"
         @unlink="unlinkTicket"
       />
     </div>

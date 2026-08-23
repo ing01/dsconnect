@@ -61,6 +61,14 @@ module Events::Types
   AGENT_ADDED = 'agent.added'
   AGENT_REMOVED = 'agent.removed'
 
+  # ticket events
+  TICKET_CREATED = 'ticket.created'
+  TICKET_UPDATED = 'ticket.updated'
+  TICKET_MOVED = 'ticket.moved'
+  TICKET_RESOLVED = 'ticket.resolved'
+  TICKET_REOPENED = 'ticket.reopened'
+  TICKET_CLOSED = 'ticket.closed'
+
   # copilot events
   COPILOT_MESSAGE_CREATED = 'copilot.message.created'
 end

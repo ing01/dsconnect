@@ -38,6 +38,36 @@ class TicketsAPI extends ApiClient {
       `${this.url}/${ticketId}/ticket_conversations/${conversationId}`
     );
   }
+
+  resolve(id) {
+    return axios.patch(`${this.url}/${id}/resolve`);
+  }
+
+  reopen(id) {
+    return axios.patch(`${this.url}/${id}/reopen`);
+  }
+
+  close(id) {
+    return axios.patch(`${this.url}/${id}/close`);
+  }
+
+  getComments(ticketId) {
+    return axios.get(`${this.url}/${ticketId}/comments`);
+  }
+
+  createComment(ticketId, content) {
+    return axios.post(`${this.url}/${ticketId}/comments`, {
+      ticket_comment: { content },
+    });
+  }
+
+  deleteComment(ticketId, commentId) {
+    return axios.delete(`${this.url}/${ticketId}/comments/${commentId}`);
+  }
+
+  getActivities(ticketId) {
+    return axios.get(`${this.url}/${ticketId}/activities`);
+  }
 }
 
 export default new TicketsAPI();
