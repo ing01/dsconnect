@@ -1,5 +1,8 @@
 <script setup>
-defineProps({
+import { computed } from 'vue';
+import { colorForEvent } from '../helpers/agentColorHelper';
+
+const props = defineProps({
   event: {
     type: Object,
     required: true,
@@ -7,6 +10,8 @@ defineProps({
 });
 
 const emit = defineEmits(['click']);
+
+const color = computed(() => colorForEvent(props.event));
 
 const handleClick = e => {
   e.stopPropagation();
@@ -18,7 +23,7 @@ const handleClick = e => {
   <button
     type="button"
     class="flex items-center gap-1.5 w-full px-1.5 py-0.5 rounded-md text-xs text-left truncate text-white hover:opacity-90 transition-opacity"
-    :style="{ backgroundColor: event.color || '#2563eb' }"
+    :style="{ backgroundColor: color }"
     @click="handleClick"
   >
     <span class="truncate">{{ event.title }}</span>

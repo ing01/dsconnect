@@ -25,7 +25,7 @@ const handleSlotClick = date => emit('create-event', { start: date });
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 min-h-0">
+  <div class="flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden">
     <div class="pl-14">
       <AgendaAllDayRow :days="days" :events="allDayEvents" @open-event="event => emit('open-event', event)" />
     </div>

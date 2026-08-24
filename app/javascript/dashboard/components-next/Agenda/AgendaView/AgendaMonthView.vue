@@ -33,7 +33,7 @@ const eventsFor = date => eventsByDay.value.get(format(date, 'yyyy-MM-dd')) || [
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 min-h-0">
+  <div class="flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden">
     <div class="grid grid-cols-7 flex-shrink-0">
       <div
         v-for="label in weekdayLabels"
@@ -43,7 +43,7 @@ const eventsFor = date => eventsByDay.value.get(format(date, 'yyyy-MM-dd')) || [
         {{ label }}
       </div>
     </div>
-    <div class="grid flex-1 grid-cols-7 overflow-y-auto" :style="{ gridTemplateRows: `repeat(${grid.weeks.length}, minmax(0, 1fr))` }">
+    <div class="grid flex-1 min-w-0 grid-cols-7 overflow-y-auto overflow-x-hidden" :style="{ gridTemplateRows: `repeat(${grid.weeks.length}, minmax(0, 1fr))` }">
       <AgendaMonthDayCell
         v-for="day in grid.days"
         :key="day.toISOString()"

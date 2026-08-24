@@ -21,6 +21,12 @@
       "TITLE": "Nenhum time encontrado",
       "NO_TEAM_DESC": "Crie um time para começar a usar a agenda."
     },
+    "AGENT_FILTER": {
+      "BUTTON": "Filtrar por agente",
+      "BUTTON_WITH_COUNT": "{n} agente selecionado | {n} agentes selecionados",
+      "TITLE": "Mostrar agenda de",
+      "CLEAR": "Limpar"
+    },
     "FORM": {
       "ADD_TITLE": "Novo evento",
       "EDIT_TITLE": "Editar evento",
@@ -30,7 +36,8 @@
         "REQUIRED_ERROR": "O título é obrigatório"
       },
       "DESCRIPTION": {
-        "LABEL": "Descrição"
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Ex.: Falar com o cliente sobre o projeto X"
       },
       "ALL_DAY": "Dia inteiro",
       "START_AT": "Início",
@@ -40,8 +47,8 @@
         "LABEL": "Local",
         "PLACEHOLDER": "Ex.: Sala de reuniões, link da chamada..."
       },
-      "COLOR": "Cor",
       "ATTENDEES": "Participantes",
+      "ATTENDEES_COLOR_HINT": "A cor do evento na agenda segue quem criou o evento.",
       "TICKETS": "Tickets vinculados",
       "TICKETS_SEARCH_PLACEHOLDER": "Pesquisar tickets do time...",
       "NO_TICKETS": "Nenhum ticket encontrado para este time.",

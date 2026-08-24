@@ -1,5 +1,7 @@
 <script setup>
+import { computed } from 'vue';
 import { format, parseISO } from 'date-fns';
+import { colorForEvent } from '../helpers/agentColorHelper';
 
 const props = defineProps({
   event: {
@@ -34,6 +36,8 @@ const props = defineProps({
 
 const emit = defineEmits(['click']);
 
+const color = computed(() => colorForEvent(props.event));
+
 const handleClick = e => {
   e.stopPropagation();
   emit('click');
@@ -53,7 +57,7 @@ const timeRangeLabel = () =>
       height: `${height}px`,
       left: `${left}%`,
       width: `calc(${width}% - 4px)`,
-      backgroundColor: event.color || '#2563eb',
+      backgroundColor: color,
     }"
     @click="handleClick"
   >

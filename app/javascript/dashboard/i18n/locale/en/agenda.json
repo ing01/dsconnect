@@ -21,6 +21,12 @@
       "TITLE": "No teams found",
       "NO_TEAM_DESC": "Create a team to start using the agenda."
     },
+    "AGENT_FILTER": {
+      "BUTTON": "Filter by agent",
+      "BUTTON_WITH_COUNT": "{n} agent selected | {n} agents selected",
+      "TITLE": "Show agenda for",
+      "CLEAR": "Clear"
+    },
     "FORM": {
       "ADD_TITLE": "New event",
       "EDIT_TITLE": "Edit event",
@@ -30,7 +36,8 @@
         "REQUIRED_ERROR": "Title is required"
       },
       "DESCRIPTION": {
-        "LABEL": "Description"
+        "LABEL": "Description",
+        "PLACEHOLDER": "e.g. Discuss project X with the client"
       },
       "ALL_DAY": "All day",
       "START_AT": "Start",
@@ -40,8 +47,8 @@
         "LABEL": "Location",
         "PLACEHOLDER": "e.g. Meeting room, call link..."
       },
-      "COLOR": "Color",
       "ATTENDEES": "Attendees",
+      "ATTENDEES_COLOR_HINT": "An event's color on the agenda follows whoever created it.",
       "TICKETS": "Linked tickets",
       "TICKETS_SEARCH_PLACEHOLDER": "Search this team's tickets...",
       "NO_TICKETS": "No tickets found for this team.",

@@ -26,7 +26,7 @@ const handleSlotClick = date => emit('create-event', { start: date });
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 min-h-0">
+  <div class="flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden">
     <div class="grid pl-14" :style="{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }">
       <div
         v-for="day in days"

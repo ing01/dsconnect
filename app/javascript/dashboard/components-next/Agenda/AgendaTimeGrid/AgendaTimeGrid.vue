@@ -32,7 +32,7 @@ const eventsFor = day =>
 </script>
 
 <template>
-  <div class="flex flex-1 min-h-0 overflow-y-auto">
+  <div class="flex flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden">
     <div class="sticky left-0 flex-shrink-0 w-14 bg-n-background z-10">
       <div
         v-for="label in hourLabels"
@@ -43,7 +43,7 @@ const eventsFor = day =>
         {{ label }}
       </div>
     </div>
-    <div class="flex flex-1">
+    <div class="flex flex-1 min-w-0">
       <AgendaTimeGridColumn
         v-for="day in days"
         :key="day.toISOString()"

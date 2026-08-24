@@ -54,14 +54,14 @@ const handleBackgroundClick = e => {
 
 <template>
   <div
-    class="relative flex-1 border-r border-n-weak last:border-r-0"
+    class="relative flex-1 min-w-0 border-r border-n-weak last:border-r-0"
     :style="{ height: `${hourCount * hourHeight}px` }"
     @click="handleBackgroundClick"
   >
     <div
       v-for="hour in hourCount"
       :key="hour"
-      class="border-b border-n-weak"
+      class="border-b border-n-weak transition-colors cursor-pointer hover:bg-n-slate-2 dark:hover:bg-n-solid-2"
       :style="{ height: `${hourHeight}px` }"
     />
 

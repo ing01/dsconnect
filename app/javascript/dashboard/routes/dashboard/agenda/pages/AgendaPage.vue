@@ -35,21 +35,35 @@ export default {
       selectedEvent: null,
       initialStart: null,
       showDeleteConfirm: false,
+      selectedAgentIds: [],
     };
   },
   computed: {
     ...mapGetters({
       teams: 'teams/getTeams',
       eventsByTeam: 'calendarEvents/getEventsByTeam',
+      teamMembersByTeam: 'teamMembers/getTeamMembers',
     }),
+    agents() {
+      return this.selectedTeamId ? this.teamMembersByTeam(this.selectedTeamId) : [];
+    },
     events() {
-      return this.selectedTeamId ? this.eventsByTeam(this.selectedTeamId) : [];
+      const teamEvents = this.selectedTeamId ? this.eventsByTeam(this.selectedTeamId) : [];
+      if (!this.selectedAgentIds.length) return teamEvents;
+
+      return teamEvents.filter(
+        event =>
+          this.selectedAgentIds.includes(event.created_by_id) ||
+          (event.attendees || []).some(attendee => this.selectedAgentIds.includes(attendee.id))
+      );
     },
   },
   watch: {
     selectedTeamId(teamId) {
       if (!teamId) return;
       window.localStorage.setItem(LAST_TEAM_STORAGE_KEY, teamId);
+      this.selectedAgentIds = [];
+      this.$store.dispatch('teamMembers/get', { teamId });
       this.loadEvents();
     },
     view() {
@@ -80,6 +94,14 @@ export default {
     },
     selectTeam(teamId) {
       this.selectedTeamId = teamId;
+    },
+    toggleAgentFilter(agentId) {
+      this.selectedAgentIds = this.selectedAgentIds.includes(agentId)
+        ? this.selectedAgentIds.filter(id => id !== agentId)
+        : [...this.selectedAgentIds, agentId];
+    },
+    clearAgentFilter() {
+      this.selectedAgentIds = [];
     },
     changeView(view) {
       this.view = view;
@@ -156,18 +178,22 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-col h-full min-h-0 p-4 gap-4">
+  <div class="flex flex-col h-full w-full min-h-0 min-w-0 p-3 gap-3 overflow-hidden">
     <AgendaHeader
       :teams="teams"
       :selected-team-id="selectedTeamId"
       :reference-date="referenceDate"
       :view="view"
+      :agents="agents"
+      :selected-agent-ids="selectedAgentIds"
       @select-team="selectTeam"
       @change-view="changeView"
       @navigate-previous="navigatePrevious"
       @navigate-next="navigateNext"
       @navigate-today="navigateToday"
       @create-event="openCreateEvent"
+      @toggle-agent="toggleAgentFilter"
+      @clear-agent-filter="clearAgentFilter"
     />
 
     <div
@@ -205,7 +231,7 @@ export default {
       />
     </template>
 
-    <woot-modal v-model:show="showEventForm" :on-close="closeEventForm">
+    <woot-modal v-model:show="showEventForm" size="medium" :on-close="closeEventForm">
       <CalendarEventFormDialog
         :event="selectedEvent"
         :team-id="selectedTeamId"

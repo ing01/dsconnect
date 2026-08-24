@@ -34,11 +34,13 @@ const handleEventClick = event => emit('click-event', event);
 </script>
 
 <template>
-  <button
-    type="button"
-    class="flex flex-col items-stretch gap-1 p-1.5 min-h-[6rem] text-left border border-n-weak transition-colors hover:bg-n-alpha-1"
+  <div
+    role="button"
+    tabindex="0"
+    class="flex flex-col items-stretch gap-1 p-1.5 min-h-[6rem] min-w-0 text-left border border-n-weak transition-colors cursor-pointer hover:bg-n-alpha-1"
     :class="{ 'bg-n-alpha-1': !isCurrentMonth }"
     @click="handleCellClick"
+    @keydown.enter="handleCellClick"
   >
     <span
       class="self-start grid place-content-center size-6 rounded-full text-xs"
@@ -61,5 +63,5 @@ const handleEventClick = event => emit('click-event', event);
         +{{ overflowCount }}
       </span>
     </div>
-  </button>
+  </div>
 </template>

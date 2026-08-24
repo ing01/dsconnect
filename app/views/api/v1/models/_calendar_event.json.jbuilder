@@ -1,8 +1,8 @@
 json.id resource.id
 json.title resource.title
 json.description resource.description
-json.start_at resource.start_at.to_i
-json.end_at resource.end_at.to_i
+json.start_at resource.start_at.iso8601
+json.end_at resource.end_at.iso8601
 json.all_day resource.all_day
 json.location resource.location
 json.color resource.color
