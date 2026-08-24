@@ -363,6 +363,9 @@ Rails.application.routes.draw do
           end
 
           resources :tickets do
+            collection do
+              post :ensure_default_mesa
+            end
             member do
               patch :move
               patch :resolve

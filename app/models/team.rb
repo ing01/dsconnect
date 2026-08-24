@@ -29,7 +29,7 @@ class Team < ApplicationRecord
   # alongside it. Tickets, on the other hand, must never be silently
   # orphaned/reassigned - a Mesa with open tickets can't be deleted until
   # those tickets are moved or removed first.
-  has_many :ticket_columns, -> { order(:position) }, dependent: :destroy, inverse_of: :team
+  has_many :ticket_columns, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :team
   has_many :tickets, dependent: :restrict_with_error
 
   before_destroy :capture_filtered_unread_count_member_ids, prepend: true

@@ -219,4 +219,42 @@ RSpec.describe 'Tickets API', type: :request do
       expect(Ticket.exists?(ticket.id)).to be(true)
     end
   end
+
+  describe 'POST .../tickets/ensure_default_mesa' do
+    let(:bare_account) { create(:account) }
+    let(:bare_admin) { create(:user, account: bare_account, role: :administrator) }
+
+    it 'provisions the suporte Mesa when the account has none' do
+      post "/api/v1/accounts/#{bare_account.id}/tickets/ensure_default_mesa",
+           headers: bare_admin.create_new_auth_token,
+           as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['name']).to eq('suporte')
+      expect(response.parsed_body['ticket_columns'].pluck('name')).to eq(['A fazer', 'Em andamento', 'Concluído'])
+    end
+
+    it 'returns the existing Mesa without creating another' do
+      existing = create(:team, account: bare_account)
+
+      expect do
+        post "/api/v1/accounts/#{bare_account.id}/tickets/ensure_default_mesa",
+             headers: bare_admin.create_new_auth_token,
+             as: :json
+      end.not_to change(bare_account.teams, :count)
+
+      expect(response.parsed_body['id']).to eq(existing.id)
+    end
+
+    it 'is available to an agent so a fresh account is not a dead end' do
+      bare_agent = create(:user, account: bare_account, role: :agent)
+
+      post "/api/v1/accounts/#{bare_account.id}/tickets/ensure_default_mesa",
+           headers: bare_agent.create_new_auth_token,
+           as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(bare_account.teams.pluck(:name)).to eq(['suporte'])
+    end
+  end
 end

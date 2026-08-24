@@ -1,12 +1,13 @@
 <script>
-import Draggable from 'vuedraggable';
-import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TicketBoardColumn from './TicketBoardColumn.vue';
+import {
+  readCollapsedColumnIds,
+  toggleCollapsedColumn,
+} from '../helpers/collapsedColumns';
+import { sortTickets } from '../helpers/ticketSort';
 
 export default {
   components: {
-    Draggable,
-    Icon,
     TicketBoardColumn,
   },
   props: {
@@ -14,28 +15,32 @@ export default {
       type: Object,
       required: true,
     },
+    accountId: {
+      type: [Number, String],
+      required: true,
+    },
+    teamId: {
+      type: [Number, String],
+      required: true,
+    },
     agents: {
       type: Array,
       default: () => [],
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
     filters: {
       type: Object,
       default: () => ({}),
+    },
+    sort: {
+      type: Object,
+      default: null,
     },
   },
   emits: [
     'add-ticket',
     'open-ticket',
     'edit-ticket',
-    'add-column',
-    'edit-column',
-    'delete-column',
     'move-ticket',
-    'reorder-columns',
     'open-conversation',
     'resolve-ticket',
     'reopen-ticket',
@@ -43,8 +48,12 @@ export default {
   ],
   data() {
     return {
+      // Estagios are ordered by the backend and reordered from Settings, so the
+      // board only keeps the ticket arrays locally - Draggable mutates those in
+      // place, which is what keeps each column's counter correct mid-drag.
       localColumns: {},
-      localColumnOrder: [],
+      columns: [],
+      collapsedColumnIds: [],
     };
   },
   watch: {
@@ -54,22 +63,40 @@ export default {
         this.syncLocalState(newBoard);
       },
     },
+    // Re-sorting goes through the same path a refetch does, so a board that is
+    // already loaded reorders without another request.
+    sort() {
+      this.syncLocalState(this.board);
+    },
   },
   methods: {
     syncLocalState(board) {
       const columns = board?.ticket_columns || [];
-      this.localColumnOrder = columns.map(column => ({ ...column }));
+      this.columns = columns.map(column => ({ ...column }));
 
+      // Sorting is applied here, on the way into the local arrays, which is the
+      // single point every path funnels through: first load, realtime upserts and
+      // the refetch that follows a drag all land back in an ordered column.
       const columnTickets = {};
       columns.forEach(column => {
-        columnTickets[column.id] = [...(column.tickets || [])];
+        columnTickets[column.id] = sortTickets(column.tickets || [], this.sort);
       });
       this.localColumns = columnTickets;
+
+      this.collapsedColumnIds = readCollapsedColumnIds(
+        this.accountId,
+        this.teamId,
+        this.columns.map(column => column.id)
+      );
     },
-    onColumnsDragEnd() {
-      this.$emit(
-        'reorder-columns',
-        this.localColumnOrder.map(column => column.id)
+    isCollapsed(columnId) {
+      return this.collapsedColumnIds.includes(columnId);
+    },
+    toggleColumn(columnId) {
+      this.collapsedColumnIds = toggleCollapsedColumn(
+        this.accountId,
+        this.teamId,
+        columnId
       );
     },
   },
@@ -77,44 +104,33 @@ export default {
 </script>
 
 <template>
-  <div class="flex h-full gap-3 overflow-x-auto pb-2">
-    <Draggable
-      v-model="localColumnOrder"
-      item-key="id"
-      animation="200"
-      handle=".column-drag-handle"
-      class="flex gap-3 items-start"
-      @end="onColumnsDragEnd"
-    >
-      <template #item="{ element }">
-        <TicketBoardColumn
-          :column="element"
-          :tickets="localColumns[element.id] || []"
-          :agents="agents"
-          :is-admin="isAdmin"
-          :filters="filters"
-          @add-ticket="$emit('add-ticket', $event)"
-          @open-ticket="$emit('open-ticket', $event)"
-          @edit-ticket="$emit('edit-ticket', $event)"
-          @edit-column="$emit('edit-column', $event)"
-          @delete-column="$emit('delete-column', $event)"
-          @move-ticket="$emit('move-ticket', $event)"
-          @open-conversation="$emit('open-conversation', $event)"
-          @resolve-ticket="$emit('resolve-ticket', $event)"
-          @reopen-ticket="$emit('reopen-ticket', $event)"
-          @close-ticket="$emit('close-ticket', $event)"
-        />
-      </template>
-    </Draggable>
-
-    <button
-      v-if="isAdmin"
-      type="button"
-      class="flex flex-shrink-0 items-center gap-1.5 h-10 px-3 rounded-xl border border-dashed border-n-weak text-sm text-n-slate-11 hover:bg-n-slate-2"
-      @click="$emit('add-column')"
-    >
-      <Icon icon="i-lucide-plus" class="size-3.5" />
-      {{ $t('TICKET.BOARD.ADD_COLUMN') }}
-    </button>
+  <div
+    class="w-full max-w-full min-w-0 h-full overflow-x-auto overflow-y-hidden"
+  >
+    <!-- Outer div is the viewport: it owns the horizontal scroll and is capped at
+         the width the page hands it, so no number of Estagios can widen the page
+         or push the header out of reach. The inner strip is `w-max` so columns
+         keep their usable width and simply extend past the viewport instead of
+         being squeezed to fit. -->
+    <div class="flex h-full w-max gap-3 pb-2 items-start">
+      <TicketBoardColumn
+        v-for="column in columns"
+        :key="column.id"
+        :column="column"
+        :tickets="localColumns[column.id] || []"
+        :agents="agents"
+        :filters="filters"
+        :is-collapsed="isCollapsed(column.id)"
+        @toggle-collapse="toggleColumn"
+        @add-ticket="$emit('add-ticket', $event)"
+        @open-ticket="$emit('open-ticket', $event)"
+        @edit-ticket="$emit('edit-ticket', $event)"
+        @move-ticket="$emit('move-ticket', $event)"
+        @open-conversation="$emit('open-conversation', $event)"
+        @resolve-ticket="$emit('resolve-ticket', $event)"
+        @reopen-ticket="$emit('reopen-ticket', $event)"
+        @close-ticket="$emit('close-ticket', $event)"
+      />
+    </div>
   </div>
 </template>

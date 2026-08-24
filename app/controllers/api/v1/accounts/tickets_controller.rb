@@ -34,6 +34,14 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
 
   def show; end
 
+  # Bootstraps the Kanban for an account that has no Mesa de Servico yet, so a
+  # fresh install lands on a usable board instead of an empty screen. Idempotent -
+  # see Tickets::DefaultMesaBuilder.
+  def ensure_default_mesa
+    @team = Tickets::DefaultMesaBuilder.new(account: Current.account).perform
+    render 'api/v1/accounts/teams/show', formats: [:json]
+  end
+
   def create
     @ticket = Current.account.tickets.new(ticket_params)
     # A ticket's Mesa (team) is defined by whichever Estagio (ticket_column)

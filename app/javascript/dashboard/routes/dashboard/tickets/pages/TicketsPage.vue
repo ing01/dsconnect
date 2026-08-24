@@ -4,10 +4,14 @@ import { useAlert } from 'dashboard/composables';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import NextInput from 'dashboard/components-next/input/Input.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TicketBoard from '../components/TicketBoard.vue';
 import TicketFormDialog from '../components/TicketFormDialog.vue';
-import TicketColumnFormDialog from '../components/TicketColumnFormDialog.vue';
 import TicketAvatarFilterRow from '../components/TicketAvatarFilterRow.vue';
+import TicketMesaSelector from '../components/TicketMesaSelector.vue';
+import TicketSortMenu from '../components/TicketSortMenu.vue';
+import { readSortPreference, writeSortPreference } from '../helpers/ticketSort';
 import TicketDetailedSearchModal from '../components/TicketDetailedSearchModal.vue';
 
 const LAST_TEAM_STORAGE_KEY = 'ticket-kanban-last-team-id';
@@ -16,24 +20,26 @@ export default {
   components: {
     NextButton,
     Spinner,
+    NextInput,
+    Icon,
     TicketBoard,
     TicketFormDialog,
-    TicketColumnFormDialog,
     TicketAvatarFilterRow,
+    TicketMesaSelector,
+    TicketSortMenu,
     TicketDetailedSearchModal,
   },
   data() {
     return {
       showTicketForm: false,
-      showColumnForm: false,
-      showDeleteColumnConfirm: false,
       showDetailedSearch: false,
       isSubmittingTicket: false,
       selectedTicket: null,
-      selectedColumn: null,
       targetColumnId: null,
       selectedTeamId: null,
-      selectedAgentId: null,
+      selectedAgentIds: [],
+      quickSearch: '',
+      sort: null,
     };
   },
   computed: {
@@ -42,7 +48,6 @@ export default {
       board: 'ticketColumns/getBoard',
       boardUIFlags: 'ticketColumns/getUIFlags',
       teamMembersByTeam: 'teamMembers/getTeamMembers',
-      currentRole: 'getCurrentRole',
       currentAccountId: 'getCurrentAccountId',
     }),
     selectedBoard() {
@@ -53,9 +58,6 @@ export default {
         ? this.teamMembersByTeam(this.selectedTeamId)
         : [];
     },
-    isAdmin() {
-      return this.currentRole === 'administrator';
-    },
     isLoading() {
       return this.boardUIFlags.isFetching && !this.selectedBoard;
     },
@@ -64,7 +66,10 @@ export default {
     selectedTeamId(teamId) {
       if (!teamId) return;
       window.localStorage.setItem(LAST_TEAM_STORAGE_KEY, teamId);
-      this.selectedAgentId = null;
+      this.selectedAgentIds = [];
+      this.quickSearch = '';
+      // Sorting is remembered per Mesa, so it is reloaded rather than cleared.
+      this.sort = readSortPreference(this.currentAccountId, teamId);
       this.loadMesa(teamId);
     },
   },
@@ -72,7 +77,21 @@ export default {
     this.$store.dispatch('teams/get').then(() => this.pickInitialTeam());
   },
   methods: {
-    pickInitialTeam() {
+    // A brand-new account has no Mesa at all, which would leave the Kanban on a
+    // dead-end empty state. Provisioning is server-side and idempotent, so this
+    // only ever creates the default Mesa once.
+    async bootstrapDefaultMesa() {
+      try {
+        await this.$store.dispatch('ticketColumns/ensureDefaultMesa');
+        await this.$store.dispatch('teams/get');
+      } catch (error) {
+        // Falls through to the "no Mesa configured" empty state.
+      }
+    },
+    async pickInitialTeam() {
+      if (!this.teams.length) {
+        await this.bootstrapDefaultMesa();
+      }
       const savedId = Number(
         window.localStorage.getItem(LAST_TEAM_STORAGE_KEY)
       );
@@ -81,7 +100,13 @@ export default {
       this.selectedTeamId = savedTeamExists
         ? savedId
         : this.teams[0]?.id || null;
-      if (this.selectedTeamId) this.loadMesa(this.selectedTeamId);
+      if (this.selectedTeamId) {
+        this.sort = readSortPreference(
+          this.currentAccountId,
+          this.selectedTeamId
+        );
+        this.loadMesa(this.selectedTeamId);
+      }
     },
     loadMesa(teamId) {
       this.$store.dispatch('ticketColumns/fetchBoard', teamId);
@@ -90,8 +115,13 @@ export default {
     selectTeam(teamId) {
       this.selectedTeamId = Number(teamId);
     },
-    selectAgentFilter(agentId) {
-      this.selectedAgentId = this.selectedAgentId === agentId ? null : agentId;
+    // The filter row resolves add/remove/clear and hands over the full list.
+    selectAgentFilter(agentIds) {
+      this.selectedAgentIds = agentIds;
+    },
+    updateSort(sort) {
+      this.sort = sort;
+      writeSortPreference(this.currentAccountId, this.selectedTeamId, sort);
     },
     openTicketDetail(ticket) {
       this.$router.push(
@@ -166,59 +196,6 @@ export default {
         this.isSubmittingTicket = false;
       }
     },
-    openAddColumn() {
-      this.selectedColumn = null;
-      this.showColumnForm = true;
-    },
-    openEditColumn(column) {
-      this.selectedColumn = column;
-      this.showColumnForm = true;
-    },
-    closeColumnForm() {
-      this.showColumnForm = false;
-      this.selectedColumn = null;
-    },
-    async submitColumn(payload) {
-      try {
-        if (this.selectedColumn) {
-          await this.$store.dispatch('ticketColumns/updateColumn', {
-            teamId: this.selectedTeamId,
-            columnId: this.selectedColumn.id,
-            ...payload,
-          });
-        } else {
-          await this.$store.dispatch('ticketColumns/createColumn', {
-            teamId: this.selectedTeamId,
-            ...payload,
-          });
-        }
-        useAlert(this.$t('TICKET.API.COLUMN_SUCCESS'));
-        this.closeColumnForm();
-      } catch (error) {
-        useAlert(this.$t('TICKET.API.COLUMN_ERROR'));
-      }
-    },
-    confirmDeleteColumn(column) {
-      this.selectedColumn = column;
-      this.showDeleteColumnConfirm = true;
-    },
-    closeDeleteColumnConfirm() {
-      this.showDeleteColumnConfirm = false;
-      this.selectedColumn = null;
-    },
-    async deleteColumnConfirmed() {
-      const column = this.selectedColumn;
-      this.closeDeleteColumnConfirm();
-      try {
-        await this.$store.dispatch('ticketColumns/deleteColumn', {
-          teamId: this.selectedTeamId,
-          columnId: column.id,
-        });
-        useAlert(this.$t('TICKET.API.COLUMN_DELETE_SUCCESS'));
-      } catch (error) {
-        useAlert(this.$t('TICKET.API.COLUMN_DELETE_ERROR'));
-      }
-    },
     async moveTicket({ ticketId, ticketColumnId, position }) {
       try {
         await this.$store.dispatch('ticketColumns/moveTicket', {
@@ -231,19 +208,17 @@ export default {
         useAlert(this.$t('TICKET.API.MOVE_ERROR'));
       }
     },
-    async reorderColumns(columnIds) {
-      await this.$store.dispatch('ticketColumns/reorderColumns', {
-        teamId: this.selectedTeamId,
-        columnIds,
-      });
-    },
   },
 };
 </script>
 
 <template>
-  <div class="flex flex-col h-full min-h-0 p-4 gap-4">
-    <div class="flex items-start justify-between gap-4 flex-shrink-0 flex-wrap">
+  <div class="flex flex-col w-full h-full min-h-0 min-w-0 p-4 gap-4">
+    <!-- `w-full min-w-0` is what keeps this page inside the shell: it is a flex
+         item of Dashboard.vue's <main>, so without them its width is driven by
+         the Kanban's max-content (every column added) and the header controls
+         get pushed past the clipping edge of <main>. -->
+    <header class="flex flex-col gap-3 w-full min-w-0 flex-shrink-0">
       <div>
         <h1 class="text-xl font-medium text-n-slate-12">
           {{ $t('TICKET.HEADER') }}
@@ -253,34 +228,61 @@ export default {
         </p>
       </div>
 
-      <div class="flex items-center gap-2 flex-shrink-0">
-        <select
+      <!-- Mesa and Busca detalhada never shrink; the agent filter takes the
+           slack and wraps to its own line first when space runs out. -->
+      <div class="flex items-center gap-3 w-full min-w-0 flex-wrap">
+        <TicketMesaSelector
           v-if="teams.length"
-          :value="selectedTeamId"
-          class="h-8 rounded-lg border border-n-strong bg-transparent px-2 text-sm text-n-slate-12"
-          @change="selectTeam($event.target.value)"
+          :teams="teams"
+          :selected-team-id="selectedTeamId"
+          @select="selectTeam"
+        />
+
+        <TicketAvatarFilterRow
+          v-if="selectedTeamId"
+          :agents="mesaAgents"
+          :selected-agent-ids="selectedAgentIds"
+          class="flex-1 min-w-0 order-last sm:order-none"
+          @select="selectAgentFilter"
+        />
+
+        <!-- Quick search filters the loaded board on the spot; the detailed
+             search next to it stays the modal that queries the API. -->
+        <NextInput
+          v-if="selectedTeamId"
+          v-model="quickSearch"
+          type="search"
+          size="sm"
+          class="group w-56 min-w-0 flex-shrink-0 ltr:ml-auto rtl:mr-auto [&>input]:ltr:!pl-8 [&>input]:rtl:!pr-8 [&>input]:!rounded-[0.625rem]"
+          :placeholder="$t('TICKET.SEARCH.QUICK_PLACEHOLDER')"
+          :aria-label="$t('TICKET.SEARCH.QUICK_PLACEHOLDER')"
         >
-          <option v-for="team in teams" :key="team.id" :value="team.id">
-            {{ team.name }}
-          </option>
-        </select>
+          <template #prefix>
+            <Icon
+              icon="i-lucide-search"
+              class="absolute top-1/2 -translate-y-1/2 text-n-slate-11 group-focus-within:text-n-brand size-3.5 ltr:left-2.5 rtl:right-2.5"
+            />
+          </template>
+        </NextInput>
+
+        <TicketSortMenu
+          v-if="selectedTeamId"
+          :sort="sort"
+          @update="updateSort"
+        />
+
         <NextButton
           icon="i-lucide-search"
           faded
           slate
           size="sm"
+          class="flex-shrink-0"
+          :class="selectedTeamId ? '' : 'ltr:ml-auto rtl:mr-auto'"
           :label="$t('TICKET.SEARCH.BUTTON')"
           @click="showDetailedSearch = true"
         />
       </div>
-    </div>
-
-    <TicketAvatarFilterRow
-      v-if="selectedTeamId"
-      :agents="mesaAgents"
-      :selected-agent-id="selectedAgentId"
-      @select="selectAgentFilter"
-    />
+    </header>
 
     <div
       v-if="!teams.length"
@@ -305,18 +307,16 @@ export default {
     <TicketBoard
       v-else-if="selectedBoard"
       :board="selectedBoard"
+      :account-id="currentAccountId"
+      :team-id="selectedTeamId"
       :agents="mesaAgents"
-      :is-admin="isAdmin"
-      :filters="{ assigneeId: selectedAgentId }"
-      class="flex-1 min-h-0"
+      :filters="{ assigneeIds: selectedAgentIds, query: quickSearch }"
+      :sort="sort"
+      class="flex-1 min-h-0 min-w-0"
       @add-ticket="openAddTicket"
       @open-ticket="openTicketDetail"
       @edit-ticket="openEditTicket"
-      @add-column="openAddColumn"
-      @edit-column="openEditColumn"
-      @delete-column="confirmDeleteColumn"
       @move-ticket="moveTicket"
-      @reorder-columns="reorderColumns"
       @open-conversation="openConversationFromTicket"
       @resolve-ticket="resolveTicket"
       @reopen-ticket="reopenTicket"
@@ -332,25 +332,6 @@ export default {
         @submit="submitTicket"
       />
     </woot-modal>
-
-    <woot-modal v-model:show="showColumnForm" :on-close="closeColumnForm">
-      <TicketColumnFormDialog
-        :column="selectedColumn"
-        @close="closeColumnForm"
-        @submit="submitColumn"
-      />
-    </woot-modal>
-
-    <woot-delete-modal
-      v-model:show="showDeleteColumnConfirm"
-      :on-close="closeDeleteColumnConfirm"
-      :on-confirm="deleteColumnConfirmed"
-      :title="$t('TICKET.COLUMN_DELETE.TITLE')"
-      :message="$t('TICKET.COLUMN_DELETE.MESSAGE')"
-      :message-value="selectedColumn ? ` ${selectedColumn.name}` : ''"
-      :confirm-text="$t('TICKET.COLUMN_DELETE.CONFIRM')"
-      :reject-text="$t('TICKET.COLUMN_DELETE.CANCEL')"
-    />
 
     <woot-modal
       v-model:show="showDetailedSearch"

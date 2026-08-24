@@ -43,6 +43,14 @@ class TicketPolicy < ApplicationPolicy
     administrator?
   end
 
+  # Provisioning the default Mesa takes no user input (the name is fixed) and only
+  # fires when the account has none at all, so it isn't gated on `administrator?`
+  # the way TeamPolicy#create? is - otherwise an agent opening the Kanban first on
+  # a fresh account would hit a dead end.
+  def ensure_default_mesa?
+    true
+  end
+
   private
 
   def administrator?

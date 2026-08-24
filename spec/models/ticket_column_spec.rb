@@ -39,9 +39,50 @@ RSpec.describe TicketColumn do
       expect(column.errors[:base]).to be_present
     end
 
+    it 'reports how many tickets are blocking the deletion' do
+      column = create(:ticket_column)
+      create_list(:ticket, 2, ticket_column: column, team: column.team)
+
+      column.destroy
+
+      expect(column.errors[:base].first).to include('2')
+    end
+
     it 'can be destroyed once it has no tickets' do
       column = create(:ticket_column)
       expect(column.destroy).to eq(column)
+    end
+  end
+
+  describe 'moving an Estagio to another Mesa' do
+    let(:account) { create(:account) }
+    let(:origin) { create(:team, account: account) }
+    let(:destination) { create(:team, account: account) }
+
+    it 'is rejected while the Estagio still has tickets' do
+      column = create(:ticket_column, team: origin)
+      create_list(:ticket, 3, ticket_column: column, team: origin)
+
+      column.team = destination
+
+      expect(column).not_to be_valid
+      expect(column.errors[:base].first).to include('3')
+    end
+
+    it 'is allowed while the Estagio is empty' do
+      column = create(:ticket_column, team: origin)
+
+      expect(column.update(team: destination)).to be true
+      expect(column.reload.team).to eq(destination)
+    end
+
+    it 'lands the Estagio at the end of the destination Mesa' do
+      column = create(:ticket_column, team: origin)
+      last_position = destination.ticket_columns.maximum(:position)
+
+      column.update!(team: destination)
+
+      expect(column.reload.position).to eq(last_position + 1)
     end
   end
 
@@ -56,6 +97,15 @@ RSpec.describe TicketColumn do
 
       expect(second.reload.position).to eq(0)
       expect(first.reload.position).to eq(1)
+    end
+  end
+
+  describe 'ordering' do
+    it 'falls back to id when several Estagios share a position' do
+      team = create(:team)
+      team.ticket_columns.update_all(position: 0) # rubocop:disable Rails/SkipsModelValidations
+
+      expect(team.reload.ticket_columns.pluck(:id)).to eq(team.ticket_columns.pluck(:id).sort)
     end
   end
 

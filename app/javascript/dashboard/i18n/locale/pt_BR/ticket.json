@@ -11,15 +11,22 @@
     "FILTERS": {
       "ALL_STATUSES": "Todos os status",
       "ALL_AGENTS": "Todos",
-      "CLEAR": "Limpar filtros"
+      "CLEAR": "Limpar filtros",
+      "MORE_AGENTS": "Mostrar mais {count} atendentes",
+      "SEARCH_AGENT": "Buscar atendente",
+      "NO_MESA_MEMBERS": "Esta Mesa ainda não possui membros. Adicione em Configurações > Times."
     },
     "EMPTY": {
       "TITLE": "Nenhuma Mesa ainda",
       "NO_MESA_DESC": "Peça a um administrador para criar uma Mesa de Serviço (Time) em Configurações antes de criar tickets."
     },
     "BOARD": {
-      "ADD_COLUMN": "Novo estágio",
-      "ADD_TICKET": "Novo ticket"
+      "ADD_TICKET": "Novo ticket",
+      "COLLAPSE": "Minimizar coluna",
+      "EXPAND": "Expandir coluna",
+      "COLLAPSE_COLUMN": "Minimizar coluna {name}",
+      "EXPAND_COLUMN": "Expandir coluna {name}",
+      "ADD_TICKET_TO_COLUMN": "Novo ticket na coluna {name}"
     },
     "COLUMN_FORM": {
       "ADD_TITLE": "Novo estágio",
@@ -111,7 +118,8 @@
       "ALL_MESAS": "Todas as Mesas",
       "ESTAGIO": "Estágio",
       "ALL_ESTAGIOS": "Todos os estágios",
-      "SUBMIT": "Buscar"
+      "SUBMIT": "Buscar",
+      "QUICK_PLACEHOLDER": "Buscar ticket, número ou atendente"
     },
     "ACTIVITY": {
       "EMPTY": "Nenhuma atividade registrada ainda",
@@ -186,6 +194,64 @@
       "COLUMN_ERROR": "Não foi possível salvar o estágio",
       "COLUMN_DELETE_SUCCESS": "Estágio apagado",
       "COLUMN_DELETE_ERROR": "Não foi possível apagar o estágio"
+    },
+    "SETTINGS": {
+      "HEADER": "Tickets",
+      "DESCRIPTION": "Gerencie os estágios do Kanban de cada Mesa de Serviço. Estágios criados aqui aparecem no quadro de Tickets da Mesa correspondente.",
+      "LOADING": "Carregando estágios...",
+      "EMPTY": "Esta Mesa de Serviço ainda não possui estágios.",
+      "NO_MESA": "Nenhuma Mesa de Serviço configurada ainda.",
+      "MESA_LABEL": "Mesa de Serviço",
+      "ADD_STAGE": "Adicionar estágio",
+      "TABLE": {
+        "NAME": "Estágio",
+        "MESA": "Mesa de Serviço",
+        "TICKETS": "Tickets",
+        "ACTIONS": "Ações"
+      },
+      "MOVE_UP": "Mover para cima",
+      "MOVE_DOWN": "Mover para baixo",
+      "EDIT": "Editar estágio",
+      "DELETE": "Excluir estágio",
+      "DELETE_BLOCKED_HINT": "Mova os tickets deste estágio antes de excluí-lo",
+      "FORM": {
+        "MESA": {
+          "LABEL": "Mesa de Serviço",
+          "LOCKED_HINT": "Este estágio possui {count} ticket(s), então não pode mudar de Mesa. Mova os tickets antes."
+        },
+        "ORDER": {
+          "LABEL": "Ordem",
+          "HINT": "Define a posição da coluna no quadro."
+        }
+      },
+      "API": {
+        "REORDER_ERROR": "Não foi possível reordenar os estágios."
+      }
+    },
+    "MESA_SELECTOR": {
+      "LABEL": "Mesa de Serviço",
+      "PREFIX": "Mesa: {name}",
+      "SEARCH": "Buscar mesa",
+      "NONE": "Selecione uma Mesa",
+      "EMPTY": "Nenhuma Mesa encontrada"
+    },
+    "SORT": {
+      "BUTTON": "Ordenar tickets",
+      "TITLE": "Ordenar por",
+      "CLEAR": "Limpar ordenação",
+      "ASC": "Crescente",
+      "DESC": "Decrescente",
+      "ASC_BY": "Ordenar por {field}, crescente",
+      "DESC_BY": "Ordenar por {field}, decrescente",
+      "FIELDS": {
+        "TITLE": "Título",
+        "DISPLAY_ID": "Número",
+        "ASSIGNEE_NAME": "Responsável",
+        "COMPANY_NAME": "Cliente",
+        "PRIORITY": "Prioridade",
+        "CREATED_AT": "Data do ticket",
+        "STATUS": "Status"
+      }
     }
   }
 }

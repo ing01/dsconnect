@@ -83,6 +83,13 @@ en:
         invalid: is not a valid email address
     validations:
       presence: must not be blank
+    ticket_column:
+      has_tickets:
+        one: This stage has 1 ticket. Move the ticket to another stage before deleting it.
+        other: This stage has %{count} tickets. Move the tickets to another stage before deleting it.
+      team_change_with_tickets:
+        one: This stage has 1 ticket and cannot be moved to another service desk. Move the ticket first.
+        other: This stage has %{count} tickets and cannot be moved to another service desk. Move the tickets first.
     webhook:
       invalid: Invalid events
     signup:

@@ -824,6 +824,13 @@ const menuItems = computed(() => {
           ],
           to: accountScopedRoute('settings_teams_list'),
         },
+        {
+          name: 'Settings Tickets',
+          label: t('SIDEBAR.TICKET_SETTINGS'),
+          icon: 'i-lucide-kanban-square',
+          activeOn: ['ticket_settings_wrapper', 'ticket_stages_list'],
+          to: accountScopedRoute('ticket_stages_list'),
+        },
         ...(hasAdvancedAssignment.value
           ? [
               {

@@ -11,15 +11,22 @@
     "FILTERS": {
       "ALL_STATUSES": "All statuses",
       "ALL_AGENTS": "All",
-      "CLEAR": "Clear filters"
+      "CLEAR": "Clear filters",
+      "MORE_AGENTS": "Show {count} more agents",
+      "SEARCH_AGENT": "Search agent",
+      "NO_MESA_MEMBERS": "This service desk has no members yet. Add them in Settings > Teams."
     },
     "EMPTY": {
       "TITLE": "No Mesa yet",
       "NO_MESA_DESC": "Ask an administrator to create a Mesa (Team) in Settings before creating tickets."
     },
     "BOARD": {
-      "ADD_COLUMN": "New stage",
-      "ADD_TICKET": "New ticket"
+      "ADD_TICKET": "New ticket",
+      "COLLAPSE": "Collapse column",
+      "EXPAND": "Expand column",
+      "COLLAPSE_COLUMN": "Collapse column {name}",
+      "EXPAND_COLUMN": "Expand column {name}",
+      "ADD_TICKET_TO_COLUMN": "Add ticket to column {name}"
     },
     "COLUMN_FORM": {
       "ADD_TITLE": "New stage",
@@ -111,7 +118,8 @@
       "ALL_MESAS": "All Mesas",
       "ESTAGIO": "Stage",
       "ALL_ESTAGIOS": "All stages",
-      "SUBMIT": "Search"
+      "SUBMIT": "Search",
+      "QUICK_PLACEHOLDER": "Search ticket, number or agent"
     },
     "ACTIVITY": {
       "EMPTY": "No activity recorded yet",
@@ -186,6 +194,64 @@
       "COLUMN_ERROR": "Could not save the stage",
       "COLUMN_DELETE_SUCCESS": "Stage deleted",
       "COLUMN_DELETE_ERROR": "Could not delete the stage"
+    },
+    "SETTINGS": {
+      "HEADER": "Tickets",
+      "DESCRIPTION": "Manage the Kanban stages of each service desk. Stages created here show up on the Tickets board of the matching desk.",
+      "LOADING": "Loading stages...",
+      "EMPTY": "This service desk has no stages yet.",
+      "NO_MESA": "No service desk configured yet.",
+      "MESA_LABEL": "Service desk",
+      "ADD_STAGE": "Add stage",
+      "TABLE": {
+        "NAME": "Stage",
+        "MESA": "Service desk",
+        "TICKETS": "Tickets",
+        "ACTIONS": "Actions"
+      },
+      "MOVE_UP": "Move up",
+      "MOVE_DOWN": "Move down",
+      "EDIT": "Edit stage",
+      "DELETE": "Delete stage",
+      "DELETE_BLOCKED_HINT": "Move its tickets to another stage before deleting it",
+      "FORM": {
+        "MESA": {
+          "LABEL": "Service desk",
+          "LOCKED_HINT": "This stage has {count} ticket(s), so it cannot change service desk. Move the tickets first."
+        },
+        "ORDER": {
+          "LABEL": "Order",
+          "HINT": "Defines the column position on the board."
+        }
+      },
+      "API": {
+        "REORDER_ERROR": "Could not reorder the stages."
+      }
+    },
+    "MESA_SELECTOR": {
+      "LABEL": "Service desk",
+      "PREFIX": "Desk: {name}",
+      "SEARCH": "Search desk",
+      "NONE": "Select a desk",
+      "EMPTY": "No service desk found"
+    },
+    "SORT": {
+      "BUTTON": "Sort tickets",
+      "TITLE": "Sort by",
+      "CLEAR": "Clear sorting",
+      "ASC": "Ascending",
+      "DESC": "Descending",
+      "ASC_BY": "Sort by {field}, ascending",
+      "DESC_BY": "Sort by {field}, descending",
+      "FIELDS": {
+        "TITLE": "Title",
+        "DISPLAY_ID": "Number",
+        "ASSIGNEE_NAME": "Assignee",
+        "COMPANY_NAME": "Customer",
+        "PRIORITY": "Priority",
+        "CREATED_AT": "Ticket date",
+        "STATUS": "Status"
+      }
     }
   }
 }

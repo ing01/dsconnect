@@ -68,6 +68,12 @@ class TicketsAPI extends ApiClient {
   getActivities(ticketId) {
     return axios.get(`${this.url}/${ticketId}/activities`);
   }
+
+  // Provisions the default Mesa de Servico for an account that has none, so a
+  // fresh install lands on a usable Kanban. Idempotent server-side.
+  ensureDefaultMesa() {
+    return axios.post(`${this.url}/ensure_default_mesa`);
+  }
 }
 
 export default new TicketsAPI();

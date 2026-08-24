@@ -43,6 +43,10 @@ export const actions = {
   updateColumn: async ({ dispatch }, { teamId, columnId, ...data }) => {
     await TicketColumnsAPI.update(teamId, columnId, data);
     await dispatch('fetchBoard', teamId);
+    // Handing an Estagio to another Mesa leaves the destination board stale too.
+    if (data.team_id && Number(data.team_id) !== Number(teamId)) {
+      await dispatch('fetchBoard', Number(data.team_id));
+    }
   },
   deleteColumn: async ({ dispatch }, { teamId, columnId }) => {
     await TicketColumnsAPI.delete(teamId, columnId);
@@ -87,6 +91,10 @@ export const actions = {
   },
   removeRealtimeTicket: ({ commit }, ticketId) => {
     commit(types.REMOVE_TICKET_FROM_KANBAN_BOARD, ticketId);
+  },
+  ensureDefaultMesa: async () => {
+    const response = await TicketsAPI.ensureDefaultMesa();
+    return response.data;
   },
 };
 
