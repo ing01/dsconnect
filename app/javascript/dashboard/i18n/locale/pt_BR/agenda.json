@@ -1,0 +1,65 @@
+{
+  "AGENDA": {
+    "WEEKDAYS_SHORT": {
+      "0": "Seg",
+      "1": "Ter",
+      "2": "Qua",
+      "3": "Qui",
+      "4": "Sex",
+      "5": "Sáb",
+      "6": "Dom"
+    },
+    "VIEWS": {
+      "DAY": "Dia",
+      "WEEK": "Semana",
+      "MONTH": "Mês"
+    },
+    "TODAY": "Hoje",
+    "TEAM_SELECT": "Selecionar time",
+    "NEW_EVENT": "Novo evento",
+    "EMPTY": {
+      "TITLE": "Nenhum time encontrado",
+      "NO_TEAM_DESC": "Crie um time para começar a usar a agenda."
+    },
+    "FORM": {
+      "ADD_TITLE": "Novo evento",
+      "EDIT_TITLE": "Editar evento",
+      "TITLE": {
+        "LABEL": "Título",
+        "PLACEHOLDER": "Ex.: Reunião com o cliente",
+        "REQUIRED_ERROR": "O título é obrigatório"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição"
+      },
+      "ALL_DAY": "Dia inteiro",
+      "START_AT": "Início",
+      "END_AT": "Fim",
+      "END_BEFORE_START_ERROR": "O horário de término não pode ser antes do início.",
+      "LOCATION": {
+        "LABEL": "Local",
+        "PLACEHOLDER": "Ex.: Sala de reuniões, link da chamada..."
+      },
+      "COLOR": "Cor",
+      "ATTENDEES": "Participantes",
+      "TICKETS": "Tickets vinculados",
+      "TICKETS_SEARCH_PLACEHOLDER": "Pesquisar tickets do time...",
+      "NO_TICKETS": "Nenhum ticket encontrado para este time.",
+      "DELETE": "Excluir",
+      "CANCEL": "Cancelar",
+      "SAVE": "Salvar"
+    },
+    "API": {
+      "SUCCESS_MESSAGE": "Evento salvo.",
+      "ERROR_MESSAGE": "Não foi possível salvar o evento.",
+      "DELETE_SUCCESS_MESSAGE": "Evento excluído.",
+      "DELETE_ERROR_MESSAGE": "Não foi possível excluir o evento."
+    },
+    "DELETE": {
+      "TITLE": "Excluir evento?",
+      "MESSAGE": "Isso removerá o evento permanentemente.",
+      "CONFIRM": "Excluir",
+      "CANCEL": "Cancelar"
+    }
+  }
+}
