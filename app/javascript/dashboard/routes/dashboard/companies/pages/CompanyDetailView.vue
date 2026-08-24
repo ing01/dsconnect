@@ -14,6 +14,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import CompaniesDetailsLayout from 'dashboard/components-next/Companies/CompaniesDetailsLayout.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
+import CompanyCustomAttributes from 'dashboard/components-next/Companies/CompanyDetail/CompanyCustomAttributes.vue';
 import CompanyContactsSidebar from 'dashboard/components-next/Companies/CompanyDetail/CompanyContactsSidebar.vue';
 import CompanyHistorySidebar from 'dashboard/components-next/Companies/CompanyDetail/CompanyHistorySidebar.vue';
 import CompanyNotesSidebar from 'dashboard/components-next/Companies/CompanyDetail/CompanyNotesSidebar.vue';
@@ -97,6 +98,7 @@ const breadcrumbItems = computed(() => [
 
 const tabOptions = computed(() => [
   { key: 'PROFILE', value: 'profile' },
+  { key: 'ATTRIBUTES', value: 'attributes' },
   { key: 'CONTACTS', value: 'contacts' },
   { key: 'HISTORY', value: 'history' },
   { key: 'NOTES', value: 'notes' },
@@ -110,6 +112,7 @@ const tabs = computed(() =>
   tabOptions.value.map(tab => ({
     label: {
       profile: t('COMPANIES.DETAIL.SIDEBAR.TABS.PROFILE'),
+      attributes: t('COMPANIES.DETAIL.SIDEBAR.TABS.ATTRIBUTES'),
       notes: t('COMPANIES.DETAIL.SIDEBAR.TABS.NOTES'),
       history: t('COMPANIES.DETAIL.SIDEBAR.TABS.HISTORY'),
       contacts: `${t('COMPANIES.DETAIL.SIDEBAR.TABS.CONTACTS')} (${Number(companyContactsMeta.value.totalCount || 0)})`,
@@ -384,6 +387,10 @@ onBeforeUnmount(() => {
         </Policy>
       </div>
 
+      <CompanyCustomAttributes
+        v-else-if="activeTab === 'attributes'"
+        :company="company"
+      />
       <CompanyContactsSidebar
         v-else-if="activeTab === 'contacts'"
         :company="company"

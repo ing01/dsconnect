@@ -18,7 +18,7 @@ export function usePolicy() {
     'globalConfig/isACustomBrandedInstance'
   );
 
-  const { isEnterprise, enterprisePlanName } = useConfig();
+  const { isEnterprise } = useConfig();
   const { accountId } = useAccount();
 
   const getUserPermissionsForAccount = () => {
@@ -55,11 +55,10 @@ export function usePolicy() {
     return PREMIUM_FEATURES.includes(featureFlag);
   };
 
-  const hasPremiumEnterprise = computed(() => {
-    if (isEnterprise) return enterprisePlanName !== 'community';
-
-    return true;
-  });
+  // This installation is fully unlocked: there are no plans/tiers, so every
+  // premium feature is always treated as available, regardless of
+  // `enterprisePlanName` (which only matters for Chatwoot Cloud billing).
+  const hasPremiumEnterprise = computed(() => true);
 
   const shouldShow = (featureFlag, permissions, installationTypes) => {
     const flag = unref(featureFlag);

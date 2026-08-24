@@ -376,6 +376,7 @@ Rails.application.routes.draw do
             resources :comments, controller: 'ticket_comments', only: [:index, :create, :destroy]
             resources :activities, controller: 'ticket_activities', only: [:index]
           end
+          resources :calendar_events, only: [:index, :create, :show, :update, :destroy]
 
           # Assignment V2 Routes
           resources :assignment_policies do

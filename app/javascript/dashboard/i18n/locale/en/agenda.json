@@ -1,0 +1,72 @@
+{
+  "AGENDA": {
+    "WEEKDAYS_SHORT": {
+      "0": "Mon",
+      "1": "Tue",
+      "2": "Wed",
+      "3": "Thu",
+      "4": "Fri",
+      "5": "Sat",
+      "6": "Sun"
+    },
+    "VIEWS": {
+      "DAY": "Day",
+      "WEEK": "Week",
+      "MONTH": "Month"
+    },
+    "TODAY": "Today",
+    "TEAM_SELECT": "Select team",
+    "NEW_EVENT": "New event",
+    "EMPTY": {
+      "TITLE": "No teams found",
+      "NO_TEAM_DESC": "Create a team to start using the agenda."
+    },
+    "AGENT_FILTER": {
+      "BUTTON": "Filter by agent",
+      "BUTTON_WITH_COUNT": "{n} agent selected | {n} agents selected",
+      "TITLE": "Show agenda for",
+      "CLEAR": "Clear"
+    },
+    "FORM": {
+      "ADD_TITLE": "New event",
+      "EDIT_TITLE": "Edit event",
+      "TITLE": {
+        "LABEL": "Title",
+        "PLACEHOLDER": "e.g. Meeting with client",
+        "REQUIRED_ERROR": "Title is required"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "e.g. Discuss project X with the client"
+      },
+      "ALL_DAY": "All day",
+      "START_AT": "Start",
+      "END_AT": "End",
+      "END_BEFORE_START_ERROR": "The end time can't be before the start time.",
+      "LOCATION": {
+        "LABEL": "Location",
+        "PLACEHOLDER": "e.g. Meeting room, call link..."
+      },
+      "ATTENDEES": "Attendees",
+      "ATTENDEES_COLOR_HINT": "An event's color on the agenda follows whoever created it.",
+      "TICKETS": "Linked tickets",
+      "TICKETS_SEARCH_PLACEHOLDER": "Search this team's tickets...",
+      "NO_TICKETS": "No tickets found for this team.",
+      "DELETE": "Delete",
+      "CANCEL": "Cancel",
+      "SAVE": "Save"
+    },
+    "API": {
+      "SUCCESS_MESSAGE": "Event saved.",
+      "ERROR_MESSAGE": "Could not save the event.",
+      "DELETE_SUCCESS_MESSAGE": "Event deleted.",
+      "DELETE_ERROR_MESSAGE": "Could not delete the event."
+    },
+    "DELETE": {
+      "TITLE": "Delete event?",
+      "MESSAGE": "This will permanently remove the event.",
+      "CONFIRM": "Delete",
+      "CANCEL": "Cancel"
+    }
+  }
+}

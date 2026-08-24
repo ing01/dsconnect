@@ -5,6 +5,7 @@ import { routes as callRoutes } from './calls/routes';
 import { routes as contactRoutes } from './contacts/routes';
 import { routes as companyRoutes } from './companies/routes';
 import { routes as moodCheckinRoutes } from './moodCheckins/routes';
+import { routes as agendaRoutes } from './agenda/routes';
 import { routes as inboxRoutes } from './inbox/routes';
 import { frontendURL } from '../../helper/URLHelper';
 import helpcenterRoutes from './helpcenter/helpcenter.routes';
@@ -35,6 +36,7 @@ export default {
         ...helpcenterRoutes.routes,
         ...campaignsRoutes.routes,
         ...ticketsRoutes.routes,
+        ...agendaRoutes,
       ],
     },
     {

@@ -316,6 +316,45 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
     t.index ["account_id"], name: "index_automation_rules_on_account_id"
   end
 
+  create_table "calendar_event_attendees", force: :cascade do |t|
+    t.bigint "calendar_event_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["calendar_event_id", "user_id"], name: "uniq_calendar_event_attendee", unique: true
+    t.index ["calendar_event_id"], name: "index_calendar_event_attendees_on_calendar_event_id"
+    t.index ["user_id"], name: "index_calendar_event_attendees_on_user_id"
+  end
+
+  create_table "calendar_event_tickets", force: :cascade do |t|
+    t.bigint "calendar_event_id", null: false
+    t.bigint "ticket_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["calendar_event_id", "ticket_id"], name: "uniq_calendar_event_ticket", unique: true
+    t.index ["calendar_event_id"], name: "index_calendar_event_tickets_on_calendar_event_id"
+    t.index ["ticket_id"], name: "index_calendar_event_tickets_on_ticket_id"
+  end
+
+  create_table "calendar_events", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "team_id", null: false
+    t.bigint "created_by_id"
+    t.string "title", null: false
+    t.text "description"
+    t.datetime "start_at", null: false
+    t.datetime "end_at", null: false
+    t.boolean "all_day", default: false, null: false
+    t.string "location"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_calendar_events_on_account_id"
+    t.index ["created_by_id"], name: "index_calendar_events_on_created_by_id"
+    t.index ["team_id", "start_at"], name: "index_calendar_events_on_team_id_and_start_at"
+    t.index ["team_id"], name: "index_calendar_events_on_team_id"
+  end
+
   create_table "calls", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "inbox_id", null: false
@@ -1740,6 +1779,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "calendar_event_attendees", "calendar_events"
+  add_foreign_key "calendar_event_attendees", "users"
+  add_foreign_key "calendar_event_tickets", "calendar_events"
+  add_foreign_key "calendar_event_tickets", "tickets"
+  add_foreign_key "calendar_events", "accounts"
+  add_foreign_key "calendar_events", "teams"
+  add_foreign_key "calendar_events", "users", column: "created_by_id"
   add_foreign_key "campaign_recipients", "accounts", on_delete: :cascade
   add_foreign_key "campaign_recipients", "campaigns", on_delete: :cascade
   add_foreign_key "campaign_recipients", "contacts", on_delete: :cascade

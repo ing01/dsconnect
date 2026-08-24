@@ -13,6 +13,8 @@ class Ticket < ApplicationRecord
   has_many :conversations, through: :ticket_conversations
   has_many :ticket_activities, dependent: :destroy
   has_many :ticket_comments, dependent: :destroy
+  has_many :calendar_event_tickets, dependent: :destroy
+  has_many :calendar_events, through: :calendar_event_tickets
 
   validates :title, presence: true
   validates :custom_attributes, jsonb_attributes_length: true

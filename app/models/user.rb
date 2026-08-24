@@ -99,6 +99,9 @@ class User < ApplicationRecord
   has_many :participating_conversations, through: :conversation_participants, source: :conversation
 
   has_many :assigned_tickets, foreign_key: 'assignee_id', class_name: 'Ticket', dependent: :nullify, inverse_of: :assignee
+  has_many :created_calendar_events, foreign_key: 'created_by_id', class_name: 'CalendarEvent', dependent: :nullify, inverse_of: :created_by
+  has_many :calendar_event_attendees, dependent: :destroy
+  has_many :attended_calendar_events, through: :calendar_event_attendees, source: :calendar_event
 
   has_many :inbox_members, dependent: :destroy_async
   has_many :inboxes, through: :inbox_members, source: :inbox

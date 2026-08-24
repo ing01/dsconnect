@@ -31,6 +31,7 @@ class Team < ApplicationRecord
   # those tickets are moved or removed first.
   has_many :ticket_columns, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :team
   has_many :tickets, dependent: :restrict_with_error
+  has_many :calendar_events, dependent: :destroy
 
   before_destroy :capture_filtered_unread_count_member_ids, prepend: true
   after_destroy_commit :invalidate_filtered_unread_counts_after_destroy

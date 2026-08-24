@@ -717,6 +717,13 @@ const menuItems = computed(() => {
       activeOn: ['tickets_index'],
     },
     {
+      name: 'Agenda',
+      label: t('SIDEBAR.AGENDA'),
+      icon: 'i-lucide-calendar-days',
+      to: accountScopedRoute('agenda_index'),
+      activeOn: ['agenda_index'],
+    },
+    {
       name: 'Campaigns',
       label: t('SIDEBAR.CAMPAIGNS'),
       icon: 'i-lucide-megaphone',
