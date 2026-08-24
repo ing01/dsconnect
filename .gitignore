@@ -52,6 +52,9 @@ public/assets/.sprockets-manifest-*.json
 # ignore jetbrains IDE files
 .idea
 
+# ignore Visual Studio local cache
+.vs/
+
 # coverage report
 buildreports
 coverage
