@@ -17,7 +17,7 @@ import CaptainPaywall from 'next/captain/pageComponents/Paywall.vue';
 
 const { t } = useI18n();
 const { captainEnabled } = useCaptain();
-const { isEnterprise, enterprisePlanName } = useConfig();
+const { isEnterprise } = useConfig();
 const { isOnChatwootCloud } = useAccount();
 
 const captainConfigStore = useCaptainConfigStore();
@@ -81,10 +81,8 @@ const isFeatureAccessible = feature => {
   }
 
   if (feature.enterprise) {
-    // plan is shown, but is it accessible?
-    // This ensures that the instance has purchased the enterprise license, and only then we allow
-    // access
-    return isEnterprise && enterprisePlanName === 'enterprise';
+    // This installation has no plans/tiers: enterprise mode means fully unlocked.
+    return isEnterprise;
   }
 
   return true;
