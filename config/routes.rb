@@ -360,6 +360,7 @@ Rails.application.routes.draw do
                 patch :reorder
               end
             end
+            resources :ticket_categories, only: [:index, :create, :update, :destroy]
           end
 
           resources :tickets do
@@ -371,11 +372,20 @@ Rails.application.routes.draw do
               patch :resolve
               patch :reopen
               patch :close
+              patch :cancel
+              patch :transfer
+              patch :set_parent
+              patch :assign_to_me
+              post :create_child
+              post :merge
+              post :duplicate
+              post :add_sla_hours
             end
             resources :ticket_conversations, only: [:create, :destroy]
             resources :comments, controller: 'ticket_comments', only: [:index, :create, :destroy]
             resources :activities, controller: 'ticket_activities', only: [:index]
             resources :attachments, controller: 'ticket_attachments', only: [:index, :create, :destroy]
+            resources :followers, controller: 'ticket_followers', only: [:index, :create, :destroy]
           end
           resources :calendar_events, only: [:index, :create, :show, :update, :destroy]
 

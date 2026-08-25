@@ -68,6 +68,7 @@ module Events::Types
   TICKET_RESOLVED = 'ticket.resolved'
   TICKET_REOPENED = 'ticket.reopened'
   TICKET_CLOSED = 'ticket.closed'
+  TICKET_CANCELLED = 'ticket.cancelled'
 
   # copilot events
   COPILOT_MESSAGE_CREATED = 'copilot.message.created'

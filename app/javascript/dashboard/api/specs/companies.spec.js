@@ -59,7 +59,16 @@ describe('#CompanyAPI', () => {
     it('#listContacts fetches company contacts', () => {
       companyAPI.listContacts(1, 2);
       expect(axiosMock.get).toHaveBeenCalledWith(
-        '/api/v1/companies/1/contacts?page=2'
+        '/api/v1/companies/1/contacts?page=2&q='
+      );
+    });
+
+    // `q` narrows the list to contacts of this company, which is what the
+    // Solicitante picker needs; the sibling /contacts/search does the opposite.
+    it('#listContacts narrows by query when one is given', () => {
+      companyAPI.listContacts(1, 1, 'maria');
+      expect(axiosMock.get).toHaveBeenCalledWith(
+        '/api/v1/companies/1/contacts?page=1&q=maria'
       );
     });
 

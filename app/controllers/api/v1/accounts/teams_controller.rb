@@ -22,12 +22,15 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
     head :ok
   end
 
+  # `_ticket` reads all of these; without the preload the board fires a query per
+  # association per ticket.
+  BOARD_TICKET_INCLUDES = [:team, :ticket_column, :ticket_category, :assignee, :company, :contact,
+                           { conversations: :contact }].freeze
+
   private
 
   def fetch_team
-    @team = Current.account.teams
-                   .includes(ticket_columns: { tickets: [:team, :ticket_column, :assignee, :company, { conversations: :contact }] })
-                   .find(params[:id])
+    @team = Current.account.teams.includes(ticket_columns: { operational_tickets: BOARD_TICKET_INCLUDES }).find(params[:id])
   end
 
   def team_params

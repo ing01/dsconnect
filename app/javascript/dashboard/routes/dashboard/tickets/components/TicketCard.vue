@@ -22,6 +22,10 @@ export default {
       default: () => [],
     },
   },
+  // The menu emits by computed name (see the menu handler below), so the
+  // linter cannot see these being fired - they are declared and very much
+  // used. Renaming them would break the board's listeners.
+  // eslint-disable-next-line vue/no-unused-emit-declarations
   emits: ['click', 'edit', 'open-conversation', 'resolve', 'reopen', 'close'],
   data() {
     return {

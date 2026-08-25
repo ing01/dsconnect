@@ -17,6 +17,7 @@ export const state = {
     isFetchingItem: false,
     isUpdating: false,
     isFetchingComments: false,
+    isCreating: false,
     isCreatingComment: false,
     isFetchingActivities: false,
     isFetchingAttachments: false,
@@ -94,6 +95,102 @@ export const actions = {
     const response = await TicketsAPI.close(id);
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
+  },
+  // The single creation path behind the Kanban, the chat and the child flow.
+  // Files are uploaded afterwards on purpose: a TicketAttachment belongs to a
+  // ticket, so there is nothing to attach them to until it exists.
+  createTicketWithContext: async (
+    { commit, dispatch },
+    { ticket, files = [], conversationId = null, parentId = null, options = null }
+  ) => {
+    commit(types.SET_TICKETS_UI_FLAG, { isCreating: true });
+    try {
+      const response = parentId
+        ? await TicketsAPI.createChild(parentId, { options, ticket })
+        : await TicketsAPI.createTicket({ ticket, conversationId });
+      const created = response.data;
+
+      if (files.length) {
+        await dispatch('uploadTicketFiles', { ticketId: created.id, files });
+      }
+
+      commit(types.SET_TICKET_ITEM, created);
+      return created;
+    } finally {
+      commit(types.SET_TICKETS_UI_FLAG, { isCreating: false });
+    }
+  },
+  // Sequential rather than parallel: the endpoint takes one multipart file per
+  // request, and a burst of them is what trips the upload size guards.
+  uploadTicketFiles: async (_context, { ticketId, files }) => {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const file of files) {
+      // eslint-disable-next-line no-await-in-loop
+      await TicketsAPI.createAttachment(ticketId, file);
+    }
+  },
+  cancelTicket: async ({ commit }, { id, reason }) => {
+    const response = await TicketsAPI.cancel(id, reason);
+    commit(types.SET_TICKET_ITEM, response.data);
+    return response.data;
+  },
+  // Every composite action below returns the full detail payload of the ticket
+  // it affected, so the store is updated from the response instead of guessing
+  // what changed.
+  transferTicket: async ({ commit }, { id, ...ticket }) => {
+    commit(types.SET_TICKETS_UI_FLAG, { isUpdating: true });
+    try {
+      const response = await TicketsAPI.transfer(id, ticket);
+      commit(types.SET_TICKET_ITEM, response.data);
+      return response.data;
+    } finally {
+      commit(types.SET_TICKETS_UI_FLAG, { isUpdating: false });
+    }
+  },
+  // Returns the CHILD, which is a different ticket from the one in view - the
+  // caller navigates to it. The parent is refetched separately so its own
+  // `children` list is current.
+  createChildTicket: async ({ commit, dispatch }, { id, options, ticket }) => {
+    const response = await TicketsAPI.createChild(id, { options, ticket });
+    commit(types.SET_TICKET_ITEM, response.data);
+    await dispatch('fetchTicket', id);
+    return response.data;
+  },
+  setTicketParent: async ({ commit }, { id, parentId }) => {
+    const response = await TicketsAPI.setParent(id, parentId);
+    commit(types.SET_TICKET_ITEM, response.data);
+    return response.data;
+  },
+  // `id` survives; `sourceId` is closed into it. Both are refreshed: the source
+  // is now closed and its Kanban card must reflect that.
+  mergeTicket: async ({ commit, dispatch }, { id, sourceId }) => {
+    const response = await TicketsAPI.merge(id, sourceId);
+    commit(types.SET_TICKET_ITEM, response.data);
+    await dispatch('fetchTicket', sourceId);
+    return response.data;
+  },
+  duplicateTicket: async ({ commit }, id) => {
+    const response = await TicketsAPI.duplicate(id);
+    commit(types.SET_TICKET_ITEM, response.data);
+    return response.data;
+  },
+  assignTicketToMe: async ({ commit }, id) => {
+    const response = await TicketsAPI.assignToMe(id);
+    commit(types.SET_TICKET_ITEM, response.data);
+    return response.data;
+  },
+  addTicketSlaHours: async ({ commit }, { id, hours, reason }) => {
+    const response = await TicketsAPI.addSlaHours(id, { hours, reason });
+    commit(types.SET_TICKET_ITEM, response.data);
+    return response.data;
+  },
+  addTicketFollower: async ({ dispatch }, { ticketId, userId }) => {
+    await TicketsAPI.addFollower(ticketId, userId);
+    return dispatch('fetchTicket', ticketId);
+  },
+  removeTicketFollower: async ({ dispatch }, { ticketId, followerId }) => {
+    await TicketsAPI.removeFollower(ticketId, followerId);
+    return dispatch('fetchTicket', ticketId);
   },
   fetchComments: async ({ commit }, ticketId) => {
     commit(types.SET_TICKETS_UI_FLAG, { isFetchingComments: true });

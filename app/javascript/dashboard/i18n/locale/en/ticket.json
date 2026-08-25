@@ -6,7 +6,8 @@
     "STATUS": {
       "OPEN": "Open",
       "RESOLVED": "Resolved",
-      "CLOSED": "Closed"
+      "CLOSED": "Closed",
+      "CANCELLED": "Cancelled"
     },
     "FILTERS": {
       "ALL_STATUSES": "All statuses",
@@ -136,7 +137,20 @@
         "REOPENED": "{actor} reopened the ticket",
         "CLOSED": "{actor} closed the ticket",
         "CONVERSATION_LINKED": "{actor} linked a conversation",
-        "CONVERSATION_UNLINKED": "{actor} unlinked a conversation"
+        "CONVERSATION_UNLINKED": "{actor} unlinked a conversation",
+        "TRANSFERRED": "{actor} transferred the ticket",
+        "PARENT_CHANGED": "{actor} changed the parent ticket",
+        "CHILD_CREATED": "{actor} created a child ticket",
+        "MERGED_TICKET": "{actor} grouped another ticket into this one",
+        "MERGED_INTO": "{actor} grouped this ticket into another",
+        "DUPLICATED": "{actor} duplicated a ticket",
+        "SLA_HOURS_ADDED": "{actor} added SLA hours",
+        "CANCELLED": "{actor} cancelled the ticket",
+        "FOLLOWER_ADDED": "{actor} added a follower",
+        "FOLLOWER_REMOVED": "{actor} removed a follower",
+        "TITLE_CHANGED": "{actor} changed the title",
+        "COMPANY_CHANGED": "{actor} changed the company",
+        "CONTACT_CHANGED": "{actor} changed the requester"
       }
     },
     "COMMENTS": {
@@ -174,13 +188,8 @@
       },
       "ACTIONS": {
         "LABEL": "Ticket actions",
-        "EDIT": "Edit ticket",
-        "OPEN_CONVERSATION": "Open conversation",
-        "RESOLVE": "Resolve ticket",
         "CLOSE": "Close ticket",
-        "REOPEN": "Reopen ticket",
-        "COPY_LINK": "Copy link",
-        "LINK_COPIED": "Link copied"
+        "REOPEN": "Reopen ticket"
       },
       "REQUESTER": {
         "TITLE": "Requester information",
@@ -228,7 +237,11 @@
       },
       "FOLLOWERS": {
         "TITLE": "Followers",
-        "EMPTY": "No followers yet."
+        "EMPTY": "No followers yet.",
+        "ADD": "Add follower",
+        "REMOVE": "Remove follower",
+        "SEARCH": "Search agent",
+        "NO_AGENTS": "Every agent already follows this ticket."
       },
       "ORIGIN": {
         "TITLE": "Origin",
@@ -240,7 +253,10 @@
       },
       "SLA": {
         "TITLE": "SLA",
-        "EMPTY": "No SLA configured for tickets."
+        "EMPTY": "No SLA configured for tickets.",
+        "DUE_AT": "Deadline",
+        "EXTENDED_BY": "Hours added",
+        "HOURS_COUNT": "{hours}h"
       },
       "APPOINTMENTS": {
         "TITLE": "Appointments",
@@ -254,7 +270,14 @@
         "TITLE": "Development",
         "EMPTY": "No development item linked."
       },
-      "TAB_HISTORY": "History"
+      "TAB_HISTORY": "History",
+      "RELATIONSHIPS": {
+        "TITLE": "Relationships",
+        "PARENT": "Parent ticket",
+        "CHILDREN": "Child tickets",
+        "MERGED_INTO": "Grouped into ticket",
+        "MERGED_TICKETS": "Tickets grouped into this one"
+      }
     },
     "CONVERSATION_PANEL": {
       "ADD_BUTTON": "Link or create ticket",
@@ -267,7 +290,18 @@
       "NO_LINKED_TICKETS": "No tickets linked to this conversation yet",
       "NO_BOARD_ERROR": "Ask an administrator to create a Mesa (Team) first, in Settings",
       "BOARD_LABEL": "Mesa",
-      "COLUMN_LABEL": "Stage"
+      "COLUMN_LABEL": "Stage",
+      "ADD_MENU": {
+        "CREATEKEEPOPEN": "Open ticket and keep the chat going",
+        "LINKKEEPOPEN": "Add to an existing ticket",
+        "CREATEANDRESOLVE": "Resolve and open ticket",
+        "LINKANDRESOLVE": "Resolve and add to an existing ticket"
+      },
+      "LINK_COMPANY_SCOPE": "Showing only open tickets from {company}.",
+      "LINK_NEEDS_COMPANY": "This conversation’s contact is not linked to any company, so there are no tickets to link.",
+      "LINKED_TITLE": "Linked tickets",
+      "RESOLVE_GROUP": "Resolve conversation",
+      "UNLINK": "Unlink ticket"
     },
     "DELETE": {
       "TITLE": "Delete ticket",
@@ -317,6 +351,16 @@
       },
       "API": {
         "REORDER_ERROR": "Could not reorder the stages."
+      },
+      "CATEGORIES": {
+        "TITLE": "Categories",
+        "DESCRIPTION": "Categories available when opening a ticket in this desk.",
+        "ADD": "Add category",
+        "EDIT": "Edit category",
+        "DELETE": "Delete category",
+        "NAME": "Name",
+        "SAVE": "Save",
+        "EMPTY": "No category in this desk yet."
       }
     },
     "MESA_SELECTOR": {
@@ -350,6 +394,149 @@
       "SEARCH": "Search company",
       "NONE": "No company",
       "EMPTY": "No company found"
+    },
+    "ACTIONS": {
+      "CREATE_CHILD": "Create child ticket",
+      "REFERENCE_PARENT": "Reference parent ticket",
+      "CHANGE_PARENT": "Change parent ticket",
+      "MERGE": "Group ticket",
+      "DUPLICATE": "Duplicate ticket",
+      "ASSIGN_TO_ME": "Assign to me",
+      "TRANSFER": "Transfer ticket",
+      "RELATED_CONVERSATIONS": "Related conversations",
+      "ADD_SLA_HOURS": "Add SLA hours",
+      "CANCEL": "Cancel ticket",
+      "CLOSE": "Close ticket",
+      "REOPEN": "Reopen ticket",
+      "CLOSE_DIALOG": {
+        "TITLE": "Close ticket #{number}?",
+        "DESCRIPTION": "The ticket is marked as closed, recording the closing date and who closed it.",
+        "CONFIRM": "Close ticket"
+      },
+      "PICKER": {
+        "PLACEHOLDER": "Select",
+        "SEARCH": "Search by number, title or company",
+        "EMPTY": "No ticket found."
+      },
+      "TRANSFER_DIALOG": {
+        "TITLE": "Transfer ticket",
+        "TEAM": "Service desk",
+        "COLUMN": "Stage",
+        "STATUS": "Status",
+        "PRIORITY": "Priority",
+        "ASSIGNEE": "Assignee",
+        "UNASSIGNED": "Unassigned",
+        "NO_MEMBERS": "This desk has no members yet.",
+        "CONFIRM": "Transfer"
+      },
+      "CONVERSATIONS_DIALOG": {
+        "TITLE": "Related conversations",
+        "EMPTY": "No conversation is related to this ticket.",
+        "OPEN": "Open conversation",
+        "LAST_ACTIVITY": "Last interaction",
+        "NO_CONTACT": "No requester identified"
+      },
+      "CHILD_DIALOG": {
+        "TITLE": "Open child ticket",
+        "DESCRIPTION": "Select what to copy over to the child ticket",
+        "SELECT_ALL": "Select all",
+        "CONFIRM": "Open child ticket",
+        "REQUIRES_TEAM": "Available after selecting the service desk",
+        "NOTHING_TO_COPY": "This ticket has nothing to copy yet.",
+        "OPTIONS": {
+          "TITLE": "Title",
+          "DESCRIPTION": "Description",
+          "COMPANY": "Company",
+          "TEAM": "Service desk",
+          "ASSIGNEE": "Assignee",
+          "FOLLOWERS": "Followers",
+          "ATTACHMENTS": "Files",
+          "COMMENTS": "Internal communication",
+          "CONVERSATIONS": "Customer communication"
+        }
+      },
+      "PARENT_DIALOG": {
+        "TITLE": "Reference parent ticket",
+        "LABEL": "Parent ticket",
+        "CONFIRM": "Save",
+        "REPLACES": "Replaces the current reference to ticket #{number}."
+      },
+      "MERGE_DIALOG": {
+        "TITLE": "Group ticket",
+        "KEPT": "Ticket that will be kept:",
+        "TO_CLOSE": "Ticket to close:",
+        "PLACEHOLDER": "Select the merged ticket (it will be closed)",
+        "HINT": "The selected ticket is closed and grouped into this one. Nothing is deleted: its history, files and comments stay reachable through it.",
+        "CONFIRM": "Save"
+      },
+      "SLA_DIALOG": {
+        "TITLE": "Add SLA hours",
+        "HOURS": "Hours",
+        "AGENT": "Agent",
+        "REASON": "Reason",
+        "REASON_PLACEHOLDER": "Write the reason",
+        "CONFIRM": "Add",
+        "HISTORY": "Added hours",
+        "NO_HISTORY": "No data",
+        "CURRENT_DUE": "Current deadline",
+        "NO_DUE": "no deadline set",
+        "NEW_DUE": "New deadline"
+      },
+      "CANCEL_DIALOG": {
+        "TITLE": "Cancel ticket #{number}?",
+        "DESCRIPTION": "This changes the ticket status to Cancelled. The ticket is not deleted.",
+        "REASON": "Cancellation reason",
+        "REASON_PLACEHOLDER": "Optional",
+        "BACK": "Back",
+        "CONFIRM": "Cancel ticket"
+      },
+      "TITLE_DIALOG": {
+        "TITLE": "Edit ticket title",
+        "LABEL": "Ticket title",
+        "CONFIRM": "Save",
+        "EDIT_HINT": "Click to edit the title"
+      },
+      "COMPANY_DIALOG": {
+        "TITLE": "Change company",
+        "CONFIRM": "Save"
+      },
+      "CONTACT_DIALOG": {
+        "TITLE": "Change requester",
+        "CONFIRM": "Save",
+        "PLACEHOLDER": "Search contact...",
+        "SEARCH": "Search by name, e-mail or phone",
+        "EMPTY": "No contact found.",
+        "NEEDS_COMPANY": "Select a company first"
+      }
+    },
+    "CREATE": {
+      "REQUIRED": "Required field",
+      "SELECT": "Select",
+      "TEAM": "Service desk",
+      "STAGE": "Stage",
+      "CATEGORY": "Category",
+      "CATEGORY_NEEDS_TEAM": "Select a service desk first",
+      "PRIORITY": "Priority",
+      "ASSIGNEE": "Assignee",
+      "UNASSIGNED": "Unassigned",
+      "SUBMIT": "Create ticket",
+      "SUBMIT_AND_NEW": "Create and open another",
+      "TITLE": "New ticket",
+      "CREATED": "Ticket #{number} created",
+      "RECENT": {
+        "TITLE": "Recent tickets",
+        "EMPTY": "No recent ticket for this company.",
+        "NEEDS_COMPANY": "Select a company to see recent tickets."
+      },
+      "FOLLOWERS": {
+        "PLACEHOLDER": "Select",
+        "SEARCH": "Search desk member",
+        "EMPTY": "No member in this desk."
+      },
+      "FILES": {
+        "ADD": "Attach files",
+        "REMOVE": "Remove file"
+      }
     }
   }
 }

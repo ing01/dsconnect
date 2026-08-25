@@ -9,9 +9,11 @@ import { statusColor } from '../../helpers/ticketLabels';
 const props = defineProps({
   ticket: { type: Object, required: true },
   canUpdate: { type: Boolean, default: true },
+  canAddSlaHours: { type: Boolean, default: false },
+  currentUserId: { type: [Number, String], default: null },
 });
 
-const emit = defineEmits(['back', 'action']);
+const emit = defineEmits(['back', 'action', 'editTitle']);
 
 const { t } = useI18n();
 
@@ -41,14 +43,23 @@ const subject = computed(() =>
     <div
       class="flex items-start justify-between gap-3 w-full min-w-0 flex-wrap"
     >
-      <h1
-        class="flex-1 min-w-0 text-lg font-medium text-n-slate-12 truncate"
-        :title="`#${ticket.display_id} - ${subject}`"
-      >
+      <!-- The title is edited where it is shown: clicking it opens the title
+           dialog. The ticket number is not part of the button - it identifies
+           the ticket and is not editable. -->
+      <h1 class="flex-1 min-w-0 text-lg font-medium text-n-slate-12 truncate">
         <span class="text-n-slate-10 font-normal">
           #{{ ticket.display_id }}
         </span>
-        {{ subject }}
+        <button
+          v-if="canUpdate"
+          type="button"
+          class="max-w-full align-bottom truncate transition-colors rounded hover:text-n-blue-11"
+          :title="t('TICKET.ACTIONS.TITLE_DIALOG.EDIT_HINT')"
+          @click="emit('editTitle')"
+        >
+          {{ subject }}
+        </button>
+        <span v-else class="align-bottom truncate">{{ subject }}</span>
       </h1>
 
       <div class="flex items-center gap-2 flex-shrink-0">
@@ -60,6 +71,8 @@ const subject = computed(() =>
         <TicketActionsMenu
           :ticket="ticket"
           :can-update="canUpdate"
+          :can-add-sla-hours="canAddSlaHours"
+          :current-user-id="currentUserId"
           @action="emit('action', $event)"
         />
       </div>

@@ -2,6 +2,11 @@ class TicketColumn < ApplicationRecord
   belongs_to :team
 
   has_many :tickets, -> { order(:position, :id) }, dependent: :restrict_with_error, inverse_of: :ticket_column
+  # What the Kanban renders. Separate from `tickets` on purpose: positioning and
+  # re-indexing must keep seeing every ticket in the column, otherwise a closed
+  # ticket's slot would be handed out twice.
+  has_many :operational_tickets, -> { operational.order(:position, :id) },
+           class_name: 'Ticket', inverse_of: :ticket_column, dependent: nil
 
   validates :name, presence: true
   validate :team_change_requires_empty_column, on: :update

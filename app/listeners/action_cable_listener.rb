@@ -179,6 +179,11 @@ class ActionCableListener < BaseListener
     broadcast(account, user_tokens(account, account.agents), TICKET_CLOSED, ticket: ticket.push_event_data)
   end
 
+  def ticket_cancelled(event)
+    ticket, account = extract_ticket_and_account(event)
+    broadcast(account, user_tokens(account, account.agents), TICKET_CANCELLED, ticket: ticket.push_event_data)
+  end
+
   def conversation_contact_changed(event)
     conversation, account = extract_conversation_and_account(event)
     tokens = user_tokens(account, conversation.inbox.members)

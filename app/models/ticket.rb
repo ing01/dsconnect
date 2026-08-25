@@ -1,5 +1,9 @@
 class Ticket < ApplicationRecord
   include Events::Types
+  include TicketCustomer
+  include TicketOpening
+  include TicketRelatable
+  include TicketSlaExtendable
 
   belongs_to :account
   belongs_to :ticket_column
@@ -8,16 +12,14 @@ class Ticket < ApplicationRecord
   # with `ticket_column.team_id` (see `team_matches_ticket_column`) - a
   # ticket's Mesa is defined by which Mesa's Estagio it currently sits in.
   belongs_to :team
-  # The Empresa (organization) the ticket belongs to. Optional because a ticket
-  # can be opened before the customer is identified. Distinct from the Contact,
-  # which is the requesting person - a ticket can carry both.
-  belongs_to :company, optional: true
 
   has_many :ticket_conversations, dependent: :destroy, inverse_of: :ticket
   has_many :conversations, through: :ticket_conversations
   has_many :ticket_activities, dependent: :destroy
   has_many :ticket_comments, dependent: :destroy
   has_many :ticket_attachments, dependent: :destroy
+  has_many :ticket_followers, dependent: :destroy
+  has_many :followers, through: :ticket_followers, source: :user
   has_many :calendar_event_tickets, dependent: :destroy
   has_many :calendar_events, through: :calendar_event_tickets
 
@@ -25,14 +27,33 @@ class Ticket < ApplicationRecord
   validates :custom_attributes, jsonb_attributes_length: true
   validate :ticket_column_belongs_to_account
   validate :team_matches_ticket_column
-  validate :company_belongs_to_account
 
   enum priority: { low: 0, medium: 1, high: 2, urgent: 3 }
   # Lifecycle status. Intentionally independent from `ticket_column` (which
   # represents the Kanban workflow stage/queue a ticket is currently in) and
   # from the status of any linked Conversation - moving columns, resolving,
   # closing and reopening are all distinct, separately tracked transitions.
-  enum status: { open: 0, resolved: 1, closed: 2 }
+  # `cancelled` is a terminal state distinct from `closed`: a closed ticket was
+  # dealt with, a cancelled one never will be. `close_reason` further qualifies
+  # why a ticket left the open state (e.g. 'merged') without needing a global
+  # status per reason.
+  enum status: { open: 0, resolved: 1, closed: 2, cancelled: 3 }
+
+  # What the Kanban shows. Everything except `open` is a terminal state: the
+  # ticket was dealt with (resolved/closed) or never will be (cancelled), so it
+  # leaves the operational board. It is still in the database and still reachable
+  # through the "Busca detalhada", which deliberately does NOT apply this scope.
+  scope :operational, -> { where(status: :open) }
+
+  # Set while a composite operation (a transfer) writes several tracked columns
+  # at once, so the operation logs one auditable activity instead of four
+  # disconnected ones. See `Tickets::TransferService`.
+  attr_accessor :skip_change_activities
+
+  # Where the ticket was opened from - 'manual', or the channel of the
+  # Conversation it was opened from. Set by the caller before saving, because
+  # the conversation is only linked after the ticket exists.
+  attr_accessor :origin
 
   before_validation :set_default_position, on: :create
   # Runs as `before_create` (not `before_validation`) so the Postgres
@@ -50,6 +71,9 @@ class Ticket < ApplicationRecord
   # resolve!/close!/reopen! (with a more specific activity type), so
   # `status` is intentionally excluded here.
   TRACKED_ATTRIBUTE_ACTIVITY_TYPES = {
+    'title' => :title_changed,
+    'company_id' => :company_changed,
+    'contact_id' => :contact_changed,
     'ticket_column_id' => :column_changed,
     'priority' => :priority_changed,
     'assignee_id' => :assignee_changed,
@@ -89,20 +113,28 @@ class Ticket < ApplicationRecord
   def reopen!(user = Current.user)
     return if open?
 
-    update!(status: :open, resolved_at: nil, closed_at: nil)
+    update!(status: :open, resolved_at: nil, closed_at: nil, cancelled_at: nil, close_reason: nil)
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :reopened)
+  end
+
+  # Cancelling never deletes the ticket - it is a terminal status, so the
+  # record, its history and its attachments all stay readable.
+  def cancel!(user = Current.user, reason: nil)
+    return if cancelled?
+
+    transaction do
+      update!(status: :cancelled, cancelled_at: Time.zone.now, close_reason: reason.presence || 'cancelled')
+      ticket_activities.create!(
+        account_id: account_id, user: user, activity_type: :cancelled,
+        previous_value: status_previously_was, meta: { reason: reason }.compact
+      )
+    end
   end
 
   # Solicitante. A ticket has no contact FK, so the requester is the contact of
   # the earliest linked Conversation. Resolved in Ruby rather than SQL so it
   # reuses the `conversations: :contact` preload instead of firing a query, and
   # `min_by(&:id)` makes it deterministic - `conversations.first` has no ORDER BY.
-  def requester_contact
-    return @requester_contact if defined?(@requester_contact)
-
-    @requester_contact = conversations.to_a.min_by(&:id)&.contact
-  end
-
   # There is no `created_by_id` column; the opener is whoever the `created`
   # activity was attributed to. Nullable - tickets created outside a request
   # (seeds, console, automation) have no acting user.
@@ -112,31 +144,39 @@ class Ticket < ApplicationRecord
     @created_by_user = ticket_activities.to_a.find { |activity| activity.activity_type == 'created' }&.user
   end
 
+  # The realtime payload. Deliberately narrower than the REST serializer - the
+  # store merges it into whatever it already holds rather than replacing.
   def push_event_data
+    core_event_data.merge(lifecycle_event_data).merge(relation_event_data)
+  end
+
+  private
+
+  def core_event_data
     {
-      id: id,
-      display_id: display_id,
-      title: title,
-      description: description,
-      priority: priority,
-      status: status,
-      position: position,
-      account_id: account_id,
-      ticket_column_id: ticket_column_id,
-      assignee_id: assignee_id,
-      team_id: team_id,
+      id: id, display_id: display_id, title: title, description: description,
+      priority: priority, status: status, position: position, account_id: account_id,
+      ticket_column_id: ticket_column_id, assignee_id: assignee_id, team_id: team_id,
       # Carried on the realtime payload too, otherwise a ticket arriving over
       # the wire would be invisible to the Kanban's Empresa search until the
       # next board refetch.
-      company_id: company_id,
-      company_name: company&.name,
-      resolved_at: resolved_at&.to_i, closed_at: closed_at&.to_i,
+      company_id: company_id, company_name: company&.name, contact_id: contact_id,
       created_at: created_at.to_i, updated_at: updated_at.to_i,
       conversation_ids: ticket_conversations.pluck(:conversation_id)
     }
   end
 
-  private
+  def lifecycle_event_data
+    {
+      resolved_at: resolved_at&.to_i, closed_at: closed_at&.to_i,
+      cancelled_at: cancelled_at&.to_i, close_reason: close_reason
+    }
+  end
+
+  # So a Kanban card can badge a child or a grouped ticket without refetching.
+  def relation_event_data
+    { parent_id: parent_id, merged_into_id: merged_into_id, due_at: due_at&.to_i }
+  end
 
   def set_default_position
     return if position.present? && position != 0
@@ -173,23 +213,34 @@ class Ticket < ApplicationRecord
   # A ticket's Mesa (`team`) must be the same Mesa its Estagio
   # (`ticket_column`) belongs to - there's no such thing as a ticket sitting
   # in one Mesa's column while being "owned" by a different Mesa.
-  def company_belongs_to_account
-    return if company.blank?
-
-    errors.add(:company, :invalid) if company.account_id != account_id
-  end
-
   def team_matches_ticket_column
     return if ticket_column.blank? || team.blank?
 
     errors.add(:team, :invalid) if ticket_column.team_id != team_id
   end
 
+  # One entry carrying the ticket's opening state, rather than a separate event
+  # per field the form happened to fill in.
   def log_created_activity
-    ticket_activities.create!(account_id: account_id, user: Current.user, activity_type: :created)
+    ticket_activities.create!(
+      account_id: account_id, user: Current.user, activity_type: :created,
+      meta: creation_meta
+    )
+  end
+
+  def creation_meta
+    {
+      origin: origin.presence || 'manual',
+      company_id: company_id, contact_id: contact_id,
+      team_id: team_id, ticket_column_id: ticket_column_id,
+      ticket_category_id: ticket_category_id, ticket_category_name: ticket_category&.name,
+      priority: priority, assignee_id: assignee_id, parent_id: parent_id
+    }.compact
   end
 
   def log_changes_activity
+    return if skip_change_activities
+
     changes = saved_changes
     TRACKED_ATTRIBUTE_ACTIVITY_TYPES.each do |attribute, activity_type|
       next unless changes.key?(attribute)
@@ -226,6 +277,7 @@ class Ticket < ApplicationRecord
     case status
     when 'resolved' then TICKET_RESOLVED
     when 'closed' then TICKET_CLOSED
+    when 'cancelled' then TICKET_CANCELLED
     else TICKET_REOPENED
     end
   end

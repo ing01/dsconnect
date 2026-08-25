@@ -67,6 +67,14 @@ pt_BR:
   profile_settings:
     sessions:
       cannot_revoke_current: Você não pode revogar a sessão atual.
+  tickets:
+    child_suffix: ticket filho
+    duplicate:
+      title: "%{title} (cópia)"
+    merge:
+      same_ticket: Um ticket não pode ser agrupado nele mesmo.
+      already_merged: Este ticket já foi agrupado em outro.
+      circular: Estes tickets não podem ser agrupados um no outro.
   errors:
     account:
       not_authorized: Você não está autorizado a acessar esta conta

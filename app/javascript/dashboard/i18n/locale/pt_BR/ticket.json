@@ -6,7 +6,8 @@
     "STATUS": {
       "OPEN": "Aberto",
       "RESOLVED": "Resolvido",
-      "CLOSED": "Finalizado"
+      "CLOSED": "Finalizado",
+      "CANCELLED": "Cancelado"
     },
     "FILTERS": {
       "ALL_STATUSES": "Todos os status",
@@ -62,7 +63,7 @@
         "LABEL": "Prioridade",
         "NONE": "Sem prioridade",
         "LOW": "Baixa",
-        "MEDIUM": "Média",
+        "MEDIUM": "Normal",
         "HIGH": "Alta",
         "URGENT": "Urgente"
       },
@@ -136,7 +137,20 @@
         "REOPENED": "{actor} reabriu o ticket",
         "CLOSED": "{actor} finalizou o ticket",
         "CONVERSATION_LINKED": "{actor} vinculou uma conversa",
-        "CONVERSATION_UNLINKED": "{actor} desvinculou uma conversa"
+        "CONVERSATION_UNLINKED": "{actor} desvinculou uma conversa",
+        "TRANSFERRED": "{actor} transferiu o ticket",
+        "PARENT_CHANGED": "{actor} alterou o ticket pai",
+        "CHILD_CREATED": "{actor} criou um ticket filho",
+        "MERGED_TICKET": "{actor} agrupou outro ticket neste",
+        "MERGED_INTO": "{actor} agrupou este ticket em outro",
+        "DUPLICATED": "{actor} duplicou um ticket",
+        "SLA_HOURS_ADDED": "{actor} adicionou horas ao SLA",
+        "CANCELLED": "{actor} cancelou o ticket",
+        "FOLLOWER_ADDED": "{actor} adicionou um seguidor",
+        "FOLLOWER_REMOVED": "{actor} removeu um seguidor",
+        "TITLE_CHANGED": "{actor} alterou o título",
+        "COMPANY_CHANGED": "{actor} alterou a empresa",
+        "CONTACT_CHANGED": "{actor} alterou o solicitante"
       }
     },
     "COMMENTS": {
@@ -174,13 +188,8 @@
       },
       "ACTIONS": {
         "LABEL": "Ações do ticket",
-        "EDIT": "Editar ticket",
-        "OPEN_CONVERSATION": "Abrir conversa",
-        "RESOLVE": "Resolver ticket",
         "CLOSE": "Fechar ticket",
-        "REOPEN": "Reabrir ticket",
-        "COPY_LINK": "Copiar link",
-        "LINK_COPIED": "Link copiado"
+        "REOPEN": "Reabrir ticket"
       },
       "REQUESTER": {
         "TITLE": "Informações do solicitante",
@@ -228,7 +237,11 @@
       },
       "FOLLOWERS": {
         "TITLE": "Seguidores",
-        "EMPTY": "Nenhum seguidor ainda."
+        "EMPTY": "Nenhum seguidor ainda.",
+        "ADD": "Adicionar seguidor",
+        "REMOVE": "Remover seguidor",
+        "SEARCH": "Buscar agente",
+        "NO_AGENTS": "Todos os agentes já seguem este ticket."
       },
       "ORIGIN": {
         "TITLE": "Origem",
@@ -240,7 +253,10 @@
       },
       "SLA": {
         "TITLE": "SLA",
-        "EMPTY": "Nenhum SLA configurado para tickets."
+        "EMPTY": "Nenhum SLA configurado para tickets.",
+        "DUE_AT": "Prazo",
+        "EXTENDED_BY": "Horas adicionadas",
+        "HOURS_COUNT": "{hours}h"
       },
       "APPOINTMENTS": {
         "TITLE": "Compromissos",
@@ -254,7 +270,14 @@
         "TITLE": "Desenvolvimento",
         "EMPTY": "Nenhum item de desenvolvimento vinculado."
       },
-      "TAB_HISTORY": "Histórico"
+      "TAB_HISTORY": "Histórico",
+      "RELATIONSHIPS": {
+        "TITLE": "Relacionamentos",
+        "PARENT": "Ticket pai",
+        "CHILDREN": "Tickets filhos",
+        "MERGED_INTO": "Agrupado no ticket",
+        "MERGED_TICKETS": "Tickets agrupados neste"
+      }
     },
     "CONVERSATION_PANEL": {
       "ADD_BUTTON": "Vincular ou criar ticket",
@@ -267,7 +290,18 @@
       "NO_LINKED_TICKETS": "Nenhum ticket vinculado a esta conversa ainda",
       "NO_BOARD_ERROR": "Peça a um administrador para criar uma Mesa de Serviço primeiro, em Configurações",
       "BOARD_LABEL": "Mesa",
-      "COLUMN_LABEL": "Estágio"
+      "COLUMN_LABEL": "Estágio",
+      "ADD_MENU": {
+        "CREATEKEEPOPEN": "Abrir ticket e manter chat em andamento",
+        "LINKKEEPOPEN": "Adicionar a ticket existente",
+        "CREATEANDRESOLVE": "Finalizar e abrir ticket",
+        "LINKANDRESOLVE": "Finalizar e adicionar a ticket existente"
+      },
+      "LINK_COMPANY_SCOPE": "Mostrando apenas tickets em aberto de {company}.",
+      "LINK_NEEDS_COMPANY": "O contato desta conversa não está vinculado a nenhuma empresa, então não há tickets para vincular.",
+      "LINKED_TITLE": "Tickets vinculados",
+      "RESOLVE_GROUP": "Finalizar conversa",
+      "UNLINK": "Desvincular ticket"
     },
     "DELETE": {
       "TITLE": "Apagar ticket",
@@ -317,6 +351,16 @@
       },
       "API": {
         "REORDER_ERROR": "Não foi possível reordenar os estágios."
+      },
+      "CATEGORIES": {
+        "TITLE": "Categorias",
+        "DESCRIPTION": "Categorias disponíveis ao abrir um ticket nesta mesa.",
+        "ADD": "Adicionar categoria",
+        "EDIT": "Editar categoria",
+        "DELETE": "Excluir categoria",
+        "NAME": "Nome",
+        "SAVE": "Salvar",
+        "EMPTY": "Nenhuma categoria cadastrada nesta mesa."
       }
     },
     "MESA_SELECTOR": {
@@ -350,6 +394,149 @@
       "SEARCH": "Buscar empresa",
       "NONE": "Sem empresa",
       "EMPTY": "Nenhuma empresa encontrada"
+    },
+    "ACTIONS": {
+      "CREATE_CHILD": "Criar ticket filho",
+      "REFERENCE_PARENT": "Referenciar ticket pai",
+      "CHANGE_PARENT": "Alterar ticket pai",
+      "MERGE": "Agrupar ticket",
+      "DUPLICATE": "Duplicar ticket",
+      "ASSIGN_TO_ME": "Assumir ticket",
+      "TRANSFER": "Transferir ticket",
+      "RELATED_CONVERSATIONS": "Conversas relacionadas",
+      "ADD_SLA_HOURS": "Adicionar horas SLA",
+      "CANCEL": "Cancelar ticket",
+      "CLOSE": "Fechar ticket",
+      "REOPEN": "Reabrir ticket",
+      "CLOSE_DIALOG": {
+        "TITLE": "Fechar ticket #{number}?",
+        "DESCRIPTION": "O ticket será marcado como finalizado, com a data e o responsável pelo fechamento registrados.",
+        "CONFIRM": "Fechar ticket"
+      },
+      "PICKER": {
+        "PLACEHOLDER": "Selecione",
+        "SEARCH": "Buscar por número, título ou empresa",
+        "EMPTY": "Nenhum ticket encontrado."
+      },
+      "TRANSFER_DIALOG": {
+        "TITLE": "Transferir ticket",
+        "TEAM": "Mesa de serviço",
+        "COLUMN": "Estágio",
+        "STATUS": "Status",
+        "PRIORITY": "Prioridade",
+        "ASSIGNEE": "Responsável",
+        "UNASSIGNED": "Sem responsável",
+        "NO_MEMBERS": "Esta mesa ainda não tem membros.",
+        "CONFIRM": "Transferir"
+      },
+      "CONVERSATIONS_DIALOG": {
+        "TITLE": "Conversas relacionadas",
+        "EMPTY": "Nenhuma conversa relacionada a este ticket.",
+        "OPEN": "Abrir conversa",
+        "LAST_ACTIVITY": "Última interação",
+        "NO_CONTACT": "Sem solicitante identificado"
+      },
+      "CHILD_DIALOG": {
+        "TITLE": "Abrir ticket filho",
+        "DESCRIPTION": "Selecione o que deseja copiar junto para o ticket filho",
+        "SELECT_ALL": "Selecionar todos",
+        "CONFIRM": "Abrir ticket filho",
+        "REQUIRES_TEAM": "Disponível após selecionar a mesa de serviço",
+        "NOTHING_TO_COPY": "Este ticket ainda não tem informações para copiar.",
+        "OPTIONS": {
+          "TITLE": "Título",
+          "DESCRIPTION": "Descrição",
+          "COMPANY": "Empresa",
+          "TEAM": "Mesa de serviço",
+          "ASSIGNEE": "Responsável",
+          "FOLLOWERS": "Seguidores",
+          "ATTACHMENTS": "Arquivos",
+          "COMMENTS": "Comunicação interna",
+          "CONVERSATIONS": "Comunicação com cliente"
+        }
+      },
+      "PARENT_DIALOG": {
+        "TITLE": "Referenciar ticket pai",
+        "LABEL": "Ticket pai",
+        "CONFIRM": "Salvar",
+        "REPLACES": "Substitui a referência atual ao ticket #{number}."
+      },
+      "MERGE_DIALOG": {
+        "TITLE": "Agrupar ticket",
+        "KEPT": "Ticket que será mantido:",
+        "TO_CLOSE": "Ticket para encerrar:",
+        "PLACEHOLDER": "Selecione o ticket mesclado (ele será encerrado)",
+        "HINT": "O ticket selecionado será encerrado e agrupado neste. Nada é apagado: histórico, arquivos e comentários continuam acessíveis por ele.",
+        "CONFIRM": "Salvar"
+      },
+      "SLA_DIALOG": {
+        "TITLE": "Adicionar horas no SLA",
+        "HOURS": "Horas",
+        "AGENT": "Atendente",
+        "REASON": "Motivo",
+        "REASON_PLACEHOLDER": "Escreva o motivo",
+        "CONFIRM": "Adicionar",
+        "HISTORY": "Horas adicionadas",
+        "NO_HISTORY": "Não há dados",
+        "CURRENT_DUE": "Prazo atual",
+        "NO_DUE": "sem prazo definido",
+        "NEW_DUE": "Novo prazo"
+      },
+      "CANCEL_DIALOG": {
+        "TITLE": "Cancelar ticket #{number}?",
+        "DESCRIPTION": "Esta ação alterará o status do ticket para Cancelado. O ticket não será excluído.",
+        "REASON": "Motivo do cancelamento",
+        "REASON_PLACEHOLDER": "Opcional",
+        "BACK": "Voltar",
+        "CONFIRM": "Cancelar ticket"
+      },
+      "TITLE_DIALOG": {
+        "TITLE": "Editar título do ticket",
+        "LABEL": "Título do ticket",
+        "CONFIRM": "Salvar",
+        "EDIT_HINT": "Clique para editar o título"
+      },
+      "COMPANY_DIALOG": {
+        "TITLE": "Alterar empresa",
+        "CONFIRM": "Salvar"
+      },
+      "CONTACT_DIALOG": {
+        "TITLE": "Alterar solicitante",
+        "CONFIRM": "Salvar",
+        "PLACEHOLDER": "Buscar contato...",
+        "SEARCH": "Buscar por nome, e-mail ou telefone",
+        "EMPTY": "Nenhum contato encontrado.",
+        "NEEDS_COMPANY": "Selecione uma empresa primeiro"
+      }
+    },
+    "CREATE": {
+      "REQUIRED": "Campo obrigatório",
+      "SELECT": "Selecione",
+      "TEAM": "Mesa de serviço",
+      "STAGE": "Estágio",
+      "CATEGORY": "Categoria",
+      "CATEGORY_NEEDS_TEAM": "Selecione uma mesa primeiro",
+      "PRIORITY": "Prioridade",
+      "ASSIGNEE": "Responsável",
+      "UNASSIGNED": "Sem responsável",
+      "SUBMIT": "Criar ticket",
+      "SUBMIT_AND_NEW": "Criar e abrir outro",
+      "TITLE": "Novo ticket",
+      "CREATED": "Ticket #{number} criado",
+      "RECENT": {
+        "TITLE": "Últimos tickets",
+        "EMPTY": "Nenhum ticket recente para esta empresa.",
+        "NEEDS_COMPANY": "Selecione uma empresa para ver os últimos tickets."
+      },
+      "FOLLOWERS": {
+        "PLACEHOLDER": "Selecione",
+        "SEARCH": "Buscar membro da mesa",
+        "EMPTY": "Nenhum membro nesta mesa."
+      },
+      "FILES": {
+        "ADD": "Anexar arquivos",
+        "REMOVE": "Remover arquivo"
+      }
     }
   }
 }

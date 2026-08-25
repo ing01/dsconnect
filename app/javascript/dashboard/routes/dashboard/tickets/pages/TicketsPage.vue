@@ -8,6 +8,7 @@ import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TicketBoard from '../components/TicketBoard.vue';
 import TicketFormDialog from '../components/TicketFormDialog.vue';
+import TicketCreateDialog from '../components/create/TicketCreateDialog.vue';
 import TicketAvatarFilterRow from '../components/TicketAvatarFilterRow.vue';
 import TicketMesaSelector from '../components/TicketMesaSelector.vue';
 import TicketSortMenu from '../components/TicketSortMenu.vue';
@@ -24,6 +25,7 @@ export default {
     Icon,
     TicketBoard,
     TicketFormDialog,
+    TicketCreateDialog,
     TicketAvatarFilterRow,
     TicketMesaSelector,
     TicketSortMenu,
@@ -32,6 +34,7 @@ export default {
   data() {
     return {
       showTicketForm: false,
+      showCreateForm: false,
       showDetailedSearch: false,
       isSubmittingTicket: false,
       selectedTicket: null,
@@ -157,10 +160,12 @@ export default {
     closeTicket(ticket) {
       this.applyTransition('close', ticket);
     },
+    // Opening a ticket goes through the shared creation form; the Mesa and the
+    // Estagio are already known from the column that was clicked.
     openAddTicket(column) {
       this.selectedTicket = null;
       this.targetColumnId = column.id;
-      this.showTicketForm = true;
+      this.showCreateForm = true;
     },
     openEditTicket(ticket) {
       this.selectedTicket = ticket;
@@ -171,6 +176,16 @@ export default {
       this.showTicketForm = false;
       this.selectedTicket = null;
       this.targetColumnId = null;
+    },
+    closeCreateForm() {
+      this.showCreateForm = false;
+      this.targetColumnId = null;
+    },
+    // "Criar e abrir outro" keeps the form open, so the board is refreshed
+    // either way and only a finished run closes it.
+    onTicketCreated({ keepOpen }) {
+      this.$store.dispatch('ticketColumns/fetchBoard', this.selectedTeamId);
+      if (!keepOpen) this.closeCreateForm();
     },
     async submitTicket(payload) {
       this.isSubmittingTicket = true;
@@ -322,6 +337,21 @@ export default {
       @reopen-ticket="reopenTicket"
       @close-ticket="closeTicket"
     />
+
+    <!-- Creation uses the shared form; the edit dialog below still serves the
+         card's "Editar" action. -->
+    <woot-modal
+      v-model:show="showCreateForm"
+      :on-close="closeCreateForm"
+      size="large"
+    >
+      <TicketCreateDialog
+        allow-create-another
+        :context="{ teamId: selectedTeamId, ticketColumnId: targetColumnId }"
+        @close="closeCreateForm"
+        @created="onTicketCreated"
+      />
+    </woot-modal>
 
     <woot-modal v-model:show="showTicketForm" :on-close="closeTicketForm">
       <TicketFormDialog

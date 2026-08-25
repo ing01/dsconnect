@@ -21,6 +21,10 @@ export function useTicketDetail(ticketId) {
   // sends the verdict so the controls render disabled instead of failing on save.
   const canUpdate = computed(() => ticket.value?.can_update !== false);
 
+  // TicketPolicy#add_sla_hours? is admin or assignee - stricter than update?,
+  // so the SLA entry cannot be derived from `canUpdate`.
+  const canAddSlaHours = computed(() => !!ticket.value?.can_add_sla_hours);
+
   // Estagios of the ticket's own Mesa. Fetched through the lean columns index -
   // pulling the Kanban board just to populate a select costs the whole payload.
   const columns = computed(
@@ -77,12 +81,74 @@ export function useTicketDetail(ticketId) {
     open: 'tickets/reopenTicket',
     resolved: 'tickets/resolveTicket',
     closed: 'tickets/closeTicket',
+    cancelled: 'tickets/cancelTicket',
   };
 
   const changeStatus = status => {
     const action = STATUS_ACTIONS[status];
     if (!action) return Promise.resolve(null);
-    return runUpdate(action, ticketId.value);
+    // `cancelTicket` carries an optional reason, so it takes an object where
+    // the other three take a bare id.
+    const payload =
+      status === 'cancelled' ? { id: ticketId.value } : ticketId.value;
+    return runUpdate(action, payload);
+  };
+
+  // Every composite action returns the affected ticket's full detail payload and
+  // funnels through `runUpdate`, so the Kanban, the counters and the Historico
+  // all follow from one place.
+  const transfer = attributes =>
+    runUpdate('tickets/transferTicket', { id: ticketId.value, ...attributes });
+
+  const setParent = parentId =>
+    runUpdate('tickets/setTicketParent', { id: ticketId.value, parentId });
+
+  const merge = sourceId =>
+    runUpdate('tickets/mergeTicket', { id: ticketId.value, sourceId });
+
+  const assignToMe = () =>
+    runUpdate('tickets/assignTicketToMe', ticketId.value);
+
+  const addSlaHours = ({ hours, reason }) =>
+    runUpdate('tickets/addTicketSlaHours', {
+      id: ticketId.value,
+      hours,
+      reason,
+    });
+
+  const cancel = reason =>
+    runUpdate('tickets/cancelTicket', { id: ticketId.value, reason });
+
+  // These two return a DIFFERENT ticket than the one in view, so they do not go
+  // through `runUpdate` (which refreshes this ticket's history): the caller
+  // navigates to the new ticket instead.
+  const createChild = async ({ options, ticket: attributes }) => {
+    try {
+      const child = await store.dispatch('tickets/createChildTicket', {
+        id: ticketId.value,
+        options,
+        ticket: attributes,
+      });
+      store.dispatch('ticketColumns/applyRealtimeTicket', child);
+      return child;
+    } catch (error) {
+      useAlert(t('TICKET.API.ERROR_MESSAGE'));
+      return null;
+    }
+  };
+
+  const duplicate = async () => {
+    try {
+      const copy = await store.dispatch(
+        'tickets/duplicateTicket',
+        ticketId.value
+      );
+      store.dispatch('ticketColumns/applyRealtimeTicket', copy);
+      return copy;
+    } catch (error) {
+      useAlert(t('TICKET.API.ERROR_MESSAGE'));
+      return null;
+    }
   };
 
   watch(
@@ -98,11 +164,20 @@ export function useTicketDetail(ticketId) {
     ticket,
     isLoading,
     canUpdate,
+    canAddSlaHours,
     columns,
     mesaAgents,
     updateProperty,
     moveToColumn,
     changeStatus,
+    transfer,
+    createChild,
+    setParent,
+    merge,
+    duplicate,
+    assignToMe,
+    addSlaHours,
+    cancel,
     reload: loadTicket,
   };
 }

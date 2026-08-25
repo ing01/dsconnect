@@ -98,6 +98,9 @@ class Account < ApplicationRecord
   has_many :portals, dependent: :destroy_async, class_name: '::Portal'
   has_many :sms_channels, dependent: :destroy_async, class_name: '::Channel::Sms'
   has_many :teams, dependent: :destroy_async
+  # Estagios live under a Mesa; reached through it so account-scoped lookups
+  # (a transfer target, a stage select) don't have to join by hand.
+  has_many :ticket_columns, through: :teams
   has_many :telegram_channels, dependent: :destroy_async, class_name: '::Channel::Telegram'
   has_many :tickets, dependent: :destroy_async
   has_many :twilio_sms, dependent: :destroy_async, class_name: '::Channel::TwilioSms'

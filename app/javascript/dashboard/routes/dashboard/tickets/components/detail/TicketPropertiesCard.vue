@@ -13,7 +13,9 @@ const props = defineProps({
 });
 const emit = defineEmits(['updateProperty', 'moveToColumn', 'changeStatus']);
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
-const STATUSES = ['open', 'resolved', 'closed'];
+// `cancelled` is terminal and distinct from `closed` - a closed ticket was
+// dealt with, a cancelled one never will be.
+const STATUSES = ['open', 'resolved', 'closed', 'cancelled'];
 
 const { t } = useI18n();
 

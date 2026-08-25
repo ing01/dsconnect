@@ -61,7 +61,7 @@ RSpec.describe Ticket do
   end
 
   describe 'status enum' do
-    it { is_expected.to define_enum_for(:status).with_values(open: 0, resolved: 1, closed: 2) }
+    it { is_expected.to define_enum_for(:status).with_values(open: 0, resolved: 1, closed: 2, cancelled: 3) }
 
     it 'defaults to open' do
       expect(create(:ticket).status).to eq('open')

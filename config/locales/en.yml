@@ -73,6 +73,14 @@ en:
     sessions:
       cannot_revoke_current: You cannot revoke the current session.
 
+  tickets:
+    child_suffix: child ticket
+    duplicate:
+      title: "%{title} (copy)"
+    merge:
+      same_ticket: A ticket cannot be grouped into itself.
+      already_merged: This ticket has already been grouped into another one.
+      circular: These tickets cannot be grouped into each other.
   errors:
     account:
       not_authorized: You are not authorized to access this account

@@ -1,11 +1,13 @@
 <script>
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import TicketCompanySelect from './TicketCompanySelect.vue';
+import TicketContactSelect from './TicketContactSelect.vue';
 
 export default {
   components: {
     NextButton,
     TicketCompanySelect,
+    TicketContactSelect,
   },
   props: {
     ticket: {
@@ -29,6 +31,7 @@ export default {
       priority: this.ticket?.priority || '',
       assigneeId: this.ticket?.assignee_id || '',
       companyId: this.ticket?.company_id || null,
+      contactId: this.ticket?.contact_id || null,
       titleError: '',
     };
   },
@@ -53,6 +56,7 @@ export default {
         priority: this.priority || null,
         assignee_id: this.assigneeId || null,
         company_id: this.companyId || null,
+        contact_id: this.contactId || null,
       });
     },
   },
@@ -133,6 +137,24 @@ export default {
             <TicketCompanySelect
               v-model="companyId"
               :initial-name="ticket?.company_name || ''"
+            />
+          </div>
+        </label>
+      </div>
+
+      <!-- Empresa first, then Solicitante: the requester is chosen from that
+           Empresa's own contacts, so the field stays disabled until there is
+           one. TicketContactSelect clears its value when the Empresa changes. -->
+      <div class="flex flex-row w-full">
+        <label class="w-full mb-3">
+          <span class="text-sm text-n-slate-11">
+            {{ $t('TICKET.DETAIL.REQUESTER.CONTACT') }}
+          </span>
+          <div class="mt-1">
+            <TicketContactSelect
+              v-model="contactId"
+              :company-id="companyId"
+              :initial-name="ticket?.contact?.name || ''"
             />
           </div>
         </label>

@@ -5,10 +5,16 @@ import { useRoute } from 'vue-router';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   ticket: { type: Object, required: true },
+  canUpdate: { type: Boolean, default: true },
 });
+
+// Each value is edited where it is shown, rather than through one generic
+// ticket form.
+const emit = defineEmits(['editCompany', 'editContact']);
 
 const { t } = useI18n();
 const route = useRoute();
@@ -31,9 +37,21 @@ const companyRoute = computed(() =>
     </h2>
 
     <div class="flex flex-col gap-2">
-      <span class="text-xs uppercase tracking-wide text-n-slate-10">
-        {{ t('TICKET.DETAIL.REQUESTER.CONTACT') }}
-      </span>
+      <div class="flex items-center justify-between gap-2 min-w-0">
+        <span class="text-xs uppercase tracking-wide text-n-slate-10 truncate">
+          {{ t('TICKET.DETAIL.REQUESTER.CONTACT') }}
+        </span>
+        <Button
+          v-if="canUpdate"
+          variant="ghost"
+          color="slate"
+          size="xs"
+          icon="i-lucide-pencil"
+          class="flex-shrink-0"
+          :aria-label="t('TICKET.ACTIONS.CONTACT_DIALOG.TITLE')"
+          @click="emit('editContact')"
+        />
+      </div>
 
       <div v-if="contact" class="flex items-start gap-3 min-w-0">
         <Avatar
@@ -76,9 +94,21 @@ const companyRoute = computed(() =>
     </div>
 
     <div class="flex flex-col gap-1">
-      <span class="text-xs uppercase tracking-wide text-n-slate-10">
-        {{ t('TICKET.COMPANY.LABEL') }}
-      </span>
+      <div class="flex items-center justify-between gap-2 min-w-0">
+        <span class="text-xs uppercase tracking-wide text-n-slate-10 truncate">
+          {{ t('TICKET.COMPANY.LABEL') }}
+        </span>
+        <Button
+          v-if="canUpdate"
+          variant="ghost"
+          color="slate"
+          size="xs"
+          icon="i-lucide-pencil"
+          class="flex-shrink-0"
+          :aria-label="t('TICKET.ACTIONS.COMPANY_DIALOG.TITLE')"
+          @click="emit('editCompany')"
+        />
+      </div>
       <router-link
         v-if="ticket.company_id"
         :to="companyRoute"

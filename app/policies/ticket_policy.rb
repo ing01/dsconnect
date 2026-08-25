@@ -39,6 +39,45 @@ class TicketPolicy < ApplicationPolicy
     update?
   end
 
+  def cancel?
+    update?
+  end
+
+  # Every composite action from the "Acoes do ticket" menu is a mutation of the
+  # ticket, so they all sit behind the same rule as `update?` - the frontend
+  # hiding a menu entry is a convenience, never the check.
+  def transfer?
+    update?
+  end
+
+  def create_child?
+    # Opening a child is creating a ticket, which every agent may do; the parent
+    # itself is not modified beyond gaining an activity entry.
+    create?
+  end
+
+  def duplicate?
+    create?
+  end
+
+  def set_parent?
+    update?
+  end
+
+  def merge?
+    update?
+  end
+
+  def assign_to_me?
+    update?
+  end
+
+  # Extending a deadline is a commercial decision, not routine ticket handling:
+  # restricted to admins and to the agent who owns the ticket.
+  def add_sla_hours?
+    administrator? || assigned_to_user?
+  end
+
   def destroy?
     administrator?
   end

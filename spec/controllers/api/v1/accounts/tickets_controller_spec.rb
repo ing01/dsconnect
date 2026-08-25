@@ -1,6 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe 'Tickets API', type: :request do
+  # Opening a ticket now requires a description and one of the Mesa's categories,
+  # so every POST here carries them.
+  def creation_params(extra = {})
+    { title: 'Erro NF', description: 'detalhes', priority: 'medium',
+      ticket_column_id: ticket_column.id,
+      ticket_category_id: team.ticket_categories.first.id }.merge(extra)
+  end
+
   let(:account) { create(:account) }
   let(:agent) { create(:user, account: account, role: :agent) }
   let(:administrator) { create(:user, account: account, role: :administrator) }
@@ -143,7 +151,7 @@ RSpec.describe 'Tickets API', type: :request do
       company = create(:company, account: account, name: 'Acme Ltda')
 
       post "/api/v1/accounts/#{account.id}/tickets",
-           params: { ticket: { title: 'Erro NF', ticket_column_id: ticket_column.id, company_id: company.id } },
+           params: { ticket: creation_params(company_id: company.id) },
            headers: agent.create_new_auth_token,
            as: :json
 
@@ -156,7 +164,7 @@ RSpec.describe 'Tickets API', type: :request do
       conversation = create(:conversation, account: account, contact: contact)
 
       post "/api/v1/accounts/#{account.id}/tickets",
-           params: { ticket: { title: 'Erro NF', ticket_column_id: ticket_column.id }, conversation_id: conversation.id },
+           params: { ticket: creation_params, conversation_id: conversation.id },
            headers: agent.create_new_auth_token,
            as: :json
 
@@ -169,8 +177,7 @@ RSpec.describe 'Tickets API', type: :request do
       conversation = create(:conversation, account: account, contact: contact)
 
       post "/api/v1/accounts/#{account.id}/tickets",
-           params: { ticket: { title: 'Erro NF', ticket_column_id: ticket_column.id, company_id: chosen.id },
-                     conversation_id: conversation.id },
+           params: { ticket: creation_params(company_id: chosen.id), conversation_id: conversation.id },
            headers: agent.create_new_auth_token,
            as: :json
 
@@ -181,7 +188,7 @@ RSpec.describe 'Tickets API', type: :request do
   describe 'POST /api/v1/accounts/{account.id}/tickets' do
     it 'creates a ticket, agents included' do
       post "/api/v1/accounts/#{account.id}/tickets",
-           params: { ticket: { title: 'Erro no login', priority: 'high', ticket_column_id: ticket_column.id } },
+           params: { ticket: creation_params(title: 'Erro no login', priority: 'high') },
            headers: agent.create_new_auth_token,
            as: :json
 
@@ -194,7 +201,7 @@ RSpec.describe 'Tickets API', type: :request do
       conversation = create(:conversation, account: account)
 
       post "/api/v1/accounts/#{account.id}/tickets",
-           params: { ticket: { title: 'Erro no login', ticket_column_id: ticket_column.id }, conversation_id: conversation.id },
+           params: { ticket: creation_params(title: 'Erro no login'), conversation_id: conversation.id },
            headers: agent.create_new_auth_token,
            as: :json
 

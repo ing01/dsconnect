@@ -24,8 +24,10 @@ class CompanyAPI extends ApiClient {
     return axios.get(requestURL);
   }
 
-  listContacts(id, page = 1) {
-    return axios.get(`${this.url}/${id}/contacts?${buildParams({ page })}`);
+  // `q` narrows to contacts of this company; the sibling /contacts/search does
+  // the opposite (contacts NOT in the company, for assigning one).
+  listContacts(id, page = 1, q = '') {
+    return axios.get(`${this.url}/${id}/contacts?${buildParams({ page, q })}`);
   }
 
   listNotes(id) {

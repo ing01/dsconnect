@@ -7,6 +7,7 @@ import { formatMesaName } from 'dashboard/helper/mesaName';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 import AddStage from './AddStage.vue';
+import TicketCategoriesSection from './TicketCategoriesSection.vue';
 import EditStage from './EditStage.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
@@ -229,6 +230,10 @@ onBeforeMount(async () => {
           </BaseTableRow>
         </template>
       </BaseTable>
+
+      <!-- Categories live under the same Mesa selector as the Estagios: both
+           lists belong to the Mesa chosen above. -->
+      <TicketCategoriesSection :team-id="selectedTeamId" />
     </template>
 
     <woot-modal v-model:show="showAddPopup" :on-close="hideAddPopup">

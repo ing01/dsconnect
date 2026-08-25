@@ -12,8 +12,14 @@ class Api::V1::Accounts::Companies::ContactsController < Api::V1::Accounts::Comp
   before_action :set_current_page, only: [:index, :search]
   before_action :fetch_contact, only: [:destroy]
 
+  # Lists the contacts that belong to this Empresa. An optional `q` narrows the
+  # list server-side, so a picker over a company with more contacts than one page
+  # still finds them - `search` below is the opposite query (contacts NOT in the
+  # company, for assigning) and cannot serve this.
   def index
-    @contacts = fetch_contacts(@company.contacts.order(:name, :id))
+    scope = @company.contacts.order(:name, :id)
+    scope = scope.where(CONTACT_SEARCH_QUERY, search: "%#{params[:q].strip}%") if params[:q].present?
+    @contacts = fetch_contacts(scope)
     @contacts_count = @contacts.total_count
   end
 

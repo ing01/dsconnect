@@ -17,6 +17,18 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  // Which tab to land on. The "Adicionar ticket" menu picks the flow up front,
+  // so it opens straight on the one the agent asked for.
+  initialMode: {
+    type: String,
+    default: 'link',
+  },
+  // Hides the tab bar when the flow was already chosen from the menu -
+  // switching to the other tab there would sidestep the choice.
+  lockMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['linked']);
@@ -24,7 +36,7 @@ const emit = defineEmits(['linked']);
 const { t } = useI18n();
 const store = useStore();
 
-const mode = ref('link');
+const mode = ref(props.initialMode);
 const isLoading = ref(false);
 const isSubmitting = ref(false);
 const searchQuery = ref('');
@@ -123,7 +135,7 @@ onMounted(loadData);
       :header-title="t('TICKET.CONVERSATION_PANEL.MODAL_TITLE')"
     />
     <div class="px-8 pb-8 flex flex-col gap-4">
-      <div class="flex gap-2 border-b border-n-weak">
+      <div v-if="!lockMode" class="flex gap-2 border-b border-n-weak">
         <button
           type="button"
           class="px-1 pb-2 text-sm border-b-2"

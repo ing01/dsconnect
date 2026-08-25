@@ -18,15 +18,15 @@ export default {
     filters: { type: Object, default: () => ({}) },
   },
   emits: [
-    'add-ticket',
-    'open-ticket',
-    'edit-ticket',
-    'move-ticket',
+    'addTicket',
+    'openTicket',
+    'editTicket',
+    'moveTicket',
     'toggleCollapse',
-    'open-conversation',
-    'resolve-ticket',
-    'reopen-ticket',
-    'close-ticket',
+    'openConversation',
+    'resolveTicket',
+    'reopenTicket',
+    'closeTicket',
   ],
   computed: {
     // Counts the tickets actually shown, so the badge always agrees with the
@@ -65,13 +65,13 @@ export default {
     },
     onChange(evt) {
       if (evt.added) {
-        this.$emit('move-ticket', {
+        this.$emit('moveTicket', {
           ticketId: evt.added.element.id,
           ticketColumnId: this.column.id,
           position: evt.added.newIndex,
         });
       } else if (evt.moved) {
-        this.$emit('move-ticket', {
+        this.$emit('moveTicket', {
           ticketId: evt.moved.element.id,
           ticketColumnId: this.column.id,
           position: evt.moved.newIndex,
@@ -154,7 +154,7 @@ export default {
             :aria-label="
               $t('TICKET.BOARD.ADD_TICKET_TO_COLUMN', { name: column.name })
             "
-            @click.stop="$emit('add-ticket', column)"
+            @click.stop="$emit('addTicket', column)"
           >
             <Icon icon="i-lucide-plus" class="size-5" />
           </button>
@@ -175,12 +175,12 @@ export default {
             v-show="isVisible(element)"
             :ticket="element"
             :agents="agents"
-            @click="$emit('open-ticket', element)"
-            @edit="$emit('edit-ticket', element)"
-            @open-conversation="$emit('open-conversation', element)"
-            @resolve="$emit('resolve-ticket', element)"
-            @reopen="$emit('reopen-ticket', element)"
-            @close="$emit('close-ticket', element)"
+            @click="$emit('openTicket', element)"
+            @edit="$emit('editTicket', element)"
+            @open-conversation="$emit('openConversation', element)"
+            @resolve="$emit('resolveTicket', element)"
+            @reopen="$emit('reopenTicket', element)"
+            @close="$emit('closeTicket', element)"
           />
         </template>
       </Draggable>

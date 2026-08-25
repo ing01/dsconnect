@@ -109,6 +109,13 @@ onMounted(() => {
       @apply max-w-[80%] w-[56.25rem];
     }
 
+    // For forms that genuinely need two columns side by side. Capped at
+    // 75rem/1200px so the fields stay a comfortable reading width on a wide
+    // monitor, and falls back to 90% of the viewport on anything narrower.
+    &.large {
+      @apply max-w-[90%] w-[75rem];
+    }
+
     // .content-box {
     //   @apply h-auto p-0;
     // }

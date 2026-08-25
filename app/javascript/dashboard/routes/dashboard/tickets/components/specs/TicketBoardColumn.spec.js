@@ -340,7 +340,7 @@ describe('TicketBoardColumn', () => {
         .find('[aria-label^="TICKET.BOARD.ADD_TICKET_TO_COLUMN"]')
         .trigger('click');
 
-      expect(wrapper.emitted('add-ticket')).toEqual([[column]]);
+      expect(wrapper.emitted('addTicket')).toEqual([[column]]);
     });
   });
 

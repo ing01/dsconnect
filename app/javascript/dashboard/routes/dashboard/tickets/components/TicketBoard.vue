@@ -37,14 +37,14 @@ export default {
     },
   },
   emits: [
-    'add-ticket',
-    'open-ticket',
-    'edit-ticket',
-    'move-ticket',
-    'open-conversation',
-    'resolve-ticket',
-    'reopen-ticket',
-    'close-ticket',
+    'addTicket',
+    'openTicket',
+    'editTicket',
+    'moveTicket',
+    'openConversation',
+    'resolveTicket',
+    'reopenTicket',
+    'closeTicket',
   ],
   data() {
     return {
@@ -122,14 +122,14 @@ export default {
         :filters="filters"
         :is-collapsed="isCollapsed(column.id)"
         @toggle-collapse="toggleColumn"
-        @add-ticket="$emit('add-ticket', $event)"
-        @open-ticket="$emit('open-ticket', $event)"
-        @edit-ticket="$emit('edit-ticket', $event)"
-        @move-ticket="$emit('move-ticket', $event)"
-        @open-conversation="$emit('open-conversation', $event)"
-        @resolve-ticket="$emit('resolve-ticket', $event)"
-        @reopen-ticket="$emit('reopen-ticket', $event)"
-        @close-ticket="$emit('close-ticket', $event)"
+        @add-ticket="$emit('addTicket', $event)"
+        @open-ticket="$emit('openTicket', $event)"
+        @edit-ticket="$emit('editTicket', $event)"
+        @move-ticket="$emit('moveTicket', $event)"
+        @open-conversation="$emit('openConversation', $event)"
+        @resolve-ticket="$emit('resolveTicket', $event)"
+        @reopen-ticket="$emit('reopenTicket', $event)"
+        @close-ticket="$emit('closeTicket', $event)"
       />
     </div>
   </div>

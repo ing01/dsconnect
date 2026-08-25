@@ -1,5 +1,6 @@
 <script setup>
 import TicketRequesterCard from './TicketRequesterCard.vue';
+import TicketRelationshipsCard from './TicketRelationshipsCard.vue';
 import TicketCompanyTicketsAccordion from './TicketCompanyTicketsAccordion.vue';
 import TicketKnowledgeAccordion from './TicketKnowledgeAccordion.vue';
 import TicketDescriptionCard from './TicketDescriptionCard.vue';
@@ -23,6 +24,8 @@ defineEmits([
   'updateProperty',
   'moveToColumn',
   'changeStatus',
+  'editCompany',
+  'editContact',
 ]);
 </script>
 
@@ -36,7 +39,13 @@ defineEmits([
     <!-- On tablets the requester sits beside the properties, below the
          description, which is the reading order that matters there. -->
     <div class="flex flex-col gap-4 min-w-0 order-2 md:order-1 xl:order-none">
-      <TicketRequesterCard :ticket="ticket" />
+      <TicketRequesterCard
+        :ticket="ticket"
+        :can-update="canUpdate"
+        @edit-company="$emit('editCompany')"
+        @edit-contact="$emit('editContact')"
+      />
+      <TicketRelationshipsCard :ticket="ticket" />
       <TicketCompanyTicketsAccordion :ticket="ticket" />
       <TicketKnowledgeAccordion :ticket="ticket" />
     </div>
@@ -67,9 +76,9 @@ defineEmits([
         @move-to-column="$emit('moveToColumn', $event)"
         @change-status="$emit('changeStatus', $event)"
       />
-      <TicketFollowersSection />
+      <TicketFollowersSection :ticket="ticket" :can-update="canUpdate" />
       <TicketOriginCard :ticket="ticket" />
-      <TicketSlaAccordion />
+      <TicketSlaAccordion :ticket="ticket" />
     </div>
   </div>
 </template>

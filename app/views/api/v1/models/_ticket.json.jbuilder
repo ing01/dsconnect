@@ -16,10 +16,21 @@ json.team_name resource.team.name
 # ticket->contact FK. Empresa, in contrast, is now a real association on the
 # ticket, so it is read straight from it.
 json.requester_name resource.requester_contact&.name
+json.contact_id resource.contact_id
+json.ticket_category_id resource.ticket_category_id
+json.ticket_category_name resource.ticket_category&.name
 json.company_id resource.company_id
 json.company_name resource.company&.name
 json.resolved_at resource.resolved_at&.to_i
 json.closed_at resource.closed_at&.to_i
+json.cancelled_at resource.cancelled_at&.to_i
+# Why the ticket left the open state ('merged', 'cancelled', or nil for a plain
+# close). Plain columns, so the board pays nothing extra for them, and the
+# Kanban card can badge a grouped or child ticket without a second request.
+json.close_reason resource.close_reason
+json.parent_id resource.parent_id
+json.merged_into_id resource.merged_into_id
+json.due_at resource.due_at&.to_i
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
 json.conversation_ids resource.ticket_conversations.pluck(:conversation_id)

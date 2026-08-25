@@ -1,7 +1,13 @@
 import types from '../mutation-types';
 import TeamsAPI from '../../api/teams';
 import TicketColumnsAPI from '../../api/ticketColumns';
+import TicketCategoriesAPI from '../../api/ticketCategories';
 import TicketsAPI from '../../api/tickets';
+
+// The Kanban is the operational board: only tickets still being worked on. A
+// resolved, closed or cancelled ticket leaves it - it is not deleted, and the
+// "Busca detalhada" still finds it. Reopening one puts it back.
+const isOperational = ticket => ticket.status === 'open';
 
 // Holds the Kanban ("board") view of a single Mesa de Servico (Team): the
 // Team plus its Estagios (ticket_columns), each with the tickets currently
@@ -13,6 +19,9 @@ export const state = {
   // Lean Estagio lists keyed by team, for callers that need the stages without
   // the board's inlined tickets (the Ticket detail page's stage select).
   columnsByTeam: {},
+  // Categories are scoped to a Mesa the same way Estagios are, and the creation
+  // form needs both lists the moment a Mesa is chosen.
+  categoriesByTeam: {},
   uiFlags: {
     isFetching: false,
     isUpdating: false,
@@ -28,6 +37,9 @@ export const getters = {
   },
   getColumns: _state => teamId => {
     return _state.columnsByTeam[teamId] || [];
+  },
+  getCategories: _state => teamId => {
+    return _state.categoriesByTeam[teamId] || [];
   },
 };
 
@@ -51,6 +63,28 @@ export const actions = {
       columns: response.data,
     });
     return response.data;
+  },
+  fetchCategories: async ({ commit }, teamId) => {
+    if (!teamId) return [];
+
+    const response = await TicketCategoriesAPI.get(teamId);
+    commit(types.SET_TICKET_CATEGORIES_BY_TEAM, {
+      teamId,
+      categories: response.data,
+    });
+    return response.data;
+  },
+  createCategory: async ({ dispatch }, { teamId, ...data }) => {
+    await TicketCategoriesAPI.create(teamId, data);
+    return dispatch('fetchCategories', teamId);
+  },
+  updateCategory: async ({ dispatch }, { teamId, categoryId, ...data }) => {
+    await TicketCategoriesAPI.update(teamId, categoryId, data);
+    return dispatch('fetchCategories', teamId);
+  },
+  deleteCategory: async ({ dispatch }, { teamId, categoryId }) => {
+    await TicketCategoriesAPI.delete(teamId, categoryId);
+    return dispatch('fetchCategories', teamId);
   },
   createColumn: async ({ dispatch }, { teamId, ...data }) => {
     await TicketColumnsAPI.create(teamId, data);
@@ -130,6 +164,12 @@ export const mutations = {
   [types.SET_TICKET_COLUMNS_BY_TEAM](_state, { teamId, columns }) {
     _state.columnsByTeam = { ..._state.columnsByTeam, [teamId]: columns };
   },
+  [types.SET_TICKET_CATEGORIES_BY_TEAM](_state, { teamId, categories }) {
+    _state.categoriesByTeam = {
+      ..._state.categoriesByTeam,
+      [teamId]: categories,
+    };
+  },
   [types.SET_TICKET_KANBAN_BOARD](_state, board) {
     _state.records = {
       ..._state.records,
@@ -137,6 +177,21 @@ export const mutations = {
     };
   },
   [types.UPSERT_TICKET_IN_KANBAN_BOARD](_state, ticket) {
+    // A ticket that just reached a terminal state is removed rather than
+    // upserted, so closing/resolving/cancelling drops the card (and the column
+    // counter, which is derived from this list) without a refetch, here and on
+    // every other agent's board over realtime.
+    if (!isOperational(ticket)) {
+      Object.values(_state.records).forEach(board => {
+        (board.ticket_columns || []).forEach(column => {
+          column.tickets = (column.tickets || []).filter(
+            t => t.id !== ticket.id
+          );
+        });
+      });
+      return;
+    }
+
     Object.values(_state.records).forEach(board => {
       let targetColumn = null;
       (board.ticket_columns || []).forEach(column => {

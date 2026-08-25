@@ -5,6 +5,13 @@ import { useStore } from 'dashboard/composables/store';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
+const props = defineProps({
+  ticketId: {
+    type: [Number, String],
+    required: true,
+  },
+});
+
 const ACTIVITY_ICONS = {
   created: 'i-lucide-plus-circle',
   status_changed: 'i-lucide-refresh-cw',
@@ -20,12 +27,6 @@ const ACTIVITY_ICONS = {
   conversation_unlinked: 'i-lucide-unlink',
 };
 
-const props = defineProps({
-  ticketId: {
-    type: [Number, String],
-    required: true,
-  },
-});
 
 const { t } = useI18n();
 const store = useStore();

@@ -1,10 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
+import { OnClickOutside } from '@vueuse/components';
 import Button from 'dashboard/components-next/button/Button.vue';
 import TicketsList from './TicketsList.vue';
-import TicketsAPI from 'dashboard/api/tickets';
 
 const store = useStore();
 const { t } = useI18n();
@@ -12,34 +12,28 @@ const { t } = useI18n();
 const currentChat = computed(() => store.getters.getSelectedChat);
 const conversationId = computed(() => currentChat.value.id);
 
-const showModal = ref(false);
+const isOpen = ref(false);
 const linkedCount = ref(0);
 
-const loadCount = async () => {
-  if (!conversationId.value) return;
-  try {
-    const response = await TicketsAPI.getByConversation(conversationId.value);
-    linkedCount.value = response.data?.payload?.length || 0;
-  } catch (error) {
-    linkedCount.value = 0;
-  }
+// The panel reports the count it already loaded, so the badge costs no request
+// of its own.
+const setCount = count => {
+  linkedCount.value = count;
 };
 
-const openModal = () => {
-  showModal.value = true;
-};
-
-const closeModal = () => {
-  showModal.value = false;
-  loadCount();
-};
-
-watch(conversationId, loadCount);
-onMounted(loadCount);
+// Switching conversations must not leave the previous one's panel hanging open.
+watch(conversationId, () => {
+  isOpen.value = false;
+});
 </script>
 
 <template>
-  <div class="relative flex items-center">
+  <!-- Anchored to the button rather than opening a modal: seeing the linked
+       tickets and adding one are quick actions, not a separate screen. -->
+  <OnClickOutside
+    class="relative flex items-center"
+    @trigger="isOpen = false"
+  >
     <Button
       v-tooltip="t('TICKET.CONVERSATION_PANEL.ADD_BUTTON')"
       size="sm"
@@ -47,22 +41,23 @@ onMounted(loadCount);
       color="slate"
       icon="i-lucide-ticket"
       class="rounded-md"
-      @click="openModal"
+      :aria-expanded="isOpen"
+      aria-haspopup="menu"
+      @click="isOpen = !isOpen"
     />
     <span
       v-if="linkedCount"
-      class="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-n-brand text-white text-[10px] font-medium leading-none"
+      class="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-n-brand text-white text-[10px] font-medium leading-none pointer-events-none"
     >
       {{ linkedCount }}
     </span>
 
-    <woot-modal v-model:show="showModal" :on-close="closeModal">
-      <div class="p-4">
-        <h3 class="text-base font-medium text-n-slate-12 mb-2 px-2 pt-2">
-          {{ t('CONVERSATION_SIDEBAR.ACCORDION.TICKETS') }}
-        </h3>
-        <TicketsList :conversation-id="conversationId" />
-      </div>
-    </woot-modal>
-  </div>
+    <TicketsList
+      v-if="conversationId"
+      :conversation-id="conversationId"
+      :is-open="isOpen"
+      @close="isOpen = false"
+      @count="setCount"
+    />
+  </OnClickOutside>
 </template>

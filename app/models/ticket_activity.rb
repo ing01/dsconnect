@@ -15,7 +15,23 @@ class TicketActivity < ApplicationRecord
     reopened: 8,
     closed: 9,
     conversation_linked: 10,
-    conversation_unlinked: 11
+    conversation_unlinked: 11,
+    # Composite operations from the "Acoes do ticket" menu. `transferred`
+    # carries every before/after pair in `meta` so one entry stays fully
+    # auditable instead of four disconnected ones.
+    transferred: 12,
+    parent_changed: 13,
+    child_created: 14,
+    merged_ticket: 15,
+    merged_into: 16,
+    duplicated: 17,
+    sla_hours_added: 18,
+    cancelled: 19,
+    follower_added: 20,
+    follower_removed: 21,
+    title_changed: 22,
+    company_changed: 23,
+    contact_changed: 24
   }
 
   def push_event_data

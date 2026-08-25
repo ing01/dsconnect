@@ -72,6 +72,7 @@ class ActionCableConnector extends BaseActionCableConnector {
       'ticket.resolved': this.onTicketRealtimeUpdate,
       'ticket.reopened': this.onTicketRealtimeUpdate,
       'ticket.closed': this.onTicketRealtimeUpdate,
+      'ticket.cancelled': this.onTicketRealtimeUpdate,
     };
   }
 

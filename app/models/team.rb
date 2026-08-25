@@ -30,12 +30,15 @@ class Team < ApplicationRecord
   # orphaned/reassigned - a Mesa with open tickets can't be deleted until
   # those tickets are moved or removed first.
   has_many :ticket_columns, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :team
+  # Categories are scoped to the Mesa the same way Estagios are, and are just as
+  # meaningless without it.
+  has_many :ticket_categories, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :team
   has_many :tickets, dependent: :restrict_with_error
   has_many :calendar_events, dependent: :destroy
 
   before_destroy :capture_filtered_unread_count_member_ids, prepend: true
   after_destroy_commit :invalidate_filtered_unread_counts_after_destroy
-  after_create_commit :provision_default_ticket_columns
+  after_create_commit :provision_default_ticket_columns, :provision_default_ticket_categories
 
   validates :name,
             presence: { message: I18n.t('errors.validations.presence') },
@@ -91,6 +94,15 @@ class Team < ApplicationRecord
 
   def provision_default_ticket_columns
     DEFAULT_TICKET_COLUMN_NAMES.each { |column_name| ticket_columns.create!(name: column_name) }
+  end
+
+  # Category is mandatory on a new ticket, so a Mesa with an empty list would be
+  # a Mesa nobody can open a ticket in. Admins rename/reorder/extend these
+  # freely (see TicketCategoriesController).
+  DEFAULT_TICKET_CATEGORY_NAMES = %w[Dúvida Erro Homologação Instalação Melhoria Treinamento].freeze
+
+  def provision_default_ticket_categories
+    DEFAULT_TICKET_CATEGORY_NAMES.each { |category_name| ticket_categories.create!(name: category_name) }
   end
 
   def capture_filtered_unread_count_member_ids
