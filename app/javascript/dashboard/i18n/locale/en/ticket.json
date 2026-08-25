@@ -163,7 +163,98 @@
       "TAB_COMMENTS": "Comments",
       "ASSIGNMENT": "Assignment",
       "TRANSFER": "Transfer",
-      "TEAM_TRANSFER_HINT": "To move this ticket to another Mesa, drag it to a stage on that Mesa's board."
+      "TEAM_TRANSFER_HINT": "To move this ticket to another Mesa, drag it to a stage on that Mesa's board.",
+      "TABS": {
+        "OVERVIEW": "General information",
+        "COMMUNICATION": "Communication",
+        "APPOINTMENTS": "Appointments",
+        "CHECKLISTS": "Checklists",
+        "DEVELOPMENT": "Development",
+        "HISTORY": "History"
+      },
+      "ACTIONS": {
+        "LABEL": "Ticket actions",
+        "EDIT": "Edit ticket",
+        "OPEN_CONVERSATION": "Open conversation",
+        "RESOLVE": "Resolve ticket",
+        "CLOSE": "Close ticket",
+        "REOPEN": "Reopen ticket",
+        "COPY_LINK": "Copy link",
+        "LINK_COPIED": "Link copied"
+      },
+      "REQUESTER": {
+        "TITLE": "Requester information",
+        "CONTACT": "Requester",
+        "NO_CONTACT": "No requester linked",
+        "NO_COMPANY": "No company linked"
+      },
+      "RECENT": {
+        "TITLE": "Recent tickets",
+        "EMPTY": "No other tickets for this company.",
+        "NO_COMPANY": "Link a company to see its tickets."
+      },
+      "KNOWLEDGE": {
+        "TITLE": "Knowledge",
+        "EMPTY": "No related article found.",
+        "NO_PORTAL": "No knowledge base portal configured."
+      },
+      "DESCRIPTION": {
+        "TITLE": "Description",
+        "EDIT": "Edit",
+        "SAVE": "Save",
+        "CANCEL": "Cancel",
+        "USE_TEMPLATE": "Use template",
+        "PLACEHOLDER": "Describe the ticket..."
+      },
+      "ATTACHMENTS": {
+        "TITLE": "Files",
+        "EMPTY": "No files attached.",
+        "ADD": "Attach file",
+        "DELETE": "Remove file",
+        "UPLOAD_ERROR": "Could not upload the file.",
+        "DELETE_ERROR": "Could not remove the file."
+      },
+      "ADDITIONAL": {
+        "TITLE": "Additional information",
+        "CREATED_AT": "Created at",
+        "UPDATED_AT": "Updated at",
+        "RESOLVED_AT": "Resolved at",
+        "CLOSED_AT": "Closed at"
+      },
+      "PROPERTIES": {
+        "TITLE": "Ticket information",
+        "STATUS": "Status",
+        "STAGE": "Stage"
+      },
+      "FOLLOWERS": {
+        "TITLE": "Followers",
+        "EMPTY": "No followers yet."
+      },
+      "ORIGIN": {
+        "TITLE": "Origin",
+        "CHANNEL": "Channel",
+        "MANUAL": "Manual",
+        "CREATED_AT": "Created at",
+        "CREATED_BY": "Created by",
+        "OPEN_CONVERSATION": "Open conversation"
+      },
+      "SLA": {
+        "TITLE": "SLA",
+        "EMPTY": "No SLA configured for tickets."
+      },
+      "APPOINTMENTS": {
+        "TITLE": "Appointments",
+        "EMPTY": "No appointment recorded."
+      },
+      "CHECKLISTS": {
+        "TITLE": "Checklists",
+        "EMPTY": "Checklists are not available yet."
+      },
+      "DEVELOPMENT": {
+        "TITLE": "Development",
+        "EMPTY": "No development item linked."
+      },
+      "TAB_HISTORY": "History"
     },
     "CONVERSATION_PANEL": {
       "ADD_BUTTON": "Link or create ticket",
@@ -252,6 +343,13 @@
         "CREATED_AT": "Ticket date",
         "STATUS": "Status"
       }
+    },
+    "COMPANY": {
+      "LABEL": "Company",
+      "PLACEHOLDER": "Select a company",
+      "SEARCH": "Search company",
+      "NONE": "No company",
+      "EMPTY": "No company found"
     }
   }
 }

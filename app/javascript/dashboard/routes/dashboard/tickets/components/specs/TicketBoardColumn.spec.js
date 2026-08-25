@@ -133,6 +133,18 @@ describe('TicketBoardColumn', () => {
       expect(wrapper.vm.visibleCount).toBe(1);
     });
 
+    it('narrows the count by company name', () => {
+      const wrapper = mountColumn({
+        tickets: [
+          ticket(101, { company_name: 'ELETROSUL - FILIAL' }),
+          ticket(102, { company_name: 'EMPRESA ABC' }),
+        ],
+        filters: { query: 'eletrosul' },
+      });
+
+      expect(wrapper.vm.visibleCount).toBe(1);
+    });
+
     it('combines the quick search with the agent filter', () => {
       const wrapper = mountColumn({
         tickets: [

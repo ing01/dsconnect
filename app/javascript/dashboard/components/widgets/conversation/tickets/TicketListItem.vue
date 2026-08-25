@@ -2,19 +2,10 @@
 import { computed } from 'vue';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
-
-const PRIORITY_COLORS = {
-  low: 'slate',
-  medium: 'blue',
-  high: 'amber',
-  urgent: 'ruby',
-};
-
-const STATUS_COLORS = {
-  open: 'slate',
-  resolved: 'green',
-  closed: 'violet',
-};
+import {
+  statusColor as resolveStatusColor,
+  priorityColor as resolvePriorityColor,
+} from 'dashboard/routes/dashboard/tickets/helpers/ticketLabels';
 
 const props = defineProps({
   ticket: {
@@ -25,12 +16,10 @@ const props = defineProps({
 
 const emit = defineEmits(['unlink', 'click']);
 
-const priorityColor = computed(
-  () => PRIORITY_COLORS[props.ticket.priority] || 'slate'
+const priorityColor = computed(() =>
+  resolvePriorityColor(props.ticket.priority)
 );
-const statusColor = computed(
-  () => STATUS_COLORS[props.ticket.status] || 'slate'
-);
+const statusColor = computed(() => resolveStatusColor(props.ticket.status));
 </script>
 
 <template>

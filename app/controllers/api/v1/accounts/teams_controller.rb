@@ -26,7 +26,7 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
 
   def fetch_team
     @team = Current.account.teams
-                   .includes(ticket_columns: { tickets: [:team, :assignee, { conversations: { contact: :company } }] })
+                   .includes(ticket_columns: { tickets: [:team, :ticket_column, :assignee, :company, { conversations: :contact }] })
                    .find(params[:id])
   end
 

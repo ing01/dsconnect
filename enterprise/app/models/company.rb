@@ -42,6 +42,9 @@ class Company < ApplicationRecord
 
   belongs_to :account
   has_many :contacts, dependent: :nullify
+  # Tickets point at the Empresa directly. `nullify` rather than `destroy`:
+  # removing a company must never take support history with it.
+  has_many :tickets, dependent: :nullify
   has_many :company_credentials, dependent: :destroy
   has_many :company_system_modules, dependent: :destroy
   has_many :system_modules, through: :company_system_modules
@@ -74,10 +77,6 @@ class Company < ApplicationRecord
     return if last_activity_at.present? && last_activity_at > activity_at - ACTIVITY_ROLLUP_INTERVAL
 
     update!(last_activity_at: activity_at)
-  end
-
-  def tickets
-    Ticket.joins(conversations: :contact).where(contacts: { company_id: id }).distinct
   end
 
   private

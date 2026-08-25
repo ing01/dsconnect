@@ -10,6 +10,9 @@ import TicketsAPI from '../../api/tickets';
 // - this module only owns the ticket-Kanban slice of a Team.
 export const state = {
   records: {},
+  // Lean Estagio lists keyed by team, for callers that need the stages without
+  // the board's inlined tickets (the Ticket detail page's stage select).
+  columnsByTeam: {},
   uiFlags: {
     isFetching: false,
     isUpdating: false,
@@ -23,6 +26,9 @@ export const getters = {
   getBoard: _state => teamId => {
     return _state.records[teamId] || null;
   },
+  getColumns: _state => teamId => {
+    return _state.columnsByTeam[teamId] || [];
+  },
 };
 
 export const actions = {
@@ -35,6 +41,16 @@ export const actions = {
     } finally {
       commit(types.SET_TICKET_KANBAN_UI_FLAG, { isFetching: false });
     }
+  },
+  fetchColumns: async ({ commit }, teamId) => {
+    if (!teamId) return [];
+
+    const response = await TicketColumnsAPI.get(teamId);
+    commit(types.SET_TICKET_COLUMNS_BY_TEAM, {
+      teamId,
+      columns: response.data,
+    });
+    return response.data;
   },
   createColumn: async ({ dispatch }, { teamId, ...data }) => {
     await TicketColumnsAPI.create(teamId, data);
@@ -64,7 +80,10 @@ export const actions = {
     await TicketsAPI.update(id, { ticket: data });
     await dispatch('fetchBoard', teamId);
   },
-  moveTicket: async ({ dispatch }, { teamId, id, ticketColumnId, position }) => {
+  moveTicket: async (
+    { dispatch },
+    { teamId, id, ticketColumnId, position }
+  ) => {
     await TicketsAPI.move(id, { ticketColumnId, position });
     await dispatch('fetchBoard', teamId);
   },
@@ -72,7 +91,10 @@ export const actions = {
     await TicketsAPI.delete(id);
     await dispatch('fetchBoard', teamId);
   },
-  linkConversation: async ({ dispatch }, { teamId, ticketId, conversationId }) => {
+  linkConversation: async (
+    { dispatch },
+    { teamId, ticketId, conversationId }
+  ) => {
     await TicketsAPI.linkConversation(ticketId, conversationId);
     await dispatch('fetchBoard', teamId);
   },
@@ -104,6 +126,9 @@ export const mutations = {
       ..._state.uiFlags,
       ...data,
     };
+  },
+  [types.SET_TICKET_COLUMNS_BY_TEAM](_state, { teamId, columns }) {
+    _state.columnsByTeam = { ..._state.columnsByTeam, [teamId]: columns };
   },
   [types.SET_TICKET_KANBAN_BOARD](_state, board) {
     _state.records = {
@@ -143,9 +168,7 @@ export const mutations = {
   [types.REMOVE_TICKET_FROM_KANBAN_BOARD](_state, ticketId) {
     Object.values(_state.records).forEach(board => {
       (board.ticket_columns || []).forEach(column => {
-        column.tickets = (column.tickets || []).filter(
-          t => t.id !== ticketId
-        );
+        column.tickets = (column.tickets || []).filter(t => t.id !== ticketId);
       });
     });
   },

@@ -163,7 +163,98 @@
       "TAB_COMMENTS": "Comentários",
       "ASSIGNMENT": "Atribuição",
       "TRANSFER": "Transferir",
-      "TEAM_TRANSFER_HINT": "Para mover este ticket para outra Mesa, arraste-o até um estágio da Mesa de destino."
+      "TEAM_TRANSFER_HINT": "Para mover este ticket para outra Mesa, arraste-o até um estágio da Mesa de destino.",
+      "TABS": {
+        "OVERVIEW": "Informações gerais",
+        "COMMUNICATION": "Comunicação",
+        "APPOINTMENTS": "Compromissos",
+        "CHECKLISTS": "Checklists",
+        "DEVELOPMENT": "Desenvolvimento",
+        "HISTORY": "Histórico"
+      },
+      "ACTIONS": {
+        "LABEL": "Ações do ticket",
+        "EDIT": "Editar ticket",
+        "OPEN_CONVERSATION": "Abrir conversa",
+        "RESOLVE": "Resolver ticket",
+        "CLOSE": "Fechar ticket",
+        "REOPEN": "Reabrir ticket",
+        "COPY_LINK": "Copiar link",
+        "LINK_COPIED": "Link copiado"
+      },
+      "REQUESTER": {
+        "TITLE": "Informações do solicitante",
+        "CONTACT": "Solicitante",
+        "NO_CONTACT": "Nenhum solicitante vinculado",
+        "NO_COMPANY": "Nenhuma empresa vinculada"
+      },
+      "RECENT": {
+        "TITLE": "Últimos tickets",
+        "EMPTY": "Nenhum outro ticket desta empresa.",
+        "NO_COMPANY": "Vincule uma empresa para ver os tickets dela."
+      },
+      "KNOWLEDGE": {
+        "TITLE": "Conhecimentos",
+        "EMPTY": "Nenhum artigo relacionado encontrado.",
+        "NO_PORTAL": "Nenhum portal de conhecimento configurado."
+      },
+      "DESCRIPTION": {
+        "TITLE": "Descrição",
+        "EDIT": "Editar",
+        "SAVE": "Salvar",
+        "CANCEL": "Cancelar",
+        "USE_TEMPLATE": "Usar template",
+        "PLACEHOLDER": "Descreva o ticket..."
+      },
+      "ATTACHMENTS": {
+        "TITLE": "Arquivos",
+        "EMPTY": "Nenhum arquivo anexado.",
+        "ADD": "Anexar arquivo",
+        "DELETE": "Remover arquivo",
+        "UPLOAD_ERROR": "Não foi possível enviar o arquivo.",
+        "DELETE_ERROR": "Não foi possível remover o arquivo."
+      },
+      "ADDITIONAL": {
+        "TITLE": "Informações adicionais",
+        "CREATED_AT": "Criado em",
+        "UPDATED_AT": "Atualizado em",
+        "RESOLVED_AT": "Resolvido em",
+        "CLOSED_AT": "Fechado em"
+      },
+      "PROPERTIES": {
+        "TITLE": "Informações do ticket",
+        "STATUS": "Status",
+        "STAGE": "Estágio"
+      },
+      "FOLLOWERS": {
+        "TITLE": "Seguidores",
+        "EMPTY": "Nenhum seguidor ainda."
+      },
+      "ORIGIN": {
+        "TITLE": "Origem",
+        "CHANNEL": "Canal",
+        "MANUAL": "Manual",
+        "CREATED_AT": "Criado em",
+        "CREATED_BY": "Criado por",
+        "OPEN_CONVERSATION": "Abrir conversa"
+      },
+      "SLA": {
+        "TITLE": "SLA",
+        "EMPTY": "Nenhum SLA configurado para tickets."
+      },
+      "APPOINTMENTS": {
+        "TITLE": "Compromissos",
+        "EMPTY": "Nenhum compromisso registrado."
+      },
+      "CHECKLISTS": {
+        "TITLE": "Checklists",
+        "EMPTY": "Checklists ainda não estão disponíveis."
+      },
+      "DEVELOPMENT": {
+        "TITLE": "Desenvolvimento",
+        "EMPTY": "Nenhum item de desenvolvimento vinculado."
+      },
+      "TAB_HISTORY": "Histórico"
     },
     "CONVERSATION_PANEL": {
       "ADD_BUTTON": "Vincular ou criar ticket",
@@ -252,6 +343,13 @@
         "CREATED_AT": "Data do ticket",
         "STATUS": "Status"
       }
+    },
+    "COMPANY": {
+      "LABEL": "Empresa",
+      "PLACEHOLDER": "Selecione uma empresa",
+      "SEARCH": "Buscar empresa",
+      "NONE": "Sem empresa",
+      "EMPTY": "Nenhuma empresa encontrada"
     }
   }
 }

@@ -8,9 +8,6 @@ import WootLabel from 'dashboard/components-next/label/Label.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
 
-const STATUS_COLORS = { open: 'slate', resolved: 'green', closed: 'violet' };
-const PER_PAGE = 25;
-
 // `filters` is the flat, camelCase state owned by TicketDetailedSearchModal
 // (the "Busca detalhada" panel) - this component only turns it into
 // backend query params and renders the resulting page of results.
@@ -20,6 +17,9 @@ const props = defineProps({
     required: true,
   },
 });
+import { statusColor } from '../helpers/ticketLabels';
+
+const PER_PAGE = 25;
 
 const { t } = useI18n();
 const store = useStore();
@@ -41,7 +41,7 @@ const requestParams = computed(() => ({
   display_id: props.filters.displayId || undefined,
   title: props.filters.title || undefined,
   contact_query: props.filters.contactQuery || undefined,
-  company_query: props.filters.companyQuery || undefined,
+  company_id: props.filters.companyId || undefined,
   created_after: props.filters.createdAfter || undefined,
   created_before: props.filters.createdBefore || undefined,
 }));
@@ -53,7 +53,9 @@ const loadTickets = (page = 1) => {
 const onPageChange = page => loadTickets(page);
 
 const openTicket = ticket => {
-  router.push(frontendURL(`accounts/${currentAccountId.value}/tickets/${ticket.id}`));
+  router.push(
+    frontendURL(`accounts/${currentAccountId.value}/tickets/${ticket.id}`)
+  );
 };
 
 watch(
@@ -71,23 +73,47 @@ onMounted(() => loadTickets(1));
       <Spinner />
     </div>
 
-    <div v-else-if="!tickets.length" class="flex items-center justify-center flex-1">
+    <div
+      v-else-if="!tickets.length"
+      class="flex items-center justify-center flex-1"
+    >
       <p class="text-sm text-n-slate-11">{{ t('TICKET.LIST.EMPTY') }}</p>
     </div>
 
-    <div v-else class="flex-1 min-h-0 overflow-auto rounded-xl border border-n-weak">
+    <div
+      v-else
+      class="flex-1 min-h-0 overflow-auto rounded-xl border border-n-weak"
+    >
       <table class="w-full text-sm">
         <thead class="sticky top-0 bg-n-solid-1 border-b border-n-weak">
           <tr class="text-left text-xs text-n-slate-10">
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.ID') }}</th>
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.CREATED_AT') }}</th>
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.TITLE') }}</th>
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.COMPANY') }}</th>
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.REQUESTER') }}</th>
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.STATUS') }}</th>
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.MESA') }}</th>
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.ESTAGIO') }}</th>
-            <th class="px-3 py-2 font-medium">{{ t('TICKET.LIST.COLUMNS.ASSIGNEE') }}</th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.ID') }}
+            </th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.CREATED_AT') }}
+            </th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.TITLE') }}
+            </th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.COMPANY') }}
+            </th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.REQUESTER') }}
+            </th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.STATUS') }}
+            </th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.MESA') }}
+            </th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.ESTAGIO') }}
+            </th>
+            <th class="px-3 py-2 font-medium">
+              {{ t('TICKET.LIST.COLUMNS.ASSIGNEE') }}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -115,7 +141,7 @@ onMounted(() => loadTickets(1));
             <td class="px-3 py-2">
               <WootLabel
                 :label="t(`TICKET.STATUS.${ticket.status.toUpperCase()}`)"
-                :color="STATUS_COLORS[ticket.status] || 'slate'"
+                :color="statusColor(ticket.status)"
                 compact
               />
             </td>

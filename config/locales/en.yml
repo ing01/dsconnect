@@ -83,6 +83,8 @@ en:
         invalid: is not a valid email address
     validations:
       presence: must not be blank
+    ticket_attachment:
+      too_large: is larger than the %{size} MB limit
     ticket_column:
       has_tickets:
         one: This stage has 1 ticket. Move the ticket to another stage before deleting it.

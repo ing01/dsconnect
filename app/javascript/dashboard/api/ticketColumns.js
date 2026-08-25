@@ -9,6 +9,12 @@ class TicketColumnsAPI extends ApiClient {
     super('teams', { accountScoped: true });
   }
 
+  // Lean list of Estagios (no tickets inlined) - what the Ticket detail page's
+  // stage select needs, instead of pulling the whole board through TeamsAPI.show.
+  get(teamId) {
+    return axios.get(`${this.url}/${teamId}/ticket_columns`);
+  }
+
   create(teamId, data) {
     return axios.post(`${this.url}/${teamId}/ticket_columns`, {
       ticket_column: data,

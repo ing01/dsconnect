@@ -3,6 +3,14 @@ class Api::V1::Accounts::TicketColumnsController < Api::V1::Accounts::BaseContro
   before_action :fetch_ticket_column, only: [:update, :destroy]
   before_action :check_authorization
 
+  # Deliberately lean: just the Estagios, without the tickets that
+  # `_ticket_column` inlines. Callers that only need the list of stages (the
+  # Ticket detail page's Estagio select) would otherwise have to pull the whole
+  # board through `teams#show`.
+  def index
+    @ticket_columns = @team.ticket_columns.order(:position, :id)
+  end
+
   def create
     @ticket_column = @team.ticket_columns.create!(ticket_column_params)
     apply_requested_position!

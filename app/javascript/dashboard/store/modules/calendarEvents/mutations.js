@@ -4,9 +4,13 @@ import {
   ADD_CALENDAR_EVENT,
   EDIT_CALENDAR_EVENT,
   DELETE_CALENDAR_EVENT,
+  SET_CALENDAR_EVENTS_BY_TICKET,
 } from './types';
 
 export const mutations = {
+  [SET_CALENDAR_EVENTS_BY_TICKET]($state, { ticketId, events }) {
+    $state.ticketRecords = { ...$state.ticketRecords, [ticketId]: events };
+  },
   [SET_CALENDAR_EVENT_UI_FLAG]($state, data) {
     $state.uiFlags = {
       ...$state.uiFlags,

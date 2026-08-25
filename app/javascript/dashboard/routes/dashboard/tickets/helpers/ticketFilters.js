@@ -31,7 +31,17 @@ export function ticketMatchesFilters(ticket, filters = {}) {
       const matchesAssignee = (ticket.assignee_name || '')
         .toLowerCase()
         .includes(query);
-      if (!matchesTitle && !matchesDisplayId && !matchesAssignee) return false;
+      const matchesCompany = (ticket.company_name || '')
+        .toLowerCase()
+        .includes(query);
+      if (
+        !matchesTitle &&
+        !matchesDisplayId &&
+        !matchesAssignee &&
+        !matchesCompany
+      ) {
+        return false;
+      }
     }
   }
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_25_100000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1628,6 +1628,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
     t.index ["user_id"], name: "index_ticket_activities_on_user_id"
   end
 
+  create_table "ticket_attachments", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_attachments_on_account_id"
+    t.index ["ticket_id", "created_at"], name: "index_ticket_attachments_on_ticket_id_and_created_at"
+    t.index ["ticket_id"], name: "index_ticket_attachments_on_ticket_id"
+    t.index ["user_id"], name: "index_ticket_attachments_on_user_id"
+  end
+
   create_table "ticket_columns", force: :cascade do |t|
     t.string "name", null: false
     t.integer "position", default: 0, null: false
@@ -1679,9 +1691,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
     t.integer "display_id"
     t.datetime "resolved_at"
     t.datetime "closed_at"
+    t.bigint "company_id"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id"], name: "index_tickets_on_account_id"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
+    t.index ["company_id"], name: "index_tickets_on_company_id"
     t.index ["status"], name: "index_tickets_on_status"
     t.index ["team_id"], name: "index_tickets_on_team_id"
     t.index ["ticket_column_id", "position"], name: "index_tickets_on_ticket_column_id_and_position"
@@ -1801,6 +1815,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
   add_foreign_key "mood_entries", "users"
   add_foreign_key "system_modules", "accounts"
   add_foreign_key "ticket_columns", "teams"
+  add_foreign_key "tickets", "companies"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").

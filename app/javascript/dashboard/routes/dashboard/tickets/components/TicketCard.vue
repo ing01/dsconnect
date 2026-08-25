@@ -3,19 +3,7 @@ import WootLabel from 'dashboard/components-next/label/Label.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
-
-const PRIORITY_COLORS = {
-  low: 'slate',
-  medium: 'blue',
-  high: 'amber',
-  urgent: 'ruby',
-};
-
-const STATUS_COLORS = {
-  open: 'slate',
-  resolved: 'green',
-  closed: 'violet',
-};
+import { statusColor, priorityColor } from '../helpers/ticketLabels';
 
 export default {
   components: {
@@ -42,7 +30,7 @@ export default {
   },
   computed: {
     priorityColor() {
-      return PRIORITY_COLORS[this.ticket.priority] || 'slate';
+      return priorityColor(this.ticket.priority);
     },
     priorityLabel() {
       return this.ticket.priority
@@ -50,7 +38,7 @@ export default {
         : '';
     },
     statusColor() {
-      return STATUS_COLORS[this.ticket.status] || 'slate';
+      return statusColor(this.ticket.status);
     },
     statusLabel() {
       return this.ticket.status
@@ -169,6 +157,14 @@ export default {
         />
       </div>
     </div>
+
+    <p
+      v-if="ticket.company_name"
+      class="text-xs text-n-slate-11 truncate"
+      :title="ticket.company_name"
+    >
+      {{ ticket.company_name }}
+    </p>
 
     <div class="flex items-center flex-wrap gap-1.5">
       <WootLabel

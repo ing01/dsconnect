@@ -1,1 +1,1 @@
-json.partial! 'api/v1/models/ticket', formats: [:json], resource: @ticket
+json.partial! 'api/v1/models/ticket_detail', formats: [:json], resource: @ticket

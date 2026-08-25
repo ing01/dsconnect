@@ -1,9 +1,11 @@
 <script>
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import TicketCompanySelect from './TicketCompanySelect.vue';
 
 export default {
   components: {
     NextButton,
+    TicketCompanySelect,
   },
   props: {
     ticket: {
@@ -26,6 +28,7 @@ export default {
       description: this.ticket?.description || '',
       priority: this.ticket?.priority || '',
       assigneeId: this.ticket?.assignee_id || '',
+      companyId: this.ticket?.company_id || null,
       titleError: '',
     };
   },
@@ -49,6 +52,7 @@ export default {
         description: this.description.trim(),
         priority: this.priority || null,
         assignee_id: this.assigneeId || null,
+        company_id: this.companyId || null,
       });
     },
   },
@@ -117,6 +121,20 @@ export default {
               {{ agent.name }}
             </option>
           </select>
+        </label>
+      </div>
+
+      <div class="flex flex-row w-full">
+        <label class="w-full mb-3">
+          <span class="text-sm text-n-slate-11">
+            {{ $t('TICKET.COMPANY.LABEL') }}
+          </span>
+          <div class="mt-1">
+            <TicketCompanySelect
+              v-model="companyId"
+              :initial-name="ticket?.company_name || ''"
+            />
+          </div>
         </label>
       </div>
 

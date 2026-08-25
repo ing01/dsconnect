@@ -2,12 +2,15 @@ class Api::V1::Accounts::CalendarEventsController < Api::V1::Accounts::BaseContr
   before_action :fetch_calendar_event, only: [:show, :update, :destroy]
   before_action :check_authorization
 
+  # Scoped by Mesa (the calendar page) or by Ticket (the Compromissos tab).
+  # One of the two is required so the endpoint can never dump the whole account.
   def index
-    scope = Current.account.calendar_events.where(team_id: params.require(:team_id)).includes(:attendees, :tickets, :created_by)
-    since_at = parsed_date(params[:since])
-    until_at = parsed_date(params[:until])
-    scope = scope.overlapping(since_at, until_at) if since_at && until_at
-    @calendar_events = scope.order(:start_at)
+    raise ActionController::ParameterMissing, :team_id if params[:team_id].blank? && params[:ticket_id].blank?
+
+    scope = Current.account.calendar_events.includes(:attendees, :tickets, :created_by)
+    scope = scope.where(team_id: params[:team_id]) if params[:team_id].present?
+    scope = filter_by_ticket(scope)
+    @calendar_events = filter_by_window(scope).order(:start_at)
   end
 
   def show; end
@@ -28,6 +31,20 @@ class Api::V1::Accounts::CalendarEventsController < Api::V1::Accounts::BaseContr
   end
 
   private
+
+  def filter_by_window(scope)
+    since_at = parsed_date(params[:since])
+    until_at = parsed_date(params[:until])
+    return scope unless since_at && until_at
+
+    scope.overlapping(since_at, until_at)
+  end
+
+  def filter_by_ticket(scope)
+    return scope if params[:ticket_id].blank?
+
+    scope.joins(:calendar_event_tickets).where(calendar_event_tickets: { ticket_id: params[:ticket_id] })
+  end
 
   def check_authorization(model = nil)
     super(model || @calendar_event || CalendarEvent)

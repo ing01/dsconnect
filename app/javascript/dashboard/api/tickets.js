@@ -69,6 +69,24 @@ class TicketsAPI extends ApiClient {
     return axios.get(`${this.url}/${ticketId}/activities`);
   }
 
+  getAttachments(ticketId) {
+    return axios.get(`${this.url}/${ticketId}/attachments`);
+  }
+
+  // Plain multipart: the generic /upload blob endpoint would need two
+  // round-trips (blob, then attach) and carries no size guard of its own.
+  createAttachment(ticketId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post(`${this.url}/${ticketId}/attachments`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  }
+
+  deleteAttachment(ticketId, attachmentId) {
+    return axios.delete(`${this.url}/${ticketId}/attachments/${attachmentId}`);
+  }
+
   // Provisions the default Mesa de Servico for an account that has none, so a
   // fresh install lands on a usable Kanban. Idempotent server-side.
   ensureDefaultMesa() {

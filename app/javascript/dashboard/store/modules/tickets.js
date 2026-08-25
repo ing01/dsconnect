@@ -11,6 +11,7 @@ export const state = {
   listMeta: { count: 0, currentPage: 1 },
   comments: {},
   activities: {},
+  attachments: {},
   uiFlags: {
     isFetchingList: false,
     isFetchingItem: false,
@@ -18,6 +19,8 @@ export const state = {
     isFetchingComments: false,
     isCreatingComment: false,
     isFetchingActivities: false,
+    isFetchingAttachments: false,
+    isUploadingAttachment: false,
   },
 };
 
@@ -39,6 +42,9 @@ export const getters = {
   },
   getActivities: _state => ticketId => {
     return _state.activities[ticketId] || [];
+  },
+  getAttachments: _state => ticketId => {
+    return _state.attachments[ticketId] || [];
   },
 };
 
@@ -116,13 +122,59 @@ export const actions = {
     commit(types.SET_TICKETS_UI_FLAG, { isFetchingActivities: true });
     try {
       const response = await TicketsAPI.getActivities(ticketId);
-      commit(types.SET_TICKET_ACTIVITIES, { ticketId, activities: response.data });
+      commit(types.SET_TICKET_ACTIVITIES, {
+        ticketId,
+        activities: response.data,
+      });
     } finally {
       commit(types.SET_TICKETS_UI_FLAG, { isFetchingActivities: false });
     }
   },
   // Applied when a `ticket.*` realtime event arrives (see actionCable.js),
   // so open tabs/other agents see Kanban/Lista changes without a refetch.
+  // Stage changes must go through `move`, not `update`: TicketsController#update
+  // strips `ticket_column_id`, and only `move` keeps `team_id` in lockstep and
+  // reindexes both columns. Omitting `position` lets the server slot the ticket
+  // into the destination by ticket number.
+  moveTicket: async ({ commit }, { id, ticketColumnId, position }) => {
+    commit(types.SET_TICKETS_UI_FLAG, { isUpdating: true });
+    try {
+      const response = await TicketsAPI.move(id, { ticketColumnId, position });
+      commit(types.SET_TICKET_ITEM, response.data);
+      return response.data;
+    } finally {
+      commit(types.SET_TICKETS_UI_FLAG, { isUpdating: false });
+    }
+  },
+  fetchAttachments: async ({ commit }, ticketId) => {
+    commit(types.SET_TICKETS_UI_FLAG, { isFetchingAttachments: true });
+    try {
+      const response = await TicketsAPI.getAttachments(ticketId);
+      commit(types.SET_TICKET_ATTACHMENTS, {
+        ticketId,
+        attachments: response.data,
+      });
+    } finally {
+      commit(types.SET_TICKETS_UI_FLAG, { isFetchingAttachments: false });
+    }
+  },
+  createAttachment: async ({ commit }, { ticketId, file }) => {
+    commit(types.SET_TICKETS_UI_FLAG, { isUploadingAttachment: true });
+    try {
+      const response = await TicketsAPI.createAttachment(ticketId, file);
+      commit(types.ADD_TICKET_ATTACHMENT, {
+        ticketId,
+        attachment: response.data,
+      });
+      return response.data;
+    } finally {
+      commit(types.SET_TICKETS_UI_FLAG, { isUploadingAttachment: false });
+    }
+  },
+  deleteAttachment: async ({ commit }, { ticketId, attachmentId }) => {
+    await TicketsAPI.deleteAttachment(ticketId, attachmentId);
+    commit(types.REMOVE_TICKET_ATTACHMENT, { ticketId, attachmentId });
+  },
   upsertFromRealtime: ({ commit }, ticket) => {
     commit(types.SET_TICKET_ITEM, ticket);
   },
@@ -144,13 +196,35 @@ export const mutations = {
       currentPage: meta?.current_page || 1,
     };
   },
+  // Merges rather than replaces. Realtime payloads (`Ticket#push_event_data`)
+  // are narrower than the REST ones - no `assignee_name`, no `team_name`, none
+  // of the detail-only blocks - so replacing would blank the detail page on the
+  // first event to arrive. Every field an event does carry is sent explicitly,
+  // including nulls, so a merge never keeps a stale value.
   [types.SET_TICKET_ITEM](_state, ticket) {
     const index = _state.records.findIndex(record => record.id === ticket.id);
     if (index === -1) {
       _state.records.push(ticket);
     } else {
-      _state.records.splice(index, 1, ticket);
+      _state.records.splice(index, 1, { ..._state.records[index], ...ticket });
     }
+  },
+  [types.SET_TICKET_ATTACHMENTS](_state, { ticketId, attachments }) {
+    _state.attachments = { ..._state.attachments, [ticketId]: attachments };
+  },
+  [types.ADD_TICKET_ATTACHMENT](_state, { ticketId, attachment }) {
+    const current = _state.attachments[ticketId] || [];
+    _state.attachments = {
+      ..._state.attachments,
+      [ticketId]: [attachment, ...current],
+    };
+  },
+  [types.REMOVE_TICKET_ATTACHMENT](_state, { ticketId, attachmentId }) {
+    const current = _state.attachments[ticketId] || [];
+    _state.attachments = {
+      ..._state.attachments,
+      [ticketId]: current.filter(attachment => attachment.id !== attachmentId),
+    };
   },
   [types.REMOVE_TICKET_ITEM](_state, ticketId) {
     _state.records = _state.records.filter(record => record.id !== ticketId);

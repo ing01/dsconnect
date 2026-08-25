@@ -12,12 +12,12 @@ json.assignee_id resource.assignee_id
 json.assignee_name resource.assignee&.name
 json.team_id resource.team_id
 json.team_name resource.team.name
-# Busca detalhada shows Cliente/Solicitante without an extra round-trip per
-# ticket - resolved from the first linked Conversation's Contact, matching
-# the same "first conversation" convention already used across the Ticket
-# detail/list UI (see TicketDetailPage.vue, TicketListView.vue).
-json.requester_name resource.conversations.first&.contact&.name
-json.company_name resource.conversations.first&.contact&.company&.name
+# Solicitante still comes from a linked Conversation's Contact - there is no
+# ticket->contact FK. Empresa, in contrast, is now a real association on the
+# ticket, so it is read straight from it.
+json.requester_name resource.requester_contact&.name
+json.company_id resource.company_id
+json.company_name resource.company&.name
 json.resolved_at resource.resolved_at&.to_i
 json.closed_at resource.closed_at&.to_i
 json.created_at resource.created_at.to_i

@@ -15,8 +15,15 @@ class CalendarEventsAPI extends ApiClient {
     super('calendar_events', { accountScoped: true });
   }
 
-  get({ teamId, since, until }) {
-    const requestURL = `${this.url}?${buildParams({ team_id: teamId, since, until })}`;
+  // Scoped by Mesa (the calendar page) or by Ticket (the Compromissos tab);
+  // the server requires one of the two. `buildParams` drops the empty one.
+  get({ teamId, ticketId, since, until }) {
+    const requestURL = `${this.url}?${buildParams({
+      team_id: teamId,
+      ticket_id: ticketId,
+      since,
+      until,
+    })}`;
     return axios.get(requestURL);
   }
 

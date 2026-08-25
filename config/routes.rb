@@ -355,7 +355,7 @@ Rails.application.routes.draw do
                 patch :update
               end
             end
-            resources :ticket_columns, only: [:create, :update, :destroy] do
+            resources :ticket_columns, only: [:index, :create, :update, :destroy] do
               collection do
                 patch :reorder
               end
@@ -375,6 +375,7 @@ Rails.application.routes.draw do
             resources :ticket_conversations, only: [:create, :destroy]
             resources :comments, controller: 'ticket_comments', only: [:index, :create, :destroy]
             resources :activities, controller: 'ticket_activities', only: [:index]
+            resources :attachments, controller: 'ticket_attachments', only: [:index, :create, :destroy]
           end
           resources :calendar_events, only: [:index, :create, :show, :update, :destroy]
 

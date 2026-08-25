@@ -77,6 +77,8 @@ pt_BR:
         invalid: is not a valid email address
     validations:
       presence: não pode ficar em branco
+    ticket_attachment:
+      too_large: é maior que o limite de %{size} MB
     ticket_column:
       has_tickets:
         one: Este estágio possui 1 ticket. Mova o ticket para outro estágio antes de excluir.

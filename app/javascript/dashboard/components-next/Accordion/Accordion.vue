@@ -6,10 +6,14 @@ const props = defineProps({
   isOpen: { type: Boolean, default: false },
 });
 
+// Lets a parent load the panel's contents only when it is first opened.
+const emit = defineEmits(['toggle']);
+
 const isExpanded = ref(props.isOpen);
 
 const toggleAccordion = () => {
   isExpanded.value = !isExpanded.value;
+  emit('toggle', isExpanded.value);
 };
 
 watch(

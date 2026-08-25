@@ -4,6 +4,7 @@ import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import TicketListView from './TicketListView.vue';
+import TicketCompanySelect from './TicketCompanySelect.vue';
 
 const props = defineProps({
   teams: {
@@ -33,7 +34,7 @@ const draft = reactive({
   displayId: '',
   title: '',
   status: '',
-  companyQuery: '',
+  companyId: null,
   contactQuery: '',
   assigneeId: '',
   teamId: '',
@@ -70,7 +71,7 @@ const clearFilters = () => {
     displayId: '',
     title: '',
     status: '',
-    companyQuery: '',
+    companyId: null,
     contactQuery: '',
     assigneeId: '',
     teamId: '',
@@ -149,11 +150,7 @@ onMounted(() => {
           <span class="text-xs text-n-slate-11">{{
             t('TICKET.SEARCH.COMPANY')
           }}</span>
-          <input
-            v-model="draft.companyQuery"
-            type="text"
-            class="rounded-lg border border-n-strong bg-transparent px-2 py-1.5 text-sm"
-          />
+          <TicketCompanySelect v-model="draft.companyId" />
         </label>
 
         <label class="flex flex-col gap-1 col-span-2">

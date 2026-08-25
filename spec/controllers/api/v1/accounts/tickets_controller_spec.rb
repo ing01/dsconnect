@@ -81,20 +81,100 @@ RSpec.describe 'Tickets API', type: :request do
       expect(response.parsed_body['payload'].pluck('id')).to eq([ticket.id])
     end
 
-    it 'filters by the linked conversation contact and company (Busca detalhada - Solicitante/Cliente)' do
-      company = create(:company, account: account, name: 'Acme Ltda')
-      contact = create(:contact, account: account, company: company, name: 'Fulano de Tal')
+    # Solicitante still resolves through the linked Conversation's Contact;
+    # Empresa now reads the ticket's own association.
+    it 'filters by the linked conversation contact (Busca detalhada - Solicitante)' do
+      contact = create(:contact, account: account, name: 'Fulano de Tal')
       conversation = create(:conversation, account: account, contact: contact)
       matching = create(:ticket, account: account, ticket_column: ticket_column)
       create(:ticket_conversation, ticket: matching, conversation: conversation)
       create(:ticket, account: account, ticket_column: ticket_column)
 
       get "/api/v1/accounts/#{account.id}/tickets",
-          params: { contact_query: 'Fulano', company_query: 'Acme' },
+          params: { contact_query: 'Fulano' },
           headers: agent.create_new_auth_token,
           as: :json
 
       expect(response.parsed_body['payload'].pluck('id')).to eq([matching.id])
+    end
+
+    it 'filters by the company the ticket is linked to (Busca detalhada - Cliente)' do
+      company = create(:company, account: account, name: 'Acme Ltda')
+      matching = create(:ticket, account: account, ticket_column: ticket_column, company: company)
+      create(:ticket, account: account, ticket_column: ticket_column)
+
+      get "/api/v1/accounts/#{account.id}/tickets",
+          params: { company_id: company.id },
+          headers: agent.create_new_auth_token,
+          as: :json
+
+      expect(response.parsed_body['payload'].pluck('id')).to eq([matching.id])
+    end
+
+    it 'filters by company name for the quick text search' do
+      company = create(:company, account: account, name: 'Eletrosul Filial')
+      matching = create(:ticket, account: account, ticket_column: ticket_column, company: company)
+      create(:ticket, account: account, ticket_column: ticket_column)
+
+      get "/api/v1/accounts/#{account.id}/tickets",
+          params: { company_query: 'eletrosul' },
+          headers: agent.create_new_auth_token,
+          as: :json
+
+      expect(response.parsed_body['payload'].pluck('id')).to eq([matching.id])
+    end
+
+    it 'exposes the company on each ticket' do
+      company = create(:company, account: account, name: 'Acme Ltda')
+      create(:ticket, account: account, ticket_column: ticket_column, company: company)
+
+      get "/api/v1/accounts/#{account.id}/tickets",
+          headers: agent.create_new_auth_token,
+          as: :json
+
+      payload = response.parsed_body['payload'].first
+      expect(payload['company_id']).to eq(company.id)
+      expect(payload['company_name']).to eq('Acme Ltda')
+    end
+  end
+
+  describe 'POST /api/v1/accounts/{account.id}/tickets with a company' do
+    it 'links the ticket to the company that was sent' do
+      company = create(:company, account: account, name: 'Acme Ltda')
+
+      post "/api/v1/accounts/#{account.id}/tickets",
+           params: { ticket: { title: 'Erro NF', ticket_column_id: ticket_column.id, company_id: company.id } },
+           headers: agent.create_new_auth_token,
+           as: :json
+
+      expect(response.parsed_body['company_id']).to eq(company.id)
+    end
+
+    it 'inherits the company from the conversation contact when opened from a chat' do
+      company = create(:company, account: account, name: 'Acme Ltda')
+      contact = create(:contact, account: account, company: company)
+      conversation = create(:conversation, account: account, contact: contact)
+
+      post "/api/v1/accounts/#{account.id}/tickets",
+           params: { ticket: { title: 'Erro NF', ticket_column_id: ticket_column.id }, conversation_id: conversation.id },
+           headers: agent.create_new_auth_token,
+           as: :json
+
+      expect(Ticket.last.company_id).to eq(company.id)
+    end
+
+    it 'keeps an explicitly sent company over the conversation one' do
+      chosen = create(:company, account: account, name: 'Escolhida')
+      contact = create(:contact, account: account, company: create(:company, account: account, name: 'Da Conversa'))
+      conversation = create(:conversation, account: account, contact: contact)
+
+      post "/api/v1/accounts/#{account.id}/tickets",
+           params: { ticket: { title: 'Erro NF', ticket_column_id: ticket_column.id, company_id: chosen.id },
+                     conversation_id: conversation.id },
+           headers: agent.create_new_auth_token,
+           as: :json
+
+      expect(Ticket.last.company_id).to eq(chosen.id)
     end
   end
 

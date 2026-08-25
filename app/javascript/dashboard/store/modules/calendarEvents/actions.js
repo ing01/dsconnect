@@ -4,6 +4,7 @@ import {
   ADD_CALENDAR_EVENT,
   EDIT_CALENDAR_EVENT,
   DELETE_CALENDAR_EVENT,
+  SET_CALENDAR_EVENTS_BY_TICKET,
 } from './types';
 import CalendarEventsAPI from '../../../api/calendarEvents';
 
@@ -13,6 +14,17 @@ export const actions = {
     try {
       const { data } = await CalendarEventsAPI.get({ teamId, since, until });
       commit(SET_CALENDAR_EVENTS, { teamId, events: data.payload });
+      return data.payload;
+    } finally {
+      commit(SET_CALENDAR_EVENT_UI_FLAG, { isFetching: false });
+    }
+  },
+
+  getByTicket: async ({ commit }, { ticketId }) => {
+    commit(SET_CALENDAR_EVENT_UI_FLAG, { isFetching: true });
+    try {
+      const { data } = await CalendarEventsAPI.get({ ticketId });
+      commit(SET_CALENDAR_EVENTS_BY_TICKET, { ticketId, events: data.payload });
       return data.payload;
     } finally {
       commit(SET_CALENDAR_EVENT_UI_FLAG, { isFetching: false });

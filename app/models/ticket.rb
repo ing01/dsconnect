@@ -8,11 +8,16 @@ class Ticket < ApplicationRecord
   # with `ticket_column.team_id` (see `team_matches_ticket_column`) - a
   # ticket's Mesa is defined by which Mesa's Estagio it currently sits in.
   belongs_to :team
+  # The Empresa (organization) the ticket belongs to. Optional because a ticket
+  # can be opened before the customer is identified. Distinct from the Contact,
+  # which is the requesting person - a ticket can carry both.
+  belongs_to :company, optional: true
 
   has_many :ticket_conversations, dependent: :destroy, inverse_of: :ticket
   has_many :conversations, through: :ticket_conversations
   has_many :ticket_activities, dependent: :destroy
   has_many :ticket_comments, dependent: :destroy
+  has_many :ticket_attachments, dependent: :destroy
   has_many :calendar_event_tickets, dependent: :destroy
   has_many :calendar_events, through: :calendar_event_tickets
 
@@ -20,6 +25,7 @@ class Ticket < ApplicationRecord
   validates :custom_attributes, jsonb_attributes_length: true
   validate :ticket_column_belongs_to_account
   validate :team_matches_ticket_column
+  validate :company_belongs_to_account
 
   enum priority: { low: 0, medium: 1, high: 2, urgent: 3 }
   # Lifecycle status. Intentionally independent from `ticket_column` (which
@@ -87,6 +93,25 @@ class Ticket < ApplicationRecord
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :reopened)
   end
 
+  # Solicitante. A ticket has no contact FK, so the requester is the contact of
+  # the earliest linked Conversation. Resolved in Ruby rather than SQL so it
+  # reuses the `conversations: :contact` preload instead of firing a query, and
+  # `min_by(&:id)` makes it deterministic - `conversations.first` has no ORDER BY.
+  def requester_contact
+    return @requester_contact if defined?(@requester_contact)
+
+    @requester_contact = conversations.to_a.min_by(&:id)&.contact
+  end
+
+  # There is no `created_by_id` column; the opener is whoever the `created`
+  # activity was attributed to. Nullable - tickets created outside a request
+  # (seeds, console, automation) have no acting user.
+  def created_by_user
+    return @created_by_user if defined?(@created_by_user)
+
+    @created_by_user = ticket_activities.to_a.find { |activity| activity.activity_type == 'created' }&.user
+  end
+
   def push_event_data
     {
       id: id,
@@ -100,10 +125,13 @@ class Ticket < ApplicationRecord
       ticket_column_id: ticket_column_id,
       assignee_id: assignee_id,
       team_id: team_id,
-      resolved_at: resolved_at&.to_i,
-      closed_at: closed_at&.to_i,
-      created_at: created_at.to_i,
-      updated_at: updated_at.to_i,
+      # Carried on the realtime payload too, otherwise a ticket arriving over
+      # the wire would be invisible to the Kanban's Empresa search until the
+      # next board refetch.
+      company_id: company_id,
+      company_name: company&.name,
+      resolved_at: resolved_at&.to_i, closed_at: closed_at&.to_i,
+      created_at: created_at.to_i, updated_at: updated_at.to_i,
       conversation_ids: ticket_conversations.pluck(:conversation_id)
     }
   end
@@ -145,6 +173,12 @@ class Ticket < ApplicationRecord
   # A ticket's Mesa (`team`) must be the same Mesa its Estagio
   # (`ticket_column`) belongs to - there's no such thing as a ticket sitting
   # in one Mesa's column while being "owned" by a different Mesa.
+  def company_belongs_to_account
+    return if company.blank?
+
+    errors.add(:company, :invalid) if company.account_id != account_id
+  end
+
   def team_matches_ticket_column
     return if ticket_column.blank? || team.blank?
 
