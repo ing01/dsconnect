@@ -22,11 +22,9 @@ export default {
       default: () => [],
     },
   },
-  // The menu emits by computed name (see the menu handler below), so the
-  // linter cannot see these being fired - they are declared and very much
-  // used. Renaming them would break the board's listeners.
-  // eslint-disable-next-line vue/no-unused-emit-declarations
-  emits: ['click', 'edit', 'open-conversation', 'resolve', 'reopen', 'close'],
+  // The menu now carries its intent in one event: the card names the action,
+  // the page decides how to run it.
+  emits: ['click', 'menuAction'],
   data() {
     return {
       showMenu: false,
@@ -57,53 +55,57 @@ export default {
       return this.ticket.conversation_ids?.length || 0;
     },
     menuItems() {
-      const items = [
-        {
-          label: this.$t('TICKET.CARD.MENU.OPEN'),
-          action: 'open',
-          value: 'open',
-          icon: 'i-lucide-square-arrow-out-up-right',
-        },
-        {
-          label: this.$t('TICKET.CARD.MENU.EDIT'),
-          action: 'edit',
-          value: 'edit',
-          icon: 'i-lucide-pencil',
-        },
-      ];
-
-      if (this.conversationCount) {
-        items.push({
-          label: this.$t('TICKET.CARD.MENU.OPEN_CONVERSATION'),
-          action: 'open-conversation',
-          value: 'open-conversation',
-          icon: 'i-lucide-message-circle',
-        });
-      }
+      // The operational actions, all of them already implemented elsewhere in
+      // the module - the card only names them and the page wires them up.
+      // `open` is gone on purpose: clicking the card already opens the ticket.
+      // So are `edit` and `resolve`: editing happens inside the ticket, and
+      // closing is what represents the end of an attendance.
+      const items = [];
 
       if (this.ticket.status === 'open') {
-        items.push({
-          label: this.$t('TICKET.CARD.MENU.RESOLVE'),
-          action: 'resolve',
-          value: 'resolve',
-          icon: 'i-lucide-check',
-        });
-      } else if (this.ticket.status === 'resolved') {
         items.push(
           {
-            label: this.$t('TICKET.CARD.MENU.CLOSE'),
-            action: 'close',
-            value: 'close',
-            icon: 'i-lucide-check-check',
+            label: this.$t('TICKET.CARD.MENU.ASSIGN_TO_ME'),
+            action: 'assignToMe',
+            value: 'assignToMe',
+            icon: 'i-lucide-user-check',
           },
           {
-            label: this.$t('TICKET.CARD.MENU.REOPEN'),
-            action: 'reopen',
-            value: 'reopen',
-            icon: 'i-lucide-rotate-ccw',
+            label: this.$t('TICKET.CARD.MENU.SEND_COMMUNICATION'),
+            action: 'sendCommunication',
+            value: 'sendCommunication',
+            icon: 'i-lucide-mail',
+          },
+          {
+            label: this.$t('TICKET.CARD.MENU.MERGE'),
+            action: 'merge',
+            value: 'merge',
+            icon: 'i-lucide-combine',
+          },
+          {
+            label: this.$t('TICKET.CARD.MENU.CREATE_CHILD'),
+            action: 'createChild',
+            value: 'createChild',
+            icon: 'i-lucide-git-branch-plus',
+          },
+          {
+            label: this.$t('TICKET.CARD.MENU.TRANSFER'),
+            action: 'transfer',
+            value: 'transfer',
+            icon: 'i-lucide-arrow-right-left',
+          },
+          // `action: 'delete'` is what DropdownMenu paints in ruby, which is how
+          // the closing entry reads as the end of the attendance.
+          {
+            label: this.$t('TICKET.CARD.MENU.CLOSE'),
+            action: 'delete',
+            value: 'close',
+            icon: 'i-lucide-circle-x',
           }
         );
-      } else if (this.ticket.status === 'closed') {
+      } else {
+        // A terminal ticket is off the operational board; reopening is all that
+        // is left to do with it.
         items.push({
           label: this.$t('TICKET.CARD.MENU.REOPEN'),
           action: 'reopen',
@@ -122,9 +124,9 @@ export default {
     closeMenu() {
       this.showMenu = false;
     },
-    onMenuAction({ action }) {
+    onMenuAction({ value }) {
       this.closeMenu();
-      this.$emit(action === 'open' ? 'click' : action, this.ticket);
+      this.$emit('menuAction', { action: value, ticket: this.ticket });
     },
   },
 };

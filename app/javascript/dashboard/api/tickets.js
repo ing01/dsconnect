@@ -110,9 +110,10 @@ class TicketsAPI extends ApiClient {
 
   // Synchronous on the server: the response says whether the message actually
   // left, which is what the closing flow depends on.
-  sendCustomerCommunication(ticketId, { subject, body, closing }) {
+  // No subject: the server titles every customer message with the ticket
+  // header, the closing notice included.
+  sendCustomerCommunication(ticketId, { body, closing }) {
     return axios.post(`${this.url}/${ticketId}/customer_communications`, {
-      subject,
       body,
       closing,
     });

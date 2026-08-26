@@ -82,12 +82,13 @@
     "CARD": {
       "CONVERSATIONS_LINKED": "{n} linked conversation | {n} linked conversations",
       "MENU": {
-        "OPEN": "Open ticket",
-        "EDIT": "Edit",
-        "OPEN_CONVERSATION": "Open conversation",
-        "RESOLVE": "Resolve",
         "CLOSE": "Close",
-        "REOPEN": "Reopen"
+        "REOPEN": "Reopen",
+        "ASSIGN_TO_ME": "Assign to me",
+        "SEND_COMMUNICATION": "Send communication",
+        "MERGE": "Group ticket",
+        "CREATE_CHILD": "Open child ticket",
+        "TRANSFER": "Transfer ticket"
       }
     },
     "LIST": {
@@ -583,7 +584,6 @@
       "NO_CONTACT_EMAIL": "The requester of this ticket has no e-mail address on file. Add a valid address before sending the closing message.",
       "TO": "To",
       "SUBJECT": "Subject",
-      "DEFAULT_SUBJECT": "Closing of ticket #{number}",
       "MESSAGE": "Message",
       "MESSAGE_PLACEHOLDER": "Write the message that will be sent to the customer"
     },

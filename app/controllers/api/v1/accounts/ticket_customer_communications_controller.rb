@@ -16,10 +16,7 @@ class Api::V1::Accounts::TicketCustomerCommunicationsController < Api::V1::Accou
     end
 
     @communication = Tickets::CustomerCommunicationService.new(
-      ticket: @ticket, user: Current.user,
-      # Ignored for ordinary correspondence: the service derives it from the
-      # ticket header.
-      subject: params[:subject], body: params[:body],
+      ticket: @ticket, user: Current.user, body: params[:body],
       closing: ActiveModel::Type::Boolean.new.cast(params[:closing])
     ).perform
     render 'show', status: :created

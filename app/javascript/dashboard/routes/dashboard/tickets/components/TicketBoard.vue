@@ -39,12 +39,8 @@ export default {
   emits: [
     'addTicket',
     'openTicket',
-    'editTicket',
     'moveTicket',
-    'openConversation',
-    'resolveTicket',
-    'reopenTicket',
-    'closeTicket',
+    'menuAction',
   ],
   data() {
     return {
@@ -124,12 +120,8 @@ export default {
         @toggle-collapse="toggleColumn"
         @add-ticket="$emit('addTicket', $event)"
         @open-ticket="$emit('openTicket', $event)"
-        @edit-ticket="$emit('editTicket', $event)"
         @move-ticket="$emit('moveTicket', $event)"
-        @open-conversation="$emit('openConversation', $event)"
-        @resolve-ticket="$emit('resolveTicket', $event)"
-        @reopen-ticket="$emit('reopenTicket', $event)"
-        @close-ticket="$emit('closeTicket', $event)"
+        @menu-action="$emit('menuAction', $event)"
       />
     </div>
   </div>

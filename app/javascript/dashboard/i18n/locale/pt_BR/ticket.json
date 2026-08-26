@@ -82,12 +82,13 @@
     "CARD": {
       "CONVERSATIONS_LINKED": "{n} conversa vinculada | {n} conversas vinculadas",
       "MENU": {
-        "OPEN": "Abrir ticket",
-        "EDIT": "Editar",
-        "OPEN_CONVERSATION": "Abrir conversa",
-        "RESOLVE": "Resolver",
         "CLOSE": "Finalizar",
-        "REOPEN": "Reabrir"
+        "REOPEN": "Reabrir",
+        "ASSIGN_TO_ME": "Assumir ticket",
+        "SEND_COMMUNICATION": "Enviar comunicação",
+        "MERGE": "Agrupar ticket",
+        "CREATE_CHILD": "Abrir ticket filho",
+        "TRANSFER": "Transferir ticket"
       }
     },
     "LIST": {
@@ -583,7 +584,6 @@
       "NO_CONTACT_EMAIL": "O solicitante deste ticket não possui um e-mail cadastrado. Cadastre um e-mail válido antes de enviar a comunicação de encerramento.",
       "TO": "Para",
       "SUBJECT": "Assunto",
-      "DEFAULT_SUBJECT": "Encerramento do ticket #{number}",
       "MESSAGE": "Mensagem",
       "MESSAGE_PLACEHOLDER": "Escreva a mensagem que será enviada ao cliente"
     },

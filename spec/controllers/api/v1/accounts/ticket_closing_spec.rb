@@ -30,7 +30,7 @@ RSpec.describe 'Ticket closing requirements', type: :request do
 
   def send_communication(params = {})
     post "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/customer_communications",
-         params: { subject: 'Encerramento', body: '<p>Resolvido</p>', closing: true }.merge(params),
+         params: { body: '<p>Resolvido</p>', closing: true }.merge(params),
          headers: auth, as: :json
   end
 
