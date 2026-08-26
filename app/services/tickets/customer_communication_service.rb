@@ -12,7 +12,7 @@ class Tickets::CustomerCommunicationService
   # positive the closing rule must not have.
   class NotDelivered < StandardError; end
 
-  pattr_initialize [:ticket!, :user!, :subject!, :body!, :closing!]
+  pattr_initialize [:ticket!, :user!, :body!, :closing!]
 
   def perform
     communication = build_communication
@@ -26,19 +26,13 @@ class Tickets::CustomerCommunicationService
     @contact ||= ticket.requester_contact
   end
 
-  # Ordinary correspondence is always titled with the ticket header, so the
-  # customer recognises the thread without an agent having to type it. The
-  # closing notice keeps the subject it was given.
-  def subject_line
-    return subject if closing
-
-    ticket.display_subject
-  end
-
   def build_communication
     ticket.ticket_customer_communications.create!(
       account_id: ticket.account_id, user: user, contact: contact,
-      to_email: ticket.customer_email, subject: subject_line, body: body,
+      # Always the ticket header, closing notice included: the customer
+      # recognises the thread from the subject alone, and no agent has to type
+      # it.
+      to_email: ticket.customer_email, subject: ticket.display_subject, body: body,
       closing: closing, status: 'pending'
     )
   end

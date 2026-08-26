@@ -7,8 +7,8 @@ import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TicketBoard from '../components/TicketBoard.vue';
-import TicketFormDialog from '../components/TicketFormDialog.vue';
 import TicketCreateDialog from '../components/create/TicketCreateDialog.vue';
+import TicketQuickActions from '../components/detail/actions/TicketQuickActions.vue';
 import TicketAvatarFilterRow from '../components/TicketAvatarFilterRow.vue';
 import TicketMesaSelector from '../components/TicketMesaSelector.vue';
 import TicketSortMenu from '../components/TicketSortMenu.vue';
@@ -24,8 +24,8 @@ export default {
     NextInput,
     Icon,
     TicketBoard,
-    TicketFormDialog,
     TicketCreateDialog,
+    TicketQuickActions,
     TicketAvatarFilterRow,
     TicketMesaSelector,
     TicketSortMenu,
@@ -33,11 +33,11 @@ export default {
   },
   data() {
     return {
-      showTicketForm: false,
       showCreateForm: false,
+      // Which ticket the card menu is acting on; the shared
+      // dialogs load its detail payload from this.
+      actionTicketId: null,
       showDetailedSearch: false,
-      isSubmittingTicket: false,
-      selectedTicket: null,
       targetColumnId: null,
       selectedTeamId: null,
       selectedAgentIds: [],
@@ -131,15 +131,6 @@ export default {
         frontendURL(`accounts/${this.currentAccountId}/tickets/${ticket.id}`)
       );
     },
-    openConversationFromTicket(ticket) {
-      const conversationId = ticket.conversation_ids?.[0];
-      if (!conversationId) return;
-      this.$router.push(
-        frontendURL(
-          `accounts/${this.currentAccountId}/conversations/${conversationId}`
-        )
-      );
-    },
     async applyTransition(action, ticket) {
       try {
         const updated = await this.$store.dispatch(
@@ -151,65 +142,35 @@ export default {
         useAlert(this.$t('TICKET.API.ERROR_MESSAGE'));
       }
     },
-    resolveTicket(ticket) {
-      this.applyTransition('resolve', ticket);
-    },
+    // Reopening is the one transition a card still fires directly: it has no
+    // requirements of its own, unlike closing.
     reopenTicket(ticket) {
       this.applyTransition('reopen', ticket);
     },
-    closeTicket(ticket) {
-      this.applyTransition('close', ticket);
+    // Every other action is the same flow the ticket page uses, so the card
+    // hands it to the shared dialogs rather than repeating the wiring.
+    onCardMenuAction({ action, ticket }) {
+      if (action === 'reopen') {
+        this.reopenTicket(ticket);
+        return;
+      }
+
+      this.actionTicketId = ticket.id;
+      // The dialogs mount once the detail payload has arrived.
+      this.$nextTick(() => this.$refs.quickActions?.open(action));
+    },
+    // The board refetches so a ticket that was closed, transferred or merged
+    // leaves the column it was in.
+    onTicketChanged() {
+      if (this.selectedTeamId) {
+        this.$store.dispatch('ticketColumns/fetchBoard', this.selectedTeamId);
+      }
     },
     // Opening a ticket goes through the shared creation form; the Mesa and the
     // Estagio are already known from the column that was clicked.
     openAddTicket(column) {
-      this.selectedTicket = null;
       this.targetColumnId = column.id;
       this.showCreateForm = true;
-    },
-    openEditTicket(ticket) {
-      this.selectedTicket = ticket;
-      this.targetColumnId = ticket.ticket_column_id;
-      this.showTicketForm = true;
-    },
-    closeTicketForm() {
-      this.showTicketForm = false;
-      this.selectedTicket = null;
-      this.targetColumnId = null;
-    },
-    closeCreateForm() {
-      this.showCreateForm = false;
-      this.targetColumnId = null;
-    },
-    // "Criar e abrir outro" keeps the form open, so the board is refreshed
-    // either way and only a finished run closes it.
-    onTicketCreated({ keepOpen }) {
-      this.$store.dispatch('ticketColumns/fetchBoard', this.selectedTeamId);
-      if (!keepOpen) this.closeCreateForm();
-    },
-    async submitTicket(payload) {
-      this.isSubmittingTicket = true;
-      try {
-        if (this.selectedTicket) {
-          await this.$store.dispatch('ticketColumns/updateTicket', {
-            teamId: this.selectedTeamId,
-            id: this.selectedTicket.id,
-            ...payload,
-          });
-        } else {
-          await this.$store.dispatch('ticketColumns/createTicket', {
-            teamId: this.selectedTeamId,
-            ticket_column_id: this.targetColumnId,
-            ...payload,
-          });
-        }
-        useAlert(this.$t('TICKET.API.SUCCESS_MESSAGE'));
-        this.closeTicketForm();
-      } catch (error) {
-        useAlert(this.$t('TICKET.API.ERROR_MESSAGE'));
-      } finally {
-        this.isSubmittingTicket = false;
-      }
     },
     async moveTicket({ ticketId, ticketColumnId, position }) {
       try {
@@ -330,12 +291,16 @@ export default {
       class="flex-1 min-h-0 min-w-0"
       @add-ticket="openAddTicket"
       @open-ticket="openTicketDetail"
-      @edit-ticket="openEditTicket"
       @move-ticket="moveTicket"
-      @open-conversation="openConversationFromTicket"
-      @resolve-ticket="resolveTicket"
-      @reopen-ticket="reopenTicket"
-      @close-ticket="closeTicket"
+      @menu-action="onCardMenuAction"
+    />
+
+    <!-- The ticket actions, shared with the detail page: same store actions,
+         same permissions, same backend validations. -->
+    <TicketQuickActions
+      ref="quickActions"
+      :ticket-id="actionTicketId"
+      @changed="onTicketChanged"
     />
 
     <!-- Creation uses the shared form; the edit dialog below still serves the
@@ -353,15 +318,6 @@ export default {
       />
     </woot-modal>
 
-    <woot-modal v-model:show="showTicketForm" :on-close="closeTicketForm">
-      <TicketFormDialog
-        :ticket="selectedTicket"
-        :agents="mesaAgents"
-        :is-submitting="isSubmittingTicket"
-        @close="closeTicketForm"
-        @submit="submitTicket"
-      />
-    </woot-modal>
 
     <woot-modal
       v-model:show="showDetailedSearch"

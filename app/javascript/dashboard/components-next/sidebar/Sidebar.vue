@@ -492,88 +492,6 @@ const menuItems = computed(() => {
         },
       ],
     },
-    {
-      name: 'Captain',
-      icon: 'i-woot-captain',
-      label: t('SIDEBAR.CAPTAIN'),
-      activeOn: ['captain_assistants_create_index'],
-      children: [
-        {
-          name: 'Overview',
-          label: t('SIDEBAR.CAPTAIN_OVERVIEW'),
-          activeOn: ['captain_assistants_overview_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_overview_index',
-          }),
-        },
-        {
-          name: 'FAQs',
-          label: t('SIDEBAR.CAPTAIN_RESPONSES'),
-          activeOn: [
-            'captain_assistants_responses_index',
-            'captain_assistants_faq_suggestions',
-          ],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_responses_index',
-          }),
-        },
-        {
-          name: 'Documents',
-          label: t('SIDEBAR.CAPTAIN_DOCUMENTS'),
-          activeOn: ['captain_assistants_documents_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_documents_index',
-          }),
-        },
-        {
-          name: 'Scenarios',
-          label: t('SIDEBAR.CAPTAIN_SCENARIOS'),
-          activeOn: ['captain_assistants_scenarios_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_scenarios_index',
-          }),
-        },
-        {
-          name: 'Playground',
-          label: t('SIDEBAR.CAPTAIN_PLAYGROUND'),
-          activeOn: ['captain_assistants_playground_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_playground_index',
-          }),
-        },
-        {
-          name: 'Inboxes',
-          label: t('SIDEBAR.CAPTAIN_INBOXES'),
-          activeOn: ['captain_assistants_inboxes_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_inboxes_index',
-          }),
-        },
-        {
-          name: 'Tools',
-          label: t('SIDEBAR.CAPTAIN_TOOLS'),
-          activeOn: ['captain_tools_index'],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_tools_index',
-          }),
-        },
-        {
-          name: 'Settings',
-          label: t('SIDEBAR.CAPTAIN_SETTINGS'),
-          activeOn: [
-            'captain_assistants_settings_index',
-            'captain_assistants_settings_system_index',
-            'captain_assistants_settings_audience_index',
-            'captain_assistants_settings_schedule_index',
-            'captain_assistants_guidelines_index',
-            'captain_assistants_guardrails_index',
-          ],
-          to: accountScopedRoute('captain_assistants_index', {
-            navigationPath: 'captain_assistants_settings_index',
-          }),
-        },
-      ],
-    },
     ...(isCallsAvailable.value
       ? [
           {
@@ -586,71 +504,18 @@ const menuItems = computed(() => {
         ]
       : []),
     {
-      name: 'Contacts',
-      label: t('SIDEBAR.CONTACTS'),
-      icon: 'i-lucide-contact',
-      children: [
-        {
-          name: 'All Contacts',
-          label: t('SIDEBAR.ALL_CONTACTS'),
-          to: accountScopedRoute(
-            'contacts_dashboard_index',
-            {},
-            { page: 1, search: undefined }
-          ),
-          activeOn: ['contacts_dashboard_index', 'contacts_edit'],
-        },
-        {
-          name: 'Active',
-          label: t('SIDEBAR.ACTIVE'),
-          to: accountScopedRoute('contacts_dashboard_active'),
-          activeOn: ['contacts_dashboard_active'],
-        },
-        {
-          name: 'Segments',
-          icon: 'i-lucide-group',
-          label: t('SIDEBAR.CUSTOM_VIEWS_SEGMENTS'),
-          collapsible: true,
-          showTreeLine: true,
-          children: contactCustomViews.value.map(view => ({
-            name: `${view.name}-${view.id}`,
-            label: view.name,
-            to: accountScopedRoute(
-              'contacts_dashboard_segments_index',
-              { segmentId: view.id },
-              { page: 1 }
-            ),
-            activeOn: [
-              'contacts_dashboard_segments_index',
-              'contacts_edit_segment',
-            ],
-          })),
-        },
-        {
-          name: 'Tagged With',
-          icon: 'i-lucide-tag',
-          label: t('SIDEBAR.TAGGED_WITH'),
-          collapsible: true,
-          showTreeLine: true,
-          children: labels.value.map(label => ({
-            name: `${label.title}-${label.id}`,
-            label: label.title,
-            icon: h('span', {
-              class: `size-[8px] rounded-sm`,
-              style: { backgroundColor: label.color },
-            }),
-            to: accountScopedRoute(
-              'contacts_dashboard_labels_index',
-              { label: label.title },
-              { page: 1, search: undefined }
-            ),
-            activeOn: [
-              'contacts_dashboard_labels_index',
-              'contacts_edit_label',
-            ],
-          })),
-        },
-      ],
+      name: 'Tickets',
+      label: t('SIDEBAR.TICKETS'),
+      icon: 'i-lucide-kanban-square',
+      to: accountScopedRoute('tickets_index'),
+      activeOn: ['tickets_index'],
+    },
+    {
+      name: 'Agenda',
+      label: t('SIDEBAR.AGENDA'),
+      icon: 'i-lucide-calendar-days',
+      to: accountScopedRoute('agenda_index'),
+      activeOn: ['agenda_index'],
     },
     {
       name: 'Companies',
@@ -667,14 +532,74 @@ const menuItems = computed(() => {
           ),
           activeOn: ['companies_dashboard_index', 'companies_dashboard_show'],
         },
+        {
+          name: 'Contacts',
+          label: t('SIDEBAR.CONTACTS'),
+          icon: 'i-lucide-contact',
+          children: [
+            {
+              name: 'All Contacts',
+              label: t('SIDEBAR.ALL_CONTACTS'),
+              to: accountScopedRoute(
+                'contacts_dashboard_index',
+                {},
+                { page: 1, search: undefined }
+              ),
+              activeOn: ['contacts_dashboard_index', 'contacts_edit'],
+            },
+            {
+              name: 'Active',
+              label: t('SIDEBAR.ACTIVE'),
+              to: accountScopedRoute('contacts_dashboard_active'),
+              activeOn: ['contacts_dashboard_active'],
+            },
+            {
+              name: 'Segments',
+              icon: 'i-lucide-group',
+              label: t('SIDEBAR.CUSTOM_VIEWS_SEGMENTS'),
+              collapsible: true,
+              showTreeLine: true,
+              children: contactCustomViews.value.map(view => ({
+                name: `${view.name}-${view.id}`,
+                label: view.name,
+                to: accountScopedRoute(
+                  'contacts_dashboard_segments_index',
+                  { segmentId: view.id },
+                  { page: 1 }
+                ),
+                activeOn: [
+                  'contacts_dashboard_segments_index',
+                  'contacts_edit_segment',
+                ],
+              })),
+            },
+            {
+              name: 'Tagged With',
+              icon: 'i-lucide-tag',
+              label: t('SIDEBAR.TAGGED_WITH'),
+              collapsible: true,
+              showTreeLine: true,
+              children: labels.value.map(label => ({
+                name: `${label.title}-${label.id}`,
+                label: label.title,
+                icon: h('span', {
+                  class: `size-[8px] rounded-sm`,
+                  style: { backgroundColor: label.color },
+                }),
+                to: accountScopedRoute(
+                  'contacts_dashboard_labels_index',
+                  { label: label.title },
+                  { page: 1, search: undefined }
+                ),
+                activeOn: [
+                  'contacts_dashboard_labels_index',
+                  'contacts_edit_label',
+                ],
+              })),
+            },
+          ],
+        },
       ],
-    },
-    {
-      name: 'Mood Checkins',
-      label: t('SIDEBAR.MOOD_CHECKINS'),
-      icon: 'i-lucide-smile',
-      to: accountScopedRoute('mood_checkins_index'),
-      activeOn: ['mood_checkins_index'],
     },
     {
       name: 'Reports',
@@ -707,41 +632,12 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.REPORTS_BOT'),
           to: accountScopedRoute('bot_reports'),
         },
-      ],
-    },
-    {
-      name: 'Tickets',
-      label: t('SIDEBAR.TICKETS'),
-      icon: 'i-lucide-kanban-square',
-      to: accountScopedRoute('tickets_index'),
-      activeOn: ['tickets_index'],
-    },
-    {
-      name: 'Agenda',
-      label: t('SIDEBAR.AGENDA'),
-      icon: 'i-lucide-calendar-days',
-      to: accountScopedRoute('agenda_index'),
-      activeOn: ['agenda_index'],
-    },
-    {
-      name: 'Campaigns',
-      label: t('SIDEBAR.CAMPAIGNS'),
-      icon: 'i-lucide-megaphone',
-      children: [
         {
-          name: 'Live chat',
-          label: t('SIDEBAR.LIVE_CHAT'),
-          to: accountScopedRoute('campaigns_livechat_index'),
-        },
-        {
-          name: 'SMS',
-          label: t('SIDEBAR.SMS'),
-          to: accountScopedRoute('campaigns_sms_index'),
-        },
-        {
-          name: 'WhatsApp',
-          label: t('SIDEBAR.WHATSAPP'),
-          to: accountScopedRoute('campaigns_whatsapp_index'),
+          name: 'Mood Checkins',
+          label: t('SIDEBAR.MOOD_CHECKINS'),
+          icon: 'i-lucide-smile',
+          to: accountScopedRoute('mood_checkins_index'),
+          activeOn: ['mood_checkins_index'],
         },
       ],
     },
@@ -985,6 +881,118 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.BILLING'),
           icon: 'i-lucide-credit-card',
           to: accountScopedRoute('billing_settings_index'),
+        },
+        {
+          name: 'Captain',
+          icon: 'i-woot-captain',
+          label: t('SIDEBAR.CAPTAIN'),
+          activeOn: ['captain_assistants_create_index'],
+          // Opens on click, or on its own routes - not just because
+          // Configuracoes was opened.
+          collapsible: true,
+          startCollapsed: true,
+          showTreeLine: true,
+          children: [
+            {
+              name: 'Overview',
+              label: t('SIDEBAR.CAPTAIN_OVERVIEW'),
+              activeOn: ['captain_assistants_overview_index'],
+              to: accountScopedRoute('captain_assistants_index', {
+                navigationPath: 'captain_assistants_overview_index',
+              }),
+            },
+            {
+              name: 'FAQs',
+              label: t('SIDEBAR.CAPTAIN_RESPONSES'),
+              activeOn: [
+                'captain_assistants_responses_index',
+                'captain_assistants_faq_suggestions',
+              ],
+              to: accountScopedRoute('captain_assistants_index', {
+                navigationPath: 'captain_assistants_responses_index',
+              }),
+            },
+            {
+              name: 'Documents',
+              label: t('SIDEBAR.CAPTAIN_DOCUMENTS'),
+              activeOn: ['captain_assistants_documents_index'],
+              to: accountScopedRoute('captain_assistants_index', {
+                navigationPath: 'captain_assistants_documents_index',
+              }),
+            },
+            {
+              name: 'Scenarios',
+              label: t('SIDEBAR.CAPTAIN_SCENARIOS'),
+              activeOn: ['captain_assistants_scenarios_index'],
+              to: accountScopedRoute('captain_assistants_index', {
+                navigationPath: 'captain_assistants_scenarios_index',
+              }),
+            },
+            {
+              name: 'Playground',
+              label: t('SIDEBAR.CAPTAIN_PLAYGROUND'),
+              activeOn: ['captain_assistants_playground_index'],
+              to: accountScopedRoute('captain_assistants_index', {
+                navigationPath: 'captain_assistants_playground_index',
+              }),
+            },
+            {
+              name: 'Inboxes',
+              label: t('SIDEBAR.CAPTAIN_INBOXES'),
+              activeOn: ['captain_assistants_inboxes_index'],
+              to: accountScopedRoute('captain_assistants_index', {
+                navigationPath: 'captain_assistants_inboxes_index',
+              }),
+            },
+            {
+              name: 'Tools',
+              label: t('SIDEBAR.CAPTAIN_TOOLS'),
+              activeOn: ['captain_tools_index'],
+              to: accountScopedRoute('captain_assistants_index', {
+                navigationPath: 'captain_tools_index',
+              }),
+            },
+            {
+              name: 'Settings',
+              label: t('SIDEBAR.CAPTAIN_SETTINGS'),
+              activeOn: [
+                'captain_assistants_settings_index',
+                'captain_assistants_settings_system_index',
+                'captain_assistants_settings_audience_index',
+                'captain_assistants_settings_schedule_index',
+                'captain_assistants_guidelines_index',
+                'captain_assistants_guardrails_index',
+              ],
+              to: accountScopedRoute('captain_assistants_index', {
+                navigationPath: 'captain_assistants_settings_index',
+              }),
+            },
+          ],
+        },
+        {
+          name: 'Campaigns',
+          label: t('SIDEBAR.CAMPAIGNS'),
+          icon: 'i-lucide-megaphone',
+          collapsible: true,
+          startCollapsed: true,
+          showTreeLine: true,
+          children: [
+            {
+              name: 'Live chat',
+              label: t('SIDEBAR.LIVE_CHAT'),
+              to: accountScopedRoute('campaigns_livechat_index'),
+            },
+            {
+              name: 'SMS',
+              label: t('SIDEBAR.SMS'),
+              to: accountScopedRoute('campaigns_sms_index'),
+            },
+            {
+              name: 'WhatsApp',
+              label: t('SIDEBAR.WHATSAPP'),
+              to: accountScopedRoute('campaigns_whatsapp_index'),
+            },
+          ],
         },
       ],
     },

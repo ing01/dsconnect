@@ -23,7 +23,6 @@ const isWorking = ref(false);
 const catalogId = ref(null);
 const areaId = ref(null);
 const itemId = ref(null);
-const subject = ref('');
 const body = ref('');
 
 const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
@@ -42,10 +41,14 @@ const missingEmail = computed(() => missing.value.includes('contact_email'));
 const classification = computed(() => props.ticket.service_catalog_item);
 
 const catalogReady = computed(() => !needsCatalog.value || !!itemId.value);
+// The subject is not the agent's to write: the server titles every customer
+// message with the ticket header, the closing notice included. Shown here so
+// what will be sent is visible.
+const subject = computed(() => props.ticket.display_subject);
+
 const communicationReady = computed(
   () =>
-    !needsCommunication.value ||
-    (!missingEmail.value && !!subject.value.trim() && !!body.value.trim())
+    !needsCommunication.value || (!missingEmail.value && !!body.value.trim())
 );
 const canSubmit = computed(() => catalogReady.value && communicationReady.value);
 
@@ -53,9 +56,6 @@ const open = () => {
   catalogId.value = null;
   areaId.value = null;
   itemId.value = null;
-  subject.value = t('TICKET.CLOSE.DEFAULT_SUBJECT', {
-    number: props.ticket.display_id,
-  });
   body.value = '';
   store.dispatch('serviceCatalogs/fetch');
   dialogRef.value?.open();
@@ -81,7 +81,6 @@ const submit = async () => {
     if (needsCommunication.value) {
       await store.dispatch('tickets/sendCustomerCommunication', {
         ticketId: props.ticket.id,
-        subject: subject.value.trim(),
         body: body.value,
         closing: true,
       });
@@ -184,12 +183,10 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
             <span class="text-n-slate-12">{{ ticket.customer_email }}</span>
           </p>
 
-          <label class="flex flex-col gap-1 min-w-0">
-            <span class="text-sm font-medium text-n-slate-12">
-              {{ t('TICKET.CLOSE.SUBJECT') }}<span class="text-n-ruby-11">*</span>
-            </span>
-            <input v-model="subject" type="text" class="w-full mb-0" />
-          </label>
+          <p class="text-sm truncate text-n-slate-11" :title="subject">
+            {{ t('TICKET.CLOSE.SUBJECT') }}:
+            <span class="text-n-slate-12">{{ subject }}</span>
+          </p>
 
           <label class="flex flex-col gap-1 min-w-0">
             <span class="text-sm font-medium text-n-slate-12">

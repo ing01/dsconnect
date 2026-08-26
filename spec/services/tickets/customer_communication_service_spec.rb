@@ -37,8 +37,8 @@ RSpec.describe Tickets::CustomerCommunicationService do
     ActionMailer::Base.delivery_method = previous
   end
 
-  def perform(closing: true, subject: 'Encerramento')
-    described_class.new(ticket: ticket, user: user, subject: subject,
+  def perform(closing: true)
+    described_class.new(ticket: ticket, user: user,
                         body: '<p>Resolvido</p>', closing: closing).perform
   end
 
@@ -84,7 +84,7 @@ RSpec.describe Tickets::CustomerCommunicationService do
 
       mail = ActionMailer::Base.deliveries.last
       expect(mail.to).to eq(['renan@empresa.com'])
-      expect(mail.subject).to eq('Encerramento')
+      expect(mail.subject).to eq(ticket.display_subject)
     end
 
     it 'records it in the ticket history' do
@@ -110,15 +110,9 @@ RSpec.describe Tickets::CustomerCommunicationService do
   end
 
   # The customer should recognise the thread from the subject alone, so it is
-  # the ticket header rather than whatever an agent typed.
-  describe 'the subject of an ordinary message' do
-    it 'is the ticket header, not what the caller sent' do
-      communication = with_smtp { perform(closing: false, subject: 'qualquer coisa') }
-
-      expect(communication.subject).to eq(ticket.display_subject)
-      expect(communication.subject).not_to eq('qualquer coisa')
-    end
-
+  # the ticket header - and that holds for the closing notice too, which is
+  # about the same ticket.
+  describe 'the subject' do
     it 'carries the number, the Empresa, the Solicitante and the title' do
       communication = with_smtp { perform(closing: false) }
 
@@ -133,11 +127,18 @@ RSpec.describe Tickets::CustomerCommunicationService do
       expect(ActionMailer::Base.deliveries.last.subject).to eq(ticket.display_subject)
     end
 
-    # The closing notice is a separate message and keeps its own subject.
-    it 'leaves the closing notice subject alone' do
-      communication = with_smtp { perform(closing: true, subject: 'Encerramento do chamado') }
+    # The closing notice is a different message, but it titles itself the same
+    # way: it is about the same ticket.
+    it 'is the ticket header for the closing notice as well' do
+      communication = with_smtp { perform(closing: true) }
 
-      expect(communication.subject).to eq('Encerramento do chamado')
+      expect(communication.subject).to eq(ticket.display_subject)
+    end
+
+    it 'is what the closing e-mail is actually titled with' do
+      with_smtp { perform(closing: true) }
+
+      expect(ActionMailer::Base.deliveries.last.subject).to eq(ticket.display_subject)
     end
   end
 

@@ -20,13 +20,9 @@ export default {
   emits: [
     'addTicket',
     'openTicket',
-    'editTicket',
     'moveTicket',
     'toggleCollapse',
-    'openConversation',
-    'resolveTicket',
-    'reopenTicket',
-    'closeTicket',
+    'menuAction',
   ],
   computed: {
     // Counts the tickets actually shown, so the badge always agrees with the
@@ -176,11 +172,7 @@ export default {
             :ticket="element"
             :agents="agents"
             @click="$emit('openTicket', element)"
-            @edit="$emit('editTicket', element)"
-            @open-conversation="$emit('openConversation', element)"
-            @resolve="$emit('resolveTicket', element)"
-            @reopen="$emit('reopenTicket', element)"
-            @close="$emit('closeTicket', element)"
+            @menu-action="$emit('menuAction', $event)"
           />
         </template>
       </Draggable>
