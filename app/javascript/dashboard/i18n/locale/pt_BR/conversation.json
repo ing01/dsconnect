@@ -76,7 +76,7 @@
     "REPLY_MESSAGE_NOT_FOUND": "Mensagem não disponível",
     "CAPTAIN_GENERATION": {
       "TITLE": "Como esta resposta foi gerada?",
-      "GENERATED_BY": "Gerado pelo Captain",
+      "GENERATED_BY": "Gerado pela Dua",
       "LOADING": "Carregando detalhes…",
       "EMPTY": "Não há detalhes de geração disponíveis para esta mensagem.",
       "TIMELINE": "Etapas da geração",
@@ -327,8 +327,8 @@
       },
       "REPORT_MESSAGE": {
         "LABEL": "Reportar mensagem",
-        "TITLE": "Reportar mensagem do Capitão",
-        "DESCRIPTION": "Encontrou algum problema com esta resposta da IA? Conte-nos o que deu errado e nossa equipe irá analisar para ajudar a melhorar a precisão do Capitão.",
+        "TITLE": "Reportar mensagem da Dua",
+        "DESCRIPTION": "Encontrou algum problema com esta resposta da IA? Conte-nos o que deu errado e nossa equipe irá analisar para ajudar a melhorar a precisão da Dua.",
         "PROBLEM_TYPE": "Tipo de problema",
         "PROBLEM_TYPE_PLACEHOLDER": "Selecione um tipo de problema",
         "DESCRIPTION_LABEL": "Descrição",
