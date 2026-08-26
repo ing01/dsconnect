@@ -15,7 +15,11 @@ class Tickets::MergeService
       source.update!(merged_into: target)
       # Closed rather than a new global status: `close_reason` says why, which is
       # what distinguishes this from an ordinary close.
-      source.close!(user)
+      #
+      # Grouping is an administrative close, not a finished attendance, so it
+      # deliberately bypasses the catalogue/communication requirements - the
+      # surviving ticket is the one that has to be classified and answered.
+      source.close!(user, skip_requirements: true)
       source.update!(close_reason: 'merged')
       log_activities
     end

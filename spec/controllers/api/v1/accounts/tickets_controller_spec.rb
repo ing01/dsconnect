@@ -273,6 +273,9 @@ RSpec.describe 'Tickets API', type: :request do
 
     it 'closes a resolved ticket' do
       ticket = create(:ticket, account: account, ticket_column: ticket_column, assignee: agent, status: 'resolved')
+      # Closing now requires the attendance to be classified and the customer to
+      # have been told; see TicketClosing.
+      make_ticket_closeable!(ticket, user: agent)
 
       patch "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/close",
             headers: agent.create_new_auth_token,

@@ -31,6 +31,11 @@ export function useTicketDetail(ticketId) {
     () => store.getters['ticketColumns/getColumns'](ticket.value?.team_id) || []
   );
 
+  // Categories of this ticket's Mesa, the same rule the stages follow.
+  const categories = computed(
+    () => store.getters['ticketColumns/getCategories'](ticket.value?.team_id) || []
+  );
+
   const mesaAgents = computed(
     () =>
       store.getters['teamMembers/getTeamMembers'](ticket.value?.team_id) || []
@@ -45,6 +50,7 @@ export function useTicketDetail(ticketId) {
     if (!teamId) return;
     store.dispatch('teamMembers/get', { teamId });
     store.dispatch('ticketColumns/fetchColumns', teamId);
+    store.dispatch('ticketColumns/fetchCategories', teamId);
   };
 
   // Every mutation funnels through here: push the fresh payload into the Kanban
@@ -166,6 +172,7 @@ export function useTicketDetail(ticketId) {
     canUpdate,
     canAddSlaHours,
     columns,
+    categories,
     mesaAgents,
     updateProperty,
     moveToColumn,

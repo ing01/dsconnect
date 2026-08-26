@@ -43,6 +43,11 @@ class TicketPolicy < ApplicationPolicy
     update?
   end
 
+  # Classifying and writing to the customer are part of handling the ticket.
+  def classify?
+    update?
+  end
+
   # Every composite action from the "Acoes do ticket" menu is a mutation of the
   # ticket, so they all sit behind the same rule as `update?` - the frontend
   # hiding a menu entry is a convenience, never the check.

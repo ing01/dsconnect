@@ -49,6 +49,7 @@ import sidebarSortPreferences from './modules/sidebarSortPreferences';
 import summaryReports from './modules/summaryReports';
 import teamMembers from './modules/teamMembers';
 import teams from './modules/teams';
+import serviceCatalogs from './modules/serviceCatalogs';
 import ticketColumns from './modules/ticketColumns';
 import tickets from './modules/tickets';
 import userNotificationSettings from './modules/userNotificationSettings';
@@ -119,6 +120,7 @@ export default createStore({
     summaryReports,
     teamMembers,
     teams,
+    serviceCatalogs,
     ticketColumns,
     tickets,
     userNotificationSettings,

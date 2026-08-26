@@ -106,3 +106,34 @@ json.sla_extensions resource.ticket_sla_extensions.sort_by(&:id).reverse do |ext
   json.new_due_at extension.new_due_at&.to_i
   json.created_at extension.created_at.to_i
 end
+
+# Classification. Only the Item is stored on the ticket; the two levels above it
+# come from the association, so no name is duplicated.
+if resource.service_catalog_item
+  item = resource.service_catalog_item
+  json.service_catalog_item do
+    json.id item.id
+    json.name item.name
+    json.area_id item.service_catalog_area_id
+    json.area_name item.service_catalog_area.name
+    json.catalog_id item.service_catalog.id
+    json.catalog_name item.service_catalog.name
+    json.full_path item.full_path
+  end
+else
+  json.service_catalog_item nil
+end
+
+json.customer_communications resource.ticket_customer_communications.sort_by(&:id).reverse do |communication|
+  json.partial! 'api/v1/models/ticket_customer_communication', formats: [:json], resource: communication
+end
+
+# What still stands between this ticket and being closed. The close dialog reads
+# this instead of re-deriving the rules in the browser, and the server refuses
+# regardless.
+# The header used as the subject of a customer message, so the screen shows
+# exactly what the server will send rather than recomposing it.
+json.display_subject resource.display_subject
+
+json.missing_close_requirements resource.missing_close_requirements
+json.customer_email resource.customer_email

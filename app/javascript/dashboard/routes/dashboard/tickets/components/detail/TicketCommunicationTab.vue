@@ -1,9 +1,11 @@
 <script setup>
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TicketComments from '../TicketComments.vue';
+import TicketCustomerCommunication from './TicketCustomerCommunication.vue';
 
 defineProps({
   ticket: { type: Object, required: true },
@@ -11,6 +13,10 @@ defineProps({
 
 const { t } = useI18n();
 const route = useRoute();
+
+// Two clearly separate audiences: the team's own thread, and what is sent to
+// the customer. They are never mixed.
+const channel = ref('internal');
 const router = useRouter();
 
 const formatDateTime = timestamp =>
@@ -29,6 +35,29 @@ const openConversation = conversation => {
 
 <template>
   <div class="flex flex-col gap-4 w-full min-w-0">
+    <!-- Internal notes never leave the account; customer messages are e-mails.
+         The tabs make which one you are writing unmistakable. -->
+    <div class="flex gap-1 p-1 rounded-lg bg-n-alpha-2 w-fit max-w-full overflow-x-auto">
+      <button
+        v-for="value in ['internal', 'customer']"
+        :key="value"
+        type="button"
+        :data-channel="value"
+        class="px-3 py-1.5 text-sm rounded-md whitespace-nowrap transition-colors"
+        :class="
+          channel === value
+            ? 'bg-n-solid-1 text-n-slate-12 font-medium'
+            : 'text-n-slate-11 hover:text-n-slate-12'
+        "
+        @click="channel = value"
+      >
+        {{ t(`TICKET.COMMUNICATION.TAB.${value.toUpperCase()}`) }}
+      </button>
+    </div>
+
+    <TicketCustomerCommunication v-if="channel === 'customer'" :ticket="ticket" />
+
+    <template v-else>
     <section
       class="rounded-xl border border-n-weak p-4 flex flex-col gap-3 min-w-0"
     >
@@ -83,5 +112,6 @@ const openConversation = conversation => {
     <section class="rounded-xl border border-n-weak p-4 min-w-0">
       <TicketComments :ticket-id="ticket.id" />
     </section>
+    </template>
   </div>
 </template>

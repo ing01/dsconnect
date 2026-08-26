@@ -3,7 +3,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
 
   DEFAULT_PER_PAGE = 25
 
-  before_action :fetch_ticket, only: [:show, :update, :destroy, :move, :resolve, :reopen, :close, :cancel,
+  before_action :fetch_ticket, only: [:show, :update, :destroy, :move, :resolve, :reopen, :close, :cancel, :classify,
                                       :transfer, :create_child, :set_parent, :merge, :duplicate, :assign_to_me,
                                       :add_sla_hours]
   before_action :check_authorization
@@ -84,13 +84,28 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     render 'show'
   end
 
+  # Refuses with the list of what is missing, so the UI can say which of the two
+  # requirements the agent still owes rather than showing a generic error.
   def close
     @ticket.close!(Current.user)
     render 'show'
+  rescue TicketClosing::NotAllowed => e
+    render json: { error: I18n.t('tickets.close.blocked'), code: 'close_requirements_missing', missing: e.missing },
+           status: :unprocessable_entity
   end
 
   def cancel
     @ticket.cancel!(Current.user, reason: params[:reason])
+    render 'show'
+  end
+
+  # Records the Catalogo > Area > Item classification. The Item is resolved
+  # through the account's own catalogue, so an id from another account - or an
+  # Item that does not belong to the Area that was sent - never lands here.
+  def classify
+    item = fetch_catalog_item
+    @ticket.classify!(item, Current.user)
+    fetch_ticket
     render 'show'
   end
 
@@ -176,6 +191,8 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     { ticket_conversations: { conversation: [{ contact: :company }, :inbox] } },
     { ticket_followers: :user },
     { ticket_sla_extensions: :user },
+    { ticket_customer_communications: [:user, :contact] },
+    { service_catalog_item: { service_catalog_area: :service_catalog } },
     :parent, :children, :merged_into, :merged_tickets
   ].freeze
 
@@ -185,6 +202,15 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
 
   def position_by_display_id(target_column)
     Tickets::ColumnPosition.new(ticket: @ticket, column: target_column).by_display_id
+  end
+
+  # Walks the hierarchy rather than trusting the item id on its own: the Area
+  # must belong to the Catalogo and the Item to the Area, so an incompatible
+  # combination is rejected here and not just in the form.
+  def fetch_catalog_item
+    catalog = Current.account.service_catalogs.find(params[:service_catalog_id])
+    area = catalog.service_catalog_areas.find(params[:service_catalog_area_id])
+    area.service_catalog_items.find(params[:service_catalog_item_id])
   end
 
   def fetch_ticket_column(id)

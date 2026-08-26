@@ -17,6 +17,7 @@ json.team_name resource.team.name
 # ticket, so it is read straight from it.
 json.requester_name resource.requester_contact&.name
 json.contact_id resource.contact_id
+json.service_catalog_item_id resource.service_catalog_item_id
 json.ticket_category_id resource.ticket_category_id
 json.ticket_category_name resource.ticket_category&.name
 json.company_id resource.company_id

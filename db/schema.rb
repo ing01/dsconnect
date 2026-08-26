@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_25_160100) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1524,6 +1524,40 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_160100) do
     t.index ["account_id", "metric", "date"], name: "index_rollup_timeseries"
   end
 
+  create_table "service_catalog_areas", force: :cascade do |t|
+    t.bigint "service_catalog_id", null: false
+    t.string "name", null: false
+    t.boolean "active", default: true, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["service_catalog_id", "name"], name: "index_service_catalog_areas_on_service_catalog_id_and_name", unique: true
+    t.index ["service_catalog_id"], name: "index_service_catalog_areas_on_service_catalog_id"
+  end
+
+  create_table "service_catalog_items", force: :cascade do |t|
+    t.bigint "service_catalog_area_id", null: false
+    t.string "name", null: false
+    t.boolean "active", default: true, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["service_catalog_area_id", "name"], name: "idx_on_service_catalog_area_id_name_95f79c30f3", unique: true
+    t.index ["service_catalog_area_id"], name: "index_service_catalog_items_on_service_catalog_area_id"
+  end
+
+  create_table "service_catalogs", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.boolean "active", default: true, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_service_catalogs_on_account_id_and_name", unique: true
+    t.index ["account_id", "position"], name: "index_service_catalogs_on_account_id_and_position"
+    t.index ["account_id"], name: "index_service_catalogs_on_account_id"
+  end
+
   create_table "sla_events", force: :cascade do |t|
     t.bigint "applied_sla_id", null: false
     t.bigint "conversation_id", null: false
@@ -1686,6 +1720,29 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_160100) do
     t.index ["ticket_id"], name: "index_ticket_conversations_on_ticket_id"
   end
 
+  create_table "ticket_customer_communications", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "user_id"
+    t.bigint "contact_id"
+    t.string "channel", default: "email", null: false
+    t.string "to_email", null: false
+    t.string "subject", null: false
+    t.text "body", null: false
+    t.string "status", default: "pending", null: false
+    t.text "error_message"
+    t.datetime "sent_at"
+    t.boolean "closing", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_customer_communications_on_account_id"
+    t.index ["contact_id"], name: "index_ticket_customer_communications_on_contact_id"
+    t.index ["ticket_id", "closing", "status"], name: "index_ticket_customer_comms_on_ticket_closing_status"
+    t.index ["ticket_id", "created_at"], name: "idx_on_ticket_id_created_at_154ff74295"
+    t.index ["ticket_id"], name: "index_ticket_customer_communications_on_ticket_id"
+    t.index ["user_id"], name: "index_ticket_customer_communications_on_user_id"
+  end
+
   create_table "ticket_followers", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "ticket_id", null: false
@@ -1738,6 +1795,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_160100) do
     t.string "close_reason"
     t.bigint "contact_id"
     t.bigint "ticket_category_id"
+    t.bigint "service_catalog_item_id"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id"], name: "index_tickets_on_account_id"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
@@ -1745,6 +1803,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_160100) do
     t.index ["contact_id"], name: "index_tickets_on_contact_id"
     t.index ["merged_into_id"], name: "index_tickets_on_merged_into_id"
     t.index ["parent_id"], name: "index_tickets_on_parent_id"
+    t.index ["service_catalog_item_id"], name: "index_tickets_on_service_catalog_item_id"
     t.index ["status"], name: "index_tickets_on_status"
     t.index ["team_id"], name: "index_tickets_on_team_id"
     t.index ["ticket_category_id"], name: "index_tickets_on_ticket_category_id"
@@ -1863,9 +1922,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_160100) do
   add_foreign_key "inboxes", "portals"
   add_foreign_key "mood_entries", "accounts"
   add_foreign_key "mood_entries", "users"
+  add_foreign_key "service_catalog_areas", "service_catalogs"
+  add_foreign_key "service_catalog_items", "service_catalog_areas"
+  add_foreign_key "service_catalogs", "accounts"
   add_foreign_key "system_modules", "accounts"
   add_foreign_key "ticket_categories", "teams"
   add_foreign_key "ticket_columns", "teams"
+  add_foreign_key "ticket_customer_communications", "accounts"
+  add_foreign_key "ticket_customer_communications", "contacts", on_delete: :nullify
+  add_foreign_key "ticket_customer_communications", "tickets"
+  add_foreign_key "ticket_customer_communications", "users"
   add_foreign_key "ticket_followers", "accounts"
   add_foreign_key "ticket_followers", "tickets"
   add_foreign_key "ticket_followers", "users"
@@ -1874,6 +1940,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_160100) do
   add_foreign_key "ticket_sla_extensions", "users"
   add_foreign_key "tickets", "companies"
   add_foreign_key "tickets", "contacts", on_delete: :nullify
+  add_foreign_key "tickets", "service_catalog_items", on_delete: :restrict
   add_foreign_key "tickets", "ticket_categories", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "merged_into_id", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "parent_id", on_delete: :nullify

@@ -31,7 +31,10 @@ class TicketActivity < ApplicationRecord
     follower_removed: 21,
     title_changed: 22,
     company_changed: 23,
-    contact_changed: 24
+    contact_changed: 24,
+    classified: 25,
+    customer_communication_sent: 26,
+    category_changed: 27
   }
 
   def push_event_data

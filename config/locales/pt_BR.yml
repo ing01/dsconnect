@@ -67,7 +67,22 @@ pt_BR:
   profile_settings:
     sessions:
       cannot_revoke_current: Você não pode revogar a sessão atual.
+  ticket_customer_mailer:
+    customer_message:
+      greeting: "Olá %{contact}, da empresa %{company}."
+      greeting_without_company: "Olá %{contact}."
+      intro: 'Há uma nova mensagem enviada através do ticket:'
+      message_label: 'Mensagem enviada:'
+      sent_at: 'Data/hora do envio: %{datetime}'
+      closing_line: Qualquer dúvida estamos à disposição.
+      regards: Atenciosamente,
+      company_name: Duesoft Sistemas
   tickets:
+    close:
+      blocked: Este ticket ainda não pode ser fechado.
+    communication:
+      not_delivered: Não foi possível enviar o e-mail. Verifique a configuração de SMTP e tente novamente.
+      no_contact_email: O solicitante deste ticket não possui um e-mail cadastrado.
     child_suffix: ticket filho
     duplicate:
       title: "%{title} (cópia)"

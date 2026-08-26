@@ -835,8 +835,29 @@ const menuItems = computed(() => {
           name: 'Settings Tickets',
           label: t('SIDEBAR.TICKET_SETTINGS'),
           icon: 'i-lucide-kanban-square',
-          activeOn: ['ticket_settings_wrapper', 'ticket_stages_list'],
-          to: accountScopedRoute('ticket_stages_list'),
+          activeOn: ['ticket_settings_wrapper'],
+          collapsible: true,
+          showTreeLine: true,
+          children: [
+            {
+              name: 'Settings Ticket Stages',
+              label: t('SIDEBAR.TICKET_STAGES'),
+              activeOn: ['ticket_stages_list'],
+              to: accountScopedRoute('ticket_stages_list'),
+            },
+            {
+              name: 'Settings Ticket Catalog',
+              label: t('SIDEBAR.TICKET_CATALOG'),
+              activeOn: ['ticket_catalog_list'],
+              to: accountScopedRoute('ticket_catalog_list'),
+            },
+            {
+              name: 'Settings Ticket Categories',
+              label: t('SIDEBAR.TICKET_CATEGORIES'),
+              activeOn: ['ticket_categories_list'],
+              to: accountScopedRoute('ticket_categories_list'),
+            },
+          ],
         },
         ...(hasAdvancedAssignment.value
           ? [

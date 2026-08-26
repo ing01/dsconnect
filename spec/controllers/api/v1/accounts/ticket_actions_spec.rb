@@ -86,6 +86,8 @@ RSpec.describe 'Ticket actions', type: :request do
     end
 
     it 'routes a status change through the model transition, not a bare update' do
+      make_ticket_closeable!(ticket, user: administrator)
+
       act(:transfer, ticket, { ticket: { ticket_column_id: column.id, status: 'closed' } })
 
       ticket.reload
@@ -392,6 +394,7 @@ RSpec.describe 'Ticket actions', type: :request do
 
     it 'leaves the original history, comments and lifecycle behind' do
       ticket.ticket_comments.create!(account_id: account.id, user: agent, content: 'nota')
+      make_ticket_closeable!(ticket, user: administrator)
       ticket.close!(administrator)
 
       act(:duplicate, ticket, {}, verb: :post)
@@ -535,6 +538,8 @@ RSpec.describe 'Ticket actions', type: :request do
 
   describe 'fechar ticket' do
     it 'records the closing date and the acting user' do
+      make_ticket_closeable!(ticket, user: administrator)
+
       act(:close, ticket)
 
       ticket.reload

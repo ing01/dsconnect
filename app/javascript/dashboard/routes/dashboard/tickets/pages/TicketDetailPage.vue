@@ -25,7 +25,7 @@ import TicketParentDialog from '../components/detail/actions/TicketParentDialog.
 import TicketMergeDialog from '../components/detail/actions/TicketMergeDialog.vue';
 import TicketSlaHoursDialog from '../components/detail/actions/TicketSlaHoursDialog.vue';
 import TicketCancelDialog from '../components/detail/actions/TicketCancelDialog.vue';
-import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
+import TicketCloseDialog from '../components/detail/actions/TicketCloseDialog.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -39,6 +39,7 @@ const {
   canUpdate,
   canAddSlaHours,
   columns,
+  categories,
   mesaAgents,
   updateProperty,
   moveToColumn,
@@ -50,6 +51,7 @@ const {
   assignToMe,
   addSlaHours,
   cancel,
+  reload,
 } = useTicketDetail(ticketId);
 
 const currentUser = useMapGetter('getCurrentUser');
@@ -228,8 +230,7 @@ const submitCompany = ({ companyId, clearContact }) =>
 const submitContact = contactId =>
   runAction(() => updateProperty({ contact_id: contactId }), contactDialog);
 
-const submitClose = () =>
-  runAction(() => changeStatus('closed'), closeDialog);
+
 
 </script>
 
@@ -267,6 +268,7 @@ const submitClose = () =>
         v-if="activeTab === 'overview'"
         :ticket="ticket"
         :columns="columns"
+        :categories="categories"
         :agents="mesaAgents"
         :can-update="canUpdate"
         :is-saving-description="isSavingDescription"
@@ -359,21 +361,9 @@ const submitClose = () =>
         @submit="submitCancel"
       />
 
-      <!-- Closing is terminal, so it is confirmed rather than fired straight
-           from the menu. -->
-      <Dialog
-        ref="closeDialog"
-        type="alert"
-        width="md"
-        :title="
-          t('TICKET.ACTIONS.CLOSE_DIALOG.TITLE', { number: ticket.display_id })
-        "
-        :description="t('TICKET.ACTIONS.CLOSE_DIALOG.DESCRIPTION')"
-        :cancel-button-label="t('TICKET.ACTIONS.CANCEL_DIALOG.BACK')"
-        :confirm-button-label="t('TICKET.ACTIONS.CLOSE_DIALOG.CONFIRM')"
-        :is-loading="isActing"
-        @confirm="submitClose"
-      />
+      <!-- Closing requires a classification and a message that reached the
+           customer, so it is a two-step flow rather than a confirmation. -->
+      <TicketCloseDialog ref="closeDialog" :ticket="ticket" @closed="reload" />
 
     </template>
   </div>

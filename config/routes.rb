@@ -373,6 +373,7 @@ Rails.application.routes.draw do
               patch :reopen
               patch :close
               patch :cancel
+              patch :classify
               patch :transfer
               patch :set_parent
               patch :assign_to_me
@@ -386,7 +387,14 @@ Rails.application.routes.draw do
             resources :activities, controller: 'ticket_activities', only: [:index]
             resources :attachments, controller: 'ticket_attachments', only: [:index, :create, :destroy]
             resources :followers, controller: 'ticket_followers', only: [:index, :create, :destroy]
+            resources :customer_communications, controller: 'ticket_customer_communications', only: [:index, :create]
           end
+          resources :service_catalogs do
+            resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do
+              resources :items, controller: 'service_catalog_items', only: [:create, :update, :destroy]
+            end
+          end
+
           resources :calendar_events, only: [:index, :create, :show, :update, :destroy]
 
           # Assignment V2 Routes

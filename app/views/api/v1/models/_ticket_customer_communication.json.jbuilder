@@ -1,0 +1,12 @@
+json.id resource.id
+json.to_email resource.to_email
+json.subject resource.subject
+json.body resource.body
+json.channel resource.channel
+json.status resource.status
+json.closing resource.closing
+json.error_message resource.error_message
+json.sent_at resource.sent_at&.to_i
+json.created_at resource.created_at.to_i
+json.user_name resource.user&.name
+json.contact_name resource.contact&.name

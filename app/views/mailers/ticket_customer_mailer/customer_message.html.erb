@@ -1,0 +1,27 @@
+<%# Every value is read from the Ticket, its Contact and its Company - nothing
+    here is stored a second time just to compose the message. %>
+<p><%= t(@greeting_key, contact: @contact&.name, company: @company&.name) %></p>
+
+<p><%= t('.intro') %></p>
+
+<p><strong><%= @ticket.display_subject %></strong></p>
+
+<p><%= t('.message_label') %></p>
+
+<%# The agent's rich text. `sanitize` keeps the formatting the editor produces
+    and drops scripts - ApplicationMailer already includes SanitizeHelper. %>
+<blockquote><%= sanitize(@communication.body) %></blockquote>
+
+<p><%= t('.sent_at', datetime: @sent_at) %></p>
+
+<p><%= t('.closing_line') %></p>
+
+<p>
+  <%= t('.regards') %><br />
+  <%= t('.company_name') %>
+</p>
+
+<%# Only when the sender has one configured; no empty block otherwise. %>
+<% if @signature.present? %>
+  <p><%= simple_format(@signature) %></p>
+<% end %>

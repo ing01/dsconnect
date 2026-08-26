@@ -110,6 +110,7 @@ RSpec.describe Ticket do
     end
 
     it 'closes a resolved ticket' do
+      make_ticket_closeable!(ticket, user: user)
       ticket.resolve!(user)
       ticket.close!(user)
 

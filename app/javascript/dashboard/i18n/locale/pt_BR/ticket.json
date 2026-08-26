@@ -233,7 +233,8 @@
       "PROPERTIES": {
         "TITLE": "Informações do ticket",
         "STATUS": "Status",
-        "STAGE": "Estágio"
+        "STAGE": "Estágio",
+        "NO_CATEGORY": "Selecione uma categoria"
       },
       "FOLLOWERS": {
         "TITLE": "Seguidores",
@@ -361,6 +362,31 @@
         "NAME": "Nome",
         "SAVE": "Salvar",
         "EMPTY": "Nenhuma categoria cadastrada nesta mesa."
+      },
+      "CATALOG": {
+        "TITLE": "Catálogo de Serviços",
+        "DESCRIPTION": "Classificação usada no encerramento dos tickets, em três níveis: Catálogo, Área e Item.",
+        "ADD_CATALOG": "Adicionar catálogo",
+        "ADD_AREA": "Adicionar área",
+        "ADD_ITEM": "Adicionar item",
+        "ADD_LEVEL": "Adicionar {level}",
+        "EDIT_LEVEL": "Editar {level}",
+        "LEVEL": {
+          "CATALOG": "catálogo",
+          "AREA": "área",
+          "ITEM": "item"
+        },
+        "EDIT": "Editar",
+        "TOGGLE_ACTIVE": "Ativar/inativar",
+        "NAME": "Nome",
+        "SAVE": "Salvar",
+        "EMPTY": "Nenhum catálogo cadastrado.",
+        "NO_AREAS": "Nenhuma área neste catálogo.",
+        "NO_ITEMS": "Nenhum item nesta área."
+      },
+      "STAGES": {
+        "HEADER": "Estágios",
+        "DESCRIPTION": "Colunas do Kanban de cada Mesa de Serviço."
       }
     },
     "MESA_SELECTOR": {
@@ -536,6 +562,44 @@
       "FILES": {
         "ADD": "Anexar arquivos",
         "REMOVE": "Remover arquivo"
+      }
+    },
+    "CATALOG": {
+      "TITLE": "Catálogo de Serviços",
+      "CATALOG": "Catálogo de Serviços",
+      "AREA": "Área do Catálogo",
+      "ITEM": "Item do Catálogo",
+      "SELECT": "Selecione",
+      "NEEDS_CATALOG": "Selecione um catálogo primeiro",
+      "NEEDS_AREA": "Selecione uma área primeiro",
+      "UNCLASSIFIED": "Atendimento ainda não classificado."
+    },
+    "CLOSE": {
+      "TITLE": "Fechar ticket #{number}",
+      "CONFIRM": "Fechar ticket",
+      "STEP_CLASSIFICATION": "1. Classificação",
+      "STEP_COMMUNICATION": "2. Comunicação com cliente",
+      "COMMUNICATION_DONE": "Comunicação de encerramento já enviada.",
+      "NO_CONTACT_EMAIL": "O solicitante deste ticket não possui um e-mail cadastrado. Cadastre um e-mail válido antes de enviar a comunicação de encerramento.",
+      "TO": "Para",
+      "SUBJECT": "Assunto",
+      "DEFAULT_SUBJECT": "Encerramento do ticket #{number}",
+      "MESSAGE": "Mensagem",
+      "MESSAGE_PLACEHOLDER": "Escreva a mensagem que será enviada ao cliente"
+    },
+    "COMMUNICATION": {
+      "TAB": {
+        "INTERNAL": "Interna",
+        "CUSTOMER": "Cliente"
+      },
+      "SEND": "Enviar",
+      "HISTORY": "Comunicações enviadas",
+      "EMPTY": "Nenhuma comunicação enviada ao cliente ainda.",
+      "CLOSING": "Encerramento",
+      "STATUS": {
+        "SENT": "Enviada",
+        "FAILED": "Falhou",
+        "PENDING": "Pendente"
       }
     }
   }

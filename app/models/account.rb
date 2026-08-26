@@ -97,6 +97,9 @@ class Account < ApplicationRecord
   has_many :notifications, dependent: :destroy_async
   has_many :portals, dependent: :destroy_async, class_name: '::Portal'
   has_many :sms_channels, dependent: :destroy_async, class_name: '::Channel::Sms'
+  # The service catalogue used to classify an attendance. Independent of the
+  # Mesa: one Mesa attends several catalogues.
+  has_many :service_catalogs, dependent: :destroy_async
   has_many :teams, dependent: :destroy_async
   # Estagios live under a Mesa; reached through it so account-scoped lookups
   # (a transfer target, a stage select) don't have to join by hand.

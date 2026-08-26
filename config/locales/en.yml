@@ -73,7 +73,22 @@ en:
     sessions:
       cannot_revoke_current: You cannot revoke the current session.
 
+  ticket_customer_mailer:
+    customer_message:
+      greeting: "Hello %{contact}, from %{company}."
+      greeting_without_company: "Hello %{contact}."
+      intro: 'There is a new message on your ticket:'
+      message_label: 'Message sent:'
+      sent_at: 'Sent on: %{datetime}'
+      closing_line: If you have any questions we are at your disposal.
+      regards: Kind regards,
+      company_name: Duesoft Sistemas
   tickets:
+    close:
+      blocked: This ticket cannot be closed yet.
+    communication:
+      not_delivered: The e-mail could not be sent. Check the SMTP configuration and try again.
+      no_contact_email: The requester of this ticket has no e-mail address on file.
     child_suffix: child ticket
     duplicate:
       title: "%{title} (copy)"

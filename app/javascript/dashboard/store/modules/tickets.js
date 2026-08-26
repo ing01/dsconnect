@@ -129,6 +129,18 @@ export const actions = {
       await TicketsAPI.createAttachment(ticketId, file);
     }
   },
+  classifyTicket: async ({ commit }, { id, ...classification }) => {
+    const response = await TicketsAPI.classify(id, classification);
+    commit(types.SET_TICKET_ITEM, response.data);
+    return response.data;
+  },
+  // Rejects when the message did not actually leave, so the caller can keep the
+  // ticket open. The ticket is refetched because `missing_close_requirements`
+  // changes with it.
+  sendCustomerCommunication: async ({ dispatch }, { ticketId, ...message }) => {
+    await TicketsAPI.sendCustomerCommunication(ticketId, message);
+    return dispatch('fetchTicket', ticketId);
+  },
   cancelTicket: async ({ commit }, { id, reason }) => {
     const response = await TicketsAPI.cancel(id, reason);
     commit(types.SET_TICKET_ITEM, response.data);

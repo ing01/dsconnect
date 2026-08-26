@@ -1,0 +1,4 @@
+<%# The body comes from the agent's rich-text editor. `sanitize` keeps the
+    formatting it produces (bold, lists, links) and drops scripts and inline
+    handlers - ApplicationMailer already includes SanitizeHelper. %>
+<%= sanitize(@communication.body) %>

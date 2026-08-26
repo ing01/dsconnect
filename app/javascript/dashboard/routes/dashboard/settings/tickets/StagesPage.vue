@@ -7,7 +7,6 @@ import { formatMesaName } from 'dashboard/helper/mesaName';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 import AddStage from './AddStage.vue';
-import TicketCategoriesSection from './TicketCategoriesSection.vue';
 import EditStage from './EditStage.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
@@ -129,8 +128,8 @@ onBeforeMount(async () => {
   >
     <template #header>
       <BaseSettingsHeader
-        :title="$t('TICKET.SETTINGS.HEADER')"
-        :description="$t('TICKET.SETTINGS.DESCRIPTION')"
+        :title="$t('TICKET.SETTINGS.STAGES.HEADER')"
+        :description="$t('TICKET.SETTINGS.STAGES.DESCRIPTION')"
       >
         <template #actions>
           <div class="flex items-center gap-2">
@@ -232,9 +231,7 @@ onBeforeMount(async () => {
       </BaseTable>
 
       <!-- Categories live under the same Mesa selector as the Estagios: both
-           lists belong to the Mesa chosen above. -->
-      <TicketCategoriesSection :team-id="selectedTeamId" />
-    </template>
+           lists belong to the Mesa chosen above. -->    </template>
 
     <woot-modal v-model:show="showAddPopup" :on-close="hideAddPopup">
       <AddStage

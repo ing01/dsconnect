@@ -1,5 +1,7 @@
 class Ticket < ApplicationRecord
   include Events::Types
+  include TicketBroadcastable
+  include TicketClosing
   include TicketCustomer
   include TicketOpening
   include TicketRelatable
@@ -74,6 +76,7 @@ class Ticket < ApplicationRecord
     'title' => :title_changed,
     'company_id' => :company_changed,
     'contact_id' => :contact_changed,
+    'ticket_category_id' => :category_changed,
     'ticket_column_id' => :column_changed,
     'priority' => :priority_changed,
     'assignee_id' => :assignee_changed,
@@ -103,8 +106,12 @@ class Ticket < ApplicationRecord
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :resolved)
   end
 
-  def close!(user = Current.user)
+  # `skip_requirements` is for administrative closes only - grouping a ticket
+  # into another is not a finished attendance. See TicketClosing.
+  def close!(user = Current.user, skip_requirements: false)
     return if closed?
+
+    ensure_closeable!(skip_requirements: skip_requirements)
 
     update!(status: :closed, closed_at: Time.zone.now)
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :closed)
@@ -144,39 +151,7 @@ class Ticket < ApplicationRecord
     @created_by_user = ticket_activities.to_a.find { |activity| activity.activity_type == 'created' }&.user
   end
 
-  # The realtime payload. Deliberately narrower than the REST serializer - the
-  # store merges it into whatever it already holds rather than replacing.
-  def push_event_data
-    core_event_data.merge(lifecycle_event_data).merge(relation_event_data)
-  end
-
   private
-
-  def core_event_data
-    {
-      id: id, display_id: display_id, title: title, description: description,
-      priority: priority, status: status, position: position, account_id: account_id,
-      ticket_column_id: ticket_column_id, assignee_id: assignee_id, team_id: team_id,
-      # Carried on the realtime payload too, otherwise a ticket arriving over
-      # the wire would be invisible to the Kanban's Empresa search until the
-      # next board refetch.
-      company_id: company_id, company_name: company&.name, contact_id: contact_id,
-      created_at: created_at.to_i, updated_at: updated_at.to_i,
-      conversation_ids: ticket_conversations.pluck(:conversation_id)
-    }
-  end
-
-  def lifecycle_event_data
-    {
-      resolved_at: resolved_at&.to_i, closed_at: closed_at&.to_i,
-      cancelled_at: cancelled_at&.to_i, close_reason: close_reason
-    }
-  end
-
-  # So a Kanban card can badge a child or a grouped ticket without refetching.
-  def relation_event_data
-    { parent_id: parent_id, merged_into_id: merged_into_id, due_at: due_at&.to_i }
-  end
 
   def set_default_position
     return if position.present? && position != 0

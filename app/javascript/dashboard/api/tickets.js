@@ -94,6 +94,30 @@ class TicketsAPI extends ApiClient {
     return axios.post(this.url, { ticket, conversation_id: conversationId });
   }
 
+  // The three ids together: the server walks the hierarchy and refuses an
+  // Area that is not in the Catalogo, or an Item that is not in the Area.
+  classify(id, { serviceCatalogId, serviceCatalogAreaId, serviceCatalogItemId }) {
+    return axios.patch(`${this.url}/${id}/classify`, {
+      service_catalog_id: serviceCatalogId,
+      service_catalog_area_id: serviceCatalogAreaId,
+      service_catalog_item_id: serviceCatalogItemId,
+    });
+  }
+
+  getCustomerCommunications(ticketId) {
+    return axios.get(`${this.url}/${ticketId}/customer_communications`);
+  }
+
+  // Synchronous on the server: the response says whether the message actually
+  // left, which is what the closing flow depends on.
+  sendCustomerCommunication(ticketId, { subject, body, closing }) {
+    return axios.post(`${this.url}/${ticketId}/customer_communications`, {
+      subject,
+      body,
+      closing,
+    });
+  }
+
   cancel(id, reason) {
     return axios.patch(`${this.url}/${id}/cancel`, { reason });
   }

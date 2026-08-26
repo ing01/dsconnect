@@ -96,16 +96,8 @@ watch(
 </script>
 
 <template>
-  <section class="flex flex-col gap-3 mt-8 min-w-0">
-    <div class="flex items-center justify-between gap-2 min-w-0">
-      <div class="flex flex-col min-w-0">
-        <h2 class="text-base font-medium text-n-slate-12">
-          {{ t('TICKET.SETTINGS.CATEGORIES.TITLE') }}
-        </h2>
-        <p class="text-sm text-n-slate-11">
-          {{ t('TICKET.SETTINGS.CATEGORIES.DESCRIPTION') }}
-        </p>
-      </div>
+  <section class="flex flex-col gap-3 min-w-0">
+    <div class="flex justify-end min-w-0">
       <Button
         size="sm"
         class="flex-shrink-0"

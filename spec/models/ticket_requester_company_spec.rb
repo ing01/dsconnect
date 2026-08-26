@@ -68,7 +68,9 @@ RSpec.describe Ticket do
     it 'keeps only the tickets still being worked on' do
       open_ticket = create(:ticket, account: account, ticket_column: column, team: team)
       %i[resolve! close! cancel!].each do |transition|
-        create(:ticket, account: account, ticket_column: column, team: team).public_send(transition, nil)
+        terminal = create(:ticket, account: account, ticket_column: column, team: team)
+        make_ticket_closeable!(terminal) if transition == :close!
+        terminal.public_send(transition, nil)
       end
 
       expect(described_class.operational.pluck(:id)).to eq([open_ticket.id])

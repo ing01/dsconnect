@@ -418,7 +418,10 @@
     "SECURITY": "Security",
     "CAPTAIN_AI": "Captain",
     "CONVERSATION_WORKFLOW": "Conversation Workflow",
-    "TICKET_SETTINGS": "Tickets"
+    "TICKET_SETTINGS": "Tickets",
+    "TICKET_STAGES": "Stages",
+    "TICKET_CATALOG": "Catalogue",
+    "TICKET_CATEGORIES": "Categories"
   },
   "DATA_IMPORTS": {
     "HEADER": "Data",

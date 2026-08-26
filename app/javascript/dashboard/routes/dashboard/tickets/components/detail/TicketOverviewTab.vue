@@ -1,20 +1,18 @@
 <script setup>
 import TicketRequesterCard from './TicketRequesterCard.vue';
 import TicketRelationshipsCard from './TicketRelationshipsCard.vue';
+import TicketCatalogCard from './TicketCatalogCard.vue';
 import TicketCompanyTicketsAccordion from './TicketCompanyTicketsAccordion.vue';
-import TicketKnowledgeAccordion from './TicketKnowledgeAccordion.vue';
 import TicketDescriptionCard from './TicketDescriptionCard.vue';
 import TicketAttachmentsAccordion from './TicketAttachmentsAccordion.vue';
-import TicketAdditionalInfoAccordion from './TicketAdditionalInfoAccordion.vue';
 import TicketPropertiesCard from './TicketPropertiesCard.vue';
-import TicketFollowersSection from './TicketFollowersSection.vue';
-import TicketOriginCard from './TicketOriginCard.vue';
 import TicketSlaAccordion from './TicketSlaAccordion.vue';
 
 defineProps({
   ticket: { type: Object, required: true },
   columns: { type: Array, default: () => [] },
   agents: { type: Array, default: () => [] },
+  categories: { type: Array, default: () => [] },
   canUpdate: { type: Boolean, default: true },
   isSavingDescription: { type: Boolean, default: false },
 });
@@ -45,9 +43,10 @@ defineEmits([
         @edit-company="$emit('editCompany')"
         @edit-contact="$emit('editContact')"
       />
+      <TicketCatalogCard :ticket="ticket" />
       <TicketRelationshipsCard :ticket="ticket" />
       <TicketCompanyTicketsAccordion :ticket="ticket" />
-      <TicketKnowledgeAccordion :ticket="ticket" />
+      <TicketSlaAccordion :ticket="ticket" />
     </div>
 
     <div
@@ -63,22 +62,19 @@ defineEmits([
         :ticket-id="ticket.id"
         :can-update="canUpdate"
       />
-      <TicketAdditionalInfoAccordion :ticket="ticket" />
     </div>
 
     <div class="flex flex-col gap-4 min-w-0 order-3 xl:order-none">
       <TicketPropertiesCard
         :ticket="ticket"
         :columns="columns"
+        :categories="categories"
         :agents="agents"
         :can-update="canUpdate"
         @update-property="$emit('updateProperty', $event)"
         @move-to-column="$emit('moveToColumn', $event)"
         @change-status="$emit('changeStatus', $event)"
       />
-      <TicketFollowersSection :ticket="ticket" :can-update="canUpdate" />
-      <TicketOriginCard :ticket="ticket" />
-      <TicketSlaAccordion :ticket="ticket" />
     </div>
   </div>
 </template>

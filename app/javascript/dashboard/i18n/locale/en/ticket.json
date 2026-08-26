@@ -233,7 +233,8 @@
       "PROPERTIES": {
         "TITLE": "Ticket information",
         "STATUS": "Status",
-        "STAGE": "Stage"
+        "STAGE": "Stage",
+        "NO_CATEGORY": "Select a category"
       },
       "FOLLOWERS": {
         "TITLE": "Followers",
@@ -361,6 +362,31 @@
         "NAME": "Name",
         "SAVE": "Save",
         "EMPTY": "No category in this desk yet."
+      },
+      "CATALOG": {
+        "TITLE": "Service catalogue",
+        "DESCRIPTION": "Classification used when closing a ticket, in three levels: Catalogue, Area and Item.",
+        "ADD_CATALOG": "Add catalogue",
+        "ADD_AREA": "Add area",
+        "ADD_ITEM": "Add item",
+        "ADD_LEVEL": "Add {level}",
+        "EDIT_LEVEL": "Edit {level}",
+        "LEVEL": {
+          "CATALOG": "catalogue",
+          "AREA": "area",
+          "ITEM": "item"
+        },
+        "EDIT": "Edit",
+        "TOGGLE_ACTIVE": "Activate/deactivate",
+        "NAME": "Name",
+        "SAVE": "Save",
+        "EMPTY": "No catalogue yet.",
+        "NO_AREAS": "No area in this catalogue.",
+        "NO_ITEMS": "No item in this area."
+      },
+      "STAGES": {
+        "HEADER": "Stages",
+        "DESCRIPTION": "Kanban columns of each service desk."
       }
     },
     "MESA_SELECTOR": {
@@ -536,6 +562,44 @@
       "FILES": {
         "ADD": "Attach files",
         "REMOVE": "Remove file"
+      }
+    },
+    "CATALOG": {
+      "TITLE": "Service catalogue",
+      "CATALOG": "Service catalogue",
+      "AREA": "Catalogue area",
+      "ITEM": "Catalogue item",
+      "SELECT": "Select",
+      "NEEDS_CATALOG": "Select a catalogue first",
+      "NEEDS_AREA": "Select an area first",
+      "UNCLASSIFIED": "This attendance is not classified yet."
+    },
+    "CLOSE": {
+      "TITLE": "Close ticket #{number}",
+      "CONFIRM": "Close ticket",
+      "STEP_CLASSIFICATION": "1. Classification",
+      "STEP_COMMUNICATION": "2. Customer communication",
+      "COMMUNICATION_DONE": "Closing message already sent.",
+      "NO_CONTACT_EMAIL": "The requester of this ticket has no e-mail address on file. Add a valid address before sending the closing message.",
+      "TO": "To",
+      "SUBJECT": "Subject",
+      "DEFAULT_SUBJECT": "Closing of ticket #{number}",
+      "MESSAGE": "Message",
+      "MESSAGE_PLACEHOLDER": "Write the message that will be sent to the customer"
+    },
+    "COMMUNICATION": {
+      "TAB": {
+        "INTERNAL": "Internal",
+        "CUSTOMER": "Customer"
+      },
+      "SEND": "Send",
+      "HISTORY": "Sent communications",
+      "EMPTY": "No communication sent to the customer yet.",
+      "CLOSING": "Closing",
+      "STATUS": {
+        "SENT": "Sent",
+        "FAILED": "Failed",
+        "PENDING": "Pending"
       }
     }
   }

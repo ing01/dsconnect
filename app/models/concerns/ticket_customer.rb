@@ -28,6 +28,14 @@ module TicketCustomer
     @requester_contact = contact || conversations.to_a.min_by(&:id)&.contact
   end
 
+  # "#26 - [ELETROSUL - FILIAL] | [João Vitor] | [Erro na emissão da nota]",
+  # skipping whichever parts this ticket does not have rather than rendering
+  # empty brackets. Same shape the detail page header shows.
+  def display_subject
+    parts = [company&.name, requester_contact&.name, title].compact_blank
+    "##{display_id} - #{parts.map { |part| "[#{part}]" }.join(' | ')}"
+  end
+
   private
 
   def company_belongs_to_account

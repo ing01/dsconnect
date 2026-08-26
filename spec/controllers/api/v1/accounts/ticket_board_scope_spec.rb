@@ -24,7 +24,7 @@ RSpec.describe 'Kanban operational scope', type: :request do
     ticket = create(:ticket, account: account, ticket_column: column, team: team)
     case status
     when :resolved then ticket.resolve!(administrator)
-    when :closed then ticket.close!(administrator)
+    when :closed then make_ticket_closeable!(ticket, user: administrator).close!(administrator)
     when :cancelled then ticket.cancel!(administrator)
     end
     ticket
