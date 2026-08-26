@@ -326,7 +326,7 @@
     "ALL_COMPANIES": "Todas as empresas",
     "MOOD_CHECKINS": "Humor da equipe",
     "AGENDA": "Agenda",
-    "CAPTAIN": "Capitão",
+    "CAPTAIN": "Dua",
     "CALLS": "Chamadas",
     "CAPTAIN_ASSISTANTS": "Assistentes",
     "CAPTAIN_OVERVIEW": "Visão geral",
@@ -416,7 +416,7 @@
     },
     "DOCS": "Ler documentos",
     "SECURITY": "Segurança",
-    "CAPTAIN_AI": "Capitão",
+    "CAPTAIN_AI": "Dua",
     "CONVERSATION_WORKFLOW": "Fluxo de Conversa",
     "TICKET_SETTINGS": "Tickets",
     "TICKET_STAGES": "Estágios",
@@ -535,11 +535,11 @@
     }
   },
   "CAPTAIN_SETTINGS": {
-    "TITLE": "Configurações do Capitão",
-    "DESCRIPTION": "Configure seus modelos e recursos de IA para o Capitão. O Capitão utiliza um modelo de cobrança baseado em créditos; você será cobrado em créditos por cada ação que o Capitão realizar, dependendo do modelo selecionado.",
-    "LOADING": "Carregando configurações do Capitão...",
-    "LINK_TEXT": "Saiba mais sobre os Créditos do Capitão",
-    "NOT_ENABLED": "O Capitão não está habilitado para a sua conta. Atualize seu plano para acessar os recursos do Capitão.",
+    "TITLE": "Configurações da Dua",
+    "DESCRIPTION": "Configure seus modelos e recursos de IA para a Dua. A Dua utiliza um modelo de cobrança baseado em créditos; você será cobrado em créditos por cada ação que a Dua realizar, dependendo do modelo selecionado.",
+    "LOADING": "Carregando configurações da Dua...",
+    "LINK_TEXT": "Saiba mais sobre os Créditos da Dua",
+    "NOT_ENABLED": "A Dua não está habilitada para a sua conta. Atualize seu plano para acessar os recursos da Dua.",
     "MODEL_CONFIG": {
       "TITLE": "Configuração do Modelo",
       "DESCRIPTION": "Selecione modelos de IA para diferentes recursos.",
@@ -580,8 +580,8 @@
       }
     },
     "API": {
-      "SUCCESS": "Configurações do Capitão atualizadas com sucesso.",
-      "ERROR": "Falha ao atualizar as configurações do Capitão. Por favor, tente novamente."
+      "SUCCESS": "Configurações da Dua atualizadas com sucesso.",
+      "ERROR": "Falha ao atualizar as configurações da Dua. Por favor, tente novamente."
     }
   },
   "BILLING_SETTINGS": {
@@ -611,12 +611,12 @@
       "BUTTON_TXT": "Ir para o portal de cobrança"
     },
     "CAPTAIN": {
-      "TITLE": "Capitão",
-      "DESCRIPTION": "Gerenciar uso e créditos para o Captain AI.",
+      "TITLE": "Dua",
+      "DESCRIPTION": "Gerenciar uso e créditos para a Dua AI.",
       "BUTTON_TXT": "Comprar mais créditos",
       "DOCUMENTS": "Documentos",
       "RESPONSES": "Respostas",
-      "UPGRADE": "O capitão não está disponível no plano gratuito, faça o upgrade para ter acesso aos assistentes, co-piloto e muito mais.",
+      "UPGRADE": "A Dua não está disponível no plano gratuito, faça o upgrade para ter acesso aos assistentes, co-piloto e muito mais.",
       "REFRESH_CREDITS": "Atualizar"
     },
     "CHAT_WITH_US": {
@@ -628,7 +628,7 @@
     "TOPUP": {
       "BUY_CREDITS": "Comprar mais créditos",
       "MODAL_TITLE": "Comprar Créditos de IA",
-      "MODAL_DESCRIPTION": "Comprar créditos adicionais para o Capitão IA.",
+      "MODAL_DESCRIPTION": "Comprar créditos adicionais para a Dua IA.",
       "CREDITS": "CRÉDITOS",
       "ONE_TIME": "único",
       "POPULAR": "Mais populares",
