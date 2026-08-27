@@ -21,11 +21,19 @@
 #  index_queues_on_default_sla_policy_id     (default_sla_policy_id)
 #  index_queues_on_team_id                   (team_id)
 #
-class Queue < ApplicationRecord
+# Nomeada ServiceQueue, e nao Queue, porque `Queue` ja e uma classe do proprio
+# Ruby (o alias de Thread::Queue). Com o nome ocupado, o Zeitwerk nunca carrega
+# este arquivo e toda associacao `:queue` estoura em tempo de execucao - foi o
+# que derrubou a lista de conversas. A tabela continua sendo `queues`.
+class ServiceQueue < ApplicationRecord
+  self.table_name = 'queues'
+
   belongs_to :account
   belongs_to :team
   belongs_to :default_sla_policy, class_name: 'SlaPolicy', optional: true
-  has_many :conversations, dependent: :nullify
+  # A coluna continua sendo `queue_id`; sem dizer isso, o Rails a deduziria do
+  # nome da classe e procuraria `service_queue_id`, que nao existe.
+  has_many :conversations, foreign_key: :queue_id, inverse_of: :queue, dependent: :nullify
 
   enum distribution_strategy: { manual: 0, round_robin: 1, least_busy: 2 }
 

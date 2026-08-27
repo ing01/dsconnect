@@ -119,7 +119,7 @@ class Conversation < ApplicationRecord
   belongs_to :contact
   belongs_to :contact_inbox
   belongs_to :team, optional: true
-  belongs_to :queue, optional: true
+  belongs_to :queue, class_name: 'ServiceQueue', optional: true
   belongs_to :campaign, optional: true
 
   has_many :mentions, dependent: :destroy_async

@@ -102,7 +102,7 @@ class Account < ApplicationRecord
   # Mesa: one Mesa attends several catalogues.
   has_many :service_catalogs, dependent: :destroy_async
   has_many :teams, dependent: :destroy_async
-  has_many :queues, dependent: :destroy_async
+  has_many :queues, class_name: 'ServiceQueue', dependent: :destroy_async
   # Estagios live under a Mesa; reached through it so account-scoped lookups
   # (a transfer target, a stage select) don't have to join by hand.
   has_many :ticket_columns, through: :teams
@@ -111,7 +111,6 @@ class Account < ApplicationRecord
   # Os relogios de SLA dos tickets da conta, que a varredura de vencimentos
   # percorre (Tickets::Sla::SweepAccountJob).
   has_many :ticket_applied_slas, dependent: :destroy_async
-  has_many :ticket_sla_policies, through: :teams
   has_many :twilio_sms, dependent: :destroy_async, class_name: '::Channel::TwilioSms'
   has_many :twitter_profiles, dependent: :destroy_async, class_name: '::Channel::TwitterProfile'
   has_many :users, through: :account_users

@@ -32,7 +32,7 @@ class Team < ApplicationRecord
   belongs_to :manager, class_name: 'User', optional: true
   has_many :team_members, dependent: :destroy_async
   has_many :members, through: :team_members, source: :user
-  has_many :queues, dependent: :destroy
+  has_many :queues, class_name: 'ServiceQueue', dependent: :destroy
   has_many :conversations, dependent: :nullify
   # A Team is the "Mesa de Servico" a ticket belongs to; its Estagios
   # (`ticket_columns`) are meaningless without it, so they're destroyed

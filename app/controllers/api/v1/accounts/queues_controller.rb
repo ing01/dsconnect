@@ -39,8 +39,8 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
 
   # QueuePolicy checks the queue's owning team, so authorization must run
   # against the loaded/built instance (when there is one) rather than the bare
-  # `Queue` class the generic `check_authorization` would otherwise use.
+  # `ServiceQueue` class the generic `check_authorization` would otherwise use.
   def check_authorization(model = nil)
-    super(model || @queue || Queue)
+    super(model || @queue || ServiceQueue)
   end
 end

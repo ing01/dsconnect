@@ -16,11 +16,11 @@ module QueueActivityMessageHandler
   end
 
   def generate_queue_change_activity_key
-    Queue.find_by(id: queue_id).present? ? 'assigned' : 'removed'
+    ServiceQueue.find_by(id: queue_id).present? ? 'assigned' : 'removed'
   end
 
   def generate_queue_name_for_activity
     previous_queue_id = previous_changes[:queue_id][0]
-    Queue.find_by(id: previous_queue_id)&.name if previous_queue_id.present?
+    ServiceQueue.find_by(id: previous_queue_id)&.name if previous_queue_id.present?
   end
 end

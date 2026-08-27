@@ -1,4 +1,4 @@
-class QueuePolicy < ApplicationPolicy
+class ServiceQueuePolicy < ApplicationPolicy
   # Every agent can see queues (needed to filter/transfer conversations); only
   # admins and the owning department's manager can create/edit/delete one.
   def index?
