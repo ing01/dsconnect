@@ -211,30 +211,36 @@ const tableHeaders = computed(() => [
         </div>
 
         <div class="overflow-x-auto min-w-0">
-          <BaseTable :headers="tableHeaders">
-            <BaseTableRow v-for="priority in PRIORITIES" :key="priority">
-              <BaseTableCell>
-                {{ t(`TICKET.FORM.PRIORITY.${priority.toUpperCase()}`) }}
-              </BaseTableCell>
-              <BaseTableCell>
-                <input
-                  v-model="draft[priority].response"
-                  type="text"
-                  :placeholder="t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')"
-                  class="w-24 mb-0"
-                  :class="{ error: isInvalid(draft[priority].response) }"
-                />
-              </BaseTableCell>
-              <BaseTableCell>
-                <input
-                  v-model="draft[priority].resolution"
-                  type="text"
-                  :placeholder="t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')"
-                  class="w-24 mb-0"
-                  :class="{ error: isInvalid(draft[priority].resolution) }"
-                />
-              </BaseTableCell>
-            </BaseTableRow>
+          <BaseTable :headers="tableHeaders" :items="PRIORITIES">
+            <template #row="{ items }">
+              <BaseTableRow v-for="priority in items" :key="priority">
+                <BaseTableCell>
+                  {{ t(`TICKET.FORM.PRIORITY.${priority.toUpperCase()}`) }}
+                </BaseTableCell>
+                <BaseTableCell>
+                  <input
+                    v-model="draft[priority].response"
+                    type="text"
+                    :placeholder="
+                      t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')
+                    "
+                    class="w-24 mb-0"
+                    :class="{ error: isInvalid(draft[priority].response) }"
+                  />
+                </BaseTableCell>
+                <BaseTableCell>
+                  <input
+                    v-model="draft[priority].resolution"
+                    type="text"
+                    :placeholder="
+                      t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')
+                    "
+                    class="w-24 mb-0"
+                    :class="{ error: isInvalid(draft[priority].resolution) }"
+                  />
+                </BaseTableCell>
+              </BaseTableRow>
+            </template>
           </BaseTable>
         </div>
 
