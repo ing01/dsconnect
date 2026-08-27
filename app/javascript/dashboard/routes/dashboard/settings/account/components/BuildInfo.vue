@@ -5,8 +5,6 @@ import { useMapGetter } from 'dashboard/composables/store';
 import { copyTextToClipboard } from 'shared/helpers/clipboard';
 import { useI18n } from 'vue-i18n';
 
-import semver from 'semver';
-
 const { t } = useI18n();
 const { currentAccount } = useAccount();
 
@@ -16,13 +14,10 @@ const latestChatwootVersion = computed(() => {
 
 const globalConfig = useMapGetter('globalConfig/get');
 
-const hasAnUpdateAvailable = computed(() => {
-  if (!semver.valid(latestChatwootVersion.value)) {
-    return false;
-  }
-
-  return semver.lt(globalConfig.value.appVersion, latestChatwootVersion.value);
-});
+// Duedesk is a customized fork - nudging admins to update to a fresh
+// upstream Chatwoot release would be misleading, since that's not how this
+// instance gets updated.
+const hasAnUpdateAvailable = computed(() => false);
 
 const gitSha = computed(() => {
   return globalConfig.value.gitSha.substring(0, 7);
