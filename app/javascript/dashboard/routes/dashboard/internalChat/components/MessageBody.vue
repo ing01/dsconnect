@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { parseMessage } from '../helpers/messageParser';
-import { TICKETS } from '../helpers/mockData';
+import { ticketPreview } from '../helpers/ticketPreview';
 
 const props = defineProps({
   body: { type: String, default: '' },
@@ -12,9 +12,8 @@ const emit = defineEmits(['openTicket']);
 
 const parts = computed(() => parseMessage(props.body, props.users));
 
-// O título do Ticket vem de dados mockados. No sistema real isto vira uma
-// leitura da API, mas o formato do que a tela desenha não muda.
-const ticketFor = id => TICKETS[id];
+// O título ainda vem de uma tabela local; o link já leva ao Ticket real.
+const ticketFor = id => ticketPreview(id);
 </script>
 
 <template>

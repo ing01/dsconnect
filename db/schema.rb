@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -785,6 +785,62 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
     t.string "phone_number_health_error", limit: 500
     t.index ["phone_number"], name: "index_channel_whatsapp_on_phone_number", unique: true
     t.index ["phone_number_health_checked_at"], name: "index_channel_whatsapp_on_phone_number_health_checked_at"
+  end
+
+  create_table "chat_channel_members", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "chat_channel_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "last_read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_chat_channel_members_on_account_id"
+    t.index ["chat_channel_id", "user_id"], name: "index_chat_channel_members_on_chat_channel_id_and_user_id", unique: true
+    t.index ["user_id", "chat_channel_id"], name: "index_chat_channel_members_on_user_id_and_chat_channel_id"
+    t.index ["user_id"], name: "index_chat_channel_members_on_user_id"
+  end
+
+  create_table "chat_channels", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "created_by_id"
+    t.integer "kind", default: 0, null: false
+    t.integer "visibility", default: 0, null: false
+    t.string "name"
+    t.text "description"
+    t.datetime "last_message_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "last_message_at"], name: "index_chat_channels_on_account_id_and_last_message_at"
+    t.index ["account_id", "name"], name: "index_chat_channels_on_account_id_and_name", unique: true, where: "(name IS NOT NULL)"
+    t.index ["account_id"], name: "index_chat_channels_on_account_id"
+    t.index ["created_by_id"], name: "index_chat_channels_on_created_by_id"
+  end
+
+  create_table "chat_message_reactions", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "chat_message_id", null: false
+    t.bigint "user_id", null: false
+    t.string "emoji", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_chat_message_reactions_on_account_id"
+    t.index ["chat_message_id", "user_id", "emoji"], name: "index_chat_reactions_unique", unique: true
+    t.index ["chat_message_id"], name: "index_chat_message_reactions_on_chat_message_id"
+    t.index ["user_id"], name: "index_chat_message_reactions_on_user_id"
+  end
+
+  create_table "chat_messages", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "chat_channel_id", null: false
+    t.bigint "user_id"
+    t.bigint "reply_to_id"
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_chat_messages_on_account_id"
+    t.index ["chat_channel_id", "created_at"], name: "index_chat_messages_on_chat_channel_id_and_created_at"
+    t.index ["reply_to_id"], name: "index_chat_messages_on_reply_to_id"
+    t.index ["user_id"], name: "index_chat_messages_on_user_id"
   end
 
   create_table "companies", force: :cascade do |t|

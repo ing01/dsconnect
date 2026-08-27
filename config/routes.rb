@@ -377,6 +377,22 @@ Rails.application.routes.draw do
 
           resources :queues, only: [:index, :create, :show, :update, :destroy]
 
+          # Chat Interno: conversa entre funcionarios, separada das
+          # Conversations com clientes.
+          resources :chat_channels, only: [:index, :show, :create] do
+            collection do
+              post :direct
+            end
+            member do
+              post :read
+            end
+            resources :messages, controller: 'chat_messages', only: [:index, :create] do
+              member do
+                post :toggle_reaction
+              end
+            end
+          end
+
           resources :tickets do
             collection do
               post :ensure_default_mesa

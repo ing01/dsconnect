@@ -1,51 +1,49 @@
-import { buildDemoRooms } from '../../routes/dashboard/internalChat/helpers/mockData';
+import InternalChatAPI from '../../api/internalChat';
+import types from '../mutation-types';
 
 /**
- * Estado do protótipo do Chat Interno.
+ * Estado do Chat Interno.
  *
- * As pessoas são reais: o diretório vem dos agentes da conta, que é com quem se
- * espera conversar. O que ainda é simulado são as conversas e as mensagens, que
- * vivem só na sessão do navegador - não há tabela nem endpoint nesta etapa.
+ * As salas, as mensagens e o que cada um leu vivem no servidor - recarregar a
+ * página não apaga nada, e o que uma pessoa escreve chega às outras. O
+ * navegador só guarda o que já foi buscado.
  *
- * Vive no Vuex por um motivo concreto: o contador do menu lateral lê um getter,
- * e a tela precisa do mesmo estado.
+ * Vive no Vuex porque o contador do menu lateral lê um getter e a tela precisa
+ * do mesmo estado.
  *
- * O Chat Interno é deliberadamente separado das Conversations com clientes, dos
- * comentários internos e da comunicação com o cliente dos Tickets. Ele só
- * conhece funcionários, grupos e canais.
+ * Deliberadamente separado das Conversations com clientes, dos comentários
+ * internos e da comunicação com o cliente dos Tickets: aqui só existe
+ * funcionário, grupo e canal.
  */
 
 export const state = {
   users: [],
-  channels: [],
-  directs: [],
+  // As salas, na forma que a tela usa. Canal e conversa privada são o mesmo
+  // registro no servidor e só diferem no `kind`.
+  rooms: [],
   currentUserId: null,
-  // As conversas de demonstração são montadas uma vez, quando os agentes
-  // chegam; remontar a cada visita apagaria o que foi escrito na sessão.
-  isSeeded: false,
+  uiFlags: {
+    isFetchingRooms: false,
+    isFetchingMessages: false,
+    isSending: false,
+  },
 };
 
 export const getters = {
   getUsers: _state => _state.users,
-  getChannels: _state => _state.channels,
-  getDirects: _state => _state.directs,
+  getChannels: _state => _state.rooms.filter(room => room.kind === 'channel'),
+  getDirects: _state => _state.rooms.filter(room => room.kind === 'direct'),
   getCurrentUserId: _state => _state.currentUserId,
-  getIsSeeded: _state => _state.isSeeded,
+  getUIFlags: _state => _state.uiFlags,
 
   getUserById: _state => id => _state.users.find(user => user.id === id),
 
-  // O que o badge do menu mostra: tudo que ainda não foi lido, privado ou não.
+  // O que o badge do menu mostra. Vem do servidor, contado por pessoa, então é
+  // o mesmo número em qualquer aparelho.
   getUnreadCount: _state =>
-    [..._state.directs, ..._state.channels].reduce(
-      (total, room) => total + room.unread,
-      0
-    ),
+    _state.rooms.reduce((total, room) => total + (room.unread || 0), 0),
 
-  // Uma sala é um canal ou uma conversa privada; a tela trata as duas pelo
-  // mesmo contrato para não duplicar a lista de mensagens.
-  getRoomById: _state => id =>
-    _state.channels.find(channel => channel.id === id) ||
-    _state.directs.find(direct => direct.id === id),
+  getRoomById: _state => id => _state.rooms.find(room => room.id === id),
 };
 
 /**
@@ -62,17 +60,26 @@ const toDirectoryUser = agent => ({
   thumbnail: agent.thumbnail,
 });
 
+/**
+ * Uma sala vinda da API, com espaço para as mensagens que ainda não foram
+ * buscadas.
+ * @param {object} room sala serializada pelo backend
+ * @param {Array} previousMessages mensagens já carregadas, se houver
+ * @returns {object} sala pronta para a tela
+ */
+const toRoom = (room, previousMessages = []) => ({
+  ...room,
+  messages: previousMessages,
+  // As mensagens são buscadas ao abrir a sala, não junto da lista.
+  isLoaded: previousMessages.length > 0,
+});
+
 export const actions = {
-  /**
-   * Monta o diretório a partir dos agentes reais da conta e semeia as conversas
-   * de demonstração sobre eles.
-   */
-  initialise: ({ commit, state: _state, rootGetters }) => {
+  // O diretório são os agentes da conta - é com eles que se conversa.
+  setDirectory: ({ commit, rootGetters }) => {
     const currentUser = rootGetters.getCurrentUser || {};
     const agents = rootGetters['agents/getVerifiedAgents'] || [];
 
-    // O usuário logado vem primeiro, e entra no diretório mesmo que ainda não
-    // conste na lista de agentes carregada.
     const others = agents.filter(agent => agent.id !== currentUser.id);
     const users = [
       ...(currentUser.id
@@ -81,116 +88,153 @@ export const actions = {
       ...others.map(toDirectoryUser),
     ];
 
-    commit('SET_DIRECTORY', { users, currentUserId: currentUser.id || null });
-
-    // Semeia uma única vez: o que foi escrito durante a sessão permanece.
-    if (_state.isSeeded || !users.length) return;
-
-    commit('SEED_ROOMS', buildDemoRooms(users, currentUser.id));
+    commit(types.SET_INTERNAL_CHAT_DIRECTORY, {
+      users,
+      currentUserId: currentUser.id || null,
+    });
   },
 
-  // Abrir a sala zera o não lido, como em qualquer mensageiro.
-  markRead: ({ commit }, roomId) => commit('MARK_READ', roomId),
+  fetchRooms: async ({ commit }) => {
+    commit(types.SET_INTERNAL_CHAT_UI_FLAG, { isFetchingRooms: true });
+    try {
+      const response = await InternalChatAPI.get();
+      commit(types.SET_INTERNAL_CHAT_ROOMS, response.data.payload);
+    } finally {
+      commit(types.SET_INTERNAL_CHAT_UI_FLAG, { isFetchingRooms: false });
+    }
+  },
 
-  sendMessage: (
-    { commit, state: _state },
-    { roomId, body, attachment, replyTo }
+  fetchMessages: async ({ commit }, roomId) => {
+    commit(types.SET_INTERNAL_CHAT_UI_FLAG, { isFetchingMessages: true });
+    try {
+      const response = await InternalChatAPI.getMessages(roomId);
+      commit(types.SET_INTERNAL_CHAT_MESSAGES, {
+        roomId,
+        messages: response.data.payload,
+      });
+    } finally {
+      commit(types.SET_INTERNAL_CHAT_UI_FLAG, { isFetchingMessages: false });
+    }
+  },
+
+  // Abrir a sala zera o não lido no servidor, para todos os aparelhos da
+  // pessoa - e não só nesta aba.
+  markRead: async ({ commit }, roomId) => {
+    commit(types.SET_INTERNAL_CHAT_UNREAD, { roomId, unread: 0 });
+    await InternalChatAPI.markRead(roomId);
+  },
+
+  sendMessage: async ({ commit }, { roomId, body, replyTo }) => {
+    commit(types.SET_INTERNAL_CHAT_UI_FLAG, { isSending: true });
+    try {
+      const response = await InternalChatAPI.sendMessage(roomId, {
+        content: body,
+        replyToId: replyTo,
+      });
+      commit(types.ADD_INTERNAL_CHAT_MESSAGE, {
+        roomId,
+        message: response.data,
+      });
+      return response.data;
+    } finally {
+      commit(types.SET_INTERNAL_CHAT_UI_FLAG, { isSending: false });
+    }
+  },
+
+  toggleReaction: async ({ commit }, { roomId, messageId, emoji }) => {
+    const response = await InternalChatAPI.toggleReaction(
+      roomId,
+      messageId,
+      emoji
+    );
+    commit(types.UPDATE_INTERNAL_CHAT_MESSAGE, {
+      roomId,
+      message: response.data,
+    });
+  },
+
+  createChannel: async (
+    { commit },
+    { name, description, visibility, memberIds }
   ) => {
-    const message = {
-      id: `m-${Date.now()}`,
-      userId: _state.currentUserId,
-      body,
-      createdAt: Date.now(),
-      reactions: [],
-      ...(attachment ? { attachment } : {}),
-      ...(replyTo ? { replyTo } : {}),
-    };
-    commit('ADD_MESSAGE', { roomId, message });
-    return message;
-  },
-
-  toggleReaction: ({ commit }, payload) => commit('TOGGLE_REACTION', payload),
-
-  createChannel: ({ commit }, { name, description, memberIds }) => {
-    const channel = {
-      id: `c-${Date.now()}`,
+    const response = await InternalChatAPI.createChannel({
       name,
       description,
+      visibility,
       memberIds,
-      unread: 0,
-      messages: [],
-    };
-    commit('ADD_CHANNEL', channel);
-    return channel;
+    });
+    commit(types.ADD_INTERNAL_CHAT_ROOM, response.data);
+    return response.data;
   },
 
-  // Abrir conversa com alguém: reaproveita a que já existir, em vez de criar
-  // uma segunda linha para a mesma pessoa.
-  openDirect: ({ commit, state: _state }, userId) => {
-    const existing = _state.directs.find(direct => direct.userId === userId);
-    if (existing) return existing;
-
-    const direct = { id: `d-${userId}`, userId, unread: 0, messages: [] };
-    commit('ADD_DIRECT', direct);
-    return direct;
+  // Pedir a conversa com alguém duas vezes devolve a mesma sala: o servidor
+  // reaproveita a que existir.
+  openDirect: async ({ commit }, userId) => {
+    const response = await InternalChatAPI.openDirect(userId);
+    commit(types.ADD_INTERNAL_CHAT_ROOM, response.data);
+    return response.data;
   },
 };
 
 const findRoom = (_state, roomId) =>
-  _state.channels.find(channel => channel.id === roomId) ||
-  _state.directs.find(direct => direct.id === roomId);
+  _state.rooms.find(room => room.id === roomId);
 
 export const mutations = {
-  SET_DIRECTORY(_state, { users, currentUserId }) {
+  [types.SET_INTERNAL_CHAT_DIRECTORY](_state, { users, currentUserId }) {
     _state.users = users;
     _state.currentUserId = currentUserId;
   },
 
-  SEED_ROOMS(_state, { channels, directs }) {
-    _state.channels = channels;
-    _state.directs = directs;
-    _state.isSeeded = true;
+  [types.SET_INTERNAL_CHAT_UI_FLAG](_state, flags) {
+    _state.uiFlags = { ..._state.uiFlags, ...flags };
   },
 
-  MARK_READ(_state, roomId) {
-    const room = findRoom(_state, roomId);
-    if (room) room.unread = 0;
+  // Preserva as mensagens já carregadas: recarregar a lista de salas não pode
+  // esvaziar a conversa aberta.
+  [types.SET_INTERNAL_CHAT_ROOMS](_state, rooms) {
+    _state.rooms = rooms.map(room => {
+      const existing = findRoom(_state, room.id);
+      return toRoom(room, existing?.messages || []);
+    });
   },
 
-  ADD_MESSAGE(_state, { roomId, message }) {
-    const room = findRoom(_state, roomId);
-    if (room) room.messages.push(message);
-  },
-
-  TOGGLE_REACTION(_state, { roomId, messageId, emoji }) {
-    const room = findRoom(_state, roomId);
-    const message = room?.messages.find(item => item.id === messageId);
-    if (!message) return;
-
-    const existing = message.reactions.find(item => item.emoji === emoji);
-    if (!existing) {
-      message.reactions.push({ emoji, userIds: [_state.currentUserId] });
+  [types.ADD_INTERNAL_CHAT_ROOM](_state, room) {
+    const existing = findRoom(_state, room.id);
+    if (existing) {
+      Object.assign(existing, room);
       return;
     }
-
-    const index = existing.userIds.indexOf(_state.currentUserId);
-    if (index === -1) existing.userIds.push(_state.currentUserId);
-    else existing.userIds.splice(index, 1);
-
-    // Uma reação sem ninguém não é uma reação.
-    if (!existing.userIds.length) {
-      message.reactions = message.reactions.filter(
-        item => item.emoji !== emoji
-      );
-    }
+    _state.rooms.push(toRoom(room));
   },
 
-  ADD_CHANNEL(_state, channel) {
-    _state.channels.push(channel);
+  [types.SET_INTERNAL_CHAT_MESSAGES](_state, { roomId, messages }) {
+    const room = findRoom(_state, roomId);
+    if (!room) return;
+
+    room.messages = messages;
+    room.isLoaded = true;
   },
 
-  ADD_DIRECT(_state, direct) {
-    _state.directs.push(direct);
+  [types.ADD_INTERNAL_CHAT_MESSAGE](_state, { roomId, message }) {
+    const room = findRoom(_state, roomId);
+    if (!room) return;
+    // O servidor pode devolver algo que já chegou por outro caminho.
+    if (room.messages.some(item => item.id === message.id)) return;
+
+    room.messages.push(message);
+  },
+
+  [types.UPDATE_INTERNAL_CHAT_MESSAGE](_state, { roomId, message }) {
+    const room = findRoom(_state, roomId);
+    const index = room?.messages.findIndex(item => item.id === message.id);
+    if (index === undefined || index === -1) return;
+
+    room.messages.splice(index, 1, message);
+  },
+
+  [types.SET_INTERNAL_CHAT_UNREAD](_state, { roomId, unread }) {
+    const room = findRoom(_state, roomId);
+    if (room) room.unread = unread;
   },
 };
 

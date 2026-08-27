@@ -6,7 +6,7 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import MessageBody from './MessageBody.vue';
 import MessageAttachment from './MessageAttachment.vue';
 import { shortTime } from '../helpers/messageParser';
-import { QUICK_REACTIONS } from '../helpers/mockData';
+import { QUICK_REACTIONS } from '../helpers/constants';
 
 const props = defineProps({
   message: { type: Object, required: true },

@@ -37,7 +37,8 @@
       "REMOVE_ATTACHMENT": "Remover anexo",
       "REPLYING_TO": "Respondendo {name}:",
       "CANCEL_REPLY": "Cancelar resposta",
-      "QUOTED": "\"{text}\""
+      "QUOTED": "\"{text}\"",
+      "ATTACH_SOON": "Anexos chegam na próxima etapa"
     },
     "NEW_CONVERSATION": {
       "TITLE": "Nova conversa",

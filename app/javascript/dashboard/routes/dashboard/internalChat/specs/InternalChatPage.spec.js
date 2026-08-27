@@ -2,20 +2,31 @@ import { mount, flushPromises } from '@vue/test-utils';
 import { createStore } from 'vuex';
 import InternalChatPage from '../pages/InternalChatPage.vue';
 import internalChat from 'dashboard/store/modules/internalChat';
+import InternalChatAPI from 'dashboard/api/internalChat';
 
 const { holder } = vi.hoisted(() => ({ holder: { push: null } }));
 
-vi.mock('vue-i18n', () => ({
-  useI18n: () => ({ t: key => key }),
-}));
+vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: holder.push }),
   useRoute: () => ({ params: { accountId: 1 }, query: {} }),
 }));
 
-// Os agentes de verdade da conta: é com eles que se conversa, e é deles que o
-// diretório do Chat é montado.
+// Nenhuma chamada de rede nos testes; o que se verifica é que a tela conversa
+// com o servidor em vez de guardar a mensagem no navegador.
+vi.mock('dashboard/api/internalChat', () => ({
+  default: {
+    get: vi.fn(),
+    getMessages: vi.fn(),
+    sendMessage: vi.fn(),
+    markRead: vi.fn(),
+    toggleReaction: vi.fn(),
+    createChannel: vi.fn(),
+    openDirect: vi.fn(),
+  },
+}));
+
 const AGENTS = [
   {
     id: 11,
@@ -38,41 +49,75 @@ const AGENTS = [
     availability_status: 'busy',
     confirmed: true,
   },
+];
+
+const ROOMS = [
   {
-    id: 14,
-    name: 'Diego Melo',
-    role: 'agent',
-    availability_status: 'offline',
-    confirmed: true,
+    id: 5,
+    kind: 'direct',
+    name: null,
+    userId: 12,
+    memberIds: [11, 12],
+    unread: 2,
+  },
+  {
+    id: 7,
+    kind: 'channel',
+    name: 'suporte',
+    description: 'Canal da equipe de suporte',
+    memberIds: [11, 12, 13],
+    unread: 0,
   },
 ];
 
-// O módulo declara `state` como objeto, então registrá-lo em vários stores
-// compartilharia a mesma referência e um teste veria o que o anterior semeou.
-// Na aplicação ele é registrado uma única vez; aqui cada caso ganha o seu.
+const MESSAGES = [
+  {
+    id: 101,
+    userId: 12,
+    body: 'Conseguiu verificar o #32516?',
+    createdAt: 1787000000,
+    reactions: [],
+    replyTo: null,
+  },
+  {
+    id: 102,
+    userId: 11,
+    body: 'Estou olhando agora.',
+    createdAt: 1787000100,
+    reactions: [],
+    replyTo: null,
+  },
+];
+
+// O módulo declara `state` como objeto, então cada teste recebe o seu.
 const freshState = () => ({
   users: [],
-  channels: [],
-  directs: [],
+  rooms: [],
   currentUserId: null,
-  isSeeded: false,
+  uiFlags: {
+    isFetchingRooms: false,
+    isFetchingMessages: false,
+    isSending: false,
+  },
 });
 
-const buildStore = (agents = AGENTS, currentUser = AGENTS[0]) =>
-  createStore({
+const mountPage = async () => {
+  holder.push = vi.fn();
+
+  InternalChatAPI.get.mockResolvedValue({ data: { payload: ROOMS } });
+  InternalChatAPI.getMessages.mockResolvedValue({
+    data: { payload: MESSAGES },
+  });
+  InternalChatAPI.markRead.mockResolvedValue({});
+
+  const store = createStore({
     modules: { internalChat: { ...internalChat, state: freshState() } },
     getters: {
-      getCurrentUser: () => currentUser,
-      'agents/getVerifiedAgents': () => agents,
+      getCurrentUser: () => AGENTS[0],
+      'agents/getVerifiedAgents': () => AGENTS,
     },
-    actions: {
-      'agents/get': () => Promise.resolve(),
-    },
+    actions: { 'agents/get': () => Promise.resolve() },
   });
-
-const mountPage = async (options = {}) => {
-  holder.push = vi.fn();
-  const store = buildStore(options.agents, options.currentUser);
 
   const wrapper = mount(InternalChatPage, {
     global: {
@@ -90,126 +135,102 @@ const mountPage = async (options = {}) => {
     },
   });
 
+  // Duas idas ao servidor antes da tela ficar pronta - as salas e depois o
+  // histórico da primeira -, então uma rodada de promessas não basta.
+  await flushPromises();
   await flushPromises();
   return { wrapper, store };
 };
 
-const firstDirectId = store => store.getters['internalChat/getDirects'][0].id;
-
 describe('InternalChatPage', () => {
-  // O defeito que motivou esta mudança: o Chat listava pessoas inventadas em
-  // vez dos agentes da conta, então não dava para conversar com ninguém real.
-  describe('directory', () => {
-    it('is built from the account agents, not from fixed names', async () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  // O defeito que motivou esta etapa: a mensagem vivia no navegador, sumia no
+  // F5 e nunca chegava ao colega.
+  describe('persistence', () => {
+    it('loads the rooms from the server', async () => {
       const { store } = await mountPage();
 
+      expect(InternalChatAPI.get).toHaveBeenCalled();
       expect(
-        store.getters['internalChat/getUsers'].map(user => user.id)
-      ).toEqual([11, 12, 13, 14]);
-    });
-
-    it('puts the logged-in user first and keeps them out of the conversation list', async () => {
-      const { store } = await mountPage();
-
-      expect(store.getters['internalChat/getCurrentUserId']).toBe(11);
-      const peers = store.getters['internalChat/getDirects'].map(d => d.userId);
-      expect(peers).not.toContain(11);
-    });
-
-    it('opens a conversation with every colleague available', async () => {
-      const { store } = await mountPage();
-
+        store.getters['internalChat/getChannels'].map(room => room.name)
+      ).toEqual(['suporte']);
       expect(
-        store.getters['internalChat/getDirects'].map(d => d.userId)
-      ).toEqual([12, 13, 14]);
+        store.getters['internalChat/getDirects'].map(room => room.id)
+      ).toEqual([5]);
     });
 
-    // Uma conta pequena não pode quebrar o roteiro de demonstração.
-    it('survives an account with a single other agent', async () => {
-      const { store, wrapper } = await mountPage({
-        agents: AGENTS.slice(0, 2),
+    it('loads the history of the room it opens', async () => {
+      const { wrapper } = await mountPage();
+
+      expect(InternalChatAPI.getMessages).toHaveBeenCalledWith(5);
+      // O `#32516` vira um elemento próprio, então o texto da mensagem não é
+      // contíguo - a referência tem teste dedicado mais abaixo.
+      expect(wrapper.text()).toContain('Conseguiu verificar o');
+      expect(wrapper.text()).toContain('Estou olhando agora.');
+    });
+
+    it('sends the message to the server instead of keeping it locally', async () => {
+      const sent = {
+        id: 103,
+        userId: 11,
+        body: 'Vou verificar.',
+        createdAt: 1787000200,
+        reactions: [],
+        replyTo: null,
+      };
+      InternalChatAPI.sendMessage.mockResolvedValue({ data: sent });
+
+      const { wrapper, store } = await mountPage();
+      await wrapper.find('textarea').setValue('Vou verificar.');
+      await wrapper.find('textarea').trigger('keydown', { key: 'Enter' });
+      await flushPromises();
+
+      expect(InternalChatAPI.sendMessage).toHaveBeenCalledWith(5, {
+        content: 'Vou verificar.',
+        replyToId: null,
       });
-
-      expect(store.getters['internalChat/getDirects']).toHaveLength(1);
-      expect(wrapper.text()).toContain('Maria Silva');
+      // O que entra na tela é o que o servidor devolveu, com o id dele.
+      expect(
+        store.getters['internalChat/getRoomById'](5).messages.at(-1)
+      ).toEqual(sent);
     });
 
-    it('carries the real availability of each agent', async () => {
-      const { store } = await mountPage();
-      const carla = store.getters['internalChat/getUserById'](13);
+    it('tells the server the room was read', async () => {
+      await mountPage();
 
-      expect(carla.status).toBe('busy');
+      expect(InternalChatAPI.markRead).toHaveBeenCalledWith(5);
     });
   });
 
   it('separates private conversations from channels', async () => {
     const { wrapper } = await mountPage();
 
-    const headings = wrapper.findAll('aside h3').map(item => item.text());
-    expect(headings).toEqual([
+    expect(wrapper.findAll('aside h3').map(item => item.text())).toEqual([
       'INTERNAL_CHAT.SIDEBAR.DIRECTS',
       'INTERNAL_CHAT.SIDEBAR.CHANNELS',
     ]);
-    expect(wrapper.text()).toContain('Maria Silva');
-    expect(wrapper.text()).toContain('suporte');
   });
 
-  it('opens the first conversation on arrival', async () => {
-    const { wrapper } = await mountPage();
-
-    expect(wrapper.text()).toContain('Conseguiu verificar?');
-  });
-
-  // Abrir a sala zera o não lido, e o badge do menu acompanha.
-  it('clears the unread count of the room it opens', async () => {
+  it('counts unread from what the server reported', async () => {
     const { store } = await mountPage();
 
-    expect(
-      store.getters['internalChat/getRoomById'](firstDirectId(store)).unread
-    ).toBe(0);
-    expect(store.getters['internalChat/getUnreadCount']).toBe(7);
+    // A sala aberta e marcada como lida deixa de contar.
+    expect(store.getters['internalChat/getUnreadCount']).toBe(0);
   });
 
-  it('sends a message into the open room, authored by the logged-in agent', async () => {
-    const { wrapper, store } = await mountPage();
+  it('names the person on the other side of a direct conversation', async () => {
+    const { wrapper } = await mountPage();
 
-    await wrapper.find('textarea').setValue('Vou verificar agora.');
-    await wrapper.find('textarea').trigger('keydown', { key: 'Enter' });
-
-    const room = store.getters['internalChat/getRoomById'](
-      firstDirectId(store)
-    );
-    expect(room.messages.at(-1).body).toBe('Vou verificar agora.');
-    expect(room.messages.at(-1).userId).toBe(11);
+    expect(wrapper.text()).toContain('Maria Silva');
   });
 
-  it('does not send on shift+enter, which is a line break', async () => {
-    const { wrapper, store } = await mountPage();
-    const roomId = firstDirectId(store);
-    const before =
-      store.getters['internalChat/getRoomById'](roomId).messages.length;
-
-    await wrapper.find('textarea').setValue('primeira linha');
-    await wrapper.find('textarea').trigger('keydown', {
-      key: 'Enter',
-      shiftKey: true,
-    });
-
-    expect(
-      store.getters['internalChat/getRoomById'](roomId).messages
-    ).toHaveLength(before);
-  });
-
-  // A referência a um Ticket é a integração que justifica o Chat morar dentro
-  // da plataforma: ela leva ao Ticket de verdade.
   it('turns #32516 into a link to the ticket', async () => {
     const { wrapper } = await mountPage();
 
     const ticketButton = wrapper
       .findAll('button')
       .find(button => button.text().includes('#32516'));
-
-    expect(ticketButton).toBeTruthy();
     expect(ticketButton.text()).toContain('Erro na emissão da nota');
 
     await ticketButton.trigger('click');
@@ -218,48 +239,49 @@ describe('InternalChatPage', () => {
     );
   });
 
-  it('switches to a channel and shows its messages', async () => {
+  it('opens a channel and loads its own history', async () => {
     const { wrapper } = await mountPage();
 
     const channelButton = wrapper
       .findAll('aside button')
       .find(button => button.text().includes('suporte'));
     await channelButton.trigger('click');
+    await flushPromises();
 
-    expect(wrapper.text()).toContain('O cliente da ROMAFELE retornou?');
+    expect(InternalChatAPI.getMessages).toHaveBeenCalledWith(7);
   });
 
-  // A menção do roteiro aponta para um agente real, e não para um nome fixo.
-  it('highlights a mention of a real agent', async () => {
-    const { wrapper } = await mountPage();
+  it('asks the server to toggle a reaction', async () => {
+    const reacted = {
+      ...MESSAGES[0],
+      reactions: [{ emoji: '👍', userIds: [11] }],
+    };
+    InternalChatAPI.toggleReaction.mockResolvedValue({ data: reacted });
 
-    const channelButton = wrapper
-      .findAll('aside button')
-      .find(button => button.text().includes('suporte'));
-    await channelButton.trigger('click');
-
-    const mention = wrapper
-      .findAll('span')
-      .find(span => span.text() === '@Carla Reis');
-
-    expect(mention).toBeTruthy();
-    expect(mention.classes().join(' ')).toContain('bg-n-blue-3');
-  });
-
-  it('records a reaction on a message', async () => {
     const { wrapper, store } = await mountPage();
-
     const thumbsUp = wrapper
       .findAll('button')
       .find(button => button.text() === '👍');
     await thumbsUp.trigger('click');
+    await flushPromises();
 
-    const room = store.getters['internalChat/getRoomById'](
-      firstDirectId(store)
-    );
-    const reacted = room.messages.some(message =>
-      message.reactions.some(reaction => reaction.userIds.includes(11))
-    );
-    expect(reacted).toBe(true);
+    expect(InternalChatAPI.toggleReaction).toHaveBeenCalledWith(5, 101, '👍');
+    const message = store.getters['internalChat/getRoomById'](5).messages[0];
+    expect(message.reactions).toEqual([{ emoji: '👍', userIds: [11] }]);
+  });
+
+  // Anexos ainda não persistem, então o botão não pode aceitar um arquivo que
+  // desapareceria ao recarregar.
+  it('keeps attachments disabled while they do not persist', async () => {
+    const { wrapper } = await mountPage();
+
+    const attach = wrapper
+      .findAll('button')
+      .find(
+        button =>
+          button.attributes('title') === 'INTERNAL_CHAT.COMPOSER.ATTACH_SOON'
+      );
+
+    expect(attach.attributes('disabled')).toBeDefined();
   });
 });

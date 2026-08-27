@@ -10,6 +10,9 @@ const props = defineProps({
   placeholder: { type: String, default: '' },
   replyTo: { type: Object, default: null },
   replyAuthor: { type: Object, default: null },
+  // Anexos ainda não são gravados no servidor. Enquanto isso, o botão fica
+  // desabilitado em vez de aceitar um arquivo que sumiria ao recarregar.
+  allowAttachments: { type: Boolean, default: true },
 });
 
 const emit = defineEmits(['send', 'cancelReply']);
@@ -157,8 +160,13 @@ const onKeydown = event => {
         <div class="relative">
           <button
             type="button"
-            class="p-2 rounded-md text-n-slate-11 hover:bg-n-alpha-2"
-            :title="t('INTERNAL_CHAT.COMPOSER.ATTACH')"
+            class="p-2 rounded-md text-n-slate-11 hover:bg-n-alpha-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            :disabled="!allowAttachments"
+            :title="
+              allowAttachments
+                ? t('INTERNAL_CHAT.COMPOSER.ATTACH')
+                : t('INTERNAL_CHAT.COMPOSER.ATTACH_SOON')
+            "
             @click="attachMenuOpen = !attachMenuOpen"
           >
             <Icon icon="i-lucide-plus" class="size-4" />

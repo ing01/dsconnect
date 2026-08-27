@@ -44,7 +44,9 @@ const activeRoom = computed(() =>
     : null
 );
 
-const isChannel = computed(() => !!activeRoom.value?.name);
+// O tipo vem do servidor: canal e conversa privada são o mesmo registro com
+// `kind` diferente.
+const isChannel = computed(() => activeRoom.value?.kind === 'channel');
 
 const peer = computed(() =>
   isChannel.value || !activeRoom.value
@@ -74,7 +76,7 @@ const scrollToBottom = () => {
   });
 };
 
-const openRoom = roomId => {
+const openRoom = async roomId => {
   const room = getters['internalChat/getRoomById'].value(roomId);
   unreadFrom.value = room?.unread || 0;
 
@@ -83,25 +85,28 @@ const openRoom = roomId => {
   messageQuery.value = '';
   replyTo.value = null;
 
+  // O histórico vem do servidor ao abrir a sala, e não junto da lista: assim a
+  // primeira tela não carrega toda a conversa de todo mundo.
+  await store.dispatch('internalChat/fetchMessages', roomId);
   store.dispatch('internalChat/markRead', roomId);
   scrollToBottom();
 };
 
 // Os agentes da conta são o diretório do Chat - é com eles que se conversa.
-// Sem esta busca a tela nasceria vazia numa sessão que ainda não os carregou.
 onMounted(async () => {
   await store.dispatch('agents/get');
-  await store.dispatch('internalChat/initialise');
+  store.dispatch('internalChat/setDirectory');
+  await store.dispatch('internalChat/fetchRooms');
 
   const initial =
     route.query.room || directs.value[0]?.id || channels.value[0]?.id;
-  if (initial) openRoom(initial);
+  if (initial) await openRoom(initial);
 });
 
 watch(activeRoomId, () => scrollToBottom());
 
-const send = payload => {
-  store.dispatch('internalChat/sendMessage', {
+const send = async payload => {
+  await store.dispatch('internalChat/sendMessage', {
     roomId: activeRoomId.value,
     ...payload,
   });
@@ -119,12 +124,12 @@ const react = ({ messageId, emoji }) =>
 
 const startConversation = async userId => {
   const direct = await store.dispatch('internalChat/openDirect', userId);
-  openRoom(direct.id);
+  await openRoom(direct.id);
 };
 
 const createChannel = async payload => {
   const channel = await store.dispatch('internalChat/createChannel', payload);
-  openRoom(channel.id);
+  await openRoom(channel.id);
 };
 
 // A referência de Ticket leva ao Ticket de verdade - é a integração que
@@ -231,6 +236,7 @@ const unreadDividerIndex = computed(() => {
 
         <ChatComposer
           :users="users"
+          :allow-attachments="false"
           :reply-to="replyTo"
           :reply-author="replyTo ? userFor(replyTo.userId) : null"
           :placeholder="
