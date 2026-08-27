@@ -1,0 +1,6 @@
+json.id resource.id
+json.team_id resource.team_id
+json.priority resource.priority
+json.response_threshold resource.response_threshold
+json.resolution_threshold resource.resolution_threshold
+json.only_during_business_hours resource.only_during_business_hours

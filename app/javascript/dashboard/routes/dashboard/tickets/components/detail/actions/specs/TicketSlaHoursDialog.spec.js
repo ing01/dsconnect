@@ -14,9 +14,13 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: key => key }),
 }));
 
+// O ticket agora carrega os três relógios; sem eles não há prazo a estender.
 const ticket = (overrides = {}) => ({
   id: 5,
-  due_at: null,
+  slas: [
+    { kind: 'response', due_at: 1800000000, status: 'active' },
+    { kind: 'resolution', due_at: 1800900000, status: 'active' },
+  ],
   sla_extensions: [],
   ...overrides,
 });
@@ -46,7 +50,12 @@ const hoursInput = wrapper => wrapper.find('input[type="number"]');
 const reasonInput = wrapper => wrapper.find('textarea');
 const confirm = wrapper => wrapper.find('.confirm');
 
-const fill = async (wrapper, hours, reason) => {
+const kindSelect = wrapper => wrapper.find('select');
+
+// Com mais de um relógio a escolha é obrigatória, então preencher o formulário
+// inclui dizer qual prazo esticar.
+const fill = async (wrapper, hours, reason, kind = 'resolution') => {
+  await kindSelect(wrapper).setValue(kind);
   await hoursInput(wrapper).setValue(hours);
   await reasonInput(wrapper).setValue(reason);
 };
@@ -76,6 +85,33 @@ describe('TicketSlaHoursDialog', () => {
       await confirm(wrapper).trigger('click');
 
       expect(wrapper.emitted('submit')).toBeUndefined();
+    });
+
+    // Com mais de um relógio disponível, não há prazo escolhido por padrão:
+    // horas nunca são aplicadas indiscriminadamente aos três.
+    it('requires an SLA to be chosen', async () => {
+      const wrapper = await mountDialog();
+      await hoursInput(wrapper).setValue('2');
+      await reasonInput(wrapper).setValue('motivo');
+
+      await confirm(wrapper).trigger('click');
+
+      expect(wrapper.emitted('submit')).toBeUndefined();
+    });
+
+    // Com um único relógio a escolha é óbvia, então já vem marcada.
+    it('preselects the only available SLA', async () => {
+      const wrapper = await mountDialog({
+        ticket: ticket({
+          slas: [{ kind: 'stage', due_at: 1800000000, status: 'active' }],
+        }),
+      });
+      await hoursInput(wrapper).setValue('2');
+      await reasonInput(wrapper).setValue('motivo');
+
+      await confirm(wrapper).trigger('click');
+
+      expect(wrapper.emitted('submit')[0][0].slaKind).toBe('stage');
     });
 
     it('requires the hours', async () => {
@@ -117,6 +153,7 @@ describe('TicketSlaHoursDialog', () => {
     expect(wrapper.emitted('submit')[0][0]).toEqual({
       hours: 2,
       reason: 'Cliente solicitou prazo adicional',
+      slaKind: 'resolution',
     });
   });
 

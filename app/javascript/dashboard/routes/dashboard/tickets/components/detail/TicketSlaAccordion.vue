@@ -1,7 +1,13 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Accordion from 'dashboard/components-next/Accordion/Accordion.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
+import {
+  formatSlaDuration,
+  slaRemainingSeconds,
+  slaState,
+} from 'dashboard/helper/ticketSlaHelper';
 
 const props = defineProps({
   ticket: { type: Object, required: true },
@@ -9,62 +15,87 @@ const props = defineProps({
 
 const { t } = useI18n();
 
-// The deadline is the ticket's own `due_at`. The SLA that already exists in this
-// product (AppliedSla) is attached to a Conversation and computes its due dates
-// from it, so it has nothing to say about a ticket - and a ticket opened
-// straight from the Kanban has no conversation at all.
-const dueAt = computed(() =>
-  props.ticket.due_at
-    ? new Date(props.ticket.due_at * 1000).toLocaleString()
-    : null
+// Um card único com os três prazos, cada um com estado próprio: atendimento
+// pode estar cumprido enquanto o estágio venceu e a solução ainda corre.
+const KINDS = ['response', 'stage', 'resolution'];
+
+// A contagem regressiva é só apresentação - quem decide vencimento, cumprimento
+// e extensão é o backend, que manda `status` e `due_at` prontos.
+const now = ref(Date.now());
+let timer = null;
+
+onMounted(() => {
+  timer = setInterval(() => {
+    now.value = Date.now();
+  }, 30000);
+});
+
+onBeforeUnmount(() => clearInterval(timer));
+
+const slaByKind = computed(() =>
+  Object.fromEntries((props.ticket.slas || []).map(sla => [sla.kind, sla]))
 );
 
-const isOverdue = computed(
-  () =>
-    !!props.ticket.due_at &&
-    props.ticket.status === 'open' &&
-    props.ticket.due_at * 1000 < Date.now()
+const STATE_PRESENTATION = {
+  hit: { icon: 'i-lucide-check', color: 'text-n-teal-11' },
+  missed: { icon: 'i-lucide-triangle-alert', color: 'text-n-ruby-11' },
+  running: { icon: 'i-lucide-circle', color: 'text-n-slate-11' },
+};
+
+const rows = computed(() =>
+  KINDS.map(kind => {
+    const sla = slaByKind.value[kind];
+    const state = slaState(sla);
+
+    return {
+      kind,
+      sla,
+      state,
+      ...STATE_PRESENTATION[state],
+      label: t(`TICKET.DETAIL.SLA.KIND.${kind.toUpperCase()}`),
+      // Cumprido e vencido dizem o que aconteceu; em andamento mostra quanto
+      // falta. O prazo de atendimento é o único que a tela mostra como data,
+      // porque é o compromisso que o cliente enxerga.
+      value: describe(sla, state, kind),
+    };
+  })
 );
 
-const extensions = computed(() => props.ticket.sla_extensions || []);
+function describe(sla, state, kind) {
+  if (!sla) return t('TICKET.DETAIL.SLA.NOT_CONFIGURED');
+  if (state === 'hit') return t('TICKET.DETAIL.SLA.STATE.HIT');
+  if (state === 'missed') return t('TICKET.DETAIL.SLA.STATE.MISSED');
+  if (kind === 'response')
+    return new Date(sla.due_at * 1000).toLocaleString([], {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    });
 
-const totalHours = computed(() =>
-  extensions.value.reduce((sum, extension) => sum + Number(extension.hours), 0)
-);
+  return formatSlaDuration(slaRemainingSeconds(sla, now.value));
+}
+
+const hasAnySla = computed(() => (props.ticket.slas || []).length > 0);
 </script>
 
 <template>
   <Accordion :title="t('TICKET.DETAIL.SLA.TITLE')">
-    <div class="flex flex-col gap-2 pt-2 min-w-0">
-      <p v-if="!dueAt" class="text-sm text-n-slate-10">
+    <div class="flex flex-col gap-3 pt-2 min-w-0">
+      <p v-if="!hasAnySla" class="text-sm text-n-slate-10">
         {{ t('TICKET.DETAIL.SLA.EMPTY') }}
       </p>
 
-      <template v-else>
-        <div class="flex items-center justify-between gap-2 min-w-0">
-          <span class="text-sm text-n-slate-11">
-            {{ t('TICKET.DETAIL.SLA.DUE_AT') }}
-          </span>
-          <span
-            class="text-sm font-medium truncate"
-            :class="isOverdue ? 'text-n-ruby-11' : 'text-n-slate-12'"
-          >
-            {{ dueAt }}
-          </span>
-        </div>
-
-        <div
-          v-if="extensions.length"
-          class="flex items-center justify-between gap-2 min-w-0"
-        >
-          <span class="text-sm text-n-slate-11">
-            {{ t('TICKET.DETAIL.SLA.EXTENDED_BY') }}
-          </span>
-          <span class="text-sm text-n-slate-12">
-            {{ t('TICKET.DETAIL.SLA.HOURS_COUNT', { hours: totalHours }) }}
-          </span>
-        </div>
-      </template>
+      <div
+        v-for="row in rows"
+        v-else
+        :key="row.kind"
+        class="flex flex-col gap-0.5 min-w-0"
+      >
+        <span class="text-sm text-n-slate-11">{{ row.label }}</span>
+        <span class="flex items-center gap-1.5 min-w-0" :class="row.color">
+          <Icon :icon="row.icon" class="flex-shrink-0 size-4" />
+          <span class="text-sm font-medium truncate">{{ row.value }}</span>
+        </span>
+      </div>
     </div>
   </Accordion>
 </template>

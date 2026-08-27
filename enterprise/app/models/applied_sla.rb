@@ -112,7 +112,7 @@ class AppliedSla < ApplicationRecord
     return (start_time + threshold_seconds.to_i.seconds).to_i unless sla_policy.only_during_business_hours?
 
     Sla::BusinessHoursService.new(
-      inbox: conversation.inbox,
+      schedulable: conversation.inbox,
       start_time: start_time,
       threshold_seconds: threshold_seconds,
       working_hours_by_day_cache: working_hours_by_day_cache

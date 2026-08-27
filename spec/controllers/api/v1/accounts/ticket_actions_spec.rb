@@ -407,89 +407,172 @@ RSpec.describe 'Ticket actions', type: :request do
   end
 
   describe 'adicionar horas no SLA' do
+    # O ticket agora tem tres relogios independentes, entao conceder horas exige
+    # dizer qual deles esticar - horas nunca sao aplicadas aos tres de uma vez.
+    # A matriz precisa existir antes de qualquer relogio comecar; nenhum teste
+    # se refere a ela diretamente, so ao efeito que ela tem.
+    before do
+      TicketSlaPolicy.create!(
+        team: team, priority: ticket.priority,
+        response_threshold: 1.hour, resolution_threshold: 10.hours,
+        only_during_business_hours: false
+      )
+    end
+
     def add_hours(params, user: administrator)
       post "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/add_sla_hours",
            params: params, headers: auth(user), as: :json
     end
 
-    it 'extends the deadline by the hours given' do
-      ticket.update!(due_at: Time.zone.parse('2026-08-25 14:00'))
-
-      add_hours({ hours: 2, reason: 'Cliente pediu prazo' })
-
-      expect(response).to have_http_status(:success)
-      expect(ticket.reload.due_at).to eq(Time.zone.parse('2026-08-25 16:00'))
+    # A politica so existe depois que o ticket foi criado no `let`, entao os
+    # relogios dele nascem sem prazo; reabrir com a matriz ja no lugar e o que
+    # da a ele os relogios que os testes esticam.
+    def start_clocks!
+      # O prazo do estagio mora no proprio estagio, e nao na matriz de
+      # prioridades - sem ele o ticket simplesmente nao tem relogio de estagio.
+      ticket.ticket_column.update!(stage_threshold: 2.hours)
+      Tickets::Sla::ManagerService.new(ticket: ticket).ticket_opened
+      ticket.reload
     end
 
-    # "Add 4 hours" on a ticket that was never given a deadline means four hours
-    # from now, not a silent no-op.
-    it 'counts from now when the ticket had no deadline' do
-      add_hours({ hours: 3, reason: 'sem prazo antes' })
+    def resolution_clock
+      ticket.reload.current_sla(:resolution)
+    end
 
-      expect(ticket.reload.due_at).to be_within(1.minute).of(3.hours.from_now)
+    it 'extends the chosen deadline by the hours given' do
+      start_clocks!
+      previous = resolution_clock.due_at
+
+      add_hours({ hours: 2, reason: 'Cliente pediu prazo', sla_kind: 'resolution' })
+
+      expect(response).to have_http_status(:success)
+      expect(resolution_clock.due_at).to be_within(1.second).of(previous + 2.hours)
+    end
+
+    # As horas saem do prazo anterior, nunca de agora: dar duas horas a um prazo
+    # ja vencido nao pode virar duas horas a partir de hoje.
+    it 'counts from the previous deadline, not from now' do
+      start_clocks!
+      # Ancorado numa data fixa: comparar com `3.hours.ago` reavaliaria "agora"
+      # no assert e a diferenca viraria o proprio tempo de execucao do teste.
+      overdue_since = Time.zone.parse('2026-08-20 10:00')
+      resolution_clock.update!(due_at: overdue_since)
+
+      add_hours({ hours: 2, reason: 'prazo ja vencido', sla_kind: 'resolution' })
+
+      expect(resolution_clock.due_at).to be_within(1.second).of(overdue_since + 2.hours)
+    end
+
+    # Esticar um prazo vencido devolve o relogio a corrida - foi por isso que as
+    # horas foram concedidas.
+    it 'brings a breached clock back to running' do
+      start_clocks!
+      resolution_clock.update!(due_at: 1.hour.ago, status: :missed)
+
+      add_hours({ hours: 4, reason: 'folga concedida', sla_kind: 'resolution' })
+
+      expect(resolution_clock).to be_active
     end
 
     it 'accepts decimals' do
-      ticket.update!(due_at: Time.zone.parse('2026-08-25 14:00'))
+      start_clocks!
+      previous = resolution_clock.due_at
 
-      add_hours({ hours: 1.5, reason: 'meia hora a mais' })
+      add_hours({ hours: 1.5, reason: 'meia hora a mais', sla_kind: 'resolution' })
 
-      expect(ticket.reload.due_at).to eq(Time.zone.parse('2026-08-25 15:30'))
+      expect(resolution_clock.due_at).to be_within(1.second).of(previous + 90.minutes)
     end
 
-    it 'persists the extension with its author and both deadlines' do
-      previous = Time.zone.parse('2026-08-25 14:00')
-      ticket.update!(due_at: previous)
+    it 'persists the extension with its author, its type and both deadlines' do
+      start_clocks!
+      previous = resolution_clock.due_at
 
-      add_hours({ hours: 2, reason: 'Cliente solicitou prazo adicional' })
+      add_hours({ hours: 2, reason: 'Cliente solicitou prazo adicional', sla_kind: 'resolution' })
 
       extension = ticket.ticket_sla_extensions.last
       expect(extension.hours).to eq(2)
       expect(extension.reason).to eq('Cliente solicitou prazo adicional')
       expect(extension.user).to eq(administrator)
-      expect(extension.previous_due_at).to eq(previous)
-      expect(extension.new_due_at).to eq(previous + 2.hours)
+      expect(extension.sla_kind).to eq('resolution')
+      expect(extension.ticket_applied_sla_id).to eq(resolution_clock.id)
+      expect(extension.previous_due_at).to be_within(1.second).of(previous)
+      expect(extension.new_due_at).to be_within(1.second).of(previous + 2.hours)
+    end
+
+    it 'leaves the other two clocks untouched' do
+      start_clocks!
+      response_due_at = ticket.current_sla(:response).due_at
+      stage_due_at = ticket.current_sla(:stage).due_at
+
+      add_hours({ hours: 2, reason: 'so a solucao', sla_kind: 'resolution' })
+
+      expect(ticket.reload.current_sla(:response).due_at).to be_within(1.second).of(response_due_at)
+      expect(ticket.current_sla(:stage).due_at).to be_within(1.second).of(stage_due_at)
+    end
+
+    it 'refuses a type the ticket has no clock for' do
+      add_hours({ hours: 2, reason: 'sem relogio', sla_kind: 'resolution' })
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'refuses an unknown SLA type' do
+      start_clocks!
+
+      add_hours({ hours: 2, reason: 'tipo torto', sla_kind: 'whatever' })
+
+      expect(response).to have_http_status(:bad_request)
     end
 
     it 'requires a reason' do
-      add_hours({ hours: 2, reason: '' })
+      start_clocks!
+
+      add_hours({ hours: 2, reason: '', sla_kind: 'resolution' })
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(ticket.reload.due_at).to be_nil
     end
 
     it 'refuses hours that are zero or negative' do
-      add_hours({ hours: 0, reason: 'nada' })
+      start_clocks!
+      previous = resolution_clock.due_at
+
+      add_hours({ hours: 0, reason: 'nada', sla_kind: 'resolution' })
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(ticket.reload.due_at).to be_nil
+      expect(resolution_clock.due_at).to be_within(1.second).of(previous)
     end
 
     it 'records it in the history with both deadlines' do
-      add_hours({ hours: 2, reason: 'motivo' })
+      start_clocks!
 
-      activity = ticket.ticket_activities.find_by(activity_type: :sla_hours_added)
+      add_hours({ hours: 2, reason: 'motivo', sla_kind: 'resolution' })
+
+      activity = ticket.ticket_activities.where(activity_type: :sla_hours_added).last
       expect(activity.user).to eq(administrator)
       expect(activity.meta['hours']).to eq(2.0)
       expect(activity.meta['reason']).to eq('motivo')
+      expect(activity.meta['sla_kind']).to eq('resolution')
       expect(activity.new_value).to be_present
     end
 
     # Stricter than update?: a Mesa member who neither owns the ticket nor
     # administers the account cannot grant more time.
     it 'refuses a Mesa member who does not own the ticket' do
+      start_clocks!
       team.add_members([agent.id])
+      previous = resolution_clock.due_at
 
-      add_hours({ hours: 2, reason: 'motivo' }, user: agent)
+      add_hours({ hours: 2, reason: 'motivo', sla_kind: 'resolution' }, user: agent)
 
       expect(response).to have_http_status(:unauthorized)
-      expect(ticket.reload.due_at).to be_nil
+      expect(resolution_clock.due_at).to be_within(1.second).of(previous)
     end
 
     it 'allows the assignee' do
+      start_clocks!
       ticket.update!(assignee: agent)
 
-      add_hours({ hours: 2, reason: 'motivo' }, user: agent)
+      add_hours({ hours: 2, reason: 'motivo', sla_kind: 'resolution' }, user: agent)
 
       expect(response).to have_http_status(:success)
     end

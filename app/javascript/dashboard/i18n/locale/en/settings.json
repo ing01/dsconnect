@@ -421,7 +421,8 @@
     "TICKET_SETTINGS": "Tickets",
     "TICKET_STAGES": "Stages",
     "TICKET_CATALOG": "Catalogue",
-    "TICKET_CATEGORIES": "Categories"
+    "TICKET_CATEGORIES": "Categories",
+    "TICKET_PRIORITIES": "Priorities & SLA"
   },
   "DATA_IMPORTS": {
     "HEADER": "Data",

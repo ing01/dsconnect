@@ -19,6 +19,11 @@
 #
 class Team < ApplicationRecord
   include AccountCacheRevalidator
+  # O mesmo expediente que as Inboxes usam - `working_hours`, a semana padrao,
+  # `update_working_hours` e `out_of_office?` vem todos daqui. A Mesa precisa
+  # disso porque um ticket aberto pelo Kanban nao passa por Inbox nenhuma e
+  # ainda assim tem tres prazos a respeitar.
+  include OutOfOffisable
 
   belongs_to :account
   has_many :team_members, dependent: :destroy_async
@@ -35,6 +40,10 @@ class Team < ApplicationRecord
   has_many :ticket_categories, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :team
   has_many :tickets, dependent: :restrict_with_error
   has_many :calendar_events, dependent: :destroy
+  # A matriz Mesa x Prioridade dos prazos de atendimento e solucao.
+  has_many :ticket_sla_policies, dependent: :destroy
+
+  validates :timezone, inclusion: { in: TZInfo::Timezone.all_identifiers }
 
   before_destroy :capture_filtered_unread_count_member_ids, prepend: true
   after_destroy_commit :invalidate_filtered_unread_counts_after_destroy

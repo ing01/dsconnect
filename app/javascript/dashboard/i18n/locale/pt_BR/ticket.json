@@ -255,10 +255,21 @@
       },
       "SLA": {
         "TITLE": "SLA",
-        "EMPTY": "Nenhum SLA configurado para tickets.",
+        "EMPTY": "Nenhum SLA configurado para esta Mesa.",
         "DUE_AT": "Prazo",
         "EXTENDED_BY": "Horas adicionadas",
-        "HOURS_COUNT": "{hours}h"
+        "HOURS_COUNT": "{hours}h",
+        "NOT_CONFIGURED": "Sem prazo definido",
+        "KIND": {
+          "RESPONSE": "Vencimento de atendimento",
+          "STAGE": "Vencimento do estágio",
+          "RESOLUTION": "Vencimento de solução"
+        },
+        "STATE": {
+          "HIT": "SLA cumprido",
+          "MISSED": "SLA vencido",
+          "RUNNING": "SLA em andamento"
+        }
       },
       "APPOINTMENTS": {
         "TITLE": "Compromissos",
@@ -334,7 +345,9 @@
         "NAME": "Estágio",
         "MESA": "Mesa de Serviço",
         "TICKETS": "Tickets",
-        "ACTIONS": "Ações"
+        "ACTIONS": "Ações",
+        "STAGE_SLA": "Vencimento do estágio",
+        "NO_SLA": "Sem prazo"
       },
       "MOVE_UP": "Mover para cima",
       "MOVE_DOWN": "Mover para baixo",
@@ -349,6 +362,12 @@
         "ORDER": {
           "LABEL": "Ordem",
           "HINT": "Define a posição da coluna no quadro."
+        },
+        "STAGE_SLA": {
+          "LABEL": "Vencimento do estágio",
+          "HINT": "HH:MM. Deixe em branco para um estágio sem prazo.",
+          "INVALID": "Use o formato HH:MM.",
+          "PLACEHOLDER": "00:00"
         }
       },
       "API": {
@@ -388,6 +407,35 @@
       "STAGES": {
         "HEADER": "Estágios",
         "DESCRIPTION": "Colunas do Kanban de cada Mesa de Serviço."
+      },
+      "PRIORITIES": {
+        "TITLE": "Prioridades e SLA",
+        "DESCRIPTION": "Vencimento de atendimento e de solução para cada prioridade da Mesa.",
+        "TABLE": {
+          "NAME": "Prioridade",
+          "RESPONSE": "Vencimento de atendimento",
+          "RESOLUTION": "Vencimento de solução"
+        },
+        "HINT": "Use HH:MM, com horas sem teto — 30:00 são trinta horas. Deixe em branco para não ter prazo.",
+        "BUSINESS_HOURS": "Contar os prazos apenas dentro do expediente",
+        "SAVE": "Salvar prazos",
+        "SAVED": "Prazos atualizados.",
+        "WORKING_HOURS": {
+          "TITLE": "Expediente",
+          "CLOSED": "Fechado",
+          "TO": "até",
+          "SAVE": "Salvar expediente",
+          "SAVED": "Expediente atualizado.",
+          "DAYS": {
+            "D0": "Domingo",
+            "D1": "Segunda",
+            "D2": "Terça",
+            "D3": "Quarta",
+            "D4": "Quinta",
+            "D5": "Sexta",
+            "D6": "Sábado"
+          }
+        }
       }
     },
     "MESA_SELECTOR": {
@@ -507,7 +555,15 @@
         "NO_HISTORY": "Não há dados",
         "CURRENT_DUE": "Prazo atual",
         "NO_DUE": "sem prazo definido",
-        "NEW_DUE": "Novo prazo"
+        "NEW_DUE": "Novo prazo",
+        "KIND": "Qual prazo",
+        "KIND_PLACEHOLDER": "Selecione o SLA a estender",
+        "NO_CLOCK": "Este ticket não possui SLA desse tipo.",
+        "KINDS": {
+          "RESPONSE": "Atendimento",
+          "STAGE": "Estágio",
+          "RESOLUTION": "Solução"
+        }
       },
       "CANCEL_DIALOG": {
         "TITLE": "Cancelar ticket #{number}?",

@@ -109,6 +109,11 @@ pt_BR:
       team_change_with_tickets:
         one: Este estágio possui 1 ticket e não pode ser movido para outra Mesa. Mova o ticket antes de continuar.
         other: Este estágio possui %{count} tickets e não pode ser movido para outra Mesa. Mova os tickets antes de continuar.
+    ticket_sla_policy:
+      no_threshold: precisa de ao menos um prazo de atendimento ou de solução
+    ticket_sla:
+      invalid_kind: não é um tipo de SLA válido
+      clock_not_found: Este ticket não possui um SLA desse tipo
     webhook:
       invalid: Eventos inválidos
     signup:

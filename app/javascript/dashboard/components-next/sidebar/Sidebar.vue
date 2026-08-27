@@ -748,6 +748,12 @@ const menuItems = computed(() => {
               to: accountScopedRoute('ticket_catalog_list'),
             },
             {
+              name: 'Settings Ticket Priorities',
+              label: t('SIDEBAR.TICKET_PRIORITIES'),
+              activeOn: ['ticket_priorities_list'],
+              to: accountScopedRoute('ticket_priorities_list'),
+            },
+            {
               name: 'Settings Ticket Categories',
               label: t('SIDEBAR.TICKET_CATEGORIES'),
               activeOn: ['ticket_categories_list'],

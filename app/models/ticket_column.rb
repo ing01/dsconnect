@@ -9,6 +9,9 @@ class TicketColumn < ApplicationRecord
            class_name: 'Ticket', inverse_of: :ticket_column, dependent: nil
 
   validates :name, presence: true
+  # O prazo do Estagio, em segundos. Nulo significa "esta coluna nao tem prazo" -
+  # diferente de zero, que seria um prazo impossivel.
+  validates :stage_threshold, numericality: { greater_than: 0 }, allow_nil: true
   validate :team_change_requires_empty_column, on: :update
 
   before_validation :set_default_position, on: :create
@@ -35,7 +38,8 @@ class TicketColumn < ApplicationRecord
       id: id,
       name: name,
       position: position,
-      team_id: team_id
+      team_id: team_id,
+      stage_threshold: stage_threshold
     }
   end
 

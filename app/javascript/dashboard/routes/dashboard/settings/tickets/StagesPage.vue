@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useStoreGetters, useStore } from 'dashboard/composables/store';
 import { formatMesaName } from 'dashboard/helper/mesaName';
+import { secondsToHoursMinutes } from 'dashboard/helper/ticketSlaHelper';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 import AddStage from './AddStage.vue';
@@ -41,9 +42,16 @@ const stages = computed(() => selectedBoard.value?.ticket_columns ?? []);
 
 const ticketCount = stage => stage.tickets?.length ?? 0;
 
+// O prazo do Estagio, em HH:MM. Sem prazo e uma resposta valida, e a tabela
+// precisa dizer isso em vez de deixar a celula vazia.
+const stageDeadline = stage =>
+  secondsToHoursMinutes(stage.stage_threshold) ||
+  t('TICKET.SETTINGS.TABLE.NO_SLA');
+
 const tableHeaders = computed(() => [
   t('TICKET.SETTINGS.TABLE.NAME'),
   t('TICKET.SETTINGS.TABLE.MESA'),
+  t('TICKET.SETTINGS.TABLE.STAGE_SLA'),
   t('TICKET.SETTINGS.TABLE.TICKETS'),
   t('TICKET.SETTINGS.TABLE.ACTIONS'),
 ]);
@@ -181,6 +189,12 @@ onBeforeMount(async () => {
 
               <BaseTableCell>
                 <span class="text-body-main text-n-slate-11">
+                  {{ stageDeadline(stage) }}
+                </span>
+              </BaseTableCell>
+
+              <BaseTableCell>
+                <span class="text-body-main text-n-slate-11">
                   {{ ticketCount(stage) }}
                 </span>
               </BaseTableCell>
@@ -231,7 +245,8 @@ onBeforeMount(async () => {
       </BaseTable>
 
       <!-- Categories live under the same Mesa selector as the Estagios: both
-           lists belong to the Mesa chosen above. -->    </template>
+           lists belong to the Mesa chosen above. -->
+    </template>
 
     <woot-modal v-model:show="showAddPopup" :on-close="hideAddPopup">
       <AddStage

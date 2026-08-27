@@ -22,6 +22,10 @@ class TriggerScheduledItemsJob < ApplicationJob
 
     # Job to trigger pending executions
     AutomationRules::TriggerPendingExecutionsJob.perform_later
+
+    # Varredura dos vencimentos de SLA dos Tickets. Reaproveita o mesmo cron de
+    # 5 minutos que ja move o SLA das Conversations.
+    Tickets::Sla::TriggerSweepJob.perform_later
   end
 end
 

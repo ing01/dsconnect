@@ -31,7 +31,6 @@ json.cancelled_at resource.cancelled_at&.to_i
 json.close_reason resource.close_reason
 json.parent_id resource.parent_id
 json.merged_into_id resource.merged_into_id
-json.due_at resource.due_at&.to_i
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
 json.conversation_ids resource.ticket_conversations.pluck(:conversation_id)

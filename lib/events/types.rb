@@ -69,6 +69,9 @@ module Events::Types
   TICKET_REOPENED = 'ticket.reopened'
   TICKET_CLOSED = 'ticket.closed'
   TICKET_CANCELLED = 'ticket.cancelled'
+  # Um relogio de SLA do ticket estourou. Alimenta o realtime e e o gancho por
+  # onde as notificacoes de vencimento entram, sem engine nova.
+  TICKET_SLA_MISSED = 'ticket.sla_missed'
 
   # copilot events
   COPILOT_MESSAGE_CREATED = 'copilot.message.created'

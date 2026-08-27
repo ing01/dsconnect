@@ -154,8 +154,14 @@ class TicketsAPI extends ApiClient {
     return axios.patch(`${this.url}/${id}/assign_to_me`);
   }
 
-  addSlaHours(id, { hours, reason }) {
-    return axios.post(`${this.url}/${id}/add_sla_hours`, { hours, reason });
+  addSlaHours(id, { hours, reason, slaKind }) {
+    // `sla_kind` e obrigatorio: o servidor recusa horas sem dizer qual dos tres
+    // prazos esticar.
+    return axios.post(`${this.url}/${id}/add_sla_hours`, {
+      hours,
+      reason,
+      sla_kind: slaKind,
+    });
   }
 
   getFollowers(ticketId) {

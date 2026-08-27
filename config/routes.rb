@@ -361,6 +361,11 @@ Rails.application.routes.draw do
               end
             end
             resources :ticket_categories, only: [:index, :create, :update, :destroy]
+            # A matriz Mesa x Prioridade dos prazos de atendimento e solucao.
+            # Aninhada na Mesa porque e o que ela e: configuracao da Mesa.
+            resources :ticket_sla_policies, only: [:index, :create, :update, :destroy]
+            # O expediente da Mesa, que os tres SLAs respeitam.
+            resource :working_hours, controller: 'team_working_hours', only: [:show, :update]
           end
 
           resources :tickets do

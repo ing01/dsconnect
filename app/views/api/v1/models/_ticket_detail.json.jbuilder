@@ -95,6 +95,12 @@ json.followers resource.ticket_followers.sort_by(&:id) do |follower|
   json.thumbnail follower.user.avatar_url
 end
 
+# Os tres relogios de SLA, cada um com estado proprio. Quem decide vencimento e
+# cumprimento e o backend; o frontend so apresenta e faz a contagem regressiva.
+json.slas resource.current_slas do |clock|
+  json.merge! clock.push_event_data
+end
+
 # Newest first: the most recent extension is the one that explains the current
 # deadline.
 json.sla_extensions resource.ticket_sla_extensions.sort_by(&:id).reverse do |extension|
@@ -104,6 +110,7 @@ json.sla_extensions resource.ticket_sla_extensions.sort_by(&:id).reverse do |ext
   json.user_name extension.user&.name
   json.previous_due_at extension.previous_due_at&.to_i
   json.new_due_at extension.new_due_at&.to_i
+  json.sla_kind extension.sla_kind
   json.created_at extension.created_at.to_i
 end
 

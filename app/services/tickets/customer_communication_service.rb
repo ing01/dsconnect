@@ -52,6 +52,7 @@ class Tickets::CustomerCommunicationService
 
     communication.mark_sent!
     log_activity(communication)
+    fulfil_response_sla(communication)
   rescue StandardError => e
     communication.mark_failed!(e.message)
     raise
@@ -61,6 +62,17 @@ class Tickets::CustomerCommunicationService
   # what an early return yields - has neither.
   def delivered?(mail)
     mail.present? && !mail.is_a?(ActionMailer::Base::NullMail) && mail.to.present?
+  end
+
+  # Uma comunicacao que saiu de fato cumpre o SLA de atendimento. Fica depois do
+  # `mark_sent!` de proposito: o prazo so e cumprido pelo que o cliente recebeu,
+  # nunca pelo que o agente clicou.
+  def fulfil_response_sla(communication)
+    Tickets::Sla::ManagerService.new(ticket: ticket).customer_communicated(
+      user: user,
+      source: TicketSlaEvent::SOURCE_TICKET_COMMUNICATION,
+      meta: { ticket_customer_communication_id: communication.id, to_email: communication.to_email }
+    )
   end
 
   def log_activity(communication)

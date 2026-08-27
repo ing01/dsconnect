@@ -123,6 +123,11 @@ class Conversation < ApplicationRecord
   has_many :messages, dependent: :destroy_async, autosave: true
   has_one :csat_survey_response, dependent: :destroy_async
   has_many :conversation_participants, dependent: :destroy_async
+  # O inverso de Ticket#conversations. Uma conversa pode estar vinculada a mais
+  # de um ticket, e e por aqui que uma resposta no Chat encontra os tickets cujo
+  # SLA de atendimento ela cumpre (TicketSlaListener).
+  has_many :ticket_conversations, dependent: :destroy_async
+  has_many :tickets, through: :ticket_conversations
   has_many :notifications, as: :primary_actor, dependent: :destroy_async
   has_many :attachments, through: :messages
   has_many :reporting_events, dependent: :destroy_async

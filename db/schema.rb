@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1642,6 +1642,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
     t.datetime "updated_at", null: false
     t.string "icon", default: ""
     t.string "icon_color", default: ""
+    t.boolean "working_hours_enabled", default: false, null: false
+    t.string "timezone", default: "UTC", null: false
     t.index ["account_id"], name: "index_teams_on_account_id"
     t.index ["name", "account_id"], name: "index_teams_on_name_and_account_id", unique: true
   end
@@ -1660,6 +1662,29 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
     t.index ["ticket_id", "created_at"], name: "index_ticket_activities_on_ticket_id_and_created_at"
     t.index ["ticket_id"], name: "index_ticket_activities_on_ticket_id"
     t.index ["user_id"], name: "index_ticket_activities_on_user_id"
+  end
+
+  create_table "ticket_applied_slas", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "ticket_column_id"
+    t.bigint "ticket_sla_policy_id"
+    t.integer "kind", null: false
+    t.integer "status", default: 0, null: false
+    t.float "threshold", null: false
+    t.boolean "only_during_business_hours", default: false, null: false
+    t.datetime "started_at", null: false
+    t.datetime "due_at", null: false
+    t.datetime "completed_at"
+    t.float "extended_seconds", default: 0.0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "due_at"], name: "index_ticket_applied_slas_active_due_at", where: "(status = 0)"
+    t.index ["account_id"], name: "index_ticket_applied_slas_on_account_id"
+    t.index ["ticket_column_id"], name: "index_ticket_applied_slas_on_ticket_column_id"
+    t.index ["ticket_id", "kind"], name: "index_ticket_applied_slas_on_ticket_id_and_kind"
+    t.index ["ticket_id", "kind"], name: "index_ticket_applied_slas_one_active_per_kind", unique: true, where: "(status = 0)"
+    t.index ["ticket_sla_policy_id"], name: "index_ticket_applied_slas_on_ticket_sla_policy_id"
   end
 
   create_table "ticket_attachments", force: :cascade do |t|
@@ -1691,6 +1716,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "team_id", null: false
+    t.float "stage_threshold"
     t.index ["team_id", "position"], name: "index_ticket_columns_on_team_id_and_position"
     t.index ["team_id"], name: "index_ticket_columns_on_team_id"
   end
@@ -1755,6 +1781,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
     t.index ["user_id"], name: "index_ticket_followers_on_user_id"
   end
 
+  create_table "ticket_sla_events", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "ticket_applied_sla_id", null: false
+    t.bigint "user_id"
+    t.integer "event_type", null: false
+    t.jsonb "meta", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_sla_events_on_account_id"
+    t.index ["ticket_applied_sla_id"], name: "index_ticket_sla_events_on_ticket_applied_sla_id"
+    t.index ["ticket_id", "created_at"], name: "index_ticket_sla_events_on_ticket_id_and_created_at"
+    t.index ["user_id"], name: "index_ticket_sla_events_on_user_id"
+  end
+
   create_table "ticket_sla_extensions", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "ticket_id", null: false
@@ -1765,10 +1806,26 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
     t.datetime "new_due_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "ticket_applied_sla_id"
+    t.integer "sla_kind"
     t.index ["account_id"], name: "index_ticket_sla_extensions_on_account_id"
+    t.index ["ticket_applied_sla_id"], name: "index_ticket_sla_extensions_on_ticket_applied_sla_id"
     t.index ["ticket_id", "created_at"], name: "index_ticket_sla_extensions_on_ticket_id_and_created_at"
     t.index ["ticket_id"], name: "index_ticket_sla_extensions_on_ticket_id"
     t.index ["user_id"], name: "index_ticket_sla_extensions_on_user_id"
+  end
+
+  create_table "ticket_sla_policies", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "team_id", null: false
+    t.integer "priority", null: false
+    t.float "response_threshold"
+    t.float "resolution_threshold"
+    t.boolean "only_during_business_hours", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_sla_policies_on_account_id"
+    t.index ["team_id", "priority"], name: "index_ticket_sla_policies_on_team_id_and_priority", unique: true
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -1790,7 +1847,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
     t.bigint "company_id"
     t.bigint "parent_id"
     t.bigint "merged_into_id"
-    t.datetime "due_at"
     t.datetime "cancelled_at"
     t.string "close_reason"
     t.bigint "contact_id"
@@ -1896,8 +1952,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_100200) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "open_all_day", default: false
+    t.bigint "team_id"
     t.index ["account_id"], name: "index_working_hours_on_account_id"
     t.index ["inbox_id"], name: "index_working_hours_on_inbox_id"
+    t.index ["team_id"], name: "index_working_hours_on_team_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

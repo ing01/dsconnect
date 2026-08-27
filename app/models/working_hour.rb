@@ -21,7 +21,13 @@
 #  index_working_hours_on_inbox_id    (inbox_id)
 #
 class WorkingHour < ApplicationRecord
-  belongs_to :inbox
+  # Um expediente pertence a uma Inbox OU a uma Mesa de Servico. As Inboxes sao
+  # o caso original; a Mesa entrou porque um ticket aberto pelo Kanban nao passa
+  # por Inbox nenhuma e mesmo assim precisa respeitar horario comercial.
+  belongs_to :inbox, optional: true
+  belongs_to :team, optional: true
+
+  validate :belongs_to_exactly_one_owner
 
   before_validation :ensure_open_all_day_hours
   before_save :assign_account
@@ -39,25 +45,30 @@ class WorkingHour < ApplicationRecord
   validate :close_after_open, unless: :closed_all_day?
   validate :open_all_day_and_closed_all_day
 
+  # Quem define fuso e se o expediente esta ligado - a Inbox ou a Mesa.
+  def owner
+    inbox || team
+  end
+
   def self.today
     # While getting the day of the week, consider the timezone as well. `first` would
     # return the first working hour from the list of working hours available per week.
-    inbox = first.inbox
-    find_by(day_of_week: Time.zone.now.in_time_zone(inbox.timezone).to_date.wday)
+    owner = first.owner
+    find_by(day_of_week: Time.zone.now.in_time_zone(owner.timezone).to_date.wday)
   end
 
   def open_at?(time)
     return false if closed_all_day?
 
-    open_time = Time.zone.now.in_time_zone(inbox.timezone).change({ hour: open_hour, min: open_minutes })
-    close_time = Time.zone.now.in_time_zone(inbox.timezone).change({ hour: close_hour, min: close_minutes })
+    open_time = Time.zone.now.in_time_zone(owner.timezone).change({ hour: open_hour, min: open_minutes })
+    close_time = Time.zone.now.in_time_zone(owner.timezone).change({ hour: close_hour, min: close_minutes })
 
     time.between?(open_time, close_time)
   end
 
   def open_now?
-    inbox_time = Time.zone.now.in_time_zone(inbox.timezone)
-    open_at?(inbox_time)
+    owner_time = Time.zone.now.in_time_zone(owner.timezone)
+    open_at?(owner_time)
   end
 
   def closed_now?
@@ -67,7 +78,13 @@ class WorkingHour < ApplicationRecord
   private
 
   def assign_account
-    self.account_id = inbox.account_id
+    self.account_id = owner.account_id
+  end
+
+  def belongs_to_exactly_one_owner
+    return if inbox_id.present? ^ team_id.present?
+
+    errors.add(:base, 'working hour must belong to either an inbox or a team')
   end
 
   def close_after_open

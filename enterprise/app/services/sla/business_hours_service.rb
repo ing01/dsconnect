@@ -1,5 +1,12 @@
+# Converte um prazo em segundos numa data de vencimento, consumindo apenas o
+# tempo dentro do expediente.
+#
+# `schedulable` e quem define o expediente: uma Inbox (SLA das Conversations) ou
+# uma Mesa de Servico (SLAs do Ticket). Basta responder a `working_hours`,
+# `working_hours_enabled?` e `timezone` - nenhuma das duas precisa saber da
+# outra, e o calculo e o mesmo para ambas.
 class Sla::BusinessHoursService
-  pattr_initialize [:inbox!, :start_time!, :threshold_seconds!, { working_hours_by_day_cache: nil }]
+  pattr_initialize [:schedulable!, :start_time!, :threshold_seconds!, { working_hours_by_day_cache: nil }]
 
   def deadline
     return start_time + threshold_seconds.seconds unless should_apply_business_hours?
@@ -10,7 +17,7 @@ class Sla::BusinessHoursService
   private
 
   def should_apply_business_hours?
-    inbox.working_hours_enabled? && open_days?
+    schedulable.working_hours_enabled? && open_days?
   end
 
   def open_days?
@@ -84,7 +91,7 @@ class Sla::BusinessHoursService
   end
 
   def working_hours_by_day
-    @working_hours_by_day ||= working_hours_by_day_cache || inbox.working_hours.index_by(&:day_of_week)
+    @working_hours_by_day ||= working_hours_by_day_cache || schedulable.working_hours.index_by(&:day_of_week)
   end
 
   def next_business_day_start(current_time)
@@ -103,6 +110,6 @@ class Sla::BusinessHoursService
   end
 
   def timezone
-    inbox.timezone || 'UTC'
+    schedulable.timezone || 'UTC'
   end
 end

@@ -4,8 +4,15 @@
 class TicketSlaExtension < ApplicationRecord
   belongs_to :account
   belongs_to :ticket
+  # Qual relogio foi esticado. Nulo apenas nas extensoes anteriores aos tres
+  # SLAs, que a migracao apontou para o relogio de solucao quando havia um.
+  belongs_to :ticket_applied_sla, optional: true
   # Nullable so removing an agent never erases the extension they granted.
   belongs_to :user, optional: true
+
+  # Guardado alem do vinculo para que o relatorio saiba de que tipo era a folga
+  # concedida mesmo que o relogio seja apagado com o ticket.
+  enum sla_kind: TicketAppliedSla.kinds, _prefix: :sla
 
   MAXIMUM_HOURS = 999
 

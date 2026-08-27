@@ -17,6 +17,9 @@ const { t } = useI18n();
 const dialogRef = ref(null);
 const hours = ref('');
 const reason = ref('');
+// Qual dos tres prazos estender. Sem valor padrao de proposito: horas nunca sao
+// aplicadas indiscriminadamente aos tres relogios, entao a escolha e explicita.
+const slaKind = ref('');
 
 // Filled from the session and read-only: an extension is attributed to whoever
 // granted it, and the server ignores any attendant sent by the client anyway.
@@ -29,7 +32,21 @@ const isValid = computed(
   () =>
     Number.isFinite(parsedHours.value) &&
     parsedHours.value > 0 &&
-    reason.value.trim().length > 0
+    reason.value.trim().length > 0 &&
+    !!selectedSla.value
+);
+
+// So os relogios que o ticket realmente tem entram no seletor: uma Mesa que nao
+// promete atendimento nao tem prazo de atendimento para esticar.
+const kindOptions = computed(() =>
+  (props.ticket.slas || []).map(sla => ({
+    value: sla.kind,
+    label: t(`TICKET.ACTIONS.SLA_DIALOG.KINDS.${sla.kind.toUpperCase()}`),
+  }))
+);
+
+const selectedSla = computed(() =>
+  (props.ticket.slas || []).find(sla => sla.kind === slaKind.value)
 );
 
 const extensions = computed(() => props.ticket.sla_extensions || []);
@@ -37,17 +54,26 @@ const extensions = computed(() => props.ticket.sla_extensions || []);
 const formatDate = timestamp =>
   timestamp ? new Date(timestamp * 1000).toLocaleString() : '-';
 
-const dueAt = computed(() => formatDate(props.ticket.due_at));
+// O prazo mostrado e o do relogio escolhido: cada um tem o seu.
+const dueAt = computed(() => formatDate(selectedSla.value?.due_at));
 
 const open = () => {
   hours.value = '';
   reason.value = '';
+  // Um unico relogio disponivel dispensa a escolha; com mais de um, ela e
+  // obrigatoria.
+  slaKind.value =
+    kindOptions.value.length === 1 ? kindOptions.value[0].value : '';
   dialogRef.value?.open();
 };
 
 const handleConfirm = () => {
   if (!isValid.value) return;
-  emit('submit', { hours: parsedHours.value, reason: reason.value.trim() });
+  emit('submit', {
+    hours: parsedHours.value,
+    reason: reason.value.trim(),
+    slaKind: slaKind.value,
+  });
   hours.value = '';
   reason.value = '';
 };
@@ -67,11 +93,29 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
     @confirm="handleConfirm"
   >
     <div class="flex flex-col gap-4 min-w-0">
+      <label class="flex flex-col gap-1 min-w-0">
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ t('TICKET.ACTIONS.SLA_DIALOG.KIND') }}
+          <span class="text-n-ruby-11">*</span>
+        </span>
+        <select v-model="slaKind" class="w-full mb-0">
+          <option value="" disabled>
+            {{ t('TICKET.ACTIONS.SLA_DIALOG.KIND_PLACEHOLDER') }}
+          </option>
+          <option v-for="option in kindOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+        <span v-if="!kindOptions.length" class="text-sm text-n-slate-10">
+          {{ t('TICKET.ACTIONS.SLA_DIALOG.NO_CLOCK') }}
+        </span>
+      </label>
+
       <p class="flex items-center gap-2 text-sm text-n-slate-11">
         <Icon icon="i-lucide-clock" class="flex-shrink-0 size-4" />
         {{ t('TICKET.ACTIONS.SLA_DIALOG.CURRENT_DUE') }}:
         <span class="font-medium text-n-slate-12">
-          {{ ticket.due_at ? dueAt : t('TICKET.ACTIONS.SLA_DIALOG.NO_DUE') }}
+          {{ selectedSla ? dueAt : t('TICKET.ACTIONS.SLA_DIALOG.NO_DUE') }}
         </span>
       </p>
 

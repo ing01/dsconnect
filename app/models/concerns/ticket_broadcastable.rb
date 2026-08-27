@@ -33,7 +33,14 @@ module TicketBroadcastable
   end
 
   # So a Kanban card can badge a child or a grouped ticket without refetching.
+  #
+  # Os tres relogios de SLA viajam junto porque comunicacao enviada, mudanca de
+  # estagio, fechamento, vencimento e horas adicionadas precisam refletir sem F5 -
+  # e o `due_at` unico que existia aqui nao representava tres estados.
   def relation_event_data
-    { parent_id: parent_id, merged_into_id: merged_into_id, due_at: due_at&.to_i }
+    {
+      parent_id: parent_id, merged_into_id: merged_into_id,
+      slas: current_slas.map(&:push_event_data)
+    }
   end
 end

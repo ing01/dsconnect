@@ -11,7 +11,7 @@ RSpec.describe Sla::BusinessHoursService do
         inbox.update!(working_hours_enabled: false)
         start_time = Time.zone.parse('2024-01-19 16:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: start_time, threshold_seconds: 3600)
+        service = described_class.new(schedulable: inbox, start_time: start_time, threshold_seconds: 3600)
 
         expect(service.deadline.to_i).to eq((start_time + 1.hour).to_i)
       end
@@ -20,7 +20,7 @@ RSpec.describe Sla::BusinessHoursService do
         inbox.working_hours.find_each { |wh| wh.update!(closed_all_day: true) }
         start_time = Time.zone.parse('2024-01-19 16:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: start_time, threshold_seconds: 3600)
+        service = described_class.new(schedulable: inbox, start_time: start_time, threshold_seconds: 3600)
 
         expect(service.deadline.to_i).to eq((start_time + 1.hour).to_i)
       end
@@ -32,7 +32,7 @@ RSpec.describe Sla::BusinessHoursService do
         start_time = Time.zone.parse('2024-01-17 10:00:00') # Wednesday
         expected_deadline = Time.zone.parse('2024-01-17 12:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: start_time, threshold_seconds: 2.hours)
+        service = described_class.new(schedulable: inbox, start_time: start_time, threshold_seconds: 2.hours)
 
         expect(service.deadline.to_i).to eq(expected_deadline.to_i)
       end
@@ -42,7 +42,7 @@ RSpec.describe Sla::BusinessHoursService do
         friday_4pm = Time.zone.parse('2024-01-19 16:00:00')
         monday_10am = Time.zone.parse('2024-01-22 10:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: friday_4pm, threshold_seconds: 2.hours)
+        service = described_class.new(schedulable: inbox, start_time: friday_4pm, threshold_seconds: 2.hours)
 
         expect(service.deadline.to_i).to eq(monday_10am.to_i)
       end
@@ -54,7 +54,7 @@ RSpec.describe Sla::BusinessHoursService do
         start_time = Time.zone.parse('2024-01-17 07:00:00') # Wednesday 7 AM
         expected_deadline = Time.zone.parse('2024-01-17 11:00:00') # Wednesday 11 AM
 
-        service = described_class.new(inbox: inbox, start_time: start_time, threshold_seconds: 2.hours)
+        service = described_class.new(schedulable: inbox, start_time: start_time, threshold_seconds: 2.hours)
 
         expect(service.deadline.to_i).to eq(expected_deadline.to_i)
       end
@@ -66,7 +66,7 @@ RSpec.describe Sla::BusinessHoursService do
         start_time = Time.zone.parse('2024-01-17 18:00:00') # Wednesday 6 PM
         expected_deadline = Time.zone.parse('2024-01-18 11:00:00') # Thursday 11 AM
 
-        service = described_class.new(inbox: inbox, start_time: start_time, threshold_seconds: 2.hours)
+        service = described_class.new(schedulable: inbox, start_time: start_time, threshold_seconds: 2.hours)
 
         expect(service.deadline.to_i).to eq(expected_deadline.to_i)
       end
@@ -78,7 +78,7 @@ RSpec.describe Sla::BusinessHoursService do
         saturday = Time.zone.parse('2024-01-20 10:00:00')
         monday_11am = Time.zone.parse('2024-01-22 11:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: saturday, threshold_seconds: 2.hours)
+        service = described_class.new(schedulable: inbox, start_time: saturday, threshold_seconds: 2.hours)
 
         expect(service.deadline.to_i).to eq(monday_11am.to_i)
       end
@@ -91,7 +91,7 @@ RSpec.describe Sla::BusinessHoursService do
         monday_4pm = Time.zone.parse('2024-01-15 16:00:00')
         wednesday_10am = Time.zone.parse('2024-01-17 10:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: monday_4pm, threshold_seconds: 10.hours)
+        service = described_class.new(schedulable: inbox, start_time: monday_4pm, threshold_seconds: 10.hours)
 
         expect(service.deadline.to_i).to eq(wednesday_10am.to_i)
       end
@@ -100,7 +100,7 @@ RSpec.describe Sla::BusinessHoursService do
         monday_4pm = Time.zone.parse('2024-01-15 16:00:00')
         wednesday_10am = Time.zone.parse('2024-01-17 10:00:00')
         working_hours = inbox.working_hours
-        service = described_class.new(inbox: inbox, start_time: monday_4pm, threshold_seconds: 10.hours)
+        service = described_class.new(schedulable: inbox, start_time: monday_4pm, threshold_seconds: 10.hours)
 
         expect(working_hours).to receive(:index_by).once.and_call_original
         expect(working_hours).not_to receive(:find_by)
@@ -116,7 +116,7 @@ RSpec.describe Sla::BusinessHoursService do
         friday_4pm_est = Time.zone.parse('2024-01-19 16:00:00 EST')
         monday_10am_est = Time.zone.parse('2024-01-22 10:00:00 EST')
 
-        service = described_class.new(inbox: inbox, start_time: friday_4pm_est, threshold_seconds: 2.hours)
+        service = described_class.new(schedulable: inbox, start_time: friday_4pm_est, threshold_seconds: 2.hours)
 
         expect(service.deadline.to_i).to eq(monday_10am_est.to_i)
       end
@@ -131,7 +131,7 @@ RSpec.describe Sla::BusinessHoursService do
         saturday_10am = Time.zone.parse('2024-01-20 10:00:00')
         saturday_12pm = Time.zone.parse('2024-01-20 12:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: saturday_10am, threshold_seconds: 2.hours)
+        service = described_class.new(schedulable: inbox, start_time: saturday_10am, threshold_seconds: 2.hours)
 
         expect(service.deadline.to_i).to eq(saturday_12pm.to_i)
       end
@@ -142,7 +142,7 @@ RSpec.describe Sla::BusinessHoursService do
         saturday_midnight = Time.zone.parse('2024-01-20 00:00:00')
         sunday_midnight = Time.zone.parse('2024-01-21 00:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: saturday_midnight, threshold_seconds: 24.hours)
+        service = described_class.new(schedulable: inbox, start_time: saturday_midnight, threshold_seconds: 24.hours)
 
         expect(service.deadline.to_i).to eq(sunday_midnight.to_i)
       end
@@ -160,7 +160,7 @@ RSpec.describe Sla::BusinessHoursService do
         monday_6pm = Time.zone.parse('2024-01-15 18:00:00') # Monday
         tuesday_7pm = Time.zone.parse('2024-01-16 19:00:00') # Tuesday
 
-        service = described_class.new(inbox: inbox, start_time: monday_6pm, threshold_seconds: 10.hours)
+        service = described_class.new(schedulable: inbox, start_time: monday_6pm, threshold_seconds: 10.hours)
 
         expect(service.deadline.to_i).to eq(tuesday_7pm.to_i)
       end
@@ -175,7 +175,7 @@ RSpec.describe Sla::BusinessHoursService do
         monday_4pm = Time.zone.parse('2024-01-15 16:00:00')
         tuesday_8pm = Time.zone.parse('2024-01-16 20:00:00')
 
-        service = described_class.new(inbox: inbox, start_time: monday_4pm, threshold_seconds: 12.hours)
+        service = described_class.new(schedulable: inbox, start_time: monday_4pm, threshold_seconds: 12.hours)
 
         expect(service.deadline.to_i).to eq(tuesday_8pm.to_i)
       end

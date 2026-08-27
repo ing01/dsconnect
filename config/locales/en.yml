@@ -115,6 +115,11 @@ en:
       team_change_with_tickets:
         one: This stage has 1 ticket and cannot be moved to another service desk. Move the ticket first.
         other: This stage has %{count} tickets and cannot be moved to another service desk. Move the tickets first.
+    ticket_sla_policy:
+      no_threshold: needs at least a response or a resolution deadline
+    ticket_sla:
+      invalid_kind: is not a valid SLA type
+      clock_not_found: This ticket has no SLA clock of that type
     webhook:
       invalid: Invalid events
     signup:

@@ -4,6 +4,7 @@ import { formatMesaName } from 'dashboard/helper/mesaName';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import { hoursMinutesToSeconds } from 'dashboard/helper/ticketSlaHelper';
 
 export default {
   components: {
@@ -30,10 +31,18 @@ export default {
       selectedTeamId: this.teamId,
       // Zero-based index; defaults to the end of the Mesa.
       position: this.stageCount,
+      stageThreshold: '',
       isSubmitting: false,
     };
   },
   computed: {
+    // Vazio e valido: quer dizer que o Estagio nao tem prazo.
+    isThresholdInvalid() {
+      return (
+        !!this.stageThreshold.trim() &&
+        hoursMinutesToSeconds(this.stageThreshold) === null
+      );
+    },
     positionOptions() {
       return Array.from({ length: this.stageCount + 1 }, (_, index) => index);
     },
@@ -44,7 +53,7 @@ export default {
   methods: {
     formatMesaName,
     async submit() {
-      if (this.isNameInvalid) return;
+      if (this.isNameInvalid || this.isThresholdInvalid) return;
 
       this.isSubmitting = true;
       try {
@@ -52,6 +61,7 @@ export default {
           teamId: this.selectedTeamId,
           name: this.name.trim(),
           position: this.position,
+          stage_threshold: hoursMinutesToSeconds(this.stageThreshold),
         });
         useAlert(this.$t('TICKET.API.COLUMN_SUCCESS'));
         this.$emit('close');
@@ -102,6 +112,27 @@ export default {
         </p>
       </label>
 
+      <!-- O prazo do Estagio mora junto do Estagio porque varia por coluna, nao
+           por prioridade. Vazio significa "esta coluna nao tem prazo". -->
+      <label>
+        {{ $t('TICKET.SETTINGS.FORM.STAGE_SLA.LABEL') }}
+        <input
+          v-model="stageThreshold"
+          type="text"
+          :placeholder="$t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')"
+          :class="{ error: isThresholdInvalid }"
+        />
+        <p
+          class="text-sm"
+          :class="isThresholdInvalid ? 'text-n-ruby-11' : 'text-n-slate-11'"
+        >
+          {{
+            isThresholdInvalid
+              ? $t('TICKET.SETTINGS.FORM.STAGE_SLA.INVALID')
+              : $t('TICKET.SETTINGS.FORM.STAGE_SLA.HINT')
+          }}
+        </p>
+      </label>
       <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
         <NextButton
           faded
@@ -113,7 +144,7 @@ export default {
         <NextButton
           type="submit"
           :label="$t('TICKET.COLUMN_FORM.SUBMIT')"
-          :disabled="isNameInvalid"
+          :disabled="isNameInvalid || isThresholdInvalid"
           :is-loading="isSubmitting"
         />
       </div>

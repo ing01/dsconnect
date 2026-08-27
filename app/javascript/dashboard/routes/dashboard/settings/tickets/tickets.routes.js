@@ -4,6 +4,7 @@ import SettingsWrapper from '../SettingsWrapper.vue';
 import StagesPage from './StagesPage.vue';
 import CategoriesPage from './CategoriesPage.vue';
 import CatalogPage from './CatalogPage.vue';
+import PrioritiesPage from './PrioritiesPage.vue';
 
 // One page per subject rather than a single scrolling screen: Estagios and
 // Categorias belong to a Mesa, the Catalogo is account-wide, and mixing them
@@ -31,6 +32,14 @@ export default {
             permissions: ['administrator'],
           },
           component: StagesPage,
+        },
+        {
+          path: 'priorities',
+          name: 'ticket_priorities_list',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: PrioritiesPage,
         },
         {
           path: 'categories',

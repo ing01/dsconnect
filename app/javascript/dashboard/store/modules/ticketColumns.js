@@ -2,6 +2,7 @@ import types from '../mutation-types';
 import TeamsAPI from '../../api/teams';
 import TicketColumnsAPI from '../../api/ticketColumns';
 import TicketCategoriesAPI from '../../api/ticketCategories';
+import TicketSlaPoliciesAPI from '../../api/ticketSlaPolicies';
 import TicketsAPI from '../../api/tickets';
 
 // The Kanban is the operational board: only tickets still being worked on. A
@@ -22,6 +23,10 @@ export const state = {
   // Categories are scoped to a Mesa the same way Estagios are, and the creation
   // form needs both lists the moment a Mesa is chosen.
   categoriesByTeam: {},
+  // A matriz Mesa x Prioridade e o expediente, que sao configuracao da mesma
+  // Mesa que os Estagios e as Categorias - por isso vivem neste modulo.
+  slaPoliciesByTeam: {},
+  workingHoursByTeam: {},
   uiFlags: {
     isFetching: false,
     isUpdating: false,
@@ -37,6 +42,12 @@ export const getters = {
   },
   getColumns: _state => teamId => {
     return _state.columnsByTeam[teamId] || [];
+  },
+  getSlaPolicies: _state => teamId => {
+    return _state.slaPoliciesByTeam[teamId] || [];
+  },
+  getWorkingHours: _state => teamId => {
+    return _state.workingHoursByTeam[teamId] || null;
   },
   getCategories: _state => teamId => {
     return _state.categoriesByTeam[teamId] || [];
@@ -85,6 +96,41 @@ export const actions = {
   deleteCategory: async ({ dispatch }, { teamId, categoryId }) => {
     await TicketCategoriesAPI.delete(teamId, categoryId);
     return dispatch('fetchCategories', teamId);
+  },
+
+  fetchSlaPolicies: async ({ commit }, teamId) => {
+    if (!teamId) return;
+
+    const response = await TicketSlaPoliciesAPI.get(teamId);
+    commit(types.SET_TICKET_SLA_POLICIES_BY_TEAM, {
+      teamId,
+      policies: response.data.payload,
+    });
+  },
+  // Uma prioridade sem linha na matriz simplesmente nao tem prazo; por isso
+  // criar e atualizar sao acoes distintas, e apagar e como se zera um prazo.
+  createSlaPolicy: async ({ dispatch }, { teamId, ...data }) => {
+    await TicketSlaPoliciesAPI.create(teamId, data);
+    return dispatch('fetchSlaPolicies', teamId);
+  },
+  updateSlaPolicy: async ({ dispatch }, { teamId, policyId, ...data }) => {
+    await TicketSlaPoliciesAPI.update(teamId, policyId, data);
+    return dispatch('fetchSlaPolicies', teamId);
+  },
+  deleteSlaPolicy: async ({ dispatch }, { teamId, policyId }) => {
+    await TicketSlaPoliciesAPI.delete(teamId, policyId);
+    return dispatch('fetchSlaPolicies', teamId);
+  },
+
+  fetchWorkingHours: async ({ commit }, teamId) => {
+    if (!teamId) return;
+
+    const response = await TicketSlaPoliciesAPI.getWorkingHours(teamId);
+    commit(types.SET_TEAM_WORKING_HOURS, { teamId, workingHours: response.data });
+  },
+  updateWorkingHours: async ({ commit }, { teamId, ...data }) => {
+    const response = await TicketSlaPoliciesAPI.updateWorkingHours(teamId, data);
+    commit(types.SET_TEAM_WORKING_HOURS, { teamId, workingHours: response.data });
   },
   createColumn: async ({ dispatch }, { teamId, ...data }) => {
     await TicketColumnsAPI.create(teamId, data);
@@ -163,6 +209,18 @@ export const mutations = {
   },
   [types.SET_TICKET_COLUMNS_BY_TEAM](_state, { teamId, columns }) {
     _state.columnsByTeam = { ..._state.columnsByTeam, [teamId]: columns };
+  },
+  [types.SET_TICKET_SLA_POLICIES_BY_TEAM](_state, { teamId, policies }) {
+    _state.slaPoliciesByTeam = {
+      ..._state.slaPoliciesByTeam,
+      [teamId]: policies,
+    };
+  },
+  [types.SET_TEAM_WORKING_HOURS](_state, { teamId, workingHours }) {
+    _state.workingHoursByTeam = {
+      ..._state.workingHoursByTeam,
+      [teamId]: workingHours,
+    };
   },
   [types.SET_TICKET_CATEGORIES_BY_TEAM](_state, { teamId, categories }) {
     _state.categoriesByTeam = {

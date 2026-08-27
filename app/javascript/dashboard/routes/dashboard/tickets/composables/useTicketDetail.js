@@ -115,11 +115,12 @@ export function useTicketDetail(ticketId) {
   const assignToMe = () =>
     runUpdate('tickets/assignTicketToMe', ticketId.value);
 
-  const addSlaHours = ({ hours, reason }) =>
+  const addSlaHours = ({ hours, reason, slaKind }) =>
     runUpdate('tickets/addTicketSlaHours', {
       id: ticketId.value,
       hours,
       reason,
+      slaKind,
     });
 
   const cancel = reason =>

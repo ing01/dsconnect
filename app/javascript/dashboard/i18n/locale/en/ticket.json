@@ -255,10 +255,21 @@
       },
       "SLA": {
         "TITLE": "SLA",
-        "EMPTY": "No SLA configured for tickets.",
+        "EMPTY": "No SLA configured for this service desk.",
         "DUE_AT": "Deadline",
         "EXTENDED_BY": "Hours added",
-        "HOURS_COUNT": "{hours}h"
+        "HOURS_COUNT": "{hours}h",
+        "NOT_CONFIGURED": "No deadline set",
+        "KIND": {
+          "RESPONSE": "Response deadline",
+          "STAGE": "Stage deadline",
+          "RESOLUTION": "Resolution deadline"
+        },
+        "STATE": {
+          "HIT": "SLA met",
+          "MISSED": "SLA breached",
+          "RUNNING": "SLA running"
+        }
       },
       "APPOINTMENTS": {
         "TITLE": "Appointments",
@@ -334,7 +345,9 @@
         "NAME": "Stage",
         "MESA": "Service desk",
         "TICKETS": "Tickets",
-        "ACTIONS": "Actions"
+        "ACTIONS": "Actions",
+        "STAGE_SLA": "Stage deadline",
+        "NO_SLA": "No deadline"
       },
       "MOVE_UP": "Move up",
       "MOVE_DOWN": "Move down",
@@ -349,6 +362,12 @@
         "ORDER": {
           "LABEL": "Order",
           "HINT": "Defines the column position on the board."
+        },
+        "STAGE_SLA": {
+          "LABEL": "Stage deadline",
+          "HINT": "HH:MM. Leave blank for a stage with no deadline.",
+          "INVALID": "Use the HH:MM format.",
+          "PLACEHOLDER": "00:00"
         }
       },
       "API": {
@@ -388,6 +407,35 @@
       "STAGES": {
         "HEADER": "Stages",
         "DESCRIPTION": "Kanban columns of each service desk."
+      },
+      "PRIORITIES": {
+        "TITLE": "Priorities & SLA",
+        "DESCRIPTION": "Response and resolution deadlines for each priority of a service desk.",
+        "TABLE": {
+          "NAME": "Priority",
+          "RESPONSE": "Response deadline",
+          "RESOLUTION": "Resolution deadline"
+        },
+        "HINT": "Use HH:MM, where hours have no ceiling — 30:00 means thirty hours. Leave blank for no deadline.",
+        "BUSINESS_HOURS": "Count deadlines only during business hours",
+        "SAVE": "Save deadlines",
+        "SAVED": "Deadlines updated.",
+        "WORKING_HOURS": {
+          "TITLE": "Business hours",
+          "CLOSED": "Closed",
+          "TO": "to",
+          "SAVE": "Save business hours",
+          "SAVED": "Business hours updated.",
+          "DAYS": {
+            "D0": "Sunday",
+            "D1": "Monday",
+            "D2": "Tuesday",
+            "D3": "Wednesday",
+            "D4": "Thursday",
+            "D5": "Friday",
+            "D6": "Saturday"
+          }
+        }
       }
     },
     "MESA_SELECTOR": {
@@ -507,7 +555,15 @@
         "NO_HISTORY": "No data",
         "CURRENT_DUE": "Current deadline",
         "NO_DUE": "no deadline set",
-        "NEW_DUE": "New deadline"
+        "NEW_DUE": "New deadline",
+        "KIND": "Which deadline",
+        "KIND_PLACEHOLDER": "Select the SLA to extend",
+        "NO_CLOCK": "This ticket has no SLA of that type.",
+        "KINDS": {
+          "RESPONSE": "Response",
+          "STAGE": "Stage",
+          "RESOLUTION": "Resolution"
+        }
       },
       "CANCEL_DIALOG": {
         "TITLE": "Cancel ticket #{number}?",

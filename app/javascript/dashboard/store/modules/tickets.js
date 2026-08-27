@@ -191,8 +191,8 @@ export const actions = {
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },
-  addTicketSlaHours: async ({ commit }, { id, hours, reason }) => {
-    const response = await TicketsAPI.addSlaHours(id, { hours, reason });
+  addTicketSlaHours: async ({ commit }, { id, hours, reason, slaKind }) => {
+    const response = await TicketsAPI.addSlaHours(id, { hours, reason, slaKind });
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },

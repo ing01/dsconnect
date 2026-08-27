@@ -161,8 +161,12 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     render 'show'
   end
 
+  # Qual dos tres prazos esticar e escolha explicita de quem chama: horas nunca
+  # sao aplicadas aos tres de uma vez.
   def add_sla_hours
-    @ticket.extend_due_at!(hours: params[:hours], reason: params[:reason], user: Current.user)
+    @ticket.extend_sla!(
+      kind: sla_kind_param, hours: params[:hours], reason: params[:reason], user: Current.user
+    )
     fetch_ticket
     render 'show'
   end
@@ -173,6 +177,13 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   end
 
   private
+
+  def sla_kind_param
+    kind = params[:sla_kind].to_s
+    return kind if TicketAppliedSla.kinds.key?(kind)
+
+    raise ActionController::BadRequest, I18n.t('errors.ticket_sla.invalid_kind')
+  end
 
   # TicketPolicy checks the ticket's assignee/team, so authorization must run
   # against the loaded instance (when there is one) rather than the bare
@@ -191,6 +202,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     { ticket_conversations: { conversation: [{ contact: :company }, :inbox] } },
     { ticket_followers: :user },
     { ticket_sla_extensions: :user },
+    { ticket_applied_slas: :ticket_column },
     { ticket_customer_communications: [:user, :contact] },
     { service_catalog_item: { service_catalog_area: :service_catalog } },
     :parent, :children, :merged_into, :merged_tickets
