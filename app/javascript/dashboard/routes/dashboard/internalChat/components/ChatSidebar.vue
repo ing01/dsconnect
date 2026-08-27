@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { shortTime } from '../helpers/messageParser';
+import { presenceDotClass } from '../helpers/presence';
 
 const props = defineProps({
   directs: { type: Array, default: () => [] },
@@ -89,11 +90,7 @@ const visibleChannels = computed(() =>
             <Avatar :name="userFor(direct.userId)?.name || '?'" :size="28" />
             <span
               class="absolute bottom-0 size-2.5 rounded-full border-2 border-n-solid-1 end-0"
-              :class="
-                userFor(direct.userId)?.status === 'online'
-                  ? 'bg-n-teal-9'
-                  : 'bg-n-slate-7'
-              "
+              :class="presenceDotClass(userFor(direct.userId)?.status)"
             />
           </span>
 

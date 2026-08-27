@@ -1,25 +1,20 @@
 /**
- * Dados de demonstração do protótipo do Chat Interno.
+ * Conteúdo de demonstração do protótipo do Chat Interno.
  *
- * Tudo aqui é mock: nenhuma tabela, nenhum endpoint. O objetivo é validar a
- * experiência antes de decidir a arquitetura, então este arquivo é o único
- * lugar que precisa desaparecer quando o backend real entrar.
+ * As **pessoas não são mock**: o diretório vem dos agentes reais da conta, que
+ * é com quem se espera conversar. O que continua simulado são as conversas e as
+ * mensagens, montadas sobre esses agentes para que a tela tenha o que mostrar
+ * antes de existir backend.
+ *
+ * As mensagens de exemplo referem-se aos agentes por posição (`slot`), e não por
+ * id: assim o mesmo roteiro funciona em qualquer conta, tenha ela dois agentes
+ * ou vinte.
  */
 
 const minutesAgo = minutes => Date.now() - minutes * 60 * 1000;
 
-export const CURRENT_USER_ID = 1;
-
-export const USERS = [
-  { id: 1, name: 'João Vitor', role: 'Suporte', status: 'online' },
-  { id: 2, name: 'Maria Silva', role: 'Suporte', status: 'online' },
-  { id: 3, name: 'Carla Reis', role: 'Implantação', status: 'online' },
-  { id: 4, name: 'Diego Melo', role: 'Desenvolvimento', status: 'offline' },
-  { id: 5, name: 'Bruno Souza', role: 'Comercial', status: 'offline' },
-];
-
 /**
- * Tickets que o Chat consegue exibir quando alguém escreve `#numero`.
+ * Tickets que o Chat exibe quando alguém escreve `#numero`.
  * No sistema real isto vira uma consulta; aqui é uma tabela de apoio.
  */
 export const TICKETS = {
@@ -28,146 +23,230 @@ export const TICKETS = {
   32077: { id: 32077, title: 'Treinamento do módulo fiscal', status: 'closed' },
 };
 
-const message = (id, userId, body, minutes, extras = {}) => ({
-  id,
-  userId,
-  body,
-  createdAt: minutesAgo(minutes),
-  reactions: [],
-  ...extras,
-});
+export const QUICK_REACTIONS = ['👍', '❤️', '😂', '✅'];
 
-export const CHANNELS = [
+// Roteiro dos canais. `slot` é a posição no diretório de agentes.
+const CHANNEL_TEMPLATES = [
   {
     id: 'c-geral',
     name: 'geral',
     description: 'Avisos que valem para a empresa toda',
-    memberIds: [1, 2, 3, 4, 5],
     unread: 0,
-    messages: [
-      message('m-g1', 5, 'Pessoal, a reunião de quinta mudou para 15h.', 320),
-      message('m-g2', 3, 'Anotado, obrigada!', 318),
+    script: [
+      {
+        slot: 0,
+        body: 'Pessoal, a reunião de quinta mudou para 15h.',
+        at: 320,
+      },
+      { slot: 1, body: 'Anotado, obrigado!', at: 318 },
     ],
   },
   {
     id: 'c-suporte',
     name: 'suporte',
     description: 'Canal da equipe de suporte',
-    memberIds: [1, 2, 3, 4, 5, 6, 7, 8],
     unread: 5,
-    messages: [
-      message('m-s1', 2, 'O cliente da ROMAFELE retornou?', 62),
-      message(
-        'm-s2',
-        1,
-        'Sim. Vinculei a conversa ao Ticket #32516 para não perdermos o histórico.',
-        58
-      ),
-      message('m-s3', 3, 'O problema parece estar na versão nova.', 47),
-      message(
-        'm-s4',
-        3,
-        'Consegui reproduzir com o XML que eles mandaram.',
-        46
-      ),
-      message('m-s5', 4, '@Carla Reis consegue me mandar esse XML?', 41, {
-        mentions: [3],
-      }),
-      message('m-s6', 3, 'Claro, segue o retorno da SEFAZ.', 38, {
-        attachment: {
-          kind: 'file',
-          name: 'log-erro.txt',
-          size: '24 KB',
-        },
-      }),
-      message('m-s7', 4, 'Vou verificar com desenvolvimento.', 30, {
-        reactions: [{ emoji: '👍', userIds: [1, 2, 3] }],
-      }),
-      message(
-        'm-s8',
-        2,
-        'Enquanto isso avisei o cliente que estamos analisando.',
-        22,
-        { replyTo: 'm-s7' }
-      ),
+    script: [
+      { slot: 1, body: 'O cliente da ROMAFELE retornou?', at: 62 },
+      {
+        slot: 0,
+        body: 'Sim. Vinculei a conversa ao Ticket #32516 para não perdermos o histórico.',
+        at: 58,
+      },
+      { slot: 2, body: 'O problema parece estar na versão nova.', at: 47 },
+      {
+        slot: 2,
+        body: 'Consegui reproduzir com o XML que eles mandaram.',
+        at: 46,
+      },
+      { slot: 3, body: '@{2} consegue me mandar esse XML?', at: 41 },
+      {
+        slot: 2,
+        body: 'Claro, segue o retorno da SEFAZ.',
+        at: 38,
+        attachment: { kind: 'file', name: 'log-erro.txt', size: '24 KB' },
+      },
+      {
+        slot: 3,
+        body: 'Vou verificar com desenvolvimento.',
+        at: 30,
+        reactedBySlots: ['👍', [0, 1, 2]],
+      },
+      {
+        slot: 1,
+        body: 'Enquanto isso avisei o cliente que estamos analisando.',
+        at: 22,
+        replyToIndex: 6,
+      },
     ],
   },
   {
     id: 'c-implantacao',
     name: 'implantação',
     description: 'Acompanhamento das implantações em andamento',
-    memberIds: [1, 3, 5],
     unread: 0,
-    messages: [
-      message('m-i1', 3, 'Implantação da Nortex fechada hoje.', 180),
-      message('m-i2', 5, 'Ótimo. Já aviso o comercial.', 176),
+    script: [
+      { slot: 2, body: 'Implantação da Nortex fechada hoje.', at: 180 },
+      { slot: 0, body: 'Ótimo. Já aviso o comercial.', at: 176 },
     ],
   },
   {
     id: 'c-comercial',
     name: 'comercial',
     description: 'Negociações, propostas e renovações',
-    memberIds: [1, 5],
     unread: 0,
-    messages: [message('m-co1', 5, 'Proposta da Vale Verde enviada.', 240)],
+    script: [{ slot: 0, body: 'Proposta da Vale Verde enviada.', at: 240 }],
   },
   {
     id: 'c-desenvolvimento',
     name: 'desenvolvimento',
     description: 'Bugs, releases e revisão de código',
-    memberIds: [1, 4],
     unread: 2,
-    messages: [
-      message('m-d1', 4, 'Subi a correção do #32498 em homologação.', 95),
-      message('m-d2', 4, 'Precisa de um teste antes de ir para produção.', 94),
+    script: [
+      { slot: 3, body: 'Subi a correção do #32498 em homologação.', at: 95 },
+      {
+        slot: 3,
+        body: 'Precisa de um teste antes de ir para produção.',
+        at: 94,
+      },
     ],
   },
 ];
 
-export const DIRECTS = [
+// Conversas privadas de exemplo: `with` é a posição do colega no diretório,
+// contando a partir do usuário logado.
+const DIRECT_TEMPLATES = [
   {
-    id: 'd-maria',
-    userId: 2,
+    with: 1,
     unread: 3,
-    messages: [
-      message('m-dm1', 2, 'Conseguiu verificar o retorno da ROMAFELE?', 35),
-      message('m-dm2', 1, 'Estou olhando agora, já te falo.', 33),
-      message('m-dm3', 2, 'Combinado. O #32516 é o mesmo caso?', 28, {}),
-      message('m-dm4', 2, 'Mandei o print da tela do cliente:', 26, {
+    script: [
+      {
+        fromMe: false,
+        body: 'Conseguiu verificar o retorno da ROMAFELE?',
+        at: 35,
+      },
+      { fromMe: true, body: 'Estou olhando agora, já te falo.', at: 33 },
+      { fromMe: false, body: 'Combinado. O #32516 é o mesmo caso?', at: 28 },
+      {
+        fromMe: false,
+        body: 'Mandei o print da tela do cliente:',
+        at: 26,
         attachment: {
           kind: 'image',
           name: 'tela-erro.png',
           size: '318 KB',
-          // Placeholder desenhado localmente: nenhum host externo, porque a
-          // política de conteúdo do produto bloqueia imagem de fora.
+          // Desenhado localmente: a política de conteúdo do produto bloqueia
+          // imagem de host externo.
           color: '#3f5c78',
         },
-      }),
-      message('m-dm5', 2, 'Conseguiu verificar?', 25),
+      },
+      { fromMe: false, body: 'Conseguiu verificar?', at: 25 },
     ],
   },
   {
-    id: 'd-carlos',
-    userId: 4,
+    with: 2,
     unread: 0,
-    messages: [
-      message('m-dc1', 4, 'Bom dia! O deploy de ontem passou limpo.', 400),
-      message('m-dc2', 1, 'Perfeito, obrigado por avisar.', 395),
+    script: [
+      {
+        fromMe: false,
+        body: 'Bom dia! O deploy de ontem passou limpo.',
+        at: 400,
+      },
+      { fromMe: true, body: 'Perfeito, obrigado por avisar.', at: 395 },
     ],
   },
   {
-    id: 'd-ana',
-    userId: 3,
+    with: 3,
     unread: 0,
-    messages: [
-      message(
-        'm-da1',
-        3,
-        'Te mandei o cronograma da implantação por e-mail.',
-        500
-      ),
+    script: [
+      {
+        fromMe: false,
+        body: 'Te mandei o cronograma da implantação por e-mail.',
+        at: 500,
+      },
     ],
   },
 ];
 
-export const QUICK_REACTIONS = ['👍', '❤️', '😂', '✅'];
+/**
+ * Resolve a posição de um roteiro num agente de verdade.
+ * Quando a conta tem menos agentes que o roteiro pede, as posições dão a volta,
+ * para que nenhuma mensagem fique órfã.
+ * @param {Array} users diretório de agentes
+ * @param {number} slot posição pedida pelo roteiro
+ * @returns {object|null} agente correspondente
+ */
+const at = (users, slot) => (users.length ? users[slot % users.length] : null);
+
+/**
+ * Monta as conversas de demonstração sobre os agentes reais da conta.
+ * @param {Array} users diretório de agentes (o logado em primeiro)
+ * @param {number} currentUserId id do usuário logado
+ * @returns {{channels: Array, directs: Array}} salas prontas para o store
+ */
+export const buildDemoRooms = (users, currentUserId) => {
+  if (!users.length) return { channels: [], directs: [] };
+
+  const memberIds = users.map(user => user.id);
+
+  const channels = CHANNEL_TEMPLATES.map(template => {
+    const messages = template.script.map((line, index) => {
+      const author = at(users, line.slot);
+      const message = {
+        id: `${template.id}-${index}`,
+        userId: author.id,
+        // `@{2}` no roteiro vira a menção ao agente daquela posição.
+        body: line.body.replace(
+          /@\{(\d+)\}/g,
+          (_, slot) => `@${at(users, Number(slot)).name}`
+        ),
+        createdAt: minutesAgo(line.at),
+        reactions: [],
+      };
+
+      if (line.attachment) message.attachment = line.attachment;
+      if (line.replyToIndex !== undefined) {
+        message.replyTo = `${template.id}-${line.replyToIndex}`;
+      }
+      if (line.reactedBySlots) {
+        const [emoji, slots] = line.reactedBySlots;
+        message.reactions = [
+          { emoji, userIds: slots.map(slot => at(users, slot).id) },
+        ];
+      }
+      return message;
+    });
+
+    return {
+      id: template.id,
+      name: template.name,
+      description: template.description,
+      memberIds,
+      unread: template.unread,
+      messages,
+    };
+  });
+
+  // Uma conversa privada por colega, até três, para a tela nascer com conteúdo.
+  const colleagues = users.filter(user => user.id !== currentUserId);
+  const directs = DIRECT_TEMPLATES.slice(0, colleagues.length).map(
+    (template, index) => {
+      const peer = colleagues[index];
+      return {
+        id: `d-${peer.id}`,
+        userId: peer.id,
+        unread: template.unread,
+        messages: template.script.map((line, position) => ({
+          id: `d-${peer.id}-${position}`,
+          userId: line.fromMe ? currentUserId : peer.id,
+          body: line.body,
+          createdAt: minutesAgo(line.at),
+          reactions: [],
+          ...(line.attachment ? { attachment: line.attachment } : {}),
+        })),
+      };
+    }
+  );
+
+  return { channels, directs };
+};

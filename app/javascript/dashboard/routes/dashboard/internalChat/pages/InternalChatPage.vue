@@ -87,7 +87,12 @@ const openRoom = roomId => {
   scrollToBottom();
 };
 
-onMounted(() => {
+// Os agentes da conta são o diretório do Chat - é com eles que se conversa.
+// Sem esta busca a tela nasceria vazia numa sessão que ainda não os carregou.
+onMounted(async () => {
+  await store.dispatch('agents/get');
+  await store.dispatch('internalChat/initialise');
+
   const initial =
     route.query.room || directs.value[0]?.id || channels.value[0]?.id;
   if (initial) openRoom(initial);

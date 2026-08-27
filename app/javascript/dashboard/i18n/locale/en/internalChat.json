@@ -18,7 +18,8 @@
     },
     "PRESENCE": {
       "ONLINE": "Online",
-      "OFFLINE": "Offline"
+      "OFFLINE": "Offline",
+      "BUSY": "Busy"
     },
     "MESSAGE": {
       "REPLY": "Reply",

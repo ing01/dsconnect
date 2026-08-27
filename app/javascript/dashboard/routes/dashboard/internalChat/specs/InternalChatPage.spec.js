@@ -14,14 +14,65 @@ vi.mock('vue-router', () => ({
   useRoute: () => ({ params: { accountId: 1 }, query: {} }),
 }));
 
-// O store real do protótipo: ele não faz chamada nenhuma, então os testes
-// exercitam exatamente o que a tela usa em produção.
-const buildStore = () =>
-  createStore({ modules: { internalChat: { ...internalChat } } });
+// Os agentes de verdade da conta: é com eles que se conversa, e é deles que o
+// diretório do Chat é montado.
+const AGENTS = [
+  {
+    id: 11,
+    name: 'João Vitor',
+    role: 'administrator',
+    availability_status: 'online',
+    confirmed: true,
+  },
+  {
+    id: 12,
+    name: 'Maria Silva',
+    role: 'agent',
+    availability_status: 'online',
+    confirmed: true,
+  },
+  {
+    id: 13,
+    name: 'Carla Reis',
+    role: 'agent',
+    availability_status: 'busy',
+    confirmed: true,
+  },
+  {
+    id: 14,
+    name: 'Diego Melo',
+    role: 'agent',
+    availability_status: 'offline',
+    confirmed: true,
+  },
+];
 
-const mountPage = async () => {
+// O módulo declara `state` como objeto, então registrá-lo em vários stores
+// compartilharia a mesma referência e um teste veria o que o anterior semeou.
+// Na aplicação ele é registrado uma única vez; aqui cada caso ganha o seu.
+const freshState = () => ({
+  users: [],
+  channels: [],
+  directs: [],
+  currentUserId: null,
+  isSeeded: false,
+});
+
+const buildStore = (agents = AGENTS, currentUser = AGENTS[0]) =>
+  createStore({
+    modules: { internalChat: { ...internalChat, state: freshState() } },
+    getters: {
+      getCurrentUser: () => currentUser,
+      'agents/getVerifiedAgents': () => agents,
+    },
+    actions: {
+      'agents/get': () => Promise.resolve(),
+    },
+  });
+
+const mountPage = async (options = {}) => {
   holder.push = vi.fn();
-  const store = buildStore();
+  const store = buildStore(options.agents, options.currentUser);
 
   const wrapper = mount(InternalChatPage, {
     global: {
@@ -43,22 +94,64 @@ const mountPage = async () => {
   return { wrapper, store };
 };
 
-const sidebarButtons = wrapper =>
-  wrapper.findAll('aside button').map(button => button.text());
+const firstDirectId = store => store.getters['internalChat/getDirects'][0].id;
 
 describe('InternalChatPage', () => {
+  // O defeito que motivou esta mudança: o Chat listava pessoas inventadas em
+  // vez dos agentes da conta, então não dava para conversar com ninguém real.
+  describe('directory', () => {
+    it('is built from the account agents, not from fixed names', async () => {
+      const { store } = await mountPage();
+
+      expect(
+        store.getters['internalChat/getUsers'].map(user => user.id)
+      ).toEqual([11, 12, 13, 14]);
+    });
+
+    it('puts the logged-in user first and keeps them out of the conversation list', async () => {
+      const { store } = await mountPage();
+
+      expect(store.getters['internalChat/getCurrentUserId']).toBe(11);
+      const peers = store.getters['internalChat/getDirects'].map(d => d.userId);
+      expect(peers).not.toContain(11);
+    });
+
+    it('opens a conversation with every colleague available', async () => {
+      const { store } = await mountPage();
+
+      expect(
+        store.getters['internalChat/getDirects'].map(d => d.userId)
+      ).toEqual([12, 13, 14]);
+    });
+
+    // Uma conta pequena não pode quebrar o roteiro de demonstração.
+    it('survives an account with a single other agent', async () => {
+      const { store, wrapper } = await mountPage({
+        agents: AGENTS.slice(0, 2),
+      });
+
+      expect(store.getters['internalChat/getDirects']).toHaveLength(1);
+      expect(wrapper.text()).toContain('Maria Silva');
+    });
+
+    it('carries the real availability of each agent', async () => {
+      const { store } = await mountPage();
+      const carla = store.getters['internalChat/getUserById'](13);
+
+      expect(carla.status).toBe('busy');
+    });
+  });
+
   it('separates private conversations from channels', async () => {
     const { wrapper } = await mountPage();
-    const labels = sidebarButtons(wrapper).join(' ');
 
-    expect(labels).toContain('Maria Silva');
-    expect(labels).toContain('suporte');
-    // As duas listas têm cabeçalhos próprios, e não uma lista única.
     const headings = wrapper.findAll('aside h3').map(item => item.text());
     expect(headings).toEqual([
       'INTERNAL_CHAT.SIDEBAR.DIRECTS',
       'INTERNAL_CHAT.SIDEBAR.CHANNELS',
     ]);
+    expect(wrapper.text()).toContain('Maria Silva');
+    expect(wrapper.text()).toContain('suporte');
   });
 
   it('opens the first conversation on arrival', async () => {
@@ -71,25 +164,30 @@ describe('InternalChatPage', () => {
   it('clears the unread count of the room it opens', async () => {
     const { store } = await mountPage();
 
-    expect(store.getters['internalChat/getRoomById']('d-maria').unread).toBe(0);
+    expect(
+      store.getters['internalChat/getRoomById'](firstDirectId(store)).unread
+    ).toBe(0);
     expect(store.getters['internalChat/getUnreadCount']).toBe(7);
   });
 
-  it('sends a message into the open room', async () => {
+  it('sends a message into the open room, authored by the logged-in agent', async () => {
     const { wrapper, store } = await mountPage();
 
     await wrapper.find('textarea').setValue('Vou verificar agora.');
     await wrapper.find('textarea').trigger('keydown', { key: 'Enter' });
 
-    const room = store.getters['internalChat/getRoomById']('d-maria');
+    const room = store.getters['internalChat/getRoomById'](
+      firstDirectId(store)
+    );
     expect(room.messages.at(-1).body).toBe('Vou verificar agora.');
-    expect(room.messages.at(-1).userId).toBe(1);
+    expect(room.messages.at(-1).userId).toBe(11);
   });
 
   it('does not send on shift+enter, which is a line break', async () => {
     const { wrapper, store } = await mountPage();
+    const roomId = firstDirectId(store);
     const before =
-      store.getters['internalChat/getRoomById']('d-maria').messages.length;
+      store.getters['internalChat/getRoomById'](roomId).messages.length;
 
     await wrapper.find('textarea').setValue('primeira linha');
     await wrapper.find('textarea').trigger('keydown', {
@@ -98,7 +196,7 @@ describe('InternalChatPage', () => {
     });
 
     expect(
-      store.getters['internalChat/getRoomById']('d-maria').messages
+      store.getters['internalChat/getRoomById'](roomId).messages
     ).toHaveLength(before);
   });
 
@@ -131,7 +229,8 @@ describe('InternalChatPage', () => {
     expect(wrapper.text()).toContain('O cliente da ROMAFELE retornou?');
   });
 
-  it('highlights a mention instead of leaving it as plain text', async () => {
+  // A menção do roteiro aponta para um agente real, e não para um nome fixo.
+  it('highlights a mention of a real agent', async () => {
     const { wrapper } = await mountPage();
 
     const channelButton = wrapper
@@ -155,9 +254,11 @@ describe('InternalChatPage', () => {
       .find(button => button.text() === '👍');
     await thumbsUp.trigger('click');
 
-    const room = store.getters['internalChat/getRoomById']('d-maria');
+    const room = store.getters['internalChat/getRoomById'](
+      firstDirectId(store)
+    );
     const reacted = room.messages.some(message =>
-      message.reactions.some(reaction => reaction.userIds.includes(1))
+      message.reactions.some(reaction => reaction.userIds.includes(11))
     );
     expect(reacted).toBe(true);
   });

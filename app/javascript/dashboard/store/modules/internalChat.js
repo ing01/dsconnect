@@ -1,30 +1,28 @@
-import {
-  CHANNELS,
-  CURRENT_USER_ID,
-  DIRECTS,
-  USERS,
-} from '../../routes/dashboard/internalChat/helpers/mockData';
+import { buildDemoRooms } from '../../routes/dashboard/internalChat/helpers/mockData';
 
 /**
  * Estado do protótipo do Chat Interno.
  *
+ * As pessoas são reais: o diretório vem dos agentes da conta, que é com quem se
+ * espera conversar. O que ainda é simulado são as conversas e as mensagens, que
+ * vivem só na sessão do navegador - não há tabela nem endpoint nesta etapa.
+ *
  * Vive no Vuex por um motivo concreto: o contador do menu lateral lê um getter,
- * e a tela precisa do mesmo estado. Nenhuma chamada de API acontece aqui - tudo
- * parte de `mockData` e vive só na sessão do navegador, como combinado para
- * esta etapa.
+ * e a tela precisa do mesmo estado.
  *
  * O Chat Interno é deliberadamente separado das Conversations com clientes, dos
  * comentários internos e da comunicação com o cliente dos Tickets. Ele só
  * conhece funcionários, grupos e canais.
  */
 
-const clone = value => JSON.parse(JSON.stringify(value));
-
 export const state = {
-  users: clone(USERS),
-  channels: clone(CHANNELS),
-  directs: clone(DIRECTS),
-  currentUserId: CURRENT_USER_ID,
+  users: [],
+  channels: [],
+  directs: [],
+  currentUserId: null,
+  // As conversas de demonstração são montadas uma vez, quando os agentes
+  // chegam; remontar a cada visita apagaria o que foi escrito na sessão.
+  isSeeded: false,
 };
 
 export const getters = {
@@ -32,6 +30,7 @@ export const getters = {
   getChannels: _state => _state.channels,
   getDirects: _state => _state.directs,
   getCurrentUserId: _state => _state.currentUserId,
+  getIsSeeded: _state => _state.isSeeded,
 
   getUserById: _state => id => _state.users.find(user => user.id === id),
 
@@ -49,7 +48,47 @@ export const getters = {
     _state.directs.find(direct => direct.id === id),
 };
 
+/**
+ * Converte um agente da conta no formato que a tela do Chat usa.
+ * @param {object} agent registro do store `agents`
+ * @returns {object} pessoa do diretório
+ */
+const toDirectoryUser = agent => ({
+  id: agent.id,
+  name: agent.name,
+  role: agent.role,
+  // A disponibilidade já existe no produto; o Chat só a apresenta.
+  status: agent.availability_status || 'offline',
+  thumbnail: agent.thumbnail,
+});
+
 export const actions = {
+  /**
+   * Monta o diretório a partir dos agentes reais da conta e semeia as conversas
+   * de demonstração sobre eles.
+   */
+  initialise: ({ commit, state: _state, rootGetters }) => {
+    const currentUser = rootGetters.getCurrentUser || {};
+    const agents = rootGetters['agents/getVerifiedAgents'] || [];
+
+    // O usuário logado vem primeiro, e entra no diretório mesmo que ainda não
+    // conste na lista de agentes carregada.
+    const others = agents.filter(agent => agent.id !== currentUser.id);
+    const users = [
+      ...(currentUser.id
+        ? [toDirectoryUser({ ...currentUser, availability_status: 'online' })]
+        : []),
+      ...others.map(toDirectoryUser),
+    ];
+
+    commit('SET_DIRECTORY', { users, currentUserId: currentUser.id || null });
+
+    // Semeia uma única vez: o que foi escrito durante a sessão permanece.
+    if (_state.isSeeded || !users.length) return;
+
+    commit('SEED_ROOMS', buildDemoRooms(users, currentUser.id));
+  },
+
   // Abrir a sala zera o não lido, como em qualquer mensageiro.
   markRead: ({ commit }, roomId) => commit('MARK_READ', roomId),
 
@@ -91,7 +130,7 @@ export const actions = {
     const existing = _state.directs.find(direct => direct.userId === userId);
     if (existing) return existing;
 
-    const direct = { id: `d-${Date.now()}`, userId, unread: 0, messages: [] };
+    const direct = { id: `d-${userId}`, userId, unread: 0, messages: [] };
     commit('ADD_DIRECT', direct);
     return direct;
   },
@@ -102,6 +141,17 @@ const findRoom = (_state, roomId) =>
   _state.directs.find(direct => direct.id === roomId);
 
 export const mutations = {
+  SET_DIRECTORY(_state, { users, currentUserId }) {
+    _state.users = users;
+    _state.currentUserId = currentUserId;
+  },
+
+  SEED_ROOMS(_state, { channels, directs }) {
+    _state.channels = channels;
+    _state.directs = directs;
+    _state.isSeeded = true;
+  },
+
   MARK_READ(_state, roomId) {
     const room = findRoom(_state, roomId);
     if (room) room.unread = 0;

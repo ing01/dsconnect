@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import { presenceDotClass, presenceLabelKey } from '../helpers/presence';
 
 const props = defineProps({
   room: { type: Object, default: null },
@@ -67,15 +68,9 @@ const toggleSearch = () => {
           <span class="flex items-center gap-1.5 text-xs text-n-slate-10">
             <span
               class="size-1.5 rounded-full"
-              :class="
-                peer?.status === 'online' ? 'bg-n-teal-9' : 'bg-n-slate-7'
-              "
+              :class="presenceDotClass(peer?.status)"
             />
-            {{
-              peer?.status === 'online'
-                ? t('INTERNAL_CHAT.PRESENCE.ONLINE')
-                : t('INTERNAL_CHAT.PRESENCE.OFFLINE')
-            }}
+            {{ t(presenceLabelKey(peer?.status)) }}
           </span>
         </div>
       </template>
