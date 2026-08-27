@@ -1,0 +1,66 @@
+{
+  "INTERNAL_CHAT": {
+    "SIDEBAR": {
+      "SEARCH": "Buscar conversas",
+      "DIRECTS": "Conversas",
+      "CHANNELS": "Canais",
+      "NEW_CONVERSATION": "Nova conversa",
+      "CREATE_CHANNEL": "Criar canal",
+      "NO_MESSAGES": "Sem mensagens ainda"
+    },
+    "HEADER": {
+      "BACK": "Voltar",
+      "SEARCH": "Buscar mensagens",
+      "SEARCH_PLACEHOLDER": "Buscar nesta conversa",
+      "MEMBERS": "{count} membros",
+      "MEMBERS_TITLE": "Membros",
+      "MORE": "Mais"
+    },
+    "PRESENCE": {
+      "ONLINE": "Online",
+      "OFFLINE": "Offline"
+    },
+    "MESSAGE": {
+      "REPLY": "Responder",
+      "REACT": "Reagir"
+    },
+    "COMPOSER": {
+      "PLACEHOLDER": "Digite uma mensagem...",
+      "PLACEHOLDER_CHANNEL": "Mensagem para #{name}",
+      "PLACEHOLDER_DIRECT": "Mensagem para {name}",
+      "SEND": "Enviar",
+      "ATTACH": "Anexar",
+      "EMOJI": "Emoji",
+      "ATTACH_IMAGE": "Anexar imagem",
+      "ATTACH_FILE": "Anexar arquivo",
+      "REMOVE_ATTACHMENT": "Remover anexo",
+      "REPLYING_TO": "Respondendo {name}:",
+      "CANCEL_REPLY": "Cancelar resposta",
+      "QUOTED": "\"{text}\""
+    },
+    "NEW_CONVERSATION": {
+      "TITLE": "Nova conversa",
+      "SEARCH": "Buscar um colega",
+      "EMPTY": "Ninguém encontrado."
+    },
+    "CREATE_CHANNEL": {
+      "TITLE": "Criar canal",
+      "NAME": "Nome",
+      "NAME_PLACEHOLDER": "desenvolvimento",
+      "DESCRIPTION": "Descrição",
+      "DESCRIPTION_PLACEHOLDER": "Para que serve este canal",
+      "VISIBILITY": "Tipo",
+      "PUBLIC": "Público",
+      "PRIVATE": "Privado",
+      "MEMBERS": "Membros",
+      "CONFIRM": "Criar"
+    },
+    "IMAGE": {
+      "CLOSE": "Fechar"
+    },
+    "UNREAD_DIVIDER": "{count} mensagens não lidas",
+    "ROOM_EMPTY": "Ainda não há mensagens aqui. Diga alguma coisa.",
+    "SEARCH_EMPTY": "Nenhuma mensagem corresponde a esta busca.",
+    "NO_ROOM": "Escolha uma conversa ou um canal para começar."
+  }
+}

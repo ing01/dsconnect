@@ -1,0 +1,66 @@
+{
+  "INTERNAL_CHAT": {
+    "SIDEBAR": {
+      "SEARCH": "Search conversations",
+      "DIRECTS": "Conversations",
+      "CHANNELS": "Channels",
+      "NEW_CONVERSATION": "New conversation",
+      "CREATE_CHANNEL": "Create channel",
+      "NO_MESSAGES": "No messages yet"
+    },
+    "HEADER": {
+      "BACK": "Back",
+      "SEARCH": "Search messages",
+      "SEARCH_PLACEHOLDER": "Search in this conversation",
+      "MEMBERS": "{count} members",
+      "MEMBERS_TITLE": "Members",
+      "MORE": "More"
+    },
+    "PRESENCE": {
+      "ONLINE": "Online",
+      "OFFLINE": "Offline"
+    },
+    "MESSAGE": {
+      "REPLY": "Reply",
+      "REACT": "React"
+    },
+    "COMPOSER": {
+      "PLACEHOLDER": "Type a message...",
+      "PLACEHOLDER_CHANNEL": "Message #{name}",
+      "PLACEHOLDER_DIRECT": "Message {name}",
+      "SEND": "Send",
+      "ATTACH": "Attach",
+      "EMOJI": "Emoji",
+      "ATTACH_IMAGE": "Attach image",
+      "ATTACH_FILE": "Attach file",
+      "REMOVE_ATTACHMENT": "Remove attachment",
+      "REPLYING_TO": "Replying to {name}:",
+      "CANCEL_REPLY": "Cancel reply",
+      "QUOTED": "\"{text}\""
+    },
+    "NEW_CONVERSATION": {
+      "TITLE": "New conversation",
+      "SEARCH": "Search a colleague",
+      "EMPTY": "Nobody found."
+    },
+    "CREATE_CHANNEL": {
+      "TITLE": "Create channel",
+      "NAME": "Name",
+      "NAME_PLACEHOLDER": "development",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "What this channel is for",
+      "VISIBILITY": "Type",
+      "PUBLIC": "Public",
+      "PRIVATE": "Private",
+      "MEMBERS": "Members",
+      "CONFIRM": "Create"
+    },
+    "IMAGE": {
+      "CLOSE": "Close"
+    },
+    "UNREAD_DIVIDER": "{count} unread messages",
+    "ROOM_EMPTY": "No messages here yet. Say something.",
+    "SEARCH_EMPTY": "No message matches this search.",
+    "NO_ROOM": "Pick a conversation or a channel to start."
+  }
+}

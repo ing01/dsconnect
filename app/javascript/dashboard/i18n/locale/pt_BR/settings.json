@@ -422,7 +422,8 @@
     "TICKET_STAGES": "Estágios",
     "TICKET_CATALOG": "Catálogo",
     "TICKET_CATEGORIES": "Categorias",
-    "TICKET_PRIORITIES": "Prioridades e SLA"
+    "TICKET_PRIORITIES": "Prioridades e SLA",
+    "INTERNAL_CHAT": "Chat interno"
   },
   "DATA_IMPORTS": {
     "HEADER": "Dados",

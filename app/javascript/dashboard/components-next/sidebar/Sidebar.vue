@@ -504,6 +504,18 @@ const menuItems = computed(() => {
         ]
       : []),
     {
+      name: 'Internal Chat',
+      label: t('SIDEBAR.INTERNAL_CHAT'),
+      icon: 'i-lucide-messages-square',
+      to: accountScopedRoute('internal_chat'),
+      activeOn: ['internal_chat'],
+      // O contador vem do estado mockado do prototipo; quando o backend
+      // existir, basta trocar o getter.
+      getterKeys: {
+        count: 'internalChat/getUnreadCount',
+      },
+    },
+    {
       name: 'Tickets',
       label: t('SIDEBAR.TICKETS'),
       icon: 'i-lucide-kanban-square',
