@@ -4,11 +4,13 @@ import { formatMesaName } from 'dashboard/helper/mesaName';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import DurationInput from './DurationInput.vue';
 import { hoursMinutesToSeconds } from 'dashboard/helper/ticketSlaHelper';
 
 export default {
   components: {
     NextButton,
+    DurationInput,
   },
   props: {
     teams: {
@@ -116,11 +118,10 @@ export default {
            por prioridade. Vazio significa "esta coluna nao tem prazo". -->
       <label>
         {{ $t('TICKET.SETTINGS.FORM.STAGE_SLA.LABEL') }}
-        <input
+        <DurationInput
           v-model="stageThreshold"
-          type="text"
-          :placeholder="$t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')"
-          :class="{ error: isThresholdInvalid }"
+          :invalid="isThresholdInvalid"
+          :aria-label="$t('TICKET.SETTINGS.FORM.STAGE_SLA.LABEL')"
         />
         <p
           class="text-sm"

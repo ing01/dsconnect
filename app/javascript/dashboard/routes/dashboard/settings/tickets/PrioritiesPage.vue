@@ -12,6 +12,7 @@ import {
 
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import TeamWorkingHours from './TeamWorkingHours.vue';
+import DurationInput from './DurationInput.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import {
@@ -218,25 +219,19 @@ const tableHeaders = computed(() => [
                   {{ t(`TICKET.FORM.PRIORITY.${priority.toUpperCase()}`) }}
                 </BaseTableCell>
                 <BaseTableCell>
-                  <input
+                  <DurationInput
                     v-model="draft[priority].response"
-                    type="text"
-                    :placeholder="
-                      t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')
-                    "
-                    class="w-24 mb-0"
-                    :class="{ error: isInvalid(draft[priority].response) }"
+                    :invalid="isInvalid(draft[priority].response)"
+                    :aria-label="t('TICKET.SETTINGS.PRIORITIES.TABLE.RESPONSE')"
                   />
                 </BaseTableCell>
                 <BaseTableCell>
-                  <input
+                  <DurationInput
                     v-model="draft[priority].resolution"
-                    type="text"
-                    :placeholder="
-                      t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')
+                    :invalid="isInvalid(draft[priority].resolution)"
+                    :aria-label="
+                      t('TICKET.SETTINGS.PRIORITIES.TABLE.RESOLUTION')
                     "
-                    class="w-24 mb-0"
-                    :class="{ error: isInvalid(draft[priority].resolution) }"
                   />
                 </BaseTableCell>
               </BaseTableRow>

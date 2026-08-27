@@ -5,6 +5,7 @@ import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import Button from 'dashboard/components-next/button/Button.vue';
+import DurationInput from './DurationInput.vue';
 
 const props = defineProps({
   teamId: { type: Number, default: null },
@@ -115,22 +116,20 @@ const save = async () => {
       </label>
 
       <template v-if="!row.closed">
-        <input
+        <DurationInput
           v-model="row.open"
-          type="text"
-          class="w-24 mb-0"
-          :class="{ error: rowError(row) }"
-          :placeholder="t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')"
+          :max-hours="23"
+          :invalid="rowError(row)"
+          :aria-label="t('TICKET.SETTINGS.PRIORITIES.WORKING_HOURS.OPEN')"
         />
         <span class="text-sm text-n-slate-11">
           {{ t('TICKET.SETTINGS.PRIORITIES.WORKING_HOURS.TO') }}
         </span>
-        <input
+        <DurationInput
           v-model="row.close"
-          type="text"
-          class="w-24 mb-0"
-          :class="{ error: rowError(row) }"
-          :placeholder="t('TICKET.SETTINGS.FORM.STAGE_SLA.PLACEHOLDER')"
+          :max-hours="23"
+          :invalid="rowError(row)"
+          :aria-label="t('TICKET.SETTINGS.PRIORITIES.WORKING_HOURS.CLOSE')"
         />
       </template>
     </div>

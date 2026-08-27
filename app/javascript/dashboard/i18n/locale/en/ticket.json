@@ -434,7 +434,9 @@
             "D4": "Thursday",
             "D5": "Friday",
             "D6": "Saturday"
-          }
+          },
+          "OPEN": "Opens at",
+          "CLOSE": "Closes at"
         }
       }
     },

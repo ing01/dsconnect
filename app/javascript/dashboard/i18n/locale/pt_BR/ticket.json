@@ -434,7 +434,9 @@
             "D4": "Quinta",
             "D5": "Sexta",
             "D6": "Sábado"
-          }
+          },
+          "OPEN": "Abre às",
+          "CLOSE": "Fecha às"
         }
       }
     },
