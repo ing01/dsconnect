@@ -1,0 +1,115 @@
+{
+  "CONVERSATION_FLOWS_SETTINGS": {
+    "HEADER": "Flows",
+    "LOADING": "Fetching flows",
+    "DESCRIPTION": "Flows let a Chatbot ask questions, present options and route conversations automatically before a human takes over.",
+    "HEADER_BTN_TXT": "Add flow",
+    "LIST": {
+      "404": "There are no flows created on this account.",
+      "TABLE_HEADER": {
+        "NAME": "Name",
+        "STEPS": "Steps",
+        "ACTIVE": "Status",
+        "ACTION": "Actions"
+      },
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "EDITOR": {
+      "TITLE": "Edit flow",
+      "DESC": "Configure the flow's steps below. Attach it to a Chatbot (Settings > Bots) to put it to use."
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Name",
+        "PLACEHOLDER": "Enter a name for this flow"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "Short description about this flow"
+      },
+      "ACTIVE": {
+        "LABEL": "Active flow"
+      },
+      "CREATE": "Create",
+      "SAVE_DETAILS": "Save details",
+      "BACK": "Back",
+      "CANCEL": "Cancel",
+      "EDIT": "Edit flow",
+      "DELETE": "Delete flow"
+    },
+    "STEPS": {
+      "START": "Start",
+      "END": "End",
+      "ADD_BTN": "Add step",
+      "DEFAULT_CONTENT": "New message",
+      "SAVE": "Save step",
+      "DELETE": "Delete step",
+      "TYPES": {
+        "SEND_MESSAGE": "Send a message",
+        "ASK_QUESTION": "Ask an open question",
+        "PRESENT_OPTIONS": "Present options",
+        "TRANSFER_TEAM": "Transfer to department",
+        "TRANSFER_QUEUE": "Transfer to queue",
+        "ADD_LABEL": "Add tags",
+        "SET_PRIORITY": "Set priority",
+        "CREATE_TICKET": "Create ticket",
+        "END_FLOW": "End flow"
+      },
+      "FIELDS": {
+        "TYPE": "Step type",
+        "CONTENT": "Message",
+        "OPTIONS": "Options",
+        "OPTION_TITLE": "Option label",
+        "OPTION_VALUE": "Option value",
+        "ADD_OPTION": "+ Add option",
+        "NEXT_STEP": "Next step",
+        "NO_NEXT_STEP": "End flow after this step",
+        "TEAM": "Department",
+        "SELECT_TEAM": "Select a department",
+        "QUEUE": "Queue",
+        "SELECT_QUEUE": "Select a queue",
+        "LABELS": "Tags",
+        "LABELS_PLACEHOLDER": "tag-one, tag-two",
+        "PRIORITY": "Priority",
+        "PRIORITY_LOW": "Low",
+        "PRIORITY_MEDIUM": "Medium",
+        "PRIORITY_HIGH": "High",
+        "PRIORITY_URGENT": "Urgent",
+        "TICKET_CATEGORY_ID": "Ticket category ID",
+        "TICKET_CATEGORY_ID_HINT": "See Settings > Categories for the ID"
+      },
+      "API": {
+        "SAVE_SUCCESS": "Step saved successfully",
+        "ERROR_MESSAGE": "Could not save the step",
+        "REORDER_ERROR": "Could not reorder the steps"
+      }
+    },
+    "ADD": {
+      "TITLE": "Add a new flow",
+      "DESC": "Give the flow a name to start adding steps.",
+      "API": {
+        "SUCCESS_MESSAGE": "Flow created successfully",
+        "ERROR_MESSAGE": "Could not create the flow"
+      }
+    },
+    "EDIT": {
+      "API": {
+        "SUCCESS_MESSAGE": "Flow updated successfully",
+        "ERROR_MESSAGE": "Could not update the flow"
+      }
+    },
+    "DELETE": {
+      "CONFIRM": {
+        "TITLE": "Confirm deletion",
+        "MESSAGE": "Are you sure you want to delete the flow",
+        "YES": "Yes, delete",
+        "NO": "No, keep it"
+      },
+      "API": {
+        "SUCCESS_MESSAGE": "Flow deleted successfully",
+        "ERROR_MESSAGE": "Could not delete the flow"
+      }
+    }
+  }
+}

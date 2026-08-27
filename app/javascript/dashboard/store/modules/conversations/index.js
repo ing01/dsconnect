@@ -123,6 +123,12 @@ export const mutations = {
     chat.meta.team = team;
   },
 
+  [types.ASSIGN_QUEUE](_state, { queue, conversationId }) {
+    const [chat] = _state.allConversations.filter(c => c.id === conversationId);
+    chat.meta.queue = queue;
+    chat.queue_id = queue ? queue.id : null;
+  },
+
   [types.UPDATE_CONVERSATION_LAST_ACTIVITY](
     _state,
     { lastActivityAt, conversationId }

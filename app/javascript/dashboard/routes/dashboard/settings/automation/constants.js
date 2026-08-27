@@ -57,6 +57,12 @@ export const AUTOMATIONS = {
         filterOperators: OPERATOR_TYPES_3,
       },
       {
+        key: 'queue_id',
+        name: 'QUEUE_NAME',
+        inputType: 'search_select',
+        filterOperators: OPERATOR_TYPES_3,
+      },
+      {
         key: 'priority',
         name: 'PRIORITY',
         inputType: 'multi_select',
@@ -345,6 +351,12 @@ export const AUTOMATIONS = {
         filterOperators: OPERATOR_TYPES_3,
       },
       {
+        key: 'queue_id',
+        name: 'QUEUE_NAME',
+        inputType: 'search_select',
+        filterOperators: OPERATOR_TYPES_3,
+      },
+      {
         key: 'email',
         name: 'EMAIL',
         inputType: 'plain_text',
@@ -491,6 +503,12 @@ export const AUTOMATIONS = {
         filterOperators: OPERATOR_TYPES_3,
       },
       {
+        key: 'queue_id',
+        name: 'QUEUE_NAME',
+        inputType: 'search_select',
+        filterOperators: OPERATOR_TYPES_3,
+      },
+      {
         key: 'inbox_id',
         name: 'INBOX',
         inputType: 'multi_select',
@@ -627,6 +645,12 @@ export const AUTOMATIONS = {
         filterOperators: OPERATOR_TYPES_3,
       },
       {
+        key: 'queue_id',
+        name: 'QUEUE_NAME',
+        inputType: 'search_select',
+        filterOperators: OPERATOR_TYPES_3,
+      },
+      {
         key: 'inbox_id',
         name: 'INBOX',
         inputType: 'multi_select',
@@ -728,6 +752,16 @@ export const AUTOMATION_ACTION_TYPES = [
   {
     key: 'remove_assigned_team',
     label: 'REMOVE_ASSIGNED_TEAM',
+    inputType: null,
+  },
+  {
+    key: 'assign_queue',
+    label: 'ASSIGN_QUEUE',
+    inputType: 'search_select',
+  },
+  {
+    key: 'remove_assigned_queue',
+    label: 'REMOVE_ASSIGNED_QUEUE',
     inputType: null,
   },
   {

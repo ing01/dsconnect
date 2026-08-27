@@ -58,7 +58,10 @@ export const actions = {
       formData.append('name', botData.name);
       formData.append('description', botData.description);
       formData.append('bot_type', botData.bot_type || 'webhook');
-      formData.append('outgoing_url', botData.outgoing_url);
+      formData.append('outgoing_url', botData.outgoing_url || '');
+      if (botData.conversation_flow_id) {
+        formData.append('conversation_flow_id', botData.conversation_flow_id);
+      }
 
       // Add avatar file if available
       if (botData.avatar) {
@@ -84,7 +87,10 @@ export const actions = {
       formData.append('name', data.name);
       formData.append('description', data.description);
       formData.append('bot_type', data.bot_type || 'webhook');
-      formData.append('outgoing_url', data.outgoing_url);
+      formData.append('outgoing_url', data.outgoing_url || '');
+      if (data.conversation_flow_id) {
+        formData.append('conversation_flow_id', data.conversation_flow_id);
+      }
 
       if (data.avatar) {
         formData.append('avatar', data.avatar);

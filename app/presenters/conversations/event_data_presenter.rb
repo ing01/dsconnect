@@ -16,6 +16,7 @@ class Conversations::EventDataPresenter < SimpleDelegator
       unread_count: unread_incoming_messages.count,
       first_reply_created_at: first_reply_created_at,
       priority: priority,
+      queue_id: queue_id,
       waiting_since: waiting_since.to_i,
       **push_timestamps
     }
@@ -45,6 +46,7 @@ class Conversations::EventDataPresenter < SimpleDelegator
       assignee: assigned_entity&.push_event_data,
       assignee_type: assignee_type,
       team: team&.push_event_data,
+      queue: queue&.push_event_data,
       hmac_verified: contact_inbox&.hmac_verified
     }
   end

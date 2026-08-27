@@ -37,7 +37,7 @@
       },
       "INTERFACE_SECTION": {
         "TITLE": "Interface",
-        "NOTE": "Personalize a aparência do seu painel do Chatwoot.",
+        "NOTE": "Personalize a aparência do seu painel do Duedesk.",
         "FONT_SIZE": {
           "TITLE": "Tamanho da fonte",
           "NOTE": "Ajuste o tamanho do texto do painel com base na sua preferência.",
@@ -340,6 +340,7 @@
     "HOME": "Principal",
     "AGENTS": "Agentes",
     "AGENT_BOTS": "Robôs",
+    "CONVERSATION_FLOWS": "Fluxos",
     "AUDIT_LOGS": "Auditoria",
     "INBOXES": "Caixas de Entrada",
     "WHATSAPP_TEMPLATES": "Modelos",
@@ -355,6 +356,7 @@
     "AUTOMATION": "Automação",
     "MACROS": "Macros",
     "TEAMS": "Times",
+    "QUEUES": "Filas",
     "BILLING": "Cobrança",
     "CUSTOM_VIEWS_FOLDER": "Pastas",
     "CUSTOM_VIEWS_SEGMENTS": "Segmentos",
@@ -385,6 +387,7 @@
     "CUSTOM_ROLES": "Funções Personalizadas",
     "BETA": "Beta",
     "REPORTS_OVERVIEW": "Visão geral",
+    "HELPDESK_OVERVIEW": "Central de Atendimento",
     "REAUTHORIZE": "A conexão com a sua caixa de entrada expirou. Por favor, reconecte para continuar recebendo e enviando mensagens",
     "HELP_CENTER": {
       "TITLE": "Central de Ajuda",
@@ -682,7 +685,7 @@
       "SP_ENTITY_ID": {
         "LABEL": "SP Entity ID",
         "HELP": "Identificador exclusivo desta aplicação como provedor de serviço (gerado automaticamente).",
-        "TOOLTIP": "Identificador exclusivo do Chatwoot como Provedor de Serviço - configure-o nas configurações do seu IdP"
+        "TOOLTIP": "Identificador exclusivo do Duedesk como Provedor de Serviço - configure-o nas configurações do seu IdP"
       },
       "IDP_ENTITY_ID": {
         "LABEL": "ID da Entidade do Provedor de Identidade",

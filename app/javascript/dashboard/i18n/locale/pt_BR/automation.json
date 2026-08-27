@@ -185,8 +185,10 @@
     "ACTIONS": {
       "ASSIGN_AGENT": "Atribuir ao Agente",
       "ASSIGN_TEAM": "Atribuir um Time",
+      "ASSIGN_QUEUE": "Atribuir uma Fila",
       "REMOVE_ASSIGNED_AGENT": "Remove Assigned Agent",
       "REMOVE_ASSIGNED_TEAM": "Remover Time Atribuído",
+      "REMOVE_ASSIGNED_QUEUE": "Remover Fila Atribuída",
       "ADD_LABEL": "Adicionar uma Etiqueta",
       "REMOVE_LABEL": "Remover uma Etiqueta",
       "SEND_EMAIL_TO_TEAM": "Enviar um e-mail para o Time",
@@ -230,6 +232,7 @@
       "REFERER_LINK": "Link de origem",
       "ASSIGNEE_NAME": "Agente atribuído",
       "TEAM_NAME": "Time",
+      "QUEUE_NAME": "Fila",
       "PRIORITY": "Prioridade",
       "LABELS": "Etiquetas"
     }

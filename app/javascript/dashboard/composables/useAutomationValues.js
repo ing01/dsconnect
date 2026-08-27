@@ -26,6 +26,7 @@ export default function useAutomationValues() {
   const inboxes = useMapGetter('inboxes/getInboxes');
   const labels = useMapGetter('labels/getLabels');
   const teams = useMapGetter('teams/getTeams');
+  const queues = useMapGetter('queues/getQueues');
   const slaPolicies = useMapGetter('sla/getSLA');
 
   const booleanFilterOptions = computed(() => [
@@ -109,6 +110,7 @@ export default function useAutomationValues() {
       priorityOptions: priorityOptions.value,
       messageTypeOptions: messageTypeOptions.value,
       teams: teams.value,
+      queues: queues.value,
       languages,
       countries,
       type,
@@ -136,6 +138,7 @@ export default function useAutomationValues() {
       agents: agentsList,
       labels: labels.value,
       teams: teams.value,
+      queues: queues.value,
       slaPolicies: slaPolicies.value,
       languages,
       type,
@@ -158,6 +161,7 @@ export default function useAutomationValues() {
     inboxes,
     labels,
     teams,
+    queues,
     slaPolicies,
   };
 }

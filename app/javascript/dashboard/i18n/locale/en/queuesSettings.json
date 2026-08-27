@@ -1,0 +1,90 @@
+{
+  "QUEUES_SETTINGS": {
+    "HEADER": "Queues",
+    "LOADING": "Fetching queues",
+    "DESCRIPTION": "Queues hold conversations for a department before they are picked up or automatically distributed to an agent.",
+    "HEADER_BTN_TXT": "Add queue",
+    "LIST": {
+      "404": "There are no queues created on this account.",
+      "TABLE_HEADER": {
+        "NAME": "Name",
+        "TEAM": "Department",
+        "DISTRIBUTION": "Distribution",
+        "ACTIVE": "Status",
+        "ACTION": "Actions"
+      },
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Name",
+        "PLACEHOLDER": "Enter a name for this queue"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "Short description about this queue"
+      },
+      "TEAM": {
+        "LABEL": "Department",
+        "PLACEHOLDER": "Select a department"
+      },
+      "DISTRIBUTION": {
+        "LABEL": "Distribution",
+        "OPTIONS": {
+          "MANUAL": "Manual",
+          "ROUND_ROBIN": "Round robin",
+          "LEAST_BUSY": "Fewest open conversations"
+        }
+      },
+      "SLA": {
+        "LABEL": "Default SLA",
+        "NONE": "None"
+      },
+      "PRIORITY_BOOST": {
+        "LABEL": "Minimum priority",
+        "NONE": "None",
+        "LOW": "Low",
+        "MEDIUM": "Medium",
+        "HIGH": "High",
+        "URGENT": "Urgent"
+      },
+      "ACTIVE": {
+        "LABEL": "Active queue"
+      },
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "CANCEL": "Cancel",
+      "EDIT": "Edit queue",
+      "DELETE": "Delete queue"
+    },
+    "ADD": {
+      "TITLE": "Add a new queue",
+      "DESC": "Queues group conversations for a department before they are assigned to an agent.",
+      "API": {
+        "SUCCESS_MESSAGE": "Queue created successfully",
+        "ERROR_MESSAGE": "Could not create the queue"
+      }
+    },
+    "EDIT": {
+      "TITLE": "Edit queue",
+      "DESC": "Edit the queue settings.",
+      "API": {
+        "SUCCESS_MESSAGE": "Queue updated successfully",
+        "ERROR_MESSAGE": "Could not update the queue"
+      }
+    },
+    "DELETE": {
+      "CONFIRM": {
+        "TITLE": "Confirm deletion",
+        "MESSAGE": "Are you sure you want to delete the queue",
+        "YES": "Yes, delete",
+        "NO": "No, keep it"
+      },
+      "API": {
+        "SUCCESS_MESSAGE": "Queue deleted successfully",
+        "ERROR_MESSAGE": "Could not delete the queue"
+      }
+    }
+  }
+}

@@ -336,6 +336,8 @@ en:
   conversations:
     captain:
       handoff: 'Transferring to another agent for further assistance.'
+    flow:
+      no_match_prefix: "Sorry, I didn't understand that. Please choose one of the options below:"
     messages:
       instagram_story_content: '%{story_sender} mentioned you in the story: '
       instagram_deleted_story_content: This story is no longer available.
@@ -384,6 +386,9 @@ en:
         assigned: 'Assigned to %{team_name} by %{user_name}'
         assigned_with_assignee: 'Assigned to %{assignee_name} via %{team_name} by %{user_name}'
         removed: 'Unassigned from %{team_name} by %{user_name}'
+      queue:
+        assigned: 'Moved to queue %{queue_name} by %{user_name}'
+        removed: 'Removed from queue %{queue_name} by %{user_name}'
       labels:
         added: '%{user_name} added %{labels}'
         removed: '%{user_name} removed %{labels}'

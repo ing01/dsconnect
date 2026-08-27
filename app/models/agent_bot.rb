@@ -2,20 +2,22 @@
 #
 # Table name: agent_bots
 #
-#  id           :bigint           not null, primary key
-#  bot_config   :jsonb
-#  bot_type     :integer          default("webhook")
-#  description  :string
-#  name         :string
-#  outgoing_url :string
-#  secret       :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  account_id   :bigint
+#  id                    :bigint           not null, primary key
+#  bot_config            :jsonb
+#  bot_type              :integer          default("webhook")
+#  description           :string
+#  name                  :string
+#  outgoing_url          :string
+#  secret                :string
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#  account_id            :bigint
+#  conversation_flow_id  :bigint
 #
 # Indexes
 #
-#  index_agent_bots_on_account_id  (account_id)
+#  index_agent_bots_on_account_id            (account_id)
+#  index_agent_bots_on_conversation_flow_id  (conversation_flow_id)
 #
 
 class AgentBot < ApplicationRecord
@@ -38,9 +40,11 @@ class AgentBot < ApplicationRecord
                                     dependent: :nullify,
                                     inverse_of: :assignee_agent_bot
   belongs_to :account, optional: true
-  enum bot_type: { webhook: 0 }
+  belongs_to :conversation_flow, optional: true
+  enum bot_type: { webhook: 0, flow: 1 }
 
   validates :outgoing_url, length: { maximum: Limits::URL_LENGTH_LIMIT }
+  validates :conversation_flow, presence: true, if: :flow?
 
   def available_name
     name
@@ -51,7 +55,9 @@ class AgentBot < ApplicationRecord
       id: id,
       name: name,
       avatar_url: avatar_url || inbox&.avatar_url,
-      type: 'agent_bot'
+      type: 'agent_bot',
+      bot_type: bot_type,
+      conversation_flow_id: conversation_flow_id
     }
   end
 

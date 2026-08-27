@@ -98,10 +98,21 @@
         "PLACEHOLDER": "https://example.com/webhook",
         "REQUIRED": "Webhook URL is required"
       },
+      "BOT_TYPE": {
+        "LABEL": "Type",
+        "WEBHOOK": "Webhook",
+        "FLOW": "Flow (Chatbot)"
+      },
+      "CONVERSATION_FLOW": {
+        "LABEL": "Flow",
+        "PLACEHOLDER": "Select a flow",
+        "MANAGE_LINK": "Manage flows"
+      },
       "ERRORS": {
         "NAME": "Bot name is required",
         "URL": "Webhook URL is required",
-        "VALID_URL": "Please enter a valid URL starting with http:// or https://"
+        "VALID_URL": "Please enter a valid URL starting with http:// or https://",
+        "FLOW": "Please select a flow"
       },
       "CANCEL": "Cancel",
       "CREATE": "Create Bot",

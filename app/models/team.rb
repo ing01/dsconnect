@@ -3,6 +3,7 @@
 # Table name: teams
 #
 #  id                :bigint           not null, primary key
+#  active            :boolean          default(TRUE), not null
 #  allow_auto_assign :boolean          default(TRUE)
 #  description       :text
 #  icon              :string           default("")
@@ -11,10 +12,12 @@
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  account_id        :bigint           not null
+#  manager_id        :bigint
 #
 # Indexes
 #
 #  index_teams_on_account_id           (account_id)
+#  index_teams_on_manager_id           (manager_id)
 #  index_teams_on_name_and_account_id  (name,account_id) UNIQUE
 #
 class Team < ApplicationRecord
@@ -26,8 +29,10 @@ class Team < ApplicationRecord
   include OutOfOffisable
 
   belongs_to :account
+  belongs_to :manager, class_name: 'User', optional: true
   has_many :team_members, dependent: :destroy_async
   has_many :members, through: :team_members, source: :user
+  has_many :queues, dependent: :destroy
   has_many :conversations, dependent: :nullify
   # A Team is the "Mesa de Servico" a ticket belongs to; its Estagios
   # (`ticket_columns`) are meaningless without it, so they're destroyed
@@ -56,6 +61,8 @@ class Team < ApplicationRecord
   before_validation do
     self.name = name.gsub(/[[:cntrl:]]/, '').strip.downcase if attribute_present?('name')
   end
+
+  scope :active, -> { where(active: true) }
 
   # Adds multiple members to the team
   # @param user_ids [Array<Integer>] Array of user IDs to add as members
@@ -90,7 +97,9 @@ class Team < ApplicationRecord
       id: id,
       name: name,
       icon: icon,
-      icon_color: icon_color
+      icon_color: icon_color,
+      active: active,
+      manager_id: manager_id
     }
   end
 

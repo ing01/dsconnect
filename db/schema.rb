@@ -133,7 +133,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
     t.integer "bot_type", default: 0
     t.jsonb "bot_config", default: {}
     t.string "secret"
+    t.bigint "conversation_flow_id"
     t.index ["account_id"], name: "index_agent_bots_on_account_id"
+    t.index ["conversation_flow_id"], name: "index_agent_bots_on_conversation_flow_id"
   end
 
   create_table "agent_capacity_policies", force: :cascade do |t|
@@ -901,6 +903,34 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
     t.index ["phone_number", "account_id"], name: "index_contacts_on_phone_number_and_account_id"
   end
 
+  create_table "conversation_flow_states", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "conversation_id", null: false
+    t.bigint "conversation_flow_id", null: false
+    t.bigint "current_step_id"
+    t.integer "status", default: 0, null: false
+    t.integer "retry_count", default: 0, null: false
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_conversation_flow_states_on_account_id"
+    t.index ["conversation_flow_id"], name: "index_conversation_flow_states_on_conversation_flow_id"
+    t.index ["conversation_id"], name: "index_conversation_flow_states_on_conversation_id", unique: true
+    t.index ["current_step_id"], name: "index_conversation_flow_states_on_current_step_id"
+  end
+
+  create_table "conversation_flows", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_conversation_flows_on_account_id_and_name", unique: true
+    t.index ["account_id"], name: "index_conversation_flows_on_account_id"
+  end
+
   create_table "conversation_outcomes", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "assistant_id", null: false
@@ -972,6 +1002,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
     t.text "cached_label_list"
     t.bigint "assignee_agent_bot_id"
     t.datetime "status_changed_at"
+    t.bigint "queue_id"
     t.index ["account_id", "display_id"], name: "index_conversations_on_account_id_and_display_id", unique: true
     t.index ["account_id", "id"], name: "index_conversations_on_id_and_account_id"
     t.index ["account_id", "inbox_id", "status", "assignee_id"], name: "conv_acid_inbid_stat_asgnid_idx"
@@ -986,6 +1017,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
     t.index ["identifier", "account_id"], name: "index_conversations_on_identifier_and_account_id"
     t.index ["inbox_id"], name: "index_conversations_on_inbox_id"
     t.index ["priority"], name: "index_conversations_on_priority"
+    t.index ["queue_id"], name: "index_conversations_on_queue_id"
     t.index ["status", "account_id"], name: "index_conversations_on_status_and_account_id"
     t.index ["status", "priority"], name: "index_conversations_on_status_and_priority"
     t.index ["team_id"], name: "index_conversations_on_team_id"
@@ -1178,6 +1210,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
     t.index ["inbox_id", "name", "template_type", "locale"], name: "index_email_templates_on_inbox_scope", unique: true, where: "(inbox_id IS NOT NULL)"
     t.index ["inbox_id"], name: "index_email_templates_on_inbox_id"
     t.index ["name", "template_type", "locale"], name: "index_email_templates_on_installation_scope", unique: true, where: "((account_id IS NULL) AND (inbox_id IS NULL))"
+  end
+
+  create_table "flow_steps", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "conversation_flow_id", null: false
+    t.integer "position", default: 0, null: false
+    t.integer "step_type", default: 0, null: false
+    t.text "content"
+    t.jsonb "options", default: [], null: false
+    t.bigint "next_step_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_flow_steps_on_account_id"
+    t.index ["conversation_flow_id", "position"], name: "index_flow_steps_on_conversation_flow_id_and_position"
+    t.index ["conversation_flow_id"], name: "index_flow_steps_on_conversation_flow_id"
+    t.index ["next_step_id"], name: "index_flow_steps_on_next_step_id"
   end
 
   create_table "folders", force: :cascade do |t|
@@ -1477,6 +1525,23 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
     t.index ["user_id"], name: "index_portals_members_on_user_id"
   end
 
+  create_table "queues", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "team_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "active", default: true, null: false
+    t.integer "distribution_strategy", default: 0, null: false
+    t.integer "priority_boost"
+    t.bigint "default_sla_policy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_queues_on_account_id_and_name", unique: true
+    t.index ["account_id"], name: "index_queues_on_account_id"
+    t.index ["default_sla_policy_id"], name: "index_queues_on_default_sla_policy_id"
+    t.index ["team_id"], name: "index_queues_on_team_id"
+  end
+
   create_table "related_categories", force: :cascade do |t|
     t.bigint "category_id"
     t.bigint "related_category_id"
@@ -1644,7 +1709,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
     t.string "icon_color", default: ""
     t.boolean "working_hours_enabled", default: false, null: false
     t.string "timezone", default: "UTC", null: false
+    t.boolean "active", default: true, null: false
+    t.bigint "manager_id"
     t.index ["account_id"], name: "index_teams_on_account_id"
+    t.index ["manager_id"], name: "index_teams_on_manager_id"
     t.index ["name", "account_id"], name: "index_teams_on_name_and_account_id", unique: true
   end
 
@@ -1960,6 +2028,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agent_bots", "conversation_flows"
   add_foreign_key "calendar_event_attendees", "calendar_events"
   add_foreign_key "calendar_event_attendees", "users"
   add_foreign_key "calendar_event_tickets", "calendar_events"
@@ -1977,13 +2046,26 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_120900) do
   add_foreign_key "company_credentials", "users", column: "updated_by_id"
   add_foreign_key "company_system_modules", "companies"
   add_foreign_key "company_system_modules", "system_modules"
+  add_foreign_key "conversation_flow_states", "accounts"
+  add_foreign_key "conversation_flow_states", "conversation_flows"
+  add_foreign_key "conversation_flow_states", "conversations"
+  add_foreign_key "conversation_flow_states", "flow_steps", column: "current_step_id", on_delete: :nullify
+  add_foreign_key "conversation_flows", "accounts"
+  add_foreign_key "conversations", "queues"
+  add_foreign_key "flow_steps", "accounts"
+  add_foreign_key "flow_steps", "conversation_flows"
+  add_foreign_key "flow_steps", "flow_steps", column: "next_step_id", on_delete: :nullify
   add_foreign_key "inboxes", "portals"
   add_foreign_key "mood_entries", "accounts"
   add_foreign_key "mood_entries", "users"
+  add_foreign_key "queues", "accounts"
+  add_foreign_key "queues", "sla_policies", column: "default_sla_policy_id"
+  add_foreign_key "queues", "teams"
   add_foreign_key "service_catalog_areas", "service_catalogs"
   add_foreign_key "service_catalog_items", "service_catalog_areas"
   add_foreign_key "service_catalogs", "accounts"
   add_foreign_key "system_modules", "accounts"
+  add_foreign_key "teams", "users", column: "manager_id"
   add_foreign_key "ticket_categories", "teams"
   add_foreign_key "ticket_columns", "teams"
   add_foreign_key "ticket_customer_communications", "accounts"

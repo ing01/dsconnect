@@ -74,6 +74,11 @@ class ConversationApi extends ApiClient {
     return axios.post(`${this.url}/${conversationId}/assignments`, params);
   }
 
+  assignQueue({ conversationId, queueId }) {
+    const params = { queue_id: queueId };
+    return axios.post(`${this.url}/${conversationId}/assignments`, params);
+  }
+
   markMessageRead({ id }) {
     return axios.post(`${this.url}/${id}/update_last_seen`);
   }

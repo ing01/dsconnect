@@ -89,8 +89,10 @@ export const generateCustomAttributeTypes = (customAttributes, type) => {
 const ACTION_ICONS = {
   assign_agent: 'i-lucide-user-round',
   assign_team: 'i-lucide-users-round',
+  assign_queue: 'i-lucide-list-tree',
   remove_assigned_agent: 'i-lucide-user-round-x',
   remove_assigned_team: 'i-lucide-users',
+  remove_assigned_queue: 'i-lucide-list-x',
   add_label: 'i-lucide-tag',
   remove_label: 'i-woot-tag-remove',
   send_email_to_team: 'i-lucide-send',
@@ -129,6 +131,12 @@ export const generateConditionOptions = (options, key = 'id') => {
 
 // Teams carry an emoji icon picker value in `icon`, which is not a CSS class and
 // cannot be handed to the generic Icon component the dropdowns render.
+export const generateQueueOptions = queues =>
+  (queues || []).map(queue => ({
+    id: queue.id,
+    name: queue.name,
+  }));
+
 export const generateTeamOptions = teams =>
   (teams || []).map(team => ({
     id: team.id,
@@ -147,6 +155,7 @@ export const generateLabelOptions = labels =>
 export const getActionOptions = ({
   agents,
   teams,
+  queues,
   labels,
   slaPolicies,
   type,
@@ -158,6 +167,9 @@ export const getActionOptions = ({
     assign_team: addNoneToListFn
       ? addNoneToListFn(generateTeamOptions(teams))
       : generateTeamOptions(teams),
+    assign_queue: addNoneToListFn
+      ? addNoneToListFn(generateQueueOptions(queues))
+      : generateQueueOptions(queues),
     send_email_to_team: generateTeamOptions(teams),
     add_label: generateLabelOptions(labels),
     remove_label: generateLabelOptions(labels),
@@ -179,6 +191,7 @@ export const getConditionOptions = ({
   labels,
   statusFilterOptions,
   teams,
+  queues,
   type,
   priorityOptions,
   messageTypeOptions,
@@ -197,6 +210,7 @@ export const getConditionOptions = ({
     contact: contacts,
     inbox_id: inboxes,
     team_id: generateTeamOptions(teams),
+    queue_id: generateQueueOptions(queues),
     campaigns: generateConditionOptions(campaigns),
     browser_language: languages,
     conversation_language: languages,

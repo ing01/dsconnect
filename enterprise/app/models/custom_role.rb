@@ -24,6 +24,8 @@
 # - 'report_manage': Can manage reports.
 # - 'knowledge_base_manage': Can manage knowledge base portals.
 # - 'client_credentials_manage': Can view and manage sensitive client access credentials (DB/AnyDesk/RDP) on companies.
+# - 'department_manage': Can create/edit/delete departments (Teams).
+# - 'queue_manage': Can create/edit/delete queues.
 
 class CustomRole < ApplicationRecord
   belongs_to :account
@@ -41,6 +43,8 @@ class CustomRole < ApplicationRecord
     report_manage
     knowledge_base_manage
     client_credentials_manage
+    department_manage
+    queue_manage
   ].freeze
 
   validates :name, presence: true

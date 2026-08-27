@@ -252,6 +252,25 @@ const actions = {
     commit(types.ASSIGN_TEAM, { team, conversationId });
   },
 
+  assignQueue: async ({ dispatch }, { conversationId, queueId }) => {
+    try {
+      const response = await ConversationApi.assignQueue({
+        conversationId,
+        queueId,
+      });
+      dispatch('setCurrentChatQueue', {
+        queue: response.data,
+        conversationId,
+      });
+    } catch (error) {
+      // Handle error
+    }
+  },
+
+  setCurrentChatQueue({ commit }, { queue, conversationId }) {
+    commit(types.ASSIGN_QUEUE, { queue, conversationId });
+  },
+
   toggleStatus: async (
     { commit },
     { conversationId, status, snoozedUntil = null, customAttributes = null }
