@@ -28,6 +28,7 @@
 #  contact_inbox_id       :bigint
 #  display_id             :integer          not null
 #  inbox_id               :integer          not null
+#  queue_id               :bigint
 #  sla_policy_id          :bigint
 #  team_id                :bigint
 #
@@ -46,6 +47,7 @@
 #  index_conversations_on_identifier_and_account_id   (identifier,account_id)
 #  index_conversations_on_inbox_id                    (inbox_id)
 #  index_conversations_on_priority                    (priority)
+#  index_conversations_on_queue_id                    (queue_id)
 #  index_conversations_on_status_and_account_id       (status,account_id)
 #  index_conversations_on_status_and_priority         (status,priority)
 #  index_conversations_on_team_id                     (team_id)
@@ -117,17 +119,20 @@ class Conversation < ApplicationRecord
   belongs_to :contact
   belongs_to :contact_inbox
   belongs_to :team, optional: true
+  belongs_to :queue, optional: true
   belongs_to :campaign, optional: true
 
   has_many :mentions, dependent: :destroy_async
   has_many :messages, dependent: :destroy_async, autosave: true
   has_one :csat_survey_response, dependent: :destroy_async
+  has_one :conversation_flow_state, dependent: :destroy
   has_many :conversation_participants, dependent: :destroy_async
   has_many :notifications, as: :primary_actor, dependent: :destroy_async
   has_many :attachments, through: :messages
   has_many :reporting_events, dependent: :destroy_async
   has_many :automation_rule_pending_executions, dependent: :delete_all
 
+  before_save :apply_queue_defaults
   before_save :ensure_snooze_until_reset
   before_save :set_status_changed_at
   before_create :determine_conversation_status
@@ -266,6 +271,13 @@ class Conversation < ApplicationRecord
     create_activity
     invalidate_filtered_unread_count_conversation
     notify_conversation_updation
+    trigger_queue_auto_assignment
+  end
+
+  def trigger_queue_auto_assignment
+    return unless saved_change_to_queue_id? && queue_id.present? && assignee_id.blank?
+
+    ::Queues::AutoAssignJob.perform_later(self)
   end
 
   def handle_resolved_status_change
@@ -336,8 +348,14 @@ class Conversation < ApplicationRecord
   end
 
   def list_of_keys
-    %w[team_id assignee_id assignee_agent_bot_id status snoozed_until custom_attributes label_list waiting_since
+    %w[team_id queue_id assignee_id assignee_agent_bot_id status snoozed_until custom_attributes label_list waiting_since
        first_reply_created_at priority]
+  end
+
+  def apply_queue_defaults
+    return unless queue_id.present? && queue_id_changed?
+
+    queue&.apply_defaults_to(self)
   end
 
   def allowed_keys?

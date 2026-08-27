@@ -118,6 +118,13 @@
       "AUTO_ASSIGN": {
         "LABEL": "Permitir atribuição automática para este time."
       },
+      "MANAGER": {
+        "LABEL": "Gestor",
+        "NONE": "Nenhum"
+      },
+      "ACTIVE": {
+        "LABEL": "Departamento ativo"
+      },
       "SUBMIT_CREATE": "Criar novo time"
     }
   }

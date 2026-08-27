@@ -45,7 +45,7 @@ class Api::V1::Accounts::AgentBotsController < Api::V1::Accounts::BaseController
   end
 
   def permitted_params
-    params.permit(:name, :description, :outgoing_url, :avatar, :avatar_url, :bot_type, bot_config: {})
+    params.permit(:name, :description, :outgoing_url, :avatar, :avatar_url, :bot_type, :conversation_flow_id, bot_config: {})
   end
 
   def process_avatar_from_url

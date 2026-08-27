@@ -250,6 +250,7 @@ onMounted(() => {
   store.dispatch('inboxes/get');
   store.dispatch('notifications/unReadCount');
   store.dispatch('teams/get');
+  store.dispatch('queues/get');
   store.dispatch('attributes/get');
   store.dispatch('customViews/get', 'conversation');
   store.dispatch('customViews/get', 'contact');
@@ -612,6 +613,11 @@ const menuItems = computed(() => {
           to: accountScopedRoute('account_overview_reports'),
         },
         {
+          name: 'Helpdesk Overview',
+          label: t('SIDEBAR.HELPDESK_OVERVIEW'),
+          to: accountScopedRoute('helpdesk_overview_reports'),
+        },
+        {
           name: 'Report Conversation',
           label: t('SIDEBAR.REPORTS_CONVERSATION'),
           to: accountScopedRoute('conversation_reports'),
@@ -728,6 +734,13 @@ const menuItems = computed(() => {
           to: accountScopedRoute('settings_teams_list'),
         },
         {
+          name: 'Settings Queues',
+          label: t('SIDEBAR.QUEUES'),
+          icon: 'i-lucide-list-tree',
+          activeOn: ['settings_queues_list'],
+          to: accountScopedRoute('settings_queues_list'),
+        },
+        {
           name: 'Settings Tickets',
           label: t('SIDEBAR.TICKET_SETTINGS'),
           icon: 'i-lucide-kanban-square',
@@ -817,6 +830,13 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.AGENT_BOTS'),
           icon: 'i-lucide-bot',
           to: accountScopedRoute('agent_bots'),
+        },
+        {
+          name: 'Settings Conversation Flows',
+          label: t('SIDEBAR.CONVERSATION_FLOWS'),
+          icon: 'i-lucide-git-branch',
+          activeOn: ['conversation_flows_list', 'conversation_flows_edit'],
+          to: accountScopedRoute('conversation_flows_list'),
         },
         {
           name: 'Settings Macros',

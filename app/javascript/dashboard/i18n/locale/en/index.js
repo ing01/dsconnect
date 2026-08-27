@@ -38,6 +38,9 @@ import settings from './settings.json';
 import signup from './signup.json';
 import sla from './sla.json';
 import snooze from './snooze.json';
+import queuesSettings from './queuesSettings.json';
+import conversationFlowsSettings from './conversationFlowsSettings.json';
+import helpdeskOverview from './helpdeskOverview.json';
 import teamsSettings from './teamsSettings.json';
 import ticket from './ticket.json';
 import whatsappTemplates from './whatsappTemplates.json';
@@ -89,6 +92,9 @@ export default {
   ...signup,
   ...sla,
   ...snooze,
+  ...queuesSettings,
+  ...conversationFlowsSettings,
+  ...helpdeskOverview,
   ...teamsSettings,
   ...ticket,
   ...whatsappTemplates,

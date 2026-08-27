@@ -118,6 +118,13 @@
       "AUTO_ASSIGN": {
         "LABEL": "Allow auto assign for this team."
       },
+      "MANAGER": {
+        "LABEL": "Manager",
+        "NONE": "None"
+      },
+      "ACTIVE": {
+        "LABEL": "Active department"
+      },
       "SUBMIT_CREATE": "Create team"
     }
   }

@@ -34,6 +34,13 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
   end
 
   def team_params
-    params.require(:team).permit(:name, :description, :allow_auto_assign, :icon, :icon_color)
+    params.require(:team).permit(:name, :description, :allow_auto_assign, :icon, :icon_color, :manager_id, :active)
+  end
+
+  # TeamPolicy#update? checks the team's manager, so authorization must run
+  # against the loaded instance (when there is one) rather than the bare
+  # `Team` class the generic `check_authorization` would otherwise use.
+  def check_authorization(model = nil)
+    super(model || @team || Team)
   end
 end

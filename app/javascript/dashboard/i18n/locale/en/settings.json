@@ -340,6 +340,7 @@
     "HOME": "Home",
     "AGENTS": "Agents",
     "AGENT_BOTS": "Bots",
+    "CONVERSATION_FLOWS": "Flows",
     "AUDIT_LOGS": "Audit Logs",
     "INBOXES": "Inboxes",
     "WHATSAPP_TEMPLATES": "Templates",
@@ -355,6 +356,7 @@
     "AUTOMATION": "Automation",
     "MACROS": "Macros",
     "TEAMS": "Teams",
+    "QUEUES": "Queues",
     "BILLING": "Billing",
     "CUSTOM_VIEWS_FOLDER": "Folders",
     "CUSTOM_VIEWS_SEGMENTS": "Segments",
@@ -385,6 +387,7 @@
     "CUSTOM_ROLES": "Custom Roles",
     "BETA": "Beta",
     "REPORTS_OVERVIEW": "Overview",
+    "HELPDESK_OVERVIEW": "Central de Atendimento",
     "REAUTHORIZE": "Your inbox connection has expired, please reconnect\n to continue receiving and sending messages",
     "HELP_CENTER": {
       "TITLE": "Help Center",

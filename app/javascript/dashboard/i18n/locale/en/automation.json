@@ -186,8 +186,10 @@
     "ACTIONS": {
       "ASSIGN_AGENT": "Assign to Agent",
       "ASSIGN_TEAM": "Assign a Team",
+      "ASSIGN_QUEUE": "Assign a Queue",
       "REMOVE_ASSIGNED_AGENT": "Remove Assigned Agent",
       "REMOVE_ASSIGNED_TEAM": "Remove Assigned Team",
+      "REMOVE_ASSIGNED_QUEUE": "Remove Assigned Queue",
       "ADD_LABEL": "Add a Label",
       "REMOVE_LABEL": "Remove a Label",
       "SEND_EMAIL_TO_TEAM": "Send an Email to Team",
@@ -231,6 +233,7 @@
       "REFERER_LINK": "Referrer Link",
       "ASSIGNEE_NAME": "Assignee",
       "TEAM_NAME": "Team",
+      "QUEUE_NAME": "Queue",
       "PRIORITY": "Priority",
       "LABELS": "Labels"
     }

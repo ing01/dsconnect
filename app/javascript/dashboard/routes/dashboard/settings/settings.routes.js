@@ -22,6 +22,8 @@ import reports from './reports/reports.routes';
 import store from '../../../store';
 import sla from './sla/sla.routes';
 import teams from './teams/teams.routes';
+import queues from './queues/queues.routes';
+import conversationFlows from './conversationFlows/conversationFlows.routes';
 import ticketSettings from './tickets/tickets.routes';
 import customRoles from './customRoles/customRole.routes';
 import profile from './profile/profile.routes';
@@ -67,6 +69,8 @@ export default {
     ...reports.routes,
     ...sla.routes,
     ...teams.routes,
+    ...queues.routes,
+    ...conversationFlows.routes,
       ...ticketSettings.routes,
     ...customRoles.routes,
     ...profile.routes,

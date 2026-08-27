@@ -81,6 +81,19 @@ class ActionService
     @conversation.with_lock { @conversation.update!(team_id: nil) }
   end
 
+  def assign_queue(queue_ids = [])
+    should_unassign = queue_ids.blank? || %w[nil 0].include?(queue_ids[0].to_s)
+    return @conversation.with_lock { @conversation.update!(queue_id: nil) } if should_unassign
+
+    return unless queue_belongs_to_account?(queue_ids)
+
+    @conversation.with_lock { @conversation.update!(queue_id: queue_ids[0]) }
+  end
+
+  def remove_assigned_queue(_params)
+    @conversation.with_lock { @conversation.update!(queue_id: nil) }
+  end
+
   def send_email_transcript(emails)
     return unless @account.email_transcript_enabled?
 
@@ -110,6 +123,10 @@ class ActionService
 
   def team_belongs_to_account?(team_ids)
     @account.team_ids.include?(team_ids[0])
+  end
+
+  def queue_belongs_to_account?(queue_ids)
+    @account.queue_ids.include?(queue_ids[0].to_i)
   end
 
   def conversation_a_tweet?

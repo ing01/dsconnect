@@ -1,9 +1,9 @@
 <script setup>
-import { ref, computed, reactive, watch } from 'vue';
+import { ref, computed, reactive, watch, onMounted } from 'vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
-import { required, helpers, url } from '@vuelidate/validators';
+import { required, requiredIf, helpers, url } from '@vuelidate/validators';
 import { useVuelidate } from '@vuelidate/core';
 import { copyTextToClipboard } from 'shared/helpers/clipboard';
 import { useToggle } from '@vueuse/core';
@@ -41,8 +41,15 @@ const formState = reactive({
   botName: '',
   botDescription: '',
   botUrl: '',
+  botType: 'webhook',
+  conversationFlowId: null,
   botAvatar: null,
   botAvatarUrl: '',
+});
+
+const conversationFlows = useMapGetter('conversationFlows/getConversationFlows');
+onMounted(() => {
+  store.dispatch('conversationFlows/get');
 });
 
 const [showAccessToken, toggleAccessToken] = useToggle();
@@ -60,11 +67,17 @@ const v$ = useVuelidate(
     botUrl: {
       required: helpers.withMessage(
         () => t('AGENT_BOTS.FORM.ERRORS.URL'),
-        required
+        requiredIf(() => formState.botType === 'webhook')
       ),
       url: helpers.withMessage(
         () => t('AGENT_BOTS.FORM.ERRORS.VALID_URL'),
-        url
+        value => formState.botType !== 'webhook' || !value || url(value)
+      ),
+    },
+    conversationFlowId: {
+      required: helpers.withMessage(
+        () => t('AGENT_BOTS.FORM.ERRORS.FLOW'),
+        requiredIf(() => formState.botType === 'flow')
       ),
     },
   },
@@ -120,6 +133,8 @@ const resetForm = () => {
     botName: '',
     botDescription: '',
     botUrl: '',
+    botType: 'webhook',
+    conversationFlowId: null,
     botAvatar: null,
     botAvatarUrl: '',
   });
@@ -158,8 +173,9 @@ const handleSubmit = async () => {
   const botData = {
     name: formState.botName,
     description: formState.botDescription,
-    outgoing_url: formState.botUrl,
-    bot_type: 'webhook',
+    outgoing_url: formState.botType === 'webhook' ? formState.botUrl : '',
+    bot_type: formState.botType,
+    conversation_flow_id: formState.botType === 'flow' ? formState.conversationFlowId : null,
     avatar: formState.botAvatar,
   };
 
@@ -220,10 +236,14 @@ const initializeForm = () => {
       bot_config: botConfig,
       access_token: botAccessToken,
       secret: botSecretValue,
+      bot_type: botType,
+      conversation_flow_id: conversationFlowId,
     } = props.selectedBot;
     formState.botName = name || '';
     formState.botDescription = description || '';
     formState.botUrl = botUrl || botConfig?.webhook_url || '';
+    formState.botType = botType || 'webhook';
+    formState.conversationFlowId = conversationFlowId || null;
     formState.botAvatarUrl = thumbnail || '';
 
     if (props.type === MODAL_TYPES.EDIT) {
@@ -335,7 +355,18 @@ defineExpose({ dialogRef });
           :placeholder="$t('AGENT_BOTS.FORM.DESCRIPTION.PLACEHOLDER')"
         />
 
+        <div class="flex flex-col gap-1">
+          <label class="mb-0.5 text-sm font-medium text-n-slate-12">
+            {{ $t('AGENT_BOTS.FORM.BOT_TYPE.LABEL') }}
+          </label>
+          <select v-model="formState.botType">
+            <option value="webhook">{{ $t('AGENT_BOTS.FORM.BOT_TYPE.WEBHOOK') }}</option>
+            <option value="flow">{{ $t('AGENT_BOTS.FORM.BOT_TYPE.FLOW') }}</option>
+          </select>
+        </div>
+
         <Input
+          v-if="formState.botType === 'webhook'"
           id="bot-url"
           v-model="formState.botUrl"
           :label="$t('AGENT_BOTS.FORM.WEBHOOK_URL.LABEL')"
@@ -344,6 +375,26 @@ defineExpose({ dialogRef });
           :message-type="botUrlError ? 'error' : 'info'"
           @blur="v$.botUrl.$touch()"
         />
+
+        <div v-else class="flex flex-col gap-1">
+          <label class="mb-0.5 text-sm font-medium text-n-slate-12">
+            {{ $t('AGENT_BOTS.FORM.CONVERSATION_FLOW.LABEL') }}
+          </label>
+          <select v-model="formState.conversationFlowId">
+            <option :value="null" disabled>
+              {{ $t('AGENT_BOTS.FORM.CONVERSATION_FLOW.PLACEHOLDER') }}
+            </option>
+            <option v-for="flow in conversationFlows" :key="flow.id" :value="flow.id">
+              {{ flow.name }}
+            </option>
+          </select>
+          <router-link
+            :to="{ name: 'conversation_flows_list' }"
+            class="text-sm text-n-blue-11"
+          >
+            {{ $t('AGENT_BOTS.FORM.CONVERSATION_FLOW.MANAGE_LINK') }}
+          </router-link>
+        </div>
       </div>
 
       <div

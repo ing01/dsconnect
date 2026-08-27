@@ -23,6 +23,7 @@ import CsatResponses from './CsatResponses.vue';
 import BotReports from './BotReports.vue';
 import LiveReports from './LiveReports.vue';
 import SLAReports from './SLAReports.vue';
+import HelpdeskOverview from './HelpdeskOverview.vue';
 
 const meta = {
   featureFlag: FEATURE_FLAGS.REPORTS,
@@ -125,6 +126,12 @@ export default {
           name: 'account_overview_reports',
           meta,
           component: LiveReports,
+        },
+        {
+          path: 'helpdesk_overview',
+          name: 'helpdesk_overview_reports',
+          meta,
+          component: HelpdeskOverview,
         },
         {
           path: 'conversation',

@@ -1,0 +1,115 @@
+{
+  "CONVERSATION_FLOWS_SETTINGS": {
+    "HEADER": "Fluxos",
+    "LOADING": "Carregando fluxos",
+    "DESCRIPTION": "Os fluxos permitem que um Chatbot faça perguntas, apresente opções e encaminhe conversas automaticamente antes de um humano assumir.",
+    "HEADER_BTN_TXT": "Adicionar fluxo",
+    "LIST": {
+      "404": "Não há fluxos criados nesta conta.",
+      "TABLE_HEADER": {
+        "NAME": "Nome",
+        "STEPS": "Etapas",
+        "ACTIVE": "Status",
+        "ACTION": "Ações"
+      },
+      "ACTIVE": "Ativo",
+      "INACTIVE": "Inativo"
+    },
+    "EDITOR": {
+      "TITLE": "Editar fluxo",
+      "DESC": "Configure as etapas do fluxo abaixo. Vincule-o a um Chatbot (Configurações > Bots) para colocá-lo em uso."
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome",
+        "PLACEHOLDER": "Digite um nome para este fluxo"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Breve descrição sobre este fluxo"
+      },
+      "ACTIVE": {
+        "LABEL": "Fluxo ativo"
+      },
+      "CREATE": "Criar",
+      "SAVE_DETAILS": "Salvar dados",
+      "BACK": "Voltar",
+      "CANCEL": "Cancelar",
+      "EDIT": "Editar fluxo",
+      "DELETE": "Excluir fluxo"
+    },
+    "STEPS": {
+      "START": "Início",
+      "END": "Fim",
+      "ADD_BTN": "Adicionar etapa",
+      "DEFAULT_CONTENT": "Nova mensagem",
+      "SAVE": "Salvar etapa",
+      "DELETE": "Excluir etapa",
+      "TYPES": {
+        "SEND_MESSAGE": "Enviar mensagem",
+        "ASK_QUESTION": "Fazer pergunta aberta",
+        "PRESENT_OPTIONS": "Apresentar opções",
+        "TRANSFER_TEAM": "Transferir para departamento",
+        "TRANSFER_QUEUE": "Transferir para fila",
+        "ADD_LABEL": "Adicionar tags",
+        "SET_PRIORITY": "Definir prioridade",
+        "CREATE_TICKET": "Criar ticket",
+        "END_FLOW": "Encerrar fluxo"
+      },
+      "FIELDS": {
+        "TYPE": "Tipo da etapa",
+        "CONTENT": "Mensagem",
+        "OPTIONS": "Opções",
+        "OPTION_TITLE": "Texto da opção",
+        "OPTION_VALUE": "Valor da opção",
+        "ADD_OPTION": "+ Adicionar opção",
+        "NEXT_STEP": "Próxima etapa",
+        "NO_NEXT_STEP": "Encerrar fluxo após esta etapa",
+        "TEAM": "Departamento",
+        "SELECT_TEAM": "Selecione um departamento",
+        "QUEUE": "Fila",
+        "SELECT_QUEUE": "Selecione uma fila",
+        "LABELS": "Tags",
+        "LABELS_PLACEHOLDER": "tag-um, tag-dois",
+        "PRIORITY": "Prioridade",
+        "PRIORITY_LOW": "Baixa",
+        "PRIORITY_MEDIUM": "Normal",
+        "PRIORITY_HIGH": "Alta",
+        "PRIORITY_URGENT": "Urgente",
+        "TICKET_CATEGORY_ID": "ID da categoria do ticket",
+        "TICKET_CATEGORY_ID_HINT": "Veja o ID em Configurações > Categorias"
+      },
+      "API": {
+        "SAVE_SUCCESS": "Etapa salva com sucesso",
+        "ERROR_MESSAGE": "Não foi possível salvar a etapa",
+        "REORDER_ERROR": "Não foi possível reordenar as etapas"
+      }
+    },
+    "ADD": {
+      "TITLE": "Adicionar novo fluxo",
+      "DESC": "Dê um nome ao fluxo para começar a adicionar etapas.",
+      "API": {
+        "SUCCESS_MESSAGE": "Fluxo criado com sucesso",
+        "ERROR_MESSAGE": "Não foi possível criar o fluxo"
+      }
+    },
+    "EDIT": {
+      "API": {
+        "SUCCESS_MESSAGE": "Fluxo atualizado com sucesso",
+        "ERROR_MESSAGE": "Não foi possível atualizar o fluxo"
+      }
+    },
+    "DELETE": {
+      "CONFIRM": {
+        "TITLE": "Confirmar exclusão",
+        "MESSAGE": "Tem certeza que deseja excluir o fluxo",
+        "YES": "Sim, excluir",
+        "NO": "Não, manter"
+      },
+      "API": {
+        "SUCCESS_MESSAGE": "Fluxo excluído com sucesso",
+        "ERROR_MESSAGE": "Não foi possível excluir o fluxo"
+      }
+    }
+  }
+}

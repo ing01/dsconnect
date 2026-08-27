@@ -64,6 +64,7 @@ class Account < ApplicationRecord
   has_many :account_users, dependent: :destroy_async
   has_many :agent_bot_inboxes, dependent: :destroy_async
   has_many :agent_bots, dependent: :destroy_async
+  has_many :conversation_flows, dependent: :destroy_async
   has_many :api_channels, dependent: :destroy_async, class_name: '::Channel::Api'
   has_many :articles, dependent: :destroy_async, class_name: '::Article'
   has_many :assignment_policies, dependent: :destroy_async
@@ -101,6 +102,7 @@ class Account < ApplicationRecord
   # Mesa: one Mesa attends several catalogues.
   has_many :service_catalogs, dependent: :destroy_async
   has_many :teams, dependent: :destroy_async
+  has_many :queues, dependent: :destroy_async
   # Estagios live under a Mesa; reached through it so account-scoped lookups
   # (a transfer target, a stage select) don't have to join by hand.
   has_many :ticket_columns, through: :teams

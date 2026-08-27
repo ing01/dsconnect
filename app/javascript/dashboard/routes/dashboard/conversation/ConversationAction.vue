@@ -66,6 +66,7 @@ export default {
       currentChat: 'getSelectedChat',
       currentUser: 'getCurrentUser',
       teams: 'teams/getTeams',
+      queues: 'queues/getQueues',
     }),
     hasAnAssignedTeam() {
       return !!this.currentChat?.meta?.team;
@@ -78,6 +79,25 @@ export default {
         ];
       }
       return this.teams;
+    },
+    hasAnAssignedQueue() {
+      return !!this.currentChat?.meta?.queue;
+    },
+    queuesForCurrentTeam() {
+      const teamId = this.currentChat?.meta?.team?.id;
+      const activeQueues = this.queues.filter(queue => queue.active);
+      return teamId
+        ? activeQueues.filter(queue => queue.team_id === teamId)
+        : activeQueues;
+    },
+    queuesList() {
+      if (this.hasAnAssignedQueue) {
+        return [
+          { id: 0, name: this.$t('CONVERSATION_SIDEBAR.QUEUE_NONE') },
+          ...this.queuesForCurrentTeam,
+        ];
+      }
+      return this.queuesForCurrentTeam;
     },
     assignedAgent: {
       get() {
@@ -120,6 +140,21 @@ export default {
           .dispatch('assignTeam', { conversationId, teamId })
           .then(() => {
             useAlert(this.$t('CONVERSATION.CHANGE_TEAM'));
+          });
+      },
+    },
+    assignedQueue: {
+      get() {
+        return this.currentChat.meta.queue;
+      },
+      set(queue) {
+        const conversationId = this.currentChat.id;
+        const queueId = queue ? queue.id : 0;
+        this.$store.dispatch('setCurrentChatQueue', { queue, conversationId });
+        this.$store
+          .dispatch('assignQueue', { conversationId, queueId })
+          .then(() => {
+            useAlert(this.$t('CONVERSATION.CHANGE_QUEUE'));
           });
       },
     },
@@ -214,6 +249,14 @@ export default {
       }
     },
 
+    onClickAssignQueue(selectedItemQueue) {
+      if (this.assignedQueue && this.assignedQueue.id === selectedItemQueue.id) {
+        this.assignedQueue = null;
+      } else {
+        this.assignedQueue = selectedItemQueue;
+      }
+    },
+
     onClickAssignPriority(selectedPriorityItem) {
       const isSamePriority =
         this.assignedPriority &&
@@ -278,6 +321,25 @@ export default {
           $t('AGENT_MGMT.MULTI_SELECTOR.SEARCH.PLACEHOLDER.TEAM')
         "
         @select="onClickAssignTeam"
+      />
+    </div>
+    <div>
+      <ContactDetailsItem
+        compact
+        :title="$t('CONVERSATION_SIDEBAR.QUEUE_LABEL')"
+      />
+      <MultiselectDropdown
+        :options="queuesList"
+        :selected-item="assignedQueue"
+        :multiselector-title="$t('AGENT_MGMT.MULTI_SELECTOR.TITLE.QUEUE')"
+        :multiselector-placeholder="$t('AGENT_MGMT.MULTI_SELECTOR.PLACEHOLDER')"
+        :no-search-result="
+          $t('AGENT_MGMT.MULTI_SELECTOR.SEARCH.NO_RESULTS.QUEUE')
+        "
+        :input-placeholder="
+          $t('AGENT_MGMT.MULTI_SELECTOR.SEARCH.PLACEHOLDER.QUEUE')
+        "
+        @select="onClickAssignQueue"
       />
     </div>
     <div>

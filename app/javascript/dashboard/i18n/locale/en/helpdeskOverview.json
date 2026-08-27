@@ -1,0 +1,11 @@
+{
+  "HELPDESK_OVERVIEW": {
+    "HEADER": "Central de Atendimento",
+    "CONVERSATIONS_BY_STATUS": "Conversations by status",
+    "CONVERSATIONS_BY_TEAM": "Conversations by department",
+    "CONVERSATIONS_BY_QUEUE": "Conversations by queue",
+    "TICKETS_BY_STATUS": "Tickets by status",
+    "TICKETS_BY_TEAM": "Tickets by department",
+    "SLA_BY_STATUS": "SLA status"
+  }
+}

@@ -117,6 +117,13 @@ Rails.application.routes.draw do
             post :reset_access_token, on: :member
             post :reset_secret, on: :member
           end
+          resources :conversation_flows, only: [:index, :create, :show, :update, :destroy] do
+            resources :flow_steps, only: [:index, :create, :update, :destroy] do
+              collection do
+                patch :reorder
+              end
+            end
+          end
           resources :contact_inboxes, only: [] do
             collection do
               post :filter
@@ -363,6 +370,8 @@ Rails.application.routes.draw do
             resources :ticket_categories, only: [:index, :create, :update, :destroy]
           end
 
+          resources :queues, only: [:index, :create, :show, :update, :destroy]
+
           resources :tickets do
             collection do
               post :ensure_default_mesa
@@ -600,6 +609,7 @@ Rails.application.routes.draw do
             end
           end
           resource :year_in_review, only: [:show]
+          resource :helpdesk_overview, only: [:show]
           resources :live_reports, only: [] do
             collection do
               get :conversation_metrics

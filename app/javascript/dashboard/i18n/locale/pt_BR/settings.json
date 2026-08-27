@@ -340,6 +340,7 @@
     "HOME": "Principal",
     "AGENTS": "Agentes",
     "AGENT_BOTS": "Robôs",
+    "CONVERSATION_FLOWS": "Fluxos",
     "AUDIT_LOGS": "Auditoria",
     "INBOXES": "Caixas de Entrada",
     "WHATSAPP_TEMPLATES": "Modelos",
@@ -355,6 +356,7 @@
     "AUTOMATION": "Automação",
     "MACROS": "Macros",
     "TEAMS": "Times",
+    "QUEUES": "Filas",
     "BILLING": "Cobrança",
     "CUSTOM_VIEWS_FOLDER": "Pastas",
     "CUSTOM_VIEWS_SEGMENTS": "Segmentos",
@@ -385,6 +387,7 @@
     "CUSTOM_ROLES": "Funções Personalizadas",
     "BETA": "Beta",
     "REPORTS_OVERVIEW": "Visão geral",
+    "HELPDESK_OVERVIEW": "Central de Atendimento",
     "REAUTHORIZE": "A conexão com a sua caixa de entrada expirou. Por favor, reconecte para continuar recebendo e enviando mensagens",
     "HELP_CENTER": {
       "TITLE": "Central de Ajuda",

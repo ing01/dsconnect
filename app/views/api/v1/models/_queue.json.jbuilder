@@ -1,0 +1,9 @@
+json.id resource.id
+json.name resource.name
+json.description resource.description
+json.active resource.active
+json.distribution_strategy resource.distribution_strategy
+json.priority_boost resource.priority_boost
+json.default_sla_policy_id resource.default_sla_policy_id
+json.team_id resource.team_id
+json.account_id resource.account_id

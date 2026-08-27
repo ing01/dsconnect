@@ -106,7 +106,8 @@
       "PLACEHOLDER": "None",
       "TITLE": {
         "AGENT": "Select agent",
-        "TEAM": "Select team"
+        "TEAM": "Select team",
+        "QUEUE": "Select queue"
       },
       "LIST": {
         "NONE": "None"
@@ -114,11 +115,13 @@
       "SEARCH": {
         "NO_RESULTS": {
           "AGENT": "No agents found",
-          "TEAM": "No teams found"
+          "TEAM": "No teams found",
+          "QUEUE": "No queues found"
         },
         "PLACEHOLDER": {
           "AGENT": "Search agents",
           "TEAM": "Search teams",
+          "QUEUE": "Search queues",
           "INPUT": "Search for agents"
         }
       }

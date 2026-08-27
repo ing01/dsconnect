@@ -1,4 +1,5 @@
 <script>
+import { mapGetters } from 'vuex';
 import validations from './helpers/validations';
 import FormInput from 'v3/components/Form/Input.vue';
 import { reactive, ref, defineAsyncComponent } from 'vue';
@@ -49,6 +50,8 @@ export default {
       allow_auto_assign: allowAutoAssign = true,
       icon = '',
       icon_color: iconColor = '',
+      active = true,
+      manager_id: managerId = null,
     } = formData;
 
     const state = reactive({
@@ -57,6 +60,8 @@ export default {
       allowAutoAssign,
       icon,
       iconColor,
+      active,
+      managerId,
     });
 
     const isIconPickerOpen = ref(false);
@@ -64,6 +69,12 @@ export default {
     const rules = validations;
     const v$ = useVuelidate(rules, state);
     return { state, v$, isIconPickerOpen };
+  },
+  computed: {
+    ...mapGetters({ agents: 'agents/getAgents' }),
+  },
+  mounted() {
+    this.$store.dispatch('agents/get');
   },
   methods: {
     onSelectIcon({ type, value, color }) {
@@ -90,6 +101,8 @@ export default {
         allow_auto_assign: this.state.allowAutoAssign,
         icon: this.state.icon,
         icon_color: this.state.iconColor,
+        active: this.state.active,
+        manager_id: this.state.managerId || null,
       });
     },
   },
@@ -158,6 +171,25 @@ export default {
         <input v-model="state.allowAutoAssign" type="checkbox" :value="true" />
         <label for="conversation_creation">
           {{ $t('TEAMS_SETTINGS.FORM.AUTO_ASSIGN.LABEL') }}
+        </label>
+      </div>
+      <div class="w-full">
+        <label>
+          {{ $t('TEAMS_SETTINGS.FORM.MANAGER.LABEL') }}
+          <select v-model="state.managerId" class="!mb-0">
+            <option :value="null">
+              {{ $t('TEAMS_SETTINGS.FORM.MANAGER.NONE') }}
+            </option>
+            <option v-for="agent in agents" :key="agent.id" :value="agent.id">
+              {{ agent.name }}
+            </option>
+          </select>
+        </label>
+      </div>
+      <div class="w-full flex items-center gap-2">
+        <input v-model="state.active" type="checkbox" :value="true" />
+        <label for="team_active">
+          {{ $t('TEAMS_SETTINGS.FORM.ACTIVE.LABEL') }}
         </label>
       </div>
       <div class="flex flex-row justify-end gap-2 py-2 px-0 w-full">

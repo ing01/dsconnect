@@ -98,10 +98,21 @@
         "PLACEHOLDER": "https://example.com/webhook",
         "REQUIRED": "URL Webhook é necessária"
       },
+      "BOT_TYPE": {
+        "LABEL": "Tipo",
+        "WEBHOOK": "Webhook",
+        "FLOW": "Fluxo (Chatbot)"
+      },
+      "CONVERSATION_FLOW": {
+        "LABEL": "Fluxo",
+        "PLACEHOLDER": "Selecione um fluxo",
+        "MANAGE_LINK": "Gerenciar fluxos"
+      },
       "ERRORS": {
         "NAME": "O nome do Robô é obrigatório",
         "URL": "URL Webhook é necessária",
-        "VALID_URL": "Digite uma URL válida começando com http:// ou https://"
+        "VALID_URL": "Digite uma URL válida começando com http:// ou https://",
+        "FLOW": "Selecione um fluxo"
       },
       "CANCEL": "Cancelar",
       "CREATE": "Criar um Robô",

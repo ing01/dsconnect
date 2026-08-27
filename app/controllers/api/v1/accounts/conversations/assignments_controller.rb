@@ -5,6 +5,8 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
       set_agent
     elsif params.key?(:team_id)
       set_team
+    elsif params.key?(:queue_id)
+      set_queue
     else
       render json: nil
     end
@@ -44,5 +46,14 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
 
   def agent_bot_assignment?
     params[:assignee_type].to_s == 'AgentBot'
+  end
+
+  def set_queue
+    queue_id = params[:queue_id].to_i
+    @queue = queue_id.positive? ? Current.account.queues.find(queue_id) : nil
+    @conversation.with_lock do
+      @conversation.update!(queue: @queue)
+    end
+    render json: @queue
   end
 end

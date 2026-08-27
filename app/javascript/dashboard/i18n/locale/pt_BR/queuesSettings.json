@@ -1,0 +1,90 @@
+{
+  "QUEUES_SETTINGS": {
+    "HEADER": "Filas",
+    "LOADING": "Carregando filas",
+    "DESCRIPTION": "As filas guardam as conversas de um departamento antes de serem assumidas ou distribuídas automaticamente para um atendente.",
+    "HEADER_BTN_TXT": "Adicionar fila",
+    "LIST": {
+      "404": "Não há filas criadas nesta conta.",
+      "TABLE_HEADER": {
+        "NAME": "Nome",
+        "TEAM": "Departamento",
+        "DISTRIBUTION": "Distribuição",
+        "ACTIVE": "Status",
+        "ACTION": "Ações"
+      },
+      "ACTIVE": "Ativa",
+      "INACTIVE": "Inativa"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome",
+        "PLACEHOLDER": "Digite um nome para esta fila"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Breve descrição sobre esta fila"
+      },
+      "TEAM": {
+        "LABEL": "Departamento",
+        "PLACEHOLDER": "Selecione um departamento"
+      },
+      "DISTRIBUTION": {
+        "LABEL": "Distribuição",
+        "OPTIONS": {
+          "MANUAL": "Manual",
+          "ROUND_ROBIN": "Rodízio (round robin)",
+          "LEAST_BUSY": "Menor quantidade de atendimentos"
+        }
+      },
+      "SLA": {
+        "LABEL": "SLA padrão",
+        "NONE": "Nenhum"
+      },
+      "PRIORITY_BOOST": {
+        "LABEL": "Prioridade mínima",
+        "NONE": "Nenhuma",
+        "LOW": "Baixa",
+        "MEDIUM": "Normal",
+        "HIGH": "Alta",
+        "URGENT": "Urgente"
+      },
+      "ACTIVE": {
+        "LABEL": "Fila ativa"
+      },
+      "CREATE": "Criar",
+      "UPDATE": "Atualizar",
+      "CANCEL": "Cancelar",
+      "EDIT": "Editar fila",
+      "DELETE": "Excluir fila"
+    },
+    "ADD": {
+      "TITLE": "Adicionar nova fila",
+      "DESC": "Filas agrupam as conversas de um departamento antes de serem atribuídas a um atendente.",
+      "API": {
+        "SUCCESS_MESSAGE": "Fila criada com sucesso",
+        "ERROR_MESSAGE": "Não foi possível criar a fila"
+      }
+    },
+    "EDIT": {
+      "TITLE": "Editar fila",
+      "DESC": "Edite as configurações da fila.",
+      "API": {
+        "SUCCESS_MESSAGE": "Fila atualizada com sucesso",
+        "ERROR_MESSAGE": "Não foi possível atualizar a fila"
+      }
+    },
+    "DELETE": {
+      "CONFIRM": {
+        "TITLE": "Confirmar exclusão",
+        "MESSAGE": "Tem certeza que deseja excluir a fila",
+        "YES": "Sim, excluir",
+        "NO": "Não, manter"
+      },
+      "API": {
+        "SUCCESS_MESSAGE": "Fila excluída com sucesso",
+        "ERROR_MESSAGE": "Não foi possível excluir a fila"
+      }
+    }
+  }
+}
