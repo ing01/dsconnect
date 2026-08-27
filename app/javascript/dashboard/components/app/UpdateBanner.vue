@@ -33,14 +33,11 @@ export default {
         latestChatwootVersion: this.latestChatwootVersion,
       });
     },
+    // Duedesk is a customized fork - nudging admins to update to a fresh
+    // upstream Chatwoot release (which this banner otherwise checks for) would
+    // be misleading, since that's not how this instance gets updated.
     shouldShowBanner() {
-      return (
-        !this.userDismissedBanner &&
-        this.globalConfig.displayManifest &&
-        this.updateAvailable &&
-        !this.isVersionNotificationDismissed(this.latestChatwootVersion) &&
-        this.isAdmin
-      );
+      return false;
     },
   },
   methods: {
