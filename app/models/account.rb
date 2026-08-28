@@ -108,6 +108,9 @@ class Account < ApplicationRecord
   has_many :ticket_columns, through: :teams
   has_many :telegram_channels, dependent: :destroy_async, class_name: '::Channel::Telegram'
   has_many :tickets, dependent: :destroy_async
+  has_many :projects, dependent: :destroy_async
+  has_many :project_modules, dependent: :destroy_async
+  has_many :project_task_templates, dependent: :destroy_async
   # Os relogios de SLA dos tickets da conta, que a varredura de vencimentos
   # percorre (Tickets::Sla::SweepAccountJob).
   has_many :ticket_applied_slas, dependent: :destroy_async

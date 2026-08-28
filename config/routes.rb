@@ -418,7 +418,21 @@ Rails.application.routes.draw do
             resources :attachments, controller: 'ticket_attachments', only: [:index, :create, :destroy]
             resources :followers, controller: 'ticket_followers', only: [:index, :create, :destroy]
             resources :customer_communications, controller: 'ticket_customer_communications', only: [:index, :create]
+            resources :checklist_items, controller: 'ticket_checklist_items', only: [:index, :create, :update, :destroy] do
+              member do
+                patch :toggle
+              end
+            end
           end
+
+          resources :projects do
+            member do
+              post :generate_tickets
+            end
+          end
+          resources :project_modules
+          resources :project_task_templates
+
           resources :service_catalogs do
             resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do
               resources :items, controller: 'service_catalog_items', only: [:create, :update, :destroy]

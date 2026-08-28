@@ -1,0 +1,23 @@
+json.id resource.id
+json.name resource.name
+json.account_id resource.account_id
+json.team_id resource.team_id
+json.team_name resource.team.name
+json.company_id resource.company_id
+json.company_name resource.company&.name
+json.contact_id resource.contact_id
+json.contact_name resource.contact&.name
+json.project_module_id resource.project_module_id
+json.project_module_name resource.project_module&.name
+json.stage resource.stage
+json.status resource.status
+json.start_date resource.start_date
+json.due_date resource.due_date
+json.custom_attributes resource.custom_attributes
+json.created_at resource.created_at.to_i
+json.updated_at resource.updated_at.to_i
+json.tickets_count resource.tickets.count
+json.completed_tickets_count resource.tickets.where(status: [:resolved, :closed]).count
+json.tickets resource.tickets.order(:position, :id) do |ticket|
+  json.partial! 'api/v1/models/ticket', formats: [:json], resource: ticket
+end

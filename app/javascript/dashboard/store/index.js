@@ -56,6 +56,9 @@ import serviceCatalogs from './modules/serviceCatalogs';
 import internalChat from './modules/internalChat';
 import ticketColumns from './modules/ticketColumns';
 import tickets from './modules/tickets';
+import projects from './modules/projects';
+import projectModules from './modules/projectModules';
+import projectTaskTemplates from './modules/projectTaskTemplates';
 import userNotificationSettings from './modules/userNotificationSettings';
 import webhooks from './modules/webhooks';
 import captainAgentSessions from './captain/agentSessions';
@@ -131,6 +134,9 @@ export default createStore({
     internalChat,
     ticketColumns,
     tickets,
+    projects,
+    projectModules,
+    projectTaskTemplates,
     userNotificationSettings,
     webhooks,
     captainAgentSessions,

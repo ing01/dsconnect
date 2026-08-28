@@ -71,6 +71,9 @@ class Api::V1::Accounts::TicketColumnsController < Api::V1::Accounts::BaseContro
   def ticket_column_params
     # `stage_threshold` aceita nulo de proposito: e assim que se diz que o
     # Estagio deixou de ter prazo.
-    params.require(:ticket_column).permit(:name, :stage_threshold)
+    params.require(:ticket_column).permit(
+      :name, :stage_threshold,
+      :require_due_date, :require_scheduled_at, :require_appointment, :require_assignee
+    )
   end
 end

@@ -1548,9 +1548,67 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
   create_table "platform_banners", force: :cascade do |t|
     t.text "banner_message", null: false
     t.integer "banner_type", default: 0, null: false
-    t.boolean "active", default: true, null: false
+    t.boolean "allow_dismissal", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "project_task_templates", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.string "default_ticket_title", null: false
+    t.text "description"
+    t.bigint "default_assignee_id"
+    t.integer "due_days", default: 1, null: false
+    t.string "next_project_stage"
+    t.jsonb "checklist", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_project_task_templates_on_account_id"
+    t.index ["default_assignee_id"], name: "index_project_task_templates_on_default_assignee_id"
+  end
+
+  create_table "project_modules", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_project_modules_on_account_id"
+  end
+
+  create_table "project_module_task_templates", force: :cascade do |t|
+    t.bigint "project_module_id", null: false
+    t.bigint "project_task_template_id", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_module_id", "project_task_template_id"], name: "index_module_task_templates_uniqueness", unique: true
+    t.index ["project_module_id"], name: "index_project_module_task_templates_on_project_module_id"
+    t.index ["project_task_template_id"], name: "index_project_module_task_templates_on_project_task_template_id"
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.bigint "company_id"
+    t.bigint "contact_id"
+    t.bigint "team_id", null: false
+    t.bigint "project_module_id"
+    t.string "stage", default: "pendente", null: false
+    t.integer "status", default: 0, null: false
+    t.date "start_date"
+    t.date "due_date"
+    t.jsonb "custom_attributes", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "stage"], name: "index_projects_on_account_id_and_stage"
+    t.index ["account_id", "status"], name: "index_projects_on_account_id_and_status"
+    t.index ["account_id"], name: "index_projects_on_account_id"
+    t.index ["company_id"], name: "index_projects_on_company_id"
+    t.index ["contact_id"], name: "index_projects_on_contact_id"
+    t.index ["project_module_id"], name: "index_projects_on_project_module_id"
+    t.index ["team_id"], name: "index_projects_on_team_id"
   end
 
   create_table "portals", force: :cascade do |t|
@@ -1834,6 +1892,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
     t.index ["team_id"], name: "index_ticket_categories_on_team_id"
   end
 
+  create_table "ticket_checklist_items", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.string "title", null: false
+    t.boolean "completed", default: false, null: false
+    t.datetime "completed_at"
+    t.bigint "completed_by_id"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_checklist_items_on_account_id"
+    t.index ["completed_by_id"], name: "index_ticket_checklist_items_on_completed_by_id"
+    t.index ["ticket_id", "completed"], name: "index_ticket_checklist_items_on_ticket_id_and_completed"
+    t.index ["ticket_id"], name: "index_ticket_checklist_items_on_ticket_id"
+  end
+
   create_table "ticket_columns", force: :cascade do |t|
     t.string "name", null: false
     t.integer "position", default: 0, null: false
@@ -1841,6 +1915,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
     t.datetime "updated_at", null: false
     t.bigint "team_id", null: false
     t.float "stage_threshold"
+    t.boolean "require_due_date", default: false, null: false
+    t.boolean "require_scheduled_at", default: false, null: false
+    t.boolean "require_appointment", default: false, null: false
+    t.boolean "require_assignee", default: false, null: false
     t.index ["team_id", "position"], name: "index_ticket_columns_on_team_id_and_position"
     t.index ["team_id"], name: "index_ticket_columns_on_team_id"
   end
@@ -1976,6 +2054,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
     t.bigint "contact_id"
     t.bigint "ticket_category_id"
     t.bigint "service_catalog_item_id"
+    t.bigint "project_id"
+    t.bigint "project_task_template_id"
+    t.datetime "due_date"
+    t.datetime "scheduled_at"
+    t.string "next_project_stage"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id"], name: "index_tickets_on_account_id"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
@@ -1983,6 +2066,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
     t.index ["contact_id"], name: "index_tickets_on_contact_id"
     t.index ["merged_into_id"], name: "index_tickets_on_merged_into_id"
     t.index ["parent_id"], name: "index_tickets_on_parent_id"
+    t.index ["project_id"], name: "index_tickets_on_project_id"
+    t.index ["project_task_template_id"], name: "index_tickets_on_project_task_template_id"
     t.index ["service_catalog_item_id"], name: "index_tickets_on_service_catalog_item_id"
     t.index ["status"], name: "index_tickets_on_status"
     t.index ["team_id"], name: "index_tickets_on_team_id"

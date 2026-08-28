@@ -52,6 +52,7 @@ module TicketActionParams
   def ticket_params
     params.require(:ticket).permit(:title, :description, :priority, :assignee_id, :team_id,
                                    :ticket_column_id, :company_id, :contact_id, :ticket_category_id,
-                                   :parent_id, follower_ids: [])
+                                   :parent_id, :project_id, :due_date, :scheduled_at, :next_project_stage,
+                                   follower_ids: [])
   end
 end

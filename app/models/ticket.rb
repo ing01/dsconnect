@@ -14,6 +14,8 @@ class Ticket < ApplicationRecord
   # with `ticket_column.team_id` (see `team_matches_ticket_column`) - a
   # ticket's Mesa is defined by which Mesa's Estagio it currently sits in.
   belongs_to :team
+  belongs_to :project, optional: true
+  belongs_to :project_task_template, optional: true
 
   has_many :ticket_conversations, dependent: :destroy, inverse_of: :ticket
   has_many :conversations, through: :ticket_conversations
@@ -24,6 +26,7 @@ class Ticket < ApplicationRecord
   has_many :followers, through: :ticket_followers, source: :user
   has_many :calendar_event_tickets, dependent: :destroy
   has_many :calendar_events, through: :calendar_event_tickets
+  has_many :ticket_checklist_items, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :ticket
 
   validates :title, presence: true
   validates :custom_attributes, jsonb_attributes_length: true
@@ -88,6 +91,7 @@ class Ticket < ApplicationRecord
   # Kanban drag-and-drop. This is a workflow-stage change only; it never
   # touches `status`.
   def move_to!(ticket_column:, position:)
+    validate_target_column_rules!(ticket_column)
     transaction do
       previous_column = self.ticket_column
       # Keeps `team_id` (Mesa) in lockstep with the Estagio being moved
@@ -102,8 +106,10 @@ class Ticket < ApplicationRecord
   def resolve!(user = Current.user)
     return if resolved?
 
+    ensure_checklist_completed!
     update!(status: :resolved, resolved_at: Time.zone.now)
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :resolved)
+    advance_project_stage_if_needed!
   end
 
   # `skip_requirements` is for administrative closes only - grouping a ticket
@@ -111,10 +117,42 @@ class Ticket < ApplicationRecord
   def close!(user = Current.user, skip_requirements: false)
     return if closed?
 
+    ensure_checklist_completed! unless skip_requirements
     ensure_closeable!(skip_requirements: skip_requirements)
 
     update!(status: :closed, closed_at: Time.zone.now)
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :closed)
+    advance_project_stage_if_needed!
+  end
+
+  def ensure_checklist_completed!
+    if ticket_checklist_items.where(completed: false).exists?
+      errors.add(:base, I18n.t('tickets.checklist.pending_items', default: 'Não é possível concluir esta tarefa. Existem itens pendentes no checklist.'))
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+  end
+
+  def advance_project_stage_if_needed!
+    return if project.blank? || next_project_stage.blank?
+
+    project.advance_stage!(next_project_stage)
+  end
+
+  def validate_target_column_rules!(target_column)
+    if target_column.require_due_date? && due_date.blank?
+      errors.add(:due_date, I18n.t('tickets.column_rules.require_due_date', default: 'Data de vencimento é obrigatória para esta coluna'))
+    end
+    if target_column.require_scheduled_at? && scheduled_at.blank?
+      errors.add(:scheduled_at, I18n.t('tickets.column_rules.require_scheduled_at', default: 'Data de agendamento é obrigatória para esta coluna'))
+    end
+    if target_column.require_appointment? && calendar_events.empty?
+      errors.add(:base, I18n.t('tickets.column_rules.require_appointment', default: 'Apontamento é obrigatório para esta coluna'))
+    end
+    if target_column.require_assignee? && assignee_id.blank?
+      errors.add(:assignee, I18n.t('tickets.column_rules.require_assignee', default: 'Responsável é obrigatório para esta coluna'))
+    end
+
+    raise ActiveRecord::RecordInvalid.new(self) if errors.any?
   end
 
   def reopen!(user = Current.user)
