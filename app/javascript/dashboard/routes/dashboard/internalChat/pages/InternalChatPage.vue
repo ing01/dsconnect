@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
@@ -81,6 +81,9 @@ const openRoom = async roomId => {
   unreadFrom.value = room?.unread || 0;
 
   activeRoomId.value = roomId;
+  // O store precisa saber qual sala está aberta para não contar como não lida
+  // uma mensagem que chega enquanto ela está à vista.
+  store.dispatch('internalChat/setActiveRoom', roomId);
   showConversationOnMobile.value = true;
   messageQuery.value = '';
   replyTo.value = null;
@@ -104,6 +107,10 @@ onMounted(async () => {
 });
 
 watch(activeRoomId, () => scrollToBottom());
+
+// Sair da tela não deixa uma sala marcada como aberta: dali em diante toda
+// mensagem que chegar deve contar como não lida.
+onBeforeUnmount(() => store.dispatch('internalChat/setActiveRoom', null));
 
 const send = async payload => {
   await store.dispatch('internalChat/sendMessage', {

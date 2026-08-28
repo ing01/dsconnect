@@ -1,5 +1,8 @@
 class ActionCableListener < BaseListener
   include Events::Types
+  # Chat Interno: quem pode receber uma conversa entre funcionarios e regra
+  # propria, e vive separada.
+  include InternalChatBroadcaster
 
   def notification_created(event)
     notification, account, unread_count, count = extract_notification_and_account(event)

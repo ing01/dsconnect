@@ -22,6 +22,9 @@ export const state = {
   // registro no servidor e só diferem no `kind`.
   rooms: [],
   currentUserId: null,
+  // Qual sala está aberta. O store precisa saber para decidir se uma mensagem
+  // que chega pelo tempo real conta como não lida.
+  activeRoomId: null,
   uiFlags: {
     isFetchingRooms: false,
     isFetchingMessages: false,
@@ -34,6 +37,7 @@ export const getters = {
   getChannels: _state => _state.rooms.filter(room => room.kind === 'channel'),
   getDirects: _state => _state.rooms.filter(room => room.kind === 'direct'),
   getCurrentUserId: _state => _state.currentUserId,
+  getActiveRoomId: _state => _state.activeRoomId,
   getUIFlags: _state => _state.uiFlags,
 
   getUserById: _state => id => _state.users.find(user => user.id === id),
@@ -117,6 +121,48 @@ export const actions = {
     }
   },
 
+  setActiveRoom: ({ commit }, roomId) =>
+    commit(types.SET_INTERNAL_CHAT_ACTIVE_ROOM, roomId),
+
+  /**
+   * Uma mensagem chegou pelo ActionCable.
+   *
+   * Serve para mensagem nova e para mensagem alterada: as duas trazem o
+   * registro completo, então o store insere ou substitui pelo id.
+   *
+   * Só entra na sala se ela já tiver sido carregada - senão a conversa
+   * apareceria com um único recado solto, sem o histórico que vem antes dele.
+   */
+  applyRealtimeMessage: ({ commit, state: _state, dispatch }, { channelId, message }) => {
+    const room = _state.rooms.find(item => item.id === channelId);
+    if (!room) return;
+
+    const isKnown = room.messages.some(item => item.id === message.id);
+    if (isKnown) {
+      commit(types.UPDATE_INTERNAL_CHAT_MESSAGE, { roomId: channelId, message });
+      return;
+    }
+
+    if (room.isLoaded) {
+      commit(types.ADD_INTERNAL_CHAT_MESSAGE, { roomId: channelId, message });
+    }
+
+    // A própria mensagem da pessoa nunca conta como não lida - ela pode chegar
+    // aqui vinda de outra aba dela mesma.
+    if (message.userId === _state.currentUserId) return;
+
+    // Com a sala aberta, ler é imediato; fechada, o contador sobe.
+    if (channelId === _state.activeRoomId) {
+      dispatch('markRead', channelId);
+      return;
+    }
+
+    commit(types.SET_INTERNAL_CHAT_UNREAD, {
+      roomId: channelId,
+      unread: (room.unread || 0) + 1,
+    });
+  },
+
   // Abrir a sala zera o não lido no servidor, para todos os aparelhos da
   // pessoa - e não só nesta aba.
   markRead: async ({ commit }, roomId) => {
@@ -183,6 +229,10 @@ export const mutations = {
   [types.SET_INTERNAL_CHAT_DIRECTORY](_state, { users, currentUserId }) {
     _state.users = users;
     _state.currentUserId = currentUserId;
+  },
+
+  [types.SET_INTERNAL_CHAT_ACTIVE_ROOM](_state, roomId) {
+    _state.activeRoomId = roomId;
   },
 
   [types.SET_INTERNAL_CHAT_UI_FLAG](_state, flags) {

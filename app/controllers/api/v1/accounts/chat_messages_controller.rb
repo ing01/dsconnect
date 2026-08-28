@@ -46,6 +46,8 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
     end
 
     @chat_message.reload
+    # Quem esta com a sala aberta ve a reacao sem recarregar.
+    @chat_message.dispatch_updated_event
     render 'show'
   end
 

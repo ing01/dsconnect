@@ -73,6 +73,8 @@ class ActionCableConnector extends BaseActionCableConnector {
       'ticket.reopened': this.onTicketRealtimeUpdate,
       'ticket.closed': this.onTicketRealtimeUpdate,
       'ticket.cancelled': this.onTicketRealtimeUpdate,
+      'internal_chat.message.created': this.onInternalChatMessage,
+      'internal_chat.message.updated': this.onInternalChatMessage,
     };
   }
 
@@ -376,6 +378,19 @@ class ActionCableConnector extends BaseActionCableConnector {
 
     this.app.$store.dispatch('ticketColumns/applyRealtimeTicket', ticket);
     this.app.$store.dispatch('tickets/upsertFromRealtime', ticket);
+  };
+
+  // Chat Interno. O mesmo tratamento serve para mensagem nova e para mensagem
+  // alterada: as duas trazem o registro completo, entao o store insere ou
+  // substitui pelo id.
+  onInternalChatMessage = data => {
+    const { channel_id: channelId, message } = data;
+    if (!channelId || !message) return;
+
+    this.app.$store.dispatch('internalChat/applyRealtimeMessage', {
+      channelId,
+      message,
+    });
   };
 
   onVoiceCallIncoming = data => {

@@ -73,6 +73,11 @@ module Events::Types
   # onde as notificacoes de vencimento entram, sem engine nova.
   TICKET_SLA_MISSED = 'ticket.sla_missed'
 
+  # Chat Interno. Transmitidos apenas aos membros da sala - uma conversa entre
+  # funcionarios nunca vai para quem nao participa dela.
+  INTERNAL_CHAT_MESSAGE_CREATED = 'internal_chat.message.created'
+  INTERNAL_CHAT_MESSAGE_UPDATED = 'internal_chat.message.updated'
+
   # copilot events
   COPILOT_MESSAGE_CREATED = 'copilot.message.created'
 end
