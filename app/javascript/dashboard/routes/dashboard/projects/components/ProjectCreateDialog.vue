@@ -145,18 +145,47 @@ const submitProject = async () => {
     />
 
     <div class="flex-1 overflow-y-auto p-6 min-h-0">
+      <!-- Step Indicator -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="flex items-center gap-2">
+          <span
+            class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold"
+            :class="step === 1 ? 'bg-n-brand text-n-slate-1' : 'bg-n-teal-9 text-n-slate-1'"
+          >
+            {{ step === 1 ? '1' : '✓' }}
+          </span>
+          <span class="text-sm font-medium" :class="step === 1 ? 'text-n-slate-12' : 'text-n-slate-10'">
+            {{ t('PROJECTS.FORM.NAME.LABEL') }}
+          </span>
+        </div>
+        <div class="flex-1 h-px bg-n-weak" />
+        <div class="flex items-center gap-2">
+          <span
+            class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold"
+            :class="step === 2 ? 'bg-n-brand text-n-slate-1' : 'bg-n-slate-4 text-n-slate-11'"
+          >
+            2
+          </span>
+          <span class="text-sm font-medium" :class="step === 2 ? 'text-n-slate-12' : 'text-n-slate-10'">
+            {{ t('PROJECTS.CREATE.TITLE_STEP2') }}
+          </span>
+        </div>
+      </div>
+
       <!-- Step 1: Project Information -->
-      <form v-if="step === 1" class="flex flex-col gap-4" @submit.prevent="goToStep2">
+      <form v-if="step === 1" class="flex flex-col gap-5" @submit.prevent="goToStep2">
         <!-- Nome do Projeto -->
-        <NextInput
-          v-model="name"
-          :label="t('PROJECTS.FORM.NAME.LABEL')"
-          :placeholder="t('PROJECTS.FORM.NAME.PLACEHOLDER')"
-          required
-        />
+        <div class="flex flex-col gap-1.5">
+          <NextInput
+            v-model="name"
+            :label="t('PROJECTS.FORM.NAME.LABEL')"
+            :placeholder="t('PROJECTS.FORM.NAME.PLACEHOLDER')"
+            required
+          />
+        </div>
 
         <!-- Cliente (Empresa) -->
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1.5">
           <label class="text-xs font-medium text-n-slate-12">
             {{ t('PROJECTS.FORM.COMPANY.LABEL') }}
           </label>
@@ -172,7 +201,7 @@ const submitProject = async () => {
         </div>
 
         <!-- Mesa de Servico -->
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1.5">
           <label class="text-xs font-medium text-n-slate-12">
             {{ t('PROJECTS.FORM.TEAM.LABEL') }} <span class="text-n-ruby-11">*</span>
           </label>
@@ -190,7 +219,7 @@ const submitProject = async () => {
         </div>
 
         <!-- Modulo com atalho -->
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1.5">
           <div class="flex items-center justify-between">
             <label class="text-xs font-medium text-n-slate-12">
               {{ t('PROJECTS.FORM.MODULE.LABEL') }}
@@ -210,13 +239,13 @@ const submitProject = async () => {
           >
             <option :value="null">{{ t('PROJECTS.FORM.MODULE.NONE') }}</option>
             <option v-for="mod in modules" :key="mod.id" :value="mod.id">
-              {{ mod.name }} ({{ mod.task_templates?.length || 0 }} tarefas)
+              {{ mod.name }} ({{ mod.task_templates?.length || 0 }} {{ t('PROJECTS.CARD.TASK_COUNT') }})
             </option>
           </select>
         </div>
 
         <!-- Datas: Inicio e Previsao -->
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-4">
           <NextInput
             v-model="startDate"
             type="date"
@@ -230,7 +259,7 @@ const submitProject = async () => {
         </div>
 
         <!-- Modal Footer Step 1 -->
-        <div class="flex justify-end gap-2 pt-4 border-t border-n-weak">
+        <div class="flex justify-end gap-2 pt-5 border-t border-n-weak">
           <NextButton
             faded
             slate
@@ -248,7 +277,7 @@ const submitProject = async () => {
       </form>
 
       <!-- Step 2: Task configuration & review -->
-      <div v-else class="flex flex-col gap-4">
+      <div v-else class="flex flex-col gap-5">
         <div class="p-3 bg-n-alpha-1 rounded-lg border border-n-weak text-xs text-n-slate-11 flex items-center gap-2">
           <Icon icon="i-lucide-info" class="size-4 flex-shrink-0 text-n-teal-11" />
           <span>{{ t('PROJECTS.CREATE.STEP2_HINT') }}</span>
@@ -269,11 +298,11 @@ const submitProject = async () => {
                 <h4 class="text-sm font-semibold text-n-slate-12">
                   {{ idx + 1 }}. {{ task.name }}
                 </h4>
-                <p v-if="task.default_ticket_title" class="text-xs text-n-slate-11">
+                <p v-if="task.default_ticket_title" class="text-xs text-n-slate-11 mt-0.5">
                   {{ t('PROJECTS.TASK.CALL_TITLE') }}: {{ task.default_ticket_title }}
                 </p>
               </div>
-              <span v-if="task.next_project_stage" class="text-[11px] px-2 py-0.5 rounded bg-n-teal-3 text-n-teal-11 font-medium">
+              <span v-if="task.next_project_stage" class="text-[11px] px-2 py-0.5 rounded bg-n-teal-3 text-n-teal-11 font-medium flex-shrink-0">
                 {{ t('PROJECTS.TASK.ADVANCES_TO') }}: {{ t(`PROJECTS.STAGES.${task.next_project_stage.toUpperCase()}`, task.next_project_stage) }}
               </span>
             </div>
@@ -291,8 +320,8 @@ const submitProject = async () => {
             </div>
 
             <!-- Fields: Responsavel & Vencimento -->
-            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-n-weak">
-              <div class="flex flex-col gap-1">
+            <div class="grid grid-cols-2 gap-3 pt-3 border-t border-n-weak">
+              <div class="flex flex-col gap-1.5">
                 <label class="text-xs font-medium text-n-slate-11">
                   {{ t('PROJECTS.TASK.ASSIGNEE') }}
                 </label>
@@ -307,7 +336,7 @@ const submitProject = async () => {
                 </select>
               </div>
 
-              <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-1.5">
                 <label class="text-xs font-medium text-n-slate-11">
                   {{ t('PROJECTS.TASK.DUE_DATE') }}
                 </label>
@@ -322,7 +351,7 @@ const submitProject = async () => {
         </div>
 
         <!-- Modal Footer Step 2 -->
-        <div class="flex justify-between items-center pt-4 border-t border-n-weak">
+        <div class="flex justify-between items-center pt-5 border-t border-n-weak">
           <NextButton
             faded
             slate

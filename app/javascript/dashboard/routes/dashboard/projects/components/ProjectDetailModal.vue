@@ -27,13 +27,13 @@ const project = computed(() => store.getters['projects/getSelectedProject']);
 const accountId = computed(() => store.getters['getCurrentAccountId']);
 
 const stages = [
-  { key: 'pendente', label: 'Pendente' },
-  { key: 'onboarding', label: 'Onboarding' },
-  { key: 'requisito', label: 'Requisito' },
-  { key: 'em_andamento', label: 'Em Andamento' },
-  { key: 'acompanhamento', label: 'Acompanhamento' },
-  { key: 'pos', label: 'Pós' },
-  { key: 'finalizado', label: 'Finalizado' },
+  { key: 'pendente', label: 'Pending', color: 'slate' },
+  { key: 'onboarding', label: 'Onboarding', color: 'blue' },
+  { key: 'requisito', label: 'Requirements', color: 'amber' },
+  { key: 'em_andamento', label: 'In Progress', color: 'teal' },
+  { key: 'acompanhamento', label: 'Follow-up', color: 'violet' },
+  { key: 'pos', label: 'Post', color: 'orange' },
+  { key: 'finalizado', label: 'Completed', color: 'emerald' },
 ];
 
 onMounted(async () => {
@@ -61,6 +61,11 @@ const openTicket = ticket => {
   emit('close');
   router.push(frontendURL(`accounts/${accountId.value}/tickets/${ticket.id}`));
 };
+
+const currentStageColor = computed(() => {
+  const stage = stages.find(s => s.key === project.value?.stage);
+  return stage?.color || 'slate';
+});
 </script>
 
 <template>
@@ -70,29 +75,29 @@ const openTicket = ticket => {
     />
 
     <div v-if="isLoading" class="flex items-center justify-center p-12">
-      <span class="text-sm text-n-slate-10">{{ t('PROJECTS.LOADING') }}</span>
+      <span class="text-sm text-n-slate-10">{{ t('PROJECTS.DETAIL.LOADING') }}</span>
     </div>
 
-    <div v-else-if="project" class="flex-1 overflow-y-auto p-6 flex flex-col gap-6 min-h-0">
+    <div v-else-if="project" class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 min-h-0">
       <!-- Top info bar -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-n-alpha-1 border border-n-weak text-xs">
-        <div>
-          <span class="text-n-slate-10 block mb-0.5">{{ t('PROJECTS.FORM.COMPANY.LABEL') }}</span>
-          <span class="font-medium text-n-slate-12">{{ project.company_name || '—' }}</span>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.COMPANY.LABEL') }}</span>
+          <span class="text-sm font-medium text-n-slate-12">{{ project.company_name || '—' }}</span>
         </div>
-        <div>
-          <span class="text-n-slate-10 block mb-0.5">{{ t('PROJECTS.FORM.TEAM.LABEL') }}</span>
-          <span class="font-medium text-n-slate-12">{{ project.team_name || '—' }}</span>
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.TEAM.LABEL') }}</span>
+          <span class="text-sm font-medium text-n-slate-12">{{ project.team_name || '—' }}</span>
         </div>
-        <div>
-          <span class="text-n-slate-10 block mb-0.5">{{ t('PROJECTS.FORM.MODULE.LABEL') }}</span>
-          <span class="font-medium text-n-slate-12">{{ project.project_module_name || '—' }}</span>
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.MODULE.LABEL') }}</span>
+          <span class="text-sm font-medium text-n-slate-12">{{ project.project_module_name || '—' }}</span>
         </div>
-        <div>
-          <span class="text-n-slate-10 block mb-0.5">{{ t('PROJECTS.DETAIL.STAGE') }}</span>
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.DETAIL.STAGE') }}</span>
           <select
             :value="project.stage"
-            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
             @change="onStageChange($event.target.value)"
           >
             <option v-for="st in stages" :key="st.key" :value="st.key">
@@ -113,7 +118,7 @@ const openTicket = ticket => {
           </span>
         </div>
 
-        <div v-if="!project.tickets?.length" class="text-center py-6 text-sm text-n-slate-10 border border-dashed border-n-weak rounded-xl">
+        <div v-if="!project.tickets?.length" class="text-center py-8 text-sm text-n-slate-10 border border-dashed border-n-weak rounded-xl bg-n-alpha-1">
           {{ t('PROJECTS.DETAIL.NO_TASKS') }}
         </div>
 
@@ -121,7 +126,7 @@ const openTicket = ticket => {
           <div
             v-for="ticket in project.tickets"
             :key="ticket.id"
-            class="flex items-center justify-between p-3 rounded-lg border border-n-weak bg-n-solid-1 hover:border-n-slate-6 cursor-pointer transition-colors"
+            class="flex items-center justify-between p-3 rounded-lg border border-n-weak bg-n-solid-1 hover:border-n-slate-6 hover:shadow-sm cursor-pointer transition-all"
             @click="openTicket(ticket)"
           >
             <div class="flex items-center gap-3 min-w-0">

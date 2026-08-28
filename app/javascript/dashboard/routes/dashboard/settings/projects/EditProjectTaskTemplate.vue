@@ -36,13 +36,13 @@ const agents = computed(() => store.getters['agents/getAgents'] || []);
 
 const stages = [
   { key: '', label: 'Nenhuma' },
-  { key: 'pendente', label: 'Pendente' },
+  { key: 'pendente', label: 'Pending' },
   { key: 'onboarding', label: 'Onboarding' },
-  { key: 'requisito', label: 'Requisito' },
-  { key: 'em_andamento', label: 'Em Andamento' },
-  { key: 'acompanhamento', label: 'Acompanhamento' },
-  { key: 'pos', label: 'Pós' },
-  { key: 'finalizado', label: 'Finalizado' },
+  { key: 'requisito', label: 'Requirements' },
+  { key: 'em_andamento', label: 'In Progress' },
+  { key: 'acompanhamento', label: 'Follow-up' },
+  { key: 'pos', label: 'Post' },
+  { key: 'finalizado', label: 'Completed' },
 ];
 
 onMounted(() => {
@@ -94,7 +94,7 @@ const submit = async () => {
 <template>
   <div class="flex flex-col h-auto max-h-[85vh] overflow-hidden">
     <woot-modal-header :header-title="t('PROJECT_TASKS.EDIT.TITLE')" />
-    <form class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 min-h-0" @submit.prevent="submit">
+    <form class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 min-h-0" @submit.prevent="submit">
       <NextInput
         v-model="name"
         :label="t('PROJECT_TASKS.FORM.NAME.LABEL')"
@@ -109,7 +109,7 @@ const submit = async () => {
         required
       />
 
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1.5">
         <label class="text-xs font-medium text-n-slate-12">
           {{ t('PROJECT_TASKS.FORM.DESCRIPTION.LABEL') }}
         </label>
@@ -165,8 +165,8 @@ const submit = async () => {
       </div>
 
       <!-- Responsavel Padrão & Dias para Vencimento -->
-      <div class="grid grid-cols-2 gap-3">
-        <div class="flex flex-col gap-1">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
           <label class="text-xs font-medium text-n-slate-12">
             {{ t('PROJECT_TASKS.FORM.DEFAULT_ASSIGNEE.LABEL') }}
           </label>
@@ -192,7 +192,7 @@ const submit = async () => {
       </div>
 
       <!-- Etapa do Projeto pós Conclusão -->
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1.5">
         <label class="text-xs font-medium text-n-slate-12">
           {{ t('PROJECT_TASKS.FORM.NEXT_STAGE.LABEL') }}
         </label>
@@ -210,7 +210,7 @@ const submit = async () => {
       </div>
 
       <!-- Buttons -->
-      <div class="flex justify-end gap-2 pt-4 border-t border-n-weak">
+      <div class="flex justify-end gap-2 pt-5 border-t border-n-weak">
         <NextButton
           faded
           slate

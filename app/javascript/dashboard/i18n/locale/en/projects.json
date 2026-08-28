@@ -1,0 +1,138 @@
+{
+  "SIDEBAR": {
+    "PROJECTS": "Projects"
+  },
+  "HEADER": {
+    "TITLE": "Projects",
+    "SUBTITLE": "Manage and track your service delivery pipelines",
+    "MODULES_SHORTCUT": "Modules",
+    "TASKS_SHORTCUT": "Tasks",
+    "NEW_PROJECT": "New Project"
+  },
+  "FILTER": {
+    "MESA": "Team",
+    "ALL_MESAS": "All teams",
+    "ACTIVE_PROJECTS": "Active",
+    "COMPLETED_PROJECTS": "Completed",
+    "SEARCH_PLACEHOLDER": "Search projects..."
+  },
+  "EMPTY": {
+    "NO_PROJECTS": "No active projects yet",
+    "NO_COMPLETED": "No completed projects yet",
+    "HINT": "Create a project to start organizing work across teams and modules."
+  },
+  "STAGES": {
+    "PENDENTE": "Pending",
+    "ONBOARDING": "Onboarding",
+    "REQUISITO": "Requirements",
+    "EM_ANDAMENTO": "In Progress",
+    "ACOMPANHAMENTO": "Follow-up",
+    "POS": "Post",
+    "FINALIZADO": "Completed"
+  },
+  "CARD": {
+    "TASKS_PROGRESS": "Progress",
+    "TASK_COUNT": "tasks"
+  },
+  "CREATE": {
+    "TITLE_STEP1": "New Project",
+    "TITLE_STEP2": "Configure Tasks",
+    "STEP2_HINT": "Review the tasks generated from the selected module. Adjust assignees and due dates before confirming.",
+    "NO_TASKS_IN_MODULE": "No tasks are configured for this module.",
+    "SUCCESS": "Project created successfully",
+    "ERROR": "Failed to create project"
+  },
+  "FORM": {
+    "NAME": {
+      "LABEL": "Project name",
+      "PLACEHOLDER": "e.g. Acme onboarding"
+    },
+    "COMPANY": {
+      "LABEL": "Client",
+      "NONE": "No client"
+    },
+    "TEAM": {
+      "LABEL": "Service team",
+      "SELECT": "Select a team"
+    },
+    "MODULE": {
+      "LABEL": "Module",
+      "NEW_SHORTCUT": "New module",
+      "NONE": "No module"
+    },
+    "START_DATE": {
+      "LABEL": "Start date"
+    },
+    "DUE_DATE": {
+      "LABEL": "Due date"
+    },
+    "CANCEL": "Cancel",
+    "NEXT_STEP": "Next",
+    "BACK": "Back",
+    "CONFIRM_AND_GENERATE": "Create Project",
+    "CLOSE": "Close"
+  },
+  "TASK": {
+    "CALL_TITLE": "Call title",
+    "ADVANCES_TO": "Advances to",
+    "ASSIGNEE": "Responsible",
+    "UNASSIGNED": "Unassigned",
+    "DUE_DATE": "Due date"
+  },
+  "DETAIL": {
+    "TITLE": "Project Details",
+    "LOADING": "Loading project...",
+    "STAGE": "Stage",
+    "TASKS_LIST": "Tasks",
+    "COMPLETED": "completed",
+    "NO_TASKS": "No tasks generated for this project yet.",
+    "STAGE_UPDATED": "Project stage updated",
+    "UPDATE_ERROR": "Failed to update project stage"
+  },
+  "LOADING": "Loading projects...",
+  "PROJECT_TASKS": {
+    "ADD": {
+      "TITLE": "New Task Template",
+      "SUBMIT": "Create Template",
+      "SUCCESS": "Task template created successfully",
+      "ERROR": "Failed to create task template"
+    },
+    "EDIT": {
+      "TITLE": "Edit Task Template",
+      "SUBMIT": "Update Template",
+      "SUCCESS": "Task template updated successfully",
+      "ERROR": "Failed to update task template"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Task name",
+        "PLACEHOLDER": "e.g. Initial call"
+      },
+      "DEFAULT_TITLE": {
+        "LABEL": "Default ticket title",
+        "PLACEHOLDER": "e.g. Welcome call with client"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "Describe this task..."
+      },
+      "CHECKLIST": {
+        "LABEL": "Checklist items",
+        "PLACEHOLDER": "Add checklist item",
+        "ADD": "Add item"
+      },
+      "DEFAULT_ASSIGNEE": {
+        "LABEL": "Default assignee",
+        "NONE": "Unassigned"
+      },
+      "DUE_DAYS": {
+        "LABEL": "Due in (days)",
+        "PLACEHOLDER": "0"
+      },
+      "NEXT_STAGE": {
+        "LABEL": "Next project stage",
+        "HINT": "Select the stage this task advances the project to when completed."
+      }
+    }
+  }
+}

@@ -30,6 +30,9 @@ const teams = computed(() => store.getters['teams/getTeams'] || []);
 const projects = computed(() => store.getters['projects/getProjects'] || []);
 const uiFlags = computed(() => store.getters['projects/getUIFlags'] || {});
 
+const activeProjectsCount = computed(() => projects.value.filter(p => p.stage !== 'finalizado').length);
+const completedProjectsCount = computed(() => projects.value.filter(p => p.stage === 'finalizado').length);
+
 const loadProjects = () => {
   store.dispatch('projects/get', {
     team_id: selectedTeamId.value || undefined,
@@ -93,7 +96,7 @@ const goToTasksSettings = () => {
           <h1 class="text-xl font-semibold text-n-slate-12">
             {{ t('PROJECTS.HEADER.TITLE') }}
           </h1>
-          <p class="text-xs text-n-slate-11">
+          <p class="text-xs text-n-slate-11 mt-0.5">
             {{ t('PROJECTS.HEADER.SUBTITLE') }}
           </p>
         </div>
@@ -126,7 +129,7 @@ const goToTasksSettings = () => {
       </div>
 
       <!-- Controls Row: Team selector, Search, Active vs Completed switch -->
-      <div class="flex items-center justify-between flex-wrap gap-3 pt-2 border-t border-n-weak">
+      <div class="flex items-center justify-between flex-wrap gap-3 pt-3 border-t border-n-weak">
         <div class="flex items-center gap-3 flex-wrap">
           <!-- Mesa Selector -->
           <div class="flex items-center gap-2">
@@ -156,7 +159,7 @@ const goToTasksSettings = () => {
               "
               @click="showCompleted = false"
             >
-              {{ t('PROJECTS.FILTER.ACTIVE_PROJECTS') }}
+              {{ t('PROJECTS.FILTER.ACTIVE_PROJECTS') }} ({{ activeProjectsCount }})
             </button>
             <button
               type="button"
@@ -168,13 +171,13 @@ const goToTasksSettings = () => {
               "
               @click="showCompleted = true"
             >
-              {{ t('PROJECTS.FILTER.COMPLETED_PROJECTS') }}
+              {{ t('PROJECTS.FILTER.COMPLETED_PROJECTS') }} ({{ completedProjectsCount }})
             </button>
           </div>
         </div>
 
         <!-- Search Input -->
-        <div class="w-64">
+        <div class="w-56">
           <NextInput
             v-model="searchQuery"
             size="sm"
@@ -192,11 +195,13 @@ const goToTasksSettings = () => {
       </div>
 
       <div v-else-if="!projects.length" class="flex flex-col items-center justify-center flex-1 text-center p-8 bg-n-solid-1 rounded-xl border border-n-weak">
-        <Icon icon="i-lucide-kanban" class="size-12 text-n-slate-8 mb-3" />
+        <div class="w-16 h-16 rounded-full bg-n-slate-3 flex items-center justify-center mb-4">
+          <Icon icon="i-lucide-kanban" class="size-8 text-n-slate-8" />
+        </div>
         <h3 class="text-base font-semibold text-n-slate-12 mb-1">
           {{ showCompleted ? t('PROJECTS.EMPTY.NO_COMPLETED') : t('PROJECTS.EMPTY.NO_PROJECTS') }}
         </h3>
-        <p class="text-xs text-n-slate-10 max-w-sm mb-4">
+        <p class="text-xs text-n-slate-10 max-w-sm mb-5 leading-relaxed">
           {{ t('PROJECTS.EMPTY.HINT') }}
         </p>
         <NextButton

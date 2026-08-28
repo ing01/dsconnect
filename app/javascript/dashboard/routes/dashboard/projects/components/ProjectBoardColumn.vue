@@ -13,6 +13,14 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  color: {
+    type: String,
+    default: 'slate',
+  },
+  showCompleted: {
+    type: Boolean,
+    default: false,
+  },
   projects: {
     type: Array,
     default: () => [],
@@ -25,6 +33,19 @@ const { t } = useI18n();
 
 const count = computed(() => props.projects.length);
 
+const colorClasses = computed(() => {
+  const map = {
+    slate: 'bg-n-slate-9',
+    blue: 'bg-n-blue-9',
+    amber: 'bg-n-amber-9',
+    teal: 'bg-n-teal-9',
+    violet: 'bg-n-violet-9',
+    orange: 'bg-n-orange-9',
+    emerald: 'bg-n-emerald-9',
+  };
+  return map[props.color] || map.slate;
+});
+
 const onChange = evt => {
   if (evt.added) {
     emit('moveProject', {
@@ -36,10 +57,11 @@ const onChange = evt => {
 </script>
 
 <template>
-  <div class="flex flex-col flex-shrink-0 w-72 rounded-xl bg-n-slate-2 max-h-full">
+  <div class="flex flex-col flex-shrink-0 w-72 rounded-xl bg-n-slate-2/60 border border-n-weak max-h-full">
     <!-- Header -->
     <div class="flex items-center justify-between px-3 py-2.5 border-b border-n-weak">
       <div class="flex items-center gap-2 min-w-0">
+        <span class="w-2 h-2 rounded-full flex-shrink-0" :class="colorClasses" />
         <span class="text-sm font-semibold text-n-slate-12 truncate">
           {{ title }}
         </span>
@@ -68,6 +90,10 @@ const onChange = evt => {
           />
         </template>
       </Draggable>
+
+      <div v-if="!count" class="flex items-center justify-center py-8 text-center text-n-slate-10 text-xs">
+        {{ showCompleted ? t('PROJECTS.EMPTY.NO_COMPLETED') : t('PROJECTS.EMPTY.NO_PROJECTS') }}
+      </div>
     </div>
   </div>
 </template>

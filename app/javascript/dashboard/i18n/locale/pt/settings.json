@@ -367,6 +367,8 @@
     "SMS": "SMS",
     "WHATSAPP": "WhatsApp",
     "CAMPAIGNS": "Campanhas",
+    "TICKETS": "Tickets",
+    "PROJECTS": "Projetos",
     "ONGOING": "Em curso",
     "ONE_OFF": "Pontual",
     "REPORTS_SLA": "SLA",
