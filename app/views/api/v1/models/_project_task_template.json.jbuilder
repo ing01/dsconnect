@@ -1,0 +1,12 @@
+json.id resource.id
+json.name resource.name
+json.default_ticket_title resource.default_ticket_title
+json.description resource.description
+json.default_assignee_id resource.default_assignee_id
+json.default_assignee_name resource.default_assignee&.name
+json.due_days resource.due_days
+json.next_project_stage resource.next_project_stage
+json.checklist resource.checklist
+json.account_id resource.account_id
+json.created_at resource.created_at.to_i
+json.updated_at resource.updated_at.to_i

@@ -1,0 +1,10 @@
+json.id resource.id
+json.ticket_id resource.ticket_id
+json.title resource.title
+json.completed resource.completed
+json.completed_at resource.completed_at&.iso8601
+json.completed_by_id resource.completed_by_id
+json.completed_by_name resource.completed_by&.name
+json.position resource.position
+json.created_at resource.created_at.to_i
+json.updated_at resource.updated_at.to_i

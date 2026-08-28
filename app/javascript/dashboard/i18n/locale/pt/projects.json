@@ -1,0 +1,138 @@
+{
+  "SIDEBAR": {
+    "PROJECTS": "Projetos"
+  },
+  "HEADER": {
+    "TITLE": "Projetos",
+    "SUBTITLE": "Gerencie e acompanhe os seus fluxos de atendimento",
+    "MODULES_SHORTCUT": "Módulos",
+    "TASKS_SHORTCUT": "Tarefas",
+    "NEW_PROJECT": "Novo Projeto"
+  },
+  "FILTER": {
+    "MESA": "Equipa",
+    "ALL_MESAS": "Todas as equipas",
+    "ACTIVE_PROJECTS": "Ativos",
+    "COMPLETED_PROJECTS": "Concluídos",
+    "SEARCH_PLACEHOLDER": "Procurar projetos..."
+  },
+  "EMPTY": {
+    "NO_PROJECTS": "Ainda não há projetos ativos",
+    "NO_COMPLETED": "Ainda não há projetos concluídos",
+    "HINT": "Crie um projeto para começar a organizar o trabalho entre equipas e módulos."
+  },
+  "STAGES": {
+    "PENDENTE": "Pendente",
+    "ONBOARDING": "Onboarding",
+    "REQUISITO": "Requisito",
+    "EM_ANDAMENTO": "Em Curso",
+    "ACOMPANHAMENTO": "Acompanhamento",
+    "POS": "Pós",
+    "FINALIZADO": "Concluído"
+  },
+  "CARD": {
+    "TASKS_PROGRESS": "Progresso",
+    "TASK_COUNT": "tarefas"
+  },
+  "CREATE": {
+    "TITLE_STEP1": "Novo Projeto",
+    "TITLE_STEP2": "Configurar Tarefas",
+    "STEP2_HINT": "Rever as tarefas geradas a partir do módulo selecionado. Ajuste os responsáveis e prazos antes de confirmar.",
+    "NO_TASKS_IN_MODULE": "Nenhuma tarefa configurada para este módulo.",
+    "SUCCESS": "Projeto criado com sucesso",
+    "ERROR": "Erro ao criar projeto"
+  },
+  "FORM": {
+    "NAME": {
+      "LABEL": "Nome do projeto",
+      "PLACEHOLDER": "Ex: Onboarding da Acme"
+    },
+    "COMPANY": {
+      "LABEL": "Cliente",
+      "NONE": "Sem cliente"
+    },
+    "TEAM": {
+      "LABEL": "Equipa de atendimento",
+      "SELECT": "Selecione uma equipa"
+    },
+    "MODULE": {
+      "LABEL": "Módulo",
+      "NEW_SHORTCUT": "Novo módulo",
+      "NONE": "Sem módulo"
+    },
+    "START_DATE": {
+      "LABEL": "Data de início"
+    },
+    "DUE_DATE": {
+      "LABEL": "Previsão de conclusão"
+    },
+    "CANCEL": "Cancelar",
+    "NEXT_STEP": "Seguinte",
+    "BACK": "Voltar",
+    "CONFIRM_AND_GENERATE": "Criar Projeto",
+    "CLOSE": "Fechar"
+  },
+  "TASK": {
+    "CALL_TITLE": "Título do atendimento",
+    "ADVANCES_TO": "Avança para",
+    "ASSIGNEE": "Responsável",
+    "UNASSIGNED": "Não atribuído",
+    "DUE_DATE": "Vencimento"
+  },
+  "DETAIL": {
+    "TITLE": "Detalhes do Projeto",
+    "LOADING": "A carregar projeto...",
+    "STAGE": "Etapa",
+    "TASKS_LIST": "Tarefas",
+    "COMPLETED": "concluídas",
+    "NO_TASKS": "Ainda não há tarefas geradas para este projeto.",
+    "STAGE_UPDATED": "Etapa do projeto atualizada",
+    "UPDATE_ERROR": "Erro ao atualizar etapa do projeto"
+  },
+  "LOADING": "A carregar projetos...",
+  "PROJECT_TASKS": {
+    "ADD": {
+      "TITLE": "Novo Modelo de Tarefa",
+      "SUBMIT": "Criar Modelo",
+      "SUCCESS": "Modelo de tarefa criado com sucesso",
+      "ERROR": "Erro ao criar modelo de tarefa"
+    },
+    "EDIT": {
+      "TITLE": "Editar Modelo de Tarefa",
+      "SUBMIT": "Atualizar Modelo",
+      "SUCCESS": "Modelo de tarefa atualizado com sucesso",
+      "ERROR": "Erro ao atualizar modelo de tarefa"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome da tarefa",
+        "PLACEHOLDER": "Ex: Ligação inicial"
+      },
+      "DEFAULT_TITLE": {
+        "LABEL": "Título padrão do atendimento",
+        "PLACEHOLDER": "Ex: Ligação de boas-vindas com o cliente"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Descreva esta tarefa..."
+      },
+      "CHECKLIST": {
+        "LABEL": "Itens de checklist",
+        "PLACEHOLDER": "Adicionar item ao checklist",
+        "ADD": "Adicionar item"
+      },
+      "DEFAULT_ASSIGNEE": {
+        "LABEL": "Responsável padrão",
+        "NONE": "Não atribuído"
+      },
+      "DUE_DAYS": {
+        "LABEL": "Vencimento em (dias)",
+        "PLACEHOLDER": "0"
+      },
+      "NEXT_STAGE": {
+        "LABEL": "Próxima etapa do projeto",
+        "HINT": "Selecione a etapa para a qual esta tarefa avança o projeto quando concluída."
+      }
+    }
+  }
+}

@@ -39,7 +39,11 @@ class TicketColumn < ApplicationRecord
       name: name,
       position: position,
       team_id: team_id,
-      stage_threshold: stage_threshold
+      stage_threshold: stage_threshold,
+      require_due_date: require_due_date,
+      require_scheduled_at: require_scheduled_at,
+      require_appointment: require_appointment,
+      require_assignee: require_assignee
     }
   end
 

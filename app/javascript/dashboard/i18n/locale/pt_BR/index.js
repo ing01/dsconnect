@@ -33,6 +33,7 @@ import macros from './macros.json';
 import moodCheckins from './moodCheckins.json';
 import mfa from './mfa.json';
 import onboarding from './onboarding.json';
+import projects from './projects.json';
 import report from './report.json';
 import resetPassword from './resetPassword.json';
 import search from './search.json';
@@ -89,6 +90,7 @@ export default {
   ...moodCheckins,
   ...mfa,
   ...onboarding,
+  ...projects,
   ...report,
   ...resetPassword,
   ...search,

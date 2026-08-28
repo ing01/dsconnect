@@ -22,6 +22,12 @@ json.ticket_category_id resource.ticket_category_id
 json.ticket_category_name resource.ticket_category&.name
 json.company_id resource.company_id
 json.company_name resource.company&.name
+json.project_id resource.project_id
+json.project_name resource.project&.name
+json.project_task_template_id resource.project_task_template_id
+json.due_date resource.due_date&.iso8601
+json.scheduled_at resource.scheduled_at&.iso8601
+json.next_project_stage resource.next_project_stage
 json.resolved_at resource.resolved_at&.to_i
 json.closed_at resource.closed_at&.to_i
 json.cancelled_at resource.cancelled_at&.to_i
@@ -34,3 +40,11 @@ json.merged_into_id resource.merged_into_id
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
 json.conversation_ids resource.ticket_conversations.pluck(:conversation_id)
+json.checklist_items resource.ticket_checklist_items.ordered do |item|
+  json.id item.id
+  json.title item.title
+  json.completed item.completed
+  json.completed_at item.completed_at&.iso8601
+  json.completed_by_id item.completed_by_id
+  json.position item.position
+end

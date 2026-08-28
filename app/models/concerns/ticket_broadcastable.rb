@@ -20,6 +20,9 @@ module TicketBroadcastable
       # Carried here too, otherwise a ticket arriving over the wire would be
       # invisible to the Kanban's Empresa search until the next board refetch.
       company_id: company_id, company_name: company&.name,
+      project_id: project_id, project_name: project&.name,
+      due_date: due_date&.iso8601, scheduled_at: scheduled_at&.iso8601,
+      next_project_stage: next_project_stage,
       created_at: created_at.to_i, updated_at: updated_at.to_i,
       conversation_ids: ticket_conversations.pluck(:conversation_id)
     }
