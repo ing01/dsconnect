@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, watch } from 'vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
+import { toSearchParams } from '../helpers/ticketSearchParams';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { frontendURL } from 'dashboard/helper/URLHelper';
@@ -34,16 +35,7 @@ const isLoading = computed(() => uiFlags.value.isFetchingList);
 const requestParams = computed(() => ({
   page: listMeta.value.currentPage || 1,
   per_page: PER_PAGE,
-  status: props.filters.status || undefined,
-  team_id: props.filters.teamId || undefined,
-  ticket_column_id: props.filters.ticketColumnId || undefined,
-  assignee_id: props.filters.assigneeId || undefined,
-  display_id: props.filters.displayId || undefined,
-  title: props.filters.title || undefined,
-  contact_query: props.filters.contactQuery || undefined,
-  company_id: props.filters.companyId || undefined,
-  created_after: props.filters.createdAfter || undefined,
-  created_before: props.filters.createdBefore || undefined,
+  ...toSearchParams(props.filters),
 }));
 
 const loadTickets = (page = 1) => {

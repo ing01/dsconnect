@@ -42,6 +42,19 @@ const STATE_PRESENTATION = {
   running: { icon: 'i-lucide-circle', color: 'text-n-slate-11' },
 };
 
+function describe(sla, state, kind) {
+  if (!sla) return t('TICKET.DETAIL.SLA.NOT_CONFIGURED');
+  if (state === 'hit') return t('TICKET.DETAIL.SLA.STATE.HIT');
+  if (state === 'missed') return t('TICKET.DETAIL.SLA.STATE.MISSED');
+  if (kind === 'response')
+    return new Date(sla.due_at * 1000).toLocaleString([], {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    });
+
+  return formatSlaDuration(slaRemainingSeconds(sla, now.value));
+}
+
 const rows = computed(() =>
   KINDS.map(kind => {
     const sla = slaByKind.value[kind];
@@ -61,19 +74,6 @@ const rows = computed(() =>
   })
 );
 
-function describe(sla, state, kind) {
-  if (!sla) return t('TICKET.DETAIL.SLA.NOT_CONFIGURED');
-  if (state === 'hit') return t('TICKET.DETAIL.SLA.STATE.HIT');
-  if (state === 'missed') return t('TICKET.DETAIL.SLA.STATE.MISSED');
-  if (kind === 'response')
-    return new Date(sla.due_at * 1000).toLocaleString([], {
-      dateStyle: 'short',
-      timeStyle: 'short',
-    });
-
-  return formatSlaDuration(slaRemainingSeconds(sla, now.value));
-}
-
 const hasAnySla = computed(() => (props.ticket.slas || []).length > 0);
 </script>
 
@@ -84,18 +84,19 @@ const hasAnySla = computed(() => (props.ticket.slas || []).length > 0);
         {{ t('TICKET.DETAIL.SLA.EMPTY') }}
       </p>
 
-      <div
-        v-for="row in rows"
-        v-else
-        :key="row.kind"
-        class="flex flex-col gap-0.5 min-w-0"
-      >
-        <span class="text-sm text-n-slate-11">{{ row.label }}</span>
-        <span class="flex items-center gap-1.5 min-w-0" :class="row.color">
-          <Icon :icon="row.icon" class="flex-shrink-0 size-4" />
-          <span class="text-sm font-medium truncate">{{ row.value }}</span>
-        </span>
-      </div>
+      <template v-else>
+        <div
+          v-for="row in rows"
+          :key="row.kind"
+          class="flex flex-col gap-0.5 min-w-0"
+        >
+          <span class="text-sm text-n-slate-11">{{ row.label }}</span>
+          <span class="flex items-center gap-1.5 min-w-0" :class="row.color">
+            <Icon :icon="row.icon" class="flex-shrink-0 size-4" />
+            <span class="text-sm font-medium truncate">{{ row.value }}</span>
+          </span>
+        </div>
+      </template>
     </div>
   </Accordion>
 </template>

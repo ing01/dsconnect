@@ -115,15 +115,22 @@ defineExpose({
             {{
               [conversation.contact_name, conversation.company_name]
                 .filter(Boolean)
-                .join(' - ') || t('TICKET.ACTIONS.CONVERSATIONS_DIALOG.NO_CONTACT')
+                .join(' - ') ||
+              t('TICKET.ACTIONS.CONVERSATIONS_DIALOG.NO_CONTACT')
             }}
           </span>
 
-          <span v-if="conversation.inbox_name" class="text-xs truncate text-n-slate-10">
+          <span
+            v-if="conversation.inbox_name"
+            class="text-xs truncate text-n-slate-10"
+          >
             {{ conversation.inbox_name }}
           </span>
 
-          <span v-if="conversation.last_message" class="text-xs truncate text-n-slate-10">
+          <span
+            v-if="conversation.last_message"
+            class="text-xs truncate text-n-slate-10"
+          >
             {{ conversation.last_message }}
           </span>
 

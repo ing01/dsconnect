@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 
+import TicketSelect from '../../TicketSelect.vue';
+
 const props = defineProps({
   ticket: { type: Object, required: true },
   isLoading: { type: Boolean, default: false },
@@ -20,7 +22,7 @@ const teamId = ref(null);
 const ticketColumnId = ref(null);
 const status = ref('open');
 const priority = ref('medium');
-const assigneeId = ref('');
+const assigneeId = ref(null);
 
 const teams = useMapGetter('teams/getTeams');
 
@@ -37,12 +39,35 @@ const agents = computed(
 const STATUSES = ['open', 'resolved', 'closed', 'cancelled'];
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
 
+// As listas no formato do TicketSelect, o seletor padrao do modulo.
+const teamOptions = computed(() =>
+  teams.value.map(team => ({ value: team.id, label: team.name }))
+);
+const columnOptions = computed(() =>
+  columns.value.map(column => ({ value: column.id, label: column.name }))
+);
+const agentOptions = computed(() =>
+  agents.value.map(agent => ({ value: agent.id, label: agent.name }))
+);
+const statusOptions = computed(() =>
+  STATUSES.map(value => ({
+    value,
+    label: t(`TICKET.STATUS.${value.toUpperCase()}`),
+  }))
+);
+const priorityOptions = computed(() =>
+  PRIORITIES.map(value => ({
+    value,
+    label: t(`TICKET.FORM.PRIORITY.${value.toUpperCase()}`),
+  }))
+);
+
 const reset = () => {
   teamId.value = props.ticket.team_id;
   ticketColumnId.value = props.ticket.ticket_column_id;
   status.value = props.ticket.status;
   priority.value = props.ticket.priority || 'medium';
-  assigneeId.value = props.ticket.assignee_id ?? '';
+  assigneeId.value = props.ticket.assignee_id ?? null;
 };
 
 const loadMesaContext = id => {
@@ -58,7 +83,7 @@ watch(teamId, (id, previous) => {
   loadMesaContext(id);
   if (previous == null || id === previous) return;
   ticketColumnId.value = null;
-  assigneeId.value = '';
+  assigneeId.value = null;
 });
 
 // The first Estagio of the newly chosen Mesa is a better default than an empty
@@ -84,7 +109,7 @@ const handleConfirm = () => {
     ticket_column_id: ticketColumnId.value,
     status: status.value,
     priority: priority.value,
-    assignee_id: assigneeId.value === '' ? null : Number(assigneeId.value),
+    assignee_id: assigneeId.value == null ? null : Number(assigneeId.value),
   });
 };
 
@@ -107,62 +132,59 @@ defineExpose({ open, close });
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.ACTIONS.TRANSFER_DIALOG.TEAM') }}
         </span>
-        <select v-model="teamId" class="w-full mb-0">
-          <option v-for="team in teams" :key="team.id" :value="team.id">
-            {{ team.name }}
-          </option>
-        </select>
+        <TicketSelect
+          v-model="teamId"
+          :options="teamOptions"
+          :aria-label="t('TICKET.ACTIONS.TRANSFER_DIALOG.TEAM')"
+        />
       </label>
 
       <label class="flex flex-col gap-1 min-w-0">
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.ACTIONS.TRANSFER_DIALOG.COLUMN') }}
         </span>
-        <select
+        <TicketSelect
           v-model="ticketColumnId"
+          :options="columnOptions"
           :disabled="!columns.length"
-          class="w-full mb-0"
-        >
-          <option v-for="column in columns" :key="column.id" :value="column.id">
-            {{ column.name }}
-          </option>
-        </select>
+          :aria-label="t('TICKET.ACTIONS.TRANSFER_DIALOG.COLUMN')"
+        />
       </label>
 
       <label class="flex flex-col gap-1 min-w-0">
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.ACTIONS.TRANSFER_DIALOG.STATUS') }}
         </span>
-        <select v-model="status" class="w-full mb-0">
-          <option v-for="value in STATUSES" :key="value" :value="value">
-            {{ t(`TICKET.STATUS.${value.toUpperCase()}`) }}
-          </option>
-        </select>
+        <TicketSelect
+          v-model="status"
+          :options="statusOptions"
+          :aria-label="t('TICKET.ACTIONS.TRANSFER_DIALOG.STATUS')"
+        />
       </label>
 
       <label class="flex flex-col gap-1 min-w-0">
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.ACTIONS.TRANSFER_DIALOG.PRIORITY') }}
         </span>
-        <select v-model="priority" class="w-full mb-0">
-          <option v-for="value in PRIORITIES" :key="value" :value="value">
-            {{ t(`TICKET.FORM.PRIORITY.${value.toUpperCase()}`) }}
-          </option>
-        </select>
+        <TicketSelect
+          v-model="priority"
+          :options="priorityOptions"
+          :aria-label="t('TICKET.ACTIONS.TRANSFER_DIALOG.PRIORITY')"
+        />
       </label>
 
       <label class="flex flex-col gap-1 min-w-0">
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.ACTIONS.TRANSFER_DIALOG.ASSIGNEE') }}
         </span>
-        <select v-model="assigneeId" class="w-full mb-0">
-          <option value="">
-            {{ t('TICKET.ACTIONS.TRANSFER_DIALOG.UNASSIGNED') }}
-          </option>
-          <option v-for="agent in agents" :key="agent.id" :value="agent.id">
-            {{ agent.name }}
-          </option>
-        </select>
+        <TicketSelect
+          v-model="assigneeId"
+          :options="agentOptions"
+          clearable
+          :clear-label="t('TICKET.ACTIONS.TRANSFER_DIALOG.UNASSIGNED')"
+          :placeholder="t('TICKET.ACTIONS.TRANSFER_DIALOG.UNASSIGNED')"
+          :aria-label="t('TICKET.ACTIONS.TRANSFER_DIALOG.ASSIGNEE')"
+        />
         <span v-if="!agents.length" class="text-xs text-n-slate-10">
           {{ t('TICKET.ACTIONS.TRANSFER_DIALOG.NO_MEMBERS') }}
         </span>

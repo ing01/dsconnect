@@ -50,7 +50,9 @@ const communicationReady = computed(
   () =>
     !needsCommunication.value || (!missingEmail.value && !!body.value.trim())
 );
-const canSubmit = computed(() => catalogReady.value && communicationReady.value);
+const canSubmit = computed(
+  () => catalogReady.value && communicationReady.value
+);
 
 const open = () => {
   catalogId.value = null;
@@ -92,9 +94,7 @@ const submit = async () => {
   } catch (error) {
     // The server explains what went wrong - a refused delivery, a missing
     // address - and the ticket stays exactly as it was.
-    useAlert(
-      error?.response?.data?.error || t('TICKET.API.ERROR_MESSAGE')
-    );
+    useAlert(error?.response?.data?.error || t('TICKET.API.ERROR_MESSAGE'));
   } finally {
     isWorking.value = false;
   }
@@ -129,7 +129,9 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
       <section class="flex flex-col gap-3 min-w-0">
         <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
           <Icon
-            :icon="needsCatalog ? 'i-lucide-circle-alert' : 'i-lucide-circle-check'"
+            :icon="
+              needsCatalog ? 'i-lucide-circle-alert' : 'i-lucide-circle-check'
+            "
             class="flex-shrink-0 size-4"
             :class="needsCatalog ? 'text-n-amber-11' : 'text-n-teal-11'"
           />
@@ -156,7 +158,9 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
         <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
           <Icon
             :icon="
-              needsCommunication ? 'i-lucide-circle-alert' : 'i-lucide-circle-check'
+              needsCommunication
+                ? 'i-lucide-circle-alert'
+                : 'i-lucide-circle-check'
             "
             class="flex-shrink-0 size-4"
             :class="needsCommunication ? 'text-n-amber-11' : 'text-n-teal-11'"
@@ -190,7 +194,8 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
 
           <label class="flex flex-col gap-1 min-w-0">
             <span class="text-sm font-medium text-n-slate-12">
-              {{ t('TICKET.CLOSE.MESSAGE') }}<span class="text-n-ruby-11">*</span>
+              {{ t('TICKET.CLOSE.MESSAGE')
+              }}<span class="text-n-ruby-11">*</span>
             </span>
             <FullEditor
               v-model="body"

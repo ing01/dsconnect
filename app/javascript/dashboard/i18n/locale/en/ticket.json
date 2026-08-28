@@ -15,7 +15,8 @@
       "CLEAR": "Clear filters",
       "MORE_AGENTS": "Show {count} more agents",
       "SEARCH_AGENT": "Search agent",
-      "NO_MESA_MEMBERS": "This service desk has no members yet. Add them in Settings > Teams."
+      "NO_MESA_MEMBERS": "This service desk has no members yet. Add them in Settings > Teams.",
+      "ALL_PRIORITIES": "All priorities"
     },
     "EMPTY": {
       "TITLE": "No Mesa yet",
@@ -121,7 +122,8 @@
       "ESTAGIO": "Stage",
       "ALL_ESTAGIOS": "All stages",
       "SUBMIT": "Search",
-      "QUICK_PLACEHOLDER": "Search ticket, number or agent"
+      "QUICK_PLACEHOLDER": "Search ticket, number or agent",
+      "ALL_CATEGORIES": "All categories"
     },
     "ACTIVITY": {
       "EMPTY": "No activity recorded yet",
@@ -659,6 +661,14 @@
         "FAILED": "Failed",
         "PENDING": "Pending"
       }
+    },
+    "EXPORT": {
+      "LABEL": "Export",
+      "EXCEL": "Excel",
+      "PDF": "PDF",
+      "WORKING": "Generating...",
+      "EMPTY": "No tickets available to export.",
+      "FAILED": "The file could not be generated."
     }
   }
 }

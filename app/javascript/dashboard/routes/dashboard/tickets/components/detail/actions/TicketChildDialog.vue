@@ -102,7 +102,8 @@ const toggle = key => {
   selected.value = next;
 };
 
-const isDisabled = option => !!option.requires && !selected.value[option.requires];
+const isDisabled = option =>
+  !!option.requires && !selected.value[option.requires];
 
 const visibleOptions = computed(() =>
   OPTIONS.filter(option => hasSource(option.key))
@@ -156,7 +157,9 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
         :key="option.key"
         class="flex items-start gap-2 py-2 min-w-0"
         :class="
-          isDisabled(option) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+          isDisabled(option)
+            ? 'cursor-not-allowed opacity-50'
+            : 'cursor-pointer'
         "
         :style="option.requires ? 'padding-left: 1.5rem' : ''"
       >
@@ -169,7 +172,11 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
         />
         <span class="flex flex-col min-w-0">
           <span class="text-sm text-n-slate-12">
-            {{ t(`TICKET.ACTIONS.CHILD_DIALOG.OPTIONS.${option.key.toUpperCase()}`) }}
+            {{
+              t(
+                `TICKET.ACTIONS.CHILD_DIALOG.OPTIONS.${option.key.toUpperCase()}`
+              )
+            }}
           </span>
           <span v-if="option.requires" class="text-xs text-n-slate-10">
             {{ t('TICKET.ACTIONS.CHILD_DIALOG.REQUIRES_TEAM') }}

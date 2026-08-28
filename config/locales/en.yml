@@ -31,6 +31,17 @@
 
 en:
   hello: 'Hello world'
+  ticket:
+    status:
+      open: Open
+      resolved: Resolved
+      closed: Closed
+      cancelled: Cancelled
+    priority:
+      low: Low
+      medium: Medium
+      high: High
+      urgent: Urgent
   inbox:
     reauthorization:
       success: 'Channel reauthorized successfully'
@@ -115,6 +126,9 @@ en:
       team_change_with_tickets:
         one: This stage has 1 ticket and cannot be moved to another service desk. Move the ticket first.
         other: This stage has %{count} tickets and cannot be moved to another service desk. Move the tickets first.
+    ticket_export:
+      empty: No tickets available to export.
+      too_many: This search returns more than %{limit} tickets. Narrow the period or the filters before exporting.
     ticket_sla_policy:
       no_threshold: needs at least a response or a resolution deadline
     ticket_sla:

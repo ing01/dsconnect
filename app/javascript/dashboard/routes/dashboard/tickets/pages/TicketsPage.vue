@@ -318,7 +318,6 @@ export default {
       />
     </woot-modal>
 
-
     <woot-modal
       v-model:show="showDetailedSearch"
       :on-close="() => (showDetailedSearch = false)"

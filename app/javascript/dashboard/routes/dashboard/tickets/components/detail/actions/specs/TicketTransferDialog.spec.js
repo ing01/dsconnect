@@ -54,6 +54,33 @@ const mountDialog = async (props = {}) => {
     props: { ticket: ticket(), ...props },
     global: {
       stubs: {
+        // Espelha o TicketSelect, o seletor padrao do modulo.
+        TicketSelect: {
+          props: {
+            modelValue: { type: [Number, String, Array], default: null },
+            options: { type: Array, default: () => [] },
+            clearable: { type: Boolean, default: false },
+            clearLabel: { type: String, default: '' },
+            disabled: { type: Boolean, default: false },
+          },
+          emits: ['update:modelValue'],
+          template: `<div
+            class="ticket-select"
+            :data-model="modelValue === null ? '' : String(modelValue)"
+          >
+            <button
+              v-if="clearable"
+              data-value=""
+              @click="$emit('update:modelValue', null)"
+            >{{ clearLabel }}</button>
+            <button
+              v-for="option in options"
+              :key="String(option.value)"
+              :data-value="String(option.value)"
+              @click="$emit('update:modelValue', option.value)"
+            >{{ option.label }}</button>
+          </div>`,
+        },
         // Renders the body unconditionally and exposes confirm, so the form can
         // be driven without the real dialog's teleport.
         Dialog: {
@@ -70,7 +97,20 @@ const mountDialog = async (props = {}) => {
 };
 
 // [0] Mesa, [1] Estagio, [2] Status, [3] Prioridade, [4] Responsavel
-const selects = wrapper => wrapper.findAll('select');
+const selects = wrapper => wrapper.findAll('.ticket-select');
+
+const valueOf = (wrapper, index) =>
+  selects(wrapper)[index].attributes('data-model');
+
+const choose = async (wrapper, index, value) =>
+  selects(wrapper)[index].find(`[data-value="${value}"]`).trigger('click');
+
+// As opcoes visiveis, sem a entrada que esvazia o campo.
+const optionsOf = (wrapper, index) =>
+  selects(wrapper)
+    [index].findAll('button')
+    .filter(button => button.attributes('data-value') !== '')
+    .map(button => button.text());
 
 describe('TicketTransferDialog', () => {
   beforeEach(() => {
@@ -88,10 +128,10 @@ describe('TicketTransferDialog', () => {
       ticket: ticket({ priority: 'high', assignee_id: 100 }),
     });
 
-    expect(selects(wrapper)[0].element.value).toBe('1');
-    expect(selects(wrapper)[1].element.value).toBe('10');
-    expect(selects(wrapper)[3].element.value).toBe('high');
-    expect(selects(wrapper)[4].element.value).toBe('100');
+    expect(valueOf(wrapper, 0)).toBe('1');
+    expect(valueOf(wrapper, 1)).toBe('10');
+    expect(valueOf(wrapper, 3)).toBe('high');
+    expect(valueOf(wrapper, 4)).toBe('100');
   });
 
   it('follows the guided order: Mesa, Estagio, status, prioridade, responsavel', async () => {
@@ -102,42 +142,29 @@ describe('TicketTransferDialog', () => {
     it('lists only the Estagios of the selected Mesa', async () => {
       const wrapper = await mountDialog();
 
-      expect(
-        selects(wrapper)[1]
-          .findAll('option')
-          .map(o => o.text())
-      ).toEqual(['A fazer', 'Em andamento']);
+      expect(optionsOf(wrapper, 1)).toEqual(['A fazer', 'Em andamento']);
 
-      await selects(wrapper)[0].setValue('2');
+      await choose(wrapper, 0, '2');
       await flushPromises();
 
-      expect(
-        selects(wrapper)[1]
-          .findAll('option')
-          .map(o => o.text())
-      ).toEqual(['Triagem']);
+      expect(optionsOf(wrapper, 1)).toEqual(['Triagem']);
     });
 
     it('lists only the members of the selected Mesa', async () => {
       const wrapper = await mountDialog();
 
-      await selects(wrapper)[0].setValue('2');
+      await choose(wrapper, 0, '2');
       await flushPromises();
 
       // The first entry is the "no assignee" placeholder.
-      expect(
-        selects(wrapper)[4]
-          .findAll('option')
-          .slice(1)
-          .map(o => o.text())
-      ).toEqual(['Bruno', 'Carla']);
+      expect(optionsOf(wrapper, 4)).toEqual(['Bruno', 'Carla']);
     });
 
     it('loads the Estagios and members of a newly chosen Mesa', async () => {
       const wrapper = await mountDialog();
       dispatch.mockClear();
 
-      await selects(wrapper)[0].setValue('2');
+      await choose(wrapper, 0, '2');
       await flushPromises();
 
       expect(dispatch).toHaveBeenCalledWith('ticketColumns/fetchColumns', 2);
@@ -151,28 +178,28 @@ describe('TicketTransferDialog', () => {
         ticket: ticket({ assignee_id: 100 }),
       });
 
-      await selects(wrapper)[0].setValue('2');
+      await choose(wrapper, 0, '2');
       await flushPromises();
 
-      expect(selects(wrapper)[4].element.value).toBe('');
+      expect(valueOf(wrapper, 4)).toBe('');
     });
 
     it('defaults to the first Estagio of the new Mesa', async () => {
       const wrapper = await mountDialog();
 
-      await selects(wrapper)[0].setValue('2');
+      await choose(wrapper, 0, '2');
       await flushPromises();
 
-      expect(selects(wrapper)[1].element.value).toBe('20');
+      expect(valueOf(wrapper, 1)).toBe('20');
     });
   });
 
   it('submits every field the form collected', async () => {
     const wrapper = await mountDialog();
 
-    await selects(wrapper)[2].setValue('resolved');
-    await selects(wrapper)[3].setValue('urgent');
-    await selects(wrapper)[4].setValue('100');
+    await choose(wrapper, 2, 'resolved');
+    await choose(wrapper, 3, 'urgent');
+    await choose(wrapper, 4, '100');
     await wrapper.find('.confirm').trigger('click');
 
     expect(wrapper.emitted('submit')[0][0]).toEqual({
@@ -189,7 +216,7 @@ describe('TicketTransferDialog', () => {
   it('sends a null assignee when none is chosen', async () => {
     const wrapper = await mountDialog({ ticket: ticket({ assignee_id: 100 }) });
 
-    await selects(wrapper)[4].setValue('');
+    await choose(wrapper, 4, '');
     await wrapper.find('.confirm').trigger('click');
 
     expect(wrapper.emitted('submit')[0][0].assignee_id).toBeNull();

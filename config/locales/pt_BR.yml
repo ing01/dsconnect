@@ -18,6 +18,17 @@
 #available at https://guides.rubyonrails.org/i18n.html.
 pt_BR:
   hello: 'Olá, mundo'
+  ticket:
+    status:
+      open: Aberto
+      resolved: Resolvido
+      closed: Fechado
+      cancelled: Cancelado
+    priority:
+      low: Baixa
+      medium: Normal
+      high: Alta
+      urgent: Urgente
   # Rails only ships built-in ActiveRecord error translations for `en`; without
   # this, any `dependent: :restrict_with_error` association (e.g. deleting a
   # Mesa/Team that still has Estagios, or an Estagio that still has tickets)
@@ -109,6 +120,9 @@ pt_BR:
       team_change_with_tickets:
         one: Este estágio possui 1 ticket e não pode ser movido para outra Mesa. Mova o ticket antes de continuar.
         other: Este estágio possui %{count} tickets e não pode ser movido para outra Mesa. Mova os tickets antes de continuar.
+    ticket_export:
+      empty: Nenhum ticket disponível para exportação.
+      too_many: Esta busca retorna mais de %{limit} tickets. Restrinja o período ou os filtros antes de exportar.
     ticket_sla_policy:
       no_threshold: precisa de ao menos um prazo de atendimento ou de solução
     ticket_sla:

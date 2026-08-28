@@ -39,6 +39,36 @@ const MEMBERS = {
   2: [{ id: 60, name: 'Bruno' }],
 };
 
+// Espelha o TicketSelect, o seletor padrao do modulo: expoe as opcoes, o valor
+// atual e devolve o que for escolhido.
+const ticketSelectStub = {
+  props: {
+    modelValue: { type: [Number, String, Array], default: null },
+    options: { type: Array, default: () => [] },
+    clearable: { type: Boolean, default: false },
+    clearLabel: { type: String, default: '' },
+    disabled: { type: Boolean, default: false },
+  },
+  emits: ['update:modelValue'],
+  template: `<div
+    class="ticket-select"
+    :data-model="modelValue === null ? '' : String(modelValue)"
+    :data-disabled="String(disabled)"
+  >
+    <button
+      v-if="clearable"
+      data-value=""
+      @click="$emit('update:modelValue', null)"
+    >{{ clearLabel }}</button>
+    <button
+      v-for="option in options"
+      :key="String(option.value)"
+      :data-value="String(option.value)"
+      @click="$emit('update:modelValue', option.value)"
+    >{{ option.label }}</button>
+  </div>`,
+};
+
 const stubSelect = name => ({
   name,
   props: { modelValue: [Number, String], companyId: [Number, String] },
@@ -51,6 +81,7 @@ const mountForm = async (context = {}) => {
     props: { context },
     global: {
       stubs: {
+        TicketSelect: ticketSelectStub,
         TicketCompanySelect: stubSelect('TicketCompanySelect'),
         TicketContactSelect: stubSelect('TicketContactSelect'),
         TicketPicker: stubSelect('TicketPicker'),
@@ -77,11 +108,22 @@ const mountForm = async (context = {}) => {
 };
 
 // [0] Mesa, [1] Estagio, [2] Prioridade, [3] Responsavel, [4] Categoria
-const selects = wrapper => wrapper.findAll('select');
+const selects = wrapper => wrapper.findAll('.ticket-select');
+
+// O valor atual de um campo, como o stub o expoe.
+const valueOf = (wrapper, index) =>
+  selects(wrapper)[index].attributes('data-model');
+
+// Escolher uma opcao pelo valor.
+const choose = async (wrapper, index, value) =>
+  selects(wrapper)[index].find(`[data-value="${value}"]`).trigger('click');
+
+// As opcoes visiveis, sem a entrada que esvazia.
 const optionsOf = (wrapper, index) =>
-  selects(wrapper)[index]
-    .findAll('option')
-    .map(option => option.text());
+  selects(wrapper)
+    [index].findAll('button')
+    .filter(button => button.attributes('data-value') !== '')
+    .map(button => button.text());
 
 const setCompany = async (wrapper, id) => {
   await wrapper
@@ -107,8 +149,8 @@ describe('TicketCreateForm', () => {
     it('pre-fills the Mesa and the Estagio', async () => {
       const wrapper = await mountForm({ teamId: 1, ticketColumnId: 11 });
 
-      expect(selects(wrapper)[0].element.value).toBe('1');
-      expect(selects(wrapper)[1].element.value).toBe('11');
+      expect(valueOf(wrapper, 0)).toBe('1');
+      expect(valueOf(wrapper, 1)).toBe('11');
     });
 
     it('loads that Mesa lists without being asked again', async () => {
@@ -124,16 +166,18 @@ describe('TicketCreateForm', () => {
       const wrapper = await mountForm({ companyId: 7, contactId: 3 });
 
       expect(
-        wrapper.findComponent({ name: 'TicketContactSelect' }).props('companyId')
+        wrapper
+          .findComponent({ name: 'TicketContactSelect' })
+          .props('companyId')
       ).toBe(7);
     });
 
     it('locks the parent when the flow started from a parent ticket', async () => {
       const wrapper = await mountForm({ parentId: 9 });
 
-      expect(wrapper.findComponent({ name: 'TicketPicker' }).attributes()).toHaveProperty(
-        'disabled'
-      );
+      expect(
+        wrapper.findComponent({ name: 'TicketPicker' }).attributes()
+      ).toHaveProperty('disabled');
     });
   });
 
@@ -142,50 +186,50 @@ describe('TicketCreateForm', () => {
       const wrapper = await mountForm({ teamId: 1 });
 
       expect(optionsOf(wrapper, 1)).toEqual(['A fazer', 'Em andamento']);
-      expect(optionsOf(wrapper, 4).slice(1)).toEqual(['Erro', 'Duvida']);
+      expect(optionsOf(wrapper, 4)).toEqual(['Erro', 'Duvida']);
     });
 
     it('lists only that Mesa members as Responsavel', async () => {
       const wrapper = await mountForm({ teamId: 1 });
 
-      expect(optionsOf(wrapper, 3).slice(1)).toEqual(['Ana']);
+      expect(optionsOf(wrapper, 3)).toEqual(['Ana']);
     });
 
     it('reloads everything when the Mesa changes', async () => {
       const wrapper = await mountForm({ teamId: 1 });
       dispatch.mockClear();
 
-      await selects(wrapper)[0].setValue('2');
+      await choose(wrapper, 0, '2');
       await flushPromises();
 
       expect(dispatch).toHaveBeenCalledWith('ticketColumns/fetchCategories', 2);
-      expect(optionsOf(wrapper, 4).slice(1)).toEqual(['Proposta']);
-      expect(optionsOf(wrapper, 3).slice(1)).toEqual(['Bruno']);
+      expect(optionsOf(wrapper, 4)).toEqual(['Proposta']);
+      expect(optionsOf(wrapper, 3)).toEqual(['Bruno']);
     });
 
     // Keeping them would submit a Categoria and a Responsavel from the previous
     // Mesa, which the backend refuses anyway.
     it('drops the Categoria and the Responsavel that belonged to the old Mesa', async () => {
       const wrapper = await mountForm({ teamId: 1 });
-      await selects(wrapper)[4].setValue('100');
-      await selects(wrapper)[3].setValue('50');
+      await choose(wrapper, 4, '100');
+      await choose(wrapper, 3, '50');
 
-      await selects(wrapper)[0].setValue('2');
+      await choose(wrapper, 0, '2');
       await flushPromises();
 
       // Index 0 is the disabled placeholder, which is where a cleared select
       // lands - its rendered value is the placeholder text, not ''.
-      expect(selects(wrapper)[4].element.selectedIndex).toBe(0);
-      expect(selects(wrapper)[3].element.selectedIndex).toBe(0);
+      expect(valueOf(wrapper, 4)).toBe('');
+      expect(valueOf(wrapper, 3)).toBe('');
     });
 
     it('defaults to the first Estagio of the new Mesa', async () => {
       const wrapper = await mountForm({ teamId: 1 });
 
-      await selects(wrapper)[0].setValue('2');
+      await choose(wrapper, 0, '2');
       await flushPromises();
 
-      expect(selects(wrapper)[1].element.value).toBe('20');
+      expect(valueOf(wrapper, 1)).toBe('20');
     });
   });
 
@@ -205,7 +249,7 @@ describe('TicketCreateForm', () => {
       await wrapper
         .findComponent({ name: 'TicketContactSelect' })
         .vm.$emit('update:modelValue', 3);
-      await selects(wrapper)[4].setValue('100');
+      await choose(wrapper, 4, '100');
       await wrapper.find('input[type="text"]').setValue('Erro na NF');
       await wrapper
         .findComponent({ name: 'FullEditor' })
@@ -262,6 +306,7 @@ describe('TicketCreateForm', () => {
         props: { context: { teamId: 1 }, allowCreateAnother: true },
         global: {
           stubs: {
+            TicketSelect: ticketSelectStub,
             TicketCompanySelect: stubSelect('TicketCompanySelect'),
             TicketContactSelect: stubSelect('TicketContactSelect'),
             TicketPicker: stubSelect('TicketPicker'),
@@ -278,7 +323,8 @@ describe('TicketCreateForm', () => {
             Button: {
               props: ['label'],
               emits: ['click'],
-              template: '<button @click="$emit(\'click\')">{{ label }}</button>',
+              template:
+                '<button @click="$emit(\'click\')">{{ label }}</button>',
             },
           },
         },
@@ -289,7 +335,7 @@ describe('TicketCreateForm', () => {
       await wrapper
         .findComponent({ name: 'TicketContactSelect' })
         .vm.$emit('update:modelValue', 3);
-      await selects(wrapper)[4].setValue('100');
+      await choose(wrapper, 4, '100');
       await wrapper.find('input[type="text"]').setValue('Erro na NF');
       await wrapper
         .findComponent({ name: 'FullEditor' })
@@ -310,8 +356,8 @@ describe('TicketCreateForm', () => {
       payload.onCreated();
       await flushPromises();
       expect(wrapper.find('input[type="text"]').element.value).toBe('');
-      expect(selects(wrapper)[4].element.selectedIndex).toBe(0);
-      expect(selects(wrapper)[0].element.value).toBe('1');
+      expect(valueOf(wrapper, 4)).toBe('');
+      expect(valueOf(wrapper, 0)).toBe('1');
     });
   });
 });

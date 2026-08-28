@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { formatMesaName } from 'dashboard/helper/mesaName';
 import { INBOX_TYPES } from 'dashboard/helper/inbox';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
+import TicketSelect from '../TicketSelect.vue';
 import TicketPropertyRow from './TicketPropertyRow.vue';
 
 const props = defineProps({
@@ -39,11 +40,39 @@ const CHANNEL_LABELS = {
 
 const { t } = useI18n();
 
-const selectClass = computed(() => [
-  'w-full h-9 px-2 rounded-lg border border-n-strong bg-transparent text-sm text-n-slate-12',
-  'disabled:opacity-50 disabled:cursor-not-allowed',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand',
-]);
+// As listas no formato do TicketSelect, o seletor padrao do modulo.
+const priorityOptions = computed(() =>
+  PRIORITIES.map(priority => ({
+    value: priority,
+    label: t(`TICKET.FORM.PRIORITY.${priority.toUpperCase()}`),
+  }))
+);
+
+const statusOptions = computed(() =>
+  STATUSES.map(status => ({
+    value: status,
+    label: t(`TICKET.STATUS.${status.toUpperCase()}`),
+  }))
+);
+
+const columnOptions = computed(() =>
+  props.columns.map(column => ({ value: column.id, label: column.name }))
+);
+
+const categoryOptions = computed(() =>
+  props.categories.map(category => ({
+    value: category.id,
+    label: category.name,
+  }))
+);
+
+const agentOptions = computed(() =>
+  props.agents.map(agent => ({
+    value: agent.id,
+    label: agent.name,
+    thumbnail: { name: agent.name, src: agent.thumbnail },
+  }))
+);
 
 const selectedAgent = computed(() =>
   props.agents.find(agent => agent.id === props.ticket.assignee_id)
@@ -70,24 +99,19 @@ const createdAt = computed(() =>
     : '—'
 );
 
-const onPriority = event =>
-  emit('updateProperty', { priority: event.target.value || null });
+const onPriority = value => emit('updateProperty', { priority: value || null });
 
-const onStatus = event => emit('changeStatus', event.target.value);
+const onStatus = value => emit('changeStatus', value);
 
-const onColumn = event => emit('moveToColumn', Number(event.target.value));
+const onColumn = value => emit('moveToColumn', Number(value));
 
 // Persisted straight away, like the other properties; the backend also refuses
 // a Categoria that belongs to another Mesa.
-const onCategory = event => {
-  const value = event.target.value;
+const onCategory = value =>
   emit('updateProperty', { ticket_category_id: value ? Number(value) : null });
-};
 
-const onAssignee = event => {
-  const value = event.target.value;
+const onAssignee = value =>
   emit('updateProperty', { assignee_id: value ? Number(value) : null });
-};
 </script>
 
 <template>
@@ -110,64 +134,52 @@ const onAssignee = event => {
     </TicketPropertyRow>
 
     <TicketPropertyRow :label="t('TICKET.FORM.PRIORITY.LABEL')">
-      <select
-        :value="ticket.priority || ''"
-        :class="selectClass"
+      <TicketSelect
+        :model-value="ticket.priority || null"
+        :options="priorityOptions"
         :disabled="!canUpdate"
+        clearable
+        :clear-label="t('TICKET.FORM.PRIORITY.NONE')"
+        :placeholder="t('TICKET.FORM.PRIORITY.NONE')"
         :aria-label="t('TICKET.FORM.PRIORITY.LABEL')"
-        @change="onPriority"
-      >
-        <option value="">{{ t('TICKET.FORM.PRIORITY.NONE') }}</option>
-        <option v-for="priority in PRIORITIES" :key="priority" :value="priority">
-          {{ t(`TICKET.FORM.PRIORITY.${priority.toUpperCase()}`) }}
-        </option>
-      </select>
+        @update:model-value="onPriority"
+      />
     </TicketPropertyRow>
 
     <TicketPropertyRow :label="t('TICKET.DETAIL.PROPERTIES.STATUS')">
-      <select
-        :value="ticket.status"
-        :class="selectClass"
+      <TicketSelect
+        :model-value="ticket.status"
+        :options="statusOptions"
         :disabled="!canUpdate"
         :aria-label="t('TICKET.DETAIL.PROPERTIES.STATUS')"
-        @change="onStatus"
-      >
-        <option v-for="status in STATUSES" :key="status" :value="status">
-          {{ t(`TICKET.STATUS.${status.toUpperCase()}`) }}
-        </option>
-      </select>
+        @update:model-value="onStatus"
+      />
     </TicketPropertyRow>
 
     <!-- Only stages of this ticket's own Mesa. -->
     <TicketPropertyRow :label="t('TICKET.DETAIL.PROPERTIES.STAGE')">
-      <select
-        :value="ticket.ticket_column_id"
-        :class="selectClass"
+      <TicketSelect
+        :model-value="ticket.ticket_column_id"
+        :options="columnOptions"
         :disabled="!canUpdate || !columns.length"
         :aria-label="t('TICKET.DETAIL.PROPERTIES.STAGE')"
-        @change="onColumn"
-      >
-        <option v-for="column in columns" :key="column.id" :value="column.id">
-          {{ column.name }}
-        </option>
-      </select>
+        @update:model-value="onColumn"
+      />
     </TicketPropertyRow>
 
     <!-- Only categories of this ticket's own Mesa. Distinct from the Catalogo
          de Servicos, which classifies the attendance. -->
     <TicketPropertyRow :label="t('TICKET.CREATE.CATEGORY')">
-      <select
-        :value="ticket.ticket_category_id || ''"
-        :class="selectClass"
+      <TicketSelect
+        :model-value="ticket.ticket_category_id || null"
+        :options="categoryOptions"
         :disabled="!canUpdate || !categories.length"
+        clearable
+        :clear-label="t('TICKET.DETAIL.PROPERTIES.NO_CATEGORY')"
+        :placeholder="t('TICKET.DETAIL.PROPERTIES.NO_CATEGORY')"
         :aria-label="t('TICKET.CREATE.CATEGORY')"
-        @change="onCategory"
-      >
-        <option value="">{{ t('TICKET.DETAIL.PROPERTIES.NO_CATEGORY') }}</option>
-        <option v-for="category in categories" :key="category.id" :value="category.id">
-          {{ category.name }}
-        </option>
-      </select>
+        @update:model-value="onCategory"
+      />
     </TicketPropertyRow>
 
     <!-- Members of the Mesa, not every agent in the account. -->
@@ -182,18 +194,16 @@ const onAssignee = event => {
           hide-offline-status
           class="flex-shrink-0"
         />
-        <select
-          :value="ticket.assignee_id || ''"
-          :class="selectClass"
+        <TicketSelect
+          :model-value="ticket.assignee_id || null"
+          :options="agentOptions"
           :disabled="!canUpdate"
+          clearable
+          :clear-label="t('TICKET.FORM.ASSIGNEE.NONE')"
+          :placeholder="t('TICKET.FORM.ASSIGNEE.NONE')"
           :aria-label="t('TICKET.FORM.ASSIGNEE.LABEL')"
-          @change="onAssignee"
-        >
-          <option value="">{{ t('TICKET.FORM.ASSIGNEE.NONE') }}</option>
-          <option v-for="agent in agents" :key="agent.id" :value="agent.id">
-            {{ agent.name }}
-          </option>
-        </select>
+          @update:model-value="onAssignee"
+        />
       </div>
       <p v-if="!agents.length" class="text-xs text-n-slate-10">
         {{ t('TICKET.FILTERS.NO_MESA_MEMBERS') }}

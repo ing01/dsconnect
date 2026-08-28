@@ -33,12 +33,55 @@ const mountCard = (props = {}) =>
     props: { ticket: ticket(), columns, categories, agents, ...props },
     global: {
       mocks: { $t: key => key },
-      stubs: { Avatar: true },
+      stubs: {
+        Avatar: true,
+        // Espelha o contrato do TicketSelect, o seletor padrao do modulo: cada
+        // campo expoe as opcoes e devolve o valor escolhido.
+        TicketSelect: {
+          props: {
+            modelValue: { type: [Number, String, Array], default: null },
+            options: { type: Array, default: () => [] },
+            clearable: { type: Boolean, default: false },
+            clearLabel: { type: String, default: '' },
+            disabled: { type: Boolean, default: false },
+          },
+          emits: ['update:modelValue'],
+          template: `<div class="ticket-select" :data-disabled="String(disabled)">
+            <button
+              v-if="clearable"
+              data-value=""
+              @click="$emit('update:modelValue', null)"
+            >{{ clearLabel }}</button>
+            <button
+              v-for="option in options"
+              :key="String(option.value)"
+              :data-value="String(option.value)"
+              @click="$emit('update:modelValue', option.value)"
+            >{{ option.label }}</button>
+          </div>`,
+        },
+      },
     },
   });
 
 // [0] priority, [1] status, [2] stage, [3] category, [4] assignee
-const selects = wrapper => wrapper.findAll('select');
+const selects = wrapper => wrapper.findAll('.ticket-select');
+
+// Escolher uma opcao pelo valor, dentro de um dos campos.
+const choose = async (wrapper, index, value) => {
+  const field = selects(wrapper)[index];
+  await field.find(`[data-value="${value}"]`).trigger('click');
+};
+
+const isDisabled = (wrapper, index) =>
+  selects(wrapper)[index].attributes('data-disabled') === 'true';
+
+// As opcoes visiveis de um campo, ignorando a entrada que esvazia.
+const optionsOf = (wrapper, index) =>
+  selects(wrapper)
+    [index].findAll('button')
+    .filter(button => button.attributes('data-value') !== '')
+    .map(button => button.text());
 
 describe('TicketPropertiesCard', () => {
   it('shows the Mesa read-only, capitalized', () => {
@@ -46,22 +89,18 @@ describe('TicketPropertiesCard', () => {
   });
 
   it('lists only the stages of this ticket Mesa', () => {
-    const options = selects(mountCard())[2].findAll('option');
-
-    expect(options.map(o => o.text())).toEqual(['A fazer', 'Em andamento']);
+    expect(optionsOf(mountCard(), 2)).toEqual(['A fazer', 'Em andamento']);
   });
 
+  // `optionsOf` ja descarta a entrada que esvazia o campo.
   it('lists only the members of the Mesa as assignees', () => {
-    const options = selects(mountCard())[4].findAll('option');
-
-    // First entry is the "no assignee" placeholder.
-    expect(options.slice(1).map(o => o.text())).toEqual(['Ana', 'Bruno']);
+    expect(optionsOf(mountCard(), 4)).toEqual(['Ana', 'Bruno']);
   });
 
   describe('persisting', () => {
     it('sends priority through updateProperty', async () => {
       const wrapper = mountCard();
-      await selects(wrapper)[0].setValue('urgent');
+      await choose(wrapper, 0, 'urgent');
 
       expect(wrapper.emitted('updateProperty')).toEqual([
         [{ priority: 'urgent' }],
@@ -72,7 +111,7 @@ describe('TicketPropertiesCard', () => {
     // what write resolved_at/closed_at and the activity.
     it('routes status through changeStatus, never updateProperty', async () => {
       const wrapper = mountCard();
-      await selects(wrapper)[1].setValue('resolved');
+      await choose(wrapper, 1, 'resolved');
 
       expect(wrapper.emitted('changeStatus')).toEqual([['resolved']]);
       expect(wrapper.emitted('updateProperty')).toBeUndefined();
@@ -81,7 +120,7 @@ describe('TicketPropertiesCard', () => {
     // `update` strips ticket_column_id; only `move` keeps team_id in lockstep.
     it('routes stage through moveToColumn, never updateProperty', async () => {
       const wrapper = mountCard();
-      await selects(wrapper)[2].setValue('4');
+      await choose(wrapper, 2, '4');
 
       expect(wrapper.emitted('moveToColumn')).toEqual([[4]]);
       expect(wrapper.emitted('updateProperty')).toBeUndefined();
@@ -89,8 +128,8 @@ describe('TicketPropertiesCard', () => {
 
     it('sends the assignee as a number, and null to unassign', async () => {
       const wrapper = mountCard();
-      await selects(wrapper)[4].setValue('10');
-      await selects(wrapper)[4].setValue('');
+      await choose(wrapper, 4, '10');
+      await choose(wrapper, 4, '');
 
       expect(wrapper.emitted('updateProperty')).toEqual([
         [{ assignee_id: 10 }],
@@ -103,32 +142,32 @@ describe('TicketPropertiesCard', () => {
   // from the Catalogo de Servicos, which classifies the attendance.
   describe('the Categoria', () => {
     it('lists only the categories of this ticket Mesa', () => {
-      const options = selects(mountCard())[3].findAll('option');
-
-      // First entry is the "no category" placeholder.
-      expect(options.slice(1).map(o => o.text())).toEqual(['Erro', 'Dúvida']);
+      expect(optionsOf(mountCard(), 3)).toEqual(['Erro', 'Dúvida']);
     });
 
     it('persists straight away, as a number', async () => {
       const wrapper = mountCard();
 
-      await selects(wrapper)[3].setValue('21');
+      await choose(wrapper, 3, '21');
 
       expect(wrapper.emitted('updateProperty')).toEqual([
         [{ ticket_category_id: 21 }],
       ]);
     });
 
+    // Sem categoria, o campo oferece a entrada que o deixa vazio.
     it('offers a placeholder when the ticket has none', () => {
-      const wrapper = mountCard({ ticket: ticket({ ticket_category_id: null }) });
+      const wrapper = mountCard({
+        ticket: ticket({ ticket_category_id: null }),
+      });
 
-      expect(selects(wrapper)[3].element.selectedIndex).toBe(0);
+      expect(selects(wrapper)[3].find('[data-value=""]').exists()).toBe(true);
     });
 
     it('is disabled until the categories have loaded', () => {
       const wrapper = mountCard({ categories: [] });
 
-      expect(selects(wrapper)[3].attributes('disabled')).toBeDefined();
+      expect(isDisabled(wrapper, 3)).toBe(true);
     });
   });
 
@@ -137,7 +176,12 @@ describe('TicketPropertiesCard', () => {
   describe('the context at the foot of the card', () => {
     it('lists the followers by name', () => {
       const wrapper = mountCard({
-        ticket: ticket({ followers: [{ id: 1, name: 'Ana' }, { id: 2, name: 'Bruno' }] }),
+        ticket: ticket({
+          followers: [
+            { id: 1, name: 'Ana' },
+            { id: 2, name: 'Bruno' },
+          ],
+        }),
       });
 
       expect(wrapper.text()).toContain('Ana, Bruno');
@@ -149,7 +193,9 @@ describe('TicketPropertiesCard', () => {
 
     it('names the inbox when the ticket came from a chat', () => {
       const wrapper = mountCard({
-        ticket: ticket({ conversations: [{ id: 1, inbox_name: 'WhatsApp Suporte' }] }),
+        ticket: ticket({
+          conversations: [{ id: 1, inbox_name: 'WhatsApp Suporte' }],
+        }),
       });
 
       expect(wrapper.text()).toContain('WhatsApp Suporte');
@@ -161,7 +207,7 @@ describe('TicketPropertiesCard', () => {
       const wrapper = mountCard({ canUpdate: false });
 
       selects(wrapper).forEach(select =>
-        expect(select.attributes('disabled')).toBeDefined()
+        expect(select.attributes('data-disabled')).toBe('true')
       );
     });
   });
@@ -169,6 +215,6 @@ describe('TicketPropertiesCard', () => {
   it('disables the stage select until the stages have loaded', () => {
     const wrapper = mountCard({ columns: [] });
 
-    expect(selects(wrapper)[2].attributes('disabled')).toBeDefined();
+    expect(isDisabled(wrapper, 2)).toBe(true);
   });
 });

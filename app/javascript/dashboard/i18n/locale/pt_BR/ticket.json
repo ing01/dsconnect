@@ -15,7 +15,8 @@
       "CLEAR": "Limpar filtros",
       "MORE_AGENTS": "Mostrar mais {count} atendentes",
       "SEARCH_AGENT": "Buscar atendente",
-      "NO_MESA_MEMBERS": "Esta Mesa ainda não possui membros. Adicione em Configurações > Times."
+      "NO_MESA_MEMBERS": "Esta Mesa ainda não possui membros. Adicione em Configurações > Times.",
+      "ALL_PRIORITIES": "Todas as prioridades"
     },
     "EMPTY": {
       "TITLE": "Nenhuma Mesa ainda",
@@ -121,7 +122,8 @@
       "ESTAGIO": "Estágio",
       "ALL_ESTAGIOS": "Todos os estágios",
       "SUBMIT": "Buscar",
-      "QUICK_PLACEHOLDER": "Buscar ticket, número ou atendente"
+      "QUICK_PLACEHOLDER": "Buscar ticket, número ou atendente",
+      "ALL_CATEGORIES": "Todas as categorias"
     },
     "ACTIVITY": {
       "EMPTY": "Nenhuma atividade registrada ainda",
@@ -659,6 +661,14 @@
         "FAILED": "Falhou",
         "PENDING": "Pendente"
       }
+    },
+    "EXPORT": {
+      "LABEL": "Exportar",
+      "EXCEL": "Excel",
+      "PDF": "PDF",
+      "WORKING": "Gerando...",
+      "EMPTY": "Nenhum ticket disponível para exportação.",
+      "FAILED": "Não foi possível gerar o arquivo."
     }
   }
 }

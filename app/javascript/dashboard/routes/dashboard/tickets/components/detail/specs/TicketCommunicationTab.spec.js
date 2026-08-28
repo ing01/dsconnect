@@ -18,7 +18,11 @@ const mountTab = (conversations = []) =>
     props: { ticket: ticket(conversations) },
     global: {
       mocks: { $t: key => key },
-      stubs: { Icon: true, TicketComments: true, TicketCustomerCommunication: true },
+      stubs: {
+        Icon: true,
+        TicketComments: true,
+        TicketCustomerCommunication: true,
+      },
     },
   });
 
@@ -55,7 +59,9 @@ describe('TicketCommunicationTab', () => {
     ]);
     // The first buttons are the Interna/Cliente switch; the conversation link
     // is the one that is not a channel tab.
-    const link = wrapper.findAll('button').find(b => !b.attributes('data-channel'));
+    const link = wrapper
+      .findAll('button')
+      .find(b => !b.attributes('data-channel'));
     await link.trigger('click');
 
     expect(push).toHaveBeenCalledTimes(1);
@@ -70,7 +76,9 @@ describe('TicketCommunicationTab', () => {
     it('opens on the internal thread', () => {
       const wrapper = mountTab();
 
-      expect(wrapper.findComponent({ name: 'TicketComments' }).exists()).toBe(true);
+      expect(wrapper.findComponent({ name: 'TicketComments' }).exists()).toBe(
+        true
+      );
       expect(
         wrapper.findComponent({ name: 'TicketCustomerCommunication' }).exists()
       ).toBe(false);
@@ -84,7 +92,9 @@ describe('TicketCommunicationTab', () => {
       expect(
         wrapper.findComponent({ name: 'TicketCustomerCommunication' }).exists()
       ).toBe(true);
-      expect(wrapper.findComponent({ name: 'TicketComments' }).exists()).toBe(false);
+      expect(wrapper.findComponent({ name: 'TicketComments' }).exists()).toBe(
+        false
+      );
     });
   });
 

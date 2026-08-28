@@ -19,7 +19,9 @@ const body = ref('');
 const isSending = ref(false);
 
 // Messages that went TO the customer, kept apart from the internal thread.
-const communications = computed(() => props.ticket.customer_communications || []);
+const communications = computed(
+  () => props.ticket.customer_communications || []
+);
 const email = computed(() => props.ticket.customer_email);
 
 // The subject is not the agent's to write: the server titles the message with
@@ -68,7 +70,9 @@ const send = async () => {
     </p>
 
     <template v-else>
-      <div class="flex flex-col gap-2 p-4 border rounded-xl border-n-weak min-w-0">
+      <div
+        class="flex flex-col gap-2 p-4 border rounded-xl border-n-weak min-w-0"
+      >
         <p class="text-sm text-n-slate-11">
           {{ t('TICKET.CLOSE.TO') }}:
           <span class="text-n-slate-12">{{ email }}</span>
@@ -114,13 +118,19 @@ const send = async () => {
         >
           <div class="flex flex-wrap items-center gap-2 min-w-0">
             <span class="text-xs text-n-slate-10">
-              {{ formatDate(communication.sent_at || communication.created_at) }}
+              {{
+                formatDate(communication.sent_at || communication.created_at)
+              }}
             </span>
             <span class="text-xs truncate text-n-slate-11">
               {{ `${communication.user_name} → ${communication.to_email}` }}
             </span>
             <WootLabel
-              :label="t(`TICKET.COMMUNICATION.STATUS.${communication.status.toUpperCase()}`)"
+              :label="
+                t(
+                  `TICKET.COMMUNICATION.STATUS.${communication.status.toUpperCase()}`
+                )
+              "
               :color="STATUS_COLORS[communication.status] || 'slate'"
               compact
             />
