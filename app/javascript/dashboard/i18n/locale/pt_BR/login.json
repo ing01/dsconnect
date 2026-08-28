@@ -1,6 +1,6 @@
 {
   "LOGIN": {
-    "TITLE": "Entrar no Duedesk",
+    "TITLE": "Entrar no DueDesk",
     "EMAIL": {
       "LABEL": "E-mail",
       "PLACEHOLDER": "nome{'@'}empresa.com.br",

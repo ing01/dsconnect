@@ -1,18 +1,26 @@
 # ------- Branding Related Config ------- #
+#
+# ATENCAO: este arquivo nao e so um padrao. Internal::ReconcilePlanConfigService
+# reescreve estes valores no banco todo dia, quando a instalacao esta no plano
+# community - que e o nosso caso. Deixar a marca do Chatwoot aqui fazia o nome e
+# os logotipos voltarem sozinhos durante a madrugada, mesmo depois de aplicados.
+#
+# Por isso os valores acompanham config/installation_config.yml. Mudar a marca
+# exige mudar os dois arquivos, ou ela dura menos de um dia.
 - name: INSTALLATION_NAME
-  value: 'Chatwoot'
+  value: 'DueDesk'
 - name: LOGO_THUMBNAIL
-  value: '/brand-assets/logo_thumbnail.svg'
+  value: '/brand-assets/logo_thumbnail.png'
 - name: LOGO
-  value: '/brand-assets/logo.svg'
+  value: '/brand-assets/logo.jpg'
 - name: LOGO_DARK
-  value: '/brand-assets/logo_dark.svg'
+  value: '/brand-assets/logo_dark.jpg'
 - name: BRAND_URL
   value: 'https://www.chatwoot.com'
 - name: WIDGET_BRAND_URL
   value: 'https://www.chatwoot.com'
 - name: BRAND_NAME
-  value: 'Chatwoot'
+  value: 'DueDesk'
 - name: TERMS_URL
   value: 'https://www.chatwoot.com/terms-of-service'
 - name: PRIVACY_URL
