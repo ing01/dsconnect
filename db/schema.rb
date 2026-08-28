@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_28_130000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1548,67 +1548,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
   create_table "platform_banners", force: :cascade do |t|
     t.text "banner_message", null: false
     t.integer "banner_type", default: 0, null: false
-    t.boolean "allow_dismissal", default: true, null: false
+    t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "project_task_templates", force: :cascade do |t|
-    t.bigint "account_id", null: false
-    t.string "name", null: false
-    t.string "default_ticket_title", null: false
-    t.text "description"
-    t.bigint "default_assignee_id"
-    t.integer "due_days", default: 1, null: false
-    t.string "next_project_stage"
-    t.jsonb "checklist", default: [], null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_project_task_templates_on_account_id"
-    t.index ["default_assignee_id"], name: "index_project_task_templates_on_default_assignee_id"
-  end
-
-  create_table "project_modules", force: :cascade do |t|
-    t.bigint "account_id", null: false
-    t.string "name", null: false
-    t.text "description"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_project_modules_on_account_id"
-  end
-
-  create_table "project_module_task_templates", force: :cascade do |t|
-    t.bigint "project_module_id", null: false
-    t.bigint "project_task_template_id", null: false
-    t.integer "position", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["project_module_id", "project_task_template_id"], name: "index_module_task_templates_uniqueness", unique: true
-    t.index ["project_module_id"], name: "index_project_module_task_templates_on_project_module_id"
-    t.index ["project_task_template_id"], name: "index_project_module_task_templates_on_project_task_template_id"
-  end
-
-  create_table "projects", force: :cascade do |t|
-    t.bigint "account_id", null: false
-    t.string "name", null: false
-    t.bigint "company_id"
-    t.bigint "contact_id"
-    t.bigint "team_id", null: false
-    t.bigint "project_module_id"
-    t.string "stage", default: "pendente", null: false
-    t.integer "status", default: 0, null: false
-    t.date "start_date"
-    t.date "due_date"
-    t.jsonb "custom_attributes", default: {}, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id", "stage"], name: "index_projects_on_account_id_and_stage"
-    t.index ["account_id", "status"], name: "index_projects_on_account_id_and_status"
-    t.index ["account_id"], name: "index_projects_on_account_id"
-    t.index ["company_id"], name: "index_projects_on_company_id"
-    t.index ["contact_id"], name: "index_projects_on_contact_id"
-    t.index ["project_module_id"], name: "index_projects_on_project_module_id"
-    t.index ["team_id"], name: "index_projects_on_team_id"
   end
 
   create_table "portals", force: :cascade do |t|
@@ -1637,6 +1579,64 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
     t.index ["portal_id", "user_id"], name: "index_portals_members_on_portal_id_and_user_id", unique: true
     t.index ["portal_id"], name: "index_portals_members_on_portal_id"
     t.index ["user_id"], name: "index_portals_members_on_user_id"
+  end
+
+  create_table "project_module_task_templates", force: :cascade do |t|
+    t.bigint "project_module_id", null: false
+    t.bigint "project_task_template_id", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_module_id", "project_task_template_id"], name: "index_module_task_templates_uniqueness", unique: true
+    t.index ["project_module_id"], name: "index_project_module_task_templates_on_project_module_id"
+    t.index ["project_task_template_id"], name: "idx_on_project_task_template_id_14a861237d"
+  end
+
+  create_table "project_modules", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_project_modules_on_account_id"
+  end
+
+  create_table "project_task_templates", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.string "default_ticket_title", null: false
+    t.text "description"
+    t.bigint "default_assignee_id"
+    t.integer "due_days", default: 1, null: false
+    t.string "next_project_stage"
+    t.jsonb "checklist", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_project_task_templates_on_account_id"
+    t.index ["default_assignee_id"], name: "index_project_task_templates_on_default_assignee_id"
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.bigint "company_id"
+    t.bigint "contact_id"
+    t.bigint "team_id", null: false
+    t.bigint "project_module_id"
+    t.string "stage", default: "pendente", null: false
+    t.integer "status", default: 0, null: false
+    t.date "start_date"
+    t.date "due_date"
+    t.jsonb "custom_attributes", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "stage"], name: "index_projects_on_account_id_and_stage"
+    t.index ["account_id", "status"], name: "index_projects_on_account_id_and_status"
+    t.index ["account_id"], name: "index_projects_on_account_id"
+    t.index ["company_id"], name: "index_projects_on_company_id"
+    t.index ["contact_id"], name: "index_projects_on_contact_id"
+    t.index ["project_module_id"], name: "index_projects_on_project_module_id"
+    t.index ["team_id"], name: "index_projects_on_team_id"
   end
 
   create_table "queues", force: :cascade do |t|
@@ -2199,6 +2199,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
   add_foreign_key "inboxes", "portals"
   add_foreign_key "mood_entries", "accounts"
   add_foreign_key "mood_entries", "users"
+  add_foreign_key "project_module_task_templates", "project_modules"
+  add_foreign_key "project_module_task_templates", "project_task_templates"
+  add_foreign_key "project_modules", "accounts"
+  add_foreign_key "project_task_templates", "accounts"
+  add_foreign_key "project_task_templates", "users", column: "default_assignee_id"
+  add_foreign_key "projects", "accounts"
+  add_foreign_key "projects", "companies"
+  add_foreign_key "projects", "contacts"
+  add_foreign_key "projects", "project_modules"
+  add_foreign_key "projects", "teams"
   add_foreign_key "queues", "accounts"
   add_foreign_key "queues", "sla_policies", column: "default_sla_policy_id"
   add_foreign_key "queues", "teams"
@@ -2208,6 +2218,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
   add_foreign_key "system_modules", "accounts"
   add_foreign_key "teams", "users", column: "manager_id"
   add_foreign_key "ticket_categories", "teams"
+  add_foreign_key "ticket_checklist_items", "accounts"
+  add_foreign_key "ticket_checklist_items", "tickets"
+  add_foreign_key "ticket_checklist_items", "users", column: "completed_by_id"
   add_foreign_key "ticket_columns", "teams"
   add_foreign_key "ticket_customer_communications", "accounts"
   add_foreign_key "ticket_customer_communications", "contacts", on_delete: :nullify
@@ -2221,6 +2234,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_27_130003) do
   add_foreign_key "ticket_sla_extensions", "users"
   add_foreign_key "tickets", "companies"
   add_foreign_key "tickets", "contacts", on_delete: :nullify
+  add_foreign_key "tickets", "project_task_templates"
+  add_foreign_key "tickets", "projects"
   add_foreign_key "tickets", "service_catalog_items", on_delete: :restrict
   add_foreign_key "tickets", "ticket_categories", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "merged_into_id", on_delete: :nullify
