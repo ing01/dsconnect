@@ -1,137 +1,139 @@
 {
-  "SIDEBAR": {
-    "PROJECTS": "Projetos"
-  },
-  "HEADER": {
-    "TITLE": "Projetos",
-    "SUBTITLE": "Gerencie e acompanhe seus fluxos de atendimento",
-    "MODULES_SHORTCUT": "Módulos",
-    "TASKS_SHORTCUT": "Tarefas",
-    "NEW_PROJECT": "Novo Projeto"
-  },
-  "FILTER": {
-    "MESA": "Equipe",
-    "ALL_MESAS": "Todas as equipes",
-    "ACTIVE_PROJECTS": "Ativos",
-    "COMPLETED_PROJECTS": "Concluídos",
-    "SEARCH_PLACEHOLDER": "Buscar projetos..."
-  },
-  "EMPTY": {
-    "NO_PROJECTS": "Nenhum projeto ativo ainda",
-    "NO_COMPLETED": "Nenhum projeto concluído ainda",
-    "HINT": "Crie um projeto para começar a organizar o trabalho entre equipes e módulos."
-  },
-  "STAGES": {
-    "PENDENTE": "Pendente",
-    "ONBOARDING": "Onboarding",
-    "REQUISITO": "Requisito",
-    "EM_ANDAMENTO": "Em Andamento",
-    "ACOMPANHAMENTO": "Acompanhamento",
-    "POS": "Pós",
-    "FINALIZADO": "Finalizado"
-  },
-  "CARD": {
-    "TASKS_PROGRESS": "Progresso",
-    "TASK_COUNT": "tarefas"
-  },
-  "CREATE": {
-    "TITLE_STEP1": "Novo Projeto",
-    "TITLE_STEP2": "Configurar Tarefas",
-    "STEP2_HINT": "Revise as tarefas geradas a partir do módulo selecionado. Ajuste os responsáveis e prazos antes de confirmar.",
-    "NO_TASKS_IN_MODULE": "Nenhuma tarefa configurada para este módulo.",
-    "SUCCESS": "Projeto criado com sucesso",
-    "ERROR": "Erro ao criar projeto"
-  },
-  "FORM": {
-    "NAME": {
-      "LABEL": "Nome do projeto",
-      "PLACEHOLDER": "Ex: Onboarding da Acme"
+  "PROJECTS": {
+    "SIDEBAR": {
+      "PROJECTS": "Projetos"
     },
-    "COMPANY": {
-      "LABEL": "Cliente",
-      "NONE": "Sem cliente"
+    "HEADER": {
+      "TITLE": "Projetos",
+      "SUBTITLE": "Gerencie e acompanhe seus fluxos de atendimento",
+      "MODULES_SHORTCUT": "Módulos",
+      "TASKS_SHORTCUT": "Tarefas",
+      "NEW_PROJECT": "Novo Projeto"
     },
-    "TEAM": {
-      "LABEL": "Equipe de atendimento",
-      "SELECT": "Selecione uma equipe"
+    "FILTER": {
+      "MESA": "Equipe",
+      "ALL_MESAS": "Todas as equipes",
+      "ACTIVE_PROJECTS": "Ativos",
+      "COMPLETED_PROJECTS": "Concluídos",
+      "SEARCH_PLACEHOLDER": "Buscar projetos..."
     },
-    "MODULE": {
-      "LABEL": "Módulo",
-      "NEW_SHORTCUT": "Novo módulo",
-      "NONE": "Sem módulo"
+    "EMPTY": {
+      "NO_PROJECTS": "Nenhum projeto ativo ainda",
+      "NO_COMPLETED": "Nenhum projeto concluído ainda",
+      "HINT": "Crie um projeto para começar a organizar o trabalho entre equipes e módulos."
     },
-    "START_DATE": {
-      "LABEL": "Data de início"
+    "STAGES": {
+      "PENDENTE": "Pendente",
+      "ONBOARDING": "Onboarding",
+      "REQUISITO": "Requisito",
+      "EM_ANDAMENTO": "Em Andamento",
+      "ACOMPANHAMENTO": "Acompanhamento",
+      "POS": "Pós",
+      "FINALIZADO": "Finalizado"
     },
-    "DUE_DATE": {
-      "LABEL": "Previsão de término"
+    "CARD": {
+      "TASKS_PROGRESS": "Progresso",
+      "TASK_COUNT": "tarefas"
     },
-    "CANCEL": "Cancelar",
-    "NEXT_STEP": "Próximo",
-    "BACK": "Voltar",
-    "CONFIRM_AND_GENERATE": "Criar Projeto",
-    "CLOSE": "Fechar"
-  },
-  "TASK": {
-    "CALL_TITLE": "Título do atendimento",
-    "ADVANCES_TO": "Avança para",
-    "ASSIGNEE": "Responsável",
-    "UNASSIGNED": "Não atribuído",
-    "DUE_DATE": "Vencimento"
-  },
-  "DETAIL": {
-    "TITLE": "Detalhes do Projeto",
-    "LOADING": "Carregando projeto...",
-    "STAGE": "Etapa",
-    "TASKS_LIST": "Tarefas",
-    "COMPLETED": "concluídas",
-    "NO_TASKS": "Nenhuma tarefa gerada para este projeto ainda.",
-    "STAGE_UPDATED": "Etapa do projeto atualizada",
-    "UPDATE_ERROR": "Erro ao atualizar etapa do projeto"
-  },
-  "LOADING": "Carregando projetos...",
-  "PROJECT_TASKS": {
-    "ADD": {
-      "TITLE": "Novo Modelo de Tarefa",
-      "SUBMIT": "Criar Modelo",
-      "SUCCESS": "Modelo de tarefa criado com sucesso",
-      "ERROR": "Erro ao criar modelo de tarefa"
-    },
-    "EDIT": {
-      "TITLE": "Editar Modelo de Tarefa",
-      "SUBMIT": "Atualizar Modelo",
-      "SUCCESS": "Modelo de tarefa atualizado com sucesso",
-      "ERROR": "Erro ao atualizar modelo de tarefa"
+    "CREATE": {
+      "TITLE_STEP1": "Novo Projeto",
+      "TITLE_STEP2": "Configurar Tarefas",
+      "STEP2_HINT": "Revise as tarefas geradas a partir do módulo selecionado. Ajuste os responsáveis e prazos antes de confirmar.",
+      "NO_TASKS_IN_MODULE": "Nenhuma tarefa configurada para este módulo.",
+      "SUCCESS": "Projeto criado com sucesso",
+      "ERROR": "Erro ao criar projeto"
     },
     "FORM": {
       "NAME": {
-        "LABEL": "Nome da tarefa",
-        "PLACEHOLDER": "Ex: Ligação inicial"
+        "LABEL": "Nome do projeto",
+        "PLACEHOLDER": "Ex: Onboarding da Acme"
       },
-      "DEFAULT_TITLE": {
-        "LABEL": "Título padrão do atendimento",
-        "PLACEHOLDER": "Ex: Ligação de boas-vindas com o cliente"
+      "COMPANY": {
+        "LABEL": "Cliente",
+        "NONE": "Sem cliente"
       },
-      "DESCRIPTION": {
-        "LABEL": "Descrição",
-        "PLACEHOLDER": "Descreva esta tarefa..."
+      "TEAM": {
+        "LABEL": "Equipe de atendimento",
+        "SELECT": "Selecione uma equipe"
       },
-      "CHECKLIST": {
-        "LABEL": "Itens de checklist",
-        "PLACEHOLDER": "Adicionar item ao checklist",
-        "ADD": "Adicionar item"
+      "MODULE": {
+        "LABEL": "Módulo",
+        "NEW_SHORTCUT": "Novo módulo",
+        "NONE": "Sem módulo"
       },
-      "DEFAULT_ASSIGNEE": {
-        "LABEL": "Responsável padrão",
-        "NONE": "Não atribuído"
+      "START_DATE": {
+        "LABEL": "Data de início"
       },
-      "DUE_DAYS": {
-        "LABEL": "Vencimento em (dias)",
-        "PLACEHOLDER": "0"
+      "DUE_DATE": {
+        "LABEL": "Previsão de término"
       },
-      "NEXT_STAGE": {
-        "LABEL": "Próxima etapa do projeto",
-        "HINT": "Selecione a etapa para a qual esta tarefa avança o projeto quando concluída."
+      "CANCEL": "Cancelar",
+      "NEXT_STEP": "Próximo",
+      "BACK": "Voltar",
+      "CONFIRM_AND_GENERATE": "Criar Projeto",
+      "CLOSE": "Fechar"
+    },
+    "TASK": {
+      "CALL_TITLE": "Título do atendimento",
+      "ADVANCES_TO": "Avança para",
+      "ASSIGNEE": "Responsável",
+      "UNASSIGNED": "Não atribuído",
+      "DUE_DATE": "Vencimento"
+    },
+    "DETAIL": {
+      "TITLE": "Detalhes do Projeto",
+      "LOADING": "Carregando projeto...",
+      "STAGE": "Etapa",
+      "TASKS_LIST": "Tarefas",
+      "COMPLETED": "concluídas",
+      "NO_TASKS": "Nenhuma tarefa gerada para este projeto ainda.",
+      "STAGE_UPDATED": "Etapa do projeto atualizada",
+      "UPDATE_ERROR": "Erro ao atualizar etapa do projeto"
+    },
+    "LOADING": "Carregando projetos...",
+    "PROJECT_TASKS": {
+      "ADD": {
+        "TITLE": "Novo Modelo de Tarefa",
+        "SUBMIT": "Criar Modelo",
+        "SUCCESS": "Modelo de tarefa criado com sucesso",
+        "ERROR": "Erro ao criar modelo de tarefa"
+      },
+      "EDIT": {
+        "TITLE": "Editar Modelo de Tarefa",
+        "SUBMIT": "Atualizar Modelo",
+        "SUCCESS": "Modelo de tarefa atualizado com sucesso",
+        "ERROR": "Erro ao atualizar modelo de tarefa"
+      },
+      "FORM": {
+        "NAME": {
+          "LABEL": "Nome da tarefa",
+          "PLACEHOLDER": "Ex: Ligação inicial"
+        },
+        "DEFAULT_TITLE": {
+          "LABEL": "Título padrão do atendimento",
+          "PLACEHOLDER": "Ex: Ligação de boas-vindas com o cliente"
+        },
+        "DESCRIPTION": {
+          "LABEL": "Descrição",
+          "PLACEHOLDER": "Descreva esta tarefa..."
+        },
+        "CHECKLIST": {
+          "LABEL": "Itens de checklist",
+          "PLACEHOLDER": "Adicionar item ao checklist",
+          "ADD": "Adicionar item"
+        },
+        "DEFAULT_ASSIGNEE": {
+          "LABEL": "Responsável padrão",
+          "NONE": "Não atribuído"
+        },
+        "DUE_DAYS": {
+          "LABEL": "Vencimento em (dias)",
+          "PLACEHOLDER": "0"
+        },
+        "NEXT_STAGE": {
+          "LABEL": "Próxima etapa do projeto",
+          "HINT": "Selecione a etapa para a qual esta tarefa avança o projeto quando concluída."
+        }
       }
     }
   }
