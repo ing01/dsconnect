@@ -1,5 +1,11 @@
 {
   "TICKET": {
+    "WORKSPACE": {
+      "KANBAN": "Kanban",
+      "CLOSE_TAB": "Close tab",
+      "SCROLL_LEFT": "Scroll tabs left",
+      "SCROLL_RIGHT": "Scroll tabs right"
+    },
     "HEADER": "Tickets",
     "DESCRIPTION": "Organize tickets on a Kanban board per Mesa (Team) and link them to their related conversations.",
     "LOADING": "Loading ticket board...",

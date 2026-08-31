@@ -1,5 +1,11 @@
 {
   "TICKET": {
+    "WORKSPACE": {
+      "KANBAN": "Kanban",
+      "CLOSE_TAB": "Fechar aba",
+      "SCROLL_LEFT": "Rolar abas para a esquerda",
+      "SCROLL_RIGHT": "Rolar abas para a direita"
+    },
     "HEADER": "Tickets",
     "DESCRIPTION": "Organize os tickets em um quadro Kanban por Mesa de Serviço e vincule-os às conversas relacionadas.",
     "LOADING": "Carregando quadro de tickets...",
