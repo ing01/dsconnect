@@ -27,7 +27,6 @@ const ACTIVITY_ICONS = {
   conversation_unlinked: 'i-lucide-unlink',
 };
 
-
 const { t } = useI18n();
 const store = useStore();
 

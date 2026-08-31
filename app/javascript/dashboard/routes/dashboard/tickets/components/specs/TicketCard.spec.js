@@ -112,7 +112,9 @@ describe('TicketCard menu', () => {
   describe('a ticket that is no longer open', () => {
     ['resolved', 'closed', 'cancelled'].forEach(status => {
       it(`offers only reopen when ${status}`, async () => {
-        const wrapper = await openMenu(mountCard({ ticket: ticket({ status }) }));
+        const wrapper = await openMenu(
+          mountCard({ ticket: ticket({ status }) })
+        );
 
         expect(values(wrapper)).toEqual(['reopen']);
       });

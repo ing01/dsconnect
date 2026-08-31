@@ -26,6 +26,8 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel']);
 
+import TicketSelect from '../TicketSelect.vue';
+
 const { t } = useI18n();
 
 const context = computed(() => props.context);
@@ -42,6 +44,21 @@ const {
 } = useTicketCreation(context);
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
+
+// As listas no formato do TicketSelect, o seletor padrao do modulo.
+const toOptions = records =>
+  records.map(record => ({ value: record.id, label: record.name }));
+
+const teamOptions = computed(() => toOptions(teams.value));
+const columnOptions = computed(() => toOptions(columns.value));
+const categoryOptions = computed(() => toOptions(categories.value));
+const memberOptions = computed(() => toOptions(mesaMembers.value));
+const priorityOptions = computed(() =>
+  PRIORITIES.map(value => ({
+    value,
+    label: t(`TICKET.FORM.PRIORITY.${value.toUpperCase()}`),
+  }))
+);
 
 const showValidation = ref(false);
 
@@ -106,14 +123,12 @@ defineExpose({ resetForNext });
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.CREATE.TEAM') }}<span class="text-n-ruby-11">*</span>
         </span>
-        <select v-model="form.teamId" class="w-full mb-0">
-          <option :value="null" disabled>
-            {{ t('TICKET.CREATE.SELECT') }}
-          </option>
-          <option v-for="team in teams" :key="team.id" :value="team.id">
-            {{ team.name }}
-          </option>
-        </select>
+        <TicketSelect
+          v-model="form.teamId"
+          :options="teamOptions"
+          :placeholder="t('TICKET.CREATE.SELECT')"
+          :aria-label="t('TICKET.SETTINGS.MESA_LABEL')"
+        />
         <span v-if="invalid('teamId')" class="text-xs text-n-ruby-11">
           {{ t('TICKET.CREATE.REQUIRED') }}
         </span>
@@ -140,15 +155,13 @@ defineExpose({ resetForNext });
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.CREATE.STAGE') }}<span class="text-n-ruby-11">*</span>
         </span>
-        <select
+        <TicketSelect
           v-model="form.ticketColumnId"
+          :options="columnOptions"
           :disabled="!columns.length"
-          class="w-full mb-0"
-        >
-          <option v-for="column in columns" :key="column.id" :value="column.id">
-            {{ column.name }}
-          </option>
-        </select>
+          :placeholder="t('TICKET.CREATE.SELECT')"
+          :aria-label="t('TICKET.DETAIL.PROPERTIES.STAGE')"
+        />
         <span v-if="invalid('ticketColumnId')" class="text-xs text-n-ruby-11">
           {{ t('TICKET.CREATE.REQUIRED') }}
         </span>
@@ -158,11 +171,11 @@ defineExpose({ resetForNext });
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.CREATE.PRIORITY') }}<span class="text-n-ruby-11">*</span>
         </span>
-        <select v-model="form.priority" class="w-full mb-0">
-          <option v-for="value in PRIORITIES" :key="value" :value="value">
-            {{ t(`TICKET.FORM.PRIORITY.${value.toUpperCase()}`) }}
-          </option>
-        </select>
+        <TicketSelect
+          v-model="form.priority"
+          :options="priorityOptions"
+          :aria-label="t('TICKET.FORM.PRIORITY.LABEL')"
+        />
       </label>
 
       <!-- Only the Mesa's members: the Mesa owns who may be assigned, and the
@@ -171,46 +184,32 @@ defineExpose({ resetForNext });
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.CREATE.ASSIGNEE') }}
         </span>
-        <select
+        <TicketSelect
           v-model="form.assigneeId"
+          :options="memberOptions"
           :disabled="!mesaMembers.length"
-          class="w-full mb-0"
-        >
-          <option :value="null">{{ t('TICKET.CREATE.UNASSIGNED') }}</option>
-          <option
-            v-for="member in mesaMembers"
-            :key="member.id"
-            :value="member.id"
-          >
-            {{ member.name }}
-          </option>
-        </select>
+          clearable
+          :clear-label="t('TICKET.CREATE.UNASSIGNED')"
+          :placeholder="t('TICKET.CREATE.UNASSIGNED')"
+          :aria-label="t('TICKET.CREATE.ASSIGNEE')"
+        />
       </label>
 
       <label class="flex flex-col gap-1 min-w-0 md:col-span-2">
         <span class="text-sm font-medium text-n-slate-12">
           {{ t('TICKET.CREATE.CATEGORY') }}<span class="text-n-ruby-11">*</span>
         </span>
-        <select
+        <TicketSelect
           v-model="form.ticketCategoryId"
+          :options="categoryOptions"
           :disabled="!categories.length"
-          class="w-full mb-0"
-        >
-          <option :value="null" disabled>
-            {{
-              categories.length
-                ? t('TICKET.CREATE.SELECT')
-                : t('TICKET.CREATE.CATEGORY_NEEDS_TEAM')
-            }}
-          </option>
-          <option
-            v-for="category in categories"
-            :key="category.id"
-            :value="category.id"
-          >
-            {{ category.name }}
-          </option>
-        </select>
+          :placeholder="
+            categories.length
+              ? t('TICKET.CREATE.SELECT')
+              : t('TICKET.CREATE.CATEGORY_NEEDS_TEAM')
+          "
+          :aria-label="t('TICKET.CREATE.CATEGORY')"
+        />
         <span v-if="invalid('ticketCategoryId')" class="text-xs text-n-ruby-11">
           {{ t('TICKET.CREATE.REQUIRED') }}
         </span>

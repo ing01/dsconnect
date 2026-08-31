@@ -39,6 +39,19 @@ const mountDialog = async (props = {}) => {
           methods: { open() {}, close() {} },
         },
         Icon: true,
+        // Espelha o TicketSelect: expoe as opcoes e devolve o valor escolhido.
+        TicketSelect: {
+          props: { options: { type: Array, default: () => [] } },
+          emits: ['update:modelValue'],
+          template: `<div class="ticket-select">
+            <button
+              v-for="option in options"
+              :key="String(option.value)"
+              :data-value="String(option.value)"
+              @click="$emit('update:modelValue', option.value)"
+            >{{ option.label }}</button>
+          </div>`,
+        },
       },
     },
   });
@@ -50,12 +63,12 @@ const hoursInput = wrapper => wrapper.find('input[type="number"]');
 const reasonInput = wrapper => wrapper.find('textarea');
 const confirm = wrapper => wrapper.find('.confirm');
 
-const kindSelect = wrapper => wrapper.find('select');
+const kindSelect = wrapper => wrapper.find('.ticket-select');
 
 // Com mais de um relógio a escolha é obrigatória, então preencher o formulário
 // inclui dizer qual prazo esticar.
 const fill = async (wrapper, hours, reason, kind = 'resolution') => {
-  await kindSelect(wrapper).setValue(kind);
+  await kindSelect(wrapper).find(`[data-value="${kind}"]`).trigger('click');
   await hoursInput(wrapper).setValue(hours);
   await reasonInput(wrapper).setValue(reason);
 };

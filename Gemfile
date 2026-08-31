@@ -214,6 +214,14 @@ gem 'shopify_api'
 
 gem 'firecrawl-sdk', '~> 1.0', require: 'firecrawl'
 
+# Exportacao da Busca detalhada dos Tickets: planilha e relatorio impresso.
+# As tres sao Ruby puro e nao exigem binario no sistema, entao a imagem nao muda.
+gem 'caxlsx'
+gem 'prawn'
+gem 'prawn-table'
+# O prawn depende de `matrix`, que deixou de ser gem padrao no Ruby 3.4.
+gem 'matrix'
+
 ### Gems required only in specific deployment environments ###
 ##############################################################
 

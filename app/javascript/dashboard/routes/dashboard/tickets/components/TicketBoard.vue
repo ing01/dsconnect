@@ -36,12 +36,7 @@ export default {
       default: null,
     },
   },
-  emits: [
-    'addTicket',
-    'openTicket',
-    'moveTicket',
-    'menuAction',
-  ],
+  emits: ['addTicket', 'openTicket', 'moveTicket', 'menuAction'],
   data() {
     return {
       // Estagios are ordered by the backend and reordered from Settings, so the

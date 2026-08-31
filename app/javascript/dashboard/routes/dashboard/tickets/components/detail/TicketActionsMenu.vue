@@ -59,7 +59,8 @@ const relationshipItems = computed(() => [
     icon: 'i-lucide-combine',
     // A ticket that was itself merged into another is no longer the survivor of
     // anything, and a terminal ticket cannot absorb new ones.
-    disabled: !props.canUpdate || isTerminal.value || !!props.ticket.merged_into,
+    disabled:
+      !props.canUpdate || isTerminal.value || !!props.ticket.merged_into,
   },
   {
     label: label('DUPLICATE'),

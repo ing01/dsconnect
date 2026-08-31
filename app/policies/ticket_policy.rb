@@ -7,6 +7,12 @@ class TicketPolicy < ApplicationPolicy
     true
   end
 
+  # Exportar e ler o mesmo que a Busca detalhada ja mostra, com os mesmos
+  # filtros - quem pode ver a lista pode leva-la em arquivo.
+  def export?
+    index?
+  end
+
   def show?
     true
   end

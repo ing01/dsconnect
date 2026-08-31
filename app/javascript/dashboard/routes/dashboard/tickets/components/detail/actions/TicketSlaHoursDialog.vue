@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useMapGetter } from 'dashboard/composables/store';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import TicketSelect from '../../TicketSelect.vue';
 
 const props = defineProps({
   ticket: { type: Object, required: true },
@@ -28,14 +29,6 @@ const currentUser = useMapGetter('getCurrentUser');
 // Decimals are accepted because half-hour extensions are ordinary; the model
 // caps the value and rejects anything at or below zero.
 const parsedHours = computed(() => Number.parseFloat(hours.value));
-const isValid = computed(
-  () =>
-    Number.isFinite(parsedHours.value) &&
-    parsedHours.value > 0 &&
-    reason.value.trim().length > 0 &&
-    !!selectedSla.value
-);
-
 // So os relogios que o ticket realmente tem entram no seletor: uma Mesa que nao
 // promete atendimento nao tem prazo de atendimento para esticar.
 const kindOptions = computed(() =>
@@ -47,6 +40,14 @@ const kindOptions = computed(() =>
 
 const selectedSla = computed(() =>
   (props.ticket.slas || []).find(sla => sla.kind === slaKind.value)
+);
+
+const isValid = computed(
+  () =>
+    Number.isFinite(parsedHours.value) &&
+    parsedHours.value > 0 &&
+    reason.value.trim().length > 0 &&
+    !!selectedSla.value
 );
 
 const extensions = computed(() => props.ticket.sla_extensions || []);
@@ -98,14 +99,13 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           {{ t('TICKET.ACTIONS.SLA_DIALOG.KIND') }}
           <span class="text-n-ruby-11">*</span>
         </span>
-        <select v-model="slaKind" class="w-full mb-0">
-          <option value="" disabled>
-            {{ t('TICKET.ACTIONS.SLA_DIALOG.KIND_PLACEHOLDER') }}
-          </option>
-          <option v-for="option in kindOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
+        <TicketSelect
+          v-model="slaKind"
+          :options="kindOptions"
+          :disabled="!kindOptions.length"
+          :placeholder="t('TICKET.ACTIONS.SLA_DIALOG.KIND_PLACEHOLDER')"
+          :aria-label="t('TICKET.ACTIONS.SLA_DIALOG.KIND')"
+        />
         <span v-if="!kindOptions.length" class="text-sm text-n-slate-10">
           {{ t('TICKET.ACTIONS.SLA_DIALOG.NO_CLOCK') }}
         </span>

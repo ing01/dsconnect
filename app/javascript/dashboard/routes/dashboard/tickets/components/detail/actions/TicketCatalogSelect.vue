@@ -1,4 +1,5 @@
 <script setup>
+import TicketSelect from '../../TicketSelect.vue';
 import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -10,7 +11,11 @@ const props = defineProps({
   itemId: { type: [Number, String], default: null },
 });
 
-const emit = defineEmits(['update:catalogId', 'update:areaId', 'update:itemId']);
+const emit = defineEmits([
+  'update:catalogId',
+  'update:areaId',
+  'update:itemId',
+]);
 
 const { t } = useI18n();
 
@@ -25,6 +30,14 @@ const selectedArea = computed(() =>
 );
 
 const items = computed(() => selectedArea.value?.items || []);
+
+// As tres listas no formato do TicketSelect, o seletor padrao do modulo.
+const toOptions = records =>
+  records.map(record => ({ value: record.id, label: record.name }));
+
+const catalogOptions = computed(() => toOptions(props.catalogs));
+const areaOptions = computed(() => toOptions(areas.value));
+const itemOptions = computed(() => toOptions(items.value));
 
 // Each level only offers what belongs to the one above it, and changing a level
 // drops what depended on it. The backend walks the same hierarchy, so an
@@ -54,54 +67,47 @@ watch(
       <span class="text-sm font-medium text-n-slate-12">
         {{ t('TICKET.CATALOG.CATALOG') }}<span class="text-n-ruby-11">*</span>
       </span>
-      <select
-        :value="catalogId"
-        class="w-full mb-0"
-        @change="emit('update:catalogId', Number($event.target.value) || null)"
-      >
-        <option :value="null" disabled>{{ t('TICKET.CATALOG.SELECT') }}</option>
-        <option v-for="catalog in catalogs" :key="catalog.id" :value="catalog.id">
-          {{ catalog.name }}
-        </option>
-      </select>
+      <TicketSelect
+        :model-value="catalogId"
+        :options="catalogOptions"
+        :placeholder="t('TICKET.CATALOG.SELECT')"
+        :aria-label="t('TICKET.CATALOG.SELECT')"
+        @update:model-value="value => emit('update:catalogId', value)"
+      />
     </label>
 
     <label class="flex flex-col gap-1 min-w-0">
       <span class="text-sm font-medium text-n-slate-12">
         {{ t('TICKET.CATALOG.AREA') }}<span class="text-n-ruby-11">*</span>
       </span>
-      <select
-        :value="areaId"
+      <TicketSelect
+        :model-value="areaId"
+        :options="areaOptions"
         :disabled="!areas.length"
-        class="w-full mb-0"
-        @change="emit('update:areaId', Number($event.target.value) || null)"
-      >
-        <option :value="null" disabled>
-          {{ catalogId ? t('TICKET.CATALOG.SELECT') : t('TICKET.CATALOG.NEEDS_CATALOG') }}
-        </option>
-        <option v-for="area in areas" :key="area.id" :value="area.id">
-          {{ area.name }}
-        </option>
-      </select>
+        :placeholder="
+          catalogId
+            ? t('TICKET.CATALOG.SELECT')
+            : t('TICKET.CATALOG.NEEDS_CATALOG')
+        "
+        :aria-label="t('TICKET.CATALOG.AREA')"
+        @update:model-value="value => emit('update:areaId', value)"
+      />
     </label>
 
     <label class="flex flex-col gap-1 min-w-0">
       <span class="text-sm font-medium text-n-slate-12">
         {{ t('TICKET.CATALOG.ITEM') }}<span class="text-n-ruby-11">*</span>
       </span>
-      <select
-        :value="itemId"
+      <TicketSelect
+        :model-value="itemId"
+        :options="itemOptions"
         :disabled="!items.length"
-        class="w-full mb-0"
-        @change="emit('update:itemId', Number($event.target.value) || null)"
-      >
-        <option :value="null" disabled>
-          {{ areaId ? t('TICKET.CATALOG.SELECT') : t('TICKET.CATALOG.NEEDS_AREA') }}
-        </option>
-        <option v-for="item in items" :key="item.id" :value="item.id">
-          {{ item.name }}
-        </option>
-      </select>
+        :placeholder="
+          areaId ? t('TICKET.CATALOG.SELECT') : t('TICKET.CATALOG.NEEDS_AREA')
+        "
+        :aria-label="t('TICKET.CATALOG.ITEM')"
+        @update:model-value="value => emit('update:itemId', value)"
+      />
     </label>
   </div>
 </template>

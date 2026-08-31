@@ -229,9 +229,6 @@ const submitCompany = ({ companyId, clearContact }) =>
 
 const submitContact = contactId =>
   runAction(() => updateProperty({ contact_id: contactId }), contactDialog);
-
-
-
 </script>
 
 <template>
@@ -364,7 +361,6 @@ const submitContact = contactId =>
       <!-- Closing requires a classification and a message that reached the
            customer, so it is a two-step flow rather than a confirmation. -->
       <TicketCloseDialog ref="closeDialog" :ticket="ticket" @closed="reload" />
-
     </template>
   </div>
 </template>

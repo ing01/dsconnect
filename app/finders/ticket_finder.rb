@@ -3,11 +3,15 @@
 # query language alongside a dozen actions.
 class TicketFinder
   # Params that map directly onto an equality filter on `tickets`.
+  # Aceitam tanto um valor quanto uma lista: `where(coluna => [a, b])` vira um
+  # IN, que e o "ou" dentro de um mesmo filtro. Entre filtros diferentes segue
+  # valendo "e", porque cada um encadeia outro `where`.
   DIRECT_ATTRIBUTE_FILTERS = {
     ticket_column_id: :ticket_column_id,
     team_id: :team_id,
     status: :status,
     priority: :priority,
+    ticket_category_id: :ticket_category_id,
     display_id: :display_id
   }.freeze
 

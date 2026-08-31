@@ -33,7 +33,8 @@ export function useTicketDetail(ticketId) {
 
   // Categories of this ticket's Mesa, the same rule the stages follow.
   const categories = computed(
-    () => store.getters['ticketColumns/getCategories'](ticket.value?.team_id) || []
+    () =>
+      store.getters['ticketColumns/getCategories'](ticket.value?.team_id) || []
   );
 
   const mesaAgents = computed(

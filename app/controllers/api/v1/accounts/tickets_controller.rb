@@ -1,4 +1,6 @@
 class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
+  include TicketExporting
+
   include TicketActionParams
 
   DEFAULT_PER_PAGE = 25

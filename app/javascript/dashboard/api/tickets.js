@@ -96,7 +96,10 @@ class TicketsAPI extends ApiClient {
 
   // The three ids together: the server walks the hierarchy and refuses an
   // Area that is not in the Catalogo, or an Item that is not in the Area.
-  classify(id, { serviceCatalogId, serviceCatalogAreaId, serviceCatalogItemId }) {
+  classify(
+    id,
+    { serviceCatalogId, serviceCatalogAreaId, serviceCatalogItemId }
+  ) {
     return axios.patch(`${this.url}/${id}/classify`, {
       service_catalog_id: serviceCatalogId,
       service_catalog_area_id: serviceCatalogAreaId,
@@ -152,6 +155,15 @@ class TicketsAPI extends ApiClient {
 
   assignToMe(id) {
     return axios.patch(`${this.url}/${id}/assign_to_me`);
+  }
+
+  // A exportacao da Busca detalhada. Recebe o arquivo pronto do servidor, que
+  // usa os mesmos filtros da lista - sem paginacao.
+  exportSearch(params, formatType) {
+    return axios.get(`${this.url}/export`, {
+      params: { ...params, format_type: formatType },
+      responseType: 'blob',
+    });
   }
 
   addSlaHours(id, { hours, reason, slaKind }) {

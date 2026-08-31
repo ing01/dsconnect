@@ -19,10 +19,26 @@ const router = useRouter();
 // links are the only way back to the merged ticket's own comments and files.
 const groups = computed(() =>
   [
-    { key: 'PARENT', icon: 'i-lucide-corner-left-up', items: props.ticket.parent ? [props.ticket.parent] : [] },
-    { key: 'CHILDREN', icon: 'i-lucide-git-branch', items: props.ticket.children || [] },
-    { key: 'MERGED_INTO', icon: 'i-lucide-combine', items: props.ticket.merged_into ? [props.ticket.merged_into] : [] },
-    { key: 'MERGED_TICKETS', icon: 'i-lucide-combine', items: props.ticket.merged_tickets || [] },
+    {
+      key: 'PARENT',
+      icon: 'i-lucide-corner-left-up',
+      items: props.ticket.parent ? [props.ticket.parent] : [],
+    },
+    {
+      key: 'CHILDREN',
+      icon: 'i-lucide-git-branch',
+      items: props.ticket.children || [],
+    },
+    {
+      key: 'MERGED_INTO',
+      icon: 'i-lucide-combine',
+      items: props.ticket.merged_into ? [props.ticket.merged_into] : [],
+    },
+    {
+      key: 'MERGED_TICKETS',
+      icon: 'i-lucide-combine',
+      items: props.ticket.merged_tickets || [],
+    },
   ].filter(group => group.items.length > 0)
 );
 
@@ -44,7 +60,11 @@ const openTicket = ticket => {
       {{ t('TICKET.DETAIL.RELATIONSHIPS.TITLE') }}
     </h2>
 
-    <div v-for="group in groups" :key="group.key" class="flex flex-col gap-1 min-w-0">
+    <div
+      v-for="group in groups"
+      :key="group.key"
+      class="flex flex-col gap-1 min-w-0"
+    >
       <span class="text-xs text-n-slate-10">
         {{ t(`TICKET.DETAIL.RELATIONSHIPS.${group.key}`) }}
       </span>

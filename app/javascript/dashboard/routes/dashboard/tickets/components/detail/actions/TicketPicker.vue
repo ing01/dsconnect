@@ -64,11 +64,14 @@ const loadTickets = async (query = '') => {
 const options = computed(() =>
   tickets.value
     .filter(ticket => String(ticket.id) !== String(props.excludeId))
-    .filter(ticket => !props.excludeIds.some(id => String(id) === String(ticket.id)))
+    .filter(
+      ticket => !props.excludeIds.some(id => String(id) === String(ticket.id))
+    )
     .filter(ticket => !props.openOnly || ticket.status === 'open')
     .filter(
       ticket =>
-        !props.companyId || String(ticket.company_id) === String(props.companyId)
+        !props.companyId ||
+        String(ticket.company_id) === String(props.companyId)
     )
     .map(ticket => ({
       label: `#${ticket.display_id} - ${ticket.title}`,
@@ -137,7 +140,10 @@ const label = computed(() =>
       <template #label="{ item }">
         <span class="flex flex-col min-w-0 text-left">
           <span class="text-sm truncate font-420">{{ item.label }}</span>
-          <span v-if="item.description" class="text-xs truncate text-n-slate-10">
+          <span
+            v-if="item.description"
+            class="text-xs truncate text-n-slate-10"
+          >
             {{ item.description }}
           </span>
         </span>

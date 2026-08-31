@@ -395,6 +395,8 @@ Rails.application.routes.draw do
 
           resources :tickets do
             collection do
+              # Exportacao da Busca detalhada, nos mesmos filtros do index.
+              get :export
               post :ensure_default_mesa
             end
             member do
