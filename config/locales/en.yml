@@ -117,6 +117,9 @@ en:
         invalid: is not a valid email address
     validations:
       presence: must not be blank
+    chat_message:
+      too_large: is larger than the %{size} MB limit
+      too_many: cannot exceed %{count} files per message
     ticket_attachment:
       too_large: is larger than the %{size} MB limit
     ticket_column:

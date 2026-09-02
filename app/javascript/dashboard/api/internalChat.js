@@ -29,11 +29,20 @@ class InternalChatAPI extends ApiClient {
     });
   }
 
-  sendMessage(channelId, { content, replyToId }) {
+  // `attachments` sao signed ids de blobs que ja subiram para o storage, e nao
+  // os arquivos: os bytes nunca passam por este pedido.
+  sendMessage(channelId, { content, replyToId, attachments }) {
     return axios.post(`${this.url}/${channelId}/messages`, {
       content,
       reply_to_id: replyToId,
+      attachments,
     });
+  }
+
+  // O endereco que o navegador usa para registrar o blob antes de enviar o
+  // arquivo direto ao storage.
+  directUploadUrl(channelId) {
+    return `${this.url}/${channelId}/direct_uploads`;
   }
 
   markRead(channelId) {

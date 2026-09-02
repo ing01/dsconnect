@@ -11,9 +11,19 @@ const emit = defineEmits(['close']);
 
 const { t } = useI18n();
 
-const style = computed(() => ({
-  background: `linear-gradient(135deg, ${props.attachment?.color || '#3f5c78'}, #23303d)`,
-}));
+// Sempre o arquivo inteiro, nunca a miniatura: ampliar e justamente o motivo
+// de abrir aqui.
+const source = computed(() => props.attachment?.url);
+
+const readableSize = computed(() => {
+  const bytes = props.attachment?.byteSize;
+  if (!bytes) return '';
+
+  const mb = bytes / (1024 * 1024);
+  return mb >= 1
+    ? `${mb.toFixed(1)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+});
 </script>
 
 <template>
@@ -34,14 +44,13 @@ const style = computed(() => ({
       <Icon icon="i-lucide-x" class="size-5" />
     </button>
 
-    <div
-      class="flex items-center justify-center w-full max-w-3xl h-[60vh] rounded-lg text-white/80"
-      :style="style"
-    >
-      {{ attachment.name }}
-    </div>
+    <img
+      :src="source"
+      :alt="attachment.name"
+      class="object-contain max-w-3xl rounded-lg max-h-[70vh]"
+    />
     <p class="text-sm text-white/70">
-      {{ attachment.name }} · {{ attachment.size }}
+      {{ attachment.name }} · {{ readableSize }}
     </p>
   </div>
 </template>

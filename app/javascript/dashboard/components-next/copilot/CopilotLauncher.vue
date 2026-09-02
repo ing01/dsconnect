@@ -10,8 +10,11 @@ const route = useRoute();
 
 const { uiSettings, updateUISettings } = useUISettings();
 
-const isConversationRoute = computed(() => {
-  const CONVERSATION_ROUTES = [
+// Screens with their own composer pinned to the bottom right. The launcher is
+// fixed to that same corner, so on these it would sit on top of the send
+// button rather than beside it.
+const isComposerRoute = computed(() => {
+  const COMPOSER_ROUTES = [
     'inbox_conversation',
     'conversation_through_inbox',
     'conversations_through_label',
@@ -21,8 +24,9 @@ const isConversationRoute = computed(() => {
     'conversation_through_unattended',
     'conversation_through_participating',
     'inbox_view_conversation',
+    'internal_chat',
   ];
-  return CONVERSATION_ROUTES.includes(route.name);
+  return COMPOSER_ROUTES.includes(route.name);
 });
 
 const currentAccountId = useMapGetter('getCurrentAccountId');
@@ -38,7 +42,7 @@ const showCopilotLauncher = computed(() => {
   return (
     isCaptainEnabled &&
     !uiSettings.value.is_copilot_panel_open &&
-    !isConversationRoute.value
+    !isComposerRoute.value
   );
 });
 const toggleSidebar = () => {

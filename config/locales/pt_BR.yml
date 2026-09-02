@@ -111,6 +111,9 @@ pt_BR:
         invalid: is not a valid email address
     validations:
       presence: não pode ficar em branco
+    chat_message:
+      too_large: é maior que o limite de %{size} MB
+      too_many: não pode passar de %{count} arquivos por mensagem
     ticket_attachment:
       too_large: é maior que o limite de %{size} MB
     ticket_column:

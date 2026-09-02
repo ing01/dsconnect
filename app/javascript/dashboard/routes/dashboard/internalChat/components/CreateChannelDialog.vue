@@ -15,7 +15,12 @@ const { t } = useI18n();
 const dialogRef = ref(null);
 const name = ref('');
 const description = ref('');
-const visibility = ref('public');
+// Os mesmos valores do enum `ChatChannel#visibility`. Com 'public'/'private' o
+// servidor recusa a criacao inteira com 'is not a valid visibility'.
+const PUBLIC = 'public_channel';
+const PRIVATE = 'private_channel';
+
+const visibility = ref(PUBLIC);
 const memberIds = ref([]);
 
 const isValid = computed(() => !!name.value.trim());
@@ -27,7 +32,7 @@ const selectableUsers = computed(() =>
 const open = () => {
   name.value = '';
   description.value = '';
-  visibility.value = 'public';
+  visibility.value = PUBLIC;
   memberIds.value = [];
   dialogRef.value?.open();
 };
@@ -95,14 +100,19 @@ defineExpose({ open });
           {{ t('INTERNAL_CHAT.CREATE_CHANNEL.VISIBILITY') }}
         </legend>
         <label class="flex items-center gap-2 text-sm text-n-slate-11">
-          <input v-model="visibility" type="radio" value="public" class="m-0" />
+          <input
+            v-model="visibility"
+            type="radio"
+            :value="PUBLIC"
+            class="m-0"
+          />
           {{ t('INTERNAL_CHAT.CREATE_CHANNEL.PUBLIC') }}
         </label>
         <label class="flex items-center gap-2 text-sm text-n-slate-11">
           <input
             v-model="visibility"
             type="radio"
-            value="private"
+            :value="PRIVATE"
             class="m-0"
           />
           {{ t('INTERNAL_CHAT.CREATE_CHANNEL.PRIVATE') }}

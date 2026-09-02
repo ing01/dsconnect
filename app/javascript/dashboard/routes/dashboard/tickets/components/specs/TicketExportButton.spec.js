@@ -192,14 +192,14 @@ describe('TicketExportButton', () => {
 
     const wrapper = await open(mountButton());
     await wrapper.find('[data-value="xlsx"]').trigger('click');
-    // A leitura do blob passa pelo FileReader, que nao e microtarefa: uma
-    // rodada de promessas nao basta para o retorno chegar.
-    await new Promise(resolve => {
-      setTimeout(resolve, 0);
-    });
+    // A leitura do blob passa pelo FileReader, que nao e microtarefa nem tem
+    // prazo fixo: sob carga ela passa de um tick, entao aqui se espera pelo
+    // resultado em vez de por um tempo arbitrario.
+    await vi.waitFor(() =>
+      expect(holder.alert).toHaveBeenCalledWith('Busca grande demais.')
+    );
     await flushPromises();
 
-    expect(holder.alert).toHaveBeenCalledWith('Busca grande demais.');
     expect(trigger(wrapper).attributes('disabled')).toBeUndefined();
   });
 });

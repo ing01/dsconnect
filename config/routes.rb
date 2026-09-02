@@ -386,6 +386,8 @@ Rails.application.routes.draw do
             member do
               post :read
             end
+            # O upload vai direto para o storage; a aplicacao so registra o blob.
+            resources :direct_uploads, module: 'chat_channels', only: [:create]
             resources :messages, controller: 'chat_messages', only: [:index, :create] do
               member do
                 post :toggle_reaction
