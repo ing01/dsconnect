@@ -29,6 +29,6 @@ class Api::V1::Accounts::ChecklistsController < Api::V1::Accounts::BaseControlle
   end
 
   def checklist_params
-    params.require(:checklist).permit(:name, items: [:title])
+    params.require(:checklist).permit(:name, items: [:title, :type, :required, options: []])
   end
 end

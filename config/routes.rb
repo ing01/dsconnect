@@ -430,6 +430,7 @@ Rails.application.routes.draw do
                 post :attach_checklist
               end
             end
+            resources :time_entries, controller: 'ticket_time_entries', only: [:index, :create, :update, :destroy]
           end
 
           resources :projects do

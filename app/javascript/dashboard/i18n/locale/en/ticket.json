@@ -199,6 +199,7 @@
         "COMMUNICATION": "Communication",
         "APPOINTMENTS": "Appointments",
         "CHECKLISTS": "Checklists",
+        "TIME_ENTRIES": "Time log",
         "DEVELOPMENT": "Development",
         "HISTORY": "History"
       },
@@ -290,7 +291,10 @@
       },
       "APPOINTMENTS": {
         "TITLE": "Appointments",
-        "EMPTY": "No appointment recorded."
+        "EMPTY": "No appointment recorded.",
+        "NEW_BUTTON": "New appointment",
+        "CREATE_SUCCESS": "Appointment created successfully",
+        "CREATE_ERROR": "Failed to create the appointment"
       },
       "CHECKLISTS": {
         "TITLE": "Checklist",
@@ -299,10 +303,26 @@
         "ADD_BUTTON": "Add",
         "ATTACH_BUTTON": "Attach",
         "DELETE": "Remove",
-        "PENDING_HINT": "There are pending checklist items. Complete them, or record an Apontamento to allow closing this ticket anyway.",
+        "PENDING_HINT": "There are pending required checklist items. Complete them, or record a Compromisso to allow closing this ticket anyway.",
         "ADD_ERROR": "Failed to add checklist item",
         "TOGGLE_ERROR": "Failed to update checklist item",
         "DELETE_ERROR": "Failed to remove checklist item"
+      },
+      "TIME_ENTRIES": {
+        "TITLE": "Apontamento",
+        "TOTAL": "Total",
+        "EMPTY": "No hours logged yet.",
+        "HOURS_PLACEHOLDER": "Hours",
+        "NOTE_PLACEHOLDER": "Note (optional)",
+        "ADD_BUTTON": "Log hours",
+        "DELETE": "Remove",
+        "ADD_ERROR": "Failed to log hours",
+        "DELETE_ERROR": "Failed to remove the entry",
+        "CATEGORY": {
+          "IMPLANTACAO": "Implantação",
+          "DESENVOLVIMENTO": "Desenvolvimento",
+          "DEV_GERAL": "Dev geral"
+        }
       },
       "DEVELOPMENT": {
         "TITLE": "Development",
@@ -679,7 +699,7 @@
       "STEP_CLASSIFICATION": "1. Classification",
       "STEP_COMMUNICATION": "2. Customer communication",
       "STEP_CHECKLIST": "Checklist",
-      "CHECKLIST_PENDING": "There are pending checklist items. Complete them, or record an Apontamento in this ticket to close it anyway.",
+      "CHECKLIST_PENDING": "There are pending required checklist items. Complete them, or record a Compromisso in this ticket to close it anyway.",
       "CHECKLIST_DONE": "Checklist complete.",
       "COMMUNICATION_DONE": "Closing message already sent.",
       "NO_CONTACT_EMAIL": "The requester of this ticket has no e-mail address on file. Add a valid address before sending the closing message.",

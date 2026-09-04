@@ -73,6 +73,8 @@
     "TASK": {
       "CALL_TITLE": "Call title",
       "ADVANCES_TO": "Advances to",
+      "CATEGORY": "Category",
+      "NO_CATEGORY": "No category",
       "ASSIGNEE": "Responsible",
       "UNASSIGNED": "Unassigned",
       "DUE_DATE": "Due date",
@@ -82,6 +84,10 @@
       "TITLE": "Project Details",
       "LOADING": "Loading project...",
       "STAGE": "Stage",
+      "TOTAL_HOURS": "Total hours logged",
+      "TICKETS_STATUS": "Tickets",
+      "ALL_TICKETS_DONE": "All done",
+      "TICKETS_PENDING": "Still has open tickets",
       "TASKS_LIST": "Tasks",
       "COMPLETED": "completed",
       "NO_TASKS": "No tasks generated for this project yet.",
@@ -234,9 +240,18 @@
       },
       "ITEMS": {
         "LABEL": "Items",
-        "PLACEHOLDER": "Add checklist item",
+        "PLACEHOLDER": "Item title",
         "ADD": "Add item",
-        "EMPTY": "No items yet."
+        "EMPTY": "No items yet.",
+        "REQUIRED": "Required",
+        "OPTION_PLACEHOLDER": "Add option",
+        "ADD_OPTION": "Add",
+        "TYPE": {
+          "CHECKBOX": "Checkbox",
+          "TEXT": "Text",
+          "SINGLE_SELECT": "Single choice",
+          "NUMBER": "Value (number)"
+        }
       }
     },
     "LIST": {
@@ -259,6 +274,39 @@
         "SUCCESS": "Checklist deleted",
         "ERROR": "Failed to delete checklist"
       }
+    }
+  },
+  "HELP": {
+    "BUTTON": "Help",
+    "PROJECT": {
+      "TITLE": "How the Project form works",
+      "INTRO": "A Project links a Client, a Team (Mesa) and a Module. The Module decides which Task templates are reviewed in step 2 before the tickets are generated.",
+      "STEP2": "In step 2, review each task: pick a Category (required - every ticket must have one), an assignee, a due date and, optionally, a scheduled date.",
+      "AFTER": "Once confirmed, one ticket is created per task, linked to this Project. The Project cannot be marked as Finalizado while any of its tickets is still open."
+    },
+    "MODULE": {
+      "TITLE": "How Modules work",
+      "INTRO": "A Module is a named bundle of Task templates (e.g. \"Standard onboarding\"). Creating a Project with a Module attaches all of its tasks at once, in the order shown here.",
+      "SHORTCUT": "Use the shortcut on the Project form to create a new Module without losing what you were filling in - it opens in a new tab."
+    },
+    "TASK": {
+      "TITLE": "How Task templates work",
+      "INTRO": "A Task template defines what a generated ticket looks like: its default title, description, default assignee, days until due, and which Project stage it advances to when completed.",
+      "CHECKLIST": "Attach a ready-made Checklist to require specific information before the ticket can be resolved. Only required items block completion."
+    },
+    "CHECKLIST": {
+      "TITLE": "How Checklist items work",
+      "INTRO": "Each item has a type: Checkbox (a plain yes/no), Text, Single choice (pick one of your own options) or Value (a number).",
+      "REQUIRED": "Mark an item as Required to make it block the ticket's completion until it is filled in or checked - optional items are informational only."
+    },
+    "TUTORIAL": {
+      "TITLE": "Projects tutorial",
+      "STEP1": "1. Create the Task templates you'll reuse (Settings → Projects → Tasks). Each one defines the default ticket title, due days and, optionally, a Checklist.",
+      "STEP2": "2. Group related tasks into a Module (Settings → Projects → Modules) - e.g. \"Standard onboarding\" with Initial contact, Installation, Training.",
+      "STEP3": "3. Create a Project, pick the Client, the Team and that Module. Step 2 lets you review the assignee, category and dates of every task before confirming.",
+      "STEP4": "4. Confirming generates one ticket per task, already linked to the Project and to the Team's Kanban board.",
+      "STEP5": "5. As tickets are resolved, the Project can advance automatically to the next stage (configured per task). It can only reach Finalizado once every ticket is done.",
+      "STEP6": "6. Track total hours logged (Apontamento) and progress right on the Project card and detail view."
     }
   }
 }

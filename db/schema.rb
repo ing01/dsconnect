@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_04_140000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_05_090100) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1912,6 +1912,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_04_140000) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "item_type", default: "checkbox", null: false
+    t.boolean "required", default: false, null: false
+    t.jsonb "options", default: [], null: false
+    t.text "value"
     t.index ["account_id"], name: "index_ticket_checklist_items_on_account_id"
     t.index ["completed_by_id"], name: "index_ticket_checklist_items_on_completed_by_id"
     t.index ["ticket_id", "completed"], name: "index_ticket_checklist_items_on_ticket_id_and_completed"
@@ -2040,6 +2044,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_04_140000) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_ticket_sla_policies_on_account_id"
     t.index ["team_id", "priority"], name: "index_ticket_sla_policies_on_team_id_and_priority", unique: true
+  end
+
+  create_table "ticket_time_entries", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "user_id", null: false
+    t.string "category", default: "implantacao", null: false
+    t.decimal "hours", precision: 6, scale: 2, null: false
+    t.date "worked_on", null: false
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_time_entries_on_account_id"
+    t.index ["ticket_id"], name: "index_ticket_time_entries_on_ticket_id"
+    t.index ["user_id"], name: "index_ticket_time_entries_on_user_id"
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -2246,6 +2265,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_04_140000) do
   add_foreign_key "ticket_sla_extensions", "accounts"
   add_foreign_key "ticket_sla_extensions", "tickets"
   add_foreign_key "ticket_sla_extensions", "users"
+  add_foreign_key "ticket_time_entries", "accounts"
+  add_foreign_key "ticket_time_entries", "tickets"
+  add_foreign_key "ticket_time_entries", "users"
   add_foreign_key "tickets", "companies"
   add_foreign_key "tickets", "contacts", on_delete: :nullify
   add_foreign_key "tickets", "project_task_templates"

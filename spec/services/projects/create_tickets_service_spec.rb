@@ -59,4 +59,28 @@ RSpec.describe Projects::CreateTicketsService do
 
     expect(tickets.first.due_date.to_date).to eq(Time.zone.now.to_date + 5.days)
   end
+
+  describe 'ticket_category (required by Ticket on create)' do
+    it 'defaults to the Mesa\'s first Categoria when no task_data is given' do
+      tickets = perform([{ task_template_id: template.id }])
+
+      expect(tickets.first.ticket_category).to eq(team.ticket_categories.order(:position, :id).first)
+    end
+
+    it 'honours an explicit ticket_category_id from the task data' do
+      chosen = team.ticket_categories.order(:position, :id).last
+
+      tickets = perform([{ task_template_id: template.id, ticket_category_id: chosen.id }])
+
+      expect(tickets.first.ticket_category).to eq(chosen)
+    end
+
+    it 'falls back to the default when the given ticket_category_id does not belong to the Mesa' do
+      other_category = create(:team, account: account).ticket_categories.first
+
+      tickets = perform([{ task_template_id: template.id, ticket_category_id: other_category.id }])
+
+      expect(tickets.first.ticket_category).to eq(team.ticket_categories.order(:position, :id).first)
+    end
+  end
 end

@@ -73,6 +73,8 @@
     "TASK": {
       "CALL_TITLE": "Título do atendimento",
       "ADVANCES_TO": "Avança para",
+      "CATEGORY": "Categoria",
+      "NO_CATEGORY": "Sem categoria",
       "ASSIGNEE": "Responsável",
       "UNASSIGNED": "Não atribuído",
       "DUE_DATE": "Vencimento",
@@ -82,6 +84,10 @@
       "TITLE": "Detalhes do Projeto",
       "LOADING": "Carregando projeto...",
       "STAGE": "Etapa",
+      "TOTAL_HOURS": "Horas totais apontadas",
+      "TICKETS_STATUS": "Tickets",
+      "ALL_TICKETS_DONE": "Todos concluídos",
+      "TICKETS_PENDING": "Ainda há tickets em aberto",
       "TASKS_LIST": "Tarefas",
       "COMPLETED": "concluídas",
       "NO_TASKS": "Nenhuma tarefa gerada para este projeto ainda.",
@@ -234,9 +240,18 @@
       },
       "ITEMS": {
         "LABEL": "Itens",
-        "PLACEHOLDER": "Adicionar item ao checklist",
+        "PLACEHOLDER": "Título do item",
         "ADD": "Adicionar item",
-        "EMPTY": "Ainda não há itens."
+        "EMPTY": "Ainda não há itens.",
+        "REQUIRED": "Obrigatório",
+        "OPTION_PLACEHOLDER": "Adicionar opção",
+        "ADD_OPTION": "Adicionar",
+        "TYPE": {
+          "CHECKBOX": "Caixa de seleção",
+          "TEXT": "Texto",
+          "SINGLE_SELECT": "Seleção única",
+          "NUMBER": "Valor (número)"
+        }
       }
     },
     "LIST": {
@@ -259,6 +274,39 @@
         "SUCCESS": "Checklist excluído",
         "ERROR": "Erro ao excluir checklist"
       }
+    }
+  },
+  "HELP": {
+    "BUTTON": "Ajuda",
+    "PROJECT": {
+      "TITLE": "Como funciona o cadastro de Projeto",
+      "INTRO": "Um Projeto liga um Cliente, uma Mesa e um Módulo. O Módulo define quais Tarefas serão revisadas no passo 2 antes de gerar os tickets.",
+      "STEP2": "No passo 2, revise cada tarefa: escolha uma Categoria (obrigatória - todo ticket precisa de uma), o responsável, a data de vencimento e, opcionalmente, o agendamento.",
+      "AFTER": "Ao confirmar, um ticket é criado para cada tarefa, vinculado a este Projeto. O Projeto não pode ser marcado como Finalizado enquanto algum desses tickets estiver aberto."
+    },
+    "MODULE": {
+      "TITLE": "Como funcionam os Módulos",
+      "INTRO": "Um Módulo é um conjunto nomeado de Tarefas (ex: \"Onboarding padrão\"). Criar um Projeto com um Módulo já anexa todas as suas tarefas de uma vez, na ordem mostrada aqui.",
+      "SHORTCUT": "Use o atalho no cadastro de Projeto para criar um Módulo novo sem perder o que já estava preenchendo - ele abre em uma nova aba."
+    },
+    "TASK": {
+      "TITLE": "Como funcionam as Tarefas",
+      "INTRO": "Uma Tarefa define como o ticket gerado vai nascer: título padrão, descrição, responsável padrão, dias até o vencimento e para qual etapa do Projeto ela avança quando concluída.",
+      "CHECKLIST": "Anexe um Checklist pronto para exigir informações específicas antes de o ticket poder ser resolvido. Só itens obrigatórios bloqueiam a conclusão."
+    },
+    "CHECKLIST": {
+      "TITLE": "Como funcionam os itens do Checklist",
+      "INTRO": "Cada item tem um tipo: Caixa de seleção (sim/não simples), Texto, Seleção única (escolher entre opções que você define) ou Valor (um número).",
+      "REQUIRED": "Marque um item como Obrigatório para que ele bloqueie a conclusão do ticket até ser preenchido ou marcado - itens opcionais são só informativos."
+    },
+    "TUTORIAL": {
+      "TITLE": "Tutorial de Projetos",
+      "STEP1": "1. Cadastre as Tarefas que serão reutilizadas (Configurações → Projetos → Tarefas). Cada uma define o título padrão do ticket, os dias para vencimento e, opcionalmente, um Checklist.",
+      "STEP2": "2. Agrupe tarefas relacionadas em um Módulo (Configurações → Projetos → Módulos) - ex: \"Onboarding padrão\" com Primeiro contato, Instalação, Treinamento.",
+      "STEP3": "3. Crie um Projeto, escolha o Cliente, a Mesa e esse Módulo. O passo 2 deixa revisar o responsável, a categoria e as datas de cada tarefa antes de confirmar.",
+      "STEP4": "4. Ao confirmar, um ticket é gerado para cada tarefa, já vinculado ao Projeto e ao quadro Kanban da Mesa.",
+      "STEP5": "5. Conforme os tickets são resolvidos, o Projeto pode avançar automaticamente de etapa (configurado por tarefa). Só chega a Finalizado quando todos os tickets estiverem concluídos.",
+      "STEP6": "6. Acompanhe o total de horas apontadas e o progresso direto no card e nos detalhes do Projeto."
     }
   }
 }

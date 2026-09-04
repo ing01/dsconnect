@@ -26,8 +26,10 @@ const checklists = computed(
   () => store.getters['checklists/getChecklists'] || []
 );
 
+// Only obrigatório items count towards the completion lock (see
+// Ticket#checklist_pending?) - optional items are informational only.
 const pendingCount = computed(
-  () => items.value.filter(item => !item.completed).length
+  () => items.value.filter(item => item.required && !item.completed).length
 );
 
 const load = () => {
@@ -77,6 +79,21 @@ const removeItem = async item => {
   }
 };
 
+// Non-checkbox items are completed by filling in a value - the server
+// derives `completed` from `value.present?` (see
+// TicketChecklistItem#sync_completed_from_value), so this just saves it.
+const updateValue = async (item, value) => {
+  try {
+    await store.dispatch('ticketChecklistItems/update', {
+      ticketId: props.ticketId,
+      itemId: item.id,
+      value,
+    });
+  } catch (error) {
+    useAlert(t('TICKET.DETAIL.CHECKLISTS.TOGGLE_ERROR'));
+  }
+};
+
 onMounted(load);
 watch(() => props.ticketId, load);
 </script>
@@ -112,29 +129,66 @@ watch(() => props.ticketId, load);
       {{ t('TICKET.DETAIL.CHECKLISTS.EMPTY') }}
     </p>
 
-    <ul v-else class="flex flex-col gap-1">
+    <ul v-else class="flex flex-col gap-2">
       <li
         v-for="item in items"
         :key="item.id"
-        class="group flex items-center gap-2 px-1 py-1 rounded-lg min-w-0"
+        class="group flex items-start gap-2 px-1 py-1 rounded-lg min-w-0"
       >
         <input
+          v-if="item.item_type === 'checkbox'"
           type="checkbox"
           :checked="item.completed"
-          class="flex-shrink-0"
+          class="flex-shrink-0 mt-1"
           @change="toggleItem(item)"
         />
-        <span
-          class="flex-1 text-sm truncate"
-          :class="
-            item.completed
-              ? 'text-n-slate-10 line-through'
-              : 'text-n-slate-12'
-          "
-          :title="item.title"
-        >
-          {{ item.title }}
-        </span>
+        <Icon
+          v-else
+          :icon="item.completed ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"
+          class="size-4 flex-shrink-0 mt-1"
+          :class="item.completed ? 'text-n-teal-11' : 'text-n-slate-8'"
+        />
+
+        <div class="flex-1 min-w-0 flex flex-col gap-1">
+          <span
+            class="text-sm"
+            :class="
+              item.completed && item.item_type === 'checkbox'
+                ? 'text-n-slate-10 line-through'
+                : 'text-n-slate-12'
+            "
+          >
+            {{ item.title }}
+            <span v-if="item.required" class="text-n-ruby-11">*</span>
+          </span>
+
+          <input
+            v-if="item.item_type === 'text'"
+            type="text"
+            :value="item.value"
+            class="h-8 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+            @change="updateValue(item, $event.target.value)"
+          />
+          <input
+            v-else-if="item.item_type === 'number'"
+            type="number"
+            :value="item.value"
+            class="h-8 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none w-32"
+            @change="updateValue(item, $event.target.value)"
+          />
+          <select
+            v-else-if="item.item_type === 'single_select'"
+            :value="item.value"
+            class="h-8 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+            @change="updateValue(item, $event.target.value)"
+          >
+            <option value="" />
+            <option v-for="(opt, optIdx) in item.options" :key="optIdx" :value="opt">
+              {{ opt }}
+            </option>
+          </select>
+        </div>
+
         <button
           type="button"
           class="opacity-0 group-hover:opacity-100 text-n-slate-9 hover:text-n-ruby-11 flex-shrink-0"

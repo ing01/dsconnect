@@ -7,6 +7,7 @@ import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import HelpButton from 'dashboard/components-next/help/HelpButton.vue';
 
 const props = defineProps({
   projectModule: {
@@ -116,6 +117,13 @@ const submit = async () => {
       "
     />
     <form class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 min-h-0" @submit.prevent="submit">
+      <div class="flex justify-end -mb-2">
+        <HelpButton :title="t('PROJECTS.HELP.MODULE.TITLE')">
+          <p>{{ t('PROJECTS.HELP.MODULE.INTRO') }}</p>
+          <p>{{ t('PROJECTS.HELP.MODULE.SHORTCUT') }}</p>
+        </HelpButton>
+      </div>
+
       <NextInput
         v-model="name"
         :label="t('PROJECT_MODULES.FORM.NAME.LABEL')"

@@ -120,6 +120,8 @@ en:
     chat_message:
       too_large: is larger than the %{size} MB limit
       too_many: cannot exceed %{count} files per message
+    project:
+      tickets_pending: This project cannot be finished while it still has open tickets.
     ticket_attachment:
       too_large: is larger than the %{size} MB limit
     ticket_column:

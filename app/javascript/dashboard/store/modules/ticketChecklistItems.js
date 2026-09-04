@@ -44,6 +44,20 @@ export const actions = {
       commit('SET_UI_FLAG', { isCreating: false });
     }
   },
+  update: async ({ commit }, { ticketId, itemId, ...data }) => {
+    commit('SET_UI_FLAG', { isUpdating: true });
+    try {
+      const response = await TicketChecklistItemsAPI.updateItem(
+        ticketId,
+        itemId,
+        data
+      );
+      commit('UPDATE_ITEM', { ticketId, item: response.data });
+      return response.data;
+    } finally {
+      commit('SET_UI_FLAG', { isUpdating: false });
+    }
+  },
   toggle: async ({ commit }, { ticketId, itemId }) => {
     commit('SET_UI_FLAG', { isUpdating: true });
     try {

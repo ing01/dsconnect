@@ -114,6 +114,8 @@ pt_BR:
     chat_message:
       too_large: é maior que o limite de %{size} MB
       too_many: não pode passar de %{count} arquivos por mensagem
+    project:
+      tickets_pending: Este projeto não pode ser finalizado enquanto ainda houver tickets em aberto.
     ticket_attachment:
       too_large: é maior que o limite de %{size} MB
     ticket_column:

@@ -21,6 +21,13 @@ const props = defineProps({
     type: Date,
     default: null,
   },
+  // Lets a caller (e.g. a Ticket's own "Novo compromisso" button) open this
+  // dialog with that Ticket already linked, without needing the agent to find
+  // and pick it again from the list below.
+  presetTicketIds: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(['close', 'submit', 'delete']);
@@ -58,7 +65,7 @@ const buildInitialForm = () => {
     end_at: toLocalInputValue(end),
     location: '',
     attendee_ids: [],
-    ticket_ids: [],
+    ticket_ids: [...props.presetTicketIds],
   };
 };
 

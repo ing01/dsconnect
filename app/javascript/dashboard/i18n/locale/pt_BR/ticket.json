@@ -290,7 +290,10 @@
       },
       "APPOINTMENTS": {
         "TITLE": "Compromissos",
-        "EMPTY": "Nenhum compromisso registrado."
+        "EMPTY": "Nenhum compromisso registrado.",
+        "NEW_BUTTON": "Novo compromisso",
+        "CREATE_SUCCESS": "Compromisso criado com sucesso",
+        "CREATE_ERROR": "Erro ao criar o compromisso"
       },
       "CHECKLISTS": {
         "TITLE": "Checklist",
@@ -299,10 +302,26 @@
         "ADD_BUTTON": "Adicionar",
         "ATTACH_BUTTON": "Anexar",
         "DELETE": "Remover",
-        "PENDING_HINT": "Existem itens pendentes no checklist. Conclua-os ou registre um Apontamento para liberar a conclusão desta tarefa.",
+        "PENDING_HINT": "Existem itens obrigatórios pendentes no checklist. Conclua-os ou registre um Compromisso para liberar a conclusão desta tarefa.",
         "ADD_ERROR": "Erro ao adicionar item ao checklist",
         "TOGGLE_ERROR": "Erro ao atualizar item do checklist",
         "DELETE_ERROR": "Erro ao remover item do checklist"
+      },
+      "TIME_ENTRIES": {
+        "TITLE": "Apontamento",
+        "TOTAL": "Total",
+        "EMPTY": "Nenhuma hora apontada ainda.",
+        "HOURS_PLACEHOLDER": "Horas",
+        "NOTE_PLACEHOLDER": "Observação (opcional)",
+        "ADD_BUTTON": "Apontar horas",
+        "DELETE": "Remover",
+        "ADD_ERROR": "Erro ao apontar horas",
+        "DELETE_ERROR": "Erro ao remover o apontamento",
+        "CATEGORY": {
+          "IMPLANTACAO": "Implantação",
+          "DESENVOLVIMENTO": "Desenvolvimento",
+          "DEV_GERAL": "Dev geral"
+        }
       },
       "DEVELOPMENT": {
         "TITLE": "Desenvolvimento",
@@ -679,7 +698,7 @@
       "STEP_CLASSIFICATION": "1. Classificação",
       "STEP_COMMUNICATION": "2. Comunicação com cliente",
       "STEP_CHECKLIST": "Checklist",
-      "CHECKLIST_PENDING": "Existem itens pendentes no checklist. Conclua-os ou registre um Apontamento neste ticket para concluir mesmo assim.",
+      "CHECKLIST_PENDING": "Existem itens obrigatórios pendentes no checklist. Conclua-os ou registre um Compromisso neste ticket para concluir mesmo assim.",
       "CHECKLIST_DONE": "Checklist concluído.",
       "COMMUNICATION_DONE": "Comunicação de encerramento já enviada.",
       "NO_CONTACT_EMAIL": "O solicitante deste ticket não possui um e-mail cadastrado. Cadastre um e-mail válido antes de enviar a comunicação de encerramento.",

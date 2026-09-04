@@ -3,10 +3,12 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { formatMesaName } from 'dashboard/helper/mesaName';
+import HelpButton from 'dashboard/components-next/help/HelpButton.vue';
 
 const props = defineProps({
   initialTeamId: {
@@ -38,6 +40,13 @@ const teamMembers = computed(() => {
   if (!teamId.value) return [];
   return store.getters['teamMembers/getTeamMembers'](teamId.value) || [];
 });
+// Categorias da Mesa - Ticket exige uma na criação (TicketOpening), então cada
+// tarefa do passo 2 precisa escolher (ou herdar um padrão) antes de gerar os
+// tickets do projeto.
+const categories = computed(() => {
+  if (!teamId.value) return [];
+  return store.getters['ticketColumns/getCategories'](teamId.value) || [];
+});
 
 const companies = computed(() => store.getters['companies/getCompanies'] || []);
 
@@ -47,12 +56,14 @@ onMounted(async () => {
   store.dispatch('companies/get', { page: 1 });
   if (teamId.value) {
     store.dispatch('teamMembers/get', { teamId: teamId.value });
+    store.dispatch('ticketColumns/fetchCategories', teamId.value);
   }
 });
 
 const onTeamChange = () => {
   if (teamId.value) {
     store.dispatch('teamMembers/get', { teamId: teamId.value });
+    store.dispatch('ticketColumns/fetchCategories', teamId.value);
   }
 };
 
@@ -86,6 +97,7 @@ const goToStep2 = () => {
       assignee_id: tmpl.default_assignee_id || '',
       due_date: dueFormatted,
       scheduled_at: '',
+      ticket_category_id: categories.value[0]?.id || '',
     };
   });
 
@@ -119,6 +131,7 @@ const submitProject = async () => {
         tasks: tasksConfig.value.map(tConfig => ({
           task_template_id: tConfig.task_template_id,
           assignee_id: tConfig.assignee_id || null,
+          ticket_category_id: tConfig.ticket_category_id || null,
           due_date: tConfig.due_date
             ? new Date(tConfig.due_date).toISOString()
             : null,
@@ -133,7 +146,7 @@ const submitProject = async () => {
     emit('created', createdProject);
     emit('close');
   } catch (error) {
-    useAlert(error.message || t('PROJECTS.CREATE.ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('PROJECTS.CREATE.ERROR'));
   } finally {
     isSubmitting.value = false;
   }
@@ -151,6 +164,14 @@ const submitProject = async () => {
     />
 
     <div class="flex-1 overflow-y-auto p-6 min-h-0">
+      <div class="flex justify-end mb-3">
+        <HelpButton :title="t('PROJECTS.HELP.PROJECT.TITLE')">
+          <p>{{ t('PROJECTS.HELP.PROJECT.INTRO') }}</p>
+          <p>{{ t('PROJECTS.HELP.PROJECT.STEP2') }}</p>
+          <p>{{ t('PROJECTS.HELP.PROJECT.AFTER') }}</p>
+        </HelpButton>
+      </div>
+
       <!-- Step Indicator -->
       <div class="flex items-center gap-3 mb-6">
         <div class="flex items-center gap-2">
@@ -325,8 +346,23 @@ const submitProject = async () => {
               </span>
             </div>
 
-            <!-- Fields: Responsavel, Vencimento & Agendamento -->
-            <div class="grid grid-cols-3 gap-3 pt-3 border-t border-n-weak">
+            <!-- Fields: Categoria, Responsavel, Vencimento & Agendamento -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-n-weak">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-n-slate-11">
+                  {{ t('PROJECTS.TASK.CATEGORY') }} <span class="text-n-ruby-11">*</span>
+                </label>
+                <select
+                  v-model="task.ticket_category_id"
+                  class="h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+                >
+                  <option value="">{{ t('PROJECTS.TASK.NO_CATEGORY') }}</option>
+                  <option v-for="category in categories" :key="category.id" :value="category.id">
+                    {{ category.name }}
+                  </option>
+                </select>
+              </div>
+
               <div class="flex flex-col gap-1.5">
                 <label class="text-xs font-medium text-n-slate-11">
                   {{ t('PROJECTS.TASK.ASSIGNEE') }}

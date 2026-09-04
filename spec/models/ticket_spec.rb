@@ -132,14 +132,14 @@ RSpec.describe Ticket do
     let(:ticket) { create(:ticket) }
 
     it 'blocks resolve! while a checklist item is pending' do
-      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados', required: true)
 
       expect { ticket.resolve! }.to raise_error(ActiveRecord::RecordInvalid)
       expect(ticket.reload.status).to eq('open')
     end
 
     it 'allows resolve! once every checklist item is completed' do
-      item = ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+      item = ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados', required: true)
       item.toggle!
 
       expect { ticket.resolve! }.not_to raise_error
@@ -147,7 +147,7 @@ RSpec.describe Ticket do
     end
 
     it 'bypasses a pending checklist when the ticket has a linked Apontamento' do
-      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados', required: true)
       event = CalendarEvent.create!(
         account: ticket.account, team: ticket.team, title: 'Ligação',
         start_at: Time.zone.now, end_at: 1.hour.from_now
@@ -162,14 +162,14 @@ RSpec.describe Ticket do
   describe '#missing_close_requirements' do
     it 'includes checklist when items are pending and no Apontamento exists' do
       ticket = create(:ticket)
-      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados', required: true)
 
       expect(ticket.missing_close_requirements).to include('checklist')
     end
 
     it 'omits checklist once an Apontamento is linked' do
       ticket = create(:ticket)
-      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados', required: true)
       event = CalendarEvent.create!(
         account: ticket.account, team: ticket.team, title: 'Ligação',
         start_at: Time.zone.now, end_at: 1.hour.from_now

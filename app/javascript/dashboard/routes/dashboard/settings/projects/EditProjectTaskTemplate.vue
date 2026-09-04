@@ -7,6 +7,7 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import OpenChecklistSettingsButton from 'dashboard/components-next/checklist/OpenChecklistSettingsButton.vue';
+import HelpButton from 'dashboard/components-next/help/HelpButton.vue';
 
 const props = defineProps({
   taskTemplate: {
@@ -86,6 +87,13 @@ const submit = async () => {
   <div class="flex flex-col h-auto max-h-[85vh] overflow-hidden">
     <woot-modal-header :header-title="t('PROJECT_TASKS.EDIT.TITLE')" />
     <form class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 min-h-0" @submit.prevent="submit">
+      <div class="flex justify-end -mb-2">
+        <HelpButton :title="t('PROJECTS.HELP.TASK.TITLE')">
+          <p>{{ t('PROJECTS.HELP.TASK.INTRO') }}</p>
+          <p>{{ t('PROJECTS.HELP.TASK.CHECKLIST') }}</p>
+        </HelpButton>
+      </div>
+
       <NextInput
         v-model="name"
         :label="t('PROJECT_TASKS.FORM.NAME.LABEL')"

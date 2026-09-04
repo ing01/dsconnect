@@ -61,6 +61,7 @@ import projectModules from './modules/projectModules';
 import projectTaskTemplates from './modules/projectTaskTemplates';
 import checklists from './modules/checklists';
 import ticketChecklistItems from './modules/ticketChecklistItems';
+import ticketTimeEntries from './modules/ticketTimeEntries';
 import userNotificationSettings from './modules/userNotificationSettings';
 import webhooks from './modules/webhooks';
 import captainAgentSessions from './captain/agentSessions';
@@ -141,6 +142,7 @@ export default createStore({
     projectTaskTemplates,
     checklists,
     ticketChecklistItems,
+    ticketTimeEntries,
     userNotificationSettings,
     webhooks,
     captainAgentSessions,
