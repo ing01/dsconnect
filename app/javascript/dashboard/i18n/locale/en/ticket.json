@@ -297,6 +297,7 @@
         "EMPTY": "No checklist items.",
         "ADD_PLACEHOLDER": "Add checklist item",
         "ADD_BUTTON": "Add",
+        "ATTACH_BUTTON": "Attach",
         "DELETE": "Remove",
         "PENDING_HINT": "There are pending checklist items. Complete them, or record an Apontamento to allow closing this ticket anyway.",
         "ADD_ERROR": "Failed to add checklist item",

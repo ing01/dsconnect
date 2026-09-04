@@ -207,5 +207,58 @@
         "HINT": "Selecione as tarefas que compõem este módulo. A ordem aqui define a ordem de revisão ao criar um projeto."
       }
     }
+  },
+  "CHECKLISTS": {
+    "NEW_SHORTCUT": "Novo checklist",
+    "SELECT": {
+      "LABEL": "Checklist",
+      "NONE": "Nenhum checklist",
+      "PLACEHOLDER": "Selecione um checklist"
+    },
+    "ADD": {
+      "TITLE": "Novo Checklist",
+      "SUBMIT": "Criar Checklist",
+      "SUCCESS": "Checklist criado com sucesso",
+      "ERROR": "Erro ao criar checklist"
+    },
+    "EDIT": {
+      "TITLE": "Editar Checklist",
+      "SUBMIT": "Atualizar Checklist",
+      "SUCCESS": "Checklist atualizado com sucesso",
+      "ERROR": "Erro ao atualizar checklist"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome do checklist",
+        "PLACEHOLDER": "Ex: Checklist de instalação"
+      },
+      "ITEMS": {
+        "LABEL": "Itens",
+        "PLACEHOLDER": "Adicionar item ao checklist",
+        "ADD": "Adicionar item",
+        "EMPTY": "Ainda não há itens."
+      }
+    },
+    "LIST": {
+      "HEADER": "Checklists",
+      "DESCRIPTION": "Monte checklists reutilizáveis aqui. Modelos de tarefa e tickets podem selecionar um checklist pronto em vez de digitar itens do zero.",
+      "ADD_BUTTON": "Novo checklist",
+      "EMPTY": "Ainda não há checklists.",
+      "EDIT_TOOLTIP": "Editar checklist",
+      "DELETE_TOOLTIP": "Eliminar checklist",
+      "TABLE": {
+        "NAME": "Nome",
+        "ITEMS": "Itens",
+        "ACTIONS": "Ações"
+      },
+      "DELETE": {
+        "TITLE": "Eliminar checklist",
+        "MESSAGE": "Tem a certeza de que deseja eliminar",
+        "CONFIRM": "Eliminar",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Checklist eliminado",
+        "ERROR": "Erro ao eliminar checklist"
+      }
+    }
   }
 }

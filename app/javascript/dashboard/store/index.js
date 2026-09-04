@@ -59,6 +59,7 @@ import tickets from './modules/tickets';
 import projects from './modules/projects';
 import projectModules from './modules/projectModules';
 import projectTaskTemplates from './modules/projectTaskTemplates';
+import checklists from './modules/checklists';
 import ticketChecklistItems from './modules/ticketChecklistItems';
 import userNotificationSettings from './modules/userNotificationSettings';
 import webhooks from './modules/webhooks';
@@ -138,6 +139,7 @@ export default createStore({
     projects,
     projectModules,
     projectTaskTemplates,
+    checklists,
     ticketChecklistItems,
     userNotificationSettings,
     webhooks,

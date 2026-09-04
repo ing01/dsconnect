@@ -5,6 +5,7 @@ import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import OpenChecklistSettingsButton from 'dashboard/components-next/checklist/OpenChecklistSettingsButton.vue';
 
 const props = defineProps({
   ticketId: { type: [Number, String], required: true },
@@ -13,7 +14,7 @@ const props = defineProps({
 const { t } = useI18n();
 const store = useStore();
 
-const newItemTitle = ref('');
+const selectedChecklistId = ref('');
 const isSubmitting = ref(false);
 
 const items = computed(
@@ -21,25 +22,32 @@ const items = computed(
     store.getters['ticketChecklistItems/getItemsByTicket'](props.ticketId) ||
     []
 );
+const checklists = computed(
+  () => store.getters['checklists/getChecklists'] || []
+);
 
 const pendingCount = computed(
   () => items.value.filter(item => !item.completed).length
 );
 
-const load = () =>
+const load = () => {
   store.dispatch('ticketChecklistItems/getByTicket', props.ticketId);
+  store.dispatch('checklists/get');
+};
 
-const addItem = async () => {
-  const title = newItemTitle.value.trim();
-  if (!title || isSubmitting.value) return;
+// Attaching copies every item of the chosen Checklist onto this ticket - it
+// can be done more than once, and with different Checklists, over the
+// ticket's lifecycle (see TicketChecklistItemsController#attach_checklist).
+const attachChecklist = async () => {
+  if (!selectedChecklistId.value || isSubmitting.value) return;
 
   isSubmitting.value = true;
   try {
-    await store.dispatch('ticketChecklistItems/create', {
+    await store.dispatch('ticketChecklistItems/attachChecklist', {
       ticketId: props.ticketId,
-      title,
+      checklistId: selectedChecklistId.value,
     });
-    newItemTitle.value = '';
+    selectedChecklistId.value = '';
   } catch (error) {
     useAlert(t('TICKET.DETAIL.CHECKLISTS.ADD_ERROR'));
   } finally {
@@ -77,9 +85,12 @@ watch(() => props.ticketId, load);
   <section
     class="rounded-xl border border-n-weak p-4 flex flex-col gap-3 min-w-0"
   >
-    <h2 class="text-sm font-medium text-n-slate-12">
-      {{ t('TICKET.DETAIL.CHECKLISTS.TITLE') }}
-    </h2>
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-n-slate-12">
+        {{ t('TICKET.DETAIL.CHECKLISTS.TITLE') }}
+      </h2>
+      <OpenChecklistSettingsButton />
+    </div>
 
     <!-- The completion lock (Ticket#ensure_checklist_completed!) is bypassed by
          a linked Apontamento, so this is a hint rather than a hard blocker
@@ -135,19 +146,22 @@ watch(() => props.ticketId, load);
       </li>
     </ul>
 
-    <form class="flex items-center gap-2 pt-1" @submit.prevent="addItem">
-      <input
-        v-model="newItemTitle"
-        type="text"
+    <form class="flex items-center gap-2 pt-1" @submit.prevent="attachChecklist">
+      <select
+        v-model="selectedChecklistId"
         class="flex-1 h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none min-w-0"
-        :placeholder="t('TICKET.DETAIL.CHECKLISTS.ADD_PLACEHOLDER')"
-      />
+      >
+        <option value="">{{ t('CHECKLISTS.SELECT.PLACEHOLDER') }}</option>
+        <option v-for="cl in checklists" :key="cl.id" :value="cl.id">
+          {{ cl.name }} ({{ cl.items?.length || 0 }})
+        </option>
+      </select>
       <NextButton
         size="sm"
         type="submit"
-        icon="i-lucide-plus"
-        :label="t('TICKET.DETAIL.CHECKLISTS.ADD_BUTTON')"
-        :disabled="!newItemTitle.trim()"
+        icon="i-lucide-list-plus"
+        :label="t('TICKET.DETAIL.CHECKLISTS.ATTACH_BUTTON')"
+        :disabled="!selectedChecklistId"
         :is-loading="isSubmitting"
       />
     </form>

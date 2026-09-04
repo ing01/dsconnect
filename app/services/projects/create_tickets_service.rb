@@ -43,8 +43,8 @@ module Projects
             position: index
           )
 
-          # Populate checklist from template
-          Array(template.checklist).each_with_index do |item, item_idx|
+          # Populate checklist from the Checklist attached to the template, if any.
+          Array(template.checklist&.items).each_with_index do |item, item_idx|
             item_title = item.is_a?(Hash) ? item['title'] || item[:title] : item.to_s
             next if item_title.blank?
 

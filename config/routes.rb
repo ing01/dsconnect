@@ -426,6 +426,9 @@ Rails.application.routes.draw do
               member do
                 patch :toggle
               end
+              collection do
+                post :attach_checklist
+              end
             end
           end
 
@@ -436,6 +439,7 @@ Rails.application.routes.draw do
           end
           resources :project_modules
           resources :project_task_templates
+          resources :checklists
 
           resources :service_catalogs do
             resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do

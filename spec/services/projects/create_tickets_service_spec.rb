@@ -4,12 +4,15 @@ RSpec.describe Projects::CreateTicketsService do
   let(:account) { create(:account) }
   let(:team) { create(:team, account: account) }
   let(:project) { create(:project, account: account, team: team) }
+  let(:checklist) do
+    create(:checklist, account: account, items: [{ 'title' => 'Confirmar presença' }])
+  end
   let(:template) do
     create(
       :project_task_template, account: account, name: 'Treinamento',
                                default_ticket_title: 'Treinamento do cliente',
                                due_days: 5, next_project_stage: 'acompanhamento',
-                               checklist: [{ 'title' => 'Confirmar presença' }]
+                               checklist: checklist
     )
   end
 

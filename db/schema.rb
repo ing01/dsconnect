@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_04_090000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_04_140000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -785,6 +785,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_04_090000) do
     t.string "phone_number_health_error", limit: 500
     t.index ["phone_number"], name: "index_channel_whatsapp_on_phone_number", unique: true
     t.index ["phone_number_health_checked_at"], name: "index_channel_whatsapp_on_phone_number_health_checked_at"
+  end
+
+  create_table "checklists", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.jsonb "items", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_checklists_on_account_id"
   end
 
   create_table "chat_channel_members", force: :cascade do |t|
@@ -1609,10 +1618,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_04_090000) do
     t.bigint "default_assignee_id"
     t.integer "due_days", default: 1, null: false
     t.string "next_project_stage"
-    t.jsonb "checklist", default: [], null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "checklist_id"
     t.index ["account_id"], name: "index_project_task_templates_on_account_id"
+    t.index ["checklist_id"], name: "index_project_task_templates_on_checklist_id"
     t.index ["default_assignee_id"], name: "index_project_task_templates_on_default_assignee_id"
   end
 
@@ -2183,6 +2193,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_04_090000) do
   add_foreign_key "campaign_recipients", "campaigns", on_delete: :cascade
   add_foreign_key "campaign_recipients", "contacts", on_delete: :cascade
   add_foreign_key "campaign_recipients", "inboxes", on_delete: :cascade
+  add_foreign_key "checklists", "accounts"
   add_foreign_key "company_credentials", "accounts"
   add_foreign_key "company_credentials", "companies"
   add_foreign_key "company_credentials", "users", column: "created_by_id"
@@ -2205,6 +2216,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_04_090000) do
   add_foreign_key "project_module_task_templates", "project_task_templates"
   add_foreign_key "project_modules", "accounts"
   add_foreign_key "project_task_templates", "accounts"
+  add_foreign_key "project_task_templates", "checklists"
   add_foreign_key "project_task_templates", "users", column: "default_assignee_id"
   add_foreign_key "projects", "accounts"
   add_foreign_key "projects", "companies"

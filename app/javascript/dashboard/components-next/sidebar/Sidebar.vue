@@ -813,6 +813,12 @@ const menuItems = computed(() => {
               activeOn: ['project_tasks_list'],
               to: accountScopedRoute('project_tasks_list'),
             },
+            {
+              name: 'Settings Checklists',
+              label: t('SIDEBAR.CHECKLISTS'),
+              activeOn: ['project_checklists_list'],
+              to: accountScopedRoute('project_checklists_list'),
+            },
           ],
         },
         ...(hasAdvancedAssignment.value

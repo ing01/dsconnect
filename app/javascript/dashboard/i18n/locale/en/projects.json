@@ -207,5 +207,58 @@
         "HINT": "Select the tasks that make up this module. The order here defines the review order when creating a project."
       }
     }
+  },
+  "CHECKLISTS": {
+    "NEW_SHORTCUT": "New checklist",
+    "SELECT": {
+      "LABEL": "Checklist",
+      "NONE": "No checklist",
+      "PLACEHOLDER": "Select a checklist"
+    },
+    "ADD": {
+      "TITLE": "New Checklist",
+      "SUBMIT": "Create Checklist",
+      "SUCCESS": "Checklist created successfully",
+      "ERROR": "Failed to create checklist"
+    },
+    "EDIT": {
+      "TITLE": "Edit Checklist",
+      "SUBMIT": "Update Checklist",
+      "SUCCESS": "Checklist updated successfully",
+      "ERROR": "Failed to update checklist"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Checklist name",
+        "PLACEHOLDER": "e.g. Installation checklist"
+      },
+      "ITEMS": {
+        "LABEL": "Items",
+        "PLACEHOLDER": "Add checklist item",
+        "ADD": "Add item",
+        "EMPTY": "No items yet."
+      }
+    },
+    "LIST": {
+      "HEADER": "Checklists",
+      "DESCRIPTION": "Build reusable checklists here. Task templates and tickets can select a ready-made checklist instead of typing items from scratch.",
+      "ADD_BUTTON": "New checklist",
+      "EMPTY": "No checklists yet.",
+      "EDIT_TOOLTIP": "Edit checklist",
+      "DELETE_TOOLTIP": "Delete checklist",
+      "TABLE": {
+        "NAME": "Name",
+        "ITEMS": "Items",
+        "ACTIONS": "Actions"
+      },
+      "DELETE": {
+        "TITLE": "Delete checklist",
+        "MESSAGE": "Are you sure you want to delete",
+        "CONFIRM": "Delete",
+        "CANCEL": "Cancel",
+        "SUCCESS": "Checklist deleted",
+        "ERROR": "Failed to delete checklist"
+      }
+    }
   }
 }

@@ -297,6 +297,7 @@
         "EMPTY": "Nenhum item de checklist.",
         "ADD_PLACEHOLDER": "Adicionar item ao checklist",
         "ADD_BUTTON": "Adicionar",
+        "ATTACH_BUTTON": "Anexar",
         "DELETE": "Remover",
         "PENDING_HINT": "Existem itens pendentes no checklist. Conclua-os ou registre um Apontamento para liberar a conclusão desta tarefa.",
         "ADD_ERROR": "Erro ao adicionar item ao checklist",

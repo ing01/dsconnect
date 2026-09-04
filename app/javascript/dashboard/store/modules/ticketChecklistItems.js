@@ -66,6 +66,19 @@ export const actions = {
       commit('SET_UI_FLAG', { isDeleting: false });
     }
   },
+  attachChecklist: async ({ commit }, { ticketId, checklistId }) => {
+    commit('SET_UI_FLAG', { isCreating: true });
+    try {
+      const response = await TicketChecklistItemsAPI.attachChecklist(
+        ticketId,
+        checklistId
+      );
+      commit('ADD_ITEMS', { ticketId, items: response.data });
+      return response.data;
+    } finally {
+      commit('SET_UI_FLAG', { isCreating: false });
+    }
+  },
 };
 
 export const mutations = {
@@ -78,6 +91,10 @@ export const mutations = {
   ADD_ITEM(_state, { ticketId, item }) {
     const existing = _state.records[ticketId] || [];
     _state.records = { ..._state.records, [ticketId]: [...existing, item] };
+  },
+  ADD_ITEMS(_state, { ticketId, items }) {
+    const existing = _state.records[ticketId] || [];
+    _state.records = { ..._state.records, [ticketId]: [...existing, ...items] };
   },
   UPDATE_ITEM(_state, { ticketId, item }) {
     const existing = _state.records[ticketId] || [];

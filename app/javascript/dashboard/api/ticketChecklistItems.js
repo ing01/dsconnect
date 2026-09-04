@@ -17,6 +17,10 @@ class TicketChecklistItemsAPI extends ApiClient {
     return axios.patch(`${this.url}/${ticketId}/checklist_items/${itemId}/toggle`);
   }
 
+  attachChecklist(ticketId, checklistId) {
+    return axios.post(`${this.url}/${ticketId}/checklist_items/attach_checklist`, { checklist_id: checklistId });
+  }
+
   deleteItem(ticketId, itemId) {
     return axios.delete(`${this.url}/${ticketId}/checklist_items/${itemId}`);
   }

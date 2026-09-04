@@ -80,7 +80,7 @@ const goToStep2 = () => {
       name: tmpl.name,
       default_ticket_title: tmpl.default_ticket_title,
       description: tmpl.description,
-      checklist: tmpl.checklist || [],
+      checklist: tmpl.checklist_items || [],
       due_days: tmpl.due_days,
       next_project_stage: tmpl.next_project_stage,
       assignee_id: tmpl.default_assignee_id || '',

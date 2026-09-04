@@ -4,6 +4,7 @@ RSpec.describe ProjectTaskTemplate do
   describe 'associations' do
     it { is_expected.to belong_to(:account) }
     it { is_expected.to belong_to(:default_assignee).optional }
+    it { is_expected.to belong_to(:checklist).optional }
     it { is_expected.to have_many(:project_module_task_templates) }
     it { is_expected.to have_many(:project_modules) }
   end
