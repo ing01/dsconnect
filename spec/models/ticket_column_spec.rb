@@ -110,15 +110,64 @@ RSpec.describe TicketColumn do
   end
 
   describe '#push_event_data' do
-    it 'includes the team id' do
+    it 'includes the team id and the column rule flags' do
       column = create(:ticket_column, name: 'Aberto')
 
       expect(column.push_event_data).to eq(
         id: column.id,
         name: 'Aberto',
         position: column.position,
-        team_id: column.team_id
+        team_id: column.team_id,
+        stage_threshold: column.stage_threshold,
+        kind: 'normal',
+        require_due_date: false,
+        require_scheduled_at: false,
+        require_appointment: false,
+        require_assignee: false
       )
+    end
+  end
+
+  describe 'kind' do
+    it 'defaults to normal' do
+      expect(create(:ticket_column).kind).to eq('normal')
+    end
+
+    it 'rejects a Mesa having two pending columns' do
+      team = create(:team)
+      team.ticket_columns.where(kind: 'pending').destroy_all
+      create(:ticket_column, team: team, kind: 'pending')
+
+      duplicate = build(:ticket_column, team: team, kind: 'pending')
+
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:base]).to be_present
+    end
+
+    it 'rejects a Mesa having two completed columns' do
+      team = create(:team)
+      team.ticket_columns.where(kind: 'completed').destroy_all
+      create(:ticket_column, team: team, kind: 'completed')
+
+      duplicate = build(:ticket_column, team: team, kind: 'completed')
+
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:base]).to be_present
+    end
+
+    it 'allows any number of normal columns' do
+      team = create(:team)
+
+      expect(create(:ticket_column, team: team, kind: 'normal')).to be_valid
+      expect(create(:ticket_column, team: team, kind: 'normal')).to be_valid
+    end
+
+    it 'blocks destroying the mandatory Pendente/Finalizado columns' do
+      team = create(:team)
+      pending_column = team.ticket_columns.find_by(kind: 'pending')
+
+      expect(pending_column.destroy).to be false
+      expect(pending_column.errors[:base]).to be_present
     end
   end
 end

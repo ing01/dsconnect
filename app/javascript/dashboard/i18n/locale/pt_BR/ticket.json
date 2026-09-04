@@ -88,6 +88,9 @@
     },
     "CARD": {
       "CONVERSATIONS_LINKED": "{n} conversa vinculada | {n} conversas vinculadas",
+      "DUE_DATE": "Vencimento",
+      "SCHEDULED_AT": "Agendado",
+      "OVERDUE": "Vencido",
       "MENU": {
         "CLOSE": "Finalizar",
         "REOPEN": "Reabrir",
@@ -97,6 +100,10 @@
         "CREATE_CHILD": "Abrir ticket filho",
         "TRANSFER": "Transferir ticket"
       }
+    },
+    "BOARD": {
+      "SHOW_COMPLETED": "Mostrar finalizados",
+      "HIDE_COMPLETED": "Ocultar finalizados"
     },
     "LIST": {
       "EMPTY": "Nenhum ticket encontrado",
@@ -243,7 +250,9 @@
         "TITLE": "Informações do ticket",
         "STATUS": "Status",
         "STAGE": "Estágio",
-        "NO_CATEGORY": "Selecione uma categoria"
+        "NO_CATEGORY": "Selecione uma categoria",
+        "DUE_DATE": "Data de vencimento",
+        "SCHEDULED_AT": "Data de agendamento"
       },
       "FOLLOWERS": {
         "TITLE": "Seguidores",
@@ -284,8 +293,15 @@
         "EMPTY": "Nenhum compromisso registrado."
       },
       "CHECKLISTS": {
-        "TITLE": "Checklists",
-        "EMPTY": "Checklists ainda não estão disponíveis."
+        "TITLE": "Checklist",
+        "EMPTY": "Nenhum item de checklist.",
+        "ADD_PLACEHOLDER": "Adicionar item ao checklist",
+        "ADD_BUTTON": "Adicionar",
+        "DELETE": "Remover",
+        "PENDING_HINT": "Existem itens pendentes no checklist. Conclua-os ou registre um Apontamento para liberar a conclusão desta tarefa.",
+        "ADD_ERROR": "Erro ao adicionar item ao checklist",
+        "TOGGLE_ERROR": "Erro ao atualizar item do checklist",
+        "DELETE_ERROR": "Erro ao remover item do checklist"
       },
       "DEVELOPMENT": {
         "TITLE": "Desenvolvimento",
@@ -352,6 +368,7 @@
       "TABLE": {
         "NAME": "Estágio",
         "MESA": "Mesa de Serviço",
+        "KIND": "Tipo",
         "TICKETS": "Tickets",
         "ACTIONS": "Ações",
         "STAGE_SLA": "Vencimento do estágio",
@@ -376,6 +393,20 @@
           "HINT": "HH:MM. Deixe em branco para um estágio sem prazo.",
           "INVALID": "Use o formato HH:MM.",
           "PLACEHOLDER": "00:00"
+        },
+        "KIND": {
+          "LABEL": "Tipo da coluna",
+          "NORMAL": "Normal",
+          "PENDING": "Pendente",
+          "COMPLETED": "Finalizado",
+          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto; \"Finalizado\" fica oculto do quadro por padrão."
+        },
+        "RULES": {
+          "LABEL": "Exigir antes de mover um ticket para esta coluna",
+          "REQUIRE_DUE_DATE": "Data de vencimento",
+          "REQUIRE_SCHEDULED_AT": "Data de agendamento",
+          "REQUIRE_APPOINTMENT": "Apontamento",
+          "REQUIRE_ASSIGNEE": "Responsável"
         }
       },
       "API": {
@@ -646,6 +677,9 @@
       "CONFIRM": "Fechar ticket",
       "STEP_CLASSIFICATION": "1. Classificação",
       "STEP_COMMUNICATION": "2. Comunicação com cliente",
+      "STEP_CHECKLIST": "Checklist",
+      "CHECKLIST_PENDING": "Existem itens pendentes no checklist. Conclua-os ou registre um Apontamento neste ticket para concluir mesmo assim.",
+      "CHECKLIST_DONE": "Checklist concluído.",
       "COMMUNICATION_DONE": "Comunicação de encerramento já enviada.",
       "NO_CONTACT_EMAIL": "O solicitante deste ticket não possui um e-mail cadastrado. Cadastre um e-mail válido antes de enviar a comunicação de encerramento.",
       "TO": "Para",

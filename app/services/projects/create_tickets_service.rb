@@ -5,7 +5,7 @@ module Projects
     def perform
       return [] if tasks.blank?
 
-      target_column = project.team.ticket_columns.order(:position).first
+      target_column = project.team.ticket_columns.find_by(kind: 'pending') || project.team.ticket_columns.order(:position).first
       return [] unless target_column
 
       created_tickets = []

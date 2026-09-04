@@ -1,8 +1,5 @@
 {
   "PROJECTS": {
-    "SIDEBAR": {
-      "PROJECTS": "Projetos"
-    },
     "HEADER": {
       "TITLE": "Projetos",
       "SUBTITLE": "Gerencie e acompanhe seus fluxos de atendimento",
@@ -78,7 +75,8 @@
       "ADVANCES_TO": "Avança para",
       "ASSIGNEE": "Responsável",
       "UNASSIGNED": "Não atribuído",
-      "DUE_DATE": "Vencimento"
+      "DUE_DATE": "Vencimento",
+      "SCHEDULED_AT": "Agendamento"
     },
     "DETAIL": {
       "TITLE": "Detalhes do Projeto",
@@ -90,50 +88,123 @@
       "STAGE_UPDATED": "Etapa do projeto atualizada",
       "UPDATE_ERROR": "Erro ao atualizar etapa do projeto"
     },
-    "LOADING": "Carregando projetos...",
-    "PROJECT_TASKS": {
-      "ADD": {
-        "TITLE": "Novo Modelo de Tarefa",
-        "SUBMIT": "Criar Modelo",
-        "SUCCESS": "Modelo de tarefa criado com sucesso",
-        "ERROR": "Erro ao criar modelo de tarefa"
+    "LOADING": "Carregando projetos..."
+  },
+  "PROJECT_TASKS": {
+    "ADD": {
+      "TITLE": "Novo Modelo de Tarefa",
+      "SUBMIT": "Criar Modelo",
+      "SUCCESS": "Modelo de tarefa criado com sucesso",
+      "ERROR": "Erro ao criar modelo de tarefa"
+    },
+    "EDIT": {
+      "TITLE": "Editar Modelo de Tarefa",
+      "SUBMIT": "Atualizar Modelo",
+      "SUCCESS": "Modelo de tarefa atualizado com sucesso",
+      "ERROR": "Erro ao atualizar modelo de tarefa"
+    },
+    "LIST": {
+      "HEADER": "Modelos de tarefa",
+      "DESCRIPTION": "Configure as tarefas que podem ser adicionadas a um módulo e reutilizadas em projetos.",
+      "ADD_BUTTON": "Novo modelo de tarefa",
+      "EMPTY": "Nenhum modelo de tarefa ainda.",
+      "EDIT_TOOLTIP": "Editar modelo",
+      "DELETE_TOOLTIP": "Excluir modelo",
+      "TABLE": {
+        "NAME": "Nome",
+        "DEFAULT_TITLE": "Título padrão do chamado",
+        "DUE_DAYS": "Vencimento (dias)",
+        "NEXT_STAGE": "Avança para",
+        "ACTIONS": "Ações"
       },
-      "EDIT": {
-        "TITLE": "Editar Modelo de Tarefa",
-        "SUBMIT": "Atualizar Modelo",
-        "SUCCESS": "Modelo de tarefa atualizado com sucesso",
-        "ERROR": "Erro ao atualizar modelo de tarefa"
+      "DELETE": {
+        "TITLE": "Excluir modelo de tarefa",
+        "MESSAGE": "Tem certeza que deseja excluir",
+        "CONFIRM": "Excluir",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Modelo de tarefa excluído",
+        "ERROR": "Erro ao excluir modelo de tarefa"
+      }
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome da tarefa",
+        "PLACEHOLDER": "Ex: Ligação inicial"
       },
-      "FORM": {
-        "NAME": {
-          "LABEL": "Nome da tarefa",
-          "PLACEHOLDER": "Ex: Ligação inicial"
-        },
-        "DEFAULT_TITLE": {
-          "LABEL": "Título padrão do atendimento",
-          "PLACEHOLDER": "Ex: Ligação de boas-vindas com o cliente"
-        },
-        "DESCRIPTION": {
-          "LABEL": "Descrição",
-          "PLACEHOLDER": "Descreva esta tarefa..."
-        },
-        "CHECKLIST": {
-          "LABEL": "Itens de checklist",
-          "PLACEHOLDER": "Adicionar item ao checklist",
-          "ADD": "Adicionar item"
-        },
-        "DEFAULT_ASSIGNEE": {
-          "LABEL": "Responsável padrão",
-          "NONE": "Não atribuído"
-        },
-        "DUE_DAYS": {
-          "LABEL": "Vencimento em (dias)",
-          "PLACEHOLDER": "0"
-        },
-        "NEXT_STAGE": {
-          "LABEL": "Próxima etapa do projeto",
-          "HINT": "Selecione a etapa para a qual esta tarefa avança o projeto quando concluída."
-        }
+      "DEFAULT_TITLE": {
+        "LABEL": "Título padrão do atendimento",
+        "PLACEHOLDER": "Ex: Ligação de boas-vindas com o cliente"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Descreva esta tarefa..."
+      },
+      "CHECKLIST": {
+        "LABEL": "Itens de checklist",
+        "PLACEHOLDER": "Adicionar item ao checklist",
+        "ADD": "Adicionar item"
+      },
+      "DEFAULT_ASSIGNEE": {
+        "LABEL": "Responsável padrão",
+        "NONE": "Não atribuído"
+      },
+      "DUE_DAYS": {
+        "LABEL": "Vencimento em (dias)",
+        "PLACEHOLDER": "0"
+      },
+      "NEXT_STAGE": {
+        "LABEL": "Próxima etapa do projeto",
+        "HINT": "Selecione a etapa para a qual esta tarefa avança o projeto quando concluída."
+      }
+    }
+  },
+  "PROJECT_MODULES": {
+    "LIST": {
+      "HEADER": "Módulos",
+      "DESCRIPTION": "Agrupe modelos de tarefa em módulos que podem ser aplicados a um projeto.",
+      "ADD_BUTTON": "Novo módulo",
+      "EMPTY": "Nenhum módulo ainda.",
+      "EDIT_TOOLTIP": "Editar módulo",
+      "DELETE_TOOLTIP": "Excluir módulo",
+      "TABLE": {
+        "NAME": "Nome",
+        "TASKS": "Tarefas",
+        "ACTIONS": "Ações"
+      },
+      "DELETE": {
+        "TITLE": "Excluir módulo",
+        "MESSAGE": "Tem certeza que deseja excluir",
+        "CONFIRM": "Excluir",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Módulo excluído",
+        "ERROR": "Erro ao excluir módulo"
+      }
+    },
+    "ADD": {
+      "TITLE": "Novo Módulo",
+      "SUBMIT": "Criar Módulo",
+      "SUCCESS": "Módulo criado com sucesso",
+      "ERROR": "Erro ao criar módulo"
+    },
+    "EDIT": {
+      "TITLE": "Editar Módulo",
+      "SUBMIT": "Atualizar Módulo",
+      "SUCCESS": "Módulo atualizado com sucesso",
+      "ERROR": "Erro ao atualizar módulo"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome do módulo",
+        "PLACEHOLDER": "Ex: Onboarding padrão"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Descreva este módulo..."
+      },
+      "TASKS": {
+        "LABEL": "Tarefas deste módulo",
+        "EMPTY": "Nenhum modelo de tarefa disponível ainda.",
+        "HINT": "Selecione as tarefas que compõem este módulo. A ordem aqui define a ordem de revisão ao criar um projeto."
       }
     }
   }

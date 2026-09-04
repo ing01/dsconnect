@@ -1,22 +1,155 @@
 <script setup>
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useStore } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import NextButton from 'dashboard/components-next/button/Button.vue';
+
+const props = defineProps({
+  ticketId: { type: [Number, String], required: true },
+});
 
 const { t } = useI18n();
+const store = useStore();
+
+const newItemTitle = ref('');
+const isSubmitting = ref(false);
+
+const items = computed(
+  () =>
+    store.getters['ticketChecklistItems/getItemsByTicket'](props.ticketId) ||
+    []
+);
+
+const pendingCount = computed(
+  () => items.value.filter(item => !item.completed).length
+);
+
+const load = () =>
+  store.dispatch('ticketChecklistItems/getByTicket', props.ticketId);
+
+const addItem = async () => {
+  const title = newItemTitle.value.trim();
+  if (!title || isSubmitting.value) return;
+
+  isSubmitting.value = true;
+  try {
+    await store.dispatch('ticketChecklistItems/create', {
+      ticketId: props.ticketId,
+      title,
+    });
+    newItemTitle.value = '';
+  } catch (error) {
+    useAlert(t('TICKET.DETAIL.CHECKLISTS.ADD_ERROR'));
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+const toggleItem = async item => {
+  try {
+    await store.dispatch('ticketChecklistItems/toggle', {
+      ticketId: props.ticketId,
+      itemId: item.id,
+    });
+  } catch (error) {
+    useAlert(t('TICKET.DETAIL.CHECKLISTS.TOGGLE_ERROR'));
+  }
+};
+
+const removeItem = async item => {
+  try {
+    await store.dispatch('ticketChecklistItems/delete', {
+      ticketId: props.ticketId,
+      itemId: item.id,
+    });
+  } catch (error) {
+    useAlert(t('TICKET.DETAIL.CHECKLISTS.DELETE_ERROR'));
+  }
+};
+
+onMounted(load);
+watch(() => props.ticketId, load);
 </script>
 
 <template>
-  <!-- Structure only: this has no backing model yet, so the panel says so
-       rather than showing placeholder items that look real. -->
   <section
     class="rounded-xl border border-n-weak p-4 flex flex-col gap-3 min-w-0"
   >
     <h2 class="text-sm font-medium text-n-slate-12">
       {{ t('TICKET.DETAIL.CHECKLISTS.TITLE') }}
     </h2>
-    <p class="flex items-center gap-2 text-sm text-n-slate-10">
-      <Icon icon="i-lucide-info" class="size-4 flex-shrink-0" />
+
+    <!-- The completion lock (Ticket#ensure_checklist_completed!) is bypassed by
+         a linked Apontamento, so this is a hint rather than a hard blocker
+         here - the Fechar dialog is the one place that reflects the server's
+         actual verdict. -->
+    <p
+      v-if="pendingCount"
+      class="flex items-center gap-2 text-sm text-n-amber-11 bg-n-amber-3 rounded-lg px-3 py-2"
+    >
+      <Icon icon="i-lucide-triangle-alert" class="size-4 flex-shrink-0" />
+      {{ t('TICKET.DETAIL.CHECKLISTS.PENDING_HINT') }}
+    </p>
+
+    <p
+      v-if="!items.length"
+      class="flex items-center gap-2 text-sm text-n-slate-10"
+    >
+      <Icon icon="i-lucide-list-checks" class="size-4 flex-shrink-0" />
       {{ t('TICKET.DETAIL.CHECKLISTS.EMPTY') }}
     </p>
+
+    <ul v-else class="flex flex-col gap-1">
+      <li
+        v-for="item in items"
+        :key="item.id"
+        class="group flex items-center gap-2 px-1 py-1 rounded-lg min-w-0"
+      >
+        <input
+          type="checkbox"
+          :checked="item.completed"
+          class="flex-shrink-0"
+          @change="toggleItem(item)"
+        />
+        <span
+          class="flex-1 text-sm truncate"
+          :class="
+            item.completed
+              ? 'text-n-slate-10 line-through'
+              : 'text-n-slate-12'
+          "
+          :title="item.title"
+        >
+          {{ item.title }}
+        </span>
+        <button
+          type="button"
+          class="opacity-0 group-hover:opacity-100 text-n-slate-9 hover:text-n-ruby-11 flex-shrink-0"
+          :aria-label="t('TICKET.DETAIL.CHECKLISTS.DELETE')"
+          @click="removeItem(item)"
+        >
+          <Icon icon="i-lucide-trash-2" class="size-3.5" />
+        </button>
+      </li>
+    </ul>
+
+    <form class="flex items-center gap-2 pt-1" @submit.prevent="addItem">
+      <input
+        v-model="newItemTitle"
+        type="text"
+        class="flex-1 h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none min-w-0"
+        :placeholder="t('TICKET.DETAIL.CHECKLISTS.ADD_PLACEHOLDER')"
+      />
+      <NextButton
+        size="sm"
+        type="submit"
+        icon="i-lucide-plus"
+        :label="t('TICKET.DETAIL.CHECKLISTS.ADD_BUTTON')"
+        :disabled="!newItemTitle.trim()"
+        :is-loading="isSubmitting"
+      />
+    </form>
   </section>
 </template>

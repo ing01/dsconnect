@@ -88,6 +88,9 @@
     },
     "CARD": {
       "CONVERSATIONS_LINKED": "{n} linked conversation | {n} linked conversations",
+      "DUE_DATE": "Due",
+      "SCHEDULED_AT": "Scheduled",
+      "OVERDUE": "Overdue",
       "MENU": {
         "CLOSE": "Close",
         "REOPEN": "Reopen",
@@ -97,6 +100,10 @@
         "CREATE_CHILD": "Open child ticket",
         "TRANSFER": "Transfer ticket"
       }
+    },
+    "BOARD": {
+      "SHOW_COMPLETED": "Show completed",
+      "HIDE_COMPLETED": "Hide completed"
     },
     "LIST": {
       "EMPTY": "No tickets found",
@@ -243,7 +250,9 @@
         "TITLE": "Ticket information",
         "STATUS": "Status",
         "STAGE": "Stage",
-        "NO_CATEGORY": "Select a category"
+        "NO_CATEGORY": "Select a category",
+        "DUE_DATE": "Due date",
+        "SCHEDULED_AT": "Scheduled date"
       },
       "FOLLOWERS": {
         "TITLE": "Followers",
@@ -284,8 +293,15 @@
         "EMPTY": "No appointment recorded."
       },
       "CHECKLISTS": {
-        "TITLE": "Checklists",
-        "EMPTY": "Checklists are not available yet."
+        "TITLE": "Checklist",
+        "EMPTY": "No checklist items.",
+        "ADD_PLACEHOLDER": "Add checklist item",
+        "ADD_BUTTON": "Add",
+        "DELETE": "Remove",
+        "PENDING_HINT": "There are pending checklist items. Complete them, or record an Apontamento to allow closing this ticket anyway.",
+        "ADD_ERROR": "Failed to add checklist item",
+        "TOGGLE_ERROR": "Failed to update checklist item",
+        "DELETE_ERROR": "Failed to remove checklist item"
       },
       "DEVELOPMENT": {
         "TITLE": "Development",
@@ -352,6 +368,7 @@
       "TABLE": {
         "NAME": "Stage",
         "MESA": "Service desk",
+        "KIND": "Type",
         "TICKETS": "Tickets",
         "ACTIONS": "Actions",
         "STAGE_SLA": "Stage deadline",
@@ -376,6 +393,20 @@
           "HINT": "HH:MM. Leave blank for a stage with no deadline.",
           "INVALID": "Use the HH:MM format.",
           "PLACEHOLDER": "00:00"
+        },
+        "KIND": {
+          "LABEL": "Stage type",
+          "NORMAL": "Normal",
+          "PENDING": "Pending",
+          "COMPLETED": "Completed",
+          "HINT": "Pending and Completed are mandatory and unique per service desk. \"Pending\" receives tickets generated from a Project; \"Completed\" is hidden from the board by default."
+        },
+        "RULES": {
+          "LABEL": "Require before moving a ticket into this stage",
+          "REQUIRE_DUE_DATE": "Due date",
+          "REQUIRE_SCHEDULED_AT": "Scheduled date",
+          "REQUIRE_APPOINTMENT": "Apontamento",
+          "REQUIRE_ASSIGNEE": "Assignee"
         }
       },
       "API": {
@@ -646,6 +677,9 @@
       "CONFIRM": "Close ticket",
       "STEP_CLASSIFICATION": "1. Classification",
       "STEP_COMMUNICATION": "2. Customer communication",
+      "STEP_CHECKLIST": "Checklist",
+      "CHECKLIST_PENDING": "There are pending checklist items. Complete them, or record an Apontamento in this ticket to close it anyway.",
+      "CHECKLIST_DONE": "Checklist complete.",
       "COMMUNICATION_DONE": "Closing message already sent.",
       "NO_CONTACT_EMAIL": "The requester of this ticket has no e-mail address on file. Add a valid address before sending the closing message.",
       "TO": "To",

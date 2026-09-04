@@ -4,6 +4,7 @@ json.position resource.position
 json.team_id resource.team_id
 # Prazo do Estagio, em segundos. Nulo quando a coluna nao tem prazo.
 json.stage_threshold resource.stage_threshold
+json.kind resource.kind
 json.require_due_date resource.require_due_date
 json.require_scheduled_at resource.require_scheduled_at
 json.require_appointment resource.require_appointment

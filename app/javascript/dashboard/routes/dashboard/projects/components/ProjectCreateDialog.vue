@@ -71,7 +71,9 @@ const goToStep2 = () => {
   tasksConfig.value = templates.map(tmpl => {
     const due = new Date(baseDate);
     due.setDate(due.getDate() + (tmpl.due_days || 1));
-    const dueFormatted = due.toISOString().split('T')[0];
+    // Default hora 00:00, mas o campo aceita hora - datetime-local exige os
+    // dois segmentos, por isso o "T00:00" já vem preenchido.
+    const dueFormatted = `${due.toISOString().split('T')[0]}T00:00`;
 
     return {
       task_template_id: tmpl.id,
@@ -117,8 +119,12 @@ const submitProject = async () => {
         tasks: tasksConfig.value.map(tConfig => ({
           task_template_id: tConfig.task_template_id,
           assignee_id: tConfig.assignee_id || null,
-          due_date: tConfig.due_date ? `${tConfig.due_date}T00:00:00` : null,
-          scheduled_at: tConfig.scheduled_at ? `${tConfig.scheduled_at}T00:00:00` : null,
+          due_date: tConfig.due_date
+            ? new Date(tConfig.due_date).toISOString()
+            : null,
+          scheduled_at: tConfig.scheduled_at
+            ? new Date(tConfig.scheduled_at).toISOString()
+            : null,
         })),
       });
     }
@@ -319,8 +325,8 @@ const submitProject = async () => {
               </span>
             </div>
 
-            <!-- Fields: Responsavel & Vencimento -->
-            <div class="grid grid-cols-2 gap-3 pt-3 border-t border-n-weak">
+            <!-- Fields: Responsavel, Vencimento & Agendamento -->
+            <div class="grid grid-cols-3 gap-3 pt-3 border-t border-n-weak">
               <div class="flex flex-col gap-1.5">
                 <label class="text-xs font-medium text-n-slate-11">
                   {{ t('PROJECTS.TASK.ASSIGNEE') }}
@@ -342,7 +348,18 @@ const submitProject = async () => {
                 </label>
                 <input
                   v-model="task.due_date"
-                  type="date"
+                  type="datetime-local"
+                  class="h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+                />
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-n-slate-11">
+                  {{ t('PROJECTS.TASK.SCHEDULED_AT') }}
+                </label>
+                <input
+                  v-model="task.scheduled_at"
+                  type="datetime-local"
                   class="h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
                 />
               </div>

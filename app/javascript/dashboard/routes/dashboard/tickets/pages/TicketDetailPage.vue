@@ -284,7 +284,10 @@ const submitContact = contactId =>
         v-else-if="activeTab === 'appointments'"
         :ticket-id="ticket.id"
       />
-      <TicketChecklistsTab v-else-if="activeTab === 'checklists'" />
+      <TicketChecklistsTab
+        v-else-if="activeTab === 'checklists'"
+        :ticket-id="ticket.id"
+      />
       <TicketDevelopmentTab v-else-if="activeTab === 'development'" />
       <TicketHistoryTab v-else :ticket-id="ticket.id" />
 

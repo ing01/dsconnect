@@ -427,6 +427,9 @@
     "TICKET_CATALOG": "Catálogo",
     "TICKET_CATEGORIES": "Categorias",
     "TICKET_PRIORITIES": "Prioridades e SLA",
+    "PROJECT_SETTINGS": "Projetos",
+    "PROJECT_MODULES": "Módulos",
+    "PROJECT_TASKS": "Tarefas",
     "INTERNAL_CHAT": "Chat interno"
   },
   "DATA_IMPORTS": {

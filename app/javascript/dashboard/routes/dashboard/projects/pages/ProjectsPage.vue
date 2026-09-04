@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { useRouter } from 'vue-router';
-import { frontendURL } from 'dashboard/helper/URLHelper';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -25,7 +24,6 @@ const showCompleted = ref(false);
 const showCreateModal = ref(false);
 const selectedProjectId = ref(null);
 
-const accountId = computed(() => store.getters['getCurrentAccountId']);
 const teams = computed(() => store.getters['teams/getTeams'] || []);
 const projects = computed(() => store.getters['projects/getProjects'] || []);
 const uiFlags = computed(() => store.getters['projects/getUIFlags'] || {});
@@ -79,11 +77,11 @@ const openProjectDetail = project => {
 };
 
 const goToModulesSettings = () => {
-  router.push(frontendURL(`accounts/${accountId.value}/settings/projects/modules`));
+  router.push({ name: 'project_modules_list' });
 };
 
 const goToTasksSettings = () => {
-  router.push(frontendURL(`accounts/${accountId.value}/settings/projects/tasks`));
+  router.push({ name: 'project_tasks_list' });
 };
 </script>
 

@@ -13,8 +13,9 @@ RSpec.describe Tickets::DefaultMesaBuilder do
       it 'provisions the default Estagios in order' do
         mesa = described_class.new(account: account).perform
 
-        expect(mesa.ticket_columns.pluck(:name)).to eq(['A fazer', 'Em andamento', 'Concluído'])
+        expect(mesa.ticket_columns.pluck(:name)).to eq(['Pendente', 'Em andamento', 'Finalizado'])
         expect(mesa.ticket_columns.pluck(:position)).to eq([0, 1, 2])
+        expect(mesa.ticket_columns.pluck(:kind)).to eq(%w[pending normal completed])
       end
     end
 

@@ -34,6 +34,11 @@ export default {
       // Zero-based index; defaults to the end of the Mesa.
       position: this.stageCount,
       stageThreshold: '',
+      kind: 'normal',
+      requireDueDate: false,
+      requireScheduledAt: false,
+      requireAppointment: false,
+      requireAssignee: false,
       isSubmitting: false,
     };
   },
@@ -64,6 +69,11 @@ export default {
           name: this.name.trim(),
           position: this.position,
           stage_threshold: hoursMinutesToSeconds(this.stageThreshold),
+          kind: this.kind,
+          require_due_date: this.requireDueDate,
+          require_scheduled_at: this.requireScheduledAt,
+          require_appointment: this.requireAppointment,
+          require_assignee: this.requireAssignee,
         });
         useAlert(this.$t('TICKET.API.COLUMN_SUCCESS'));
         this.$emit('close');
@@ -134,6 +144,47 @@ export default {
           }}
         </p>
       </label>
+
+      <label>
+        {{ $t('TICKET.SETTINGS.FORM.KIND.LABEL') }}
+        <select v-model="kind">
+          <option value="normal">
+            {{ $t('TICKET.SETTINGS.FORM.KIND.NORMAL') }}
+          </option>
+          <option value="pending">
+            {{ $t('TICKET.SETTINGS.FORM.KIND.PENDING') }}
+          </option>
+          <option value="completed">
+            {{ $t('TICKET.SETTINGS.FORM.KIND.COMPLETED') }}
+          </option>
+        </select>
+        <p class="text-sm text-n-slate-11">
+          {{ $t('TICKET.SETTINGS.FORM.KIND.HINT') }}
+        </p>
+      </label>
+
+      <fieldset class="flex flex-col gap-2">
+        <legend class="text-sm">
+          {{ $t('TICKET.SETTINGS.FORM.RULES.LABEL') }}
+        </legend>
+        <label class="flex items-center gap-2">
+          <input v-model="requireDueDate" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.RULES.REQUIRE_DUE_DATE') }}
+        </label>
+        <label class="flex items-center gap-2">
+          <input v-model="requireScheduledAt" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.RULES.REQUIRE_SCHEDULED_AT') }}
+        </label>
+        <label class="flex items-center gap-2">
+          <input v-model="requireAppointment" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.RULES.REQUIRE_APPOINTMENT') }}
+        </label>
+        <label class="flex items-center gap-2">
+          <input v-model="requireAssignee" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.RULES.REQUIRE_ASSIGNEE') }}
+        </label>
+      </fieldset>
+
       <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
         <NextButton
           faded

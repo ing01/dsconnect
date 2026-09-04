@@ -36,6 +36,11 @@ export default {
       selectedTeamId: this.stage.team_id,
       position: this.stage.position ?? 0,
       stageThreshold: secondsToHoursMinutes(this.stage.stage_threshold),
+      kind: this.stage.kind || 'normal',
+      requireDueDate: !!this.stage.require_due_date,
+      requireScheduledAt: !!this.stage.require_scheduled_at,
+      requireAppointment: !!this.stage.require_appointment,
+      requireAssignee: !!this.stage.require_assignee,
       isSubmitting: false,
     };
   },
@@ -55,6 +60,12 @@ export default {
     // disabling the field here just avoids a guaranteed round-trip failure.
     isMesaLocked() {
       return this.ticketCount > 0;
+    },
+    // Pendente/Finalizado are mandatory once assigned (TicketColumn#ensure_not_required_kind
+    // blocks deleting them) - the type is fixed here so an admin cannot quietly
+    // strip the Mesa of its only Pendente/Finalizado stage by editing it away.
+    isKindLocked() {
+      return (this.stage.kind || 'normal') !== 'normal';
     },
     positionOptions() {
       return Array.from({ length: this.stageCount }, (_, index) => index);
@@ -77,6 +88,11 @@ export default {
           team_id: this.selectedTeamId,
           position: this.position,
           stage_threshold: hoursMinutesToSeconds(this.stageThreshold),
+          kind: this.kind,
+          require_due_date: this.requireDueDate,
+          require_scheduled_at: this.requireScheduledAt,
+          require_appointment: this.requireAppointment,
+          require_assignee: this.requireAssignee,
         });
         useAlert(this.$t('TICKET.API.COLUMN_SUCCESS'));
         this.$emit('close');
@@ -152,6 +168,47 @@ export default {
           }}
         </p>
       </label>
+
+      <label>
+        {{ $t('TICKET.SETTINGS.FORM.KIND.LABEL') }}
+        <select v-model="kind" :disabled="isKindLocked">
+          <option value="normal">
+            {{ $t('TICKET.SETTINGS.FORM.KIND.NORMAL') }}
+          </option>
+          <option value="pending">
+            {{ $t('TICKET.SETTINGS.FORM.KIND.PENDING') }}
+          </option>
+          <option value="completed">
+            {{ $t('TICKET.SETTINGS.FORM.KIND.COMPLETED') }}
+          </option>
+        </select>
+        <p class="text-sm text-n-slate-11">
+          {{ $t('TICKET.SETTINGS.FORM.KIND.HINT') }}
+        </p>
+      </label>
+
+      <fieldset class="flex flex-col gap-2">
+        <legend class="text-sm">
+          {{ $t('TICKET.SETTINGS.FORM.RULES.LABEL') }}
+        </legend>
+        <label class="flex items-center gap-2">
+          <input v-model="requireDueDate" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.RULES.REQUIRE_DUE_DATE') }}
+        </label>
+        <label class="flex items-center gap-2">
+          <input v-model="requireScheduledAt" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.RULES.REQUIRE_SCHEDULED_AT') }}
+        </label>
+        <label class="flex items-center gap-2">
+          <input v-model="requireAppointment" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.RULES.REQUIRE_APPOINTMENT') }}
+        </label>
+        <label class="flex items-center gap-2">
+          <input v-model="requireAssignee" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.RULES.REQUIRE_ASSIGNEE') }}
+        </label>
+      </fieldset>
+
       <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
         <NextButton
           faded

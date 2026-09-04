@@ -128,6 +128,83 @@ RSpec.describe Ticket do
     end
   end
 
+  describe '#ensure_checklist_completed!' do
+    let(:ticket) { create(:ticket) }
+
+    it 'blocks resolve! while a checklist item is pending' do
+      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+
+      expect { ticket.resolve! }.to raise_error(ActiveRecord::RecordInvalid)
+      expect(ticket.reload.status).to eq('open')
+    end
+
+    it 'allows resolve! once every checklist item is completed' do
+      item = ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+      item.toggle!
+
+      expect { ticket.resolve! }.not_to raise_error
+      expect(ticket.reload.status).to eq('resolved')
+    end
+
+    it 'bypasses a pending checklist when the ticket has a linked Apontamento' do
+      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+      event = CalendarEvent.create!(
+        account: ticket.account, team: ticket.team, title: 'Ligação',
+        start_at: Time.zone.now, end_at: 1.hour.from_now
+      )
+      ticket.calendar_events << event
+
+      expect { ticket.resolve! }.not_to raise_error
+      expect(ticket.reload.status).to eq('resolved')
+    end
+  end
+
+  describe '#missing_close_requirements' do
+    it 'includes checklist when items are pending and no Apontamento exists' do
+      ticket = create(:ticket)
+      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+
+      expect(ticket.missing_close_requirements).to include('checklist')
+    end
+
+    it 'omits checklist once an Apontamento is linked' do
+      ticket = create(:ticket)
+      ticket.ticket_checklist_items.create!(account: ticket.account, title: 'Confirmar dados')
+      event = CalendarEvent.create!(
+        account: ticket.account, team: ticket.team, title: 'Ligação',
+        start_at: Time.zone.now, end_at: 1.hour.from_now
+      )
+      ticket.calendar_events << event
+
+      expect(ticket.missing_close_requirements).not_to include('checklist')
+    end
+  end
+
+  describe '#move_to! column rules' do
+    it 'blocks the move when the target column requires a due date that is missing' do
+      ticket = create(:ticket, due_date: nil)
+      target = create(:ticket_column, team: ticket.team, require_due_date: true)
+
+      expect { ticket.move_to!(ticket_column: target, position: 0) }.to raise_error(ActiveRecord::RecordInvalid)
+      expect(ticket.reload.ticket_column).not_to eq(target)
+    end
+
+    it 'blocks the move when the target column requires an assignee that is missing' do
+      ticket = create(:ticket, assignee: nil)
+      target = create(:ticket_column, team: ticket.team, require_assignee: true)
+
+      expect { ticket.move_to!(ticket_column: target, position: 0) }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it 'allows the move once the required field is present' do
+      ticket = create(:ticket, due_date: 2.days.from_now)
+      target = create(:ticket_column, team: ticket.team, require_due_date: true)
+
+      expect { ticket.move_to!(ticket_column: target, position: 0) }.not_to raise_error
+      expect(ticket.reload.ticket_column).to eq(target)
+    end
+  end
+
   describe 'change tracking' do
     it 'logs an activity when the assignee changes' do
       agent = create(:user)

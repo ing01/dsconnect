@@ -14,8 +14,9 @@ RSpec.describe Team do
       team = create(:team)
 
       expect(team.ticket_columns.order(:position).pluck(:name)).to eq(
-        ['A fazer', 'Em andamento', 'Concluído']
+        ['Pendente', 'Em andamento', 'Finalizado']
       )
+      expect(team.ticket_columns.order(:position).pluck(:kind)).to eq(%w[pending normal completed])
     end
   end
 

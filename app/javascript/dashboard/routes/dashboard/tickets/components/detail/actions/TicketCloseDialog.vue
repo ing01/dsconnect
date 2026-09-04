@@ -34,6 +34,11 @@ const needsCatalog = computed(() => missing.value.includes('service_catalog'));
 const needsCommunication = computed(() =>
   missing.value.includes('customer_communication')
 );
+// Pending checklist items with no Apontamento linked yet - the server bypasses
+// this the moment one exists (Ticket#ensure_checklist_completed!), so this is
+// informational: the agent fixes it from the Checklist/Apontamentos tabs, not
+// from this dialog.
+const needsChecklist = computed(() => missing.value.includes('checklist'));
 // A requester with no address cannot be told anything, so this is reported on
 // its own instead of failing at send time.
 const missingEmail = computed(() => missing.value.includes('contact_email'));
@@ -51,7 +56,7 @@ const communicationReady = computed(
     !needsCommunication.value || (!missingEmail.value && !!body.value.trim())
 );
 const canSubmit = computed(
-  () => catalogReady.value && communicationReady.value
+  () => catalogReady.value && communicationReady.value && !needsChecklist.value
 );
 
 const open = () => {
@@ -152,6 +157,27 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
       </section>
 
       <div class="h-px bg-n-weak" />
+
+      <!-- Checklist: informational only. The server is the authority (a linked
+           Apontamento bypasses this), so this section just points the agent at
+           where to fix it instead of re-deriving the rule client-side. -->
+      <section
+        v-if="needsChecklist"
+        class="flex flex-col gap-2 min-w-0"
+      >
+        <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
+          <Icon
+            icon="i-lucide-circle-alert"
+            class="flex-shrink-0 size-4 text-n-amber-11"
+          />
+          {{ t('TICKET.CLOSE.STEP_CHECKLIST') }}
+        </h3>
+        <p class="p-3 text-sm rounded-lg text-n-amber-11 bg-n-amber-3">
+          {{ t('TICKET.CLOSE.CHECKLIST_PENDING') }}
+        </p>
+      </section>
+
+      <div v-if="needsChecklist" class="h-px bg-n-weak" />
 
       <!-- Step 2: the closing message. -->
       <section class="flex flex-col gap-3 min-w-0">
