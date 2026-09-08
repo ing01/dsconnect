@@ -531,6 +531,13 @@ const menuItems = computed(() => {
       activeOn: ['projects_index'],
     },
     {
+      name: 'ImplementationReports',
+      label: t('SIDEBAR.IMPLEMENTATION_REPORTS'),
+      icon: 'i-lucide-bar-chart-3',
+      to: accountScopedRoute('implementation_reports_index'),
+      activeOn: ['implementation_reports_index'],
+    },
+    {
       name: 'Agenda',
       label: t('SIDEBAR.AGENDA'),
       icon: 'i-lucide-calendar-days',

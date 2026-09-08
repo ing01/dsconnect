@@ -21,6 +21,8 @@ const store = useStore();
 const router = useRouter();
 
 const selectedTeamId = ref(null);
+const selectedImplementerId = ref(null);
+const selectedModuleId = ref(null);
 const searchQuery = ref('');
 const showCompleted = ref(false);
 const showCreateModal = ref(false);
@@ -28,6 +30,8 @@ const showTutorial = ref(false);
 const selectedProjectId = ref(null);
 
 const teams = computed(() => store.getters['teams/getTeams'] || []);
+const agents = computed(() => store.getters['agents/getAgents'] || []);
+const modules = computed(() => store.getters['projectModules/getModules'] || []);
 const projects = computed(() => store.getters['projects/getProjects'] || []);
 const uiFlags = computed(() => store.getters['projects/getUIFlags'] || {});
 
@@ -37,6 +41,8 @@ const completedProjectsCount = computed(() => projects.value.filter(p => p.stage
 const loadProjects = () => {
   store.dispatch('projects/get', {
     team_id: selectedTeamId.value || undefined,
+    implementer_id: selectedImplementerId.value || undefined,
+    project_module_id: selectedModuleId.value || undefined,
     search: searchQuery.value || undefined,
     completed: showCompleted.value ? 'true' : undefined,
   });
@@ -44,13 +50,15 @@ const loadProjects = () => {
 
 onMounted(async () => {
   await store.dispatch('teams/get');
+  store.dispatch('agents/get');
+  store.dispatch('projectModules/get');
   if (teams.value.length && !selectedTeamId.value) {
     selectedTeamId.value = teams.value[0].id;
   }
   loadProjects();
 });
 
-watch([selectedTeamId, showCompleted], () => {
+watch([selectedTeamId, selectedImplementerId, selectedModuleId, showCompleted], () => {
   loadProjects();
 });
 
@@ -152,6 +160,38 @@ const goToTasksSettings = () => {
               <option :value="null">{{ t('PROJECTS.FILTER.ALL_MESAS') }}</option>
               <option v-for="team in teams" :key="team.id" :value="team.id">
                 {{ formatMesaName(team.name) }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Implantador Selector -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-n-slate-11">
+              {{ t('PROJECTS.FILTER.IMPLEMENTER') }}:
+            </span>
+            <select
+              v-model="selectedImplementerId"
+              class="h-8 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none"
+            >
+              <option :value="null">{{ t('PROJECTS.FILTER.ALL_IMPLEMENTERS') }}</option>
+              <option v-for="agent in agents" :key="agent.id" :value="agent.id">
+                {{ agent.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Modulo Selector -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-n-slate-11">
+              {{ t('PROJECTS.FILTER.MODULE') }}:
+            </span>
+            <select
+              v-model="selectedModuleId"
+              class="h-8 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none"
+            >
+              <option :value="null">{{ t('PROJECTS.FILTER.ALL_MODULES') }}</option>
+              <option v-for="mod in modules" :key="mod.id" :value="mod.id">
+                {{ mod.name }}
               </option>
             </select>
           </div>

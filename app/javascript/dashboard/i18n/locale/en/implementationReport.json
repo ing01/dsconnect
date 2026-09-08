@@ -1,0 +1,66 @@
+{
+  "IMPLEMENTATION_REPORTS": {
+    "HEADER": "Implementation Reports",
+    "EMPTY": "No data for the selected filters.",
+    "FILTERS": {
+      "SINCE": "From",
+      "UNTIL": "To",
+      "DATE_FIELD": "Filter by",
+      "DATE_FIELD_START": "Expected start",
+      "DATE_FIELD_DUE": "Contract due date",
+      "DATE_FIELD_SUPPORT": "Support end date",
+      "CLEAR_PERIOD": "Clear period",
+      "TEAM": "Team",
+      "IMPLEMENTER": "Implementer",
+      "MODULE": "Module",
+      "STAGE": "Stage",
+      "ALL": "All",
+      "SEARCH": "Search",
+      "SEARCH_PLACEHOLDER": "Project or client name..."
+    },
+    "KPI": {
+      "TOTAL_HOURS": "Total hours",
+      "PROJECTS_COUNT": "Projects in period",
+      "HOURS_IMPLANTACAO": "Implementation hours",
+      "HOURS_DESENVOLVIMENTO": "Development hours"
+    },
+    "MONTHLY": {
+      "CLIENTS_TITLE": "Clients started per month (last 6 months)",
+      "HOURS_TITLE": "Hours logged per month (last 6 months)",
+      "CLIENTS_SERIES": "Clients started",
+      "HOURS_SERIES": "Hours logged"
+    },
+    "MODULE": {
+      "TITLE": "Breakdown by module",
+      "NO_MODULE": "No module"
+    },
+    "IMPLEMENTER": {
+      "TITLE": "By implementer",
+      "UNASSIGNED": "Unassigned",
+      "PROJECTS_SUFFIX": "projects"
+    },
+    "CAPACITY": {
+      "TITLE": "Team capacity",
+      "HINT": "Always over the current active portfolio - not filtered by period."
+    },
+    "COMPLEXITY": {
+      "TITLE": "Complexity score",
+      "HINT": "Hours + sibling projects for the same company×2 + tickets in post-implementation×3."
+    },
+    "INCIDENCE": {
+      "TITLE": "Post-implementation incidence",
+      "PROJECT": "Project",
+      "COMPANY": "Client",
+      "TICKETS_COUNT": "Tickets",
+      "CLASSIFICATION": "Classification",
+      "REINCIDENTE": "Repeat",
+      "YES": "Yes",
+      "CLASSIFICATIONS": {
+        "NORMAL": "Normal",
+        "ATENCAO": "Attention",
+        "ALTO": "High",
+        "CRITICO": "Critical"
+      }
+    }
+  }
+}

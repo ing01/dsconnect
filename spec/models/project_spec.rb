@@ -15,6 +15,7 @@ RSpec.describe Project do
     it { is_expected.to belong_to(:team) }
     it { is_expected.to belong_to(:company).optional }
     it { is_expected.to belong_to(:project_module).optional }
+    it { is_expected.to belong_to(:implementer).optional }
     it { is_expected.to have_many(:tickets) }
   end
 
@@ -92,6 +93,40 @@ RSpec.describe Project do
       create(:ticket_time_entry, ticket: second_ticket, account: project.account, user: agent, hours: 1.5)
 
       expect(project.total_hours).to eq(3.5)
+    end
+  end
+
+  describe '#cancel!' do
+    it 'sets status/cancelled_at/cancellation_reason' do
+      project = create(:project, stage: 'onboarding')
+
+      project.cancel!(reason: 'Cliente desistiu')
+
+      project.reload
+      expect(project.status).to eq('cancelled')
+      expect(project.cancelled_at).to be_present
+      expect(project.cancellation_reason).to eq('Cliente desistiu')
+    end
+
+    it 'rejects cancelling a project already finalizado' do
+      project = create(:project, stage: 'finalizado')
+
+      expect { project.cancel! }.to raise_error(ActiveRecord::RecordInvalid)
+      expect(project.reload.status).to eq('completed')
+    end
+  end
+
+  describe '#reactivate!' do
+    it 'clears the cancellation and goes back to active' do
+      project = create(:project, stage: 'onboarding')
+      project.cancel!(reason: 'Cliente desistiu')
+
+      project.reactivate!
+
+      project.reload
+      expect(project.status).to eq('active')
+      expect(project.cancelled_at).to be_nil
+      expect(project.cancellation_reason).to be_nil
     end
   end
 

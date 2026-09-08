@@ -1,0 +1,66 @@
+{
+  "IMPLEMENTATION_REPORTS": {
+    "HEADER": "Painel de Implantação",
+    "EMPTY": "Sem dados para os filtros selecionados.",
+    "FILTERS": {
+      "SINCE": "De",
+      "UNTIL": "Até",
+      "DATE_FIELD": "Filtrar por",
+      "DATE_FIELD_START": "Previsão de início",
+      "DATE_FIELD_DUE": "Prazo contratual",
+      "DATE_FIELD_SUPPORT": "Fim do acompanhamento",
+      "CLEAR_PERIOD": "Limpar período",
+      "TEAM": "Equipe",
+      "IMPLEMENTER": "Implantador",
+      "MODULE": "Módulo",
+      "STAGE": "Etapa",
+      "ALL": "Todos",
+      "SEARCH": "Buscar",
+      "SEARCH_PLACEHOLDER": "Nome do projeto ou cliente..."
+    },
+    "KPI": {
+      "TOTAL_HOURS": "Horas totais",
+      "PROJECTS_COUNT": "Projetos no período",
+      "HOURS_IMPLANTACAO": "Horas de implantação",
+      "HOURS_DESENVOLVIMENTO": "Horas de desenvolvimento"
+    },
+    "MONTHLY": {
+      "CLIENTS_TITLE": "Clientes iniciados por mês (últimos 6 meses)",
+      "HOURS_TITLE": "Horas apontadas por mês (últimos 6 meses)",
+      "CLIENTS_SERIES": "Clientes iniciados",
+      "HOURS_SERIES": "Horas apontadas"
+    },
+    "MODULE": {
+      "TITLE": "Distribuição por módulo",
+      "NO_MODULE": "Sem módulo"
+    },
+    "IMPLEMENTER": {
+      "TITLE": "Por implantador",
+      "UNASSIGNED": "Sem implantador",
+      "PROJECTS_SUFFIX": "projetos"
+    },
+    "CAPACITY": {
+      "TITLE": "Capacidade da equipe",
+      "HINT": "Sempre sobre a carteira ativa atual - não é filtrado por período."
+    },
+    "COMPLEXITY": {
+      "TITLE": "Score de complexidade",
+      "HINT": "Horas + projetos irmãos da mesma empresa×2 + tickets no pós×3."
+    },
+    "INCIDENCE": {
+      "TITLE": "Incidência no pós-implantação",
+      "PROJECT": "Projeto",
+      "COMPANY": "Cliente",
+      "TICKETS_COUNT": "Tickets",
+      "CLASSIFICATION": "Classificação",
+      "REINCIDENTE": "Reincidente",
+      "YES": "Sim",
+      "CLASSIFICATIONS": {
+        "NORMAL": "Normal",
+        "ATENCAO": "Atenção",
+        "ALTO": "Alto",
+        "CRITICO": "Crítico"
+      }
+    }
+  }
+}

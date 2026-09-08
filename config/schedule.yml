@@ -74,3 +74,11 @@ remove_orphan_conversations_job:
   cron: '0 */12 * * *'
   class: 'Internal::RemoveOrphanConversationsJob'
   queue: housekeeping
+
+# executed daily at 0600 UTC
+# notifies the responsible implementer (or the Mesa manager) about Projects
+# with an overdue contract end / acompanhamento end date
+implementation_overdue_date_notifier_job:
+  cron: '0 6 * * *'
+  class: 'Implementation::OverdueDateNotifierJob'
+  queue: scheduled_jobs

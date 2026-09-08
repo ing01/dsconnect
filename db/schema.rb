@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_08_090000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1677,11 +1677,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
     t.jsonb "custom_attributes", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "implementer_id"
+    t.datetime "cancelled_at"
+    t.text "cancellation_reason"
+    t.string "completion_type"
+    t.text "notes"
+    t.date "support_ends_on"
+    t.date "contract_signed_on"
     t.index ["account_id", "stage"], name: "index_projects_on_account_id_and_stage"
     t.index ["account_id", "status"], name: "index_projects_on_account_id_and_status"
     t.index ["account_id"], name: "index_projects_on_account_id"
     t.index ["company_id"], name: "index_projects_on_company_id"
     t.index ["contact_id"], name: "index_projects_on_contact_id"
+    t.index ["implementer_id"], name: "index_projects_on_implementer_id"
     t.index ["project_module_id"], name: "index_projects_on_project_module_id"
     t.index ["team_id"], name: "index_projects_on_team_id"
   end
@@ -2279,6 +2287,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
   add_foreign_key "projects", "contacts"
   add_foreign_key "projects", "project_modules"
   add_foreign_key "projects", "teams"
+  add_foreign_key "projects", "users", column: "implementer_id"
   add_foreign_key "queues", "accounts"
   add_foreign_key "queues", "sla_policies", column: "default_sla_policy_id"
   add_foreign_key "queues", "teams"

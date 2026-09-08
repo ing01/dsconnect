@@ -77,6 +77,26 @@ export const actions = {
       commit('SET_UI_FLAG', { isUpdating: false });
     }
   },
+  cancel: async ({ commit }, { id, reason }) => {
+    commit('SET_UI_FLAG', { isUpdating: true });
+    try {
+      const response = await ProjectsAPI.cancel(id, reason);
+      commit('UPDATE_PROJECT', response.data);
+      return response.data;
+    } finally {
+      commit('SET_UI_FLAG', { isUpdating: false });
+    }
+  },
+  reactivate: async ({ commit }, id) => {
+    commit('SET_UI_FLAG', { isUpdating: true });
+    try {
+      const response = await ProjectsAPI.reactivate(id);
+      commit('UPDATE_PROJECT', response.data);
+      return response.data;
+    } finally {
+      commit('SET_UI_FLAG', { isUpdating: false });
+    }
+  },
   delete: async ({ commit }, id) => {
     commit('SET_UI_FLAG', { isDeleting: true });
     try {

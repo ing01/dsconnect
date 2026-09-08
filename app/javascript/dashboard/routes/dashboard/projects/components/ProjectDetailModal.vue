@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
@@ -26,6 +26,14 @@ const router = useRouter();
 const isLoading = ref(true);
 const project = computed(() => store.getters['projects/getSelectedProject']);
 const accountId = computed(() => store.getters['getCurrentAccountId']);
+const agents = computed(() => store.getters['agents/getAgents'] || []);
+
+const showCancelForm = ref(false);
+const cancelReason = ref('');
+const notes = ref('');
+const supportEndsOn = ref('');
+const contractSignedOn = ref('');
+const completionType = ref('');
 
 const stages = [
   { key: 'pendente', label: 'Pending', color: 'slate' },
@@ -38,12 +46,29 @@ const stages = [
 ];
 
 onMounted(async () => {
+  store.dispatch('agents/get');
   try {
     await store.dispatch('projects/show', props.projectId);
   } finally {
     isLoading.value = false;
   }
 });
+
+// O modal só recebe o projeto de forma assíncrona (getter da store) - os
+// campos de texto/data livres precisam de um estado local próprio pra editar
+// sem disparar uma request a cada tecla (diferente do <select> de etapa, que
+// já salva sozinho no @change).
+watch(
+  project,
+  updated => {
+    if (!updated) return;
+    notes.value = updated.notes || '';
+    supportEndsOn.value = updated.support_ends_on || '';
+    contractSignedOn.value = updated.contract_signed_on || '';
+    completionType.value = updated.completion_type || '';
+  },
+  { immediate: true }
+);
 
 const onStageChange = async newStage => {
   try {
@@ -55,6 +80,48 @@ const onStageChange = async newStage => {
     emit('updated');
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('PROJECTS.DETAIL.UPDATE_ERROR'));
+  }
+};
+
+const saveField = async data => {
+  try {
+    await store.dispatch('projects/update', { id: props.projectId, ...data });
+    emit('updated');
+  } catch (error) {
+    useAlert(parseAPIErrorResponse(error) || t('PROJECTS.DETAIL.UPDATE_ERROR'));
+  }
+};
+
+const onImplementerChange = event => {
+  const value = event.target.value;
+  saveField({ implementer_id: value || null });
+};
+
+const saveNotes = () => saveField({ notes: notes.value });
+const saveSupportEndsOn = () => saveField({ support_ends_on: supportEndsOn.value || null });
+const saveContractSignedOn = () => saveField({ contract_signed_on: contractSignedOn.value || null });
+const saveCompletionType = () => saveField({ completion_type: completionType.value || null });
+
+const confirmCancel = async () => {
+  if (!cancelReason.value.trim()) return;
+  try {
+    await store.dispatch('projects/cancel', { id: props.projectId, reason: cancelReason.value.trim() });
+    useAlert(t('PROJECTS.DETAIL.CANCEL.SUCCESS'));
+    showCancelForm.value = false;
+    cancelReason.value = '';
+    emit('updated');
+  } catch (error) {
+    useAlert(parseAPIErrorResponse(error) || t('PROJECTS.DETAIL.CANCEL.ERROR'));
+  }
+};
+
+const reactivateProject = async () => {
+  try {
+    await store.dispatch('projects/reactivate', props.projectId);
+    useAlert(t('PROJECTS.DETAIL.REACTIVATE.SUCCESS'));
+    emit('updated');
+  } catch (error) {
+    useAlert(parseAPIErrorResponse(error) || t('PROJECTS.DETAIL.REACTIVATE.ERROR'));
   }
 };
 
@@ -130,6 +197,91 @@ const currentStageColor = computed(() => {
         </div>
       </div>
 
+      <!-- Cancelamento: aviso + reabrir, se já cancelado; senão, o formulário
+           de cancelar (some quando não está sendo usado). -->
+      <div
+        v-if="project.status === 'cancelled'"
+        class="p-3 rounded-xl bg-n-ruby-2 border border-n-ruby-6 flex items-center justify-between gap-3"
+      >
+        <div>
+          <span class="text-xs font-semibold text-n-ruby-11 block">{{ t('PROJECTS.DETAIL.CANCEL.CANCELLED_LABEL') }}</span>
+          <span v-if="project.cancellation_reason" class="text-xs text-n-ruby-11">{{ project.cancellation_reason }}</span>
+        </div>
+        <NextButton
+          faded
+          slate
+          size="sm"
+          :label="t('PROJECTS.DETAIL.REACTIVATE.BUTTON')"
+          @click="reactivateProject"
+        />
+      </div>
+      <div v-else-if="showCancelForm" class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak flex flex-col gap-2">
+        <label class="text-xs font-medium text-n-slate-12">{{ t('PROJECTS.DETAIL.CANCEL.REASON_LABEL') }}</label>
+        <textarea
+          v-model="cancelReason"
+          rows="2"
+          class="px-3 py-2 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none resize-none"
+        />
+        <div class="flex justify-end gap-2">
+          <NextButton faded slate size="sm" :label="t('PROJECTS.FORM.CANCEL')" @click="showCancelForm = false" />
+          <NextButton ruby size="sm" :disabled="!cancelReason.trim()" :label="t('PROJECTS.DETAIL.CANCEL.CONFIRM')" @click="confirmCancel" />
+        </div>
+      </div>
+
+      <!-- Implantador, datas e observação -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.IMPLEMENTER.LABEL') }}</span>
+          <select
+            :value="project.implementer_id"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
+            @change="onImplementerChange"
+          >
+            <option :value="null">{{ t('PROJECTS.FORM.IMPLEMENTER.NONE') }}</option>
+            <option v-for="agent in agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
+          </select>
+        </div>
+        <div v-if="project.stage === 'finalizado'" class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.COMPLETION_TYPE.LABEL') }}</span>
+          <input
+            v-model="completionType"
+            type="text"
+            :placeholder="t('PROJECTS.FORM.COMPLETION_TYPE.PLACEHOLDER')"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 w-full focus:border-n-brand focus:outline-none"
+            @blur="saveCompletionType"
+          />
+        </div>
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.CONTRACT_SIGNED_ON.LABEL') }}</span>
+          <input
+            v-model="contractSignedOn"
+            type="date"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 w-full focus:border-n-brand focus:outline-none"
+            @change="saveContractSignedOn"
+          />
+        </div>
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.SUPPORT_ENDS_ON.LABEL') }}</span>
+          <input
+            v-model="supportEndsOn"
+            type="date"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 w-full focus:border-n-brand focus:outline-none"
+            @change="saveSupportEndsOn"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-n-slate-12">{{ t('PROJECTS.FORM.NOTES.LABEL') }}</label>
+        <textarea
+          v-model="notes"
+          rows="2"
+          :placeholder="t('PROJECTS.FORM.NOTES.PLACEHOLDER')"
+          class="px-3 py-2 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none resize-none"
+          @blur="saveNotes"
+        />
+      </div>
+
       <!-- Tickets list in this project -->
       <div class="flex flex-col gap-3">
         <div class="flex items-center justify-between">
@@ -173,7 +325,16 @@ const currentStageColor = computed(() => {
       </div>
 
       <!-- Footer -->
-      <div class="flex justify-end pt-4 border-t border-n-weak">
+      <div class="flex justify-between pt-4 border-t border-n-weak">
+        <NextButton
+          v-if="project.status !== 'cancelled' && project.stage !== 'finalizado' && !showCancelForm"
+          ruby
+          faded
+          type="button"
+          :label="t('PROJECTS.DETAIL.CANCEL.BUTTON')"
+          @click="showCancelForm = true"
+        />
+        <div v-else />
         <NextButton
           faded
           slate
