@@ -13,11 +13,18 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
       role: new_agent_params['role'],
       availability: new_agent_params['availability'],
       auto_offline: new_agent_params['auto_offline'],
+      # Opcional. Com senha o agente ja entra direto; sem ela o convite por
+      # e-mail continua sendo o caminho.
+      password: new_agent_params['password'],
       inviter: current_user,
       account: Current.account
     )
 
     @agent = builder.perform
+    # A tela precisa saber quando a senha NAO foi aplicada - e-mail que ja
+    # existia - para nao dizer a quem criou que definiu um acesso que nao
+    # definiu.
+    @password_applied = builder.password_applied?
   rescue AgentBuilder::LimitExceededError => e
     render_payment_required(e.message)
   end
@@ -25,6 +32,24 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   def update
     @agent.update!(agent_params.slice(:name).compact)
     @agent.current_account_user.update!(agent_params.slice(*account_user_attributes).compact)
+  end
+
+  # Define uma senha nova para um agente desta conta.
+  #
+  # Existe porque a redefinicao normal depende do e-mail de recuperacao, que nao
+  # chega onde nao ha SMTP. Nao substitui aquele fluxo: e um atalho
+  # administrativo, restrito a administradores pela UserPolicy#update?.
+  def reset_password
+    return render_cross_account_error unless resettable?(@agent)
+
+    @agent.password = params[:password]
+    @agent.password_confirmation = params[:password]
+    # Uma senha definida por administrador tambem confirma a conta: sem isso o
+    # agente teria senha e ainda assim nao entraria.
+    @agent.skip_confirmation! unless @agent.confirmed?
+    @agent.save!
+
+    head :ok
   end
 
   def destroy
@@ -51,6 +76,19 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
     super(User)
   end
 
+  # So agentes que pertencem unicamente a esta conta.
+  #
+  # Um User do Chatwoot e global: o mesmo cadastro pode estar em varias contas,
+  # eventualmente como administrador de outra. Trocar a senha dele aqui daria a
+  # um administrador desta conta o acesso a outra - por isso a recusa.
+  def resettable?(agent)
+    agent.account_users.count == 1 && agent.account_users.first.account_id == Current.account.id
+  end
+
+  def render_cross_account_error
+    render json: { error: I18n.t('errors.agents.password_reset_not_allowed') }, status: :unprocessable_entity
+  end
+
   def fetch_agent
     @agent = agents.find(params[:id])
   end
@@ -68,7 +106,7 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   end
 
   def new_agent_params
-    params.require(:agent).permit(:email, :name, :role, :availability, :auto_offline)
+    params.require(:agent).permit(:email, :name, :role, :availability, :auto_offline, :password)
   end
 
   def agents

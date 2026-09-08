@@ -51,6 +51,11 @@ export const actions = {
       commit(types.default.SET_AGENT_FETCHING_STATUS, false);
     }
   },
+  // Nao mexe na lista: a senha nao aparece em lugar nenhum da tela, entao nao
+  // ha estado a atualizar depois de troca-la.
+  resetPassword: async (_store, { agentId, password }) => {
+    await AgentAPI.resetPassword(agentId, password);
+  },
   create: async ({ commit }, agentInfo) => {
     commit(types.default.SET_AGENT_CREATING_STATUS, true);
     try {

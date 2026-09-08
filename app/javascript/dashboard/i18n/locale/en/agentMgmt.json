@@ -40,7 +40,12 @@
           "LABEL": "Email Address",
           "PLACEHOLDER": "Please enter an email address of the agent"
         },
-        "SUBMIT": "Add Agent"
+        "SUBMIT": "Add Agent",
+        "PASSWORD": {
+          "LABEL": "Access password",
+          "PLACEHOLDER": "Set the agent password",
+          "ERROR": "Enter a password with at least 8 characters"
+        }
       },
       "API": {
         "SUCCESS_MESSAGE": "Agent added successfully",
@@ -124,6 +129,24 @@
           "QUEUE": "Search queues",
           "INPUT": "Search for agents"
         }
+      }
+    },
+    "RESET_PASSWORD": {
+      "BUTTON_TEXT": "Reset password",
+      "TITLE": "Reset password",
+      "DESC": "Set a new password for {name}. It takes effect immediately.",
+      "SUBMIT": "Reset password",
+      "CANCEL_BUTTON_TEXT": "Cancel",
+      "FORM": {
+        "PASSWORD": {
+          "LABEL": "New password",
+          "PLACEHOLDER": "Type the new password",
+          "ERROR": "Enter a password with at least 8 characters"
+        }
+      },
+      "API": {
+        "SUCCESS_MESSAGE": "Password reset.",
+        "ERROR_MESSAGE": "Could not reset the password."
       }
     }
   }

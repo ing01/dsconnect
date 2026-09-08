@@ -17,7 +17,10 @@ class AgentBuilder
   # @param inviter [User] the user who is inviting the agent (Current.user in most cases).
   # @param availability [String] the availability status of the user, defaults to 'offline' if not provided.
   # @param auto_offline [Boolean] the auto offline status of the user.
-  pattr_initialize [:email, { name: '' }, :inviter, :account, { role: :agent }, { availability: :offline }, { auto_offline: false }]
+  # @param password [String] senha inicial escolhida por quem cria. Opcional:
+  #   sem ela o fluxo segue como sempre foi, por e-mail de convite.
+  pattr_initialize [:email, { name: '' }, :inviter, :account, { role: :agent }, { availability: :offline },
+                    { auto_offline: false }, { password: nil }]
 
   # Creates a user and account user in a transaction.
   # @return [User] the created user.
@@ -35,13 +38,25 @@ class AgentBuilder
     @user
   end
 
+  # Diz a quem chamou se a senha informada foi de fato usada. Falso quando o
+  # e-mail ja pertencia a alguem: a tela precisa avisar em vez de deixar quem
+  # criou achar que definiu uma senha que nao definiu.
+  def password_applied?
+    @new_user && password.present?
+  end
+
   private
 
   def can_add_agent?
     account.usage_limits[:agents] > account.account_users.count
   end
 
-  # Finds a user by email or creates a new one with a temporary password.
+  # Finds a user by email or creates a new one.
+  #
+  # A senha informada vale SO para usuario novo. Um e-mail que ja existe
+  # devolve a pessoa que ja esta cadastrada - possivelmente de outra conta -, e
+  # sobrescrever a senha dela aqui deixaria qualquer administrador tomar o
+  # acesso de quem ele conseguisse adivinhar o e-mail.
   # @return [User] the found or created user.
   def find_or_create_user
     @new_user = false
@@ -49,9 +64,13 @@ class AgentBuilder
     return user if user
 
     @name = email.split('@').first if @name.blank?
-    temp_password = "1!aA#{SecureRandom.alphanumeric(12)}"
-    User.new(email: email, name: @name, password: temp_password, password_confirmation: temp_password).tap do |new_user|
+    chosen_password = password.presence || "1!aA#{SecureRandom.alphanumeric(12)}"
+    User.new(email: email, name: @name, password: chosen_password, password_confirmation: chosen_password).tap do |new_user|
       new_user.skip_confirmation_notification!
+      # Com senha definida na criacao o agente ja entra direto, sem depender do
+      # e-mail de confirmacao - que e justamente o que nao chega onde nao ha
+      # SMTP configurado.
+      new_user.skip_confirmation! if password.present?
       new_user.save!
       @new_user = true
     end

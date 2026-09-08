@@ -118,6 +118,8 @@ en:
         too_many_steps: "the flow ran too many steps and was stopped"
         timeout: "the customer did not reply in time"
   errors:
+    agents:
+      password_reset_not_allowed: this agent also belongs to another account, so their password cannot be reset from here
     account:
       not_authorized: You are not authorized to access this account
       email_limit_exceeded: The daily email limit for this account has been reached

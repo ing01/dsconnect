@@ -60,6 +60,9 @@ Rails.application.routes.draw do
           end
           resources :agents, only: [:index, :create, :update, :destroy] do
             post :bulk_create, on: :collection
+            # Atalho administrativo: a redefinicao normal depende do e-mail de
+            # recuperacao, que nao chega onde nao ha SMTP.
+            post :reset_password, on: :member
           end
           namespace :captain do
             resource :preferences, only: [:show, :update]

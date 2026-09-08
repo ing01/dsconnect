@@ -12,6 +12,7 @@ import {
 
 import AddAgent from './AddAgent.vue';
 import EditAgent from './EditAgent.vue';
+import ResetAgentPassword from './ResetAgentPassword.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -24,6 +25,7 @@ const loading = ref({});
 const showAddPopup = ref(false);
 const showDeletePopup = ref(false);
 const showEditPopup = ref(false);
+const showResetPasswordPopup = ref(false);
 const agentAPI = ref({ message: '' });
 const currentAgent = ref({});
 const searchQuery = ref('');
@@ -119,6 +121,16 @@ const openEditPopup = agent => {
 };
 const hideEditPopup = () => {
   showEditPopup.value = false;
+};
+
+// Mesma regra do editar: ninguem redefine a propria senha por aqui - para isso
+// existe o perfil, que exige a senha atual.
+const openResetPasswordPopup = agent => {
+  showResetPasswordPopup.value = true;
+  currentAgent.value = agent;
+};
+const hideResetPasswordPopup = () => {
+  showResetPasswordPopup.value = false;
 };
 
 const openDeletePopup = agent => {
@@ -263,6 +275,14 @@ const confirmDeletion = () => {
               @click="openEditPopup(agent)"
             />
             <Button
+              v-if="showEditAction(agent)"
+              v-tooltip.top="$t('AGENT_MGMT.RESET_PASSWORD.BUTTON_TEXT')"
+              icon="i-lucide-key-round"
+              slate
+              sm
+              @click="openResetPasswordPopup(agent)"
+            />
+            <Button
               v-if="showDeleteAction(agent)"
               v-tooltip.top="$t('AGENT_MGMT.DELETE.BUTTON_TEXT')"
               icon="i-woot-bin"
@@ -279,6 +299,17 @@ const confirmDeletion = () => {
 
     <woot-modal v-model:show="showAddPopup" :on-close="hideAddPopup">
       <AddAgent @close="hideAddPopup" />
+    </woot-modal>
+
+    <woot-modal
+      v-model:show="showResetPasswordPopup"
+      :on-close="hideResetPasswordPopup"
+    >
+      <ResetAgentPassword
+        v-if="showResetPasswordPopup"
+        :agent="currentAgent"
+        @close="hideResetPasswordPopup"
+      />
     </woot-modal>
 
     <woot-modal v-model:show="showEditPopup" :on-close="hideEditPopup">

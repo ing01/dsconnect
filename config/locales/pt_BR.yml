@@ -112,6 +112,8 @@ pt_BR:
         too_many_steps: "o fluxo executou etapas demais e foi interrompido"
         timeout: "o cliente nao respondeu no prazo"
   errors:
+    agents:
+      password_reset_not_allowed: este agente também pertence a outra conta, então a senha dele não pode ser redefinida por aqui
     account:
       not_authorized: Você não está autorizado a acessar esta conta
       email_limit_exceeded: O limite diário de envio de e-mails desta conta foi atingido

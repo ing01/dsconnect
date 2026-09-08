@@ -40,7 +40,12 @@
           "LABEL": "Endereço de e-mail",
           "PLACEHOLDER": "Por favor, insira um endereço de e-mail do agente"
         },
-        "SUBMIT": "Adicionar agente"
+        "SUBMIT": "Adicionar agente",
+        "PASSWORD": {
+          "LABEL": "Senha de acesso",
+          "PLACEHOLDER": "Defina a senha do agente",
+          "ERROR": "Informe uma senha com ao menos 8 caracteres"
+        }
       },
       "API": {
         "SUCCESS_MESSAGE": "Agente adicionado com sucesso",
@@ -124,6 +129,24 @@
           "QUEUE": "Pesquisar filas",
           "INPUT": "Pesquisar por agentes"
         }
+      }
+    },
+    "RESET_PASSWORD": {
+      "BUTTON_TEXT": "Redefinir senha",
+      "TITLE": "Redefinir senha",
+      "DESC": "Defina uma senha nova para {name}. Ela passa a valer imediatamente.",
+      "SUBMIT": "Redefinir senha",
+      "CANCEL_BUTTON_TEXT": "Cancelar",
+      "FORM": {
+        "PASSWORD": {
+          "LABEL": "Nova senha",
+          "PLACEHOLDER": "Digite a nova senha",
+          "ERROR": "Informe uma senha com ao menos 8 caracteres"
+        }
+      },
+      "API": {
+        "SUCCESS_MESSAGE": "Senha redefinida com sucesso.",
+        "ERROR_MESSAGE": "Não foi possível redefinir a senha."
       }
     }
   }
