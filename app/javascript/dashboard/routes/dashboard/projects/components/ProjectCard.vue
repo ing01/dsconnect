@@ -53,6 +53,16 @@ const stageLabelColor = computed(() => {
   };
   return map[props.project.stage] || 'slate';
 });
+
+const isOverdue = computed(() => {
+  const today = new Date().toISOString().split('T')[0];
+  const { stage, due_date: dueDate, support_ends_on: supportEndsOn } = props.project;
+  if (stage === 'acompanhamento') return !!supportEndsOn && supportEndsOn < today;
+  if (['pendente', 'onboarding', 'requisito', 'em_andamento'].includes(stage)) {
+    return !!dueDate && dueDate < today;
+  }
+  return false;
+});
 </script>
 
 <template>
@@ -66,12 +76,20 @@ const stageLabelColor = computed(() => {
       <h3 class="text-sm font-semibold text-n-slate-12 line-clamp-2 leading-tight" :title="project.name">
         {{ project.name }}
       </h3>
-      <WootLabel
-        v-if="project.stage"
-        :label="t(`PROJECTS.STAGES.${project.stage.toUpperCase()}`, project.stage)"
-        :color="stageLabelColor"
-        compact
-      />
+      <div class="flex items-center gap-1 flex-shrink-0">
+        <WootLabel
+          v-if="project.status === 'cancelled'"
+          :label="t('PROJECTS.CARD.CANCELLED')"
+          color="ruby"
+          compact
+        />
+        <WootLabel
+          v-else-if="project.stage"
+          :label="t(`PROJECTS.STAGES.${project.stage.toUpperCase()}`, project.stage)"
+          :color="stageLabelColor"
+          compact
+        />
+      </div>
     </div>
 
     <!-- Company / Client -->
@@ -89,6 +107,10 @@ const stageLabelColor = computed(() => {
       <div v-if="project.team_name" class="flex items-center gap-1">
         <Icon icon="i-lucide-users" class="size-3.5 text-n-slate-9" />
         <span class="truncate">{{ project.team_name }}</span>
+      </div>
+      <div v-if="project.implementer_name" class="flex items-center gap-1">
+        <Icon icon="i-lucide-user" class="size-3.5 text-n-slate-9" />
+        <span class="truncate">{{ project.implementer_name }}</span>
       </div>
       <div v-if="project.total_hours" class="flex items-center gap-1">
         <Icon icon="i-lucide-clock-3" class="size-3.5 text-n-slate-9" />
@@ -116,9 +138,14 @@ const stageLabelColor = computed(() => {
         <Icon icon="i-lucide-calendar" class="size-3 text-n-slate-8" />
         {{ formatDate(project.start_date) }}
       </span>
-      <span v-if="project.due_date" class="flex items-center gap-1 text-n-ruby-11 font-medium ml-auto">
-        <Icon icon="i-lucide-clock" class="size-3 text-n-ruby-9" />
+      <span
+        v-if="project.due_date"
+        class="flex items-center gap-1 font-medium ml-auto"
+        :class="isOverdue ? 'text-n-ruby-11' : 'text-n-slate-10'"
+      >
+        <Icon icon="i-lucide-clock" class="size-3" :class="isOverdue ? 'text-n-ruby-9' : 'text-n-slate-8'" />
         {{ formatDate(project.due_date) }}
+        <span v-if="isOverdue" class="text-[10px] uppercase font-semibold">{{ t('PROJECTS.CARD.OVERDUE') }}</span>
       </span>
     </div>
   </div>

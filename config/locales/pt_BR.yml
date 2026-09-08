@@ -116,6 +116,7 @@ pt_BR:
       too_many: não pode passar de %{count} arquivos por mensagem
     project:
       tickets_pending: Este projeto não pode ser finalizado enquanto ainda houver tickets em aberto.
+      cannot_cancel_finalized: Um projeto finalizado não pode ser cancelado.
     ticket_attachment:
       too_large: é maior que o limite de %{size} MB
     ticket_column:
@@ -349,6 +350,8 @@ pt_BR:
       sla_missed_first_response: 'Meta de SLA de Primeira Resposta não alcançada para a conversa (#%{display_id})'
       sla_missed_next_response: 'Meta de SLA de Próxima Resposta não alcançada para a conversa (#%{display_id})'
       sla_missed_resolution: 'Meta de SLA de Resolução não alcançada para a conversa (#%{display_id})'
+      project_contract_end_overdue: 'A data de fim de contrato de %{project_name} está vencida'
+      project_support_end_overdue: 'A data de fim de acompanhamento de %{project_name} está vencida'
     attachment: 'Anexo'
     no_content: 'Sem conteúdo'
   conversations:

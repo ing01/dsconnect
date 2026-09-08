@@ -6,6 +6,7 @@ class Project < ApplicationRecord
   belongs_to :company, optional: true
   belongs_to :contact, optional: true
   belongs_to :project_module, optional: true
+  belongs_to :implementer, class_name: 'User', optional: true
 
   has_many :tickets, dependent: :nullify
 
@@ -48,6 +49,25 @@ class Project < ApplicationRecord
     return if new_stage.to_s == 'finalizado' && !tickets_completed?
 
     update!(stage: new_stage.to_s)
+  end
+
+  # `cancelled` is not one of `STAGES` (it doesn't replace where the project sits
+  # in the pipeline) - it's tracked entirely through `status` plus these two
+  # columns, left independent of `sync_status_with_stage`. Guarded here instead
+  # of as a validation: `sync_status_with_stage` runs in `before_validation` and
+  # would silently flip `status` back to `completed` for a `finalizado` project
+  # before any validation on `status` got a chance to see the attempted change.
+  def cancel!(reason: nil)
+    if stage == 'finalizado'
+      errors.add(:status, I18n.t('errors.project.cannot_cancel_finalized'))
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+
+    update!(status: :cancelled, cancelled_at: Time.current, cancellation_reason: reason)
+  end
+
+  def reactivate!
+    update!(status: :active, cancelled_at: nil, cancellation_reason: nil)
   end
 
   private

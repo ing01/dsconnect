@@ -14,6 +14,7 @@ import ticketsRoutes from './tickets/tickets.routes';
 import internalChatRoutes from './internalChat/internalChat.routes';
 import { routes as captainRoutes } from './captain/captain.routes';
 import projectsRoutes from './projects/projects.routes';
+import implementationReportsRoutes from './implementation_reports/implementation_reports.routes';
 import AppContainer from './Dashboard.vue';
 import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
@@ -41,6 +42,7 @@ export default {
         ...internalChatRoutes.routes,
         ...agendaRoutes,
         ...projectsRoutes.routes,
+        ...implementationReportsRoutes.routes,
       ],
     },
     {

@@ -436,11 +436,24 @@ Rails.application.routes.draw do
           resources :projects do
             member do
               post :generate_tickets
+              post :cancel
+              post :reactivate
             end
           end
           resources :project_modules
           resources :project_task_templates
           resources :checklists
+
+          resources :implementation_reports, only: [] do
+            collection do
+              get :hours_summary
+              get :monthly
+              get :by_implementer
+              get :by_module
+              get :incidence
+              get :complexity
+            end
+          end
 
           resources :service_catalogs do
             resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do

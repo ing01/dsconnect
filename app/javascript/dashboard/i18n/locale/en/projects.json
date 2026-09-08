@@ -10,6 +10,10 @@
     "FILTER": {
       "MESA": "Team",
       "ALL_MESAS": "All teams",
+      "IMPLEMENTER": "Implementer",
+      "ALL_IMPLEMENTERS": "All implementers",
+      "MODULE": "Module",
+      "ALL_MODULES": "All modules",
       "ACTIVE_PROJECTS": "Active",
       "COMPLETED_PROJECTS": "Completed",
       "SEARCH_PLACEHOLDER": "Search projects..."
@@ -30,7 +34,9 @@
     },
     "CARD": {
       "TASKS_PROGRESS": "Progress",
-      "TASK_COUNT": "tasks"
+      "TASK_COUNT": "tasks",
+      "CANCELLED": "Cancelled",
+      "OVERDUE": "Overdue"
     },
     "CREATE": {
       "TITLE_STEP1": "New Project",
@@ -64,6 +70,24 @@
       "DUE_DATE": {
         "LABEL": "Due date"
       },
+      "IMPLEMENTER": {
+        "LABEL": "Implementer",
+        "NONE": "No implementer"
+      },
+      "COMPLETION_TYPE": {
+        "LABEL": "Type (what was finished)",
+        "PLACEHOLDER": "e.g. ERP, Integration"
+      },
+      "CONTRACT_SIGNED_ON": {
+        "LABEL": "Contract signature date"
+      },
+      "SUPPORT_ENDS_ON": {
+        "LABEL": "Expected support end date"
+      },
+      "NOTES": {
+        "LABEL": "Notes",
+        "PLACEHOLDER": "Notes about this project..."
+      },
       "CANCEL": "Cancel",
       "NEXT_STEP": "Next",
       "BACK": "Back",
@@ -92,7 +116,20 @@
       "COMPLETED": "completed",
       "NO_TASKS": "No tasks generated for this project yet.",
       "STAGE_UPDATED": "Project stage updated",
-      "UPDATE_ERROR": "Failed to update project stage"
+      "UPDATE_ERROR": "Failed to update project stage",
+      "CANCEL": {
+        "BUTTON": "Cancel project",
+        "REASON_LABEL": "Cancellation reason",
+        "CONFIRM": "Confirm cancellation",
+        "CANCELLED_LABEL": "Project cancelled",
+        "SUCCESS": "Project cancelled",
+        "ERROR": "Failed to cancel the project"
+      },
+      "REACTIVATE": {
+        "BUTTON": "Reopen project",
+        "SUCCESS": "Project reopened",
+        "ERROR": "Failed to reopen the project"
+      }
     },
     "LOADING": "Loading projects...",
     "HELP": {

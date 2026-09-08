@@ -1,5 +1,5 @@
 class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
-  before_action :fetch_project, only: [:show, :update, :destroy, :generate_tickets]
+  before_action :fetch_project, only: [:show, :update, :destroy, :generate_tickets, :cancel, :reactivate]
   before_action :check_authorization
 
   def index
@@ -8,6 +8,8 @@ class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
     @projects = @projects.where(team_id: params[:team_id]) if params[:team_id].present?
     @projects = @projects.where(company_id: params[:company_id]) if params[:company_id].present?
     @projects = @projects.where(stage: params[:stage]) if params[:stage].present?
+    @projects = @projects.where(implementer_id: params[:implementer_id]) if params[:implementer_id].present?
+    @projects = @projects.where(project_module_id: params[:project_module_id]) if params[:project_module_id].present?
 
     if params[:status].present?
       @projects = @projects.where(status: params[:status])
@@ -54,6 +56,16 @@ class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
     head :ok
   end
 
+  def cancel
+    @project.cancel!(reason: params[:reason])
+    render 'show'
+  end
+
+  def reactivate
+    @project.reactivate!
+    render 'show'
+  end
+
   private
 
   def fetch_project
@@ -63,7 +75,9 @@ class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
   def project_params
     params.require(:project).permit(
       :name, :company_id, :contact_id, :team_id, :project_module_id,
-      :stage, :status, :start_date, :due_date, custom_attributes: {}
+      :stage, :status, :start_date, :due_date,
+      :implementer_id, :completion_type, :notes, :support_ends_on, :contract_signed_on,
+      custom_attributes: {}
     )
   end
 end

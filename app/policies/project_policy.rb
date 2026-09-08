@@ -19,6 +19,14 @@ class ProjectPolicy < ApplicationPolicy
     true
   end
 
+  def cancel?
+    true
+  end
+
+  def reactivate?
+    true
+  end
+
   def destroy?
     account_user&.administrator?
   end
