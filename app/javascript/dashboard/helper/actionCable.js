@@ -73,6 +73,7 @@ class ActionCableConnector extends BaseActionCableConnector {
       'ticket.reopened': this.onTicketRealtimeUpdate,
       'ticket.closed': this.onTicketRealtimeUpdate,
       'ticket.cancelled': this.onTicketRealtimeUpdate,
+      'ticket.deleted': this.onTicketRealtimeDelete,
       'internal_chat.message.created': this.onInternalChatMessage,
       'internal_chat.message.updated': this.onInternalChatMessage,
     };
@@ -378,6 +379,16 @@ class ActionCableConnector extends BaseActionCableConnector {
 
     this.app.$store.dispatch('ticketColumns/applyRealtimeTicket', ticket);
     this.app.$store.dispatch('tickets/upsertFromRealtime', ticket);
+  };
+
+  // O ticket foi apagado: sai do quadro e da lista. So o id chega, porque o
+  // registro ja nao existe do outro lado.
+  onTicketRealtimeDelete = data => {
+    const id = data?.ticket?.id;
+    if (!id) return;
+
+    this.app.$store.dispatch('ticketColumns/removeRealtimeTicket', id);
+    this.app.$store.dispatch('tickets/removeFromRealtime', id);
   };
 
   // Chat Interno. O mesmo tratamento serve para mensagem nova e para mensagem

@@ -5,6 +5,11 @@ class TicketComment < ApplicationRecord
 
   validates :content, presence: true
 
+  # Ticket finalizado nao recebe mais nada: e registro historico. A checagem e
+  # `on: :create` porque o que se impede e acrescentar depois do fim - o que ja
+  # existia continua la, e continua legivel.
+  validate :ticket_not_finalized, on: :create
+
   before_validation :ensure_account_id
 
   after_create_commit :log_comment_activity
@@ -20,6 +25,12 @@ class TicketComment < ApplicationRecord
   end
 
   private
+
+  def ticket_not_finalized
+    return unless ticket&.finalized?
+
+    errors.add(:base, I18n.t('tickets.finalized.immutable'))
+  end
 
   def ensure_account_id
     self.account_id ||= ticket&.account_id

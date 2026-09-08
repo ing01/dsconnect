@@ -29,10 +29,14 @@ class AutomationRule < ApplicationRecord
 
   belongs_to :account
   has_many :pending_executions, class_name: 'AutomationRulePendingExecution', dependent: :delete_all
+  # As execucoes do fluxo. `destroy` e nao `delete_all` para o historico de
+  # etapas ir junto quando a automacao e removida.
+  has_many :flow_runs, class_name: 'AutomationFlowRun', dependent: :destroy
   has_many_attached :files
 
   validate :json_conditions_format
   validate :json_actions_format
+  validate :flow_steps_format
   validate :query_operator_presence
   validate :query_operator_value
   validates :account_id, presence: true
@@ -58,6 +62,18 @@ class AutomationRule < ApplicationRecord
        send_email_transcript add_private_note].freeze
   end
 
+  # Os tipos de etapa que o fluxo aceita. Espelha o REGISTRY do runner - se
+  # divergirem, o admin consegue gravar uma etapa que ninguem sabe executar.
+  def flow_step_types
+    %w[send_message ask find_company find_contact condition create_ticket handoff].freeze
+  end
+
+  # Uma automacao com etapas e um fluxo; sem etapas, continua sendo a regra
+  # plana de sempre. As duas convivem na mesma tabela.
+  def flow?
+    flow_steps.present?
+  end
+
   def file_base_data
     files.map do |file|
       {
@@ -73,6 +89,31 @@ class AutomationRule < ApplicationRecord
   end
 
   private
+
+  # So o que impediria o fluxo de rodar: tipo desconhecido, etapa sem id, ou id
+  # repetido - que faria um `next` apontar para dois lugares.
+  def flow_steps_format
+    return if flow_steps.blank?
+    return errors.add(:flow_steps, 'must be a list of steps') unless flow_steps.is_a?(Array)
+
+    validate_flow_step_ids
+    validate_flow_step_types
+  end
+
+  # Sem id nao ha para onde apontar, e id repetido faria um `next` levar a dois
+  # lugares diferentes.
+  def validate_flow_step_ids
+    ids = flow_steps.pluck('id')
+    errors.add(:flow_steps, 'every step needs an id') if ids.any?(&:blank?)
+    errors.add(:flow_steps, 'step ids must be unique') if ids.compact.uniq.length != ids.compact.length
+  end
+
+  def validate_flow_step_types
+    unknown = flow_steps.pluck('type') - flow_step_types
+    return if unknown.empty?
+
+    errors.add(:flow_steps, "unsupported step types: #{unknown.uniq.join(', ')}")
+  end
 
   def json_conditions_format
     return if conditions.blank?

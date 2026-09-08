@@ -25,7 +25,20 @@ module TicketCustomer
   def requester_contact
     return @requester_contact if defined?(@requester_contact)
 
-    @requester_contact = contact || conversations.to_a.min_by(&:id)&.contact
+    @requester_contact = contact || earliest_conversation&.contact
+  end
+
+  # A conversa mais antiga, sem encher a associacao.
+  #
+  # `conversations.to_a` aproveita o preload do Kanban, mas quando nao ha
+  # preload ele CARREGA a associacao e a congela: perguntar quem e o
+  # solicitante antes de vincular a conversa deixava `ticket.conversations`
+  # vazio pelo resto da vida daquela instancia. Por isso o `to_a` so entra
+  # quando alguem ja carregou de fato.
+  def earliest_conversation
+    return conversations.to_a.min_by(&:id) if conversations.loaded?
+
+    conversations.order(:id).first
   end
 
   # "#26 - [ELETROSUL - FILIAL] | [João Vitor] | [Erro na emissão da nota]",

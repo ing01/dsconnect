@@ -243,7 +243,8 @@
         "TITLE": "Ticket information",
         "STATUS": "Status",
         "STAGE": "Stage",
-        "NO_CATEGORY": "Select a category"
+        "NO_CATEGORY": "Select a category",
+        "DUE_DATE": "Delivery date"
       },
       "FOLLOWERS": {
         "TITLE": "Followers",
@@ -573,7 +574,10 @@
           "RESPONSE": "Response",
           "STAGE": "Stage",
           "RESOLUTION": "Resolution"
-        }
+        },
+        "MODE": "How to adjust",
+        "MODE_HOURS": "Grant hours",
+        "MODE_DUE_AT": "Set date and time"
       },
       "CANCEL_DIALOG": {
         "TITLE": "Cancel ticket #{number}?",

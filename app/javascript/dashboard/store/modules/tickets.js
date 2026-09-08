@@ -101,7 +101,13 @@ export const actions = {
   // ticket, so there is nothing to attach them to until it exists.
   createTicketWithContext: async (
     { commit, dispatch },
-    { ticket, files = [], conversationId = null, parentId = null, options = null }
+    {
+      ticket,
+      files = [],
+      conversationId = null,
+      parentId = null,
+      options = null,
+    }
   ) => {
     commit(types.SET_TICKETS_UI_FLAG, { isCreating: true });
     try {
@@ -191,8 +197,16 @@ export const actions = {
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },
-  addTicketSlaHours: async ({ commit }, { id, hours, reason, slaKind }) => {
-    const response = await TicketsAPI.addSlaHours(id, { hours, reason, slaKind });
+  adjustTicketSla: async (
+    { commit },
+    { id, hours, dueAt, reason, slaKind }
+  ) => {
+    const response = await TicketsAPI.adjustSla(id, {
+      hours,
+      dueAt,
+      reason,
+      slaKind,
+    });
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },
@@ -285,7 +299,7 @@ export const actions = {
     commit(types.REMOVE_TICKET_ATTACHMENT, { ticketId, attachmentId });
   },
   upsertFromRealtime: ({ commit }, ticket) => {
-    commit(types.SET_TICKET_ITEM, ticket);
+    commit(types.UPDATE_TICKET_FROM_REALTIME, ticket);
   },
   removeFromRealtime: ({ commit }, ticketId) => {
     commit(types.REMOVE_TICKET_ITEM, ticketId);
@@ -334,6 +348,17 @@ export const mutations = {
       ..._state.attachments,
       [ticketId]: current.filter(attachment => attachment.id !== attachmentId),
     };
+  },
+  // Diferente do SET_TICKET_ITEM: aqui um ticket desconhecido e ignorado em vez
+  // de entrar na lista. `records` e o resultado da Busca detalhada, e empurrar
+  // para dentro dele um ticket que o filtro nao pediu mostraria uma linha que
+  // nao pertence aquele resultado - e ainda desencontraria a contagem da
+  // paginacao. Quem mostra ticket novo em tempo real e o Kanban.
+  [types.UPDATE_TICKET_FROM_REALTIME](_state, ticket) {
+    const index = _state.records.findIndex(record => record.id === ticket.id);
+    if (index === -1) return;
+
+    _state.records.splice(index, 1, { ..._state.records[index], ...ticket });
   },
   [types.REMOVE_TICKET_ITEM](_state, ticketId) {
     _state.records = _state.records.filter(record => record.id !== ticketId);

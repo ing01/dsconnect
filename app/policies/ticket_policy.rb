@@ -22,6 +22,22 @@ class TicketPolicy < ApplicationPolicy
   end
 
   def update?
+    editable? && permitted_to_handle?
+  end
+
+  # Um ticket fechado ou cancelado nao aceita mais alteracao - so reabrir. A
+  # regra de verdade esta no model (TicketFinalizable); aqui ela se repete para
+  # a API recusar antes de tentar e para a tela ja nascer com os controles
+  # desabilitados, em vez de deixar o agente descobrir no erro.
+  def editable?
+    # `record` e a classe nas acoes de colecao (index/export), onde nao ha
+    # ticket para avaliar.
+    return true unless record.is_a?(Ticket)
+
+    !record.finalized?
+  end
+
+  def permitted_to_handle?
     administrator? || assigned_to_user? || team_member?
   end
 
@@ -37,8 +53,10 @@ class TicketPolicy < ApplicationPolicy
     update?
   end
 
+  # A excecao: sem isto um ticket finalizado nao teria como voltar, porque
+  # reabrir tambem passa pelo `update?`.
   def reopen?
-    update?
+    permitted_to_handle?
   end
 
   def close?
@@ -85,8 +103,12 @@ class TicketPolicy < ApplicationPolicy
 
   # Extending a deadline is a commercial decision, not routine ticket handling:
   # restricted to admins and to the agent who owns the ticket.
+  #
+  # `editable?` tambem entra aqui: o prazo vive noutra tabela, entao a validacao
+  # do model nao o alcanca, e sem esta linha daria para esticar o SLA de um
+  # ticket ja fechado.
   def add_sla_hours?
-    administrator? || assigned_to_user?
+    editable? && (administrator? || assigned_to_user?)
   end
 
   def destroy?

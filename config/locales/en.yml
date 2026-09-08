@@ -95,6 +95,8 @@ en:
       regards: Kind regards,
       company_name: Duesoft Sistemas
   tickets:
+    finalized:
+      immutable: this ticket is closed and can no longer be changed; reopen it first
     close:
       blocked: This ticket cannot be closed yet.
     communication:
@@ -107,6 +109,14 @@ en:
       same_ticket: A ticket cannot be grouped into itself.
       already_merged: This ticket has already been grouped into another one.
       circular: These tickets cannot be grouped into each other.
+  automations:
+    flow:
+      retry: "Sorry, I could not read that. Could you send it again?"
+      default_ticket_title: "Triage from conversation #%{id}"
+      errors:
+        empty_message: "the message is empty"
+        too_many_steps: "the flow ran too many steps and was stopped"
+        timeout: "the customer did not reply in time"
   errors:
     account:
       not_authorized: You are not authorized to access this account

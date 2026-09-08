@@ -141,6 +141,8 @@ Rails.application.routes.draw do
           end
           resources :canned_responses, only: [:index, :create, :update, :destroy]
           resources :automation_rules, only: [:index, :create, :show, :update, :destroy] do
+            # O historico do fluxo pertence a regra, e so leitura.
+            resources :flow_runs, module: 'automation_rules', only: [:index, :show]
             post :clone
           end
           resources :macros, only: [:index, :create, :show, :update, :destroy] do

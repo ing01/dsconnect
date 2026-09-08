@@ -187,6 +187,15 @@ class ActionCableListener < BaseListener
     broadcast(account, user_tokens(account, account.agents), TICKET_CANCELLED, ticket: ticket.push_event_data)
   end
 
+  # O registro ja nao existe, entao vai so o id - e o que a tela precisa para
+  # tirar o card do quadro e a linha da lista.
+  def ticket_deleted(event)
+    account = Account.find_by(id: event.data[:account_id])
+    return if account.blank?
+
+    broadcast(account, user_tokens(account, account.agents), TICKET_DELETED, ticket: { id: event.data[:ticket_id] })
+  end
+
   def conversation_contact_changed(event)
     conversation, account = extract_conversation_and_account(event)
     tokens = user_tokens(account, conversation.inbox.members)

@@ -20,6 +20,10 @@ class AutomationRuleListener < BaseListener
 
     return if ignore_message_created_event?(event)
 
+    # Retomar uma triagem parada e independente de regra casar: a execucao ja
+    # existe e so aguarda a resposta que acabou de chegar.
+    ::AutomationRules::Flow::DispatcherService.resume(message: message)
+
     account = message.try(:account)
     changed_attributes = event.data[:changed_attributes]
 
@@ -70,6 +74,10 @@ class AutomationRuleListener < BaseListener
   # runs them at due time. Flag off means no arming and no immediate fallback — a delayed
   # message silently becoming instant is worse than skipping.
   def execute_rule(rule, account, conversation, message: nil)
+    # Uma regra com etapas e um fluxo: quem conduz e o runner, que sabe esperar
+    # resposta. Sem etapas, nada muda - segue pelas acoes de sempre.
+    return if ::AutomationRules::Flow::DispatcherService.start(rule: rule, conversation: conversation)
+
     if rule.execution_delay.present?
       return unless account.feature_enabled?('delayed_automations')
 

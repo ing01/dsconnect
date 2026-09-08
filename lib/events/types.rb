@@ -65,6 +65,7 @@ module Events::Types
   TICKET_CREATED = 'ticket.created'
   TICKET_UPDATED = 'ticket.updated'
   TICKET_MOVED = 'ticket.moved'
+  TICKET_DELETED = 'ticket.deleted'
   TICKET_RESOLVED = 'ticket.resolved'
   TICKET_REOPENED = 'ticket.reopened'
   TICKET_CLOSED = 'ticket.closed'

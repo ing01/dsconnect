@@ -243,7 +243,8 @@
         "TITLE": "Informações do ticket",
         "STATUS": "Status",
         "STAGE": "Estágio",
-        "NO_CATEGORY": "Selecione uma categoria"
+        "NO_CATEGORY": "Selecione uma categoria",
+        "DUE_DATE": "Data de entrega"
       },
       "FOLLOWERS": {
         "TITLE": "Seguidores",
@@ -573,7 +574,10 @@
           "RESPONSE": "Atendimento",
           "STAGE": "Estágio",
           "RESOLUTION": "Solução"
-        }
+        },
+        "MODE": "Como ajustar",
+        "MODE_HOURS": "Conceder horas",
+        "MODE_DUE_AT": "Definir data e hora"
       },
       "CANCEL_DIALOG": {
         "TITLE": "Cancelar ticket #{number}?",

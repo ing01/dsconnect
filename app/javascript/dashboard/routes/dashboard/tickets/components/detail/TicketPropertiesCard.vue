@@ -107,6 +107,24 @@ const onColumn = value => emit('moveToColumn', Number(value));
 
 // Persisted straight away, like the other properties; the backend also refuses
 // a Categoria that belongs to another Mesa.
+// A data de entrega e a mesma `due_date` que os Estagios ja podem exigir e que
+// os templates de projeto preenchem - nao um prazo paralelo. O input fala no
+// fuso de quem olha; o servidor guarda o instante.
+const dueDateInput = computed(() => {
+  if (!props.ticket.due_date) return '';
+
+  const date = new Date(props.ticket.due_date);
+  const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return shifted.toISOString().slice(0, 16);
+});
+
+const onDueDate = event => {
+  const value = event.target.value;
+  emit('updateProperty', {
+    due_date: value ? new Date(value).toISOString() : null,
+  });
+};
+
 const onCategory = value =>
   emit('updateProperty', { ticket_category_id: value ? Number(value) : null });
 
@@ -179,6 +197,19 @@ const onAssignee = value =>
         :placeholder="t('TICKET.DETAIL.PROPERTIES.NO_CATEGORY')"
         :aria-label="t('TICKET.CREATE.CATEGORY')"
         @update:model-value="onCategory"
+      />
+    </TicketPropertyRow>
+
+    <!-- A data prometida de entrega. Mesmo campo que um Estagio pode exigir
+         para deixar o ticket entrar nele. -->
+    <TicketPropertyRow :label="t('TICKET.DETAIL.PROPERTIES.DUE_DATE')">
+      <input
+        :value="dueDateInput"
+        type="datetime-local"
+        class="w-full mb-0"
+        :disabled="!canUpdate"
+        :aria-label="t('TICKET.DETAIL.PROPERTIES.DUE_DATE')"
+        @change="onDueDate"
       />
     </TicketPropertyRow>
 

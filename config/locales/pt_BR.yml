@@ -89,6 +89,8 @@ pt_BR:
       regards: Atenciosamente,
       company_name: Duesoft Sistemas
   tickets:
+    finalized:
+      immutable: este ticket está finalizado e não pode mais ser alterado; reabra-o antes
     close:
       blocked: Este ticket ainda não pode ser fechado.
     communication:
@@ -101,6 +103,14 @@ pt_BR:
       same_ticket: Um ticket não pode ser agrupado nele mesmo.
       already_merged: Este ticket já foi agrupado em outro.
       circular: Estes tickets não podem ser agrupados um no outro.
+  automations:
+    flow:
+      retry: "Desculpe, nao consegui entender. Pode enviar novamente?"
+      default_ticket_title: "Triagem da conversa #%{id}"
+      errors:
+        empty_message: "a mensagem esta vazia"
+        too_many_steps: "o fluxo executou etapas demais e foi interrompido"
+        timeout: "o cliente nao respondeu no prazo"
   errors:
     account:
       not_authorized: Você não está autorizado a acessar esta conta

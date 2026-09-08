@@ -49,7 +49,7 @@ const {
   merge,
   duplicate,
   assignToMe,
-  addSlaHours,
+  adjustSla,
   cancel,
   reload,
 } = useTicketDetail(ticketId);
@@ -205,8 +205,8 @@ const submitParent = parentId =>
 
 const submitMerge = sourceId => runAction(() => merge(sourceId), mergeDialog);
 
-const submitSlaHours = payload =>
-  runAction(() => addSlaHours(payload), slaDialog);
+const submitSlaAdjustment = payload =>
+  runAction(() => adjustSla(payload), slaDialog);
 
 const submitCancel = reason => runAction(() => cancel(reason), cancelDialog);
 
@@ -349,7 +349,7 @@ const submitContact = contactId =>
         ref="slaDialog"
         :ticket="ticket"
         :is-loading="isActing"
-        @submit="submitSlaHours"
+        @submit="submitSlaAdjustment"
       />
       <TicketCancelDialog
         ref="cancelDialog"
