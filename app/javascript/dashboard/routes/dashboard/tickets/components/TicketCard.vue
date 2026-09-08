@@ -3,6 +3,7 @@ import WootLabel from 'dashboard/components-next/label/Label.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
+import { format, parseISO, isPast } from 'date-fns';
 import { statusColor, priorityColor } from '../helpers/ticketLabels';
 
 export default {
@@ -53,6 +54,23 @@ export default {
     },
     conversationCount() {
       return this.ticket.conversation_ids?.length || 0;
+    },
+    dueDateLabel() {
+      return this.ticket.due_date
+        ? format(parseISO(this.ticket.due_date), 'dd/MM HH:mm')
+        : '';
+    },
+    isOverdue() {
+      return (
+        this.ticket.status === 'open' &&
+        !!this.ticket.due_date &&
+        isPast(parseISO(this.ticket.due_date))
+      );
+    },
+    scheduledAtLabel() {
+      return this.ticket.scheduled_at
+        ? format(parseISO(this.ticket.scheduled_at), 'dd/MM HH:mm')
+        : '';
     },
     menuItems() {
       // The operational actions, all of them already implemented elsewhere in
@@ -187,6 +205,28 @@ export default {
       />
       <span v-if="!ticket.priority" class="text-xs text-n-slate-10">
         {{ $t('TICKET.FORM.PRIORITY.NONE') }}
+      </span>
+    </div>
+
+    <div
+      v-if="dueDateLabel || scheduledAtLabel"
+      class="flex items-center flex-wrap gap-x-3 gap-y-1"
+    >
+      <span
+        v-if="dueDateLabel"
+        class="flex items-center gap-1 text-xs"
+        :class="isOverdue ? 'text-n-ruby-11 font-medium' : 'text-n-slate-11'"
+      >
+        <Icon icon="i-lucide-calendar-clock" class="size-3.5" />
+        {{ $t('TICKET.CARD.DUE_DATE') }}: {{ dueDateLabel }}
+        <span v-if="isOverdue">({{ $t('TICKET.CARD.OVERDUE') }})</span>
+      </span>
+      <span
+        v-if="scheduledAtLabel"
+        class="flex items-center gap-1 text-xs text-n-slate-11"
+      >
+        <Icon icon="i-lucide-calendar" class="size-3.5" />
+        {{ $t('TICKET.CARD.SCHEDULED_AT') }}: {{ scheduledAtLabel }}
       </span>
     </div>
 

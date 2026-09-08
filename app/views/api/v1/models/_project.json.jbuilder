@@ -18,6 +18,8 @@ json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
 json.tickets_count resource.tickets.count
 json.completed_tickets_count resource.tickets.where(status: [:resolved, :closed]).count
+json.tickets_completed resource.tickets_completed?
+json.total_hours resource.total_hours
 json.tickets resource.tickets.order(:position, :id) do |ticket|
   json.partial! 'api/v1/models/ticket', formats: [:json], resource: ticket
 end

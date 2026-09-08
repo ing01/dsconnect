@@ -1,11 +1,17 @@
 <script setup>
-import { computed, nextTick, ref } from 'vue';
+import { computed, defineAsyncComponent, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OnClickOutside } from '@vueuse/components';
+import { DirectUpload } from 'activestorage';
+import { useAlert } from 'dashboard/composables';
+import { setDirectUploadAuthHeaders } from 'dashboard/helper/directUploadsHelper';
+import InternalChatAPI from 'dashboard/api/internalChat';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
+  // O upload e autorizado por sala, entao o composer precisa saber em qual esta.
+  channelId: { type: [Number, String], default: null },
   users: { type: Array, default: () => [] },
   placeholder: { type: String, default: '' },
   replyTo: { type: Object, default: null },
@@ -17,13 +23,27 @@ const props = defineProps({
 
 const emit = defineEmits(['send', 'cancelReply']);
 
+// O mesmo seletor da caixa de resposta das Conversations: tem busca, categorias
+// e a lista completa, no lugar de um punhado de emojis fixos. Assincrono porque
+// carrega a tabela inteira de emojis, que nao precisa entrar no bundle da tela.
+const EmojiIconPicker = defineAsyncComponent(
+  () =>
+    import('dashboard/components-next/emoji-icon-picker/EmojiIconPicker.vue')
+);
+
 const { t } = useI18n();
 
 const body = ref('');
 const textareaRef = ref(null);
 const attachMenuOpen = ref(false);
 const emojiOpen = ref(false);
-const pendingAttachment = ref(null);
+const pendingAttachments = ref([]);
+const isUploading = ref(false);
+const fileInput = ref(null);
+const acceptedTypes = ref('');
+
+const MAXIMUM_SIZE_MB = 25;
+const MAXIMUM_FILES = 10;
 
 // Menção: digitar `@` abre a lista, e escolher alguém completa o nome inteiro.
 const mentionQuery = ref(null);
@@ -36,8 +56,6 @@ const mentionMatches = computed(() => {
     .filter(user => user.name.toLowerCase().includes(term))
     .slice(0, 5);
 });
-
-const EMOJIS = ['👍', '❤️', '😂', '✅', '🎉', '🙏', '👀', '🚀'];
 
 const onInput = () => {
   const upToCursor = body.value.slice(
@@ -58,23 +76,120 @@ const applyMention = user => {
   nextTick(() => textareaRef.value?.focus());
 };
 
-// Anexo simulado: o protótipo não sobe arquivo nenhum, só registra o que foi
-// escolhido para que a mensagem apareça com o preview certo.
-const attachMock = kind => {
-  pendingAttachment.value =
-    kind === 'image'
-      ? {
-          kind: 'image',
-          name: 'captura-de-tela.png',
-          size: '284 KB',
-          color: '#3f5c78',
-        }
-      : { kind: 'file', name: 'relatorio.pdf', size: '1.2 MB' };
-  attachMenuOpen.value = false;
+// No ponto do cursor, e nao no fim: com o texto ja escrito, acrescentar ao
+// final punha o emoji longe de onde a pessoa estava digitando.
+const insertEmoji = emoji => {
+  const field = textareaRef.value;
+  const at = field?.selectionStart ?? body.value.length;
+  body.value = body.value.slice(0, at) + emoji + body.value.slice(at);
+
+  nextTick(() => {
+    field?.focus();
+    const cursor = at + emoji.length;
+    field?.setSelectionRange(cursor, cursor);
+  });
 };
 
+// O arquivo vai direto do navegador para o storage. O que volta e o signed id
+// do blob, e e so ele que acompanha a mensagem - os bytes nunca passam pela
+// aplicacao, que e o que faz isso continuar valendo com o bucket na nuvem.
+const humanSize = bytes => {
+  const mb = bytes / (1024 * 1024);
+  return mb >= 1
+    ? `${mb.toFixed(1)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+};
+
+const pickFiles = kind => {
+  attachMenuOpen.value = false;
+  acceptedTypes.value = kind === 'image' ? 'image/*' : '';
+  nextTick(() => fileInput.value?.click());
+};
+
+const uploadOne = file =>
+  new Promise(resolve => {
+    const upload = new DirectUpload(
+      file,
+      InternalChatAPI.directUploadUrl(props.channelId),
+      { directUploadWillCreateBlobWithXHR: setDirectUploadAuthHeaders }
+    );
+
+    upload.create((error, blob) => {
+      if (error) {
+        useAlert(
+          t('INTERNAL_CHAT.COMPOSER.UPLOAD_FAILED', { name: file.name })
+        );
+        resolve(null);
+        return;
+      }
+
+      const isImage = file.type.startsWith('image/');
+      resolve({
+        signedId: blob.signed_id,
+        name: file.name,
+        size: humanSize(file.size),
+        kind: isImage ? 'image' : 'file',
+        // Mostra a imagem escolhida antes de a mensagem existir, sem ida ao
+        // servidor. O endereco e liberado quando o anexo sai da lista.
+        preview: isImage ? URL.createObjectURL(file) : null,
+      });
+    });
+  });
+
+const withinSizeLimit = file => {
+  if (file.size <= MAXIMUM_SIZE_MB * 1024 * 1024) return true;
+
+  useAlert(
+    t('INTERNAL_CHAT.COMPOSER.FILE_TOO_LARGE', {
+      name: file.name,
+      size: MAXIMUM_SIZE_MB,
+    })
+  );
+  return false;
+};
+
+const onFilesChosen = async event => {
+  const chosen = Array.from(event.target.files || []);
+  event.target.value = '';
+  if (!chosen.length) return;
+
+  if (pendingAttachments.value.length + chosen.length > MAXIMUM_FILES) {
+    useAlert(
+      t('INTERNAL_CHAT.COMPOSER.TOO_MANY_FILES', { count: MAXIMUM_FILES })
+    );
+    return;
+  }
+
+  const accepted = chosen.filter(withinSizeLimit);
+  if (!accepted.length) return;
+
+  isUploading.value = true;
+  try {
+    const uploaded = await Promise.all(accepted.map(uploadOne));
+    pendingAttachments.value.push(...uploaded.filter(Boolean));
+  } finally {
+    isUploading.value = false;
+  }
+};
+
+const removeAttachment = index => {
+  const [removed] = pendingAttachments.value.splice(index, 1);
+  if (removed?.preview) URL.revokeObjectURL(removed.preview);
+};
+
+const clearAttachments = () => {
+  pendingAttachments.value.forEach(item => {
+    if (item.preview) URL.revokeObjectURL(item.preview);
+  });
+  pendingAttachments.value = [];
+};
+
+// Nao envia no meio de um upload: a mensagem sairia sem o arquivo que a pessoa
+// acabou de escolher.
 const canSend = computed(
-  () => !!body.value.trim() || !!pendingAttachment.value
+  () =>
+    !isUploading.value &&
+    (!!body.value.trim() || pendingAttachments.value.length > 0)
 );
 
 const send = () => {
@@ -82,12 +197,12 @@ const send = () => {
 
   emit('send', {
     body: body.value.trim(),
-    attachment: pendingAttachment.value,
+    attachments: pendingAttachments.value.map(item => item.signedId),
     replyTo: props.replyTo?.id || null,
   });
 
   body.value = '';
-  pendingAttachment.value = null;
+  clearAttachments();
   mentionQuery.value = null;
 };
 
@@ -128,31 +243,55 @@ const onKeydown = event => {
       </button>
     </div>
 
-    <!-- Anexo escolhido, ainda não enviado -->
-    <div
-      v-if="pendingAttachment"
-      class="flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-md bg-n-solid-2 text-n-slate-11"
-    >
-      <Icon
-        :icon="
-          pendingAttachment.kind === 'image'
-            ? 'i-lucide-image'
-            : 'i-lucide-paperclip'
-        "
-        class="flex-shrink-0 size-3.5"
-      />
-      <span class="min-w-0 truncate grow">
-        {{ pendingAttachment.name }} · {{ pendingAttachment.size }}
-      </span>
-      <button
-        type="button"
-        class="flex-shrink-0 p-0.5 rounded hover:bg-n-alpha-2"
-        :title="t('INTERNAL_CHAT.COMPOSER.REMOVE_ATTACHMENT')"
-        @click="pendingAttachment = null"
+    <!-- Anexos escolhidos, ja no storage, aguardando a mensagem -->
+    <div v-if="pendingAttachments.length" class="flex flex-wrap gap-2">
+      <div
+        v-for="(item, index) in pendingAttachments"
+        :key="item.signedId"
+        class="flex items-center gap-2 py-1 pl-1 pr-1.5 text-xs rounded-md bg-n-solid-2 text-n-slate-11 max-w-64"
       >
-        <Icon icon="i-lucide-x" class="size-3.5" />
-      </button>
+        <img
+          v-if="item.preview"
+          :src="item.preview"
+          :alt="item.name"
+          class="object-cover flex-shrink-0 rounded size-8"
+        />
+        <Icon
+          v-else
+          icon="i-lucide-paperclip"
+          class="flex-shrink-0 mx-1 size-3.5"
+        />
+        <span class="min-w-0 truncate grow">
+          {{ item.name }} · {{ item.size }}
+        </span>
+        <button
+          type="button"
+          class="flex-shrink-0 p-0.5 rounded hover:bg-n-alpha-2"
+          :title="t('INTERNAL_CHAT.COMPOSER.REMOVE_ATTACHMENT')"
+          @click="removeAttachment(index)"
+        >
+          <Icon icon="i-lucide-x" class="size-3.5" />
+        </button>
+      </div>
     </div>
+
+    <div
+      v-if="isUploading"
+      class="flex items-center gap-2 text-xs text-n-slate-11"
+    >
+      <Icon icon="i-lucide-loader-circle" class="animate-spin size-3.5" />
+      {{ t('INTERNAL_CHAT.COMPOSER.UPLOADING') }}
+    </div>
+
+    <!-- Um so input serve as duas entradas do menu; o que muda e o filtro. -->
+    <input
+      ref="fileInput"
+      type="file"
+      multiple
+      class="hidden"
+      :accept="acceptedTypes"
+      @change="onFilesChosen"
+    />
 
     <div class="relative flex items-end gap-2">
       <!-- Menu de anexos -->
@@ -179,7 +318,7 @@ const onKeydown = event => {
             <button
               type="button"
               class="flex items-center gap-2 px-3 py-1.5 text-sm text-start text-n-slate-12 hover:bg-n-alpha-2"
-              @click="attachMock('image')"
+              @click="pickFiles('image')"
             >
               <Icon icon="i-lucide-image" class="size-4 text-n-slate-11" />
               {{ t('INTERNAL_CHAT.COMPOSER.ATTACH_IMAGE') }}
@@ -187,7 +326,7 @@ const onKeydown = event => {
             <button
               type="button"
               class="flex items-center gap-2 px-3 py-1.5 text-sm text-start text-n-slate-12 hover:bg-n-alpha-2"
-              @click="attachMock('file')"
+              @click="pickFiles('file')"
             >
               <Icon icon="i-lucide-paperclip" class="size-4 text-n-slate-11" />
               {{ t('INTERNAL_CHAT.COMPOSER.ATTACH_FILE') }}
@@ -238,20 +377,14 @@ const onKeydown = event => {
             <Icon icon="i-lucide-smile" class="size-4" />
           </button>
 
-          <div
+          <!-- Ancorado a direita: o painel tem 22rem e o botao fica junto ao
+               Enviar, entao alinhado a esquerda ele sairia da tela. -->
+          <EmojiIconPicker
             v-if="emojiOpen"
-            class="absolute z-20 grid grid-cols-4 gap-0.5 p-1.5 border rounded-md shadow-md bottom-full end-0 mb-1 border-n-weak bg-n-solid-1"
-          >
-            <button
-              v-for="emoji in EMOJIS"
-              :key="emoji"
-              type="button"
-              class="p-1 text-base rounded hover:bg-n-alpha-2"
-              @click="body += emoji"
-            >
-              {{ emoji }}
-            </button>
-          </div>
+            mode="emoji"
+            class="!top-auto !bottom-full mb-1.5 ltr:right-0 rtl:left-0"
+            @select="insertEmoji($event.value)"
+          />
         </div>
       </OnClickOutside>
 

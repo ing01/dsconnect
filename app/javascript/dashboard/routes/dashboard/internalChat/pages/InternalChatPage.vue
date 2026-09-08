@@ -1,5 +1,12 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
@@ -242,8 +249,8 @@ const unreadDividerIndex = computed(() => {
         </div>
 
         <ChatComposer
+          :channel-id="activeRoomId"
           :users="users"
-          :allow-attachments="false"
           :reply-to="replyTo"
           :reply-author="replyTo ? userFor(replyTo.userId) : null"
           :placeholder="

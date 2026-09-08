@@ -416,7 +416,11 @@
     "DOCS": "Ler documentos",
     "SECURITY": "Security",
     "CAPTAIN_AI": "Captain",
-    "CONVERSATION_WORKFLOW": "Conversation Workflow"
+    "CONVERSATION_WORKFLOW": "Conversation Workflow",
+    "PROJECT_SETTINGS": "Projetos",
+    "PROJECT_MODULES": "Módulos",
+    "PROJECT_TASKS": "Tarefas",
+    "CHECKLISTS": "Checklists"
   },
   "DATA_IMPORTS": {
     "HEADER": "Data",

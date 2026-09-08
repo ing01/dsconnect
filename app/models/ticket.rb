@@ -27,6 +27,7 @@ class Ticket < ApplicationRecord
   has_many :calendar_event_tickets, dependent: :destroy
   has_many :calendar_events, through: :calendar_event_tickets
   has_many :ticket_checklist_items, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :ticket
+  has_many :ticket_time_entries, -> { order(worked_on: :desc, id: :desc) }, dependent: :destroy, inverse_of: :ticket
 
   validates :title, presence: true
   validates :custom_attributes, jsonb_attributes_length: true
@@ -125,11 +126,20 @@ class Ticket < ApplicationRecord
     advance_project_stage_if_needed!
   end
 
+  # Um item de checklist OBRIGATORIO pendente bloqueia a conclusao, a menos
+  # que ja exista um Apontamento (calendar_event) vinculado ao ticket - o
+  # mesmo criterio que TicketColumn#require_appointment? usa para a trava de
+  # coluna. Itens nao obrigatorios sao so informativos e nunca bloqueiam.
   def ensure_checklist_completed!
-    if ticket_checklist_items.where(completed: false).exists?
-      errors.add(:base, I18n.t('tickets.checklist.pending_items', default: 'Não é possível concluir esta tarefa. Existem itens pendentes no checklist.'))
-      raise ActiveRecord::RecordInvalid.new(self)
-    end
+    return if calendar_events.exists?
+    return unless ticket_checklist_items.where(completed: false, required: true).exists?
+
+    errors.add(:base, I18n.t('tickets.checklist.pending_items', default: 'Não é possível concluir esta tarefa. Existem itens pendentes no checklist.'))
+    raise ActiveRecord::RecordInvalid.new(self)
+  end
+
+  def checklist_pending?
+    ticket_checklist_items.where(completed: false, required: true).exists? && calendar_events.empty?
   end
 
   def advance_project_stage_if_needed!

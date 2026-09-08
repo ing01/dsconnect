@@ -793,6 +793,34 @@ const menuItems = computed(() => {
             },
           ],
         },
+        {
+          name: 'Settings Projects',
+          label: t('SIDEBAR.PROJECT_SETTINGS'),
+          icon: 'i-lucide-layers',
+          activeOn: ['project_settings_wrapper'],
+          collapsible: true,
+          showTreeLine: true,
+          children: [
+            {
+              name: 'Settings Project Modules',
+              label: t('SIDEBAR.PROJECT_MODULES'),
+              activeOn: ['project_modules_list'],
+              to: accountScopedRoute('project_modules_list'),
+            },
+            {
+              name: 'Settings Project Tasks',
+              label: t('SIDEBAR.PROJECT_TASKS'),
+              activeOn: ['project_tasks_list'],
+              to: accountScopedRoute('project_tasks_list'),
+            },
+            {
+              name: 'Settings Checklists',
+              label: t('SIDEBAR.CHECKLISTS'),
+              activeOn: ['project_checklists_list'],
+              to: accountScopedRoute('project_checklists_list'),
+            },
+          ],
+        },
         ...(hasAdvancedAssignment.value
           ? [
               {

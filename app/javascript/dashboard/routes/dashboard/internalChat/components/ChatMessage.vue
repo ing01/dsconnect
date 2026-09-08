@@ -67,9 +67,10 @@ const hasReacted = reaction => reaction.userIds.includes(props.currentUserId);
       />
 
       <MessageAttachment
-        v-if="message.attachment"
-        :attachment="message.attachment"
-        @open-image="attachment => emit('openImage', attachment)"
+        v-for="attachment in message.attachments || []"
+        :key="attachment.id"
+        :attachment="attachment"
+        @open-image="chosen => emit('openImage', chosen)"
       />
 
       <div v-if="reactions.length" class="flex flex-wrap gap-1 mt-1.5">

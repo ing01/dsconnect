@@ -386,6 +386,8 @@ Rails.application.routes.draw do
             member do
               post :read
             end
+            # O upload vai direto para o storage; a aplicacao so registra o blob.
+            resources :direct_uploads, module: 'chat_channels', only: [:create]
             resources :messages, controller: 'chat_messages', only: [:index, :create] do
               member do
                 post :toggle_reaction
@@ -424,7 +426,11 @@ Rails.application.routes.draw do
               member do
                 patch :toggle
               end
+              collection do
+                post :attach_checklist
+              end
             end
+            resources :time_entries, controller: 'ticket_time_entries', only: [:index, :create, :update, :destroy]
           end
 
           resources :projects do
@@ -434,6 +440,7 @@ Rails.application.routes.draw do
           end
           resources :project_modules
           resources :project_task_templates
+          resources :checklists
 
           resources :service_catalogs do
             resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do

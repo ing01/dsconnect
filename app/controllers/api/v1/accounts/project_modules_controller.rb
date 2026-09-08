@@ -19,7 +19,9 @@ class Api::V1::Accounts::ProjectModulesController < Api::V1::Accounts::BaseContr
   def update
     ActiveRecord::Base.transaction do
       @project_module.update!(project_module_params)
-      sync_task_templates! if params[:task_template_ids].present? || params[:task_templates].present?
+      # `.key?`, not `.present?` - an empty array is how the client says
+      # "remove every task from this module", and must still sync.
+      sync_task_templates! if params.key?(:task_template_ids) || params.key?(:task_templates)
     end
     render 'show'
   end
@@ -40,9 +42,9 @@ class Api::V1::Accounts::ProjectModulesController < Api::V1::Accounts::BaseContr
   end
 
   def sync_task_templates!
-    if params[:task_templates].present?
+    if params.key?(:task_templates)
       @project_module.project_module_task_templates.destroy_all
-      params[:task_templates].each_with_index do |item, index|
+      Array(params[:task_templates]).each_with_index do |item, index|
         template_id = item.is_a?(Hash) ? item[:id] || item[:task_template_id] : item
         next if template_id.blank?
 
@@ -51,9 +53,9 @@ class Api::V1::Accounts::ProjectModulesController < Api::V1::Accounts::BaseContr
           position: index
         )
       end
-    elsif params[:task_template_ids].present?
+    elsif params.key?(:task_template_ids)
       @project_module.project_module_task_templates.destroy_all
-      params[:task_template_ids].each_with_index do |template_id, index|
+      Array(params[:task_template_ids]).each_with_index do |template_id, index|
         next if template_id.blank?
 
         @project_module.project_module_task_templates.create!(

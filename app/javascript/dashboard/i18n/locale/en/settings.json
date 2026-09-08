@@ -427,6 +427,10 @@
     "TICKET_CATALOG": "Catalogue",
     "TICKET_CATEGORIES": "Categories",
     "TICKET_PRIORITIES": "Priorities & SLA",
+    "PROJECT_SETTINGS": "Projects",
+    "PROJECT_MODULES": "Modules",
+    "PROJECT_TASKS": "Tasks",
+    "CHECKLISTS": "Checklists",
     "INTERNAL_CHAT": "Internal chat"
   },
   "DATA_IMPORTS": {

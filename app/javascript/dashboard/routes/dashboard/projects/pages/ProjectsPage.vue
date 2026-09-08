@@ -3,8 +3,8 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { useRouter } from 'vue-router';
-import { frontendURL } from 'dashboard/helper/URLHelper';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -14,6 +14,7 @@ import { formatMesaName } from 'dashboard/helper/mesaName';
 import ProjectBoard from '../components/ProjectBoard.vue';
 import ProjectCreateDialog from '../components/ProjectCreateDialog.vue';
 import ProjectDetailModal from '../components/ProjectDetailModal.vue';
+import ProjectsTutorialDialog from '../components/ProjectsTutorialDialog.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -23,9 +24,9 @@ const selectedTeamId = ref(null);
 const searchQuery = ref('');
 const showCompleted = ref(false);
 const showCreateModal = ref(false);
+const showTutorial = ref(false);
 const selectedProjectId = ref(null);
 
-const accountId = computed(() => store.getters['getCurrentAccountId']);
 const teams = computed(() => store.getters['teams/getTeams'] || []);
 const projects = computed(() => store.getters['projects/getProjects'] || []);
 const uiFlags = computed(() => store.getters['projects/getUIFlags'] || {});
@@ -69,7 +70,7 @@ const onMoveProject = async ({ project, newStage }) => {
     });
     useAlert(t('PROJECTS.DETAIL.STAGE_UPDATED'));
   } catch (error) {
-    useAlert(error.message || t('PROJECTS.DETAIL.UPDATE_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('PROJECTS.DETAIL.UPDATE_ERROR'));
     loadProjects();
   }
 };
@@ -79,11 +80,11 @@ const openProjectDetail = project => {
 };
 
 const goToModulesSettings = () => {
-  router.push(frontendURL(`accounts/${accountId.value}/settings/projects/modules`));
+  router.push({ name: 'project_modules_list' });
 };
 
 const goToTasksSettings = () => {
-  router.push(frontendURL(`accounts/${accountId.value}/settings/projects/tasks`));
+  router.push({ name: 'project_tasks_list' });
 };
 </script>
 
@@ -103,6 +104,14 @@ const goToTasksSettings = () => {
 
         <!-- Action Buttons -->
         <div class="flex items-center gap-2">
+          <NextButton
+            faded
+            slate
+            size="sm"
+            icon="i-lucide-help-circle"
+            :label="t('PROJECTS.HELP.BUTTON')"
+            @click="showTutorial = true"
+          />
           <NextButton
             faded
             slate
@@ -247,6 +256,15 @@ const goToTasksSettings = () => {
         @close="selectedProjectId = null"
         @updated="loadProjects"
       />
+    </woot-modal>
+
+    <!-- Tutorial: passo a passo do fluxo completo de Projetos -->
+    <woot-modal
+      v-if="showTutorial"
+      :show="showTutorial"
+      :on-close="() => (showTutorial = false)"
+    >
+      <ProjectsTutorialDialog />
     </woot-modal>
   </div>
 </template>

@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { useRouter } from 'vue-router';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -53,7 +54,7 @@ const onStageChange = async newStage => {
     useAlert(t('PROJECTS.DETAIL.STAGE_UPDATED'));
     emit('updated');
   } catch (error) {
-    useAlert(error.message || t('PROJECTS.DETAIL.UPDATE_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('PROJECTS.DETAIL.UPDATE_ERROR'));
   }
 };
 
@@ -104,6 +105,28 @@ const currentStageColor = computed(() => {
               {{ t(`PROJECTS.STAGES.${st.key.toUpperCase()}`, st.label) }}
             </option>
           </select>
+        </div>
+      </div>
+
+      <!-- Apontamento Total: soma das horas lançadas (TicketTimeEntry) em
+           todos os tickets deste projeto. -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.DETAIL.TOTAL_HOURS') }}</span>
+          <span class="text-sm font-medium text-n-slate-12">{{ project.total_hours || 0 }}h</span>
+        </div>
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.DETAIL.TICKETS_STATUS') }}</span>
+          <span
+            class="text-sm font-medium"
+            :class="project.tickets_completed ? 'text-n-teal-11' : 'text-n-amber-11'"
+          >
+            {{
+              project.tickets_completed
+                ? t('PROJECTS.DETAIL.ALL_TICKETS_DONE')
+                : t('PROJECTS.DETAIL.TICKETS_PENDING')
+            }}
+          </span>
         </div>
       </div>
 

@@ -38,7 +38,11 @@
       "REPLYING_TO": "Respondendo {name}:",
       "CANCEL_REPLY": "Cancelar resposta",
       "QUOTED": "\"{text}\"",
-      "ATTACH_SOON": "Anexos chegam na próxima etapa"
+      "ATTACH_SOON": "Anexos chegam na próxima etapa",
+      "UPLOADING": "Enviando arquivos…",
+      "UPLOAD_FAILED": "Não foi possível enviar {name}.",
+      "FILE_TOO_LARGE": "{name} passa do limite de {size} MB.",
+      "TOO_MANY_FILES": "No máximo {count} arquivos por mensagem."
     },
     "NEW_CONVERSATION": {
       "TITLE": "Nova conversa",

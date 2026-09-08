@@ -14,6 +14,7 @@ const DIRECTORIES = [
   'tickets/components/create',
   'tickets/components/detail',
   'tickets/components/detail/actions',
+  'tickets/components/workspace',
   'tickets/pages',
 ];
 

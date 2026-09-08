@@ -133,13 +133,19 @@ export const actions = {
    * Só entra na sala se ela já tiver sido carregada - senão a conversa
    * apareceria com um único recado solto, sem o histórico que vem antes dele.
    */
-  applyRealtimeMessage: ({ commit, state: _state, dispatch }, { channelId, message }) => {
+  applyRealtimeMessage: (
+    { commit, state: _state, dispatch },
+    { channelId, message }
+  ) => {
     const room = _state.rooms.find(item => item.id === channelId);
     if (!room) return;
 
     const isKnown = room.messages.some(item => item.id === message.id);
     if (isKnown) {
-      commit(types.UPDATE_INTERNAL_CHAT_MESSAGE, { roomId: channelId, message });
+      commit(types.UPDATE_INTERNAL_CHAT_MESSAGE, {
+        roomId: channelId,
+        message,
+      });
       return;
     }
 
@@ -170,12 +176,13 @@ export const actions = {
     await InternalChatAPI.markRead(roomId);
   },
 
-  sendMessage: async ({ commit }, { roomId, body, replyTo }) => {
+  sendMessage: async ({ commit }, { roomId, body, replyTo, attachments }) => {
     commit(types.SET_INTERNAL_CHAT_UI_FLAG, { isSending: true });
     try {
       const response = await InternalChatAPI.sendMessage(roomId, {
         content: body,
         replyToId: replyTo,
+        attachments,
       });
       commit(types.ADD_INTERNAL_CHAT_MESSAGE, {
         roomId,

@@ -23,11 +23,15 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
   end
 
   def create
-    @chat_message = @chat_channel.chat_messages.create!(
+    @chat_message = @chat_channel.chat_messages.new(
       user: Current.user,
       content: params[:content],
       reply_to: reply_to
     )
+    # Os arquivos ja subiram direto para o storage; o que chega aqui sao os
+    # signed ids dos blobs, nunca os bytes.
+    @chat_message.attachments.attach(attachment_blobs) if attachment_blobs.any?
+    @chat_message.save!
     # Quem escreve leu tudo o que veio antes.
     membership&.mark_read!
     render 'show'
@@ -52,6 +56,12 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
   end
 
   private
+
+  # Aceita um ou varios, e ignora entrada vazia para o cliente nao precisar
+  # decidir entre mandar lista vazia ou nao mandar nada.
+  def attachment_blobs
+    @attachment_blobs ||= Array(params[:attachments]).compact_blank
+  end
 
   def fetch_channel
     @chat_channel = ChatChannel.for_user(Current.user).find_by!(

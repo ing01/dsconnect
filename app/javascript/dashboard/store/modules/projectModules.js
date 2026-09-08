@@ -33,20 +33,30 @@ export const actions = {
       commit('SET_UI_FLAG', { isFetching: false });
     }
   },
-  create: async ({ commit, dispatch }, data) => {
+  // ProjectModulesController#project_module_params requires the scalar fields
+  // nested under `project_module`; `task_template_ids` is read directly off
+  // top-level params by `sync_task_templates!`, so it stays outside that
+  // wrapper.
+  create: async ({ commit, dispatch }, { task_template_ids, ...data }) => {
     commit('SET_UI_FLAG', { isCreating: true });
     try {
-      const response = await ProjectModulesAPI.create(data);
+      const response = await ProjectModulesAPI.create({
+        project_module: data,
+        task_template_ids,
+      });
       dispatch('get');
       return response.data;
     } finally {
       commit('SET_UI_FLAG', { isCreating: false });
     }
   },
-  update: async ({ commit, dispatch }, { id, ...data }) => {
+  update: async ({ commit, dispatch }, { id, task_template_ids, ...data }) => {
     commit('SET_UI_FLAG', { isUpdating: true });
     try {
-      const response = await ProjectModulesAPI.update(id, data);
+      const response = await ProjectModulesAPI.update(id, {
+        project_module: data,
+        task_template_ids,
+      });
       dispatch('get');
       return response.data;
     } finally {

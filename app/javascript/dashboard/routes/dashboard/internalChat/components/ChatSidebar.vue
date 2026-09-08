@@ -42,14 +42,22 @@ const visibleChannels = computed(() =>
   >
     <div class="flex flex-col gap-2 p-3 border-b border-n-weak">
       <label class="relative flex items-center">
+        <!-- Centrado pela metade da altura, e nao por um deslocamento fixo:
+             assim a lupa acompanha o campo se a altura dele mudar. `block`
+             tira o vao que o span herda da linha de base do texto. -->
         <Icon
           icon="i-lucide-search"
-          class="absolute size-4 text-n-slate-10 start-2.5"
+          class="absolute block -translate-y-1/2 pointer-events-none size-4 text-n-slate-10 start-2.5 top-1/2"
         />
+        <!-- Os `!` sao necessarios: o seletor global de input em _base.scss
+             (input[type] seguido de uma fila de :not) tem especificidade maior
+             que a de qualquer classe utilitaria, entao o px-3 e o mb-4 dele
+             venciam o recuo e a margem pedidos aqui. A altura vem do h-10 da
+             mesma regra, e e sobre ela que a lupa se centraliza. -->
         <input
           v-model="query"
           type="search"
-          class="w-full py-1.5 mb-0 text-sm ps-8"
+          class="w-full text-sm !mb-0 !ps-8"
           :placeholder="t('INTERNAL_CHAT.SIDEBAR.SEARCH')"
         />
       </label>

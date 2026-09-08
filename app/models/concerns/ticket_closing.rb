@@ -26,6 +26,7 @@ module TicketClosing
   MISSING_CATALOG = 'service_catalog'.freeze
   MISSING_COMMUNICATION = 'customer_communication'.freeze
   MISSING_CONTACT_EMAIL = 'contact_email'.freeze
+  MISSING_CHECKLIST = 'checklist'.freeze
 
   included do
     belongs_to :service_catalog_item, optional: true
@@ -76,6 +77,9 @@ module TicketClosing
       missing << MISSING_COMMUNICATION
       missing << MISSING_CONTACT_EMAIL if customer_email.blank?
     end
+    # Same rule as `ensure_checklist_completed!`: a linked Apontamento
+    # (calendar_event) bypasses pending checklist items.
+    missing << MISSING_CHECKLIST if checklist_pending?
     missing
   end
 

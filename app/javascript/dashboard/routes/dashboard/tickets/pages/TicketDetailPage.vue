@@ -12,6 +12,7 @@ import TicketOverviewTab from '../components/detail/TicketOverviewTab.vue';
 import TicketCommunicationTab from '../components/detail/TicketCommunicationTab.vue';
 import TicketAppointmentsTab from '../components/detail/TicketAppointmentsTab.vue';
 import TicketChecklistsTab from '../components/detail/TicketChecklistsTab.vue';
+import TicketTimeEntriesTab from '../components/detail/TicketTimeEntriesTab.vue';
 import TicketDevelopmentTab from '../components/detail/TicketDevelopmentTab.vue';
 import TicketHistoryTab from '../components/detail/TicketHistoryTab.vue';
 import TicketTitleDialog from '../components/detail/actions/TicketTitleDialog.vue';
@@ -103,6 +104,7 @@ const tabs = computed(() => [
   { value: 'communication', label: t('TICKET.DETAIL.TABS.COMMUNICATION') },
   { value: 'appointments', label: t('TICKET.DETAIL.TABS.APPOINTMENTS') },
   { value: 'checklists', label: t('TICKET.DETAIL.TABS.CHECKLISTS') },
+  { value: 'time_entries', label: t('TICKET.DETAIL.TABS.TIME_ENTRIES') },
   { value: 'development', label: t('TICKET.DETAIL.TABS.DEVELOPMENT') },
   { value: 'history', label: t('TICKET.DETAIL.TABS.HISTORY') },
 ]);
@@ -284,7 +286,14 @@ const submitContact = contactId =>
         v-else-if="activeTab === 'appointments'"
         :ticket-id="ticket.id"
       />
-      <TicketChecklistsTab v-else-if="activeTab === 'checklists'" />
+      <TicketChecklistsTab
+        v-else-if="activeTab === 'checklists'"
+        :ticket-id="ticket.id"
+      />
+      <TicketTimeEntriesTab
+        v-else-if="activeTab === 'time_entries'"
+        :ticket-id="ticket.id"
+      />
       <TicketDevelopmentTab v-else-if="activeTab === 'development'" />
       <TicketHistoryTab v-else :ticket-id="ticket.id" />
 

@@ -10,12 +10,21 @@ const emit = defineEmits(['openImage']);
 
 const isImage = computed(() => props.attachment.kind === 'image');
 
-// Sem host externo: a política de conteúdo do produto bloqueia imagem de fora,
-// e o protótipo não deve depender de rede para mostrar um anexo. O preview é
-// um bloco desenhado com o nome do arquivo.
-const previewStyle = computed(() => ({
-  background: `linear-gradient(135deg, ${props.attachment.color || '#3f5c78'}, #23303d)`,
-}));
+// A miniatura quando existe, o arquivo inteiro quando nao: um SVG, por exemplo,
+// nao passa pelo processador de imagem e volta sem `thumb`.
+const previewSource = computed(
+  () => props.attachment.thumb || props.attachment.url
+);
+
+const readableSize = computed(() => {
+  const bytes = props.attachment.byteSize;
+  if (!bytes) return '';
+
+  const mb = bytes / (1024 * 1024);
+  return mb >= 1
+    ? `${mb.toFixed(1)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+});
 
 const fileIcon = computed(() =>
   props.attachment.name?.endsWith('.pdf')
@@ -31,30 +40,34 @@ const fileIcon = computed(() =>
     class="block mt-1.5 overflow-hidden rounded-lg border border-n-weak w-full max-w-[22rem] text-start hover:border-n-slate-7"
     @click="emit('openImage', attachment)"
   >
-    <span
-      class="flex items-center justify-center h-40 text-xs text-white/80"
-      :style="previewStyle"
-    >
-      {{ attachment.name }}
-    </span>
+    <img
+      :src="previewSource"
+      :alt="attachment.name"
+      loading="lazy"
+      class="object-cover w-full h-40 bg-n-solid-2"
+    />
     <span
       class="flex items-center justify-between gap-2 px-2.5 py-1.5 text-xs bg-n-solid-2 text-n-slate-11"
     >
       <span class="truncate">{{ attachment.name }}</span>
-      <span class="flex-shrink-0">{{ attachment.size }}</span>
+      <span class="flex-shrink-0">{{ readableSize }}</span>
     </span>
   </button>
 
-  <div
+  <!-- Arquivo que nao e imagem: abre em outra aba, servido pelo storage. -->
+  <a
     v-else
-    class="flex items-center gap-2.5 mt-1.5 px-2.5 py-2 rounded-lg border border-n-weak bg-n-solid-2 w-full max-w-[20rem]"
+    :href="attachment.url"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="flex items-center gap-2.5 mt-1.5 px-2.5 py-2 rounded-lg border border-n-weak bg-n-solid-2 w-full max-w-[20rem] hover:border-n-slate-7"
   >
     <Icon :icon="fileIcon" class="flex-shrink-0 size-4 text-n-slate-11" />
     <span class="flex flex-col min-w-0">
       <span class="text-sm truncate text-n-slate-12">{{
         attachment.name
       }}</span>
-      <span class="text-xs text-n-slate-10">{{ attachment.size }}</span>
+      <span class="text-xs text-n-slate-10">{{ readableSize }}</span>
     </span>
-  </div>
+  </a>
 </template>

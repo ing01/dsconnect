@@ -189,6 +189,7 @@ describe('InternalChatPage', () => {
       expect(InternalChatAPI.sendMessage).toHaveBeenCalledWith(5, {
         content: 'Vou verificar.',
         replyToId: null,
+        attachments: [],
       });
       // O que entra na tela é o que o servidor devolveu, com o id dele.
       expect(
@@ -270,18 +271,19 @@ describe('InternalChatPage', () => {
     expect(message.reactions).toEqual([{ emoji: '👍', userIds: [11] }]);
   });
 
-  // Anexos ainda não persistem, então o botão não pode aceitar um arquivo que
-  // desapareceria ao recarregar.
-  it('keeps attachments disabled while they do not persist', async () => {
+  // Os anexos passaram a ser gravados de verdade, entao o botao deixa de ser a
+  // promessa desabilitada que era no prototipo.
+  it('offers attachments now that they are stored', async () => {
     const { wrapper } = await mountPage();
 
     const attach = wrapper
       .findAll('button')
       .find(
         button =>
-          button.attributes('title') === 'INTERNAL_CHAT.COMPOSER.ATTACH_SOON'
+          button.attributes('title') === 'INTERNAL_CHAT.COMPOSER.ATTACH'
       );
 
-    expect(attach.attributes('disabled')).toBeDefined();
+    expect(attach).toBeDefined();
+    expect(attach.attributes('disabled')).toBeUndefined();
   });
 });

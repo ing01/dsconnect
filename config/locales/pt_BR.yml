@@ -111,6 +111,11 @@ pt_BR:
         invalid: is not a valid email address
     validations:
       presence: não pode ficar em branco
+    chat_message:
+      too_large: é maior que o limite de %{size} MB
+      too_many: não pode passar de %{count} arquivos por mensagem
+    project:
+      tickets_pending: Este projeto não pode ser finalizado enquanto ainda houver tickets em aberto.
     ticket_attachment:
       too_large: é maior que o limite de %{size} MB
     ticket_column:
@@ -120,6 +125,12 @@ pt_BR:
       team_change_with_tickets:
         one: Este estágio possui 1 ticket e não pode ser movido para outra Mesa. Mova o ticket antes de continuar.
         other: Este estágio possui %{count} tickets e não pode ser movido para outra Mesa. Mova os tickets antes de continuar.
+      required_kind:
+        pending: Este é o estágio obrigatório "Pendente" da Mesa e não pode ser excluído.
+        completed: Este é o estágio obrigatório "Finalizado" da Mesa e não pode ser excluído.
+      kind_taken:
+        pending: Esta Mesa já possui um estágio "Pendente".
+        completed: Esta Mesa já possui um estágio "Finalizado".
     ticket_export:
       empty: Nenhum ticket disponível para exportação.
       too_many: Esta busca retorna mais de %{limit} tickets. Restrinja o período ou os filtros antes de exportar.

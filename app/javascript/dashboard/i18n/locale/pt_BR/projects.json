@@ -1,8 +1,5 @@
 {
   "PROJECTS": {
-    "SIDEBAR": {
-      "PROJECTS": "Projetos"
-    },
     "HEADER": {
       "TITLE": "Projetos",
       "SUBTITLE": "Gerencie e acompanhe seus fluxos de atendimento",
@@ -76,14 +73,21 @@
     "TASK": {
       "CALL_TITLE": "Título do atendimento",
       "ADVANCES_TO": "Avança para",
+      "CATEGORY": "Categoria",
+      "NO_CATEGORY": "Sem categoria",
       "ASSIGNEE": "Responsável",
       "UNASSIGNED": "Não atribuído",
-      "DUE_DATE": "Vencimento"
+      "DUE_DATE": "Vencimento",
+      "SCHEDULED_AT": "Agendamento"
     },
     "DETAIL": {
       "TITLE": "Detalhes do Projeto",
       "LOADING": "Carregando projeto...",
       "STAGE": "Etapa",
+      "TOTAL_HOURS": "Horas totais apontadas",
+      "TICKETS_STATUS": "Tickets",
+      "ALL_TICKETS_DONE": "Todos concluídos",
+      "TICKETS_PENDING": "Ainda há tickets em aberto",
       "TASKS_LIST": "Tarefas",
       "COMPLETED": "concluídas",
       "NO_TASKS": "Nenhuma tarefa gerada para este projeto ainda.",
@@ -91,49 +95,217 @@
       "UPDATE_ERROR": "Erro ao atualizar etapa do projeto"
     },
     "LOADING": "Carregando projetos...",
-    "PROJECT_TASKS": {
-      "ADD": {
-        "TITLE": "Novo Modelo de Tarefa",
-        "SUBMIT": "Criar Modelo",
-        "SUCCESS": "Modelo de tarefa criado com sucesso",
-        "ERROR": "Erro ao criar modelo de tarefa"
+    "HELP": {
+      "BUTTON": "Ajuda",
+      "PROJECT": {
+        "TITLE": "Como funciona o cadastro de Projeto",
+        "INTRO": "Um Projeto liga um Cliente, uma Mesa e um Módulo. O Módulo define quais Tarefas serão revisadas no passo 2 antes de gerar os tickets.",
+        "STEP2": "No passo 2, revise cada tarefa: escolha uma Categoria (obrigatória - todo ticket precisa de uma), o responsável, a data de vencimento e, opcionalmente, o agendamento.",
+        "AFTER": "Ao confirmar, um ticket é criado para cada tarefa, vinculado a este Projeto. O Projeto não pode ser marcado como Finalizado enquanto algum desses tickets estiver aberto."
       },
-      "EDIT": {
-        "TITLE": "Editar Modelo de Tarefa",
-        "SUBMIT": "Atualizar Modelo",
-        "SUCCESS": "Modelo de tarefa atualizado com sucesso",
-        "ERROR": "Erro ao atualizar modelo de tarefa"
+      "MODULE": {
+        "TITLE": "Como funcionam os Módulos",
+        "INTRO": "Um Módulo é um conjunto nomeado de Tarefas (ex: \"Onboarding padrão\"). Criar um Projeto com um Módulo já anexa todas as suas tarefas de uma vez, na ordem mostrada aqui.",
+        "SHORTCUT": "Use o atalho no cadastro de Projeto para criar um Módulo novo sem perder o que já estava preenchendo - ele abre em uma nova aba."
       },
-      "FORM": {
-        "NAME": {
-          "LABEL": "Nome da tarefa",
-          "PLACEHOLDER": "Ex: Ligação inicial"
-        },
-        "DEFAULT_TITLE": {
-          "LABEL": "Título padrão do atendimento",
-          "PLACEHOLDER": "Ex: Ligação de boas-vindas com o cliente"
-        },
-        "DESCRIPTION": {
-          "LABEL": "Descrição",
-          "PLACEHOLDER": "Descreva esta tarefa..."
-        },
-        "CHECKLIST": {
-          "LABEL": "Itens de checklist",
-          "PLACEHOLDER": "Adicionar item ao checklist",
-          "ADD": "Adicionar item"
-        },
-        "DEFAULT_ASSIGNEE": {
-          "LABEL": "Responsável padrão",
-          "NONE": "Não atribuído"
-        },
-        "DUE_DAYS": {
-          "LABEL": "Vencimento em (dias)",
-          "PLACEHOLDER": "0"
-        },
-        "NEXT_STAGE": {
-          "LABEL": "Próxima etapa do projeto",
-          "HINT": "Selecione a etapa para a qual esta tarefa avança o projeto quando concluída."
+      "TASK": {
+        "TITLE": "Como funcionam as Tarefas",
+        "INTRO": "Uma Tarefa define como o ticket gerado vai nascer: título padrão, descrição, responsável padrão, dias até o vencimento e para qual etapa do Projeto ela avança quando concluída.",
+        "CHECKLIST": "Anexe um Checklist pronto para exigir informações específicas antes de o ticket poder ser resolvido. Só itens obrigatórios bloqueiam a conclusão."
+      },
+      "CHECKLIST": {
+        "TITLE": "Como funcionam os itens do Checklist",
+        "INTRO": "Cada item tem um tipo: Caixa de seleção (sim/não simples), Texto, Seleção única (escolher entre opções que você define) ou Valor (um número).",
+        "REQUIRED": "Marque um item como Obrigatório para que ele bloqueie a conclusão do ticket até ser preenchido ou marcado - itens opcionais são só informativos."
+      },
+      "TUTORIAL": {
+        "TITLE": "Tutorial de Projetos",
+        "STEP1": "1. Cadastre as Tarefas que serão reutilizadas (Configurações → Projetos → Tarefas). Cada uma define o título padrão do ticket, os dias para vencimento e, opcionalmente, um Checklist.",
+        "STEP2": "2. Agrupe tarefas relacionadas em um Módulo (Configurações → Projetos → Módulos) - ex: \"Onboarding padrão\" com Primeiro contato, Instalação, Treinamento.",
+        "STEP3": "3. Crie um Projeto, escolha o Cliente, a Mesa e esse Módulo. O passo 2 deixa revisar o responsável, a categoria e as datas de cada tarefa antes de confirmar.",
+        "STEP4": "4. Ao confirmar, um ticket é gerado para cada tarefa, já vinculado ao Projeto e ao quadro Kanban da Mesa.",
+        "STEP5": "5. Conforme os tickets são resolvidos, o Projeto pode avançar automaticamente de etapa (configurado por tarefa). Só chega a Finalizado quando todos os tickets estiverem concluídos.",
+        "STEP6": "6. Acompanhe o total de horas apontadas e o progresso direto no card e nos detalhes do Projeto."
+      }
+    }
+  },
+  "PROJECT_TASKS": {
+    "ADD": {
+      "TITLE": "Novo Modelo de Tarefa",
+      "SUBMIT": "Criar Modelo",
+      "SUCCESS": "Modelo de tarefa criado com sucesso",
+      "ERROR": "Erro ao criar modelo de tarefa"
+    },
+    "EDIT": {
+      "TITLE": "Editar Modelo de Tarefa",
+      "SUBMIT": "Atualizar Modelo",
+      "SUCCESS": "Modelo de tarefa atualizado com sucesso",
+      "ERROR": "Erro ao atualizar modelo de tarefa"
+    },
+    "LIST": {
+      "HEADER": "Modelos de tarefa",
+      "DESCRIPTION": "Configure as tarefas que podem ser adicionadas a um módulo e reutilizadas em projetos.",
+      "ADD_BUTTON": "Novo modelo de tarefa",
+      "EMPTY": "Nenhum modelo de tarefa ainda.",
+      "EDIT_TOOLTIP": "Editar modelo",
+      "DELETE_TOOLTIP": "Excluir modelo",
+      "TABLE": {
+        "NAME": "Nome",
+        "DEFAULT_TITLE": "Título padrão do chamado",
+        "DUE_DAYS": "Vencimento (dias)",
+        "NEXT_STAGE": "Avança para",
+        "ACTIONS": "Ações"
+      },
+      "DELETE": {
+        "TITLE": "Excluir modelo de tarefa",
+        "MESSAGE": "Tem certeza que deseja excluir",
+        "CONFIRM": "Excluir",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Modelo de tarefa excluído",
+        "ERROR": "Erro ao excluir modelo de tarefa"
+      }
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome da tarefa",
+        "PLACEHOLDER": "Ex: Ligação inicial"
+      },
+      "DEFAULT_TITLE": {
+        "LABEL": "Título padrão do atendimento",
+        "PLACEHOLDER": "Ex: Ligação de boas-vindas com o cliente"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Descreva esta tarefa..."
+      },
+      "CHECKLIST": {
+        "LABEL": "Itens de checklist",
+        "PLACEHOLDER": "Adicionar item ao checklist",
+        "ADD": "Adicionar item"
+      },
+      "DEFAULT_ASSIGNEE": {
+        "LABEL": "Responsável padrão",
+        "NONE": "Não atribuído"
+      },
+      "DUE_DAYS": {
+        "LABEL": "Vencimento em (dias)",
+        "PLACEHOLDER": "0"
+      },
+      "NEXT_STAGE": {
+        "LABEL": "Próxima etapa do projeto",
+        "HINT": "Selecione a etapa para a qual esta tarefa avança o projeto quando concluída."
+      }
+    }
+  },
+  "PROJECT_MODULES": {
+    "LIST": {
+      "HEADER": "Módulos",
+      "DESCRIPTION": "Agrupe modelos de tarefa em módulos que podem ser aplicados a um projeto.",
+      "ADD_BUTTON": "Novo módulo",
+      "EMPTY": "Nenhum módulo ainda.",
+      "EDIT_TOOLTIP": "Editar módulo",
+      "DELETE_TOOLTIP": "Excluir módulo",
+      "TABLE": {
+        "NAME": "Nome",
+        "TASKS": "Tarefas",
+        "ACTIONS": "Ações"
+      },
+      "DELETE": {
+        "TITLE": "Excluir módulo",
+        "MESSAGE": "Tem certeza que deseja excluir",
+        "CONFIRM": "Excluir",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Módulo excluído",
+        "ERROR": "Erro ao excluir módulo"
+      }
+    },
+    "ADD": {
+      "TITLE": "Novo Módulo",
+      "SUBMIT": "Criar Módulo",
+      "SUCCESS": "Módulo criado com sucesso",
+      "ERROR": "Erro ao criar módulo"
+    },
+    "EDIT": {
+      "TITLE": "Editar Módulo",
+      "SUBMIT": "Atualizar Módulo",
+      "SUCCESS": "Módulo atualizado com sucesso",
+      "ERROR": "Erro ao atualizar módulo"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome do módulo",
+        "PLACEHOLDER": "Ex: Onboarding padrão"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Descreva este módulo..."
+      },
+      "TASKS": {
+        "LABEL": "Tarefas deste módulo",
+        "EMPTY": "Nenhum modelo de tarefa disponível ainda.",
+        "HINT": "Selecione as tarefas que compõem este módulo. A ordem aqui define a ordem de revisão ao criar um projeto."
+      }
+    }
+  },
+  "CHECKLISTS": {
+    "NEW_SHORTCUT": "Novo checklist",
+    "SELECT": {
+      "LABEL": "Checklist",
+      "NONE": "Nenhum checklist",
+      "PLACEHOLDER": "Selecione um checklist"
+    },
+    "ADD": {
+      "TITLE": "Novo Checklist",
+      "SUBMIT": "Criar Checklist",
+      "SUCCESS": "Checklist criado com sucesso",
+      "ERROR": "Erro ao criar checklist"
+    },
+    "EDIT": {
+      "TITLE": "Editar Checklist",
+      "SUBMIT": "Atualizar Checklist",
+      "SUCCESS": "Checklist atualizado com sucesso",
+      "ERROR": "Erro ao atualizar checklist"
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Nome do checklist",
+        "PLACEHOLDER": "Ex: Checklist de instalação"
+      },
+      "ITEMS": {
+        "LABEL": "Itens",
+        "PLACEHOLDER": "Título do item",
+        "ADD": "Adicionar item",
+        "EMPTY": "Ainda não há itens.",
+        "REQUIRED": "Obrigatório",
+        "OPTION_PLACEHOLDER": "Adicionar opção",
+        "ADD_OPTION": "Adicionar",
+        "TYPE": {
+          "CHECKBOX": "Caixa de seleção",
+          "TEXT": "Texto",
+          "SINGLE_SELECT": "Seleção única",
+          "NUMBER": "Valor (número)"
         }
+      }
+    },
+    "LIST": {
+      "HEADER": "Checklists",
+      "DESCRIPTION": "Monte checklists reutilizáveis aqui. Modelos de tarefa e tickets podem selecionar um checklist pronto em vez de digitar itens do zero.",
+      "ADD_BUTTON": "Novo checklist",
+      "EMPTY": "Nenhum checklist ainda.",
+      "EDIT_TOOLTIP": "Editar checklist",
+      "DELETE_TOOLTIP": "Excluir checklist",
+      "TABLE": {
+        "NAME": "Nome",
+        "ITEMS": "Itens",
+        "ACTIONS": "Ações"
+      },
+      "DELETE": {
+        "TITLE": "Excluir checklist",
+        "MESSAGE": "Tem certeza que deseja excluir",
+        "CONFIRM": "Excluir",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Checklist excluído",
+        "ERROR": "Erro ao excluir checklist"
       }
     }
   }
