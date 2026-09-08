@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { useCompaniesStore } from 'dashboard/stores/companies';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -19,6 +20,7 @@ const emit = defineEmits(['close', 'created', 'openAddModule']);
 
 const { t } = useI18n();
 const store = useStore();
+const companiesStore = useCompaniesStore();
 
 const step = ref(1);
 const isSubmitting = ref(false);
@@ -39,12 +41,12 @@ const teamMembers = computed(() => {
   return store.getters['teamMembers/getTeamMembers'](teamId.value) || [];
 });
 
-const companies = computed(() => store.getters['companies/getCompanies'] || []);
+const companies = computed(() => companiesStore.getCompaniesList || []);
 
 onMounted(async () => {
   store.dispatch('teams/get');
   store.dispatch('projectModules/get');
-  store.dispatch('companies/get', { page: 1 });
+  companiesStore.get({ page: 1 });
   if (teamId.value) {
     store.dispatch('teamMembers/get', { teamId: teamId.value });
   }
