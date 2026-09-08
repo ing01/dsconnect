@@ -35,13 +35,6 @@ export default {
       type: Object,
       default: null,
     },
-    // The mandatory "Finalizado" Estagio (kind: 'completed') is hidden from the
-    // board by default - it stays in the data, agents just don't work off of it
-    // day to day. Mirrors the Ativos/Concluidos toggle on the Projects board.
-    showCompletedColumn: {
-      type: Boolean,
-      default: false,
-    },
   },
   emits: ['addTicket', 'openTicket', 'moveTicket', 'menuAction'],
   data() {
@@ -66,16 +59,15 @@ export default {
     sort() {
       this.syncLocalState(this.board);
     },
-    showCompletedColumn() {
-      this.syncLocalState(this.board);
-    },
   },
   methods: {
     syncLocalState(board) {
-      const allColumns = board?.ticket_columns || [];
-      const columns = this.showCompletedColumn
-        ? allColumns
-        : allColumns.filter(column => column.kind !== 'completed');
+      // O Estagio "Finalizado" (kind: 'completed') nunca aparece no quadro: os
+      // tickets continuam gravados nele, e quem precisa ve-los usa a Busca
+      // detalhada, que filtra por status.
+      const columns = (board?.ticket_columns || []).filter(
+        column => column.kind !== 'completed'
+      );
       this.columns = columns.map(column => ({ ...column }));
 
       // Sorting is applied here, on the way into the local arrays, which is the

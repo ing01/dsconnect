@@ -29,8 +29,6 @@
       "NO_MESA_DESC": "Peça a um administrador para criar uma Mesa de Serviço (Time) em Configurações antes de criar tickets."
     },
     "BOARD": {
-      "SHOW_COMPLETED": "Mostrar finalizados",
-      "HIDE_COMPLETED": "Ocultar finalizados",
       "ADD_TICKET": "Novo ticket",
       "COLLAPSE": "Minimizar coluna",
       "EXPAND": "Expandir coluna",

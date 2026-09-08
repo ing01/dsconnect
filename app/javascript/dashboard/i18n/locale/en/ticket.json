@@ -29,8 +29,6 @@
       "NO_MESA_DESC": "Ask an administrator to create a Mesa (Team) in Settings before creating tickets."
     },
     "BOARD": {
-      "SHOW_COMPLETED": "Show completed",
-      "HIDE_COMPLETED": "Hide completed",
       "ADD_TICKET": "New ticket",
       "COLLAPSE": "Collapse column",
       "EXPAND": "Expand column",
