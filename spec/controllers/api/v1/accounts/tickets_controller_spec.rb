@@ -321,7 +321,7 @@ RSpec.describe 'Tickets API', type: :request do
 
       expect(response).to have_http_status(:success)
       expect(response.parsed_body['name']).to eq('suporte')
-      expect(response.parsed_body['ticket_columns'].pluck('name')).to eq(['A fazer', 'Em andamento', 'Concluído'])
+      expect(response.parsed_body['ticket_columns'].pluck('name')).to eq(['Pendente', 'Em andamento', 'Finalizado'])
     end
 
     it 'returns the existing Mesa without creating another' do

@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { format, parseISO } from 'date-fns';
 import { formatMesaName } from 'dashboard/helper/mesaName';
 import { INBOX_TYPES } from 'dashboard/helper/inbox';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
@@ -107,29 +108,33 @@ const onColumn = value => emit('moveToColumn', Number(value));
 
 // Persisted straight away, like the other properties; the backend also refuses
 // a Categoria that belongs to another Mesa.
-// A data de entrega e a mesma `due_date` que os Estagios ja podem exigir e que
-// os templates de projeto preenchem - nao um prazo paralelo. O input fala no
-// fuso de quem olha; o servidor guarda o instante.
-const dueDateInput = computed(() => {
-  if (!props.ticket.due_date) return '';
-
-  const date = new Date(props.ticket.due_date);
-  const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return shifted.toISOString().slice(0, 16);
-});
-
-const onDueDate = event => {
-  const value = event.target.value;
-  emit('updateProperty', {
-    due_date: value ? new Date(value).toISOString() : null,
-  });
-};
-
 const onCategory = value =>
   emit('updateProperty', { ticket_category_id: value ? Number(value) : null });
 
 const onAssignee = value =>
   emit('updateProperty', { assignee_id: value ? Number(value) : null });
+
+// `datetime-local` reads/writes "yyyy-MM-ddTHH:mm" in the browser's own
+// timezone; the API stores/returns ISO 8601. An empty string clears the field
+// (Vencimento/Agendamento are both optional at the model level - only a
+// column's require_due_date/require_scheduled_at rule makes them mandatory).
+const toLocalInputValue = iso =>
+  iso ? format(parseISO(iso), "yyyy-MM-dd'T'HH:mm") : '';
+
+const dueDateLocal = computed(() => toLocalInputValue(props.ticket.due_date));
+const scheduledAtLocal = computed(() =>
+  toLocalInputValue(props.ticket.scheduled_at)
+);
+
+const onDueDate = value =>
+  emit('updateProperty', {
+    due_date: value ? new Date(value).toISOString() : null,
+  });
+
+const onScheduledAt = value =>
+  emit('updateProperty', {
+    scheduled_at: value ? new Date(value).toISOString() : null,
+  });
 </script>
 
 <template>
@@ -200,19 +205,6 @@ const onAssignee = value =>
       />
     </TicketPropertyRow>
 
-    <!-- A data prometida de entrega. Mesmo campo que um Estagio pode exigir
-         para deixar o ticket entrar nele. -->
-    <TicketPropertyRow :label="t('TICKET.DETAIL.PROPERTIES.DUE_DATE')">
-      <input
-        :value="dueDateInput"
-        type="datetime-local"
-        class="w-full mb-0"
-        :disabled="!canUpdate"
-        :aria-label="t('TICKET.DETAIL.PROPERTIES.DUE_DATE')"
-        @change="onDueDate"
-      />
-    </TicketPropertyRow>
-
     <!-- Members of the Mesa, not every agent in the account. -->
     <TicketPropertyRow :label="t('TICKET.FORM.ASSIGNEE.LABEL')">
       <div class="flex items-center gap-2 min-w-0">
@@ -239,6 +231,26 @@ const onAssignee = value =>
       <p v-if="!agents.length" class="text-xs text-n-slate-10">
         {{ t('TICKET.FILTERS.NO_MESA_MEMBERS') }}
       </p>
+    </TicketPropertyRow>
+
+    <TicketPropertyRow :label="t('TICKET.DETAIL.PROPERTIES.DUE_DATE')">
+      <input
+        type="datetime-local"
+        :value="dueDateLocal"
+        :disabled="!canUpdate"
+        class="h-9 w-full px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+        @change="onDueDate($event.target.value)"
+      />
+    </TicketPropertyRow>
+
+    <TicketPropertyRow :label="t('TICKET.DETAIL.PROPERTIES.SCHEDULED_AT')">
+      <input
+        type="datetime-local"
+        :value="scheduledAtLocal"
+        :disabled="!canUpdate"
+        class="h-9 w-full px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+        @change="onScheduledAt($event.target.value)"
+      />
     </TicketPropertyRow>
 
     <div class="h-px bg-n-weak" />

@@ -15,17 +15,48 @@ class Project < ApplicationRecord
   enum status: { active: 0, completed: 1, cancelled: 2 }
 
   before_validation :sync_status_with_stage
+  # Only when finalizing (not on every save) - a project already sitting in
+  # `finalizado` must stay editable (renaming it, fixing a date) even if a
+  # ticket got reopened afterwards.
+  validate :tickets_completed_before_finalizing, if: -> { stage_changed? && stage == 'finalizado' }
 
   scope :active_board, -> { where(status: :active).where.not(stage: 'finalizado') }
   scope :completed_board, -> { where(stage: 'finalizado').or(where(status: :completed)) }
 
+  # An `open` ticket is the only status that still represents pending work -
+  # resolved/closed/cancelled all count as "done" for this purpose (see
+  # Ticket::STATUSES).
+  def tickets_completed?
+    !tickets.exists?(status: :open)
+  end
+
+  # Total de horas apontadas (TicketTimeEntry) em todos os tickets deste
+  # projeto - "Apontamento Total".
+  def total_hours
+    TicketTimeEntry.joins(:ticket).where(tickets: { project_id: id }).sum(:hours)
+  end
+
+  # Called automatically when a ticket's `next_project_stage` fires
+  # (Ticket#advance_project_stage_if_needed!). Deliberately silent instead of
+  # raising when blocked: an agent resolving one ticket should never see the
+  # completion of *their* ticket fail because a sibling ticket is still open -
+  # the project just stays where it is until every ticket is done. Explicitly
+  # setting stage to `finalizado` (drag-and-drop, editing the project) is a
+  # different path and still goes through the validation above.
   def advance_stage!(new_stage)
     return unless STAGES.include?(new_stage.to_s)
+    return if new_stage.to_s == 'finalizado' && !tickets_completed?
 
     update!(stage: new_stage.to_s)
   end
 
   private
+
+  def tickets_completed_before_finalizing
+    return if tickets_completed?
+
+    errors.add(:stage, I18n.t('errors.project.tickets_pending'))
+  end
 
   def sync_status_with_stage
     if stage == 'finalizado'

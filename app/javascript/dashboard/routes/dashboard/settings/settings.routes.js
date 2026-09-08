@@ -25,6 +25,7 @@ import teams from './teams/teams.routes';
 import queues from './queues/queues.routes';
 import conversationFlows from './conversationFlows/conversationFlows.routes';
 import ticketSettings from './tickets/tickets.routes';
+import projectSettings from './projects/projects.routes';
 import customRoles from './customRoles/customRole.routes';
 import profile from './profile/profile.routes';
 import security from './security/security.routes';
@@ -72,6 +73,7 @@ export default {
     ...queues.routes,
     ...conversationFlows.routes,
       ...ticketSettings.routes,
+    ...projectSettings.routes,
     ...customRoles.routes,
     ...profile.routes,
     ...security.routes,

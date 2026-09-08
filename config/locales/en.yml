@@ -130,6 +130,8 @@ en:
     chat_message:
       too_large: is larger than the %{size} MB limit
       too_many: cannot exceed %{count} files per message
+    project:
+      tickets_pending: This project cannot be finished while it still has open tickets.
     ticket_attachment:
       too_large: is larger than the %{size} MB limit
     ticket_column:
@@ -139,6 +141,12 @@ en:
       team_change_with_tickets:
         one: This stage has 1 ticket and cannot be moved to another service desk. Move the ticket first.
         other: This stage has %{count} tickets and cannot be moved to another service desk. Move the tickets first.
+      required_kind:
+        pending: This is the service desk's mandatory Pendente stage and cannot be deleted.
+        completed: This is the service desk's mandatory Finalizado stage and cannot be deleted.
+      kind_taken:
+        pending: This service desk already has a Pendente stage.
+        completed: This service desk already has a Finalizado stage.
     ticket_export:
       empty: No tickets available to export.
       too_many: This search returns more than %{limit} tickets. Narrow the period or the filters before exporting.

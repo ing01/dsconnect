@@ -29,6 +29,8 @@
       "NO_MESA_DESC": "Peça a um administrador para criar uma Mesa de Serviço (Time) em Configurações antes de criar tickets."
     },
     "BOARD": {
+      "SHOW_COMPLETED": "Mostrar finalizados",
+      "HIDE_COMPLETED": "Ocultar finalizados",
       "ADD_TICKET": "Novo ticket",
       "COLLAPSE": "Minimizar coluna",
       "EXPAND": "Expandir coluna",
@@ -88,6 +90,9 @@
     },
     "CARD": {
       "CONVERSATIONS_LINKED": "{n} conversa vinculada | {n} conversas vinculadas",
+      "DUE_DATE": "Vencimento",
+      "SCHEDULED_AT": "Agendado",
+      "OVERDUE": "Vencido",
       "MENU": {
         "CLOSE": "Finalizar",
         "REOPEN": "Reabrir",
@@ -193,7 +198,8 @@
         "APPOINTMENTS": "Compromissos",
         "CHECKLISTS": "Checklists",
         "DEVELOPMENT": "Desenvolvimento",
-        "HISTORY": "Histórico"
+        "HISTORY": "Histórico",
+        "TIME_ENTRIES": "Apontamentos"
       },
       "ACTIONS": {
         "LABEL": "Ações do ticket",
@@ -244,7 +250,8 @@
         "STATUS": "Status",
         "STAGE": "Estágio",
         "NO_CATEGORY": "Selecione uma categoria",
-        "DUE_DATE": "Data de entrega"
+        "DUE_DATE": "Data de entrega",
+        "SCHEDULED_AT": "Data de agendamento"
       },
       "FOLLOWERS": {
         "TITLE": "Seguidores",
@@ -282,11 +289,38 @@
       },
       "APPOINTMENTS": {
         "TITLE": "Compromissos",
-        "EMPTY": "Nenhum compromisso registrado."
+        "EMPTY": "Nenhum compromisso registrado.",
+        "NEW_BUTTON": "Novo compromisso",
+        "CREATE_SUCCESS": "Compromisso criado com sucesso",
+        "CREATE_ERROR": "Erro ao criar o compromisso"
       },
       "CHECKLISTS": {
-        "TITLE": "Checklists",
-        "EMPTY": "Checklists ainda não estão disponíveis."
+        "TITLE": "Checklist",
+        "EMPTY": "Nenhum item de checklist.",
+        "ADD_PLACEHOLDER": "Adicionar item ao checklist",
+        "ADD_BUTTON": "Adicionar",
+        "ATTACH_BUTTON": "Anexar",
+        "DELETE": "Remover",
+        "PENDING_HINT": "Existem itens obrigatórios pendentes no checklist. Conclua-os ou registre um Compromisso para liberar a conclusão desta tarefa.",
+        "ADD_ERROR": "Erro ao adicionar item ao checklist",
+        "TOGGLE_ERROR": "Erro ao atualizar item do checklist",
+        "DELETE_ERROR": "Erro ao remover item do checklist"
+      },
+      "TIME_ENTRIES": {
+        "TITLE": "Apontamento",
+        "TOTAL": "Total",
+        "EMPTY": "Nenhuma hora apontada ainda.",
+        "HOURS_PLACEHOLDER": "Horas",
+        "NOTE_PLACEHOLDER": "Observação (opcional)",
+        "ADD_BUTTON": "Apontar horas",
+        "DELETE": "Remover",
+        "ADD_ERROR": "Erro ao apontar horas",
+        "DELETE_ERROR": "Erro ao remover o apontamento",
+        "CATEGORY": {
+          "IMPLANTACAO": "Implantação",
+          "DESENVOLVIMENTO": "Desenvolvimento",
+          "DEV_GERAL": "Dev geral"
+        }
       },
       "DEVELOPMENT": {
         "TITLE": "Desenvolvimento",
@@ -353,6 +387,7 @@
       "TABLE": {
         "NAME": "Estágio",
         "MESA": "Mesa de Serviço",
+        "KIND": "Tipo",
         "TICKETS": "Tickets",
         "ACTIONS": "Ações",
         "STAGE_SLA": "Vencimento do estágio",
@@ -377,6 +412,20 @@
           "HINT": "HH:MM. Deixe em branco para um estágio sem prazo.",
           "INVALID": "Use o formato HH:MM.",
           "PLACEHOLDER": "00:00"
+        },
+        "KIND": {
+          "LABEL": "Tipo da coluna",
+          "NORMAL": "Normal",
+          "PENDING": "Pendente",
+          "COMPLETED": "Finalizado",
+          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto; \"Finalizado\" fica oculto do quadro por padrão."
+        },
+        "RULES": {
+          "LABEL": "Exigir antes de mover um ticket para esta coluna",
+          "REQUIRE_DUE_DATE": "Data de vencimento",
+          "REQUIRE_SCHEDULED_AT": "Data de agendamento",
+          "REQUIRE_APPOINTMENT": "Apontamento",
+          "REQUIRE_ASSIGNEE": "Responsável"
         }
       },
       "API": {
@@ -650,6 +699,9 @@
       "CONFIRM": "Fechar ticket",
       "STEP_CLASSIFICATION": "1. Classificação",
       "STEP_COMMUNICATION": "2. Comunicação com cliente",
+      "STEP_CHECKLIST": "Checklist",
+      "CHECKLIST_PENDING": "Existem itens obrigatórios pendentes no checklist. Conclua-os ou registre um Compromisso neste ticket para concluir mesmo assim.",
+      "CHECKLIST_DONE": "Checklist concluído.",
       "COMMUNICATION_DONE": "Comunicação de encerramento já enviada.",
       "NO_CONTACT_EMAIL": "O solicitante deste ticket não possui um e-mail cadastrado. Cadastre um e-mail válido antes de enviar a comunicação de encerramento.",
       "TO": "Para",

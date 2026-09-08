@@ -51,10 +51,16 @@ const stageDeadline = stage =>
 const tableHeaders = computed(() => [
   t('TICKET.SETTINGS.TABLE.NAME'),
   t('TICKET.SETTINGS.TABLE.MESA'),
+  t('TICKET.SETTINGS.TABLE.KIND'),
   t('TICKET.SETTINGS.TABLE.STAGE_SLA'),
   t('TICKET.SETTINGS.TABLE.TICKETS'),
   t('TICKET.SETTINGS.TABLE.ACTIONS'),
 ]);
+
+const kindLabel = stage =>
+  t(`TICKET.SETTINGS.FORM.KIND.${(stage.kind || 'normal').toUpperCase()}`);
+
+const isRequiredKind = stage => !!stage.kind && stage.kind !== 'normal';
 
 const deleteMessage = computed(() => ` ${selectedStage.value.name}?`);
 
@@ -188,6 +194,19 @@ onBeforeMount(async () => {
               </BaseTableCell>
 
               <BaseTableCell>
+                <span
+                  class="text-body-main"
+                  :class="
+                    stage.kind && stage.kind !== 'normal'
+                      ? 'text-n-teal-11 font-medium'
+                      : 'text-n-slate-11'
+                  "
+                >
+                  {{ kindLabel(stage) }}
+                </span>
+              </BaseTableCell>
+
+              <BaseTableCell>
                 <span class="text-body-main text-n-slate-11">
                   {{ stageDeadline(stage) }}
                 </span>
@@ -226,15 +245,17 @@ onBeforeMount(async () => {
                   />
                   <Button
                     v-tooltip.top="
-                      ticketCount(stage)
-                        ? $t('TICKET.SETTINGS.DELETE_BLOCKED_HINT')
-                        : $t('TICKET.SETTINGS.DELETE')
+                      isRequiredKind(stage)
+                        ? $t('TICKET.SETTINGS.FORM.KIND.HINT')
+                        : ticketCount(stage)
+                          ? $t('TICKET.SETTINGS.DELETE_BLOCKED_HINT')
+                          : $t('TICKET.SETTINGS.DELETE')
                     "
                     icon="i-woot-bin"
                     slate
                     sm
                     class="hover:enabled:text-n-ruby-11 hover:enabled:bg-n-ruby-2"
-                    :disabled="ticketCount(stage) > 0"
+                    :disabled="ticketCount(stage) > 0 || isRequiredKind(stage)"
                     @click="openDeletePopup(stage)"
                   />
                 </div>

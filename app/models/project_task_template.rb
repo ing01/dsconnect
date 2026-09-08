@@ -1,6 +1,7 @@
 class ProjectTaskTemplate < ApplicationRecord
   belongs_to :account
   belongs_to :default_assignee, class_name: 'User', optional: true
+  belongs_to :checklist, optional: true
 
   has_many :project_module_task_templates, dependent: :destroy
   has_many :project_modules, through: :project_module_task_templates

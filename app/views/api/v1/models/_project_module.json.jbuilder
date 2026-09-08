@@ -14,6 +14,8 @@ json.task_templates resource.project_module_task_templates.order(:position, :id)
   json.default_assignee_name template.default_assignee&.name
   json.due_days template.due_days
   json.next_project_stage template.next_project_stage
-  json.checklist template.checklist
+  json.checklist_id template.checklist_id
+  json.checklist_name template.checklist&.name
+  json.checklist_items template.checklist&.items
   json.position join_row.position
 end

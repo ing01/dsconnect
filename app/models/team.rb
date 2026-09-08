@@ -108,10 +108,17 @@ class Team < ApplicationRecord
   # Every Mesa de Servico needs at least one Estagio to be usable in the
   # Kanban, so new Teams are provisioned with a sensible default set that
   # admins can then rename/reorder/extend freely (see TicketColumnsController).
-  DEFAULT_TICKET_COLUMN_NAMES = ['A fazer', 'Em andamento', 'Concluído'].freeze
+  # Pendente and Finalizado are mandatory (TicketColumn#ensure_not_required_kind
+  # blocks deleting them): Pendente is where Projects::CreateTicketsService
+  # lands new project tickets, Finalizado is hidden from the board by default.
+  DEFAULT_TICKET_COLUMNS = [
+    { name: 'Pendente', kind: 'pending' },
+    { name: 'Em andamento', kind: 'normal' },
+    { name: 'Finalizado', kind: 'completed' }
+  ].freeze
 
   def provision_default_ticket_columns
-    DEFAULT_TICKET_COLUMN_NAMES.each { |column_name| ticket_columns.create!(name: column_name) }
+    DEFAULT_TICKET_COLUMNS.each { |column| ticket_columns.create!(column) }
   end
 
   # Category is mandatory on a new ticket, so a Mesa with an empty list would be

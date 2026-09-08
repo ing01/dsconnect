@@ -90,6 +90,10 @@ const stageLabelColor = computed(() => {
         <Icon icon="i-lucide-users" class="size-3.5 text-n-slate-9" />
         <span class="truncate">{{ project.team_name }}</span>
       </div>
+      <div v-if="project.total_hours" class="flex items-center gap-1">
+        <Icon icon="i-lucide-clock-3" class="size-3.5 text-n-slate-9" />
+        <span>{{ project.total_hours }}h</span>
+      </div>
     </div>
 
     <!-- Task Progress Bar -->

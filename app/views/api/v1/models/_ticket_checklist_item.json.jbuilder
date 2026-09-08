@@ -1,6 +1,10 @@
 json.id resource.id
 json.ticket_id resource.ticket_id
 json.title resource.title
+json.item_type resource.item_type
+json.required resource.required
+json.options resource.options
+json.value resource.value
 json.completed resource.completed
 json.completed_at resource.completed_at&.iso8601
 json.completed_by_id resource.completed_by_id

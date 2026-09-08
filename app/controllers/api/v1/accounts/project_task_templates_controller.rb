@@ -3,7 +3,7 @@ class Api::V1::Accounts::ProjectTaskTemplatesController < Api::V1::Accounts::Bas
   before_action :check_authorization
 
   def index
-    @project_task_templates = Current.account.project_task_templates.includes(:default_assignee).ordered
+    @project_task_templates = Current.account.project_task_templates.includes(:default_assignee, :checklist).ordered
   end
 
   def show; end
@@ -31,7 +31,7 @@ class Api::V1::Accounts::ProjectTaskTemplatesController < Api::V1::Accounts::Bas
   def project_task_template_params
     params.require(:project_task_template).permit(
       :name, :default_ticket_title, :description, :default_assignee_id,
-      :due_days, :next_project_stage, checklist: [:id, :title]
+      :due_days, :next_project_stage, :checklist_id
     )
   end
 end

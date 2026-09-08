@@ -428,7 +428,11 @@ Rails.application.routes.draw do
               member do
                 patch :toggle
               end
+              collection do
+                post :attach_checklist
+              end
             end
+            resources :time_entries, controller: 'ticket_time_entries', only: [:index, :create, :update, :destroy]
           end
 
           resources :projects do
@@ -438,6 +442,7 @@ Rails.application.routes.draw do
           end
           resources :project_modules
           resources :project_task_templates
+          resources :checklists
 
           resources :service_catalogs do
             resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do

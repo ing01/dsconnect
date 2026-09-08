@@ -5,7 +5,7 @@ module Projects
     def perform
       return [] if tasks.blank?
 
-      target_column = project.team.ticket_columns.order(:position).first
+      target_column = project.team.ticket_columns.find_by(kind: 'pending') || project.team.ticket_columns.order(:position).first
       return [] unless target_column
 
       created_tickets = []
@@ -29,6 +29,7 @@ module Projects
           ticket = account.tickets.create!(
             team: project.team,
             ticket_column: target_column,
+            ticket_category: ticket_category_for(task_data),
             company: project.company,
             contact: project.contact,
             project: project,
@@ -43,16 +44,12 @@ module Projects
             position: index
           )
 
-          # Populate checklist from template
-          Array(template.checklist).each_with_index do |item, item_idx|
-            item_title = item.is_a?(Hash) ? item['title'] || item[:title] : item.to_s
-            next if item_title.blank?
+          # Populate checklist from the Checklist attached to the template, if any.
+          Array(template.checklist&.items).each_with_index do |item, item_idx|
+            attrs = checklist_item_attributes_from(item)
+            next if attrs[:title].blank?
 
-            ticket.ticket_checklist_items.create!(
-              account: account,
-              title: item_title,
-              position: item_idx
-            )
+            ticket.ticket_checklist_items.create!(attrs.merge(account: account, position: item_idx))
           end
 
           created_tickets << ticket
@@ -63,6 +60,30 @@ module Projects
     end
 
     private
+
+    # Ticket#ticket_category is required on create (see TicketOpening) - a task
+    # can name a specific Categoria (chosen in ProjectCreateDialog's step 2),
+    # falling back to the Mesa's first one so generation never fails just
+    # because nobody picked one.
+    def ticket_category_for(task_data)
+      requested_id = task_data[:ticket_category_id].presence
+      category = project.team.ticket_categories.find_by(id: requested_id) if requested_id
+
+      category || project.team.ticket_categories.order(:position, :id).first
+    end
+
+    # Same shape as Api::V1::Accounts::TicketChecklistItemsController#item_attributes_from -
+    # a Checklist's `items` jsonb array holds plain hashes (string keys),
+    # `type` renamed to `item_type` since `type` is reserved for STI.
+    def checklist_item_attributes_from(item)
+      item = item.is_a?(Hash) ? item.with_indifferent_access : {}
+      {
+        title: item[:title].to_s,
+        item_type: TicketChecklistItem::ITEM_TYPES.include?(item[:type]) ? item[:type] : 'checkbox',
+        required: ActiveModel::Type::Boolean.new.cast(item[:required]) || false,
+        options: item[:options].is_a?(Array) ? item[:options] : []
+      }
+    end
 
     def parse_datetime(val)
       return nil if val.blank?

@@ -6,7 +6,9 @@ json.default_assignee_id resource.default_assignee_id
 json.default_assignee_name resource.default_assignee&.name
 json.due_days resource.due_days
 json.next_project_stage resource.next_project_stage
-json.checklist resource.checklist
+json.checklist_id resource.checklist_id
+json.checklist_name resource.checklist&.name
+json.checklist_items resource.checklist&.items
 json.account_id resource.account_id
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i

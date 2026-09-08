@@ -6,6 +6,8 @@ import { useAlert } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import OpenChecklistSettingsButton from 'dashboard/components-next/checklist/OpenChecklistSettingsButton.vue';
+import HelpButton from 'dashboard/components-next/help/HelpButton.vue';
 
 const emit = defineEmits(['close', 'saved']);
 
@@ -18,11 +20,14 @@ const description = ref('');
 const defaultAssigneeId = ref('');
 const dueDays = ref(1);
 const nextProjectStage = ref('');
-const checklistItems = ref([]);
-const newChecklistText = ref('');
+const checklistId = ref('');
 const isSubmitting = ref(false);
 
 const agents = computed(() => store.getters['agents/getAgents'] || []);
+const checklists = computed(() => store.getters['checklists/getChecklists'] || []);
+const selectedChecklist = computed(() =>
+  checklists.value.find(c => c.id === Number(checklistId.value))
+);
 
 const stages = [
   { key: '', label: 'Nenhuma' },
@@ -37,18 +42,8 @@ const stages = [
 
 onMounted(() => {
   store.dispatch('agents/get');
+  store.dispatch('checklists/get');
 });
-
-const addChecklistItem = () => {
-  const text = newChecklistText.value.trim();
-  if (!text) return;
-  checklistItems.value.push({ id: Date.now(), title: text });
-  newChecklistText.value = '';
-};
-
-const removeChecklistItem = index => {
-  checklistItems.value.splice(index, 1);
-};
 
 const isFormValid = computed(() => {
   return !!name.value.trim() && !!defaultTicketTitle.value.trim() && dueDays.value >= 0;
@@ -66,7 +61,7 @@ const submit = async () => {
       default_assignee_id: defaultAssigneeId.value || null,
       due_days: Number(dueDays.value) || 0,
       next_project_stage: nextProjectStage.value || null,
-      checklist: checklistItems.value.map(item => ({ title: item.title })),
+      checklist_id: checklistId.value || null,
     });
 
     useAlert(t('PROJECT_TASKS.ADD.SUCCESS'));
@@ -84,6 +79,13 @@ const submit = async () => {
   <div class="flex flex-col h-auto max-h-[85vh] overflow-hidden">
     <woot-modal-header :header-title="t('PROJECT_TASKS.ADD.TITLE')" />
     <form class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 min-h-0" @submit.prevent="submit">
+      <div class="flex justify-end -mb-2">
+        <HelpButton :title="t('PROJECTS.HELP.TASK.TITLE')">
+          <p>{{ t('PROJECTS.HELP.TASK.INTRO') }}</p>
+          <p>{{ t('PROJECTS.HELP.TASK.CHECKLIST') }}</p>
+        </HelpButton>
+      </div>
+
       <NextInput
         v-model="name"
         :label="t('PROJECT_TASKS.FORM.NAME.LABEL')"
@@ -110,45 +112,33 @@ const submit = async () => {
         />
       </div>
 
-      <!-- Checklist Builder -->
+      <!-- Checklist: selecionado, nunca digitado aqui - só o cadastro central
+           de Checklists (Configurações) constrói um do zero. -->
       <div class="flex flex-col gap-2 p-3.5 rounded-xl border border-n-weak bg-n-alpha-1">
-        <label class="text-xs font-semibold text-n-slate-12">
-          {{ t('PROJECT_TASKS.FORM.CHECKLIST.LABEL') }}
-        </label>
-        <div class="flex gap-2">
-          <input
-            v-model="newChecklistText"
-            type="text"
-            class="flex-1 h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
-            :placeholder="t('PROJECT_TASKS.FORM.CHECKLIST.PLACEHOLDER')"
-            @keydown.enter.prevent="addChecklistItem"
-          />
-          <NextButton
-            size="sm"
-            type="button"
-            icon="i-lucide-plus"
-            :label="t('PROJECT_TASKS.FORM.CHECKLIST.ADD')"
-            @click="addChecklistItem"
-          />
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-semibold text-n-slate-12">
+            {{ t('CHECKLISTS.SELECT.LABEL') }}
+          </label>
+          <OpenChecklistSettingsButton />
         </div>
+        <select
+          v-model="checklistId"
+          class="h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+        >
+          <option value="">{{ t('CHECKLISTS.SELECT.NONE') }}</option>
+          <option v-for="cl in checklists" :key="cl.id" :value="cl.id">
+            {{ cl.name }} ({{ cl.items?.length || 0 }})
+          </option>
+        </select>
 
-        <ul v-if="checklistItems.length" class="flex flex-col gap-1.5 mt-1">
+        <ul v-if="selectedChecklist?.items?.length" class="flex flex-wrap gap-1.5 mt-1">
           <li
-            v-for="(item, idx) in checklistItems"
-            :key="item.id"
-            class="flex items-center justify-between px-3 py-1.5 rounded-lg bg-n-solid-1 border border-n-weak text-xs text-n-slate-12"
+            v-for="(item, idx) in selectedChecklist.items"
+            :key="idx"
+            class="flex items-center gap-1 px-2 py-0.5 rounded bg-n-slate-3 text-[11px] text-n-slate-11"
           >
-            <div class="flex items-center gap-2 min-w-0">
-              <Icon icon="i-lucide-check-square" class="size-3.5 text-n-slate-9 flex-shrink-0" />
-              <span class="truncate">{{ item.title }}</span>
-            </div>
-            <button
-              type="button"
-              class="text-n-ruby-11 hover:text-n-ruby-12 p-1"
-              @click="removeChecklistItem(idx)"
-            >
-              <Icon icon="i-lucide-trash-2" class="size-3.5" />
-            </button>
+            <Icon icon="i-lucide-check-square" class="size-3 text-n-slate-9" />
+            {{ item.title || item }}
           </li>
         </ul>
       </div>

@@ -880,6 +880,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
     t.index ["user_id"], name: "index_chat_messages_on_user_id"
   end
 
+  create_table "checklists", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.jsonb "items", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_checklists_on_account_id"
+  end
+
   create_table "companies", force: :cascade do |t|
     t.string "name", null: false
     t.string "domain"
@@ -1646,10 +1655,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
     t.bigint "default_assignee_id"
     t.integer "due_days", default: 1, null: false
     t.string "next_project_stage"
-    t.jsonb "checklist", default: [], null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "checklist_id"
     t.index ["account_id"], name: "index_project_task_templates_on_account_id"
+    t.index ["checklist_id"], name: "index_project_task_templates_on_checklist_id"
     t.index ["default_assignee_id"], name: "index_project_task_templates_on_default_assignee_id"
   end
 
@@ -1939,6 +1949,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "item_type", default: "checkbox", null: false
+    t.boolean "required", default: false, null: false
+    t.jsonb "options", default: [], null: false
+    t.text "value"
     t.index ["account_id"], name: "index_ticket_checklist_items_on_account_id"
     t.index ["completed_by_id"], name: "index_ticket_checklist_items_on_completed_by_id"
     t.index ["ticket_id", "completed"], name: "index_ticket_checklist_items_on_ticket_id_and_completed"
@@ -1956,6 +1970,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
     t.boolean "require_scheduled_at", default: false, null: false
     t.boolean "require_appointment", default: false, null: false
     t.boolean "require_assignee", default: false, null: false
+    t.string "kind", default: "normal", null: false
+    t.index ["team_id", "kind"], name: "index_ticket_columns_on_team_id_and_kind_unique", unique: true, where: "((kind)::text <> 'normal'::text)"
     t.index ["team_id", "position"], name: "index_ticket_columns_on_team_id_and_position"
     t.index ["team_id"], name: "index_ticket_columns_on_team_id"
   end
@@ -2065,6 +2081,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_ticket_sla_policies_on_account_id"
     t.index ["team_id", "priority"], name: "index_ticket_sla_policies_on_team_id_and_priority", unique: true
+  end
+
+  create_table "ticket_time_entries", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "user_id", null: false
+    t.string "category", default: "implantacao", null: false
+    t.decimal "hours", precision: 6, scale: 2, null: false
+    t.date "worked_on", null: false
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_time_entries_on_account_id"
+    t.index ["ticket_id"], name: "index_ticket_time_entries_on_ticket_id"
+    t.index ["user_id"], name: "index_ticket_time_entries_on_user_id"
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -2218,6 +2249,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
   add_foreign_key "campaign_recipients", "campaigns", on_delete: :cascade
   add_foreign_key "campaign_recipients", "contacts", on_delete: :cascade
   add_foreign_key "campaign_recipients", "inboxes", on_delete: :cascade
+  add_foreign_key "checklists", "accounts"
   add_foreign_key "company_credentials", "accounts"
   add_foreign_key "company_credentials", "companies"
   add_foreign_key "company_credentials", "users", column: "created_by_id"
@@ -2240,6 +2272,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
   add_foreign_key "project_module_task_templates", "project_task_templates"
   add_foreign_key "project_modules", "accounts"
   add_foreign_key "project_task_templates", "accounts"
+  add_foreign_key "project_task_templates", "checklists"
   add_foreign_key "project_task_templates", "users", column: "default_assignee_id"
   add_foreign_key "projects", "accounts"
   add_foreign_key "projects", "companies"
@@ -2269,6 +2302,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_07_130000) do
   add_foreign_key "ticket_sla_extensions", "accounts"
   add_foreign_key "ticket_sla_extensions", "tickets"
   add_foreign_key "ticket_sla_extensions", "users"
+  add_foreign_key "ticket_time_entries", "accounts"
+  add_foreign_key "ticket_time_entries", "tickets"
+  add_foreign_key "ticket_time_entries", "users"
   add_foreign_key "tickets", "companies"
   add_foreign_key "tickets", "contacts", on_delete: :nullify
   add_foreign_key "tickets", "project_task_templates"

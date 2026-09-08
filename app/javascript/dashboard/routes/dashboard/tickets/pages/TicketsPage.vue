@@ -2,6 +2,7 @@
 import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import { frontendURL } from 'dashboard/helper/URLHelper';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
@@ -43,6 +44,10 @@ export default {
       selectedAgentIds: [],
       quickSearch: '',
       sort: null,
+      // The "Finalizado" Estagio (TicketColumn#kind == 'completed') is hidden
+      // from the board by default, mirroring the Ativos/Concluidos toggle on
+      // the Projects board.
+      showCompletedColumn: false,
     };
   },
   computed: {
@@ -181,7 +186,12 @@ export default {
           position,
         });
       } catch (error) {
-        useAlert(this.$t('TICKET.API.MOVE_ERROR'));
+        // A blocked move (e.g. a column requiring Vencimento/Agendamento/
+        // Apontamento/Responsavel) carries a specific message worth showing
+        // instead of the generic move-failed alert.
+        useAlert(
+          parseAPIErrorResponse(error) || this.$t('TICKET.API.MOVE_ERROR')
+        );
       }
     },
   },
@@ -248,6 +258,21 @@ export default {
         />
 
         <NextButton
+          v-if="selectedTeamId"
+          faded
+          slate
+          size="sm"
+          class="flex-shrink-0"
+          :icon="showCompletedColumn ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+          :label="
+            showCompletedColumn
+              ? $t('TICKET.BOARD.HIDE_COMPLETED')
+              : $t('TICKET.BOARD.SHOW_COMPLETED')
+          "
+          @click="showCompletedColumn = !showCompletedColumn"
+        />
+
+        <NextButton
           icon="i-lucide-search"
           faded
           slate
@@ -288,6 +313,7 @@ export default {
       :agents="mesaAgents"
       :filters="{ assigneeIds: selectedAgentIds, query: quickSearch }"
       :sort="sort"
+      :show-completed-column="showCompletedColumn"
       class="flex-1 min-h-0 min-w-0"
       @add-ticket="openAddTicket"
       @open-ticket="openTicketDetail"
