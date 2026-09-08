@@ -26,6 +26,9 @@ const START_VALUE = {
       action_params: [],
     },
   ],
+  // Vazio por padrao: sem etapas a automacao continua sendo a regra plana de
+  // sempre, e so vira fluxo quando alguem monta um.
+  flow_steps: [],
 };
 
 const store = useStore();

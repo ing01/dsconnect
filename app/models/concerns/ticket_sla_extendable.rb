@@ -45,19 +45,24 @@ module TicketSlaExtendable
     sla_manager_clocks.current(kind)
   end
 
-  # Estende um prazo especifico. Qual dos tres e escolha de quem chama - horas
-  # nunca sao aplicadas aos tres de uma vez.
-  def extend_sla!(kind:, hours:, reason:, user: Current.user)
-    sla_manager_clocks.extend_deadline(kind, hours: hours, reason: reason, user: user)
+  # Ajusta um prazo especifico, por horas ou por data e hora. Qual dos tres e
+  # escolha de quem chama - um ajuste nunca vale para os tres de uma vez.
+  def adjust_sla!(kind:, reason:, hours: nil, due_at: nil, user: Current.user)
+    sla_manager_clocks.adjust_deadline(kind, hours: hours, due_at: due_at, reason: reason, user: user)
   end
 
   # Publico porque o ClockService registra a atividade por aqui, mantendo o
   # historico do ticket como unica linha do tempo que o usuario le.
-  def log_sla_extension_activity(extension, user)
+  def log_sla_extension_activity(extension, user, mode = 'hours')
     ticket_activities.create!(
       account_id: account_id, user: user, activity_type: :sla_hours_added,
       previous_value: extension.previous_due_at&.iso8601, new_value: extension.new_due_at&.iso8601,
-      meta: { hours: extension.hours.to_f, reason: extension.reason, sla_kind: extension.sla_kind }
+      meta: {
+        hours: extension.hours.to_f, reason: extension.reason, sla_kind: extension.sla_kind,
+        # Como o prazo foi mexido. Nao da para deduzir do sinal das horas: uma
+        # data escolhida la na frente tambem rende horas positivas.
+        mode: mode
+      }
     )
   end
 

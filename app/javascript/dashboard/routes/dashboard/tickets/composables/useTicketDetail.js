@@ -116,10 +116,11 @@ export function useTicketDetail(ticketId) {
   const assignToMe = () =>
     runUpdate('tickets/assignTicketToMe', ticketId.value);
 
-  const addSlaHours = ({ hours, reason, slaKind }) =>
-    runUpdate('tickets/addTicketSlaHours', {
+  const adjustSla = ({ hours, dueAt, reason, slaKind }) =>
+    runUpdate('tickets/adjustTicketSla', {
       id: ticketId.value,
       hours,
+      dueAt,
       reason,
       slaKind,
     });
@@ -185,7 +186,7 @@ export function useTicketDetail(ticketId) {
     merge,
     duplicate,
     assignToMe,
-    addSlaHours,
+    adjustSla,
     cancel,
     reload: loadTicket,
   };

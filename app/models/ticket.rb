@@ -2,6 +2,7 @@ class Ticket < ApplicationRecord
   include Events::Types
   include TicketBroadcastable
   include TicketClosing
+  include TicketFinalizable
   include TicketCustomer
   include TicketOpening
   include TicketRelatable
@@ -71,6 +72,9 @@ class Ticket < ApplicationRecord
 
   after_create_commit :log_created_activity, :dispatch_ticket_created_event
   after_update_commit :log_changes_activity, :dispatch_ticket_updated_event
+  # Sem isto o card apagado por outra pessoa fica no quadro de todo mundo ate
+  # alguem recarregar a pagina.
+  after_destroy_commit :dispatch_ticket_deleted_event
 
   # Maps a changed attribute (from `saved_changes`) to the TicketActivity
   # type it should log. Status transitions are logged separately by
@@ -279,33 +283,5 @@ class Ticket < ApplicationRecord
         new_value: new_value&.to_s
       )
     end
-  end
-
-  def dispatch_ticket_created_event
-    dispatcher_dispatch(TICKET_CREATED)
-  end
-
-  def dispatch_ticket_updated_event
-    dispatcher_dispatch(ticket_update_event_name)
-  end
-
-  def ticket_update_event_name
-    return TICKET_MOVED if saved_change_to_attribute?('ticket_column_id')
-    return status_event_name if saved_change_to_attribute?('status')
-
-    TICKET_UPDATED
-  end
-
-  def status_event_name
-    case status
-    when 'resolved' then TICKET_RESOLVED
-    when 'closed' then TICKET_CLOSED
-    when 'cancelled' then TICKET_CANCELLED
-    else TICKET_REOPENED
-    end
-  end
-
-  def dispatcher_dispatch(event_name)
-    Rails.configuration.dispatcher.dispatch(event_name, Time.zone.now, ticket: self)
   end
 end

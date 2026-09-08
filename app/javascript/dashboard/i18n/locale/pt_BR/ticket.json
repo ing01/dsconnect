@@ -29,6 +29,8 @@
       "NO_MESA_DESC": "Peça a um administrador para criar uma Mesa de Serviço (Time) em Configurações antes de criar tickets."
     },
     "BOARD": {
+      "SHOW_COMPLETED": "Mostrar finalizados",
+      "HIDE_COMPLETED": "Ocultar finalizados",
       "ADD_TICKET": "Novo ticket",
       "COLLAPSE": "Minimizar coluna",
       "EXPAND": "Expandir coluna",
@@ -100,10 +102,6 @@
         "CREATE_CHILD": "Abrir ticket filho",
         "TRANSFER": "Transferir ticket"
       }
-    },
-    "BOARD": {
-      "SHOW_COMPLETED": "Mostrar finalizados",
-      "HIDE_COMPLETED": "Ocultar finalizados"
     },
     "LIST": {
       "EMPTY": "Nenhum ticket encontrado",
@@ -200,7 +198,8 @@
         "APPOINTMENTS": "Compromissos",
         "CHECKLISTS": "Checklists",
         "DEVELOPMENT": "Desenvolvimento",
-        "HISTORY": "Histórico"
+        "HISTORY": "Histórico",
+        "TIME_ENTRIES": "Apontamentos"
       },
       "ACTIONS": {
         "LABEL": "Ações do ticket",
@@ -251,7 +250,7 @@
         "STATUS": "Status",
         "STAGE": "Estágio",
         "NO_CATEGORY": "Selecione uma categoria",
-        "DUE_DATE": "Data de vencimento",
+        "DUE_DATE": "Data de entrega",
         "SCHEDULED_AT": "Data de agendamento"
       },
       "FOLLOWERS": {
@@ -624,7 +623,10 @@
           "RESPONSE": "Atendimento",
           "STAGE": "Estágio",
           "RESOLUTION": "Solução"
-        }
+        },
+        "MODE": "Como ajustar",
+        "MODE_HOURS": "Conceder horas",
+        "MODE_DUE_AT": "Definir data e hora"
       },
       "CANCEL_DIALOG": {
         "TITLE": "Cancelar ticket #{number}?",

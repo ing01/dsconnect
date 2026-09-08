@@ -20,7 +20,10 @@ class Tickets::MergeService
       # deliberately bypasses the catalogue/communication requirements - the
       # surviving ticket is the one that has to be classified and answered.
       source.close!(user, skip_requirements: true)
-      source.update!(close_reason: 'merged')
+      # O ticket ja esta fechado nesta altura, e um ticket finalizado nao aceita
+      # alteracao - mas registrar por que ele fechou faz parte do proprio
+      # agrupamento, entao entra como mudanca administrativa.
+      source.as_administrative_change { source.update!(close_reason: 'merged') }
       log_activities
     end
 

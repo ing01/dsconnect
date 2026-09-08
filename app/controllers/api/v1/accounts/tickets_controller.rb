@@ -163,11 +163,11 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     render 'show'
   end
 
-  # Qual dos tres prazos esticar e escolha explicita de quem chama: horas nunca
-  # sao aplicadas aos tres de uma vez.
+  # Ajusta um dos tres prazos - por horas ou por data e hora -, sempre um so. O
+  # nome segue `add_sla_hours` porque a rota ja esta em producao.
   def add_sla_hours
-    @ticket.extend_sla!(
-      kind: sla_kind_param, hours: params[:hours], reason: params[:reason], user: Current.user
+    @ticket.adjust_sla!(
+      kind: sla_kind_param, hours: params[:hours], due_at: params[:due_at], reason: params[:reason], user: Current.user
     )
     fetch_ticket
     render 'show'

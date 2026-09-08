@@ -23,6 +23,7 @@ import AutomationRunTypeSelector from './components/AutomationRunTypeSelector.vu
 import AutomationWaitCondition from './components/AutomationWaitCondition.vue';
 import AutomationInstantTrigger from './components/AutomationInstantTrigger.vue';
 import AutomationActions from './components/AutomationActions.vue';
+import AutomationFlowEditor from './components/AutomationFlowEditor.vue';
 
 const props = defineProps({
   mode: {
@@ -279,6 +280,21 @@ const close = () => {
   panelRef.value?.close();
 };
 
+// Mesas, Estagios e Categorias do proprio sistema: a automacao escolhe entre o
+// que ja existe, e nao mantem lista propria.
+const flowTeams = computed(() =>
+  (props.getActionDropdownValues('assign_team') || []).map(team => ({
+    id: team.id,
+    name: team.name,
+  }))
+);
+
+// Estagios e categorias dependem da Mesa escolhida na etapa, e a tela do
+// formulario nao tem esse contexto: por ora entram por id, e o refinamento fica
+// para quando o editor souber a Mesa de cada etapa.
+const flowColumns = computed(() => []);
+const flowCategories = computed(() => []);
+
 const emitSaveAutomation = () => {
   syncCustomAttributeTypes();
   const conditionsValid = isConditionsValid();
@@ -348,6 +364,14 @@ defineExpose({ open, close });
         :append-new-condition="appendNewCondition"
         :remove-filter="removeFilter"
         :on-event-change="onEventChange"
+      />
+      <!-- O fluxo e opcional e vem depois das acoes: quem so quer a regra
+           simples de sempre nao precisa abrir nada aqui. -->
+      <AutomationFlowEditor
+        v-model="automation.flow_steps"
+        :teams="flowTeams"
+        :columns="flowColumns"
+        :categories="flowCategories"
       />
       <AutomationActions
         v-model="automation.actions"

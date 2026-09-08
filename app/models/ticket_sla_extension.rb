@@ -17,7 +17,14 @@ class TicketSlaExtension < ApplicationRecord
   MAXIMUM_HOURS = 999
 
   validates :reason, presence: true
-  validates :hours, numericality: { greater_than: 0, less_than_or_equal_to: MAXIMUM_HOURS }
+  # Com sinal: o prazo passou a poder ser definido por data, e uma data anterior
+  # a atual encurta o prazo. Zero e que nao e ajuste nenhum.
+  validates :hours,
+            numericality: {
+              other_than: 0,
+              greater_than_or_equal_to: -MAXIMUM_HOURS,
+              less_than_or_equal_to: MAXIMUM_HOURS
+            }
 
   before_validation :ensure_account_id
 

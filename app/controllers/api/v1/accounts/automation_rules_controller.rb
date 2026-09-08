@@ -66,7 +66,17 @@ class Api::V1::Accounts::AutomationRulesController < Api::V1::Accounts::BaseCont
       *permitted_attributes,
       conditions: [:attribute_key, :filter_operator, :query_operator, :custom_attribute_type, { values: [] }],
       actions: [:action_name, { action_params: [] }]
-    )
+    ).merge(flow_steps_permit)
+  end
+
+  # As etapas chegam como um grafo aberto - cada tipo tem os seus proprios
+  # campos, e `branches` aponta para outras etapas -, entao a lista de chaves
+  # permitidas nao daria conta sem engessar os tipos futuros. O que protege aqui
+  # e a validacao do model, que so aceita tipos conhecidos.
+  def flow_steps_permit
+    return {} unless params.key?(:flow_steps)
+
+    { flow_steps: params[:flow_steps].map { |step| step.permit!.to_h } }
   end
 
   def ensure_execution_delay_allowed

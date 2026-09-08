@@ -166,11 +166,13 @@ class TicketsAPI extends ApiClient {
     });
   }
 
-  addSlaHours(id, { hours, reason, slaKind }) {
-    // `sla_kind` e obrigatorio: o servidor recusa horas sem dizer qual dos tres
-    // prazos esticar.
+  // Ajusta um prazo, por horas concedidas ou por uma data e hora exata - uma
+  // das duas, nunca as duas. `sla_kind` e obrigatorio: o servidor recusa um
+  // ajuste sem dizer qual dos tres prazos mexer.
+  adjustSla(id, { hours, dueAt, reason, slaKind }) {
     return axios.post(`${this.url}/${id}/add_sla_hours`, {
       hours,
+      due_at: dueAt,
       reason,
       sla_kind: slaKind,
     });

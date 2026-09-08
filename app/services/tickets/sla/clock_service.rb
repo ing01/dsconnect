@@ -49,19 +49,31 @@ class Tickets::Sla::ClockService
     clock
   end
 
-  # Concede horas a um relogio especifico. O prazo novo sai do prazo antigo, nao
-  # de agora: dar duas horas a um prazo ja vencido nao pode virar duas horas a
-  # partir de hoje.
-  def extend_deadline(kind, hours:, reason:, user: Current.user)
+  # Ajusta o prazo de um relogio, por horas ou por uma data e hora exata.
+  #
+  # Por horas, o prazo novo sai do prazo antigo e nao de agora: dar duas horas a
+  # um prazo ja vencido nao pode virar duas horas a partir de hoje. Por data, o
+  # valor informado e o prazo - inclusive para tras, quando alguem lancou um
+  # prazo errado e precisa corrigir.
+  #
+  # Em ambos os casos o que a auditoria guarda e o mesmo: o prazo de antes, o de
+  # depois, e a diferenca em horas com sinal.
+  def adjust_deadline(kind, reason:, user: Current.user, hours: nil, due_at: nil)
     clock = current(kind)
     raise ActiveRecord::RecordNotFound, I18n.t('errors.ticket_sla.clock_not_found') if clock.blank?
 
-    seconds = hours.to_f.hours
     ticket.transaction do
       previous_due_at = clock.due_at
-      clock.update!(due_at: previous_due_at + seconds, extended_seconds: clock.extended_seconds + seconds)
+      new_due_at = target_due_at(previous_due_at, hours: hours, due_at: due_at)
+      seconds = new_due_at - previous_due_at
+
+      clock.update!(due_at: new_due_at, extended_seconds: clock.extended_seconds + seconds)
       revive(clock)
-      record_extension(clock, hours, reason, user, previous_due_at)
+      record_extension(
+        clock, previous_due_at,
+        hours: seconds / 1.hour, reason: reason, user: user,
+        mode: due_at.present? ? 'due_at' : 'hours'
+      )
     end
   end
 
@@ -113,20 +125,33 @@ class Tickets::Sla::ClockService
 
   # Estender um prazo vencido devolve o relogio a corrida - foi exatamente por
   # isso que as horas foram concedidas. Um relogio ja cumprido nao volta.
+  # Uma das duas formas de dizer o prazo novo, nunca as duas ao mesmo tempo.
+  def target_due_at(previous_due_at, hours:, due_at:)
+    return due_at.in_time_zone if due_at.present?
+
+    previous_due_at + hours.to_f.hours
+  end
+
   def revive(clock)
     return unless clock.missed? && clock.completed_at.blank?
 
     clock.update!(status: :active)
   end
 
-  def record_extension(clock, hours, reason, user, previous_due_at)
+  # `adjustment` carrega o que descreve o ajuste - horas, motivo, quem fez e por
+  # qual das duas formas -, mantendo a assinatura legivel conforme o registro
+  # foi ganhando campos.
+  def record_extension(clock, previous_due_at, adjustment)
+    hours = adjustment[:hours]
+    user = adjustment[:user]
     extension = ticket.ticket_sla_extensions.create!(
-      account_id: ticket.account_id, user: user, hours: hours, reason: reason,
+      account_id: ticket.account_id, user: user, hours: hours, reason: adjustment[:reason],
       ticket_applied_sla: clock, sla_kind: clock.kind,
       previous_due_at: previous_due_at, new_due_at: clock.due_at
     )
-    log(clock, :extended, user: user, meta: { hours: hours.to_f, reason: reason, previous_due_at: previous_due_at.iso8601 })
-    ticket.log_sla_extension_activity(extension, user)
+    log(clock, :extended, user: user,
+                          meta: { hours: hours.to_f, reason: adjustment[:reason], previous_due_at: previous_due_at.iso8601 })
+    ticket.log_sla_extension_activity(extension, user, adjustment[:mode])
     extension
   end
 

@@ -1,0 +1,11 @@
+json.id resource.id
+json.status resource.status
+json.current_step_id resource.current_step_id
+json.variables resource.variables
+json.last_error resource.last_error
+json.waiting_until resource.waiting_until&.to_i
+json.created_at resource.created_at.to_i
+json.conversation_id resource.conversation_id
+json.conversation_display_id resource.conversation&.display_id
+json.ticket_id resource.ticket_id
+json.ticket_display_id resource.ticket&.display_id

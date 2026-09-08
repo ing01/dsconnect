@@ -29,6 +29,8 @@
       "NO_MESA_DESC": "Ask an administrator to create a Mesa (Team) in Settings before creating tickets."
     },
     "BOARD": {
+      "SHOW_COMPLETED": "Show completed",
+      "HIDE_COMPLETED": "Hide completed",
       "ADD_TICKET": "New ticket",
       "COLLAPSE": "Collapse column",
       "EXPAND": "Expand column",
@@ -100,10 +102,6 @@
         "CREATE_CHILD": "Open child ticket",
         "TRANSFER": "Transfer ticket"
       }
-    },
-    "BOARD": {
-      "SHOW_COMPLETED": "Show completed",
-      "HIDE_COMPLETED": "Hide completed"
     },
     "LIST": {
       "EMPTY": "No tickets found",
@@ -252,7 +250,7 @@
         "STATUS": "Status",
         "STAGE": "Stage",
         "NO_CATEGORY": "Select a category",
-        "DUE_DATE": "Due date",
+        "DUE_DATE": "Delivery date",
         "SCHEDULED_AT": "Scheduled date"
       },
       "FOLLOWERS": {
@@ -625,7 +623,10 @@
           "RESPONSE": "Response",
           "STAGE": "Stage",
           "RESOLUTION": "Resolution"
-        }
+        },
+        "MODE": "How to adjust",
+        "MODE_HOURS": "Grant hours",
+        "MODE_DUE_AT": "Set date and time"
       },
       "CANCEL_DIALOG": {
         "TITLE": "Cancel ticket #{number}?",

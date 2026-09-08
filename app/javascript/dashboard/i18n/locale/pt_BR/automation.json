@@ -235,6 +235,65 @@
       "QUEUE_NAME": "Fila",
       "PRIORITY": "Prioridade",
       "LABELS": "Etiquetas"
+    },
+    "FLOW": {
+      "TITLE": "Fluxo de etapas",
+      "DESCRIPTION": "Opcional. Com etapas, a automação conduz uma triagem e espera as respostas do cliente.",
+      "ADD_STEP": "Adicionar etapa...",
+      "EMPTY": "Sem etapas. A automação executa apenas as ações acima.",
+      "NEXT_STEP": "Próxima etapa",
+      "END": "Encerrar fluxo",
+      "HANDOFF": "Encaminhar para atendimento",
+      "NOT_SET": "Não definido",
+      "MOVE_UP": "Mover para cima",
+      "MOVE_DOWN": "Mover para baixo",
+      "REMOVE": "Remover etapa",
+      "STEP": {
+        "SEND_MESSAGE": "Enviar mensagem",
+        "ASK": "Solicitar informação",
+        "FIND_COMPANY": "Localizar empresa",
+        "FIND_CONTACT": "Localizar solicitante",
+        "CONDITION": "Condição",
+        "CREATE_TICKET": "Criar ticket",
+        "HANDOFF": "Encaminhar para atendimento"
+      },
+      "FIELD": {
+        "CONTENT": "Mensagem",
+        "SAVE_AS": "Salvar resposta em",
+        "ANSWER_TYPE": "Tipo da resposta",
+        "RETRY_MESSAGE": "Mensagem quando inválido",
+        "TIMEOUT_MINUTES": "Tempo limite (minutos)",
+        "CNPJ_FROM": "CNPJ vem de",
+        "NAME_FROM": "Nome vem de",
+        "VARIABLE": "Variável",
+        "OPERATOR": "Operador",
+        "VALUE": "Valor",
+        "TITLE": "Título",
+        "DESCRIPTION": "Descrição",
+        "TEAM_ID": "Mesa de Serviço",
+        "TICKET_COLUMN_ID": "Estágio",
+        "TICKET_CATEGORY_ID": "Categoria",
+        "PRIORITY": "Prioridade"
+      },
+      "BRANCH": {
+        "NOT_FOUND": "Se não encontrar",
+        "TRUE": "Se verdadeiro",
+        "FALSE": "Se falso"
+      },
+      "OPTION": {
+        "TEXT": "Texto",
+        "CNPJ": "CNPJ",
+        "EQUAL_TO": "igual a",
+        "NOT_EQUAL_TO": "diferente de",
+        "CONTAINS": "contém",
+        "DOES_NOT_CONTAIN": "não contém",
+        "IS_PRESENT": "existe",
+        "IS_NOT_PRESENT": "não existe",
+        "LOW": "Baixa",
+        "MEDIUM": "Média",
+        "HIGH": "Alta",
+        "URGENT": "Urgente"
+      }
     }
   }
 }

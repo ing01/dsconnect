@@ -65,6 +65,20 @@ module TicketClosing
     requester_contact&.email.presence
   end
 
+  # A comunicacao de fechamento so pode ser exigida onde ela consegue sair.
+  #
+  # Sem SMTP configurado - o caso de homologacao - nao ha como enviar nada, e
+  # exigir o envio tranca o ticket sem que exista acao capaz de destrancar. A
+  # regra volta sozinha quando SMTP_ADDRESS for definido em producao: nao ha
+  # chave para lembrar de desligar depois.
+  #
+  # Difere do `smtp_config_set_or_development?` do ApplicationMailer de
+  # proposito: la o desenvolvimento conta como configurado para as previas de
+  # e-mail funcionarem, e aqui o que importa e a mensagem chegar ao cliente.
+  def customer_email_deliverable?
+    ENV.fetch('SMTP_ADDRESS', nil).present?
+  end
+
   # Everything still standing between this ticket and being closed. Empty means
   # it can be closed.
   def missing_close_requirements
@@ -73,13 +87,21 @@ module TicketClosing
     # required and neither substitutes the other.
     missing << MISSING_CATEGORY if ticket_category_id.blank?
     missing << MISSING_CATALOG unless classified?
-    unless closing_communication_sent?
-      missing << MISSING_COMMUNICATION
-      missing << MISSING_CONTACT_EMAIL if customer_email.blank?
-    end
+    missing.concat(missing_communication_requirements)
     # Same rule as `ensure_checklist_completed!`: a linked Apontamento
     # (calendar_event) bypasses pending checklist items.
     missing << MISSING_CHECKLIST if checklist_pending?
+    missing
+  end
+
+  def missing_communication_requirements
+    return [] if closing_communication_sent?
+    # Sem como enviar, a classificacao continua obrigatoria e a comunicacao nao:
+    # o fechamento deixa de depender de algo que o ambiente nao permite fazer.
+    return [] unless customer_email_deliverable?
+
+    missing = [MISSING_COMMUNICATION]
+    missing << MISSING_CONTACT_EMAIL if customer_email.blank?
     missing
   end
 

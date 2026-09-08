@@ -29,6 +29,9 @@ export default {
   data() {
     return {
       showMenu: false,
+      // Posicao do menu na janela. Ele e desenhado fora do card (vide o
+      // Teleport no template), entao precisa saber onde o botao esta.
+      menuStyle: {},
     };
   },
   computed: {
@@ -135,12 +138,55 @@ export default {
       return items;
     },
   },
+  beforeUnmount() {
+    // O card some quando o ticket muda de coluna; os ouvintes da janela nao
+    // podem sobreviver a ele.
+    this.closeMenu();
+  },
   methods: {
     toggleMenu() {
-      this.showMenu = !this.showMenu;
+      if (this.showMenu) return this.closeMenu();
+
+      this.positionMenu();
+      this.showMenu = true;
+      // A posicao e tirada uma vez, na abertura: rolar a coluna ou a pagina a
+      // deixaria errada, e reposicionar a cada quadro custaria mais do que
+      // simplesmente fechar.
+      window.addEventListener('scroll', this.closeMenu, true);
+      window.addEventListener('resize', this.closeMenu);
+      return undefined;
+    },
+    // Ancorado pela janela, e nao pelo card: a coluna do Kanban rola e recorta
+    // o que passa das bordas dela, entao um menu preso ao card fica cortado
+    // quando a coluna tem poucos cartoes.
+    positionMenu() {
+      const trigger = this.$refs.menuTrigger?.$el || this.$refs.menuTrigger;
+      if (!trigger?.getBoundingClientRect) return;
+
+      const rect = trigger.getBoundingClientRect();
+      const MENU_WIDTH = 192;
+      const ESTIMATED_HEIGHT = 260;
+      // Abre para cima quando nao ha espaco abaixo, para o menu nunca ficar
+      // dependendo de rolagem para ser lido inteiro.
+      const opensUpward =
+        rect.bottom + ESTIMATED_HEIGHT > window.innerHeight &&
+        rect.top > ESTIMATED_HEIGHT;
+
+      this.menuStyle = {
+        position: 'fixed',
+        // Alinhado pela direita do botao, e preso na janela quando o card esta
+        // proximo da borda esquerda.
+        left: `${Math.max(8, rect.right - MENU_WIDTH)}px`,
+        [opensUpward ? 'bottom' : 'top']: opensUpward
+          ? `${window.innerHeight - rect.top + 4}px`
+          : `${rect.bottom + 4}px`,
+        zIndex: 50,
+      };
     },
     closeMenu() {
       this.showMenu = false;
+      window.removeEventListener('scroll', this.closeMenu, true);
+      window.removeEventListener('resize', this.closeMenu);
     },
     onMenuAction({ value }) {
       this.closeMenu();
@@ -162,8 +208,9 @@ export default {
         </span>
         {{ ticket.title }}
       </p>
-      <div v-on-clickaway="closeMenu" class="relative flex-shrink-0">
+      <div class="flex-shrink-0">
         <NextButton
+          ref="menuTrigger"
           icon="i-lucide-ellipsis-vertical"
           color="slate"
           variant="ghost"
@@ -172,13 +219,19 @@ export default {
           :class="showMenu ? 'opacity-100' : ''"
           @click.stop="toggleMenu"
         />
-        <DropdownMenu
-          v-if="showMenu"
-          :menu-items="menuItems"
-          class="ltr:right-0 rtl:left-0 mt-1 w-48 top-full"
-          @click.stop
-          @action="onMenuAction"
-        />
+        <!-- Fora do card de proposito: dentro dele o menu e recortado pela
+             rolagem da coluna. -->
+        <Teleport to="body">
+          <DropdownMenu
+            v-if="showMenu"
+            v-on-clickaway="closeMenu"
+            :menu-items="menuItems"
+            :style="menuStyle"
+            class="w-48"
+            @click.stop
+            @action="onMenuAction"
+          />
+        </Teleport>
       </div>
     </div>
 

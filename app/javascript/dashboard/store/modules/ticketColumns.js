@@ -260,9 +260,12 @@ export const mutations = {
         if (index === -1) return;
 
         if (column.id === ticket.ticket_column_id) {
+          // Mescla, nao substitui: o payload de tempo real e mais estreito que
+          // o do quadro, entao trocar o objeto inteiro apagaria do card os
+          // campos que so a carga inicial traz.
           column.tickets = [
             ...tickets.slice(0, index),
-            ticket,
+            { ...tickets[index], ...ticket },
             ...tickets.slice(index + 1),
           ];
         } else {

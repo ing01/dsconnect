@@ -18,6 +18,11 @@ const mountCard = (props = {}) =>
     global: {
       mocks: { $t: key => key },
       stubs: {
+        // O menu e teleportado para o body, para escapar do recorte da coluna
+        // do Kanban. Aqui ele volta a renderizar no lugar, que e o que estes
+        // testes consultam - eles verificam o conteudo do menu, nao onde ele
+        // aparece na pagina.
+        teleport: true,
         Icon: true,
         Avatar: true,
         WootLabel: true,

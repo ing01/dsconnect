@@ -84,6 +84,26 @@ class Company < ApplicationRecord
   CNPJ_FIRST_DIGIT_WEIGHTS = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2].freeze
   CNPJ_SECOND_DIGIT_WEIGHTS = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2].freeze
 
+  # Publico e de classe porque a checagem vale fora do cadastro: a triagem das
+  # automacoes precisa recusar um CNPJ invalido antes de procurar a empresa, e
+  # duas implementacoes da mesma conta acabariam divergindo.
+  def self.valid_cnpj?(value)
+    digits = value.to_s.gsub(/\D/, '')
+    return false unless digits.match?(/\A\d{14}\z/)
+    return false if digits.chars.uniq.length == 1
+
+    numbers = digits.chars.map(&:to_i)
+    first = cnpj_check_digit(numbers[0..11], CNPJ_FIRST_DIGIT_WEIGHTS)
+    second = cnpj_check_digit(numbers[0..11] + [first], CNPJ_SECOND_DIGIT_WEIGHTS)
+
+    numbers[12] == first && numbers[13] == second
+  end
+
+  def self.cnpj_check_digit(digits, weights)
+    remainder = digits.each_with_index.sum { |digit, index| digit * weights[index] } % 11
+    remainder < 2 ? 0 : 11 - remainder
+  end
+
   def prepare_jsonb_attributes
     self.additional_attributes = {} unless additional_attributes.is_a?(Hash)
     self.custom_attributes = {} unless custom_attributes.is_a?(Hash)
@@ -95,23 +115,7 @@ class Company < ApplicationRecord
   end
 
   def validate_cnpj_checksum
-    errors.add(:cnpj, :invalid) unless valid_cnpj_checksum?(cnpj)
-  end
-
-  def valid_cnpj_checksum?(value)
-    return false unless value.match?(/\A\d{14}\z/)
-    return false if value.chars.uniq.length == 1
-
-    digits = value.chars.map(&:to_i)
-    first_check_digit = cnpj_check_digit(digits[0..11], CNPJ_FIRST_DIGIT_WEIGHTS)
-    second_check_digit = cnpj_check_digit(digits[0..11] + [first_check_digit], CNPJ_SECOND_DIGIT_WEIGHTS)
-
-    digits[12] == first_check_digit && digits[13] == second_check_digit
-  end
-
-  def cnpj_check_digit(digits, weights)
-    remainder = digits.each_with_index.sum { |digit, index| digit * weights[index] } % 11
-    remainder < 2 ? 0 : 11 - remainder
+    errors.add(:cnpj, :invalid) unless self.class.valid_cnpj?(cnpj)
   end
 
   def fetch_favicon

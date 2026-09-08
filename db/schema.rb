@@ -285,6 +285,42 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_090000) do
     t.index ["user_id", "user_type"], name: "user_index"
   end
 
+  create_table "automation_flow_run_events", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "automation_flow_run_id", null: false
+    t.string "step_id"
+    t.string "step_type"
+    t.integer "outcome", default: 0, null: false
+    t.jsonb "input", default: {}, null: false
+    t.jsonb "result", default: {}, null: false
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.index ["account_id"], name: "index_automation_flow_run_events_on_account_id"
+    t.index ["automation_flow_run_id", "created_at"], name: "index_flow_run_events_on_run_and_time"
+    t.index ["automation_flow_run_id"], name: "index_flow_run_events_on_run"
+  end
+
+  create_table "automation_flow_runs", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "automation_rule_id", null: false
+    t.bigint "conversation_id", null: false
+    t.bigint "ticket_id"
+    t.integer "status", default: 0, null: false
+    t.string "current_step_id"
+    t.jsonb "variables", default: {}, null: false
+    t.datetime "waiting_until"
+    t.text "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "last_message_id"
+    t.index ["account_id"], name: "index_automation_flow_runs_on_account_id"
+    t.index ["automation_rule_id"], name: "index_automation_flow_runs_on_automation_rule_id"
+    t.index ["conversation_id", "automation_rule_id"], name: "index_automation_flow_runs_on_live_run", unique: true, where: "(status = ANY (ARRAY[0, 1]))"
+    t.index ["conversation_id"], name: "index_automation_flow_runs_on_conversation_id"
+    t.index ["ticket_id"], name: "index_automation_flow_runs_on_ticket_id"
+    t.index ["waiting_until"], name: "index_automation_flow_runs_on_waiting_until", where: "(status = 1)"
+  end
+
   create_table "automation_rule_pending_executions", force: :cascade do |t|
     t.bigint "automation_rule_id", null: false
     t.bigint "conversation_id", null: false
@@ -315,6 +351,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_090000) do
     t.datetime "updated_at", null: false
     t.boolean "active", default: true, null: false
     t.integer "execution_delay"
+    t.jsonb "flow_steps", default: [], null: false
     t.index ["account_id"], name: "index_automation_rules_on_account_id"
   end
 
@@ -787,15 +824,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_090000) do
     t.index ["phone_number_health_checked_at"], name: "index_channel_whatsapp_on_phone_number_health_checked_at"
   end
 
-  create_table "checklists", force: :cascade do |t|
-    t.bigint "account_id", null: false
-    t.string "name", null: false
-    t.jsonb "items", default: [], null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_checklists_on_account_id"
-  end
-
   create_table "chat_channel_members", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "chat_channel_id", null: false
@@ -850,6 +878,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_090000) do
     t.index ["chat_channel_id", "created_at"], name: "index_chat_messages_on_chat_channel_id_and_created_at"
     t.index ["reply_to_id"], name: "index_chat_messages_on_reply_to_id"
     t.index ["user_id"], name: "index_chat_messages_on_user_id"
+  end
+
+  create_table "checklists", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.jsonb "items", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_checklists_on_account_id"
   end
 
   create_table "companies", force: :cascade do |t|
