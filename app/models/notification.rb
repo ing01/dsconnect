@@ -28,6 +28,7 @@
 #
 
 class Notification < ApplicationRecord
+  include NotificationPushContent
   include MessageFormatHelper
   belongs_to :account
   belongs_to :user
@@ -45,7 +46,11 @@ class Notification < ApplicationRecord
     sla_missed_next_response: 7,
     sla_missed_resolution: 8,
     project_contract_end_overdue: 9,
-    project_support_end_overdue: 10
+    project_support_end_overdue: 10,
+    # Chat Interno entre agentes. O numero e novo de proposito: os bits de
+    # NotificationSetting saem daqui, e renumerar trocaria a preferencia de
+    # quem ja escolheu.
+    internal_chat_message: 11
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES
@@ -55,7 +60,7 @@ class Notification < ApplicationRecord
   after_destroy_commit :dispatch_destroy_event
   after_update_commit :dispatch_update_event
 
-  PRIMARY_ACTORS = ['Conversation', 'Project'].freeze
+  PRIMARY_ACTORS = %w[Conversation Project ChatMessage].freeze
 
   def push_event_data
     # Secondary actor could be nil for cases like system assigning conversation
@@ -88,53 +93,14 @@ class Notification < ApplicationRecord
     }
   end
 
-  # rubocop:disable Metrics/MethodLength
-  def push_message_title
-    notification_title_map = {
-      'conversation_creation' => 'notifications.notification_title.conversation_creation',
-      'conversation_assignment' => 'notifications.notification_title.conversation_assignment',
-      'assigned_conversation_new_message' => 'notifications.notification_title.assigned_conversation_new_message',
-      'participating_conversation_new_message' => 'notifications.notification_title.assigned_conversation_new_message',
-      'conversation_mention' => 'notifications.notification_title.conversation_mention',
-      'sla_missed_first_response' => 'notifications.notification_title.sla_missed_first_response',
-      'sla_missed_next_response' => 'notifications.notification_title.sla_missed_next_response',
-      'sla_missed_resolution' => 'notifications.notification_title.sla_missed_resolution',
-      'project_contract_end_overdue' => 'notifications.notification_title.project_contract_end_overdue',
-      'project_support_end_overdue' => 'notifications.notification_title.project_support_end_overdue'
-    }
-
-    i18n_key = notification_title_map[notification_type]
-    return '' unless i18n_key
-
-    if notification_type == 'conversation_creation'
-      I18n.t(i18n_key, display_id: conversation.display_id, inbox_name: primary_actor.inbox.name)
-    elsif %w[conversation_assignment assigned_conversation_new_message participating_conversation_new_message
-             conversation_mention].include?(notification_type)
-      I18n.t(i18n_key, display_id: conversation.display_id)
-    elsif %w[project_contract_end_overdue project_support_end_overdue].include?(notification_type)
-      I18n.t(i18n_key, project_name: primary_actor.name)
-    else
-      I18n.t(i18n_key, display_id: primary_actor.display_id)
-    end
-  end
-  # rubocop:enable Metrics/MethodLength
-
-  def push_message_body
-    case notification_type
-    when 'conversation_creation', 'sla_missed_first_response'
-      message_body(conversation.messages.first)
-    when 'assigned_conversation_new_message', 'participating_conversation_new_message', 'conversation_mention'
-      message_body(secondary_actor)
-    when 'conversation_assignment', 'sla_missed_next_response', 'sla_missed_resolution'
-      message_body((conversation.messages.incoming.last || conversation.messages.outgoing.last))
-    else
-      ''
-    end
-  end
-
   def conversation
     primary_actor
   end
+
+  # Para onde o clique na notificacao leva.
+  #
+  # Sai do ator, e nao da Conversation: um Projeto e uma mensagem do Chat
+  # Interno nao tem `display_id`, e antes disto o envio quebrava para eles.
 
   private
 

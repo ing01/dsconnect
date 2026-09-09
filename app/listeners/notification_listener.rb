@@ -53,4 +53,13 @@ class NotificationListener < BaseListener
     Messages::MentionService.new(message: message).perform
     Messages::NewMessageNotificationService.new(message: message).perform
   end
+
+  # Chat Interno entre agentes. Segue o mesmo caminho das demais: cria a
+  # Notification, e o push sai por ela.
+  def internal_chat_message_created(event)
+    chat_message = event.data[:chat_message]
+    return if chat_message.blank?
+
+    InternalChatNotificationBuilder.new(chat_message: chat_message).perform
+  end
 end

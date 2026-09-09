@@ -354,7 +354,10 @@ pt_BR:
         recorded_at: Data de gravação
         review_notes: Notas de Avaliação
   notifications:
+    notification_body:
+      internal_chat_attachment: 'Enviou um anexo'
     notification_title:
+      internal_chat_message: '%{sender_name}'
       conversation_creation: 'A conversa (#%{display_id}) foi criada em %{inbox_name}'
       conversation_assignment: 'Uma conversa (#%{display_id}) foi atribuída a você'
       assigned_conversation_new_message: 'Uma nova mensagem foi criada na conversa (#%{display_id})'
