@@ -22,6 +22,21 @@ class AutomationRules::Flow::Steps::FindCompany < AutomationRules::Flow::Steps::
     run.write_variable('empresa.nome', company.name)
     run.write_variable('empresa.cnpj', company.cnpj)
     run.write_variable('empresa.nivel', company.client_level)
+    link_contact(company)
+  end
+
+  # Achar a Empresa pelo CNPJ que o proprio cliente informou E' o ato de
+  # identifica-lo - sem vincular aqui, o Contact continua sem nenhuma Empresa
+  # associada (so a variavel `empresa.id` do fluxo sabe), e um `create_ticket`
+  # mais adiante falha na validacao `contact_belongs_to_company` do Ticket
+  # (`contact.company_ids` nao inclui essa empresa) - exatamente o caso de
+  # todo contato novo do WhatsApp que se identifica por CNPJ.
+  def link_contact(company)
+    contact = conversation.contact
+    return if contact.blank?
+
+    contact.company_contacts.find_or_create_by!(company_id: company.id)
+    contact.update(company_id: company.id) if contact.company_id.blank?
   end
 
   # Sem ramo configurado o fluxo nao pode simplesmente seguir como se tivesse
