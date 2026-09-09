@@ -8,8 +8,10 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import { buildWhatsappTriageTemplate } from '../flowSteps';
 
 const props = defineProps({
-  hasExistingSteps: { type: Boolean, default: false },
+  stepsCount: { type: Number, default: 0 },
 });
+
+const hasExistingSteps = computed(() => props.stepsCount > 0);
 
 const emit = defineEmits(['apply']);
 
@@ -62,7 +64,7 @@ const isComplete = computed(
 const apply = () => {
   if (!isComplete.value) return;
   if (
-    props.hasExistingSteps &&
+    hasExistingSteps.value &&
     // eslint-disable-next-line no-alert
     !window.confirm(t('AUTOMATION.FLOW.WIZARD.CONFIRM_REPLACE'))
   ) {
@@ -91,7 +93,12 @@ const apply = () => {
         <h4 class="text-sm font-medium text-n-slate-12">
           {{ t('AUTOMATION.FLOW.WIZARD.TITLE') }}
         </h4>
-        <p class="text-xs text-n-slate-11">
+        <p v-if="hasExistingSteps" class="text-xs text-n-teal-11">
+          {{
+            t('AUTOMATION.FLOW.WIZARD.EXISTING_STEPS', { count: stepsCount })
+          }}
+        </p>
+        <p v-else class="text-xs text-n-slate-11">
           {{ t('AUTOMATION.FLOW.WIZARD.DESCRIPTION') }}
         </p>
       </div>
@@ -99,7 +106,9 @@ const apply = () => {
         :label="
           isOpen
             ? t('AUTOMATION.FLOW.WIZARD.CLOSE')
-            : t('AUTOMATION.FLOW.WIZARD.OPEN')
+            : hasExistingSteps
+              ? t('AUTOMATION.FLOW.WIZARD.REOPEN')
+              : t('AUTOMATION.FLOW.WIZARD.OPEN')
         "
         size="sm"
         :variant="isOpen ? 'faded' : 'solid'"
@@ -107,6 +116,14 @@ const apply = () => {
         @click="isOpen = !isOpen"
       />
     </div>
+
+    <p v-if="hasExistingSteps && !isOpen" class="text-xs text-n-slate-11">
+      {{ t('AUTOMATION.FLOW.WIZARD.REVIEW_BELOW') }}
+    </p>
+
+    <p v-if="isOpen && hasExistingSteps" class="text-xs text-n-amber-11">
+      {{ t('AUTOMATION.FLOW.WIZARD.REPLACE_WARNING') }}
+    </p>
 
     <div v-if="isOpen" class="flex flex-col gap-4 pt-2 border-t border-n-blue-6">
       <ol class="flex flex-col gap-3 pl-5 text-sm list-decimal text-n-slate-12">
@@ -181,7 +198,11 @@ const apply = () => {
 
       <div class="flex justify-end">
         <Button
-          :label="t('AUTOMATION.FLOW.WIZARD.APPLY')"
+          :label="
+            hasExistingSteps
+              ? t('AUTOMATION.FLOW.WIZARD.REBUILD')
+              : t('AUTOMATION.FLOW.WIZARD.APPLY')
+          "
           size="sm"
           color="blue"
           :disabled="!isComplete"

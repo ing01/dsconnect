@@ -145,10 +145,7 @@ const setBranch = (index, key, value) => {
       </select>
     </div>
 
-    <WhatsappTriageWizard
-      :has-existing-steps="steps.length > 0"
-      @apply="update"
-    />
+    <WhatsappTriageWizard :steps-count="steps.length" @apply="update" />
 
     <p v-if="!steps.length" class="text-sm text-n-slate-10">
       {{ t('AUTOMATION.FLOW.EMPTY') }}
