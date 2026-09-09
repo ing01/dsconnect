@@ -11,7 +11,7 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
   DEFAULT_MAX_TURNS = 6
 
   def perform
-    return fail_step('assistant_id nao configurado ou inexistente') if assistant.blank?
+    return handoff_on_misconfiguration if assistant.blank?
     return finish_by_handoff if turns_used >= max_turns
 
     increment_turns!
@@ -72,5 +72,13 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
 
   def handed_off_by_captain?
     @runner&.handoff_completed? == true
+  end
+
+  # Assistente apagado ou etapa mal configurada nao pode deixar o cliente
+  # sem resposta nenhuma - mesma regra do `create_ticket`.
+  def handoff_on_misconfiguration
+    say(I18n.t('automations.flow.ai_resolve.error_message'))
+    conversation.bot_handoff!(dispatch_event: false)
+    handoff(result: { error: 'assistant_id nao configurado ou inexistente' })
   end
 end

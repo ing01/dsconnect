@@ -6,7 +6,7 @@
 class AutomationRules::Flow::Steps::CreateTicket < AutomationRules::Flow::Steps::Base
   def perform
     ticket = account.tickets.new(attributes)
-    return fail_step(ticket.errors.full_messages.to_sentence) unless ticket.save
+    return handoff_on_failure(ticket) unless ticket.save
 
     link_conversation(ticket)
     remember(ticket)
@@ -15,6 +15,15 @@ class AutomationRules::Flow::Steps::CreateTicket < AutomationRules::Flow::Steps:
   end
 
   private
+
+  # Uma configuracao incompleta (Estagio/Categoria da etapa mal escolhidos,
+  # por exemplo) nao pode deixar o cliente sem nenhuma resposta - avisa e
+  # entrega para uma pessoa, com o motivo real gravado no historico da
+  # automacao para quem for corrigir a etapa depois.
+  def handoff_on_failure(ticket)
+    say(I18n.t('automations.flow.create_ticket.error_message'))
+    handoff(result: { error: ticket.errors.full_messages.to_sentence })
+  end
 
   def attributes
     {

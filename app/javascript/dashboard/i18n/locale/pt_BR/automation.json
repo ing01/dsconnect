@@ -250,7 +250,7 @@
       "REMOVE": "Remover etapa",
       "WIZARD": {
         "TITLE": "Modelo de triagem de atendimento WhatsApp",
-        "DESCRIPTION": "Responda algumas perguntas e isso monta o fluxo completo pra você: identificar ticket ou empresa, checar bloqueios, criar o ticket e rotear para a IA ou para um humano de acordo com o nível do cliente.",
+        "DESCRIPTION": "Responda algumas perguntas e isso monta o fluxo completo pra você: identificar a empresa (pedindo o CNPJ se for um contato novo), checar bloqueios, verificar se já existe um ticket aberto, criar o ticket se precisar, e rotear para a IA ou para um humano de acordo com o nível do cliente.",
         "OPEN": "Configurar com o modelo",
         "CLOSE": "Fechar",
         "STEP_TEAM": "Em qual mesa de serviço os tickets do WhatsApp devem ser criados?",
@@ -306,7 +306,8 @@
         "FALSE": "Se falso",
         "BLOCKED": "Se bloqueada",
         "NOT_OWNED": "Se pertence a outro cliente",
-        "FOUND": "Se já encontrado"
+        "FOUND": "Se já encontrado",
+        "NO_COMPANIES": "Se o contato ainda não tem nenhuma empresa"
       },
       "OPTION": {
         "TEXT": "Texto",

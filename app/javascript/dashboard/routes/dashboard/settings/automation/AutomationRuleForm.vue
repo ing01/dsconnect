@@ -294,11 +294,43 @@ const flowTeams = computed(() =>
   }))
 );
 
-// Estagios e categorias dependem da Mesa escolhida na etapa, e a tela do
-// formulario nao tem esse contexto: por ora entram por id, e o refinamento fica
-// para quando o editor souber a Mesa de cada etapa.
-const flowColumns = computed(() => []);
-const flowCategories = computed(() => []);
+// Estagios e categorias sao por Mesa, e uma etapa do fluxo (`create_ticket`,
+// `find_open_ticket_for_customer`, `ai_triage`) so referencia uma via
+// `team_id` - busca para toda Mesa ja usada em alguma etapa e junta tudo,
+// em vez de exigir uma "Mesa selecionada" separada que a tela nao tem hoje.
+const flowStepTeamIds = computed(() =>
+  [
+    ...new Set(
+      (automation.value?.flow_steps || [])
+        .map(step => step.params?.team_id)
+        .filter(Boolean)
+    ),
+  ].map(Number)
+);
+
+watch(
+  flowStepTeamIds,
+  (ids, previousIds = []) => {
+    ids
+      .filter(id => !previousIds.includes(id))
+      .forEach(id => {
+        store.dispatch('ticketColumns/fetchColumns', id);
+        store.dispatch('ticketColumns/fetchCategories', id);
+      });
+  },
+  { immediate: true }
+);
+
+const flowColumns = computed(() =>
+  flowStepTeamIds.value.flatMap(
+    id => getters['ticketColumns/getColumns']?.value(id) || []
+  )
+);
+const flowCategories = computed(() =>
+  flowStepTeamIds.value.flatMap(
+    id => getters['ticketColumns/getCategories']?.value(id) || []
+  )
+);
 const flowCaptainAssistants = computed(
   () => getters['captainAssistants/getRecords']?.value || []
 );

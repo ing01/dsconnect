@@ -251,7 +251,7 @@
       "REMOVE": "Remove step",
       "WIZARD": {
         "TITLE": "WhatsApp support triage template",
-        "DESCRIPTION": "Answer a few questions and this builds the full step-by-step flow for you: identify the ticket or company, check for blocks, create the ticket, and route it to AI or to a human based on the client's level.",
+        "DESCRIPTION": "Answer a few questions and this builds the full step-by-step flow for you: identify the company (asking for a CNPJ if it's a new contact), check for blocks, check for an existing ticket, create the ticket if needed, and route it to AI or to a human based on the client's level.",
         "OPEN": "Set up with the template",
         "CLOSE": "Close",
         "STEP_TEAM": "Which service desk should WhatsApp tickets be created in?",
@@ -307,7 +307,8 @@
         "FALSE": "If false",
         "BLOCKED": "If blocked",
         "NOT_OWNED": "If it belongs to someone else",
-        "FOUND": "If already found"
+        "FOUND": "If already found",
+        "NO_COMPANIES": "If the contact has no company yet"
       },
       "OPTION": {
         "TEXT": "Text",

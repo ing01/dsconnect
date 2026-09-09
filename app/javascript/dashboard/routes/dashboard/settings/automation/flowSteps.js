@@ -101,6 +101,7 @@ export const FLOW_STEP_TYPES = [
   {
     type: 'list_companies',
     fields: [{ key: 'save_as', kind: 'text', default: 'resposta.empresa_escolhida' }],
+    branches: ['no_companies'],
   },
   {
     type: 'ai_resolve',
@@ -183,8 +184,37 @@ export const buildWhatsappTriageTemplate = ({
     next: 's2',
     branches: {},
   },
+  // Identifica o cliente (a Empresa) primeiro - antes de perguntar qualquer
+  // outra coisa, inclusive se ja existe um ticket aberto. Contato sem
+  // nenhuma empresa ainda (cliente novo) cai no ramo `no_companies`, que
+  // pede o CNPJ (s15-s17) antes de voltar para o fluxo principal em s3.
   {
     id: 's2',
+    type: 'list_companies',
+    params: { save_as: 'resposta.empresa_escolhida' },
+    next: 's3',
+    branches: { no_companies: 's15' },
+  },
+  {
+    id: 's3',
+    type: 'check_company_blocked',
+    params: {},
+    next: 's5',
+    branches: { blocked: 's4' },
+  },
+  {
+    id: 's4',
+    type: 'handoff',
+    params: {
+      content:
+        'Não conseguimos continuar esse atendimento por aqui. Vou te transferir para um atendente.',
+      reason: 'empresa_bloqueada',
+    },
+    next: null,
+    branches: {},
+  },
+  {
+    id: 's5',
     type: 'ask',
     params: {
       content:
@@ -192,11 +222,11 @@ export const buildWhatsappTriageTemplate = ({
       save_as: 'resposta.tem_ticket',
       answer_type: 'text',
     },
-    next: 's3',
+    next: 's6',
     branches: {},
   },
   {
-    id: 's3',
+    id: 's6',
     type: 'condition',
     params: {
       variable: 'resposta.tem_ticket',
@@ -204,10 +234,10 @@ export const buildWhatsappTriageTemplate = ({
       value: 'sim',
     },
     next: null,
-    branches: { true: 's4', false: 's7' },
+    branches: { true: 's7', false: 's10' },
   },
   {
-    id: 's4',
+    id: 's7',
     type: 'ask',
     params: {
       content: 'Certo, me informe o número do ticket.',
@@ -215,46 +245,21 @@ export const buildWhatsappTriageTemplate = ({
       answer_type: 'ticket_number',
       retry_message: 'Não consegui reconhecer esse número. Pode enviar de novo?',
     },
-    next: 's5',
-    branches: {},
-  },
-  {
-    id: 's5',
-    type: 'find_open_ticket_by_number',
-    params: { number_from: 'resposta.numero_ticket' },
-    next: 's6',
-    branches: { not_found: 's7', not_owned: 's7' },
-  },
-  {
-    id: 's6',
-    type: 'send_message',
-    params: {
-      content: 'Encontrei o seu ticket #{{ticket.numero}}! Vou continuar por aqui.',
-    },
-    next: null,
-    branches: {},
-  },
-  {
-    id: 's7',
-    type: 'list_companies',
-    params: { save_as: 'resposta.empresa_escolhida' },
     next: 's8',
     branches: {},
   },
   {
     id: 's8',
-    type: 'check_company_blocked',
-    params: {},
-    next: 's10',
-    branches: { blocked: 's9' },
+    type: 'find_open_ticket_by_number',
+    params: { number_from: 'resposta.numero_ticket' },
+    next: 's9',
+    branches: { not_found: 's10', not_owned: 's10' },
   },
   {
     id: 's9',
-    type: 'handoff',
+    type: 'send_message',
     params: {
-      content:
-        'Não conseguimos continuar esse atendimento por aqui. Vou te transferir para um atendente.',
-      reason: 'empresa_bloqueada',
+      content: 'Encontrei o seu ticket #{{ticket.numero}}! Vou continuar por aqui.',
     },
     next: null,
     branches: {},
@@ -302,6 +307,39 @@ export const buildWhatsappTriageTemplate = ({
     id: 's14',
     type: 'ai_triage',
     params: { team_id: level3to5TeamId || '' },
+    next: null,
+    branches: {},
+  },
+  // Cliente novo, sem nenhuma empresa vinculada ainda: pede o CNPJ e localiza
+  // a empresa por ele antes de voltar ao fluxo principal (s3, checar bloqueio).
+  {
+    id: 's15',
+    type: 'ask',
+    params: {
+      content:
+        'Não encontrei nenhuma empresa vinculada ao seu contato. Pode me informar o CNPJ da empresa?',
+      save_as: 'resposta.cnpj',
+      answer_type: 'cnpj',
+      retry_message: 'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
+    },
+    next: 's16',
+    branches: {},
+  },
+  {
+    id: 's16',
+    type: 'find_company',
+    params: { cnpj_from: 'resposta.cnpj' },
+    next: 's3',
+    branches: { not_found: 's17' },
+  },
+  {
+    id: 's17',
+    type: 'handoff',
+    params: {
+      content:
+        'Não localizamos essa empresa em nosso cadastro. Vou transferir você para um atendente.',
+      reason: 'empresa_nao_encontrada',
+    },
     next: null,
     branches: {},
   },

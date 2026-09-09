@@ -7,7 +7,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
   TRANSCRIPT_MESSAGE_LIMIT = 20
 
   def perform
-    return fail_step('nenhum ticket vinculado a esta execucao') if ticket.blank?
+    return handoff_on_misconfiguration if ticket.blank?
 
     classification = classify
     priority = resolve_priority(classification)
@@ -80,5 +80,14 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
                 .order(:created_at).last(TRANSCRIPT_MESSAGE_LIMIT)
                 .map { |message| "#{message.incoming? ? 'Cliente' : 'Atendimento'}: #{message.content}" }
                 .join("\n")
+  end
+
+  # So acontece se o fluxo pular o `create_ticket`/`find_open_ticket_*` antes
+  # desta etapa - configuracao errada, nao algo que o cliente causou, mas
+  # ainda assim precisa avisar e entregar para uma pessoa.
+  def handoff_on_misconfiguration
+    say(I18n.t('automations.flow.ai_resolve.error_message'))
+    conversation.bot_handoff!(dispatch_event: false)
+    handoff(result: { error: 'nenhum ticket vinculado a esta execucao' })
   end
 end

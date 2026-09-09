@@ -110,6 +110,10 @@ pt_BR:
       list_companies:
         prompt: "Sobre qual empresa e esse atendimento?"
         retry: "Desculpe, nao consegui identificar essa empresa. Pode enviar de novo, o numero ou o nome?"
+      create_ticket:
+        error_message: "Desculpe, algo deu errado ao registrar seu atendimento. Vou te transferir para um atendente."
+      ai_resolve:
+        error_message: "Vou te transferir para um atendente para continuar seu atendimento."
       errors:
         empty_message: "a mensagem esta vazia"
         too_many_steps: "o fluxo executou etapas demais e foi interrompido"

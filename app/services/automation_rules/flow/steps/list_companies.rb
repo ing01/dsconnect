@@ -3,11 +3,15 @@
 # interpretacao mais livre (fora desta etapa) se nem numero nem nome baterem
 # de forma exata o bastante.
 #
+# Um contato sem nenhuma Empresa vinculada (cliente novo pelo WhatsApp, por
+# exemplo) nao tem o que listar - segue pelo ramo `no_companies`, que o admin
+# tipicamente aponta para um `ask` + `find_company` coletando o CNPJ.
+#
 # Executada duas vezes, como a `Ask`: sem mensagem, pergunta e espera; com
 # mensagem, tenta casar a resposta.
 class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps::Base
   def perform
-    return fail_step('contato sem empresas vinculadas') if companies.empty?
+    return branch_no_companies if companies.empty?
 
     return ask_choice if message.blank?
 
@@ -15,6 +19,13 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
   end
 
   private
+
+  def branch_no_companies
+    target = step.dig('branches', 'no_companies')
+    return handoff(result: { reason: 'sem_empresas' }) if target.blank?
+
+    continue(target, result: { reason: 'sem_empresas' })
+  end
 
   def companies
     @companies ||= conversation.contact.companies.order(:name).to_a
