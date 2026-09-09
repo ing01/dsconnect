@@ -176,6 +176,22 @@ export default {
       this.targetColumnId = column.id;
       this.showCreateForm = true;
     },
+
+    // Fechar o modal destroi o formulario (Modal.vue renderiza o slot dentro de
+    // um `v-if`), entao o que foi digitado se perde junto - que e o esperado de
+    // um Cancelar. So o Estagio de destino precisa ser limpo a mao, por viver
+    // aqui e nao no formulario.
+    closeCreateForm() {
+      this.showCreateForm = false;
+      this.targetColumnId = null;
+    },
+
+    // `keepOpen` vem do "Criar e abrir outro": nesse caso o formulario segue
+    // aberto para o proximo ticket.
+    onTicketCreated({ keepOpen } = {}) {
+      this.onTicketChanged();
+      if (!keepOpen) this.closeCreateForm();
+    },
     async moveTicket({ ticketId, ticketColumnId, position }) {
       try {
         await this.$store.dispatch('ticketColumns/moveTicket', {
