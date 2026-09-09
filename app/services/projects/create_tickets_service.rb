@@ -34,7 +34,7 @@ module Projects
             contact: project.contact,
             project: project,
             project_task_template: template,
-            title: template.default_ticket_title.presence || template.name,
+            title: ticket_title_for(template),
             description: template.description.presence || template.name,
             priority: :medium,
             assignee_id: assignee_id,
@@ -60,6 +60,17 @@ module Projects
     end
 
     private
+
+    # "NOME DA EMPRESA | NOME DA TAREFA" - so quando o projeto tem uma Empresa
+    # (opcional: um projeto pode nao ter cliente). Sem o prefixo, tickets de
+    # projetos diferentes com tarefas de mesmo nome ficavam indistinguiveis na
+    # lista/Kanban de tickets.
+    def ticket_title_for(template)
+      task_title = template.default_ticket_title.presence || template.name
+      return task_title if project.company.blank?
+
+      "#{project.company.name} | #{task_title}"
+    end
 
     # Ticket#ticket_category is required on create (see TicketOpening) - a task
     # can name a specific Categoria (chosen in ProjectCreateDialog's step 2),

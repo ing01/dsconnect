@@ -3,9 +3,12 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { usePolicy } from 'dashboard/composables/usePolicy';
+import { useCompaniesStore } from 'dashboard/stores/companies';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { useRouter } from 'vue-router';
 import { frontendURL } from 'dashboard/helper/URLHelper';
+import { formatMesaName } from 'dashboard/helper/mesaName';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
@@ -22,11 +25,22 @@ const emit = defineEmits(['close', 'updated']);
 const { t } = useI18n();
 const store = useStore();
 const router = useRouter();
+const { checkPermissions } = usePolicy();
+const companiesStore = useCompaniesStore();
 
 const isLoading = ref(true);
 const project = computed(() => store.getters['projects/getSelectedProject']);
 const accountId = computed(() => store.getters['getCurrentAccountId']);
 const agents = computed(() => store.getters['agents/getAgents'] || []);
+const teams = computed(() => store.getters['teams/getTeams'] || []);
+const companies = computed(() => companiesStore.getCompaniesList || []);
+
+// Nome, cliente, equipe e datas so podem ser alterados depois de criado por
+// quem administra projetos - editar isso por engano muda de qual Empresa/Mesa
+// o projeto e', o que afeta relatorios e permissoes de quem ja via o projeto.
+const canManageProject = computed(() =>
+  checkPermissions(['administrator', 'project_manage'])
+);
 
 const showCancelForm = ref(false);
 const cancelReason = ref('');
@@ -34,6 +48,11 @@ const notes = ref('');
 const supportEndsOn = ref('');
 const contractSignedOn = ref('');
 const completionType = ref('');
+const editName = ref('');
+const editCompanyId = ref(null);
+const editTeamId = ref(null);
+const editStartDate = ref('');
+const editDueDate = ref('');
 
 const stages = [
   { key: 'pendente', label: 'Pending', color: 'slate' },
@@ -47,6 +66,10 @@ const stages = [
 
 onMounted(async () => {
   store.dispatch('agents/get');
+  if (canManageProject.value) {
+    store.dispatch('teams/get');
+    companiesStore.get({ page: 1 });
+  }
   try {
     await store.dispatch('projects/show', props.projectId);
   } finally {
@@ -66,6 +89,11 @@ watch(
     supportEndsOn.value = updated.support_ends_on || '';
     contractSignedOn.value = updated.contract_signed_on || '';
     completionType.value = updated.completion_type || '';
+    editName.value = updated.name || '';
+    editCompanyId.value = updated.company_id || null;
+    editTeamId.value = updated.team_id || null;
+    editStartDate.value = updated.start_date || '';
+    editDueDate.value = updated.due_date || '';
   },
   { immediate: true }
 );
@@ -101,6 +129,16 @@ const saveNotes = () => saveField({ notes: notes.value });
 const saveSupportEndsOn = () => saveField({ support_ends_on: supportEndsOn.value || null });
 const saveContractSignedOn = () => saveField({ contract_signed_on: contractSignedOn.value || null });
 const saveCompletionType = () => saveField({ completion_type: completionType.value || null });
+
+const saveName = () => {
+  const trimmed = editName.value.trim();
+  if (!trimmed || trimmed === project.value?.name) return;
+  saveField({ name: trimmed });
+};
+const saveCompany = () => saveField({ company_id: editCompanyId.value || null });
+const saveTeam = () => saveField({ team_id: editTeamId.value });
+const saveStartDate = () => saveField({ start_date: editStartDate.value || null });
+const saveDueDate = () => saveField({ due_date: editDueDate.value || null });
 
 const confirmCancel = async () => {
   if (!cancelReason.value.trim()) return;
@@ -147,21 +185,54 @@ const currentStageColor = computed(() => {
     </div>
 
     <div v-else-if="project" class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 min-h-0">
-      <!-- Top info bar -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <!-- Nome do projeto: so quem administra projetos pode mudar - o nome
+           ja aparece no cabecalho do modal para todo mundo. -->
+      <div v-if="canManageProject" class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-n-slate-12">{{ t('PROJECTS.FORM.NAME.LABEL') }}</label>
+        <input
+          v-model="editName"
+          type="text"
+          class="h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+          @blur="saveName"
+        />
+      </div>
+
+      <!-- Top info bar. Cliente/Equipe so viram <select> editavel para quem
+           administra projetos - mudar isso depois de criado afeta relatorios
+           e quem enxerga o projeto, entao fica restrito. Etapa continua
+           aberta a qualquer um, com mais largura (col-span-2) para o texto do
+           estagio nao cortar. -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.COMPANY.LABEL') }}</span>
-          <span class="text-sm font-medium text-n-slate-12">{{ project.company_name || '—' }}</span>
+          <select
+            v-if="canManageProject"
+            v-model="editCompanyId"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
+            @change="saveCompany"
+          >
+            <option :value="null">{{ t('PROJECTS.FORM.COMPANY.NONE') }}</option>
+            <option v-for="comp in companies" :key="comp.id" :value="comp.id">{{ comp.name }}</option>
+          </select>
+          <span v-else class="text-sm font-medium text-n-slate-12">{{ project.company_name || '—' }}</span>
         </div>
         <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.TEAM.LABEL') }}</span>
-          <span class="text-sm font-medium text-n-slate-12">{{ project.team_name || '—' }}</span>
+          <select
+            v-if="canManageProject"
+            v-model="editTeamId"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
+            @change="saveTeam"
+          >
+            <option v-for="team in teams" :key="team.id" :value="team.id">{{ formatMesaName(team.name) }}</option>
+          </select>
+          <span v-else class="text-sm font-medium text-n-slate-12">{{ project.team_name || '—' }}</span>
         </div>
         <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.MODULE.LABEL') }}</span>
           <span class="text-sm font-medium text-n-slate-12">{{ project.project_module_name || '—' }}</span>
         </div>
-        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak sm:col-span-2">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.DETAIL.STAGE') }}</span>
           <select
             :value="project.stage"
@@ -172,6 +243,32 @@ const currentStageColor = computed(() => {
               {{ t(`PROJECTS.STAGES.${st.key.toUpperCase()}`, st.label) }}
             </option>
           </select>
+        </div>
+      </div>
+
+      <!-- Datas: so quem administra projetos edita; os demais so veem. -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.START_DATE.LABEL') }}</span>
+          <input
+            v-if="canManageProject"
+            v-model="editStartDate"
+            type="date"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 w-full focus:border-n-brand focus:outline-none"
+            @change="saveStartDate"
+          />
+          <span v-else class="text-sm font-medium text-n-slate-12">{{ project.start_date || '—' }}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.DUE_DATE.LABEL') }}</span>
+          <input
+            v-if="canManageProject"
+            v-model="editDueDate"
+            type="date"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 w-full focus:border-n-brand focus:outline-none"
+            @change="saveDueDate"
+          />
+          <span v-else class="text-sm font-medium text-n-slate-12">{{ project.due_date || '—' }}</span>
         </div>
       </div>
 
@@ -230,7 +327,7 @@ const currentStageColor = computed(() => {
 
       <!-- Implantador, datas e observação -->
       <div class="grid grid-cols-2 gap-3">
-        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak col-span-2">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.IMPLEMENTER.LABEL') }}</span>
           <select
             :value="project.implementer_id"
