@@ -3,6 +3,7 @@ class Ticket < ApplicationRecord
   include TicketBroadcastable
   include TicketClosing
   include TicketFinalizable
+  include TicketAssigneeLevels
   include TicketCustomer
   include TicketOpening
   include TicketRelatable
@@ -11,6 +12,8 @@ class Ticket < ApplicationRecord
   belongs_to :account
   belongs_to :ticket_column
   belongs_to :assignee, class_name: 'User', optional: true
+  # O Nivel 2. `assignee` continua sendo o Nivel 1 - vide AssigneeLeveled.
+  belongs_to :assignee_2, class_name: 'User', optional: true
   # The ticket's "Mesa de Servico". Mandatory and always kept consistent
   # with `ticket_column.team_id` (see `team_matches_ticket_column`) - a
   # ticket's Mesa is defined by which Mesa's Estagio it currently sits in.

@@ -45,6 +45,15 @@ export const actions = {
       commit(SET_TEAM_MEMBERS_UI_FLAG, { isCreating: false });
     }
   },
+  updateLevels: async ({ commit }, { teamId, levels }) => {
+    commit(SET_TEAM_MEMBERS_UI_FLAG, { isUpdating: true });
+    try {
+      const response = await TeamsAPI.updateMemberLevels({ teamId, levels });
+      commit(ADD_AGENTS_TO_TEAM, response);
+    } finally {
+      commit(SET_TEAM_MEMBERS_UI_FLAG, { isUpdating: false });
+    }
+  },
   update: async ({ commit }, { agentsList, teamId }) => {
     commit(SET_TEAM_MEMBERS_UI_FLAG, { isUpdating: true });
     try {

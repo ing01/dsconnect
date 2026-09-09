@@ -95,6 +95,9 @@ en:
       regards: Kind regards,
       company_name: Duesoft Sistemas
   tickets:
+    assignee_levels:
+      not_enabled: cannot be set because this service desk does not use assignee levels
+      not_allowed: is not allowed to act at level %{level} on this service desk
     finalized:
       immutable: this ticket is closed and can no longer be changed; reopen it first
     close:

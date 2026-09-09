@@ -7,4 +7,5 @@ json.icon_color resource.icon_color
 json.account_id resource.account_id
 json.active resource.active
 json.manager_id resource.manager_id
+json.assignee_levels_enabled resource.assignee_levels_enabled
 json.is_member Current.user.teams.include?(resource)

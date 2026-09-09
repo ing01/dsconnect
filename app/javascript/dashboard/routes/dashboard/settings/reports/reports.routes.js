@@ -18,6 +18,7 @@ import AgentReports from './AgentReports.vue';
 import InboxReports from './InboxReports.vue';
 import LabelReports from './LabelReports.vue';
 import TeamReports from './TeamReports.vue';
+import TicketTimeReports from './TicketTimeReports.vue';
 
 import CsatResponses from './CsatResponses.vue';
 import BotReports from './BotReports.vue';
@@ -54,6 +55,13 @@ const oldReportRoutes = [
     name: 'team_reports',
     meta,
     component: TeamReports,
+  },
+  {
+    // Horas apontadas nos tickets, por nivel de responsavel e por pessoa.
+    path: 'ticket_time',
+    name: 'ticket_time_reports',
+    meta,
+    component: TicketTimeReports,
   },
 ];
 
