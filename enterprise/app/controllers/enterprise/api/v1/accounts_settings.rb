@@ -29,7 +29,8 @@ module Enterprise::Api::V1::AccountsSettings
       { helpdesk_ai_resolve_levels: [] },
       :helpdesk_default_priority_on_ai_failure,
       :helpdesk_open_ticket_window_days,
-      :helpdesk_level_3to5_team_id
+      :helpdesk_level_3to5_team_id,
+      :helpdesk_default_queue_id
     ]
   end
 end

@@ -39,7 +39,8 @@ module AccountSettingsSchema
           'type': %w[string null], 'enum': %w[baixa media alta] + [nil]
         },
         'helpdesk_open_ticket_window_days': { 'type': %w[integer null], 'minimum': 1 },
-        'helpdesk_level_3to5_team_id': { 'type': %w[integer null] }
+        'helpdesk_level_3to5_team_id': { 'type': %w[integer null] },
+        'helpdesk_default_queue_id': { 'type': %w[integer null] }
       },
     'required': [],
     'additionalProperties': true

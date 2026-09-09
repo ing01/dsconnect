@@ -526,6 +526,11 @@
           "HELP": "Where the conversation is routed once the AI finishes triaging a level 3, 4 or 5 client.",
           "NONE": "Not set"
         },
+        "DEFAULT_QUEUE": {
+          "LABEL": "Support queue",
+          "HELP": "Which queue the conversation is sent to when handed off to a human (the AI could not resolve it, or finished triaging). The queue can auto-assign an agent and boost priority, as configured on it.",
+          "NONE": "Not set"
+        },
         "SAVE": "Save automation settings",
         "API": {
           "SUCCESS": "Automation settings updated.",

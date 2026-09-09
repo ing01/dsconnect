@@ -63,7 +63,7 @@ class Account < ApplicationRecord
   # AutomationRules::Flow::BlockGateService and the ai_resolve/ai_triage steps.
   store_accessor :settings, :helpdesk_whatsapp_flow_enabled, :helpdesk_ai_resolve_levels,
                   :helpdesk_default_priority_on_ai_failure, :helpdesk_open_ticket_window_days,
-                  :helpdesk_level_3to5_team_id
+                  :helpdesk_level_3to5_team_id, :helpdesk_default_queue_id
   include AccountCaptainAutoResolve
 
   has_many :account_users, dependent: :destroy_async

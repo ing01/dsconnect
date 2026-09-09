@@ -251,7 +251,7 @@ export const buildWhatsappTriageTemplate = ({
       value: 'sim',
     },
     next: null,
-    branches: { true: 's7', false: 's12' },
+    branches: { true: 's7', false: 's13' },
   },
   {
     id: 's7',
@@ -281,7 +281,7 @@ export const buildWhatsappTriageTemplate = ({
     id: 's9',
     type: 'send_message',
     params: { content: 'Não consegui localizar o ticket informado.' },
-    next: 's12',
+    next: 's13',
     branches: {},
   },
   {
@@ -291,7 +291,7 @@ export const buildWhatsappTriageTemplate = ({
       content:
         'Esse ticket não pôde ser associado ao seu atendimento atual. Vou continuar normalmente.',
     },
-    next: 's12',
+    next: 's13',
     branches: {},
   },
   {
@@ -305,16 +305,13 @@ export const buildWhatsappTriageTemplate = ({
     next: null,
     branches: {},
   },
-  // Sem ticket aberto (11): so verifica duplicidade (dedup silencioso) e
-  // segue por nivel - o ticket em si so e criado quando o caminho de nivel
-  // 3-5 exigir (s14) ou quando a IA de nivel 1-2 concluir (s16, sozinha).
-  {
-    id: 's12',
-    type: 'find_open_ticket_for_customer',
-    params: { team_id: teamId },
-    next: 's13',
-    branches: {},
-  },
+  // Sem ticket aberto (11): sempre um atendimento novo - nao ha nenhuma
+  // busca por ticket existente sem o cliente informar o numero (pedido
+  // explicito: "quando e conversa nova, sempre um novo ticket"; dedup
+  // automatico por contato+empresa+mesa reaproveitava tickets antigos de
+  // teste mesmo para clientes diferentes, o que nao e' o comportamento
+  // desejado). O ticket em si so e criado quando o caminho de nivel 3-5
+  // exigir (s14) ou quando a IA de nivel 1-2 concluir (s16, sozinha).
   {
     id: 's13',
     type: 'condition',

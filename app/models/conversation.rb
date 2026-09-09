@@ -90,6 +90,9 @@ class Conversation < ApplicationRecord
   scope :unassigned, -> { where(assignee_id: nil, assignee_agent_bot_id: nil) }
   scope :assigned, -> { where.not(assignee_id: nil).or(where.not(assignee_agent_bot_id: nil)) }
   scope :assigned_to, ->(agent) { where(assignee_id: agent.id) }
+  # Qualquer Fila, nao uma especifica (isso e' `ConversationFinder#filter_by_queue`,
+  # que recebe `queue_id` e so serve para a tela de UMA Fila por vez).
+  scope :queued, -> { where.not(queue_id: nil) }
   scope :sort_on_unread, lambda { |_direction|
     order(unread_messages_count_arel.desc).sort_on_last_activity_at('desc')
   }

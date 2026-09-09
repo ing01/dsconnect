@@ -4,6 +4,7 @@ export default {
     ME: 'me',
     UNASSIGNED: 'unassigned',
     ALL: 'all',
+    QUEUE: 'queue',
   },
   STATUS_TYPE: {
     OPEN: 'open',

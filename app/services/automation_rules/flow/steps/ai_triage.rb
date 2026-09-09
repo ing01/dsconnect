@@ -5,6 +5,7 @@
 # etapa sempre termina em handoff, nunca segue para uma proxima.
 class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Base
   include AutomationRules::Flow::Steps::Concerns::TicketBuilder
+  include AutomationRules::Flow::Steps::Concerns::HumanRouting
 
   TRANSCRIPT_MESSAGE_LIMIT = 20
 
@@ -81,9 +82,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
 
   def route_conversation_to_humans(priority)
     team_id = params[:team_id].presence || account.helpdesk_level_3to5_team_id
-    attrs = { priority: priority }
-    attrs[:team_id] = team_id if team_id.present?
-    conversation.update!(attrs)
+    route_conversation_to_humans!(team_id: team_id, priority: priority, queue_id: default_queue_id)
   end
 
   def summary_result(classification, priority)

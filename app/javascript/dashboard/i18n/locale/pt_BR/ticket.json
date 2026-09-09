@@ -526,6 +526,11 @@
           "HELP": "Para onde a conversa é roteada quando a IA termina a triagem de um cliente nível 3, 4 ou 5.",
           "NONE": "Não definido"
         },
+        "DEFAULT_QUEUE": {
+          "LABEL": "Fila de atendimento",
+          "HELP": "Para qual fila a conversa é enviada ao ser encaminhada para um humano (a IA não resolveu, ou terminou a triagem). A fila pode atribuir automaticamente a um atendente e reforçar a prioridade, conforme configurado nela.",
+          "NONE": "Não definido"
+        },
         "SAVE": "Salvar configurações de automação",
         "API": {
           "SUCCESS": "Configurações de automação atualizadas.",

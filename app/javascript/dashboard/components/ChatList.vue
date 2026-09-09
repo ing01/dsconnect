@@ -94,7 +94,7 @@ const currentUser = useMapGetter('getCurrentUser');
 const chatLists = useMapGetter('getFilteredConversations');
 const mineChatsList = useMapGetter('getMineChats');
 const allChatList = useMapGetter('getAllStatusChats');
-const unAssignedChatsList = useMapGetter('getUnAssignedChats');
+const queuedChatsList = useMapGetter('getQueuedChats');
 const participatingChatsList = useMapGetter('getParticipatingChats');
 const chatListLoading = useMapGetter('getChatListLoadingStatus');
 const activeInbox = useMapGetter('getSelectedInbox');
@@ -302,8 +302,8 @@ function filterByAssigneeTab(conversations) {
       c => c.meta?.assignee?.id === currentUser.value?.id
     );
   }
-  if (activeAssigneeTab.value === wootConstants.ASSIGNEE_TYPE.UNASSIGNED) {
-    return conversations.filter(c => !c.meta?.assignee);
+  if (activeAssigneeTab.value === wootConstants.ASSIGNEE_TYPE.QUEUE) {
+    return conversations.filter(c => !!c.queue_id);
   }
   return [...conversations];
 }
@@ -330,8 +330,8 @@ const conversationList = computed(() => {
       );
     } else if (activeAssigneeTab.value === 'me') {
       localConversationList = [...mineChatsList.value(filters)];
-    } else if (activeAssigneeTab.value === 'unassigned') {
-      localConversationList = [...unAssignedChatsList.value(filters)];
+    } else if (activeAssigneeTab.value === 'queue') {
+      localConversationList = [...queuedChatsList.value(filters)];
     } else {
       localConversationList = [...allChatList.value(filters)];
     }

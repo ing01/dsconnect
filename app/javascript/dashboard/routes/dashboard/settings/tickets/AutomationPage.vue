@@ -27,12 +27,15 @@ const aiResolveLevels = ref([1, 2]);
 const defaultPriorityOnAiFailure = ref('baixa');
 const openTicketWindowDays = ref(null);
 const level3to5TeamId = ref(null);
+const defaultQueueId = ref(null);
 const isSubmitting = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
+const queues = computed(() => getters['queues/getQueues'].value);
 
 onBeforeMount(() => {
   store.dispatch('teams/get');
+  store.dispatch('queues/get');
 });
 
 watch(
@@ -49,6 +52,7 @@ watch(
     openTicketWindowDays.value =
       settings.helpdesk_open_ticket_window_days ?? null;
     level3to5TeamId.value = settings.helpdesk_level_3to5_team_id ?? null;
+    defaultQueueId.value = settings.helpdesk_default_queue_id ?? null;
   },
   { deep: true, immediate: true }
 );
@@ -69,6 +73,7 @@ const handleSubmit = async () => {
         helpdesk_default_priority_on_ai_failure: defaultPriorityOnAiFailure.value,
         helpdesk_open_ticket_window_days: openTicketWindowDays.value || null,
         helpdesk_level_3to5_team_id: level3to5TeamId.value || null,
+        helpdesk_default_queue_id: defaultQueueId.value || null,
       },
       { silent: true }
     );
@@ -194,6 +199,22 @@ const handleSubmit = async () => {
                 </option>
                 <option v-for="team in teams" :key="team.id" :value="team.id">
                   {{ formatMesaName(team.name) }}
+                </option>
+              </select>
+            </WithLabel>
+          </div>
+
+          <div class="flex flex-col gap-2 px-5 py-4">
+            <WithLabel
+              :label="t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.LABEL')"
+              :help-message="t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.HELP')"
+            >
+              <select v-model="defaultQueueId" class="mb-0">
+                <option :value="null">
+                  {{ t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.NONE') }}
+                </option>
+                <option v-for="queue in queues" :key="queue.id" :value="queue.id">
+                  {{ queue.name }}
                 </option>
               </select>
             </WithLabel>

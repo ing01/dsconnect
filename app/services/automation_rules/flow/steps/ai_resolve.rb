@@ -17,6 +17,7 @@
 # tempo todo, so um registro de que aconteceu.
 class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Base
   include AutomationRules::Flow::Steps::Concerns::TicketBuilder
+  include AutomationRules::Flow::Steps::Concerns::HumanRouting
 
   DEFAULT_MAX_TURNS = 6
 
@@ -125,6 +126,11 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     return handoff(result: { turns: turns_used, ticket_error: ticket[:error] }) if ticket.is_a?(Hash)
 
     ticket.update!(priority: level_priority)
+    # Sem isso a conversa ficava so "encaminhada" (bot solto), sem Mesa, Fila
+    # nem prioridade nenhuma - so o `ai_triage` (nivel 3-5) fazia esse
+    # roteamento; a IA que tenta resolver (nivel 1-2) e nao consegue precisa
+    # do mesmo tratamento quando desiste.
+    route_conversation_to_humans!(team_id: params[:team_id], priority: level_priority, queue_id: default_queue_id)
     post_ticket_reference!(ticket, pre_existing: pre_existing)
     handoff(result: { turns: turns_used })
   end

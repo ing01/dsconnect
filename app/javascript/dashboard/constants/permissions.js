@@ -37,8 +37,8 @@ export const ASSIGNEE_TYPE_TAB_PERMISSIONS = {
     count: 'mineCount',
     permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
   },
-  unassigned: {
-    count: 'unAssignedCount',
+  queue: {
+    count: 'queueCount',
     permissions: [
       ...ROLES,
       MANAGE_ALL_CONVERSATION_PERMISSIONS,

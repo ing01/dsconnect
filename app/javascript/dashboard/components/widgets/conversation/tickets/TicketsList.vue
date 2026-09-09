@@ -24,6 +24,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // True (default) for the header-button popover: absolutely positioned,
+  // shown only while `isOpen`. False for the conversation sidebar accordion,
+  // where the AccordionItem already handles the open/closed chrome and this
+  // renders inline, always visible, with no popover positioning of its own.
+  anchored: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(['close', 'count']);
@@ -168,11 +176,16 @@ onMounted(loadTickets);
          both modes. Width is fixed and modest; only the linked list scrolls,
          and only once there are more items than fit. -->
     <div
-      v-if="isOpen"
-      class="absolute z-50 flex flex-col w-72 max-w-[calc(100vw-2rem)] mt-1 top-full ltr:right-0 rtl:left-0 text-sm border rounded-xl shadow-md bg-n-alpha-3 backdrop-blur-[100px] border-n-weak"
+      v-if="!anchored || isOpen"
+      :class="
+        anchored
+          ? 'absolute z-50 flex flex-col w-72 max-w-[calc(100vw-2rem)] mt-1 top-full ltr:right-0 rtl:left-0 text-sm border rounded-xl shadow-md bg-n-alpha-3 backdrop-blur-[100px] border-n-weak'
+          : 'flex flex-col text-sm'
+      "
     >
       <template v-if="level === 'list'">
         <h3
+          v-if="anchored"
           class="px-3 pt-3 pb-2 text-sm font-medium text-n-slate-12 truncate"
         >
           {{ t('CONVERSATION_SIDEBAR.ACCORDION.TICKETS') }}
