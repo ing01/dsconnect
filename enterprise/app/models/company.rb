@@ -40,7 +40,10 @@ class Company < ApplicationRecord
   validates :billing_type, inclusion: { in: BILLING_TYPES }, allow_blank: true
   validates :billing_amount, :implementation_fee, numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
 
+  enum client_level: { low: 0, medium: 1, high: 2, vip: 3 }
+
   belongs_to :account
+  belongs_to :company_category, optional: true
   has_many :contacts, dependent: :nullify
   # Tickets point at the Empresa directly. `nullify` rather than `destroy`:
   # removing a company must never take support history with it.

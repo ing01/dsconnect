@@ -9,6 +9,7 @@ json.db_username resource.db_username
 json.db_password resource.db_password
 json.anydesk_id resource.anydesk_id
 json.anydesk_password resource.anydesk_password
+json.remote_access_type resource.remote_access_type
 json.rdp_address resource.rdp_address
 json.rdp_username resource.rdp_username
 json.rdp_password resource.rdp_password

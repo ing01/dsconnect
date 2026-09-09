@@ -22,6 +22,10 @@ json.implementation_fee resource.implementation_fee
 json.license_expires_on resource.license_expires_on
 json.system_started_on resource.system_started_on
 json.system_modules resource.system_modules.map { |system_module| { id: system_module.id, name: system_module.name } }
+json.client_level resource.client_level
+json.campaign_opt_in resource.campaign_opt_in
+json.company_category_id resource.company_category_id
+json.company_category (resource.company_category ? { id: resource.company_category.id, name: resource.company_category.name } : nil)
 json.last_activity_at resource.last_activity_at.to_i if resource[:last_activity_at].present?
 json.created_at resource.created_at.to_i if resource[:created_at].present?
 json.updated_at resource.updated_at.to_i if resource[:updated_at].present?

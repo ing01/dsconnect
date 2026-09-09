@@ -20,15 +20,10 @@ const mode = ref('add');
 const editingId = ref(null);
 const revealedFields = ref(new Set());
 
-const DB_TYPE_OPTIONS = [
-  'postgresql',
-  'mysql',
-  'mariadb',
-  'sqlserver',
-  'oracle',
-  'mongodb',
-  'other',
-].map(value => ({ value, label: value }));
+const DB_TYPE_OPTIONS = ['UTF8', 'SQL-ASCII'].map(value => ({
+  value,
+  label: value,
+}));
 
 const blankForm = () => ({
   label: '',
@@ -38,6 +33,7 @@ const blankForm = () => ({
   dbPort: '',
   dbUsername: '',
   dbPassword: '',
+  remoteAccessType: '',
   anydeskId: '',
   anydeskPassword: '',
   rdpAddress: '',
@@ -85,6 +81,7 @@ const open = (credential = null) => {
       dbPort: credential.dbPort || '',
       dbUsername: credential.dbUsername || '',
       dbPassword: credential.dbPassword || '',
+      remoteAccessType: credential.remoteAccessType || '',
       anydeskId: credential.anydeskId || '',
       anydeskPassword: credential.anydeskPassword || '',
       rdpAddress: credential.rdpAddress || '',
@@ -116,6 +113,7 @@ const handleConfirm = () => {
     dbPort: form.dbPort || null,
     dbUsername: form.dbUsername.trim() || null,
     dbPassword: form.dbPassword || null,
+    remoteAccessType: form.remoteAccessType.trim() || null,
     anydeskId: form.anydeskId.trim() || null,
     anydeskPassword: form.anydeskPassword || null,
     rdpAddress: form.rdpAddress.trim() || null,
@@ -213,12 +211,18 @@ defineExpose({ dialogRef, onSuccess, open });
 
       <div class="flex flex-col gap-3">
         <span class="text-sm font-medium text-n-slate-11">
-          {{ t('COMPANIES.DETAIL.CREDENTIALS.FORM.SECTION_ANYDESK') }}
+          {{ t('COMPANIES.DETAIL.CREDENTIALS.FORM.SECTION_REMOTE_ACCESS') }}
         </span>
         <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
+            v-model="form.remoteAccessType"
+            :label="t('COMPANIES.DETAIL.CREDENTIALS.FORM.REMOTE_ACCESS_TYPE.LABEL')"
+            :placeholder="t('COMPANIES.DETAIL.CREDENTIALS.FORM.REMOTE_ACCESS_TYPE.PLACEHOLDER')"
+            :disabled="isLoading"
+          />
+          <Input
             v-model="form.anydeskId"
-            :label="t('COMPANIES.DETAIL.CREDENTIALS.FORM.ANYDESK_ID.LABEL')"
+            :label="t('COMPANIES.DETAIL.CREDENTIALS.FORM.REMOTE_ACCESS_ID.LABEL')"
             :disabled="isLoading"
           />
           <div class="flex items-end gap-1">
@@ -226,7 +230,7 @@ defineExpose({ dialogRef, onSuccess, open });
               v-model="form.anydeskPassword"
               :type="secretFieldType('anydeskPassword')"
               :label="
-                t('COMPANIES.DETAIL.CREDENTIALS.FORM.ANYDESK_PASSWORD.LABEL')
+                t('COMPANIES.DETAIL.CREDENTIALS.FORM.REMOTE_ACCESS_PASSWORD.LABEL')
               "
               :disabled="isLoading"
               class="flex-1"

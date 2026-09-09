@@ -53,6 +53,7 @@
           "HISTORY": "History",
           "NOTES": "Notes",
           "TICKETS": "Tickets",
+          "BILLING": "Contract & Billing",
           "CREDENTIALS": "Credentials"
         }
       },
@@ -85,9 +86,10 @@
           "DB_PORT": { "LABEL": "Port" },
           "DB_USERNAME": { "LABEL": "Username" },
           "DB_PASSWORD": { "LABEL": "Password" },
-          "SECTION_ANYDESK": "AnyDesk",
-          "ANYDESK_ID": { "LABEL": "AnyDesk ID" },
-          "ANYDESK_PASSWORD": { "LABEL": "AnyDesk password" },
+          "SECTION_REMOTE_ACCESS": "Remote access",
+          "REMOTE_ACCESS_TYPE": { "LABEL": "Program used", "PLACEHOLDER": "Anydesk, TeamViewer, etc." },
+          "REMOTE_ACCESS_ID": { "LABEL": "Remote access ID" },
+          "REMOTE_ACCESS_PASSWORD": { "LABEL": "Remote access password" },
           "SECTION_RDP": "RDP",
           "RDP_ADDRESS": { "LABEL": "RDP address" },
           "RDP_USERNAME": { "LABEL": "RDP username" },
@@ -199,7 +201,21 @@
           "IMPLEMENTATION_FEE": "Implementation fee",
           "LICENSE_EXPIRES_ON": "License expiration date",
           "SYSTEM_STARTED_ON": "System start date",
-          "MODULES": "Modules in use"
+          "MODULES": "Modules in use",
+          "CLIENT_LEVEL": "Client level",
+          "CATEGORY": "Category",
+          "CAMPAIGN_OPT_IN": "Receive automatic campaign messages"
+        },
+        "LEVEL": {
+          "LOW": "Low",
+          "MEDIUM": "Medium",
+          "HIGH": "High",
+          "VIP": "VIP"
+        },
+        "CATEGORY": {
+          "NONE": "None",
+          "ADD_PLACEHOLDER": "New category name",
+          "ADD_BUTTON": "Add"
         },
         "CNPJ_LOOKUP": {
           "BUTTON": "Look up",
@@ -220,6 +236,7 @@
         "SECTIONS": {
           "FISCAL": "Fiscal information",
           "ADDRESS": "Address",
+          "CLASSIFICATION": "Classification",
           "CONTRACT": "Contract & billing"
         }
       },

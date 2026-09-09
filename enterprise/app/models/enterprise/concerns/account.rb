@@ -21,6 +21,7 @@ module Enterprise::Concerns::Account
     has_many :copilot_threads, dependent: :destroy_async
     has_many :companies, dependent: :destroy_async
     has_many :company_credentials, dependent: :destroy_async
+    has_many :company_categories, dependent: :destroy_async
     has_many :system_modules, dependent: :destroy_async
     has_many :calls, dependent: :destroy_async
 

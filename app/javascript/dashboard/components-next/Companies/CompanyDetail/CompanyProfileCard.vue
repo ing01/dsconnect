@@ -11,6 +11,7 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import CompanyModulesField from 'dashboard/components-next/Companies/CompanyDetail/CompanyModulesField.vue';
+import CompanyCategoryField from 'dashboard/components-next/Companies/CompanyDetail/CompanyCategoryField.vue';
 import { useCompaniesStore } from 'dashboard/stores/companies';
 
 const props = defineProps({
@@ -35,12 +36,11 @@ const FISCAL_FIELDS = [
   'addressState',
 ];
 
-const BILLING_TEXT_FIELDS = ['billingType', 'licenseExpiresOn', 'systemStartedOn'];
-const BILLING_NUMERIC_FIELDS = ['billingAmount', 'implementationFee'];
-
-const BILLING_TYPE_OPTIONS = [
-  { value: 'monthly', label: t('COMPANIES.DETAIL.PROFILE.BILLING.MONTHLY') },
-  { value: 'annual', label: t('COMPANIES.DETAIL.PROFILE.BILLING.ANNUAL') },
+const CLIENT_LEVEL_OPTIONS = [
+  { value: 'low', label: t('COMPANIES.DETAIL.PROFILE.LEVEL.LOW') },
+  { value: 'medium', label: t('COMPANIES.DETAIL.PROFILE.LEVEL.MEDIUM') },
+  { value: 'high', label: t('COMPANIES.DETAIL.PROFILE.LEVEL.HIGH') },
+  { value: 'vip', label: t('COMPANIES.DETAIL.PROFILE.LEVEL.VIP') },
 ];
 
 const form = reactive({
@@ -58,11 +58,9 @@ const form = reactive({
   addressNeighborhood: '',
   addressCity: '',
   addressState: '',
-  billingType: '',
-  billingAmount: '',
-  implementationFee: '',
-  licenseExpiresOn: '',
-  systemStartedOn: '',
+  clientLevel: 'low',
+  companyCategoryId: 0,
+  campaignOptIn: false,
   systemModuleIds: [],
 });
 const avatarPreviewUrl = ref('');
@@ -103,25 +101,13 @@ const hasChanges = computed(
     FISCAL_FIELDS.some(
       field => (form[field] || '').trim() !== (props.company?.[field] || '')
     ) ||
-    BILLING_TEXT_FIELDS.some(
-      field => (form[field] || '') !== (props.company?.[field] || '')
-    ) ||
-    BILLING_NUMERIC_FIELDS.some(
-      field =>
-        (Number(form[field]) || null) !==
-        (Number(props.company?.[field]) || null)
-    ) ||
+    form.clientLevel !== (props.company?.clientLevel || 'low') ||
+    (form.companyCategoryId || 0) !==
+      (props.company?.companyCategoryId || 0) ||
+    form.campaignOptIn !== Boolean(props.company?.campaignOptIn) ||
     !sameModuleSelection.value
 );
 const isLookingUpCnpj = computed(() => uiFlags.value.lookingUpCnpj);
-const monthlyEquivalent = computed(() => {
-  const amount = Number(form.billingAmount);
-  if (form.billingType !== 'annual' || !amount) return '';
-  return (amount / 12).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-});
 
 const summary = computed(() => {
   const { createdAt, lastActivityAt } = props.company || {};
@@ -146,9 +132,9 @@ const syncForm = company => {
   FISCAL_FIELDS.forEach(field => {
     form[field] = company?.[field] || '';
   });
-  [...BILLING_TEXT_FIELDS, ...BILLING_NUMERIC_FIELDS].forEach(field => {
-    form[field] = company?.[field] || '';
-  });
+  form.clientLevel = company?.clientLevel || 'low';
+  form.companyCategoryId = company?.companyCategoryId || 0;
+  form.campaignOptIn = Boolean(company?.campaignOptIn);
   form.systemModuleIds = (company?.systemModules || []).map(m => m.id);
   cnpjLookupState.value = 'idle';
   cnpjLookupErrorMessage.value = '';
@@ -164,8 +150,9 @@ watch(
     props.company?.description,
     props.company?.avatarUrl,
     ...FISCAL_FIELDS.map(field => props.company?.[field]),
-    ...BILLING_TEXT_FIELDS.map(field => props.company?.[field]),
-    ...BILLING_NUMERIC_FIELDS.map(field => props.company?.[field]),
+    props.company?.clientLevel,
+    props.company?.companyCategoryId,
+    props.company?.campaignOptIn,
     JSON.stringify(props.company?.systemModules || []),
   ],
   () => {
@@ -212,12 +199,9 @@ const handleUpdateCompany = async () => {
         attrs[field] = form[field].trim() || null;
         return attrs;
       }, {}),
-      billingType: form.billingType || null,
-      licenseExpiresOn: form.licenseExpiresOn || null,
-      systemStartedOn: form.systemStartedOn || null,
-      billingAmount: form.billingAmount !== '' ? Number(form.billingAmount) : null,
-      implementationFee:
-        form.implementationFee !== '' ? Number(form.implementationFee) : null,
+      clientLevel: form.clientLevel,
+      companyCategoryId: form.companyCategoryId || null,
+      campaignOptIn: form.campaignOptIn,
       systemModuleIds: form.systemModuleIds,
     });
     if (!isCurrentCompany(companyId)) return;
@@ -373,6 +357,53 @@ watch(
 
       <div class="flex flex-col items-start w-full gap-3">
         <span class="text-sm font-medium text-n-slate-12">
+          {{ t('COMPANIES.DETAIL.PROFILE.SECTIONS.CLASSIFICATION') }}
+        </span>
+        <div class="grid w-full gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-1">
+            <label class="text-sm text-n-slate-11">
+              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.CLIENT_LEVEL') }}
+            </label>
+            <Select
+              v-model="form.clientLevel"
+              :options="CLIENT_LEVEL_OPTIONS"
+              :disabled="isUpdating"
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm text-n-slate-11">
+              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.CATEGORY') }}
+            </label>
+            <CompanyCategoryField
+              v-model="form.companyCategoryId"
+              :disabled="isUpdating"
+            />
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <input
+            id="campaign-opt-in"
+            v-model="form.campaignOptIn"
+            type="checkbox"
+            :disabled="isUpdating"
+          />
+          <label for="campaign-opt-in" class="text-sm text-n-slate-11">
+            {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.CAMPAIGN_OPT_IN') }}
+          </label>
+        </div>
+        <div class="flex flex-col w-full gap-1">
+          <label class="text-sm text-n-slate-11">
+            {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.MODULES') }}
+          </label>
+          <CompanyModulesField
+            v-model="form.systemModuleIds"
+            :disabled="isUpdating"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col items-start w-full gap-3">
+        <span class="text-sm font-medium text-n-slate-12">
           {{ t('COMPANIES.DETAIL.PROFILE.SECTIONS.ADDRESS') }}
         </span>
         <div class="grid w-full gap-4 sm:grid-cols-2">
@@ -421,70 +452,6 @@ watch(
             :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_STATE')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
-          />
-        </div>
-      </div>
-
-      <div class="flex flex-col items-start w-full gap-3">
-        <span class="text-sm font-medium text-n-slate-12">
-          {{ t('COMPANIES.DETAIL.PROFILE.SECTIONS.CONTRACT') }}
-        </span>
-        <div class="grid w-full gap-4 sm:grid-cols-2">
-          <div class="flex flex-col gap-1">
-            <label class="text-sm text-n-slate-11">
-              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.BILLING_TYPE') }}
-            </label>
-            <Select
-              v-model="form.billingType"
-              :options="BILLING_TYPE_OPTIONS"
-              :disabled="isUpdating"
-            />
-          </div>
-          <div class="flex flex-col gap-1">
-            <Input
-              v-model="form.billingAmount"
-              type="number"
-              :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.BILLING_AMOUNT')"
-              :disabled="isUpdating"
-              custom-input-class="h-8 !pt-1 !pb-1"
-            />
-            <span v-if="monthlyEquivalent" class="text-xs text-n-slate-11">
-              {{
-                t('COMPANIES.DETAIL.PROFILE.BILLING.MONTHLY_EQUIVALENT', {
-                  amount: monthlyEquivalent,
-                })
-              }}
-            </span>
-          </div>
-          <Input
-            v-model="form.implementationFee"
-            type="number"
-            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.IMPLEMENTATION_FEE')"
-            :disabled="isUpdating"
-            custom-input-class="h-8 !pt-1 !pb-1"
-          />
-          <Input
-            v-model="form.licenseExpiresOn"
-            type="date"
-            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.LICENSE_EXPIRES_ON')"
-            :disabled="isUpdating"
-            custom-input-class="h-8 !pt-1 !pb-1"
-          />
-          <Input
-            v-model="form.systemStartedOn"
-            type="date"
-            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.SYSTEM_STARTED_ON')"
-            :disabled="isUpdating"
-            custom-input-class="h-8 !pt-1 !pb-1"
-          />
-        </div>
-        <div class="flex flex-col w-full gap-1">
-          <label class="text-sm text-n-slate-11">
-            {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.MODULES') }}
-          </label>
-          <CompanyModulesField
-            v-model="form.systemModuleIds"
-            :disabled="isUpdating"
           />
         </div>
       </div>

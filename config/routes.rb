@@ -239,6 +239,7 @@ Rails.application.routes.draw do
             end
           end
           resources :system_modules, only: [:index, :create]
+          resources :company_categories, only: [:index, :create]
           resources :mood_entries, only: [:index, :create] do
             collection do
               get :today

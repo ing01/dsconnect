@@ -24,6 +24,7 @@
 # - 'report_manage': Can manage reports.
 # - 'knowledge_base_manage': Can manage knowledge base portals.
 # - 'client_credentials_manage': Can view and manage sensitive client access credentials (DB/AnyDesk/RDP) on companies.
+# - 'client_billing_manage': Can view and manage the "Contrato e cobrança" (billing/contract) fields on companies.
 # - 'department_manage': Can create/edit/delete departments (Teams).
 # - 'queue_manage': Can create/edit/delete queues.
 
@@ -43,6 +44,7 @@ class CustomRole < ApplicationRecord
     report_manage
     knowledge_base_manage
     client_credentials_manage
+    client_billing_manage
     department_manage
     queue_manage
   ].freeze

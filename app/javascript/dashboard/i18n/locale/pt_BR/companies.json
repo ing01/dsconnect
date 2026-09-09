@@ -53,6 +53,7 @@
           "HISTORY": "Histórico",
           "NOTES": "Notas",
           "TICKETS": "Tickets",
+          "BILLING": "Contrato e Cobrança",
           "CREDENTIALS": "Credenciais"
         }
       },
@@ -85,9 +86,10 @@
           "DB_PORT": { "LABEL": "Porta" },
           "DB_USERNAME": { "LABEL": "Usuário" },
           "DB_PASSWORD": { "LABEL": "Senha" },
-          "SECTION_ANYDESK": "AnyDesk",
-          "ANYDESK_ID": { "LABEL": "ID do AnyDesk" },
-          "ANYDESK_PASSWORD": { "LABEL": "Senha do AnyDesk" },
+          "SECTION_REMOTE_ACCESS": "Acesso remoto",
+          "REMOTE_ACCESS_TYPE": { "LABEL": "Programa utilizado", "PLACEHOLDER": "Anydesk, TeamViewer, etc." },
+          "REMOTE_ACCESS_ID": { "LABEL": "ID de acesso remoto" },
+          "REMOTE_ACCESS_PASSWORD": { "LABEL": "Senha de acesso remoto" },
           "SECTION_RDP": "RDP",
           "RDP_ADDRESS": { "LABEL": "Endereço do RDP" },
           "RDP_USERNAME": { "LABEL": "Usuário do RDP" },
@@ -199,7 +201,21 @@
           "IMPLEMENTATION_FEE": "Valor da implantação",
           "LICENSE_EXPIRES_ON": "Data de vencimento da licença",
           "SYSTEM_STARTED_ON": "Data de início do uso do sistema",
-          "MODULES": "Módulos utilizados"
+          "MODULES": "Módulos utilizados",
+          "CLIENT_LEVEL": "Nível do cliente",
+          "CATEGORY": "Categoria",
+          "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha"
+        },
+        "LEVEL": {
+          "LOW": "Baixo",
+          "MEDIUM": "Médio",
+          "HIGH": "Alto",
+          "VIP": "VIP"
+        },
+        "CATEGORY": {
+          "NONE": "Nenhuma",
+          "ADD_PLACEHOLDER": "Nome da nova categoria",
+          "ADD_BUTTON": "Adicionar"
         },
         "CNPJ_LOOKUP": {
           "BUTTON": "Buscar",
@@ -220,6 +236,7 @@
         "SECTIONS": {
           "FISCAL": "Dados fiscais",
           "ADDRESS": "Endereço",
+          "CLASSIFICATION": "Classificação",
           "CONTRACT": "Contrato e cobrança"
         }
       },
