@@ -57,6 +57,7 @@ class AutomationRules::Flow::Steps::Ask < AutomationRules::Flow::Steps::Base
   def normalize(answer)
     case params[:answer_type].to_s
     when 'cnpj' then normalize_cnpj(answer)
+    when 'ticket_number' then normalize_ticket_number(answer)
     else answer
     end
   end
@@ -69,5 +70,11 @@ class AutomationRules::Flow::Steps::Ask < AutomationRules::Flow::Steps::Base
     return nil unless Company.valid_cnpj?(digits)
 
     digits
+  end
+
+  # So os digitos - o cliente pode digitar "#12345" ou "12345", tanto faz.
+  def normalize_ticket_number(answer)
+    digits = answer.gsub(/\D/, '')
+    digits.presence
   end
 end

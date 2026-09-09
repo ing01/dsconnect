@@ -23,6 +23,7 @@ import CompanyCredentialsSidebar from 'dashboard/components-next/Companies/Compa
 import CompanyCredentialFormDialog from 'dashboard/components-next/Companies/CompanyDetail/CompanyCredentialFormDialog.vue';
 import ConfirmCredentialDeleteDialog from 'dashboard/components-next/Companies/CompanyDetail/ConfirmCredentialDeleteDialog.vue';
 import CompanyProfileCard from 'dashboard/components-next/Companies/CompanyDetail/CompanyProfileCard.vue';
+import CompanyBillingCard from 'dashboard/components-next/Companies/CompanyDetail/CompanyBillingCard.vue';
 import ConfirmCompanyDeleteDialog from 'dashboard/components-next/Companies/CompanyDetail/ConfirmCompanyDeleteDialog.vue';
 import CreateNewContactDialog from 'dashboard/components-next/Contacts/ContactsForm/CreateNewContactDialog.vue';
 import { useCompaniesStore } from 'dashboard/stores/companies';
@@ -37,6 +38,9 @@ const { checkPermissions } = usePolicy();
 
 const canManageCredentials = computed(() =>
   checkPermissions(['administrator', 'client_credentials_manage'])
+);
+const canManageBilling = computed(() =>
+  checkPermissions(['administrator', 'client_billing_manage'])
 );
 
 const confirmDeleteDialogRef = ref(null);
@@ -103,6 +107,7 @@ const tabOptions = computed(() => [
   { key: 'HISTORY', value: 'history' },
   { key: 'NOTES', value: 'notes' },
   { key: 'TICKETS', value: 'tickets' },
+  ...(canManageBilling.value ? [{ key: 'BILLING', value: 'billing' }] : []),
   ...(canManageCredentials.value
     ? [{ key: 'CREDENTIALS', value: 'credentials' }]
     : []),
@@ -117,6 +122,7 @@ const tabs = computed(() =>
       history: t('COMPANIES.DETAIL.SIDEBAR.TABS.HISTORY'),
       contacts: `${t('COMPANIES.DETAIL.SIDEBAR.TABS.CONTACTS')} (${Number(companyContactsMeta.value.totalCount || 0)})`,
       tickets: t('COMPANIES.DETAIL.SIDEBAR.TABS.TICKETS'),
+      billing: t('COMPANIES.DETAIL.SIDEBAR.TABS.BILLING'),
       credentials: t('COMPANIES.DETAIL.SIDEBAR.TABS.CREDENTIALS'),
     }[tab.value],
     value: tab.value,
@@ -184,21 +190,12 @@ const handleConfirmContactSelection = async () => {
   const candidate = selectedCandidate.value;
   if (!candidate) return;
 
-  const isReassigning =
-    candidate.company?.id && candidate.company.id !== companyId.value;
-  const message = isReassigning
-    ? t('COMPANIES.DETAIL.CONTACTS.MESSAGES.REASSIGN_SUCCESS')
-    : t('COMPANIES.DETAIL.CONTACTS.MESSAGES.ADD_SUCCESS');
-
   try {
     await companiesStore.attachContactToCompany(companyId.value, candidate.id);
-    useAlert(message);
+    useAlert(t('COMPANIES.DETAIL.CONTACTS.MESSAGES.ADD_SUCCESS'));
     clearSelectedCandidate();
   } catch {
-    const errorMessage = isReassigning
-      ? t('COMPANIES.DETAIL.CONTACTS.MESSAGES.REASSIGN_ERROR')
-      : t('COMPANIES.DETAIL.CONTACTS.MESSAGES.ADD_ERROR');
-    useAlert(errorMessage);
+    useAlert(t('COMPANIES.DETAIL.CONTACTS.MESSAGES.ADD_ERROR'));
   }
 };
 
@@ -356,6 +353,7 @@ onBeforeUnmount(() => {
       <TabBar
         :tabs="tabs"
         :initial-active-tab="activeTabIndex"
+        size="lg"
         @tab-changed="handleTabChange"
       />
 
@@ -424,6 +422,12 @@ onBeforeUnmount(() => {
         :tickets="companyTickets"
         :is-loading="isFetchingTickets"
       />
+      <div
+        v-else-if="activeTab === 'billing' && canManageBilling"
+        class="flex flex-col gap-6"
+      >
+        <CompanyBillingCard :company="company" :is-loading="isFetchingCompany" />
+      </div>
       <CompanyCredentialsSidebar
         v-else-if="activeTab === 'credentials' && canManageCredentials"
         :credentials="companyCredentials"

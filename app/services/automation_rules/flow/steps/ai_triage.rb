@@ -1,0 +1,110 @@
+# Niveis 3-5: a IA so faz triagem, nunca tenta resolver. Uma unica chamada
+# classifica urgencia/impacto, a prioridade sai de `Tickets::HelpdeskPriority`
+# (determinado pelo backend, nao pela IA), o resumo fica gravado no Ticket
+# para quem for atender, e a Conversation e roteada para o time humano - esta
+# etapa sempre termina em handoff, nunca segue para uma proxima.
+class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Base
+  include AutomationRules::Flow::Steps::Concerns::TicketBuilder
+  include AutomationRules::Flow::Steps::Concerns::HumanRouting
+
+  TRANSCRIPT_MESSAGE_LIMIT = 20
+
+  def perform
+    pre_existing = run.ticket.present?
+    ticket = build_and_link_ticket!
+    return handoff_on_ticket_failure(ticket) if ticket.is_a?(Hash)
+
+    classification = classify
+    priority = resolve_priority(classification)
+
+    ticket.update!(priority: priority, custom_attributes: (ticket.custom_attributes || {}).merge(triage_summary(ticket, classification)))
+    route_conversation_to_humans(priority)
+    post_handoff_message!
+    post_ticket_reference!(ticket, pre_existing: pre_existing)
+
+    handoff(result: summary_result(classification, priority))
+  end
+
+  private
+
+  # Sem isso o cliente nao sabe que o atendimento foi entendido e passado
+  # adiante - a etapa so mexia em dados internos (ticket, prioridade, time),
+  # nunca respondia de verdade na conversa.
+  def post_handoff_message!
+    content = rendered(:content).presence || I18n.t('automations.flow.ai_triage.default_handoff_message')
+    say(content)
+    conversation.bot_handoff!(dispatch_event: false)
+  end
+
+  # "Depois informar o numero do ticket criado" (ou ja existente, se a
+  # triagem reaproveitou um ticket achado antes) - mensagem separada da de
+  # handoff, so depois que o numero e conhecido.
+  def post_ticket_reference!(ticket, pre_existing:)
+    key = pre_existing ? 'automations.flow.ticket_reference.existing' : 'automations.flow.ticket_reference.created'
+    say(I18n.t(key, numero: ticket.display_id))
+  end
+
+  def classify
+    Captain::Llm::UrgencyImpactClassifierService.new(conversation: conversation).classify(transcript: transcript)
+  end
+
+  # Falha da IA nunca trava o fluxo: cai na prioridade padrao configuravel
+  # (ou so no nivel do cliente, se nada configurado), e segue para humano do
+  # mesmo jeito.
+  def resolve_priority(classification)
+    return fallback_priority if classification['error'].present?
+
+    Tickets::HelpdeskPriority.ticket_priority_for(
+      client_level: run.read_variable('empresa.nivel'),
+      urgencia: classification['urgencia'],
+      impacto: classification['impacto']
+    )
+  end
+
+  def fallback_priority
+    label = account.helpdesk_default_priority_on_ai_failure.presence
+    return Tickets::HelpdeskPriority::TICKET_PRIORITY.fetch(label) if label.present? && Tickets::HelpdeskPriority::TICKET_PRIORITY.key?(label)
+
+    Tickets::HelpdeskPriority.ticket_priority_for(client_level: run.read_variable('empresa.nivel'))
+  end
+
+  def triage_summary(ticket, classification)
+    { 'triage_summary' => {
+      'empresa' => run.read_variable('empresa.nome'),
+      'cnpj' => run.read_variable('empresa.cnpj'),
+      'nivel_cliente' => run.read_variable('empresa.nivel'),
+      'ticket_numero' => ticket.display_id,
+      'resumo_problema' => classification['resumo_problema'],
+      'acao_sugerida' => classification['acao_sugerida'],
+      'gerado_em' => Time.current.iso8601
+    }.compact }
+  end
+
+  def route_conversation_to_humans(priority)
+    team_id = params[:team_id].presence || account.helpdesk_level_3to5_team_id
+    route_conversation_to_humans!(team_id: team_id, priority: priority, queue_id: default_queue_id)
+  end
+
+  def summary_result(classification, priority)
+    {
+      urgencia: classification['urgencia'], impacto: classification['impacto'],
+      priority: priority, model: classification['model'], ai_error: classification['error']
+    }.compact
+  end
+
+  def transcript
+    conversation.messages
+                .where(message_type: %i[incoming outgoing], private: false)
+                .order(:created_at).last(TRANSCRIPT_MESSAGE_LIMIT)
+                .map { |message| "#{message.incoming? ? 'Cliente' : 'Atendimento'}: #{message.content}" }
+                .join("\n")
+  end
+
+  # Falha ao criar o ticket (Estagio/Categoria mal configurados, por exemplo)
+  # nao pode deixar o cliente sem resposta - mesma regra do `create_ticket`.
+  def handoff_on_ticket_failure(ticket)
+    say(I18n.t('automations.flow.ai_resolve.error_message'))
+    conversation.bot_handoff!(dispatch_event: false)
+    handoff(result: { error: ticket[:error] })
+  end
+end

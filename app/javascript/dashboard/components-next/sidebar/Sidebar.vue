@@ -787,6 +787,12 @@ const menuItems = computed(() => {
               activeOn: ['ticket_categories_list'],
               to: accountScopedRoute('ticket_categories_list'),
             },
+            {
+              name: 'Settings Ticket Automation',
+              label: t('SIDEBAR.TICKET_AUTOMATION'),
+              activeOn: ['ticket_automation_settings'],
+              to: accountScopedRoute('ticket_automation_settings'),
+            },
           ],
         },
         {

@@ -498,6 +498,48 @@
           "OPEN": "Abre às",
           "CLOSE": "Fecha às"
         }
+      },
+      "AUTOMATION": {
+        "TITLE": "Automação WhatsApp",
+        "DESCRIPTION": "Configurações do fluxo automático de triagem do WhatsApp: quais níveis de cliente a IA tenta resolver sozinha, a prioridade padrão quando ela falha, e para onde vão os tickets de nível 3-5.",
+        "WHATSAPP_FLOW": {
+          "LABEL": "Habilitar o fluxo de triagem do WhatsApp",
+          "HELP": "Desligado, nenhuma conversa recebida pelo WhatsApp é assumida pelo fluxo automático, mesmo com uma automação configurada."
+        },
+        "AI_RESOLVE_LEVELS": {
+          "LABEL": "Níveis de cliente que a IA tenta resolver sozinha",
+          "HELP": "Os níveis não marcados aqui só recebem triagem da IA e são encaminhados para um humano - nunca uma tentativa completa de resolução."
+        },
+        "LEVEL_LABEL": "Nível {level}",
+        "DEFAULT_PRIORITY": {
+          "LABEL": "Prioridade padrão se a classificação da IA falhar",
+          "HELP": "Usada só quando a chamada de classificação da triagem falha ou devolve algo inválido - o fluxo nunca trava esperando por ela."
+        },
+        "PRIORITY_LABEL": {
+          "BAIXA": "Baixa",
+          "MEDIA": "Média",
+          "ALTA": "Alta"
+        },
+        "OPEN_TICKET_WINDOW": {
+          "LABEL": "Considerar um ticket \"aberto\" por quantos dias",
+          "HELP": "Deixe em branco para reaproveitar qualquer ticket aberto, sem limite de idade (comportamento atual). Com um valor, um ticket aberto mais antigo é tratado como obsoleto e um novo é criado no lugar.",
+          "PLACEHOLDER": "Sem limite"
+        },
+        "LEVEL_3TO5_TEAM": {
+          "LABEL": "Mesa de serviço para tickets de nível 3-5",
+          "HELP": "Para onde a conversa é roteada quando a IA termina a triagem de um cliente nível 3, 4 ou 5.",
+          "NONE": "Não definido"
+        },
+        "DEFAULT_QUEUE": {
+          "LABEL": "Fila de atendimento",
+          "HELP": "Para qual fila a conversa é enviada ao ser encaminhada para um humano (a IA não resolveu, ou terminou a triagem). A fila pode atribuir automaticamente a um atendente e reforçar a prioridade, conforme configurado nela.",
+          "NONE": "Não definido"
+        },
+        "SAVE": "Salvar configurações de automação",
+        "API": {
+          "SUCCESS": "Configurações de automação atualizadas.",
+          "ERROR": "Não foi possível atualizar as configurações de automação."
+        }
       }
     },
     "MESA_SELECTOR": {

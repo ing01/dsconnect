@@ -7,6 +7,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   sort_on :contacts_count, internal_name: :order_on_contacts_count, type: :scope, scope_params: [:direction]
 
   RESULTS_PER_PAGE = 25
+  BILLING_ATTRS = %i[billing_type billing_amount implementation_fee license_expires_on system_started_on].freeze
 
   before_action :ensure_companies_enabled!
   before_action :check_authorization
@@ -67,7 +68,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   private
 
   def resolved_companies
-    @resolved_companies ||= Current.account.companies.includes(:system_modules)
+    @resolved_companies ||= Current.account.companies.includes(:system_modules, :company_category)
   end
 
   def set_current_page
@@ -107,15 +108,29 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :address_neighborhood,
       :address_city,
       :address_state,
-      :billing_type,
-      :billing_amount,
-      :implementation_fee,
-      :license_expires_on,
-      :system_started_on,
+      :client_level,
+      :campaign_opt_in,
+      :blocked,
+      :company_category_id,
+      *allowed_billing_attrs,
       additional_attributes: {},
       custom_attributes: {},
       system_module_ids: []
     )
+  end
+
+  # "Contrato e cobrança" is administrator-only (same bar as
+  # `client_credentials_manage` for the Credenciais tab): stripping the keys
+  # here - rather than only hiding the tab in the frontend - means a manual
+  # request can't change billing without the permission either.
+  def allowed_billing_attrs
+    return BILLING_ATTRS if can_manage_billing?
+
+    []
+  end
+
+  def can_manage_billing?
+    Current.account_user&.administrator? || Current.account_user&.permissions&.include?('client_billing_manage')
   end
 
   def company_custom_attributes

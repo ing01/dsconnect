@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import WhatsappTriageWizard from './WhatsappTriageWizard.vue';
 import {
   FLOW_STEP_TYPES,
   findStepType,
@@ -16,6 +17,7 @@ const props = defineProps({
   teams: { type: Array, default: () => [] },
   columns: { type: Array, default: () => [] },
   categories: { type: Array, default: () => [] },
+  captainAssistants: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -142,6 +144,8 @@ const setBranch = (index, key, value) => {
         </option>
       </select>
     </div>
+
+    <WhatsappTriageWizard :steps-count="steps.length" @apply="update" />
 
     <p v-if="!steps.length" class="text-sm text-n-slate-10">
       {{ t('AUTOMATION.FLOW.EMPTY') }}

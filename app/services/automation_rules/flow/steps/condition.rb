@@ -22,7 +22,17 @@ class AutomationRules::Flow::Steps::Condition < AutomationRules::Flow::Steps::Ba
     when 'does_not_contain' then actual.downcase.exclude?(expected.downcase)
     when 'is_present' then actual.present?
     when 'is_not_present' then actual.blank?
+    when 'greater_than_or_equal' then numeric_compare(actual, expected) { |a, e| a >= e }
+    when 'less_than_or_equal' then numeric_compare(actual, expected) { |a, e| a <= e }
     else actual == expected
     end
+  end
+
+  # Nivel do cliente e outras variaveis numericas nao cabem em
+  # igualdade/contains - sem numero valido dos dois lados, nao bate.
+  def numeric_compare(actual, expected)
+    return false unless actual.match?(/\A-?\d+(\.\d+)?\z/) && expected.match?(/\A-?\d+(\.\d+)?\z/)
+
+    yield(actual.to_f, expected.to_f)
   end
 end

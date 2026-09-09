@@ -5,6 +5,7 @@ import StagesPage from './StagesPage.vue';
 import CategoriesPage from './CategoriesPage.vue';
 import CatalogPage from './CatalogPage.vue';
 import PrioritiesPage from './PrioritiesPage.vue';
+import AutomationPage from './AutomationPage.vue';
 
 // One page per subject rather than a single scrolling screen: Estagios and
 // Categorias belong to a Mesa, the Catalogo is account-wide, and mixing them
@@ -56,6 +57,14 @@ export default {
             permissions: ['administrator'],
           },
           component: CatalogPage,
+        },
+        {
+          path: 'automation',
+          name: 'ticket_automation_settings',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: AutomationPage,
         },
       ],
     },

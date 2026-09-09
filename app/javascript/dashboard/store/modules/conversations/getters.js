@@ -104,6 +104,13 @@ const getters = {
       return isUnAssigned && shouldFilter;
     });
   },
+  getQueuedChats: _state => activeFilters => {
+    return _state.allConversations.filter(conversation => {
+      const isQueued = !!conversation.queue_id;
+      const shouldFilter = applyPageFilters(conversation, activeFilters);
+      return isQueued && shouldFilter;
+    });
+  },
   getParticipatingChats: (_state, _, __, rootGetters) => activeFilters => {
     const currentUserId = rootGetters.getCurrentUser?.id;
     const getWatchers = rootGetters['conversationWatchers/getByConversationId'];

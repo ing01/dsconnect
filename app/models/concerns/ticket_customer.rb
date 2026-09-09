@@ -65,10 +65,11 @@ module TicketCustomer
 
   # The Solicitante is a person AT the Empresa, so the two cannot disagree. Only
   # checked when the ticket has an Empresa: a ticket opened from a chat by
-  # somebody with no company still has a requester.
+  # somebody with no company still has a requester. A contact can now work at
+  # more than one Empresa, so any of its companies is an acceptable match.
   def contact_belongs_to_company
     return if contact.blank? || company_id.blank?
 
-    errors.add(:contact, :invalid) if contact.company_id != company_id
+    errors.add(:contact, :invalid) unless contact.company_ids.include?(company_id)
   end
 end

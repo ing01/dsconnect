@@ -35,7 +35,7 @@ class Api::V1::Accounts::Companies::CredentialsController < Api::V1::Accounts::C
   def credential_params
     params.require(:company_credential).permit(
       :label, :db_type, :db_name, :db_host, :db_port, :db_username, :db_password,
-      :anydesk_id, :anydesk_password, :rdp_address, :rdp_username, :rdp_password, :notes
+      :anydesk_id, :anydesk_password, :remote_access_type, :rdp_address, :rdp_username, :rdp_password, :notes
     )
   end
 end

@@ -40,8 +40,22 @@ class Company < ApplicationRecord
   validates :billing_type, inclusion: { in: BILLING_TYPES }, allow_blank: true
   validates :billing_amount, :implementation_fee, numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
 
+  # 1 = no priority, 5 = maximum priority in support handling.
+  validates :client_level, numericality: {
+    only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 5
+  }
+
+  # Same gate as `Contact#blocked` - the WhatsApp triage flow refuses to
+  # proceed for a blocked Empresa (`AutomationRules::Flow::BlockGateService`).
+
   belongs_to :account
+  belongs_to :company_category, optional: true
+  # `contacts` (via the FK) is the Empresa's primary/first contacts - kept for
+  # counter_cache/ticket compatibility. `company_contacts` is the full
+  # membership list, since a Contact can now work at more than one Empresa.
   has_many :contacts, dependent: :nullify
+  has_many :company_contacts, dependent: :destroy
+  has_many :member_contacts, through: :company_contacts, source: :contact
   # Tickets point at the Empresa directly. `nullify` rather than `destroy`:
   # removing a company must never take support history with it.
   has_many :tickets, dependent: :nullify

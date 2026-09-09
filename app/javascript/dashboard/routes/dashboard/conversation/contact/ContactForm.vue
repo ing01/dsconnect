@@ -53,21 +53,6 @@ export default {
         name: '',
       },
       city: '',
-      socialProfileUserNames: {
-        facebook: '',
-        twitter: '',
-        linkedin: '',
-        github: '',
-        telegram: '',
-      },
-      socialProfileKeys: [
-        { key: 'facebook', prefixURL: 'https://facebook.com/' },
-        { key: 'twitter', prefixURL: 'https://twitter.com/' },
-        { key: 'linkedin', prefixURL: 'https://linkedin.com/' },
-        { key: 'github', prefixURL: 'https://github.com/' },
-        { key: 'telegram', prefixURL: 'https://t.me/' },
-        { key: 'tiktok', prefixURL: 'https://tiktok.com/@' },
-      ],
     };
   },
   validations: {
@@ -174,20 +159,6 @@ export default {
       this.city = additionalAttributes.city || '';
       this.description = additionalAttributes.description || '';
       this.avatarUrl = this.contact.thumbnail || '';
-      const {
-        social_profiles: socialProfiles = {},
-        screen_name: twitterScreenName,
-        social_telegram_user_name: telegramUserName,
-      } = additionalAttributes;
-      this.socialProfileUserNames = {
-        twitter: socialProfiles.twitter || twitterScreenName || '',
-        facebook: socialProfiles.facebook || '',
-        linkedin: socialProfiles.linkedin || '',
-        github: socialProfiles.github || '',
-        telegram: socialProfiles.telegram || telegramUserName || '',
-        instagram: socialProfiles.instagram || '',
-        tiktok: socialProfiles.tiktok || '',
-      };
     },
     getContactObject() {
       if (this.country === null) {
@@ -212,7 +183,6 @@ export default {
               ? ''
               : this.country.name,
           city: this.city,
-          social_profiles: this.socialProfileUserNames,
         },
       };
       if (this.avatarFile) {
@@ -399,26 +369,6 @@ export default {
       :label="$t('CONTACT_FORM.FORM.CITY.LABEL')"
       :placeholder="$t('CONTACT_FORM.FORM.CITY.PLACEHOLDER')"
     />
-
-    <div class="w-full">
-      <label>{{ $t('CONTACTS_PAGE.LIST.TABLE_HEADER.SOCIAL_PROFILES') }}</label>
-      <div
-        v-for="socialProfile in socialProfileKeys"
-        :key="socialProfile.key"
-        class="flex items-stretch w-full mb-4"
-      >
-        <span
-          class="flex items-center h-10 px-2 text-sm border-solid border-y ltr:border-l rtl:border-r ltr:rounded-l-md rtl:rounded-r-md bg-n-solid-3 text-n-slate-11 border-n-weak"
-        >
-          {{ socialProfile.prefixURL }}
-        </span>
-        <input
-          v-model="socialProfileUserNames[socialProfile.key]"
-          class="input-group-field ltr:!rounded-l-none rtl:!rounded-r-none !mb-0"
-          type="text"
-        />
-      </div>
-    </div>
     <div class="flex flex-row justify-start w-full gap-2 px-0 py-2">
       <NextButton
         type="submit"

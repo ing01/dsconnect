@@ -19,7 +19,14 @@ class AutomationRules::Flow::RunnerService
     'find_contact' => AutomationRules::Flow::Steps::FindContact,
     'condition' => AutomationRules::Flow::Steps::Condition,
     'create_ticket' => AutomationRules::Flow::Steps::CreateTicket,
-    'handoff' => AutomationRules::Flow::Steps::Handoff
+    'handoff' => AutomationRules::Flow::Steps::Handoff,
+    'check_company_blocked' => AutomationRules::Flow::Steps::CheckCompanyBlocked,
+    'find_open_ticket_by_number' => AutomationRules::Flow::Steps::FindOpenTicketByNumber,
+    'find_open_ticket_for_customer' => AutomationRules::Flow::Steps::FindOpenTicketForCustomer,
+    'list_companies' => AutomationRules::Flow::Steps::ListCompanies,
+    'ai_resolve' => AutomationRules::Flow::Steps::AiResolve,
+    'ai_triage' => AutomationRules::Flow::Steps::AiTriage,
+    'link_contact_to_company' => AutomationRules::Flow::Steps::LinkContactToCompany
   }.freeze
 
   def initialize(run:, message: nil)
@@ -29,6 +36,24 @@ class AutomationRules::Flow::RunnerService
   end
 
   def perform
+    # Toda mensagem gerada por uma etapa (`I18n.t` de retry/erro/handoff, etc.)
+    # tem que sair no idioma da conta, nunca no default do processo (`en`) -
+    # sem isso, so o texto literal escrito no `content` de cada etapa (fixo em
+    # portugues nos modelos prontos) aparecia certo, e toda mensagem padrao
+    # vinha em ingles para qualquer conta, independente do idioma configurado.
+    I18n.with_locale(run.account.locale) { perform_locked }
+  rescue StandardError => e
+    # Um erro nao previsto nao pode deixar a conversa presa num bot mudo: fica
+    # registrado e o atendimento volta a ser humano.
+    finish(:failed, error: e.message)
+    ChatwootExceptionTracker.new(e, account: run.account).capture_exception
+  end
+
+  private
+
+  attr_reader :run, :resolver
+
+  def perform_locked
     # Serializado por execucao: duas mensagens que chegam juntas disparam dois
     # runners sobre a mesma linha, e sem a trava os dois caminhariam pelo fluxo
     # ao mesmo tempo - o bot responderia em dobro e a etapa pularia uma casa.
@@ -41,16 +66,7 @@ class AutomationRules::Flow::RunnerService
       run.update!(status: :running, last_message_id: @message&.id || run.last_message_id)
       walk
     end
-  rescue StandardError => e
-    # Um erro nao previsto nao pode deixar a conversa presa num bot mudo: fica
-    # registrado e o atendimento volta a ser humano.
-    finish(:failed, error: e.message)
-    ChatwootExceptionTracker.new(e, account: run.account).capture_exception
   end
-
-  private
-
-  attr_reader :run, :resolver
 
   def walk
     step_id = run.current_step_id.presence || first_step_id

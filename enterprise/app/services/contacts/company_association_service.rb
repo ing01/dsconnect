@@ -7,6 +7,7 @@ class Contacts::CompanyAssociationService
       # rubocop:disable Rails/SkipsModelValidations
       # Using update_column and increment_counter to avoid triggering callbacks while maintaining counter cache
       contact.update_columns(company_id: company.id, additional_attributes: contact_attributes_with_company_name(contact, company))
+      CompanyContact.find_or_create_by!(contact_id: contact.id, company_id: company.id)
       Company.increment_counter(:contacts_count, company.id)
       # rubocop:enable Rails/SkipsModelValidations
       company.record_activity_at!(contact.last_activity_at) if contact.last_activity_at.present?

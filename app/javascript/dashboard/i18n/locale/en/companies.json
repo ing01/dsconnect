@@ -27,7 +27,9 @@
     },
     "SELECTOR": {
       "PLACEHOLDER": "Select company",
-      "CREATE_OPTION": "Add \"{name}\""
+      "ADD_ANOTHER_PLACEHOLDER": "Add another company",
+      "CREATE_OPTION": "Add \"{name}\"",
+      "REMOVE": "Remove {name}"
     },
     "CREATE": {
       "TITLE": "Add company details",
@@ -53,6 +55,7 @@
           "HISTORY": "History",
           "NOTES": "Notes",
           "TICKETS": "Tickets",
+          "BILLING": "Contract & Billing",
           "CREDENTIALS": "Credentials"
         }
       },
@@ -85,9 +88,10 @@
           "DB_PORT": { "LABEL": "Port" },
           "DB_USERNAME": { "LABEL": "Username" },
           "DB_PASSWORD": { "LABEL": "Password" },
-          "SECTION_ANYDESK": "AnyDesk",
-          "ANYDESK_ID": { "LABEL": "AnyDesk ID" },
-          "ANYDESK_PASSWORD": { "LABEL": "AnyDesk password" },
+          "SECTION_REMOTE_ACCESS": "Remote access",
+          "REMOTE_ACCESS_TYPE": { "LABEL": "Program used", "PLACEHOLDER": "Anydesk, TeamViewer, etc." },
+          "REMOTE_ACCESS_ID": { "LABEL": "Remote access ID" },
+          "REMOTE_ACCESS_PASSWORD": { "LABEL": "Remote access password" },
           "SECTION_RDP": "RDP",
           "RDP_ADDRESS": { "LABEL": "RDP address" },
           "RDP_USERNAME": { "LABEL": "RDP username" },
@@ -199,7 +203,23 @@
           "IMPLEMENTATION_FEE": "Implementation fee",
           "LICENSE_EXPIRES_ON": "License expiration date",
           "SYSTEM_STARTED_ON": "System start date",
-          "MODULES": "Modules in use"
+          "MODULES": "Modules in use",
+          "CLIENT_LEVEL": "Client level",
+          "CATEGORY": "Category",
+          "CAMPAIGN_OPT_IN": "Receive automatic campaign messages"
+        },
+        "LEVEL": {
+          "HELP": "Indicates how much service priority the client has: 1 is the lowest priority and 5 is the highest. Use it to know which clients should be prioritized.",
+          "L1": "1 - No priority",
+          "L2": "2 - Low priority",
+          "L3": "3 - Medium priority",
+          "L4": "4 - High priority",
+          "L5": "5 - Maximum priority"
+        },
+        "CATEGORY": {
+          "NONE": "None",
+          "ADD_PLACEHOLDER": "New category name",
+          "ADD_BUTTON": "Add"
         },
         "CNPJ_LOOKUP": {
           "BUTTON": "Look up",
@@ -220,6 +240,7 @@
         "SECTIONS": {
           "FISCAL": "Fiscal information",
           "ADDRESS": "Address",
+          "CLASSIFICATION": "Classification",
           "CONTRACT": "Contract & billing"
         }
       },

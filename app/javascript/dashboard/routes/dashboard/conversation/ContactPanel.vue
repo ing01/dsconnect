@@ -201,26 +201,6 @@ onMounted(() => {
               />
             </AccordionItem>
           </div>
-          <div v-else-if="element.name === 'contact_attributes'">
-            <AccordionItem
-              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONTACT_ATTRIBUTES')"
-              :is-open="isContactSidebarItemOpen('is_contact_attributes_open')"
-              compact
-              @toggle="
-                value =>
-                  toggleSidebarUIState('is_contact_attributes_open', value)
-              "
-            >
-              <CustomAttributes
-                attribute-type="contact_attribute"
-                attribute-from="conversation_contact_panel"
-                :contact-id="contact.id"
-                :empty-state-message="
-                  $t('CONVERSATION_CUSTOM_ATTRIBUTES.NO_RECORDS_FOUND')
-                "
-              />
-            </AccordionItem>
-          </div>
           <div v-else-if="element.name === 'previous_conversation'">
             <AccordionItem
               v-if="contact.id"
@@ -239,19 +219,6 @@ onMounted(() => {
               />
             </AccordionItem>
           </div>
-          <woot-feature-toggle
-            v-else-if="element.name === 'macros'"
-            feature-key="macros"
-          >
-            <AccordionItem
-              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.MACROS')"
-              :is-open="isContactSidebarItemOpen('is_macro_open')"
-              compact
-              @toggle="value => toggleSidebarUIState('is_macro_open', value)"
-            >
-              <MacrosList :conversation-id="conversationId" />
-            </AccordionItem>
-          </woot-feature-toggle>
           <div
             v-else-if="
               element.name === 'linear_issues' &&
@@ -294,7 +261,7 @@ onMounted(() => {
               compact
               @toggle="value => toggleSidebarUIState('is_tickets_open', value)"
             >
-              <TicketsList :conversation-id="conversationId" />
+              <TicketsList :conversation-id="conversationId" :anchored="false" />
             </AccordionItem>
           </div>
           <div v-else-if="element.name === 'contact_notes'">

@@ -27,7 +27,9 @@
     },
     "SELECTOR": {
       "PLACEHOLDER": "Selecionar empresa",
-      "CREATE_OPTION": "Adicionar \"{name}\""
+      "ADD_ANOTHER_PLACEHOLDER": "Adicionar outra empresa",
+      "CREATE_OPTION": "Adicionar \"{name}\"",
+      "REMOVE": "Remover {name}"
     },
     "CREATE": {
       "TITLE": "Adicionar detalhes da empresa",
@@ -53,6 +55,7 @@
           "HISTORY": "Histórico",
           "NOTES": "Notas",
           "TICKETS": "Tickets",
+          "BILLING": "Contrato e Cobrança",
           "CREDENTIALS": "Credenciais"
         }
       },
@@ -85,9 +88,10 @@
           "DB_PORT": { "LABEL": "Porta" },
           "DB_USERNAME": { "LABEL": "Usuário" },
           "DB_PASSWORD": { "LABEL": "Senha" },
-          "SECTION_ANYDESK": "AnyDesk",
-          "ANYDESK_ID": { "LABEL": "ID do AnyDesk" },
-          "ANYDESK_PASSWORD": { "LABEL": "Senha do AnyDesk" },
+          "SECTION_REMOTE_ACCESS": "Acesso remoto",
+          "REMOTE_ACCESS_TYPE": { "LABEL": "Programa utilizado", "PLACEHOLDER": "Anydesk, TeamViewer, etc." },
+          "REMOTE_ACCESS_ID": { "LABEL": "ID de acesso remoto" },
+          "REMOTE_ACCESS_PASSWORD": { "LABEL": "Senha de acesso remoto" },
           "SECTION_RDP": "RDP",
           "RDP_ADDRESS": { "LABEL": "Endereço do RDP" },
           "RDP_USERNAME": { "LABEL": "Usuário do RDP" },
@@ -199,7 +203,23 @@
           "IMPLEMENTATION_FEE": "Valor da implantação",
           "LICENSE_EXPIRES_ON": "Data de vencimento da licença",
           "SYSTEM_STARTED_ON": "Data de início do uso do sistema",
-          "MODULES": "Módulos utilizados"
+          "MODULES": "Módulos utilizados",
+          "CLIENT_LEVEL": "Nível do cliente",
+          "CATEGORY": "Categoria",
+          "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha"
+        },
+        "LEVEL": {
+          "HELP": "Indica a prioridade do cliente nos atendimentos: 1 é a prioridade mais baixa e 5 é a prioridade máxima. Use para saber quais clientes devem ser priorizados.",
+          "L1": "1 - Sem prioridade",
+          "L2": "2 - Prioridade baixa",
+          "L3": "3 - Prioridade média",
+          "L4": "4 - Prioridade alta",
+          "L5": "5 - Prioridade máxima"
+        },
+        "CATEGORY": {
+          "NONE": "Nenhuma",
+          "ADD_PLACEHOLDER": "Nome da nova categoria",
+          "ADD_BUTTON": "Adicionar"
         },
         "CNPJ_LOOKUP": {
           "BUTTON": "Buscar",
@@ -220,6 +240,7 @@
         "SECTIONS": {
           "FISCAL": "Dados fiscais",
           "ADDRESS": "Endereço",
+          "CLASSIFICATION": "Classificação",
           "CONTRACT": "Contrato e cobrança"
         }
       },

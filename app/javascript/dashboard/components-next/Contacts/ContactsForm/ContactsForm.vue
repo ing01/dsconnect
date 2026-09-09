@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { required, email } from '@vuelidate/validators';
 import { useVuelidate } from '@vuelidate/core';
@@ -9,8 +9,7 @@ import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useAccount } from 'dashboard/composables/useAccount';
 import Input from 'dashboard/components-next/input/Input.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
-import CompanySelector from 'dashboard/components-next/Companies/CompanySelector.vue';
-import Icon from 'dashboard/components-next/icon/Icon.vue';
+import ContactCompaniesField from 'dashboard/components-next/Contacts/ContactCompaniesField.vue';
 import PhoneNumberInput from 'dashboard/components-next/phonenumberinput/PhoneNumberInput.vue';
 
 const props = defineProps({
@@ -44,21 +43,11 @@ const FORM_CONFIG = {
   COMPANY_NAME: { field: 'additionalAttributes.companyName' },
 };
 
-const SOCIAL_CONFIG = {
-  LINKEDIN: 'i-ri-linkedin-box-fill',
-  FACEBOOK: 'i-ri-facebook-circle-fill',
-  INSTAGRAM: 'i-ri-instagram-line',
-  TELEGRAM: 'i-ri-telegram-fill',
-  TIKTOK: 'i-ri-tiktok-fill',
-  TWITTER: 'i-ri-twitter-x-fill',
-  GITHUB: 'i-ri-github-fill',
-};
-
 const defaultState = {
   id: 0,
   name: '',
   email: '',
-  companyId: '',
+  companyIds: [],
   firstName: '',
   lastName: '',
   phoneNumber: '',
@@ -68,19 +57,13 @@ const defaultState = {
     countryCode: '',
     country: '',
     city: '',
-    socialProfiles: {
-      facebook: '',
-      github: '',
-      instagram: '',
-      telegram: '',
-      tiktok: '',
-      linkedin: '',
-      twitter: '',
-    },
   },
 };
 
 const state = reactive({ ...defaultState });
+// Display-only ({id, name} pairs) for the company chips - `state.companyIds`
+// is the id-only field that actually gets sent to the API.
+const selectedCompanies = ref([]);
 
 const validationRules = {
   firstName: { required },
@@ -94,10 +77,11 @@ const hasCompaniesFeature = computed(
   () =>
     currentAccount.value?.id && isCloudFeatureEnabled(FEATURE_FLAGS.COMPANIES)
 );
-const showCompanySelector = computed(
+const showCompanyField = computed(
   () =>
     hasCompaniesFeature.value &&
-    (Boolean(state.companyId) || !state.additionalAttributes.companyName)
+    (selectedCompanies.value.length > 0 ||
+      !state.additionalAttributes.companyName)
 );
 
 const emitContactUpdate = async () => {
@@ -118,7 +102,7 @@ const prepareStateBasedOnProps = () => {
     name = '',
     email: emailAddress,
     phoneNumber,
-    companyId = '',
+    companies = [],
     additionalAttributes = {},
   } = props.contactData || {};
   const { firstName, lastName } = splitName(name || '');
@@ -128,17 +112,13 @@ const prepareStateBasedOnProps = () => {
     countryCode = '',
     country = '',
     city = '',
-    socialTelegramUserName = '',
-    socialProfiles = {},
   } = additionalAttributes || {};
 
-  const telegramUsername =
-    socialProfiles?.telegram || socialTelegramUserName || '';
-
+  selectedCompanies.value = companies || [];
   Object.assign(state, {
     id,
     name,
-    companyId: companyId || '',
+    companyIds: (companies || []).map(company => Number(company.id)),
     firstName,
     lastName,
     email: emailAddress,
@@ -149,10 +129,6 @@ const prepareStateBasedOnProps = () => {
       countryCode,
       country,
       city,
-      socialProfiles: {
-        ...socialProfiles,
-        telegram: telegramUsername,
-      },
     },
   });
 };
@@ -167,14 +143,6 @@ const editDetailsForm = computed(() =>
     placeholder: t(
       `CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.${key}.PLACEHOLDER`
     ),
-  }))
-);
-
-const socialProfilesForm = computed(() =>
-  Object.entries(SOCIAL_CONFIG).map(([key, icon]) => ({
-    key,
-    placeholder: t(`CONTACTS_LAYOUT.CARD.SOCIAL_MEDIA.FORM.${key}.PLACEHOLDER`),
-    icon,
   }))
 );
 
@@ -241,9 +209,9 @@ const handleCountrySelection = value => {
   emit('update', state);
 };
 
-const handleCompanySelection = async ({ id, name }) => {
-  state.companyId = id || '';
-  state.additionalAttributes.companyName = name || '';
+const handleCompaniesUpdate = async companies => {
+  selectedCompanies.value = companies;
+  state.companyIds = companies.map(company => Number(company.id));
   await emitContactUpdate();
 };
 
@@ -253,6 +221,7 @@ const resetValidation = () => {
 
 const resetForm = () => {
   Object.assign(state, defaultState);
+  selectedCompanies.value = [];
 };
 
 watch(
@@ -299,12 +268,10 @@ defineExpose({
             :placeholder="item.placeholder"
             :show-border="isDetailsView"
           />
-          <CompanySelector
-            v-else-if="item.key === 'COMPANY_NAME' && showCompanySelector"
-            :model-value="state.companyId"
-            :selected-name="state.additionalAttributes.companyName"
-            :is-details-view="isDetailsView"
-            @select="handleCompanySelection"
+          <ContactCompaniesField
+            v-else-if="item.key === 'COMPANY_NAME' && showCompanyField"
+            :model-value="selectedCompanies"
+            @update:model-value="handleCompaniesUpdate"
           />
           <Input
             v-else
@@ -327,36 +294,6 @@ defineExpose({
             "
           />
         </template>
-      </div>
-    </div>
-    <div class="flex flex-col items-start gap-2">
-      <span class="py-1 text-sm font-medium text-n-slate-12">
-        {{ t('CONTACTS_LAYOUT.CARD.SOCIAL_MEDIA.TITLE') }}
-      </span>
-      <div class="flex flex-wrap gap-2">
-        <div
-          v-for="item in socialProfilesForm"
-          :key="item.key"
-          class="flex items-center h-8 gap-2 px-2 rounded-lg"
-          :class="{
-            'bg-n-alpha-2 dark:bg-n-solid-2': isDetailsView,
-            'bg-n-alpha-2 dark:bg-n-solid-3': !isDetailsView,
-          }"
-        >
-          <Icon
-            :icon="item.icon"
-            class="flex-shrink-0 text-n-slate-11 size-4"
-          />
-          <input
-            v-model="
-              state.additionalAttributes.socialProfiles[item.key.toLowerCase()]
-            "
-            class="w-auto min-w-[100px] text-sm bg-transparent outline-none reset-base text-n-slate-12 dark:text-n-slate-12 placeholder:text-n-slate-10 dark:placeholder:text-n-slate-10"
-            :placeholder="item.placeholder"
-            :size="item.placeholder.length"
-            @input="emit('update', state)"
-          />
-        </div>
       </div>
     </div>
   </div>

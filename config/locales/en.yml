@@ -116,6 +116,18 @@ en:
     flow:
       retry: "Sorry, I could not read that. Could you send it again?"
       default_ticket_title: "Triage from conversation #%{id}"
+      list_companies:
+        prompt: "Which company is this about?"
+        retry: "Sorry, I could not identify that company. Could you send it again, either the number or the name?"
+      create_ticket:
+        error_message: "Sorry, something went wrong while registering your request. I'll transfer you to an agent."
+      ai_resolve:
+        error_message: "I'll transfer you to an agent to continue your request."
+      ai_triage:
+        default_handoff_message: "Thanks for the details! I'll transfer your request to our support team, who will take it from here."
+      ticket_reference:
+        created: "Your request has been registered as ticket #%{numero}."
+        existing: "Your request will continue under ticket #%{numero}."
       errors:
         empty_message: "the message is empty"
         too_many_steps: "the flow ran too many steps and was stopped"
