@@ -86,7 +86,7 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
   end
 
   def match(answer)
-    by_index(answer) || by_name(answer) || by_affirmation(answer)
+    by_index(answer) || by_cnpj(answer) || by_name(answer) || by_affirmation(answer)
   end
 
   def by_index(answer)
@@ -96,6 +96,16 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
     return nil unless index.between?(1, companies.size)
 
     companies[index - 1]
+  end
+
+  # Quando so ha uma empresa apresentada, e natural o cliente "confirmar"
+  # repetindo o proprio CNPJ que acabou de ver na mensagem, em vez de
+  # responder "sim" - sem isso, essa resposta correta cai num retry inutil.
+  def by_cnpj(answer)
+    digits = answer.gsub(/\D/, '')
+    return nil if digits.blank?
+
+    companies.find { |company| company.cnpj.present? && company.cnpj == digits }
   end
 
   def by_name(answer)
