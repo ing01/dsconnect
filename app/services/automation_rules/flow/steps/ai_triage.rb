@@ -9,6 +9,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
   TRANSCRIPT_MESSAGE_LIMIT = 20
 
   def perform
+    pre_existing = run.ticket.present?
     ticket = build_and_link_ticket!
     return handoff_on_ticket_failure(ticket) if ticket.is_a?(Hash)
 
@@ -18,6 +19,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
     ticket.update!(priority: priority, custom_attributes: (ticket.custom_attributes || {}).merge(triage_summary(ticket, classification)))
     route_conversation_to_humans(priority)
     post_handoff_message!
+    post_ticket_reference!(ticket, pre_existing: pre_existing)
 
     handoff(result: summary_result(classification, priority))
   end
@@ -31,6 +33,14 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
     content = rendered(:content).presence || I18n.t('automations.flow.ai_triage.default_handoff_message')
     say(content)
     conversation.bot_handoff!(dispatch_event: false)
+  end
+
+  # "Depois informar o numero do ticket criado" (ou ja existente, se a
+  # triagem reaproveitou um ticket achado antes) - mensagem separada da de
+  # handoff, so depois que o numero e conhecido.
+  def post_ticket_reference!(ticket, pre_existing:)
+    key = pre_existing ? 'automations.flow.ticket_reference.existing' : 'automations.flow.ticket_reference.created'
+    say(I18n.t(key, numero: ticket.display_id))
   end
 
   def classify

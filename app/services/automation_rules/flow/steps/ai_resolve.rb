@@ -120,9 +120,25 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
   def finish_by_handoff
     post_handoff_message!
     conversation.bot_handoff!(dispatch_event: false) unless handed_off_by_captain?
+    pre_existing = run.ticket.present?
     ticket = build_and_link_ticket!
-    ticket.update!(priority: level_priority) unless ticket.is_a?(Hash)
-    handoff(result: { turns: turns_used, ticket_error: ticket.is_a?(Hash) ? ticket[:error] : nil }.compact)
+    return handoff(result: { turns: turns_used, ticket_error: ticket[:error] }) if ticket.is_a?(Hash)
+
+    ticket.update!(priority: level_priority)
+    post_ticket_reference!(ticket, pre_existing: pre_existing)
+    handoff(result: { turns: turns_used })
+  end
+
+  # "Depois informar o numero do ticket criado" - uma segunda mensagem, so
+  # depois que o ticket (novo ou ja existente) e conhecido, nunca inventada
+  # antes disso.
+  def post_ticket_reference!(ticket, pre_existing:)
+    key = pre_existing ? 'automations.flow.ticket_reference.existing' : 'automations.flow.ticket_reference.created'
+    conversation.messages.create!(
+      message_type: :outgoing, account_id: account.id, inbox_id: conversation.inbox_id,
+      sender: assistant, content: I18n.t(key, numero: ticket.display_id),
+      preserve_waiting_since: true
+    )
   end
 
   def handed_off_by_captain?

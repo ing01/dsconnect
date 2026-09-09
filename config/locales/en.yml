@@ -122,6 +122,9 @@ en:
         error_message: "I'll transfer you to an agent to continue your request."
       ai_triage:
         default_handoff_message: "Thanks for the details! I'll transfer your request to our support team, who will take it from here."
+      ticket_reference:
+        created: "Your request has been registered as ticket #%{numero}."
+        existing: "Your request will continue under ticket #%{numero}."
       errors:
         empty_message: "the message is empty"
         too_many_steps: "the flow ran too many steps and was stopped"

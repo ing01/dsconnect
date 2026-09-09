@@ -101,7 +101,7 @@ export const FLOW_STEP_TYPES = [
   {
     type: 'list_companies',
     fields: [{ key: 'save_as', kind: 'text', default: 'resposta.empresa_escolhida' }],
-    branches: ['no_companies'],
+    branches: ['no_companies', 'not_selected'],
   },
   {
     type: 'ai_resolve',
@@ -194,21 +194,23 @@ export const buildWhatsappTriageTemplate = ({
     id: 's1',
     type: 'send_message',
     params: {
-      content: 'Olá! Vou localizar seu cadastro e verificar seu atendimento.',
+      content:
+        'Olá, você está no canal de atendimento. Um momento enquanto busco suas informações.',
     },
     next: 's2',
     branches: {},
   },
   // Identifica o cliente (a Empresa) primeiro - antes de perguntar qualquer
   // outra coisa, inclusive se ja existe um ticket aberto. Contato sem
-  // nenhuma empresa ainda (cliente novo) cai no ramo `no_companies`, que
-  // pede o CNPJ (s15-s17) antes de voltar para o fluxo principal em s3.
+  // nenhuma empresa ainda (cliente novo), ou que recusa a(s) empresa(s)
+  // apresentada(s), cai no CNPJ manual (s17-s20) antes de voltar ao fluxo
+  // principal em s3.
   {
     id: 's2',
     type: 'list_companies',
     params: { save_as: 'resposta.empresa_escolhida' },
     next: 's3',
-    branches: { no_companies: 's15' },
+    branches: { no_companies: 's17', not_selected: 's17' },
   },
   {
     id: 's3',
@@ -249,13 +251,13 @@ export const buildWhatsappTriageTemplate = ({
       value: 'sim',
     },
     next: null,
-    branches: { true: 's7', false: 's10' },
+    branches: { true: 's7', false: 's12' },
   },
   {
     id: 's7',
     type: 'ask',
     params: {
-      content: 'Certo, me informe o número do ticket.',
+      content: 'Certo. Por favor, informe o número do ticket.',
       save_as: 'resposta.numero_ticket',
       answer_type: 'ticket_number',
       retry_message: 'Não consegui reconhecer esse número. Pode enviar de novo?',
@@ -263,45 +265,58 @@ export const buildWhatsappTriageTemplate = ({
     next: 's8',
     branches: {},
   },
+  // Ticket valido (10.1): vincula e encaminha IMEDIATAMENTE para humano - a
+  // IA nunca continua tentando resolver quando ja existe um ticket aberto.
+  // Nao encontrado (10.2) e de outro cliente/empresa (10.4) avisam o motivo
+  // e seguem o fluxo normal (nao criam ticket aqui - so mais adiante, se
+  // for o caso).
   {
     id: 's8',
     type: 'find_open_ticket_by_number',
     params: { number_from: 'resposta.numero_ticket' },
-    next: 's9',
-    branches: { not_found: 's10', not_owned: 's10' },
+    next: 's11',
+    branches: { not_found: 's9', not_owned: 's10' },
   },
   {
     id: 's9',
     type: 'send_message',
-    params: {
-      content: 'Encontrei o seu ticket #{{ticket.numero}}! Vou continuar por aqui.',
-    },
-    next: null,
+    params: { content: 'Não consegui localizar o ticket informado.' },
+    next: 's12',
     branches: {},
   },
   {
     id: 's10',
-    type: 'find_open_ticket_for_customer',
-    params: { team_id: teamId },
-    next: 's11',
-    branches: { found: 's12' },
-  },
-  {
-    id: 's11',
-    type: 'create_ticket',
+    type: 'send_message',
     params: {
-      title: '{{empresa.nome}} | {{contato.nome}}',
-      description: 'Atendimento aberto pelo fluxo automático de WhatsApp.',
-      team_id: teamId,
-      ticket_column_id: ticketColumnId,
-      ticket_category_id: ticketCategoryId,
-      priority: 'medium',
+      content:
+        'Esse ticket não pôde ser associado ao seu atendimento atual. Vou continuar normalmente.',
     },
     next: 's12',
     branches: {},
   },
   {
+    id: 's11',
+    type: 'handoff',
+    params: {
+      content:
+        'Perfeito. Localizei o ticket #{{ticket.numero}}. Vou encaminhar seu atendimento para a equipe responsável dar continuidade.',
+      reason: 'ticket_existente',
+    },
+    next: null,
+    branches: {},
+  },
+  // Sem ticket aberto (11): so verifica duplicidade (dedup silencioso) e
+  // segue por nivel - o ticket em si so e criado quando o caminho de nivel
+  // 3-5 exigir (s14) ou quando a IA de nivel 1-2 concluir (s16, sozinha).
+  {
     id: 's12',
+    type: 'find_open_ticket_for_customer',
+    params: { team_id: teamId },
+    next: 's13',
+    branches: {},
+  },
+  {
+    id: 's13',
     type: 'condition',
     params: {
       variable: 'empresa.nivel',
@@ -309,53 +324,89 @@ export const buildWhatsappTriageTemplate = ({
       value: '3',
     },
     next: null,
-    branches: { true: 's14', false: 's13' },
-  },
-  {
-    id: 's13',
-    type: 'ai_resolve',
-    params: { assistant_id: assistantId, max_turns: 6 },
-    next: null,
-    branches: {},
+    branches: { true: 's14', false: 's16' },
   },
   {
     id: 's14',
+    type: 'create_ticket',
+    params: {
+      title: '{{empresa.nome}} | {{contato.nome}}',
+      description: 'Atendimento aberto pelo fluxo automático de WhatsApp.',
+      team_id: level3to5TeamId || teamId,
+      ticket_column_id: ticketColumnId,
+      ticket_category_id: ticketCategoryId,
+      priority: 'medium',
+    },
+    next: 's15',
+    branches: {},
+  },
+  {
+    id: 's15',
     type: 'ai_triage',
     params: { team_id: level3to5TeamId || '' },
     next: null,
     branches: {},
   },
-  // Cliente novo, sem nenhuma empresa vinculada ainda: pede o CNPJ e localiza
-  // a empresa por ele antes de voltar ao fluxo principal (s3, checar bloqueio).
+  // Niveis 1-2 (12-14): a IA tenta resolver de verdade primeiro. So cria o
+  // ticket no final - resolvido (fecha direto) ou encaminhado (handoff) -
+  // nunca antes de saber qual dos dois aconteceu.
   {
-    id: 's15',
+    id: 's16',
+    type: 'ai_resolve',
+    params: {
+      assistant_id: assistantId,
+      max_turns: 6,
+      title: '{{empresa.nome}} | {{contato.nome}}',
+      description: 'Atendimento aberto pelo fluxo automático de WhatsApp.',
+      team_id: teamId,
+      ticket_column_id: ticketColumnId,
+      ticket_category_id: ticketCategoryId,
+    },
+    next: null,
+    branches: {},
+  },
+  // CNPJ manual (6-8): cliente novo sem empresa vinculada, ou que recusou a
+  // empresa sugerida - pede o CNPJ, localiza e confirma antes de voltar ao
+  // fluxo principal (s3, checar bloqueio). Nao encontrado (7.2): informa e
+  // encaminha para humano, nunca assume que e cliente sem validar.
+  {
+    id: 's17',
     type: 'ask',
     params: {
-      content:
-        'Não encontrei nenhuma empresa vinculada ao seu contato. Pode me informar o CNPJ da empresa?',
+      content: 'Certo. Por favor, informe o CNPJ da empresa sobre a qual você deseja falar.',
       save_as: 'resposta.cnpj',
       answer_type: 'cnpj',
       retry_message: 'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
     },
-    next: 's16',
+    next: 's18',
     branches: {},
   },
   {
-    id: 's16',
+    id: 's18',
     type: 'find_company',
     params: { cnpj_from: 'resposta.cnpj' },
-    next: 's3',
-    branches: { not_found: 's17' },
+    next: 's20',
+    branches: { not_found: 's19' },
   },
   {
-    id: 's17',
+    id: 's19',
     type: 'handoff',
     params: {
       content:
-        'Não localizamos essa empresa em nosso cadastro. Vou transferir você para um atendente.',
-      reason: 'empresa_nao_encontrada',
+        'Não encontrei o CNPJ informado entre nossos clientes. Vou transferir você para um atendente.',
+      reason: 'cnpj_nao_encontrado',
     },
     next: null,
+    branches: {},
+  },
+  {
+    id: 's20',
+    type: 'send_message',
+    params: {
+      content:
+        'Encontrei a empresa {{empresa.nome}}, CNPJ {{empresa.cnpj}}. Vamos prosseguir com o atendimento referente a ela.',
+    },
+    next: 's3',
     branches: {},
   },
 ];

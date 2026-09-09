@@ -116,6 +116,9 @@ pt_BR:
         error_message: "Vou te transferir para um atendente para continuar seu atendimento."
       ai_triage:
         default_handoff_message: "Obrigado pelas informações! Vou encaminhar seu atendimento para a nossa equipe de suporte, que vai continuar por aqui."
+      ticket_reference:
+        created: "Seu atendimento foi registrado no ticket #%{numero}."
+        existing: "Seu atendimento continuará no ticket #%{numero}."
       errors:
         empty_message: "a mensagem esta vazia"
         too_many_steps: "o fluxo executou etapas demais e foi interrompido"
