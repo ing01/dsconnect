@@ -27,7 +27,9 @@
     },
     "SELECTOR": {
       "PLACEHOLDER": "Selecionar empresa",
-      "CREATE_OPTION": "Adicionar \"{name}\""
+      "ADD_ANOTHER_PLACEHOLDER": "Adicionar outra empresa",
+      "CREATE_OPTION": "Adicionar \"{name}\"",
+      "REMOVE": "Remover {name}"
     },
     "CREATE": {
       "TITLE": "Adicionar detalhes da empresa",
@@ -207,10 +209,12 @@
           "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha"
         },
         "LEVEL": {
-          "LOW": "Baixo",
-          "MEDIUM": "Médio",
-          "HIGH": "Alto",
-          "VIP": "VIP"
+          "HELP": "Indica a prioridade do cliente nos atendimentos: 1 é a prioridade mais baixa e 5 é a prioridade máxima. Use para saber quais clientes devem ser priorizados.",
+          "L1": "1 - Sem prioridade",
+          "L2": "2 - Prioridade baixa",
+          "L3": "3 - Prioridade média",
+          "L4": "4 - Prioridade alta",
+          "L5": "5 - Prioridade máxima"
         },
         "CATEGORY": {
           "NONE": "Nenhuma",

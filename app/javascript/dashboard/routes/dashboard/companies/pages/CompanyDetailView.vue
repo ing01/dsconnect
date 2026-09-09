@@ -190,21 +190,12 @@ const handleConfirmContactSelection = async () => {
   const candidate = selectedCandidate.value;
   if (!candidate) return;
 
-  const isReassigning =
-    candidate.company?.id && candidate.company.id !== companyId.value;
-  const message = isReassigning
-    ? t('COMPANIES.DETAIL.CONTACTS.MESSAGES.REASSIGN_SUCCESS')
-    : t('COMPANIES.DETAIL.CONTACTS.MESSAGES.ADD_SUCCESS');
-
   try {
     await companiesStore.attachContactToCompany(companyId.value, candidate.id);
-    useAlert(message);
+    useAlert(t('COMPANIES.DETAIL.CONTACTS.MESSAGES.ADD_SUCCESS'));
     clearSelectedCandidate();
   } catch {
-    const errorMessage = isReassigning
-      ? t('COMPANIES.DETAIL.CONTACTS.MESSAGES.REASSIGN_ERROR')
-      : t('COMPANIES.DETAIL.CONTACTS.MESSAGES.ADD_ERROR');
-    useAlert(errorMessage);
+    useAlert(t('COMPANIES.DETAIL.CONTACTS.MESSAGES.ADD_ERROR'));
   }
 };
 
@@ -362,6 +353,7 @@ onBeforeUnmount(() => {
       <TabBar
         :tabs="tabs"
         :initial-active-tab="activeTabIndex"
+        size="lg"
         @tab-changed="handleTabChange"
       />
 

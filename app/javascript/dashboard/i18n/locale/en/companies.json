@@ -27,7 +27,9 @@
     },
     "SELECTOR": {
       "PLACEHOLDER": "Select company",
-      "CREATE_OPTION": "Add \"{name}\""
+      "ADD_ANOTHER_PLACEHOLDER": "Add another company",
+      "CREATE_OPTION": "Add \"{name}\"",
+      "REMOVE": "Remove {name}"
     },
     "CREATE": {
       "TITLE": "Add company details",
@@ -207,10 +209,12 @@
           "CAMPAIGN_OPT_IN": "Receive automatic campaign messages"
         },
         "LEVEL": {
-          "LOW": "Low",
-          "MEDIUM": "Medium",
-          "HIGH": "High",
-          "VIP": "VIP"
+          "HELP": "Indicates how much service priority the client has: 1 is the lowest priority and 5 is the highest. Use it to know which clients should be prioritized.",
+          "L1": "1 - No priority",
+          "L2": "2 - Low priority",
+          "L3": "3 - Medium priority",
+          "L4": "4 - High priority",
+          "L5": "5 - Maximum priority"
         },
         "CATEGORY": {
           "NONE": "None",

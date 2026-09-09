@@ -11,7 +11,8 @@ import types from '../../mutation-types';
 
 const buildContactFormData = contactParams => {
   const formData = new FormData();
-  const { additional_attributes = {}, ...contactProperties } = contactParams;
+  const { additional_attributes = {}, company_ids, ...contactProperties } =
+    contactParams;
   Object.keys(contactProperties).forEach(key => {
     const value = contactProperties[key];
     const shouldAppendBlankCompanyId =
@@ -21,18 +22,18 @@ const buildContactFormData = contactParams => {
       formData.append(key, value ?? '');
     }
   });
-  const { social_profiles, ...additionalAttributesProperties } =
-    additional_attributes;
-  Object.keys(additionalAttributesProperties).forEach(key => {
+  if (company_ids !== undefined) {
+    // An empty array appends nothing in multipart form data, which would
+    // leave the `company_ids` key missing entirely - append a blank
+    // sentinel so the backend still sees the key and clears the companies.
+    (company_ids?.length ? company_ids : ['']).forEach(id =>
+      formData.append('company_ids[]', id)
+    );
+  }
+  Object.keys(additional_attributes).forEach(key => {
     formData.append(
       `additional_attributes[${key}]`,
-      additionalAttributesProperties[key]
-    );
-  });
-  Object.keys(social_profiles).forEach(key => {
-    formData.append(
-      `additional_attributes[social_profiles][${key}]`,
-      social_profiles[key]
+      additional_attributes[key]
     );
   });
   return formData;

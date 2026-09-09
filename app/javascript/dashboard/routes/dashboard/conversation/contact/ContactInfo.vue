@@ -9,7 +9,6 @@ import { dynamicTime } from 'shared/helpers/timeHelper';
 import { useAdmin } from 'dashboard/composables/useAdmin';
 import ContactInfoRow from './ContactInfoRow.vue';
 import Avatar from 'next/avatar/Avatar.vue';
-import SocialIcons from './SocialIcons.vue';
 import EditContact from './EditContact.vue';
 import ContactMergeModal from 'dashboard/modules/contact/ContactMergeModal.vue';
 import ContactDeleteModal from 'dashboard/modules/contact/ContactDeleteModal.vue';
@@ -25,7 +24,6 @@ export default {
     EditContact,
     Avatar,
     ComposeConversation,
-    SocialIcons,
     ContactMergeModal,
     ContactDeleteModal,
     VoiceCallButton,
@@ -78,22 +76,6 @@ export default {
         return '';
       }
       return this.findCountryFlag(countryCode, cityAndCountry);
-    },
-    socialProfiles() {
-      const {
-        social_profiles: socialProfiles,
-        screen_name: twitterScreenName,
-        social_telegram_user_name: telegramUsername,
-      } = this.additionalAttributes;
-
-      const telegram = socialProfiles?.telegram || telegramUsername || '';
-      const twitter = socialProfiles?.twitter || twitterScreenName || '';
-
-      return {
-        ...(socialProfiles || {}),
-        twitter,
-        telegram,
-      };
     },
   },
   watch: {
@@ -302,7 +284,6 @@ export default {
             emoji="🌍"
             :title="$t('CONTACT_PANEL.LOCATION')"
           />
-          <SocialIcons :social-profiles="socialProfiles" />
         </div>
       </div>
       <div class="flex items-center w-full mt-0.5 gap-2">

@@ -36,12 +36,10 @@ const FISCAL_FIELDS = [
   'addressState',
 ];
 
-const CLIENT_LEVEL_OPTIONS = [
-  { value: 'low', label: t('COMPANIES.DETAIL.PROFILE.LEVEL.LOW') },
-  { value: 'medium', label: t('COMPANIES.DETAIL.PROFILE.LEVEL.MEDIUM') },
-  { value: 'high', label: t('COMPANIES.DETAIL.PROFILE.LEVEL.HIGH') },
-  { value: 'vip', label: t('COMPANIES.DETAIL.PROFILE.LEVEL.VIP') },
-];
+const CLIENT_LEVEL_OPTIONS = [1, 2, 3, 4, 5].map(level => ({
+  value: level,
+  label: t(`COMPANIES.DETAIL.PROFILE.LEVEL.L${level}`),
+}));
 
 const form = reactive({
   name: '',
@@ -58,7 +56,7 @@ const form = reactive({
   addressNeighborhood: '',
   addressCity: '',
   addressState: '',
-  clientLevel: 'low',
+  clientLevel: 1,
   companyCategoryId: 0,
   campaignOptIn: false,
   systemModuleIds: [],
@@ -101,7 +99,7 @@ const hasChanges = computed(
     FISCAL_FIELDS.some(
       field => (form[field] || '').trim() !== (props.company?.[field] || '')
     ) ||
-    form.clientLevel !== (props.company?.clientLevel || 'low') ||
+    form.clientLevel !== Number(props.company?.clientLevel || 1) ||
     (form.companyCategoryId || 0) !==
       (props.company?.companyCategoryId || 0) ||
     form.campaignOptIn !== Boolean(props.company?.campaignOptIn) ||
@@ -132,7 +130,7 @@ const syncForm = company => {
   FISCAL_FIELDS.forEach(field => {
     form[field] = company?.[field] || '';
   });
-  form.clientLevel = company?.clientLevel || 'low';
+  form.clientLevel = Number(company?.clientLevel || 1);
   form.companyCategoryId = company?.companyCategoryId || 0;
   form.campaignOptIn = Boolean(company?.campaignOptIn);
   form.systemModuleIds = (company?.systemModules || []).map(m => m.id);
@@ -361,8 +359,12 @@ watch(
         </span>
         <div class="grid w-full gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-1">
-            <label class="text-sm text-n-slate-11">
+            <label class="flex items-center gap-1 text-sm text-n-slate-11">
               {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.CLIENT_LEVEL') }}
+              <span
+                v-tooltip="t('COMPANIES.DETAIL.PROFILE.LEVEL.HELP')"
+                class="cursor-help i-lucide-circle-help size-3.5 text-n-slate-10"
+              />
             </label>
             <Select
               v-model="form.clientLevel"

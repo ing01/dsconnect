@@ -21,12 +21,12 @@ class AutomationRules::Flow::Steps::FindContact < AutomationRules::Flow::Steps::
   # caso comum de quem ja escreveu antes. So depois pelo nome informado.
   def match_within(company)
     current = conversation.contact
-    return current if current.present? && current.company_id == company.id
+    return current if current.present? && current.company_ids.include?(company.id)
 
     name = resolver.value(params[:name_from].presence || 'resposta.nome').to_s.strip
     return if name.blank?
 
-    company.contacts.where('LOWER(name) = ?', name.downcase).first
+    company.member_contacts.where('LOWER(name) = ?', name.downcase).first
   end
 
   def remember(contact)

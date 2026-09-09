@@ -17,7 +17,7 @@ class Api::V1::Accounts::Companies::ContactsController < Api::V1::Accounts::Comp
   # still finds them - `search` below is the opposite query (contacts NOT in the
   # company, for assigning) and cannot serve this.
   def index
-    scope = @company.contacts.order(:name, :id)
+    scope = @company.member_contacts.order(:name, :id)
     scope = scope.where(CONTACT_SEARCH_QUERY, search: "%#{params[:q].strip}%") if params[:q].present?
     @contacts = fetch_contacts(scope)
     @contacts_count = @contacts.total_count
@@ -50,7 +50,7 @@ class Api::V1::Accounts::Companies::ContactsController < Api::V1::Accounts::Comp
   end
 
   def fetch_contact
-    @contact = @company.contacts.find(params[:id])
+    @contact = @company.member_contacts.find(params[:id])
   end
 
   def fetch_contacts(contacts)
@@ -62,7 +62,7 @@ class Api::V1::Accounts::Companies::ContactsController < Api::V1::Accounts::Comp
 
   def contact_search_scope
     Current.account.contacts
-           .where('contacts.company_id IS NULL OR contacts.company_id != ?', @company.id)
+           .where.not(id: CompanyContact.where(company_id: @company.id).select(:contact_id))
            .where(CONTACT_SEARCH_QUERY, search: "%#{params[:q].strip}%")
            .order(:name, :id)
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_09_100002) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_09_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -917,7 +917,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_09_100002) do
     t.date "license_expires_on"
     t.date "system_started_on"
     t.bigint "company_category_id"
-    t.integer "client_level", default: 0, null: false
+    t.integer "client_level", default: 1, null: false
     t.boolean "campaign_opt_in", default: false, null: false
     t.index ["account_id", "cnpj"], name: "index_companies_on_account_and_cnpj", unique: true, where: "(cnpj IS NOT NULL)"
     t.index ["account_id", "domain"], name: "index_companies_on_account_and_domain", unique: true, where: "(domain IS NOT NULL)"
@@ -933,6 +933,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_09_100002) do
     t.datetime "updated_at", null: false
     t.index ["account_id", "name"], name: "index_company_categories_on_account_id_and_name", unique: true
     t.index ["account_id"], name: "index_company_categories_on_account_id"
+  end
+
+  create_table "company_contacts", force: :cascade do |t|
+    t.bigint "contact_id", null: false
+    t.bigint "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_company_contacts_on_company_id"
+    t.index ["contact_id", "company_id"], name: "index_company_contacts_on_contact_id_and_company_id", unique: true
+    t.index ["contact_id"], name: "index_company_contacts_on_contact_id"
   end
 
   create_table "company_credentials", force: :cascade do |t|
@@ -2274,6 +2284,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_09_100002) do
   add_foreign_key "checklists", "accounts"
   add_foreign_key "companies", "company_categories"
   add_foreign_key "company_categories", "accounts"
+  add_foreign_key "company_contacts", "companies"
+  add_foreign_key "company_contacts", "contacts"
   add_foreign_key "company_credentials", "accounts"
   add_foreign_key "company_credentials", "companies"
   add_foreign_key "company_credentials", "users", column: "created_by_id"

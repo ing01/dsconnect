@@ -246,7 +246,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   end
 
   def contact_matches?(contact, company_id)
-    company_id.blank? || contact.company_id == company_id
+    company_id.blank? || contact.company_ids.include?(company_id)
   end
 
   def link_conversation!(conversation_id)

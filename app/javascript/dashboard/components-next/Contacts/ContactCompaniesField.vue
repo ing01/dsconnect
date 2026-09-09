@@ -8,22 +8,18 @@ import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import CompanyCreateDialog from 'dashboard/components-next/Companies/CompanyCreateDialog.vue';
 
 const props = defineProps({
+  // Array of { id, name } - a contact can work at more than one Empresa.
   modelValue: {
-    type: [String, Number],
-    default: '',
+    type: Array,
+    default: () => [],
   },
-  // Name of the linked company, so the label shows before the list is loaded.
-  selectedName: {
-    type: String,
-    default: '',
-  },
-  isDetailsView: {
+  disabled: {
     type: Boolean,
     default: false,
   },
 });
 
-const emit = defineEmits(['select']);
+const emit = defineEmits(['update:modelValue']);
 
 const { t } = useI18n();
 
@@ -33,6 +29,10 @@ const options = ref([]);
 const searchQuery = ref('');
 const createDialogRef = ref(null);
 const isCreatingCompany = ref(false);
+
+const selectedIds = computed(
+  () => new Set(props.modelValue.map(company => Number(company.id)))
+);
 
 const toOption = company => ({ label: company.name, value: company.id });
 
@@ -52,20 +52,9 @@ const createOption = computed(() => {
 });
 
 const comboboxOptions = computed(() => {
-  const list = [...options.value];
-
-  // Keep the linked company visible even when it is not in the loaded results.
-  if (
-    props.modelValue &&
-    props.selectedName &&
-    !list.some(option => option.value === Number(props.modelValue))
-  ) {
-    list.unshift({
-      label: props.selectedName,
-      value: Number(props.modelValue),
-    });
-  }
-
+  const list = options.value.filter(
+    option => !selectedIds.value.has(Number(option.value))
+  );
   if (createOption.value) list.push(createOption.value);
   return list;
 });
@@ -94,6 +83,21 @@ const handleSearch = useDebounceFn(query => {
   fetchCompanies(searchQuery.value);
 }, 300);
 
+const addCompany = company => {
+  if (selectedIds.value.has(Number(company.id))) return;
+  emit('update:modelValue', [
+    ...props.modelValue,
+    { id: Number(company.id), name: company.name },
+  ]);
+};
+
+const removeCompany = id => {
+  emit(
+    'update:modelValue',
+    props.modelValue.filter(company => Number(company.id) !== Number(id))
+  );
+};
+
 // Open the create dialog (prefilled with the typed name) so the user can add
 // domain/description before saving, instead of creating with just a name.
 const createCompany = async company => {
@@ -103,7 +107,7 @@ const createCompany = async company => {
       data: { payload },
     } = await CompanyAPI.create({ company });
     createDialogRef.value?.onSuccess();
-    emit('select', { id: payload.id, name: payload.name });
+    addCompany(payload);
     useAlert(t('COMPANIES.CREATE.MESSAGES.SUCCESS'));
   } catch {
     useAlert(t('COMPANIES.CREATE.MESSAGES.ERROR'));
@@ -121,33 +125,45 @@ const handleSelect = value => {
     return;
   }
 
-  const id = value ? Number(value) : '';
-  const selected = comboboxOptions.value.find(option => option.value === id);
-  emit('select', { id, name: selected?.label || '' });
+  const id = Number(value);
+  const selected = options.value.find(option => option.value === id);
+  if (selected) addCompany({ id, name: selected.label });
 };
 </script>
 
 <template>
-  <ComboBox
-    :model-value="modelValue"
-    :options="comboboxOptions"
-    :display-label="selectedName"
-    :placeholder="t('COMPANIES.SELECTOR.PLACEHOLDER')"
-    :search-placeholder="t('COMPANIES.SEARCH_PLACEHOLDER')"
-    use-api-results
-    class="[&>div>button]:h-8 [&>div>div_ul]:max-h-56"
-    :class="{
-      '[&>div>button]:bg-n-alpha-black2 [&>div>button:not(.focused)]:!outline-transparent':
-        !isDetailsView,
-      '[&>div>button]:!bg-n-alpha-black2': isDetailsView,
-    }"
-    @open="handleOpen"
-    @search="handleSearch"
-    @update:model-value="handleSelect"
-  />
-  <CompanyCreateDialog
-    ref="createDialogRef"
-    :is-loading="isCreatingCompany"
-    @create="createCompany"
-  />
+  <div class="flex flex-col gap-2">
+    <div v-if="modelValue.length" class="flex flex-wrap gap-2">
+      <span
+        v-for="company in modelValue"
+        :key="company.id"
+        class="flex items-center h-7 gap-1 pl-2.5 pr-1 text-xs rounded-full bg-n-alpha-2 dark:bg-n-solid-3 text-n-slate-12"
+      >
+        {{ company.name }}
+        <button
+          type="button"
+          class="flex items-center justify-center rounded-full size-4 text-n-slate-10 hover:bg-n-alpha-2 hover:text-n-ruby-11 i-lucide-x"
+          :disabled="disabled"
+          :aria-label="t('COMPANIES.SELECTOR.REMOVE', { name: company.name })"
+          @click="removeCompany(company.id)"
+        />
+      </span>
+    </div>
+    <ComboBox
+      :options="comboboxOptions"
+      :placeholder="t('COMPANIES.SELECTOR.ADD_ANOTHER_PLACEHOLDER')"
+      :search-placeholder="t('COMPANIES.SEARCH_PLACEHOLDER')"
+      :disabled="disabled"
+      use-api-results
+      class="[&>div>button]:h-8 [&>div>div_ul]:max-h-56"
+      @open="handleOpen"
+      @search="handleSearch"
+      @update:model-value="handleSelect"
+    />
+    <CompanyCreateDialog
+      ref="createDialogRef"
+      :is-loading="isCreatingCompany"
+      @create="createCompany"
+    />
+  </div>
 </template>
