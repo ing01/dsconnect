@@ -120,6 +120,8 @@ en:
         error_message: "Sorry, something went wrong while registering your request. I'll transfer you to an agent."
       ai_resolve:
         error_message: "I'll transfer you to an agent to continue your request."
+      ai_triage:
+        default_handoff_message: "Thanks for the details! I'll transfer your request to our support team, who will take it from here."
       errors:
         empty_message: "the message is empty"
         too_many_steps: "the flow ran too many steps and was stopped"

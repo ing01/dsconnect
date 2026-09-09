@@ -3,6 +3,10 @@
 # mesma classe que o job normal do Captain chama, so que disparada pela
 # triagem e nao pelo pipeline automatico da inbox.
 #
+# Diferente do job nativo do Captain (`Captain::Conversation::ResponseBuilderJob`),
+# esta etapa e quem tem que publicar a resposta como mensagem de verdade na
+# conversa - `generate_response` so calcula o texto, nao publica nada sozinho.
+#
 # Roda por turno: a cada mensagem nova do cliente esta etapa e chamada de
 # novo (espera em si mesma, como a `Ask`), ate a propria IA acionar handoff,
 # a conversa ser marcada como resolvida, ou estourar o limite de turnos
@@ -22,11 +26,12 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     return finish_by_handoff if turns_used >= max_turns
 
     increment_turns!
-    runner.generate_response(message_history: message_history)
+    response = runner.generate_response(message_history: message_history)
 
     return finish_by_resolution if conversation.resolved?
     return finish_by_handoff if runner.handoff_completed?
 
+    post_ai_reply!(response)
     wait(step['id'], result: { turn: turns_used })
   end
 
@@ -60,6 +65,40 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     run.write_variable(turns_key, turns_used + 1)
   end
 
+  # O mesmo que `Captain::Conversation::MessageBuilder#create_messages` faz no
+  # job nativo - sem isso, a IA "responde" internamente mas o cliente nunca
+  # ve nada, e a conversa fica muda ate estourar o limite de turnos.
+  def post_ai_reply!(response)
+    return if response.blank?
+
+    response_parts = Captain::Assistant::ResponseParts.from_response(response)
+    content = response_parts.customer_message_content(citation_urls: assistant.trusted_citation_urls(runner.last_run_result))
+    return if content.blank?
+
+    conversation.messages.create!(
+      message_type: :outgoing, account_id: account.id, inbox_id: conversation.inbox_id,
+      sender: assistant, content: content,
+      additional_attributes: { agent_name: response['agent_name'] }.compact
+    )
+    account.increment_response_usage
+  end
+
+  # O texto que a IA gerou no turno do handoff nao vai para o cliente - o
+  # produto sempre mostra a mensagem de transferencia configurada no lugar
+  # (mesma regra do job nativo do Captain), nunca o que o modelo disse.
+  def post_handoff_message!
+    content = assistant.config['handoff_message'].presence ||
+              I18n.with_locale(account.locale) { I18n.t('conversations.captain.handoff') }
+    conversation.messages.create!(
+      message_type: :outgoing, account_id: account.id, inbox_id: conversation.inbox_id,
+      sender: assistant, content: content,
+      # Preserva o `waiting_since` que `bot_handoff!` ja definiu (ou vai
+      # definir logo em seguida) - a mesma preocupacao do job nativo do
+      # Captain ao criar a mensagem de encaminhamento.
+      preserve_waiting_since: true
+    )
+  end
+
   # Nivel do cliente decide a prioridade base do ticket; a triagem de nivel
   # 3-5 e que classifica urgencia/impacto, nao esta etapa.
   def level_priority
@@ -79,6 +118,7 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
   end
 
   def finish_by_handoff
+    post_handoff_message!
     conversation.bot_handoff!(dispatch_event: false) unless handed_off_by_captain?
     ticket = build_and_link_ticket!
     ticket.update!(priority: level_priority) unless ticket.is_a?(Hash)

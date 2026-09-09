@@ -121,7 +121,10 @@ export const FLOW_STEP_TYPES = [
   },
   {
     type: 'ai_triage',
-    fields: [{ key: 'team_id', kind: 'select', source: 'teams', required: true }],
+    fields: [
+      { key: 'team_id', kind: 'select', source: 'teams', required: true },
+      { key: 'content', kind: 'textarea' },
+    ],
     // Idem: termina sempre em handoff, nunca em `next`.
   },
   {

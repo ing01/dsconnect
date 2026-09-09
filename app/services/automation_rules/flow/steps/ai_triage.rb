@@ -17,11 +17,21 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
 
     ticket.update!(priority: priority, custom_attributes: (ticket.custom_attributes || {}).merge(triage_summary(ticket, classification)))
     route_conversation_to_humans(priority)
+    post_handoff_message!
 
     handoff(result: summary_result(classification, priority))
   end
 
   private
+
+  # Sem isso o cliente nao sabe que o atendimento foi entendido e passado
+  # adiante - a etapa so mexia em dados internos (ticket, prioridade, time),
+  # nunca respondia de verdade na conversa.
+  def post_handoff_message!
+    content = rendered(:content).presence || I18n.t('automations.flow.ai_triage.default_handoff_message')
+    say(content)
+    conversation.bot_handoff!(dispatch_event: false)
+  end
 
   def classify
     Captain::Llm::UrgencyImpactClassifierService.new(conversation: conversation).classify(transcript: transcript)
