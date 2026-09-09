@@ -4,25 +4,24 @@
 # para quem for atender, e a Conversation e roteada para o time humano - esta
 # etapa sempre termina em handoff, nunca segue para uma proxima.
 class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Base
+  include AutomationRules::Flow::Steps::Concerns::TicketBuilder
+
   TRANSCRIPT_MESSAGE_LIMIT = 20
 
   def perform
-    return handoff_on_misconfiguration if ticket.blank?
+    ticket = build_and_link_ticket!
+    return handoff_on_ticket_failure(ticket) if ticket.is_a?(Hash)
 
     classification = classify
     priority = resolve_priority(classification)
 
-    ticket.update!(priority: priority, custom_attributes: (ticket.custom_attributes || {}).merge(triage_summary(classification)))
+    ticket.update!(priority: priority, custom_attributes: (ticket.custom_attributes || {}).merge(triage_summary(ticket, classification)))
     route_conversation_to_humans(priority)
 
     handoff(result: summary_result(classification, priority))
   end
 
   private
-
-  def ticket
-    @ticket ||= run.ticket
-  end
 
   def classify
     Captain::Llm::UrgencyImpactClassifierService.new(conversation: conversation).classify(transcript: transcript)
@@ -48,7 +47,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
     Tickets::HelpdeskPriority.ticket_priority_for(client_level: run.read_variable('empresa.nivel'))
   end
 
-  def triage_summary(classification)
+  def triage_summary(ticket, classification)
     { 'triage_summary' => {
       'empresa' => run.read_variable('empresa.nome'),
       'cnpj' => run.read_variable('empresa.cnpj'),
@@ -82,12 +81,11 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
                 .join("\n")
   end
 
-  # So acontece se o fluxo pular o `create_ticket`/`find_open_ticket_*` antes
-  # desta etapa - configuracao errada, nao algo que o cliente causou, mas
-  # ainda assim precisa avisar e entregar para uma pessoa.
-  def handoff_on_misconfiguration
+  # Falha ao criar o ticket (Estagio/Categoria mal configurados, por exemplo)
+  # nao pode deixar o cliente sem resposta - mesma regra do `create_ticket`.
+  def handoff_on_ticket_failure(ticket)
     say(I18n.t('automations.flow.ai_resolve.error_message'))
     conversation.bot_handoff!(dispatch_event: false)
-    handoff(result: { error: 'nenhum ticket vinculado a esta execucao' })
+    handoff(result: { error: ticket[:error] })
   end
 end

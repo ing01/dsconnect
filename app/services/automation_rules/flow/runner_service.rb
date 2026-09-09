@@ -25,7 +25,8 @@ class AutomationRules::Flow::RunnerService
     'find_open_ticket_for_customer' => AutomationRules::Flow::Steps::FindOpenTicketForCustomer,
     'list_companies' => AutomationRules::Flow::Steps::ListCompanies,
     'ai_resolve' => AutomationRules::Flow::Steps::AiResolve,
-    'ai_triage' => AutomationRules::Flow::Steps::AiTriage
+    'ai_triage' => AutomationRules::Flow::Steps::AiTriage,
+    'link_contact_to_company' => AutomationRules::Flow::Steps::LinkContactToCompany
   }.freeze
 
   def initialize(run:, message: nil)

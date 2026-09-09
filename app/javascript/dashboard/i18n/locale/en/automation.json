@@ -250,8 +250,8 @@
       "MOVE_DOWN": "Move down",
       "REMOVE": "Remove step",
       "WIZARD": {
-        "TITLE": "WhatsApp support triage template",
-        "DESCRIPTION": "Answer a few questions and this builds the full step-by-step flow for you: identify the company (asking for a CNPJ if it's a new contact), check for blocks, check for an existing ticket, create the ticket if needed, and route it to AI or to a human based on the client's level.",
+        "TITLE": "Support triage template",
+        "DESCRIPTION": "Answer a few questions and this builds the full step-by-step flow for you - pick WhatsApp (identifies by phone) or the website widget (asks for CNPJ, name and email). It identifies the company, checks for blocks, checks for an existing ticket, and routes to AI or a human based on the client's level.",
         "OPEN": "Set up with the template",
         "REOPEN": "Rebuild with the template",
         "CLOSE": "Close",
@@ -259,7 +259,10 @@
         "REVIEW_BELOW": "Review or tweak them in the list below - you don't need to go through the template again.",
         "REPLACE_WARNING": "Building the template again replaces every step below with a fresh copy.",
         "REBUILD": "Rebuild the flow",
-        "STEP_TEAM": "Which service desk should WhatsApp tickets be created in?",
+        "STEP_CHANNEL": "Which channel is this flow for?",
+        "CHANNEL_WHATSAPP": "WhatsApp (identifies by phone number)",
+        "CHANNEL_WIDGET": "Website widget (asks for CNPJ, name and email)",
+        "STEP_TEAM": "Which service desk should tickets be created in?",
         "STEP_COLUMN": "Which stage should a new ticket start in?",
         "STEP_CATEGORY": "Which category should it use?",
         "STEP_ASSISTANT": "Which Captain assistant should try to resolve level 1-2 requests?",
@@ -283,7 +286,8 @@
         "FIND_OPEN_TICKET_FOR_CUSTOMER": "Find existing open ticket (avoid duplicates)",
         "LIST_COMPANIES": "List companies and ask which one",
         "AI_RESOLVE": "AI: try to resolve (levels 1-2)",
-        "AI_TRIAGE": "AI: triage only, hand off to support (levels 3-5)"
+        "AI_TRIAGE": "AI: triage only, hand off to support (levels 3-5)",
+        "LINK_CONTACT_TO_COMPANY": "Verify contact and link to the company"
       },
       "FIELD": {
         "CONTENT": "Message",
@@ -313,7 +317,8 @@
         "BLOCKED": "If blocked",
         "NOT_OWNED": "If it belongs to someone else",
         "FOUND": "If already found",
-        "NO_COMPANIES": "If the contact has no company yet"
+        "NO_COMPANIES": "If the contact has no company yet",
+        "INCONSISTENT": "If the info doesn't match what we already had"
       },
       "OPTION": {
         "TEXT": "Text",

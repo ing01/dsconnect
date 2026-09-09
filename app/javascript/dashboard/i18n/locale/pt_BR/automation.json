@@ -249,8 +249,8 @@
       "MOVE_DOWN": "Mover para baixo",
       "REMOVE": "Remover etapa",
       "WIZARD": {
-        "TITLE": "Modelo de triagem de atendimento WhatsApp",
-        "DESCRIPTION": "Responda algumas perguntas e isso monta o fluxo completo pra você: identificar a empresa (pedindo o CNPJ se for um contato novo), checar bloqueios, verificar se já existe um ticket aberto, criar o ticket se precisar, e rotear para a IA ou para um humano de acordo com o nível do cliente.",
+        "TITLE": "Modelo de triagem de atendimento",
+        "DESCRIPTION": "Responda algumas perguntas e isso monta o fluxo completo pra você - escolha WhatsApp (identifica pelo telefone) ou o widget do site (pede CNPJ, nome e e-mail). Ele identifica a empresa, checa bloqueios, verifica se já existe um ticket aberto, e roteia para a IA ou para um humano de acordo com o nível do cliente.",
         "OPEN": "Configurar com o modelo",
         "REOPEN": "Recriar com o modelo",
         "CLOSE": "Fechar",
@@ -258,7 +258,10 @@
         "REVIEW_BELOW": "Revise ou ajuste elas na lista abaixo - não precisa passar pelo modelo de novo.",
         "REPLACE_WARNING": "Montar o modelo de novo substitui todas as etapas abaixo por uma cópia nova.",
         "REBUILD": "Recriar o fluxo",
-        "STEP_TEAM": "Em qual mesa de serviço os tickets do WhatsApp devem ser criados?",
+        "STEP_CHANNEL": "Para qual canal é esse fluxo?",
+        "CHANNEL_WHATSAPP": "WhatsApp (identifica pelo número de telefone)",
+        "CHANNEL_WIDGET": "Widget do site (pede CNPJ, nome e e-mail)",
+        "STEP_TEAM": "Em qual mesa de serviço os tickets devem ser criados?",
         "STEP_COLUMN": "Em qual estágio um ticket novo deve começar?",
         "STEP_CATEGORY": "Qual categoria ele deve usar?",
         "STEP_ASSISTANT": "Qual assistente do Captain deve tentar resolver os atendimentos de nível 1-2?",
@@ -282,7 +285,8 @@
         "FIND_OPEN_TICKET_FOR_CUSTOMER": "Localizar ticket aberto existente (evitar duplicidade)",
         "LIST_COMPANIES": "Listar empresas e perguntar qual delas",
         "AI_RESOLVE": "IA: tentar resolver (níveis 1-2)",
-        "AI_TRIAGE": "IA: só triagem, encaminha para suporte (níveis 3-5)"
+        "AI_TRIAGE": "IA: só triagem, encaminha para suporte (níveis 3-5)",
+        "LINK_CONTACT_TO_COMPANY": "Verificar contato e vincular à empresa"
       },
       "FIELD": {
         "CONTENT": "Mensagem",
@@ -312,7 +316,8 @@
         "BLOCKED": "Se bloqueada",
         "NOT_OWNED": "Se pertence a outro cliente",
         "FOUND": "Se já encontrado",
-        "NO_COMPANIES": "Se o contato ainda não tem nenhuma empresa"
+        "NO_COMPANIES": "Se o contato ainda não tem nenhuma empresa",
+        "INCONSISTENT": "Se as informações não batem com o que já tínhamos"
       },
       "OPTION": {
         "TEXT": "Texto",

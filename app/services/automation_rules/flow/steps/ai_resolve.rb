@@ -4,19 +4,27 @@
 # triagem e nao pelo pipeline automatico da inbox.
 #
 # Roda por turno: a cada mensagem nova do cliente esta etapa e chamada de
-# novo (espera em si mesma, como a `Ask`), ate a propria IA acionar handoff
-# ou estourar o limite de turnos configurado - protecao contra a IA nunca
-# decidir parar sozinha.
+# novo (espera em si mesma, como a `Ask`), ate a propria IA acionar handoff,
+# a conversa ser marcada como resolvida, ou estourar o limite de turnos
+# configurado - protecao contra a IA nunca decidir parar sozinha.
+#
+# O ticket so e criado no final (resolvido ou encaminhado), nunca no comeco -
+# um atendimento que a IA resolve sozinha nao precisa de ticket em aberto o
+# tempo todo, so um registro de que aconteceu.
 class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Base
+  include AutomationRules::Flow::Steps::Concerns::TicketBuilder
+
   DEFAULT_MAX_TURNS = 6
 
   def perform
     return handoff_on_misconfiguration if assistant.blank?
+    return finish_by_resolution if conversation.resolved?
     return finish_by_handoff if turns_used >= max_turns
 
     increment_turns!
     runner.generate_response(message_history: message_history)
 
+    return finish_by_resolution if conversation.resolved?
     return finish_by_handoff if runner.handoff_completed?
 
     wait(step['id'], result: { turn: turns_used })
@@ -52,22 +60,29 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     run.write_variable(turns_key, turns_used + 1)
   end
 
-  # O ticket precisa sair com uma prioridade mesmo num atendimento de nivel
-  # 1/2 (requisito: o ticket continua existindo e valido mesmo quando a IA
-  # resolve sozinha) - usa so o nivel do cliente, sem classificar urgencia
-  #/impacto (isso e coisa da triagem de nivel 3-5, nao daqui).
-  def apply_level_priority!
-    return if run.ticket.blank?
+  # Nivel do cliente decide a prioridade base do ticket; a triagem de nivel
+  # 3-5 e que classifica urgencia/impacto, nao esta etapa.
+  def level_priority
+    Tickets::HelpdeskPriority.ticket_priority_for(client_level: run.read_variable('empresa.nivel'))
+  end
 
-    run.ticket.update!(
-      priority: Tickets::HelpdeskPriority.ticket_priority_for(client_level: run.read_variable('empresa.nivel'))
-    )
+  # A IA resolveu sozinha (por conta propria, ou o cliente parou de responder
+  # e o auto-resolve do Captain fechou a conversa) - ainda assim registra um
+  # ticket, so que ja indo direto para resolvido, conforme pedido.
+  def finish_by_resolution
+    ticket = build_and_link_ticket!
+    return finish_by_handoff if ticket.is_a?(Hash)
+
+    ticket.update!(priority: level_priority)
+    ticket.resolve! if ticket.open?
+    stop(result: { resolved: true, turns: turns_used })
   end
 
   def finish_by_handoff
     conversation.bot_handoff!(dispatch_event: false) unless handed_off_by_captain?
-    apply_level_priority!
-    handoff(result: { turns: turns_used })
+    ticket = build_and_link_ticket!
+    ticket.update!(priority: level_priority) unless ticket.is_a?(Hash)
+    handoff(result: { turns: turns_used, ticket_error: ticket.is_a?(Hash) ? ticket[:error] : nil }.compact)
   end
 
   def handed_off_by_captain?

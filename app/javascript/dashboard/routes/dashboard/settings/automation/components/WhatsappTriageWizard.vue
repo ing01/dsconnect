@@ -5,7 +5,10 @@ import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { formatMesaName } from 'dashboard/helper/mesaName';
 import Button from 'dashboard/components-next/button/Button.vue';
-import { buildWhatsappTriageTemplate } from '../flowSteps';
+import {
+  buildWhatsappTriageTemplate,
+  buildWidgetTriageTemplate,
+} from '../flowSteps';
 
 const props = defineProps({
   stepsCount: { type: Number, default: 0 },
@@ -19,7 +22,13 @@ const { t } = useI18n();
 const store = useStore();
 const getters = useStoreGetters();
 
+const CHANNEL_BUILDERS = {
+  whatsapp: buildWhatsappTriageTemplate,
+  widget: buildWidgetTriageTemplate,
+};
+
 const isOpen = ref(false);
+const channel = ref('whatsapp');
 const teamId = ref(null);
 const ticketColumnId = ref(null);
 const ticketCategoryId = ref(null);
@@ -71,7 +80,7 @@ const apply = () => {
     return;
   }
 
-  const steps = buildWhatsappTriageTemplate({
+  const steps = CHANNEL_BUILDERS[channel.value]({
     teamId: teamId.value,
     ticketColumnId: ticketColumnId.value,
     ticketCategoryId: ticketCategoryId.value,
@@ -127,6 +136,17 @@ const apply = () => {
 
     <div v-if="isOpen" class="flex flex-col gap-4 pt-2 border-t border-n-blue-6">
       <ol class="flex flex-col gap-3 pl-5 text-sm list-decimal text-n-slate-12">
+        <li class="flex flex-col gap-1">
+          {{ t('AUTOMATION.FLOW.WIZARD.STEP_CHANNEL') }}
+          <select v-model="channel" class="mb-0">
+            <option value="whatsapp">
+              {{ t('AUTOMATION.FLOW.WIZARD.CHANNEL_WHATSAPP') }}
+            </option>
+            <option value="widget">
+              {{ t('AUTOMATION.FLOW.WIZARD.CHANNEL_WIDGET') }}
+            </option>
+          </select>
+        </li>
         <li class="flex flex-col gap-1">
           {{ t('AUTOMATION.FLOW.WIZARD.STEP_TEAM') }}
           <select v-model="teamId" class="mb-0">
