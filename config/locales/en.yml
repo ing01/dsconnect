@@ -113,6 +113,9 @@ en:
     flow:
       retry: "Sorry, I could not read that. Could you send it again?"
       default_ticket_title: "Triage from conversation #%{id}"
+      list_companies:
+        prompt: "Which company is this about?"
+        retry: "Sorry, I could not identify that company. Could you send it again, either the number or the name?"
       errors:
         empty_message: "the message is empty"
         too_many_steps: "the flow ran too many steps and was stopped"

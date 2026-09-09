@@ -110,6 +110,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :address_state,
       :client_level,
       :campaign_opt_in,
+      :blocked,
       :company_category_id,
       *allowed_billing_attrs,
       additional_attributes: {},

@@ -428,6 +428,7 @@
     "TICKET_CATALOG": "Catalogue",
     "TICKET_CATEGORIES": "Categories",
     "TICKET_PRIORITIES": "Priorities & SLA",
+    "TICKET_AUTOMATION": "WhatsApp Automation",
     "PROJECT_SETTINGS": "Projects",
     "PROJECT_MODULES": "Modules",
     "PROJECT_TASKS": "Tasks",

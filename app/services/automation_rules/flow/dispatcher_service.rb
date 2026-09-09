@@ -11,6 +11,9 @@ class AutomationRules::Flow::DispatcherService
       # Uma conversa nao entra duas vezes na mesma triagem: se ja ha execucao
       # viva, a que existe e que manda.
       return false if live_run(rule: rule, conversation: conversation).present?
+      # Bloqueio nao e uma etapa configuravel - roda aqui, antes de existir
+      # execucao, para nenhum fluxo mal montado poder pular essa checagem.
+      return false unless AutomationRules::Flow::BlockGateService.new(conversation: conversation).allowed?
 
       run = AutomationFlowRun.create!(
         account_id: conversation.account_id, automation_rule: rule,

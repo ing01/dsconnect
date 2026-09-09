@@ -494,6 +494,43 @@
           "OPEN": "Opens at",
           "CLOSE": "Closes at"
         }
+      },
+      "AUTOMATION": {
+        "TITLE": "WhatsApp Automation",
+        "DESCRIPTION": "Settings for the automated WhatsApp triage flow: which client levels the AI tries to resolve on its own, the fallback priority when it fails, and where level 3-5 tickets are routed.",
+        "WHATSAPP_FLOW": {
+          "LABEL": "Enable the WhatsApp triage flow",
+          "HELP": "When off, incoming WhatsApp conversations are never picked up by the automated flow, regardless of any automation rule configured."
+        },
+        "AI_RESOLVE_LEVELS": {
+          "LABEL": "Client levels the AI tries to resolve on its own",
+          "HELP": "Levels not selected here only get triaged by the AI and handed off to a human - never a full resolution attempt."
+        },
+        "LEVEL_LABEL": "Level {level}",
+        "DEFAULT_PRIORITY": {
+          "LABEL": "Default priority if the AI classification fails",
+          "HELP": "Used only when the triage step's classification call fails or returns something invalid - the flow never stalls waiting on it."
+        },
+        "PRIORITY_LABEL": {
+          "BAIXA": "Low",
+          "MEDIA": "Medium",
+          "ALTA": "High"
+        },
+        "OPEN_TICKET_WINDOW": {
+          "LABEL": "Consider a ticket \"open\" for how many days",
+          "HELP": "Leave blank to reuse any open ticket regardless of age (current behavior). With a value, an older open ticket is treated as stale and a new one is created instead.",
+          "PLACEHOLDER": "No limit"
+        },
+        "LEVEL_3TO5_TEAM": {
+          "LABEL": "Service desk for level 3-5 tickets",
+          "HELP": "Where the conversation is routed once the AI finishes triaging a level 3, 4 or 5 client.",
+          "NONE": "Not set"
+        },
+        "SAVE": "Save automation settings",
+        "API": {
+          "SUCCESS": "Automation settings updated.",
+          "ERROR": "Could not update the automation settings."
+        }
       }
     },
     "MESA_SELECTOR": {

@@ -19,7 +19,13 @@ class AutomationRules::Flow::RunnerService
     'find_contact' => AutomationRules::Flow::Steps::FindContact,
     'condition' => AutomationRules::Flow::Steps::Condition,
     'create_ticket' => AutomationRules::Flow::Steps::CreateTicket,
-    'handoff' => AutomationRules::Flow::Steps::Handoff
+    'handoff' => AutomationRules::Flow::Steps::Handoff,
+    'check_company_blocked' => AutomationRules::Flow::Steps::CheckCompanyBlocked,
+    'find_open_ticket_by_number' => AutomationRules::Flow::Steps::FindOpenTicketByNumber,
+    'find_open_ticket_for_customer' => AutomationRules::Flow::Steps::FindOpenTicketForCustomer,
+    'list_companies' => AutomationRules::Flow::Steps::ListCompanies,
+    'ai_resolve' => AutomationRules::Flow::Steps::AiResolve,
+    'ai_triage' => AutomationRules::Flow::Steps::AiTriage
   }.freeze
 
   def initialize(run:, message: nil)

@@ -52,6 +52,20 @@ class Ticket < ApplicationRecord
   # through the "Busca detalhada", which deliberately does NOT apply this scope.
   scope :operational, -> { where(status: :open) }
 
+  # Fila de suporte da triagem automatica: nivel do cliente primeiro (5/4 >
+  # 3 > 2 > 1), depois prioridade dentro do nivel (alta > media > baixa),
+  # com data de criacao como desempate. Independente do `position`/Kanban
+  # manual, que continua existindo a parte - esta e uma visualizacao
+  # ordenada adicional, nao substitui o board.
+  scope :support_queue_order, lambda {
+    joins(:company).order(Arel.sql(
+      'companies.client_level DESC, ' \
+      "CASE tickets.priority WHEN #{priorities[:urgent]} THEN 0 " \
+      "WHEN #{priorities[:high]} THEN 1 WHEN #{priorities[:medium]} THEN 2 ELSE 3 END, " \
+      'tickets.created_at ASC'
+    ))
+  }
+
   # Set while a composite operation (a transfer) writes several tracked columns
   # at once, so the operation logs one auditable activity instead of four
   # disconnected ones. See `Tickets::TransferService`.

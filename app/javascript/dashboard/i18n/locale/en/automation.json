@@ -256,7 +256,13 @@
         "FIND_CONTACT": "Find requester",
         "CONDITION": "Condition",
         "CREATE_TICKET": "Create ticket",
-        "HANDOFF": "Hand off to an agent"
+        "HANDOFF": "Hand off to an agent",
+        "CHECK_COMPANY_BLOCKED": "Check if company is blocked",
+        "FIND_OPEN_TICKET_BY_NUMBER": "Validate ticket number given by customer",
+        "FIND_OPEN_TICKET_FOR_CUSTOMER": "Find existing open ticket (avoid duplicates)",
+        "LIST_COMPANIES": "List companies and ask which one",
+        "AI_RESOLVE": "AI: try to resolve (levels 1-2)",
+        "AI_TRIAGE": "AI: triage only, hand off to support (levels 3-5)"
       },
       "FIELD": {
         "CONTENT": "Message",
@@ -274,22 +280,31 @@
         "TEAM_ID": "Service desk",
         "TICKET_COLUMN_ID": "Stage",
         "TICKET_CATEGORY_ID": "Category",
-        "PRIORITY": "Priority"
+        "PRIORITY": "Priority",
+        "NUMBER_FROM": "Ticket number comes from",
+        "ASSISTANT_ID": "Captain assistant",
+        "MAX_TURNS": "Maximum turns before handing off"
       },
       "BRANCH": {
         "NOT_FOUND": "If not found",
         "TRUE": "If true",
-        "FALSE": "If false"
+        "FALSE": "If false",
+        "BLOCKED": "If blocked",
+        "NOT_OWNED": "If it belongs to someone else",
+        "FOUND": "If already found"
       },
       "OPTION": {
         "TEXT": "Text",
         "CNPJ": "CNPJ",
+        "TICKET_NUMBER": "Ticket number",
         "EQUAL_TO": "equals",
         "NOT_EQUAL_TO": "not equals",
         "CONTAINS": "contains",
         "DOES_NOT_CONTAIN": "does not contain",
         "IS_PRESENT": "exists",
         "IS_NOT_PRESENT": "does not exist",
+        "GREATER_THAN_OR_EQUAL": "is greater than or equal to",
+        "LESS_THAN_OR_EQUAL": "is less than or equal to",
         "LOW": "Low",
         "MEDIUM": "Medium",
         "HIGH": "High",

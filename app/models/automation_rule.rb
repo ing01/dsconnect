@@ -65,7 +65,9 @@ class AutomationRule < ApplicationRecord
   # Os tipos de etapa que o fluxo aceita. Espelha o REGISTRY do runner - se
   # divergirem, o admin consegue gravar uma etapa que ninguem sabe executar.
   def flow_step_types
-    %w[send_message ask find_company find_contact condition create_ticket handoff].freeze
+    %w[send_message ask find_company find_contact condition create_ticket handoff
+       check_company_blocked find_open_ticket_by_number find_open_ticket_for_customer
+       list_companies ai_resolve ai_triage].freeze
   end
 
   # Uma automacao com etapas e um fluxo; sem etapas, continua sendo a regra

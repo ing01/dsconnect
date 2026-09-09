@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_09_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_10_100000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -919,9 +919,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_09_120000) do
     t.bigint "company_category_id"
     t.integer "client_level", default: 1, null: false
     t.boolean "campaign_opt_in", default: false, null: false
+    t.boolean "blocked", default: false, null: false
     t.index ["account_id", "cnpj"], name: "index_companies_on_account_and_cnpj", unique: true, where: "(cnpj IS NOT NULL)"
     t.index ["account_id", "domain"], name: "index_companies_on_account_and_domain", unique: true, where: "(domain IS NOT NULL)"
     t.index ["account_id"], name: "index_companies_on_account_id"
+    t.index ["blocked"], name: "index_companies_on_blocked"
     t.index ["company_category_id"], name: "index_companies_on_company_category_id"
     t.index ["name", "account_id"], name: "index_companies_on_name_and_account_id"
   end

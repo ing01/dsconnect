@@ -107,6 +107,9 @@ pt_BR:
     flow:
       retry: "Desculpe, nao consegui entender. Pode enviar novamente?"
       default_ticket_title: "Triagem da conversa #%{id}"
+      list_companies:
+        prompt: "Sobre qual empresa e esse atendimento?"
+        retry: "Desculpe, nao consegui identificar essa empresa. Pode enviar de novo, o numero ou o nome?"
       errors:
         empty_message: "a mensagem esta vazia"
         too_many_steps: "o fluxo executou etapas demais e foi interrompido"

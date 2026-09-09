@@ -21,7 +21,7 @@ export const FLOW_STEP_TYPES = [
       {
         key: 'answer_type',
         kind: 'select',
-        options: ['text', 'cnpj'],
+        options: ['text', 'cnpj', 'ticket_number'],
         default: 'text',
       },
       { key: 'retry_message', kind: 'text' },
@@ -53,6 +53,8 @@ export const FLOW_STEP_TYPES = [
           'does_not_contain',
           'is_present',
           'is_not_present',
+          'greater_than_or_equal',
+          'less_than_or_equal',
         ],
       },
       { key: 'value', kind: 'text' },
@@ -79,6 +81,41 @@ export const FLOW_STEP_TYPES = [
     type: 'handoff',
     fields: [{ key: 'content', kind: 'textarea' }],
   },
+  {
+    type: 'check_company_blocked',
+    fields: [],
+    branches: ['blocked'],
+  },
+  {
+    type: 'find_open_ticket_by_number',
+    fields: [
+      { key: 'number_from', kind: 'variable', default: 'resposta.numero_ticket' },
+    ],
+    branches: ['not_found', 'not_owned'],
+  },
+  {
+    type: 'find_open_ticket_for_customer',
+    fields: [{ key: 'team_id', kind: 'select', source: 'teams', required: true }],
+    branches: ['found'],
+  },
+  {
+    type: 'list_companies',
+    fields: [{ key: 'save_as', kind: 'text', default: 'resposta.empresa_escolhida' }],
+  },
+  {
+    type: 'ai_resolve',
+    fields: [
+      { key: 'assistant_id', kind: 'select', source: 'captainAssistants', required: true },
+      { key: 'max_turns', kind: 'number', default: 6 },
+    ],
+    // Sem `branches`: esta etapa sempre termina sozinha (a IA resolve e o
+    // fluxo para, ou aciona handoff) - nunca segue para uma proxima etapa.
+  },
+  {
+    type: 'ai_triage',
+    fields: [{ key: 'team_id', kind: 'select', source: 'teams', required: true }],
+    // Idem: termina sempre em handoff, nunca em `next`.
+  },
 ];
 
 export const findStepType = type =>
@@ -90,10 +127,13 @@ export const BASE_VARIABLES = [
   'empresa.nome',
   'empresa.cnpj',
   'empresa.id',
+  'empresa.nivel',
   'contato.nome',
   'contato.email',
+  'contato.id',
   'ticket.numero',
   'ticket.titulo',
+  'ticket.id',
 ];
 
 export const variablesFor = (steps = []) => {

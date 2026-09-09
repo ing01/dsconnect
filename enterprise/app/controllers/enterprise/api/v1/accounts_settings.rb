@@ -23,6 +23,13 @@ module Enterprise::Api::V1::AccountsSettings
   end
 
   def permitted_settings_attributes
-    super + [{ conversation_required_attributes: [] }]
+    super + [
+      { conversation_required_attributes: [] },
+      :helpdesk_whatsapp_flow_enabled,
+      { helpdesk_ai_resolve_levels: [] },
+      :helpdesk_default_priority_on_ai_failure,
+      :helpdesk_open_ticket_window_days,
+      :helpdesk_level_3to5_team_id
+    ]
   end
 end

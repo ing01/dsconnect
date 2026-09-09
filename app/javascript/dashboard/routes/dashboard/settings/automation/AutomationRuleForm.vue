@@ -294,6 +294,9 @@ const flowTeams = computed(() =>
 // para quando o editor souber a Mesa de cada etapa.
 const flowColumns = computed(() => []);
 const flowCategories = computed(() => []);
+// Idem para os assistentes do Captain - a etapa `ai_resolve` aceita o id
+// digitado ate a tela ter de onde listar os assistentes configurados.
+const flowCaptainAssistants = computed(() => []);
 
 const emitSaveAutomation = () => {
   syncCustomAttributeTypes();
@@ -372,6 +375,7 @@ defineExpose({ open, close });
         :teams="flowTeams"
         :columns="flowColumns"
         :categories="flowCategories"
+        :captain-assistants="flowCaptainAssistants"
       />
       <AutomationActions
         v-model="automation.actions"

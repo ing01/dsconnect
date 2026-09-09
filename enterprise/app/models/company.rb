@@ -45,6 +45,9 @@ class Company < ApplicationRecord
     only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 5
   }
 
+  # Same gate as `Contact#blocked` - the WhatsApp triage flow refuses to
+  # proceed for a blocked Empresa (`AutomationRules::Flow::BlockGateService`).
+
   belongs_to :account
   belongs_to :company_category, optional: true
   # `contacts` (via the FK) is the Empresa's primary/first contacts - kept for

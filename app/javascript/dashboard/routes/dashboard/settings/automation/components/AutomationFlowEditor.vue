@@ -16,6 +16,7 @@ const props = defineProps({
   teams: { type: Array, default: () => [] },
   columns: { type: Array, default: () => [] },
   categories: { type: Array, default: () => [] },
+  captainAssistants: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(['update:modelValue']);

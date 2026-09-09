@@ -59,6 +59,11 @@ class Account < ApplicationRecord
   store_accessor :settings, :reporting_timezone
   store_accessor :settings, :keep_pending_on_bot_failure
   store_accessor :settings, :captain_auto_resolve_mode, :captain_false_promise_harness_enabled
+  # WhatsApp helpdesk triage flow (AutomationRules::Flow) configuration - see
+  # AutomationRules::Flow::BlockGateService and the ai_resolve/ai_triage steps.
+  store_accessor :settings, :helpdesk_whatsapp_flow_enabled, :helpdesk_ai_resolve_levels,
+                  :helpdesk_default_priority_on_ai_failure, :helpdesk_open_ticket_window_days,
+                  :helpdesk_level_3to5_team_id
   include AccountCaptainAutoResolve
 
   has_many :account_users, dependent: :destroy_async
