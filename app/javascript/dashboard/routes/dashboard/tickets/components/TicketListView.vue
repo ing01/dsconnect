@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { toSearchParams } from '../helpers/ticketSearchParams';
 import { useRouter } from 'vue-router';
@@ -32,14 +32,49 @@ const listMeta = computed(() => store.getters['tickets/getListMeta']);
 const uiFlags = computed(() => store.getters['tickets/getUIFlags']);
 const isLoading = computed(() => uiFlags.value.isFetchingList);
 
+// Cada cabecalho e a chave que o servidor entende (Tickets::SearchOrdering).
+// A ordenacao vai para o servidor porque a lista e paginada la: ordenar so as
+// linhas carregadas mostraria o menor valor DESTA pagina, e nao do resultado.
+const COLUMNS = [
+  { key: 'display_id', label: 'ID' },
+  { key: 'created_at', label: 'CREATED_AT' },
+  { key: 'title', label: 'TITLE' },
+  { key: 'company', label: 'COMPANY' },
+  { key: 'contact', label: 'REQUESTER' },
+  { key: 'status', label: 'STATUS' },
+  { key: 'team', label: 'MESA' },
+  { key: 'ticket_column', label: 'ESTAGIO' },
+  { key: 'assignee', label: 'ASSIGNEE' },
+];
+
+const sortBy = ref('');
+const sortOrder = ref('asc');
+
 const requestParams = computed(() => ({
   page: listMeta.value.currentPage || 1,
   per_page: PER_PAGE,
   ...toSearchParams(props.filters),
+  // Sem coluna escolhida o parametro nao vai, e o servidor mantem a ordem de
+  // sempre - mais recentes primeiro.
+  sort_by: sortBy.value || undefined,
+  sort_order: sortBy.value ? sortOrder.value : undefined,
 }));
 
 const loadTickets = (page = 1) => {
   store.dispatch('tickets/fetchTickets', { ...requestParams.value, page });
+};
+
+// Primeiro clique ordena crescente; no mesmo cabecalho, inverte. Trocar de
+// coluna recomeca crescente e volta para a primeira pagina, porque a ordem
+// mudou e a pagina atual deixou de significar o mesmo conjunto.
+const sortByColumn = key => {
+  if (sortBy.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortBy.value = key;
+    sortOrder.value = 'asc';
+  }
+  loadTickets(1);
 };
 
 const onPageChange = page => loadTickets(page);
@@ -79,32 +114,37 @@ onMounted(() => loadTickets(1));
       <table class="w-full text-sm">
         <thead class="sticky top-0 bg-n-solid-1 border-b border-n-weak">
           <tr class="text-left text-xs text-n-slate-10">
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.ID') }}
-            </th>
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.CREATED_AT') }}
-            </th>
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.TITLE') }}
-            </th>
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.COMPANY') }}
-            </th>
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.REQUESTER') }}
-            </th>
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.STATUS') }}
-            </th>
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.MESA') }}
-            </th>
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.ESTAGIO') }}
-            </th>
-            <th class="px-3 py-2 font-medium">
-              {{ t('TICKET.LIST.COLUMNS.ASSIGNEE') }}
+            <th
+              v-for="column in COLUMNS"
+              :key="column.key"
+              class="px-3 py-2 font-medium"
+              :aria-sort="
+                sortBy === column.key
+                  ? sortOrder === 'asc'
+                    ? 'ascending'
+                    : 'descending'
+                  : 'none'
+              "
+            >
+              <button
+                type="button"
+                class="flex items-center gap-1 font-medium transition-colors hover:text-n-slate-12"
+                :class="sortBy === column.key ? 'text-n-slate-12' : ''"
+                @click="sortByColumn(column.key)"
+              >
+                {{ t(`TICKET.LIST.COLUMNS.${column.label}`) }}
+                <!-- A seta so aparece na coluna que esta ordenando, para nao
+                     sugerir que todas estao ativas ao mesmo tempo. -->
+                <span
+                  v-if="sortBy === column.key"
+                  :class="
+                    sortOrder === 'asc'
+                      ? 'i-lucide-arrow-up'
+                      : 'i-lucide-arrow-down'
+                  "
+                  class="size-3"
+                />
+              </button>
             </th>
           </tr>
         </thead>

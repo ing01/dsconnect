@@ -1,9 +1,8 @@
 class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   include TicketExporting
+  include TicketListing
 
   include TicketActionParams
-
-  DEFAULT_PER_PAGE = 25
 
   before_action :fetch_ticket, only: [:show, :update, :destroy, :move, :resolve, :reopen, :close, :cancel, :classify,
                                       :transfer, :create_child, :set_parent, :merge, :duplicate, :assign_to_me,
@@ -11,21 +10,13 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   before_action :check_authorization
 
   def index
-    scope = Current.account.tickets.includes(:team, :ticket_column, :ticket_category, :assignee, :company, :contact, conversations: :contact)
-    @tickets = TicketFinder.new(scope: scope, params: params, current_user: Current.user).perform
+    relation = filtered_tickets
 
-    # The Kanban board fetches all tickets of a single column at once (no
-    # pagination, keeps drag-and-drop simple); any other listing (e.g. the
-    # flat "Lista" view or cross-board queries) is paginated.
+    # A coluna do Kanban vem inteira; qualquer outra listagem e paginada.
     if params[:ticket_column_id].present?
-      @tickets = @tickets.order(:position)
-      @tickets_count = @tickets.count
-      @current_page = 1
+      load_kanban_column(relation)
     else
-      @tickets = @tickets.order(created_at: :desc)
-      @tickets_count = @tickets.count
-      @current_page = (params[:page] || 1).to_i
-      @tickets = @tickets.page(@current_page).per(params[:per_page] || DEFAULT_PER_PAGE)
+      load_paginated_list(relation)
     end
   end
 
