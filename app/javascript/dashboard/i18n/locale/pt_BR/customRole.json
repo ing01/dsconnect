@@ -39,7 +39,8 @@
       "CONTACT_MANAGE": "Gerenciar contatos",
       "REPORT_MANAGE": "Gerenciar relatórios",
       "KNOWLEDGE_BASE_MANAGE": "Gerenciar base de conhecimento",
-      "CLIENT_CREDENTIALS_MANAGE": "Ver e gerenciar credenciais de acesso sensíveis dos clientes (banco de dados, AnyDesk, RDP)"
+      "CLIENT_CREDENTIALS_MANAGE": "Ver e gerenciar credenciais de acesso sensíveis dos clientes (banco de dados, AnyDesk, RDP)",
+      "PROJECT_MANAGE": "Editar nome, cliente, equipe e datas de um projeto"
     },
     "FORM": {
       "NAME": {

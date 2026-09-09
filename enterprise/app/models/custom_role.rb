@@ -27,6 +27,7 @@
 # - 'client_billing_manage': Can view and manage the "Contrato e cobrança" (billing/contract) fields on companies.
 # - 'department_manage': Can create/edit/delete departments (Teams).
 # - 'queue_manage': Can create/edit/delete queues.
+# - 'project_manage': Can edit a project's name, client, team and dates after creation.
 
 class CustomRole < ApplicationRecord
   belongs_to :account
@@ -47,6 +48,7 @@ class CustomRole < ApplicationRecord
     client_billing_manage
     department_manage
     queue_manage
+    project_manage
   ].freeze
 
   validates :name, presence: true

@@ -72,12 +72,28 @@ class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
     @project = Current.account.projects.find(params[:id])
   end
 
+  # Livre para qualquer usuario que ja possa acessar o projeto (acompanhamento
+  # do dia a dia): estagio, implantador, observacoes, datas de suporte/contrato.
+  ALWAYS_ALLOWED_ATTRS = %i[
+    stage status implementer_id completion_type notes support_ends_on contract_signed_on
+  ].freeze
+
+  # So podem ser alterados DEPOIS de criado por quem administra o projeto -
+  # na criacao (`create`) continuam livres, e' so a EDICAO posterior desses
+  # campos que exige `project_manage`.
+  RESTRICTED_ATTRS = %i[name company_id contact_id team_id project_module_id start_date due_date].freeze
+
   def project_params
-    params.require(:project).permit(
-      :name, :company_id, :contact_id, :team_id, :project_module_id,
-      :stage, :status, :start_date, :due_date,
-      :implementer_id, :completion_type, :notes, :support_ends_on, :contract_signed_on,
-      custom_attributes: {}
-    )
+    params.require(:project).permit(*permitted_project_attrs, custom_attributes: {})
+  end
+
+  def permitted_project_attrs
+    return ALWAYS_ALLOWED_ATTRS + RESTRICTED_ATTRS if action_name == 'create' || can_manage_project?
+
+    ALWAYS_ALLOWED_ATTRS
+  end
+
+  def can_manage_project?
+    Current.account_user&.administrator? || Current.account_user&.permissions&.include?('project_manage')
   end
 end
