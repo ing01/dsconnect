@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import WhatsappTriageWizard from './WhatsappTriageWizard.vue';
 import {
   FLOW_STEP_TYPES,
   findStepType,
@@ -143,6 +144,11 @@ const setBranch = (index, key, value) => {
         </option>
       </select>
     </div>
+
+    <WhatsappTriageWizard
+      :has-existing-steps="steps.length > 0"
+      @apply="update"
+    />
 
     <p v-if="!steps.length" class="text-sm text-n-slate-10">
       {{ t('AUTOMATION.FLOW.EMPTY') }}

@@ -162,3 +162,147 @@ export const buildStep = (type, steps) => {
 
   return { id: nextStepId(steps), type, params, next: null, branches: {} };
 };
+
+// O modelo pronto de triagem de WhatsApp: em vez de montar cada etapa a mao,
+// o admin escolhe so o que e realmente uma decisao dele (Mesa, Estagio,
+// Categoria, Assistente) e este monta o resto - a mesma sequencia descrita
+// no guia de configuracao. Substitui totalmente as etapas atuais.
+export const buildWhatsappTriageTemplate = ({
+  teamId,
+  ticketColumnId,
+  ticketCategoryId,
+  assistantId,
+  level3to5TeamId,
+}) => [
+  {
+    id: 's1',
+    type: 'send_message',
+    params: {
+      content: 'Olá! Vou localizar seu cadastro e verificar seu atendimento.',
+    },
+    next: 's2',
+    branches: {},
+  },
+  {
+    id: 's2',
+    type: 'ask',
+    params: {
+      content:
+        'Você já possui um ticket aberto para esse atendimento? Responda sim ou não.',
+      save_as: 'resposta.tem_ticket',
+      answer_type: 'text',
+    },
+    next: 's3',
+    branches: {},
+  },
+  {
+    id: 's3',
+    type: 'condition',
+    params: {
+      variable: 'resposta.tem_ticket',
+      operator: 'contains',
+      value: 'sim',
+    },
+    next: null,
+    branches: { true: 's4', false: 's7' },
+  },
+  {
+    id: 's4',
+    type: 'ask',
+    params: {
+      content: 'Certo, me informe o número do ticket.',
+      save_as: 'resposta.numero_ticket',
+      answer_type: 'ticket_number',
+      retry_message: 'Não consegui reconhecer esse número. Pode enviar de novo?',
+    },
+    next: 's5',
+    branches: {},
+  },
+  {
+    id: 's5',
+    type: 'find_open_ticket_by_number',
+    params: { number_from: 'resposta.numero_ticket' },
+    next: 's6',
+    branches: { not_found: 's7', not_owned: 's7' },
+  },
+  {
+    id: 's6',
+    type: 'send_message',
+    params: {
+      content: 'Encontrei o seu ticket #{{ticket.numero}}! Vou continuar por aqui.',
+    },
+    next: null,
+    branches: {},
+  },
+  {
+    id: 's7',
+    type: 'list_companies',
+    params: { save_as: 'resposta.empresa_escolhida' },
+    next: 's8',
+    branches: {},
+  },
+  {
+    id: 's8',
+    type: 'check_company_blocked',
+    params: {},
+    next: 's10',
+    branches: { blocked: 's9' },
+  },
+  {
+    id: 's9',
+    type: 'handoff',
+    params: {
+      content:
+        'Não conseguimos continuar esse atendimento por aqui. Vou te transferir para um atendente.',
+      reason: 'empresa_bloqueada',
+    },
+    next: null,
+    branches: {},
+  },
+  {
+    id: 's10',
+    type: 'find_open_ticket_for_customer',
+    params: { team_id: teamId },
+    next: 's11',
+    branches: { found: 's12' },
+  },
+  {
+    id: 's11',
+    type: 'create_ticket',
+    params: {
+      title: '{{empresa.nome}} | {{contato.nome}}',
+      description: 'Atendimento aberto pelo fluxo automático de WhatsApp.',
+      team_id: teamId,
+      ticket_column_id: ticketColumnId,
+      ticket_category_id: ticketCategoryId,
+      priority: 'medium',
+    },
+    next: 's12',
+    branches: {},
+  },
+  {
+    id: 's12',
+    type: 'condition',
+    params: {
+      variable: 'empresa.nivel',
+      operator: 'greater_than_or_equal',
+      value: '3',
+    },
+    next: null,
+    branches: { true: 's14', false: 's13' },
+  },
+  {
+    id: 's13',
+    type: 'ai_resolve',
+    params: { assistant_id: assistantId, max_turns: 6 },
+    next: null,
+    branches: {},
+  },
+  {
+    id: 's14',
+    type: 'ai_triage',
+    params: { team_id: level3to5TeamId || '' },
+    next: null,
+    branches: {},
+  },
+];

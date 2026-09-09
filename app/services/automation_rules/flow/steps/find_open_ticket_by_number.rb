@@ -32,7 +32,10 @@ class AutomationRules::Flow::Steps::FindOpenTicketByNumber < AutomationRules::Fl
     true
   end
 
+  # O ponto inteiro desta etapa e vincular a conversa ao ticket - sem isso,
+  # so teria confirmado que ele existe, sem realizar o vinculo pedido.
   def remember(ticket)
+    ticket.ticket_conversations.find_or_create_by!(conversation_id: conversation.id)
     run.update!(ticket: ticket)
     run.write_variable('ticket.id', ticket.id)
     run.write_variable('ticket.numero', ticket.display_id)

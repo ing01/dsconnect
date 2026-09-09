@@ -249,6 +249,22 @@
       "MOVE_UP": "Move up",
       "MOVE_DOWN": "Move down",
       "REMOVE": "Remove step",
+      "WIZARD": {
+        "TITLE": "WhatsApp support triage template",
+        "DESCRIPTION": "Answer a few questions and this builds the full step-by-step flow for you: identify the ticket or company, check for blocks, create the ticket, and route it to AI or to a human based on the client's level.",
+        "OPEN": "Set up with the template",
+        "CLOSE": "Close",
+        "STEP_TEAM": "Which service desk should WhatsApp tickets be created in?",
+        "STEP_COLUMN": "Which stage should a new ticket start in?",
+        "STEP_CATEGORY": "Which category should it use?",
+        "STEP_ASSISTANT": "Which Captain assistant should try to resolve level 1-2 requests?",
+        "STEP_LEVEL_3TO5_TEAM": "Which service desk should level 3-5 conversations be routed to?",
+        "LEVEL_3TO5_TEAM_DEFAULT": "Use the account default (Settings > Tickets > WhatsApp Automation)",
+        "HINT": "This replaces the steps below with a ready-made flow. You can still open each step afterwards to tweak the messages or add more questions.",
+        "APPLY": "Build the flow",
+        "APPLIED": "Flow steps generated below - review the messages and save the automation.",
+        "CONFIRM_REPLACE": "This replaces the steps you already have configured below. Continue?"
+      },
       "STEP": {
         "SEND_MESSAGE": "Send message",
         "ASK": "Ask for information",

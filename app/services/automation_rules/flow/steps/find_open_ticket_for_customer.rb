@@ -27,6 +27,7 @@ class AutomationRules::Flow::Steps::FindOpenTicketForCustomer < AutomationRules:
   end
 
   def remember(ticket)
+    ticket.ticket_conversations.find_or_create_by!(conversation_id: conversation.id)
     run.update!(ticket: ticket)
     run.write_variable('ticket.id', ticket.id)
     run.write_variable('ticket.numero', ticket.display_id)

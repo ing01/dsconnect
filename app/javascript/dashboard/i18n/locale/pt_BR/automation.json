@@ -248,6 +248,22 @@
       "MOVE_UP": "Mover para cima",
       "MOVE_DOWN": "Mover para baixo",
       "REMOVE": "Remover etapa",
+      "WIZARD": {
+        "TITLE": "Modelo de triagem de atendimento WhatsApp",
+        "DESCRIPTION": "Responda algumas perguntas e isso monta o fluxo completo pra você: identificar ticket ou empresa, checar bloqueios, criar o ticket e rotear para a IA ou para um humano de acordo com o nível do cliente.",
+        "OPEN": "Configurar com o modelo",
+        "CLOSE": "Fechar",
+        "STEP_TEAM": "Em qual mesa de serviço os tickets do WhatsApp devem ser criados?",
+        "STEP_COLUMN": "Em qual estágio um ticket novo deve começar?",
+        "STEP_CATEGORY": "Qual categoria ele deve usar?",
+        "STEP_ASSISTANT": "Qual assistente do Captain deve tentar resolver os atendimentos de nível 1-2?",
+        "STEP_LEVEL_3TO5_TEAM": "Para qual mesa de serviço as conversas de nível 3-5 devem ser encaminhadas?",
+        "LEVEL_3TO5_TEAM_DEFAULT": "Usar o padrão da conta (Configurações > Tickets > Automação WhatsApp)",
+        "HINT": "Isso substitui as etapas abaixo por um fluxo já pronto. Depois você ainda pode abrir cada etapa para ajustar as mensagens ou acrescentar mais perguntas.",
+        "APPLY": "Montar o fluxo",
+        "APPLIED": "Etapas geradas abaixo - revise as mensagens e salve a automação.",
+        "CONFIRM_REPLACE": "Isso substitui as etapas que você já configurou abaixo. Continuar?"
+      },
       "STEP": {
         "SEND_MESSAGE": "Enviar mensagem",
         "ASK": "Solicitar informação",

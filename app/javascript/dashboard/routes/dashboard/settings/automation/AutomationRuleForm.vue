@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, h, useTemplateRef, watch } from 'vue';
+import { ref, computed, h, onBeforeMount, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { useAccount } from 'dashboard/composables/useAccount';
 import { useOperators } from 'dashboard/components-next/filter/operators';
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -83,6 +84,10 @@ const INPUT_TYPE_MAP = {
 const { t } = useI18n();
 const { isCloudFeatureEnabled } = useAccount();
 const { operators } = useOperators();
+const store = useStore();
+const getters = useStoreGetters();
+
+onBeforeMount(() => store.dispatch('captainAssistants/get'));
 
 const panelRef = ref(null);
 const instantTriggerRef = useTemplateRef('instantTriggerRef');
@@ -294,9 +299,9 @@ const flowTeams = computed(() =>
 // para quando o editor souber a Mesa de cada etapa.
 const flowColumns = computed(() => []);
 const flowCategories = computed(() => []);
-// Idem para os assistentes do Captain - a etapa `ai_resolve` aceita o id
-// digitado ate a tela ter de onde listar os assistentes configurados.
-const flowCaptainAssistants = computed(() => []);
+const flowCaptainAssistants = computed(
+  () => getters['captainAssistants/getRecords']?.value || []
+);
 
 const emitSaveAutomation = () => {
   syncCustomAttributeTypes();

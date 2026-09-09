@@ -19,6 +19,7 @@ class AutomationRules::Flow::DispatcherService
         account_id: conversation.account_id, automation_rule: rule,
         conversation: conversation, status: :running
       )
+      seed_known_contact(run, conversation)
       AutomationRules::Flow::RunnerService.new(run: run).perform
       true
     rescue ActiveRecord::RecordNotUnique
@@ -58,6 +59,20 @@ class AutomationRules::Flow::DispatcherService
 
     def live_run(rule:, conversation:)
       AutomationFlowRun.live.find_by(automation_rule_id: rule.id, conversation_id: conversation.id)
+    end
+
+    # O contato de quem esta escrevendo ja e conhecido antes do fluxo comecar
+    # (o WhatsApp resolve isso por telefone antes de a Conversation existir) -
+    # nao ha motivo para uma etapa `find_contact` (que busca por NOME dentro de
+    # uma Empresa) so para gravar o que ja se sabe. `find_contact` continua
+    # disponivel para o caso raro de um numero compartilhado por varias pessoas.
+    def seed_known_contact(run, conversation)
+      contact = conversation.contact
+      return if contact.blank?
+
+      run.write_variable('contato.id', contact.id)
+      run.write_variable('contato.nome', contact.name)
+      run.write_variable('contato.email', contact.email)
     end
   end
 end
