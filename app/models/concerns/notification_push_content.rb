@@ -89,11 +89,20 @@ module NotificationPushContent
   # mensagem inteira exporia conteudo a quem estiver olhando o aparelho.
   INTERNAL_CHAT_PREVIEW_LIMIT = 80
 
+  # Duas linhas: quem escreveu e o que escreveu. O titulo fica com "Chat
+  # interno", que e o que identifica a origem do aviso quando ele chega junto de
+  # notificacoes de conversa - so o nome da pessoa nao dizia de onde vinha.
   def internal_chat_preview
+    sender_name = primary_actor.user&.name.to_s
     content = primary_actor.content.to_s.strip
-    return I18n.t('notifications.notification_body.internal_chat_attachment') if content.blank?
 
-    content.truncate(INTERNAL_CHAT_PREVIEW_LIMIT)
+    if content.blank?
+      I18n.t('notifications.notification_body.internal_chat_attachment', sender_name: sender_name)
+    else
+      I18n.t('notifications.notification_body.internal_chat_message',
+             sender_name: sender_name,
+             content: content.truncate(INTERNAL_CHAT_PREVIEW_LIMIT))
+    end
   end
 
   # Identifica o ASSUNTO, nao a notificacao. Duas mensagens da mesma conversa

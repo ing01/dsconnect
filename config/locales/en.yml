@@ -378,9 +378,14 @@ en:
         review_notes: Review Notes
   notifications:
     notification_body:
-      internal_chat_attachment: 'Sent an attachment'
+      internal_chat_attachment: |-
+        %{sender_name}
+        Sent an attachment
+      internal_chat_message: |-
+        %{sender_name}
+        Sent: %{content}
     notification_title:
-      internal_chat_message: '%{sender_name}'
+      internal_chat_message: 'Internal chat'
       conversation_creation: '%{contact_name} started conversation (#%{display_id}) in %{inbox_name}'
       conversation_assignment: "%{contact_name}'s conversation (#%{display_id}) has been assigned to you"
       assigned_conversation_new_message: 'New message from %{contact_name} (#%{display_id})'

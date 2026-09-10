@@ -143,7 +143,7 @@ onBeforeUnmount(() => {
           </p>
           <p
             v-if="notification.body"
-            class="m-0 text-sm line-clamp-2 text-n-slate-11"
+            class="m-0 text-sm whitespace-pre-line line-clamp-3 text-n-slate-11"
           >
             {{ notification.body }}
           </p>
