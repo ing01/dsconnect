@@ -2,6 +2,8 @@ import axios from 'axios';
 import { actions } from '../../notifications/actions';
 import types from '../../../mutation-types';
 const commit = vi.fn();
+// `read`, `unread` e `delete` pedem o contador ao servidor em vez de calcula-lo.
+const dispatch = vi.fn();
 global.axios = axios;
 vi.mock('axios');
 
@@ -61,20 +63,17 @@ describe('#actions', () => {
   describe('#read', () => {
     it('sends correct actions if API is success', async () => {
       axios.post.mockResolvedValue({});
-      await actions.read(
-        { commit },
-        { id: 1, unreadCount: 2, primaryActorId: 1 }
-      );
+      await actions.read({ commit, dispatch }, { id: 1, primaryActorId: 1 });
       expect(commit.mock.calls).toEqual([
         [types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: true }],
-        [types.SET_NOTIFICATIONS_UNREAD_COUNT, 1],
         [types.READ_NOTIFICATION, { id: 1, read_at: expect.any(Date) }],
         [types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: false }],
       ]);
+      expect(dispatch).toHaveBeenCalledWith('unReadCount');
     });
     it('sends correct actions if API is error', async () => {
       axios.post.mockRejectedValue({ message: 'Incorrect header' });
-      await expect(actions.read({ commit })).rejects.toThrow(Error);
+      await expect(actions.read({ commit, dispatch })).rejects.toThrow(Error);
       await actions.read(
         { commit },
         { id: 1, unreadCount: 2, primaryActorId: 1 }
@@ -89,7 +88,7 @@ describe('#actions', () => {
   describe('#unread', () => {
     it('sends correct actions if API is success', async () => {
       axios.post.mockResolvedValue({});
-      await actions.unread({ commit }, { id: 1 });
+      await actions.unread({ commit, dispatch }, { id: 1 });
       expect(commit.mock.calls).toEqual([
         ['SET_NOTIFICATIONS_UI_FLAG', { isUpdating: true }],
         ['READ_NOTIFICATION', { id: 1, read_at: null }],
@@ -99,7 +98,7 @@ describe('#actions', () => {
     it('sends correct actions if API is error', async () => {
       axios.post.mockRejectedValue({ message: 'Incorrect header' });
       await expect(actions.unread({ commit })).rejects.toThrow(Error);
-      await actions.unread({ commit }, { id: 1 });
+      await actions.unread({ commit, dispatch }, { id: 1 });
       expect(commit.mock.calls).toEqual([
         [types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: true }],
         [types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: false }],
@@ -111,7 +110,7 @@ describe('#actions', () => {
     it('sends correct actions if API is success', async () => {
       axios.delete.mockResolvedValue({});
       await actions.delete(
-        { commit },
+        { commit, dispatch },
         {
           notification: { id: 1 },
           count: 2,
@@ -121,19 +120,19 @@ describe('#actions', () => {
 
       expect(commit.mock.calls).toEqual([
         [types.SET_NOTIFICATIONS_UI_FLAG, { isDeleting: true }],
-        [types.SET_NOTIFICATIONS_UNREAD_COUNT, 0],
         [
           types.DELETE_NOTIFICATION,
           { notification: { id: 1 }, count: 2, unreadCount: 1 },
         ],
         [types.SET_NOTIFICATIONS_UI_FLAG, { isDeleting: false }],
       ]);
+      expect(dispatch).toHaveBeenCalledWith('unReadCount');
     });
     it('sends correct actions if API is error', async () => {
       axios.delete.mockRejectedValue({ message: 'Incorrect header' });
-      await expect(actions.delete({ commit })).rejects.toThrow(Error);
+      await expect(actions.delete({ commit, dispatch })).rejects.toThrow(Error);
       await actions.delete(
-        { commit },
+        { commit, dispatch },
         {
           notification: { id: 1 },
           count: 2,
