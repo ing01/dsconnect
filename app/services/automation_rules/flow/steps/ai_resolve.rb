@@ -190,7 +190,15 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
       handoff_tool_called: @last_response&.dig('handoff_tool_called'),
       handoff_completed: runner.handoff_completed?,
       ai_response: @last_response&.dig('response'),
-      ai_reasoning: @last_response&.dig('reasoning')
+      ai_reasoning: @last_response&.dig('reasoning'),
+      # Quando `ai_response`/`ai_reasoning` saem em branco com reasoning
+      # generico ("Processed by agent"), e porque `process_agent_result`
+      # (enterprise/app/services/captain/assistant/agent_run_response.rb)
+      # recebeu um `model_output` que nao e' um Hash - o dado bruto por tras
+      # disso so aparecia no log do servidor (`Rails.logger.info "[Captain V2]
+      # Agent result: ..."`), inacessivel para quem nao tem SSH. Expor aqui
+      # evita depender do log do servidor para diagnosticar esse caso.
+      raw_agent_output: runner.last_run_result&.output.inspect&.truncate(500)
     }.compact
   end
 
