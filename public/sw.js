@@ -45,25 +45,40 @@ self.addEventListener('push', event => {
   );
 });
 
+// O servidor manda um CAMINHO, sem host, e quem sabe o host certo e o navegador:
+// resolvemos contra a origem deste service worker, que e sempre o endereco pelo
+// qual a pessoa entrou. Assim o clique nao depende do FRONTEND_URL do servidor,
+// que envelhece a cada troca de endereco. URL absoluta antiga continua valendo -
+// o segundo argumento do `URL` so entra em acao quando o primeiro e relativo.
+const absoluteUrl = url => new URL(url, self.location.origin).href;
+
 self.addEventListener('notificationclick', event => {
-  let notification = event.notification;
+  const notification = event.notification;
+  const url = absoluteUrl(notification.data.url);
+
+  notification.close();
 
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(windowClients => {
-      let matchingWindowClients = windowClients.filter(
-        client => client.url === notification.data.url
-      );
+    clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then(windowClients => {
+        // Compara so o caminho: a mesma tela pode estar aberta com outro hash ou
+        // com parametros de rastreio, e uma igualdade exata abriria uma segunda
+        // janela para a conversa que ja esta na frente da pessoa.
+        const target = new URL(url);
+        const match = windowClients.find(client => {
+          try {
+            return new URL(client.url).pathname === target.pathname;
+          } catch (error) {
+            return false;
+          }
+        });
 
-      if (matchingWindowClients.length) {
-        let firstWindow = matchingWindowClients[0];
-        if (firstWindow && 'focus' in firstWindow) {
-          firstWindow.focus();
-          return;
+        if (match && 'focus' in match) {
+          return match.focus();
         }
-      }
-      if (clients.openWindow) {
-        clients.openWindow(notification.data.url);
-      }
-    })
+
+        return clients.openWindow ? clients.openWindow(url) : undefined;
+      })
   );
 });

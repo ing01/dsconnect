@@ -34,7 +34,9 @@ class Notification::PushNotificationService
     {
       title: notification.push_message_title,
       tag: "#{notification.notification_type}_#{notification.primary_actor_id}_#{notification.id}",
-      url: push_url
+      # Caminho relativo: o service worker resolve contra a origem em uso,
+      # entao o clique sempre cai no endereco que a pessoa realmente abriu.
+      url: notification.push_target_path
     }
   end
 
@@ -44,6 +46,13 @@ class Notification::PushNotificationService
   # `undefined method 'display_id'` no envio.
   def push_url
     notification.push_target_url
+  end
+
+  # Identificacao de quem envia, exigida pelo VAPID como URL absoluta ou
+  # mailto. Nao e o destino do clique - por isso nao acompanha o caminho
+  # relativo - e um FRONTEND_URL vazio nao pode derrubar o envio.
+  def vapid_subject
+    notification.frontend_base_url.presence || 'https://www.chatwoot.com'
   end
 
   def can_send_browser_push?(subscription)
@@ -57,7 +66,7 @@ class Notification::PushNotificationService
       p256dh: subscription.subscription_attributes['p256dh'],
       auth: subscription.subscription_attributes['auth'],
       vapid: {
-        subject: push_url,
+        subject: vapid_subject,
         public_key: VapidService.public_key,
         private_key: VapidService.private_key
       },

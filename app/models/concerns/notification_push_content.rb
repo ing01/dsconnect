@@ -96,18 +96,29 @@ module NotificationPushContent
     content.truncate(INTERNAL_CHAT_PREVIEW_LIMIT)
   end
 
-  def push_target_url
+  # Para onde o clique leva, SEM host. O host certo e aquele que a pessoa ja
+  # esta usando, e quem sabe disso e o navegador: o service worker resolve este
+  # caminho contra a propria origem. Gravar o host aqui significaria depender do
+  # FRONTEND_URL, que envelhece a cada troca de endereco - e um tunel temporario
+  # troca de endereco a cada reinicio, levando a notificacao para um lugar morto.
+  def push_target_path
     case primary_actor_type
     when 'ChatMessage'
       # A tela do Chat Interno escolhe a sala por `?room=` (InternalChatPage).
       # Nao ha helper de rota para ela: o /app e servido pelo mesmo dashboard
       # e as rotas internas sao do lado do navegador.
-      "#{frontend_base_url}/app/accounts/#{account_id}/internal-chat?room=#{primary_actor.chat_channel_id}"
+      "/app/accounts/#{account_id}/internal-chat?room=#{primary_actor.chat_channel_id}"
     when 'Project'
-      "#{frontend_base_url}/app/accounts/#{account_id}/projects?project=#{primary_actor_id}"
+      "/app/accounts/#{account_id}/projects?project=#{primary_actor_id}"
     else
-      app_account_conversation_url(account_id: account_id, id: conversation.display_id)
+      app_account_conversation_path(account_id: account_id, id: conversation.display_id)
     end
+  end
+
+  # Versao absoluta, para quem precisa de host: e-mail, por exemplo, que nao tem
+  # navegador para resolver caminho relativo.
+  def push_target_url
+    "#{frontend_base_url}#{push_target_path}"
   end
 
   def frontend_base_url
