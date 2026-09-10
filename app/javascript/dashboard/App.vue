@@ -12,6 +12,7 @@ import vueActionCable from './helper/actionCable';
 import { useRouter } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
 import WootSnackbarBox from './components/SnackbarContainer.vue';
+import InAppNotifications from './components/InAppNotifications.vue';
 import { setColorTheme } from './helper/themeHelper';
 import { isOnOnboardingView } from 'v3/helpers/RouteHelper';
 import { useAccount } from 'dashboard/composables/useAccount';
@@ -33,6 +34,7 @@ export default {
     StatusBanner,
     PaymentPendingBanner,
     WootSnackbarBox,
+    InAppNotifications,
     PendingEmailVerificationBanner,
     LowBackupCodesBanner,
     MoodCheckInBanner,
@@ -156,6 +158,7 @@ export default {
       </transition>
     </router-view>
     <WootSnackbarBox />
+    <InAppNotifications />
     <NetworkNotification />
   </div>
   <LoadingState v-else />

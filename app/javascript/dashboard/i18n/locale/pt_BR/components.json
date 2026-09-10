@@ -74,5 +74,8 @@
     "ERROR": "Este link de vídeo não parece ser compatível",
     "ADD": "Incorporar",
     "CANCEL": "Cancelar"
+  },
+  "IN_APP_NOTIFICATION": {
+    "DISMISS": "Dispensar"
   }
 }

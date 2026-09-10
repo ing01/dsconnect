@@ -74,5 +74,8 @@
     "ERROR": "That doesn't look like a supported video link",
     "ADD": "Embed",
     "CANCEL": "Cancel"
+  },
+  "IN_APP_NOTIFICATION": {
+    "DISMISS": "Dismiss"
   }
 }
