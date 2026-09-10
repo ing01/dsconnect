@@ -126,6 +126,7 @@ pt_BR:
         empty_message: "a mensagem esta vazia"
         too_many_steps: "o fluxo executou etapas demais e foi interrompido"
         timeout: "o cliente nao respondeu no prazo"
+        unexpected: "Desculpe, tive um problema para continuar seu atendimento. Vou te transferir para um atendente."
   errors:
     agents:
       password_reset_not_allowed: este agente também pertence a outra conta, então a senha dele não pode ser redefinida por aqui
