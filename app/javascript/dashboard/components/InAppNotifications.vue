@@ -32,7 +32,7 @@ const dismiss = tag => {
 };
 
 const push = notification => {
-  const { title, tag, url, id } = notification;
+  const { title, body, tag, url, id } = notification;
 
   if (!title || !tag) {
     return;
@@ -43,6 +43,7 @@ const push = notification => {
   const item = {
     tag,
     title,
+    body,
     url,
     id,
     primaryActorType: notification.primary_actor_type,
@@ -139,9 +140,17 @@ onBeforeUnmount(() => {
         :key="notification.tag"
         class="flex flex-col w-full gap-3 px-4 py-3 border rounded-lg shadow-lg pointer-events-auto bg-n-solid-1 border-n-weak"
       >
-        <p class="m-0 text-sm font-medium text-n-slate-12">
-          {{ notification.title }}
-        </p>
+        <div class="flex flex-col gap-1">
+          <p class="m-0 text-sm font-medium text-n-slate-12">
+            {{ notification.title }}
+          </p>
+          <p
+            v-if="notification.body"
+            class="m-0 text-sm line-clamp-2 text-n-slate-11"
+          >
+            {{ notification.body }}
+          </p>
+        </div>
         <div class="flex items-center gap-2">
           <button
             class="px-3 py-1 text-sm font-medium rounded-md cursor-pointer text-n-slate-12 bg-n-alpha-2 hover:bg-n-alpha-3"

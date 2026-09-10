@@ -33,6 +33,10 @@ class Notification::PushNotificationService
   def push_message
     {
       title: notification.push_message_title,
+      # Sem o corpo, um aviso do Chat Interno mostra so o nome de quem
+      # escreveu. O card fica na tela ate a pessoa agir, entao ela precisa
+      # saber do que se trata sem precisar abrir.
+      body: notification.push_message_body,
       # O que o cliente precisa para marcar como lida sem consultar a API.
       id: notification.id,
       primary_actor_type: notification.primary_actor_type,

@@ -47,7 +47,10 @@ class AccountUser < ApplicationRecord
   def create_notification_setting
     setting = user.notification_settings.new(account_id: account.id)
     setting.selected_email_flags = [:email_conversation_assignment]
-    setting.selected_push_flags = [:push_conversation_assignment]
+    # Mensagem do Chat Interno e dirigida a pessoa, como a atribuicao de
+    # conversa: entra ligada por padrao. Sem isto, o tipo nasceria desligado
+    # para toda conta nova e ninguem saberia que existe.
+    setting.selected_push_flags = %i[push_conversation_assignment push_internal_chat_message]
     setting.save!
   end
 

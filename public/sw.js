@@ -36,6 +36,7 @@ self.addEventListener('push', event => {
       }
 
       return self.registration.showNotification(notification.title, {
+        body: notification.body,
         tag: notification.tag,
         data: {
           url: notification.url,
