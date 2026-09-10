@@ -198,7 +198,18 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
       # disso so aparecia no log do servidor (`Rails.logger.info "[Captain V2]
       # Agent result: ..."`), inacessivel para quem nao tem SSH. Expor aqui
       # evita depender do log do servidor para diagnosticar esse caso.
-      raw_agent_output: runner.last_run_result&.output.inspect&.truncate(500)
+      raw_agent_output: runner.last_run_result&.output.inspect&.truncate(500),
+      # A gem `Agents::Runner` (ai-agents) engole exceoes internamente durante
+      # o loop do agente - em vez de deixar subir (o que o `rescue` de
+      # `AgentRunnerService#generate_response` pegaria e vira `error_response`,
+      # com reasoning "Error occurred: ..."), ela devolve um `RunResult` normal
+      # com `output: nil` e o detalhe do erro dentro de `result.error`
+      # (`lib/agents/runner.rb#finalize_run`, gem `ai-agents`). Sem isso, um
+      # erro de verdade (chamada ao LLM falhando, tool quebrando, etc.) virava
+      # um "Processed by agent" generico e indistinguivel de "a IA so nao
+      # respondeu nada".
+      agent_run_error: runner.last_run_result&.error&.message,
+      agent_run_error_class: runner.last_run_result&.error&.class&.name
     }.compact
   end
 
