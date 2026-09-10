@@ -29,7 +29,17 @@ module NotificationPushContent
     i18n_key = notification_title_map[notification_type]
     return '' unless i18n_key
 
-    I18n.t(i18n_key, **title_interpolations)
+    in_account_locale { I18n.t(i18n_key, **title_interpolations) }
+  end
+
+  # O idioma vem da conta, sempre. `I18n.locale` e por thread e o Sidekiq
+  # reaproveita threads entre jobs: sem fixar aqui, o mesmo aviso saia ora em
+  # portugues ora em ingles, conforme o que o job anterior tivesse deixado.
+  def in_account_locale(&)
+    locale = account&.locale.presence
+    locale = nil unless locale && I18n.available_locales.include?(locale.to_sym)
+
+    I18n.with_locale(locale || I18n.default_locale, &)
   end
 
   # O que cada titulo precisa para ser montado. Separado do mapa de chaves
@@ -37,10 +47,10 @@ module NotificationPushContent
   def title_interpolations
     case notification_type
     when 'conversation_creation'
-      { display_id: conversation.display_id, inbox_name: primary_actor.inbox.name }
+      { display_id: conversation.display_id, inbox_name: primary_actor.inbox.name, contact_name: requester_name }
     when 'conversation_assignment', 'assigned_conversation_new_message',
          'participating_conversation_new_message', 'conversation_mention'
-      { display_id: conversation.display_id }
+      { display_id: conversation.display_id, contact_name: requester_name }
     when 'project_contract_end_overdue', 'project_support_end_overdue'
       { project_name: primary_actor.name }
     when 'internal_chat_message'
@@ -50,7 +60,17 @@ module NotificationPushContent
     end
   end
 
+  # Quem abriu a conversa. E o nome que o agente reconhece na notificacao:
+  # "conversa #32" nao diz nada, "Maria - conversa #32" diz.
+  def requester_name
+    conversation&.contact&.name.presence || I18n.t('notifications.unknown_contact')
+  end
+
   def push_message_body
+    in_account_locale { message_body_for_type }
+  end
+
+  def message_body_for_type
     case notification_type
     when 'conversation_creation', 'sla_missed_first_response'
       message_body(conversation.messages.first)

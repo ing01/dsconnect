@@ -24,14 +24,17 @@ RSpec.describe Notification do
   context 'when push_title is called' do
     it 'returns appropriate title suited for the notification type conversation_creation' do
       notification = create(:notification, notification_type: 'conversation_creation')
-      expect(notification.push_message_title).to eq "A conversation (##{notification.primary_actor.display_id}) \
-has been created in #{notification.primary_actor.inbox.name}"
+      contact_name = notification.conversation.contact.name
+      display_id = notification.primary_actor.display_id
+      inbox_name = notification.primary_actor.inbox.name
+      expect(notification.push_message_title).to eq "#{contact_name} started conversation (##{display_id}) in #{inbox_name}"
     end
 
     it 'returns appropriate title suited for the notification type conversation_assignment' do
       notification = create(:notification, notification_type: 'conversation_assignment')
-      expect(notification.push_message_title).to eq "A conversation (##{notification.primary_actor.display_id}) \
-has been assigned to you"
+      contact_name = notification.conversation.contact.name
+      display_id = notification.primary_actor.display_id
+      expect(notification.push_message_title).to eq "#{contact_name}'s conversation (##{display_id}) has been assigned to you"
     end
 
     it 'returns appropriate title suited for the notification type assigned_conversation_new_message' do
@@ -39,7 +42,8 @@ has been assigned to you"
       notification = create(:notification, notification_type: 'assigned_conversation_new_message', primary_actor: message.conversation,
                                            secondary_actor: message)
 
-      expect(notification.push_message_title).to eq "A new message is created in conversation (##{notification.primary_actor.display_id})"
+      contact_name = notification.conversation.contact.name
+      expect(notification.push_message_title).to eq "New message from #{contact_name} (##{notification.primary_actor.display_id})"
     end
 
     it 'returns appropriate title suited for the notification type assigned_conversation_new_message when attachment message' do
@@ -48,7 +52,8 @@ has been assigned to you"
       notification = create(:notification, notification_type: 'assigned_conversation_new_message', primary_actor: message.conversation,
                                            secondary_actor: message)
 
-      expect(notification.push_message_title).to eq "A new message is created in conversation (##{notification.primary_actor.display_id})"
+      contact_name = notification.conversation.contact.name
+      expect(notification.push_message_title).to eq "New message from #{contact_name} (##{notification.primary_actor.display_id})"
     end
 
     it 'returns appropriate title suited for the notification type participating_conversation_new_message' do
@@ -56,7 +61,8 @@ has been assigned to you"
       notification = create(:notification, notification_type: 'participating_conversation_new_message', primary_actor: message.conversation,
                                            secondary_actor: message)
 
-      expect(notification.push_message_title).to eq "A new message is created in conversation (##{notification.primary_actor.display_id})"
+      contact_name = notification.conversation.contact.name
+      expect(notification.push_message_title).to eq "New message from #{contact_name} (##{notification.primary_actor.display_id})"
     end
 
     it 'returns appropriate title suited for the notification type conversation_mention' do
@@ -64,7 +70,19 @@ has been assigned to you"
       notification = create(:notification, notification_type: 'conversation_mention', primary_actor: message.conversation,
                                            secondary_actor: message)
 
-      expect(notification.push_message_title).to eq "You have been mentioned in conversation (##{notification.primary_actor.display_id})"
+      contact_name = notification.conversation.contact.name
+      display_id = notification.primary_actor.display_id
+      expect(notification.push_message_title).to eq "You have been mentioned in #{contact_name}'s conversation (##{display_id})"
+    end
+
+    it 'renders the title in the account locale, whatever the thread locale happens to be' do
+      notification = create(:notification, notification_type: 'conversation_assignment')
+      notification.account.update!(locale: 'pt_BR')
+
+      titulo_en = I18n.with_locale(:en) { notification.reload.push_message_title }
+      titulo_pt = I18n.with_locale(:pt_BR) { notification.reload.push_message_title }
+
+      expect(titulo_en).to eq titulo_pt
     end
   end
 

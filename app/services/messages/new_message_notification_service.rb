@@ -3,6 +3,7 @@ class Messages::NewMessageNotificationService
 
   def perform
     return unless message.notifiable?
+    return if system_generated?
 
     notify_conversation_assignee
     notify_participating_users
@@ -11,6 +12,17 @@ class Messages::NewMessageNotificationService
   private
 
   delegate :conversation, :sender, :account, to: :message
+
+  # Respostas automaticas, campanhas e disparos do sistema saem sem remetente.
+  # Notificar o responsavel sobre o que o proprio sistema respondeu gerava um
+  # segundo push logo depois do aviso legitimo da mensagem do cliente - dois
+  # avisos para a mesma conversa, com segundos de diferenca.
+  #
+  # Mensagem de saida de um agente continua notificando: ali o remetente e um
+  # User, e o colega precisa saber que alguem respondeu.
+  def system_generated?
+    message.outgoing? && sender.blank?
+  end
 
   def notify_conversation_assignee
     return if conversation.assignee.blank?
