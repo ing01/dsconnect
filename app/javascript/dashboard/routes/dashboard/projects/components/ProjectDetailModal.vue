@@ -331,7 +331,7 @@ const currentStageColor = computed(() => {
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.IMPLEMENTER.LABEL') }}</span>
           <select
             :value="project.implementer_id"
-            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
+            class="h-9 px-2 rounded border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
             @change="onImplementerChange"
           >
             <option :value="null">{{ t('PROJECTS.FORM.IMPLEMENTER.NONE') }}</option>
