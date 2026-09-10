@@ -22,7 +22,16 @@ class AutomationRuleListener < BaseListener
 
     # Retomar uma triagem parada e independente de regra casar: a execucao ja
     # existe e so aguarda a resposta que acabou de chegar.
-    ::AutomationRules::Flow::DispatcherService.resume(message: message)
+    #
+    # Uma mensagem que retomou um fluxo NAO pode tambem comecar um fluxo novo
+    # do zero mais abaixo - mesmo que, ao processar essa resposta, o fluxo
+    # termine (resolvido ou encaminhado) NA MESMA passada, o que faz a
+    # verificacao "ja existe execucao viva" (mais abaixo, no `.start`) nao
+    # encontrar mais nada e comecar um fluxo NOVO por cima, para essa mesma
+    # mensagem - o cliente respondia "nao" para o ticket, a IA acionava o
+    # handoff nesse mesmo turno, e a triagem inteira recomecava do zero
+    # ("Ola, voce esta no canal...") como se fosse uma conversa nova.
+    return if ::AutomationRules::Flow::DispatcherService.resume(message: message)
 
     account = message.try(:account)
     changed_attributes = event.data[:changed_attributes]
