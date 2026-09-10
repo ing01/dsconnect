@@ -76,6 +76,7 @@
     "CANCEL": "Cancelar"
   },
   "IN_APP_NOTIFICATION": {
-    "DISMISS": "Dispensar"
+    "OPEN": "Abrir",
+    "MARK_AS_READ": "Marcar como lida"
   }
 }

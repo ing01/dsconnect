@@ -76,6 +76,7 @@
     "CANCEL": "Cancel"
   },
   "IN_APP_NOTIFICATION": {
-    "DISMISS": "Dismiss"
+    "OPEN": "Open",
+    "MARK_AS_READ": "Mark as read"
   }
 }
