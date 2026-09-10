@@ -198,7 +198,28 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
       # disso so aparecia no log do servidor (`Rails.logger.info "[Captain V2]
       # Agent result: ..."`), inacessivel para quem nao tem SSH. Expor aqui
       # evita depender do log do servidor para diagnosticar esse caso.
-      raw_agent_output: runner.last_run_result&.output.inspect&.truncate(500)
+      raw_agent_output: runner.last_run_result&.output.inspect&.truncate(500),
+      # A gem `Agents::Runner` (ai-agents) engole exceoes internamente durante
+      # o loop do agente - em vez de deixar subir (o que o `rescue` de
+      # `AgentRunnerService#generate_response` pegaria e vira `error_response`,
+      # com reasoning "Error occurred: ..."), ela devolve um `RunResult` normal
+      # com `output: nil` e o detalhe do erro dentro de `result.error`
+      # (`lib/agents/runner.rb#finalize_run`, gem `ai-agents`). Sem isso, um
+      # erro de verdade (chamada ao LLM falhando, tool quebrando, etc.) virava
+      # um "Processed by agent" generico e indistinguivel de "a IA so nao
+      # respondeu nada".
+      agent_run_error: runner.last_run_result&.error&.message,
+      agent_run_error_class: runner.last_run_result&.error&.class&.name,
+      # Lendo o codigo da gem (github.com/chatwoot/ai-agents, lib/agents/runner.rb):
+      # o UNICO jeito de "output" sair nil SEM nenhum "error" e' o caminho de
+      # sucesso normal (linha ~201, `output: response.content`) quando a
+      # resposta da LLM em si vem sem texto e sem chamar nenhuma tool - nao e'
+      # uma excecao sendo engolida, e' a IA "respondendo" vazio mesmo. Isso so
+      # acontece depois de um handoff interno pra outro agente (`current_agent`
+      # muda) ou quando o modelo simplesmente devolve conteudo vazio. Exibe os
+      # dois pra distinguir os casos sem precisar do log do servidor.
+      current_agent: runner.last_run_result&.context&.dig(:current_agent),
+      last_message: runner.last_run_result&.messages&.last&.inspect&.truncate(500)
     }.compact
   end
 
