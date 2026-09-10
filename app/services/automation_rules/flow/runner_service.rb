@@ -44,8 +44,10 @@ class AutomationRules::Flow::RunnerService
     I18n.with_locale(run.account.locale) { perform_locked }
   rescue StandardError => e
     # Um erro nao previsto nao pode deixar a conversa presa num bot mudo: fica
-    # registrado e o atendimento volta a ser humano.
-    finish(:failed, error: e.message)
+    # registrado (via `finish`, que ja avisa o cliente - ver `notify_customer_of_failure`
+    # abaixo) e o atendimento volta a ser humano. Fora do bloco acima porque o
+    # `with_locale` de cima ja terminou quando uma excecao cai aqui.
+    I18n.with_locale(run.account.locale) { finish(:failed, error: e.message) }
     ChatwootExceptionTracker.new(e, account: run.account).capture_exception
   end
 
@@ -137,6 +139,29 @@ class AutomationRules::Flow::RunnerService
 
   def finish(status, error: nil)
     run.update!(status: status, current_step_id: nil, waiting_until: nil, last_error: error)
+    notify_customer_of_failure if status == :failed
+  end
+
+  # Toda falha nao controlada (uma excecao qualquer, `fail_step` explicito,
+  # etapa desconhecida, fluxo circular) passa por aqui - e' a rede de
+  # seguranca final: o cliente sempre recebe um aviso e o atendimento volta a
+  # ser humano, nunca so um registro interno de que algo deu errado. Um
+  # `:handoff` controlado (a propria etapa ja decidiu o que dizer) nunca cai
+  # aqui, so `status == :failed`.
+  def notify_customer_of_failure
+    conversation = run.conversation
+    return if conversation.blank?
+
+    Messages::MessageBuilder.new(
+      nil, conversation,
+      { content: I18n.t('automations.flow.errors.unexpected'), private: false,
+        content_attributes: { automation_rule_id: run.automation_rule_id } }
+    ).perform
+    conversation.bot_handoff!(dispatch_event: false)
+  rescue StandardError
+    # Falhar ao AVISAR sobre a falha original nao pode subir de novo - o
+    # `run.update!` que chamou isto ja deixou o status correto gravado.
+    nil
   end
 
   def unsupported(step)

@@ -6,13 +6,25 @@ class AutomationRules::Flow::DispatcherService
   class << self
     # Chamado quando a regra casou pelo caminho normal das automacoes. Uma regra
     # sem etapas nao e um fluxo, e segue pelas acoes de sempre.
+    #
+    # O retorno decide se o listener (`AutomationRuleListener#execute_rule`)
+    # tambem roda as ACOES CLASSICAS da regra (`AutomationRules::ActionService`)
+    # - `true` significa "o fluxo ja e dono deste evento, nao rode as acoes
+    # classicas por cima"; so `false` cai nas acoes de sempre.
     def start(rule:, conversation:)
       return false if rule.flow_steps.blank?
       # Uma conversa nao entra duas vezes na mesma triagem: se ja ha execucao
-      # viva, a que existe e que manda.
-      return false if live_run(rule: rule, conversation: conversation).present?
+      # viva (rodando OU esperando resposta), a que existe e que manda - mas
+      # o evento continua sendo do fluxo (`true`), nunca das acoes classicas.
+      # Sem isso, toda mensagem trocada DURANTE o fluxo (responder o numero do
+      # ticket, o CNPJ, "sim"/"nao"...) tambem disparava a acao classica da
+      # regra por cima do proprio fluxo - a acao configurada e' o que fazia o
+      # bot "parar de responder" no meio da conversa.
+      return true if live_run(rule: rule, conversation: conversation).present?
       # Bloqueio nao e uma etapa configuravel - roda aqui, antes de existir
-      # execucao, para nenhum fluxo mal montado poder pular essa checagem.
+      # execucao, para nenhum fluxo mal montado poder pular essa checagem. Aqui
+      # SIM cai nas acoes classicas de proposito (design original): um contato
+      # bloqueado nao entra no fluxo, mas a regra pode ainda querer marcar algo.
       return false unless AutomationRules::Flow::BlockGateService.new(conversation: conversation).allowed?
 
       run = AutomationFlowRun.create!(
@@ -25,8 +37,9 @@ class AutomationRules::Flow::DispatcherService
     rescue ActiveRecord::RecordNotUnique
       # Dois eventos da mesma conversa podem chegar juntos e passar os dois pela
       # verificacao acima. Quem perde a corrida apenas desiste: o indice e a
-      # garantia de verdade, e a execucao que venceu ja esta conduzindo.
-      false
+      # garantia de verdade, e a execucao que venceu ja esta conduzindo - o
+      # evento continua sendo do fluxo, por isso `true` aqui tambem.
+      true
     end
 
     # Uma mensagem do cliente e o que destrava uma execucao parada. Mensagem de

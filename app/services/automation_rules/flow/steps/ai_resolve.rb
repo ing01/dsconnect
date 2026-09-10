@@ -27,7 +27,8 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     return finish_by_handoff if turns_used >= max_turns
 
     increment_turns!
-    response = runner.generate_response(message_history: message_history)
+    response = generate_response_safely
+    return finish_by_handoff if response.nil?
 
     return finish_by_resolution if conversation.resolved?
     return finish_by_handoff if runner.handoff_completed?
@@ -37,6 +38,21 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
   end
 
   private
+
+  # `Captain::Llm::UrgencyImpactClassifierService` (usada pela triagem de
+  # nivel 3-5) ja guarda contra falha do LLM sozinha, devolvendo um Hash de
+  # erro em vez de estourar. `AgentRunnerService#generate_response` (usada
+  # aqui, nivel 1-2) nao tem essa protecao - sem este rescue, qualquer erro do
+  # provedor (timeout, chave invalida, resposta malformada) subia ate o
+  # `rescue` generico do `RunnerService`, que marca a execucao como falha SEM
+  # avisar o cliente. A conversa ficava muda para sempre, exatamente o
+  # relatado com um cliente de nivel 1.
+  def generate_response_safely
+    runner.generate_response(message_history: message_history)
+  rescue StandardError => e
+    ChatwootExceptionTracker.new(e, account: account).capture_exception
+    nil
+  end
 
   def assistant
     @assistant ||= account.captain_assistants.find_by(id: params[:assistant_id])
