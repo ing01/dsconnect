@@ -28,6 +28,7 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
 
     increment_turns!
     response = generate_response_safely
+    @last_response = response
     return finish_by_handoff if response.nil?
 
     return finish_by_resolution if conversation.resolved?
@@ -166,7 +167,7 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     conversation.bot_handoff!(dispatch_event: false) unless handed_off_by_captain?
     pre_existing = run.ticket.present?
     ticket = build_and_link_ticket!
-    return handoff(result: { turns: turns_used, ticket_error: ticket[:error] }) if ticket.is_a?(Hash)
+    return handoff(result: handoff_diagnostics.merge(ticket_error: ticket[:error])) if ticket.is_a?(Hash)
 
     ticket.update!(priority: level_priority)
     # Sem isso a conversa ficava so "encaminhada" (bot solto), sem Mesa, Fila
@@ -175,7 +176,22 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     # do mesmo tratamento quando desiste.
     route_conversation_to_humans!(team_id: params[:team_id], priority: level_priority, queue_id: default_queue_id)
     post_ticket_reference!(ticket, pre_existing: pre_existing)
-    handoff(result: { turns: turns_used })
+    handoff(result: handoff_diagnostics)
+  end
+
+  # Sem isso o painel de diagnostico so mostrava "handed_off", nunca o motivo
+  # real - se a IA chamou a ferramenta de handoff, se completou, e o que ela
+  # de fato respondeu/raciocinou antes de desistir. `@last_response` fica em
+  # branco quando o motivo foi outro (assistente mal configurado, turnos
+  # esgotados) - por isso tudo aqui e opcional (`&.`).
+  def handoff_diagnostics
+    {
+      turns: turns_used,
+      handoff_tool_called: @last_response&.dig('handoff_tool_called'),
+      handoff_completed: runner.handoff_completed?,
+      ai_response: @last_response&.dig('response'),
+      ai_reasoning: @last_response&.dig('reasoning')
+    }.compact
   end
 
   # "Depois informar o numero do ticket criado" - uma segunda mensagem, so
