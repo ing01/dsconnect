@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import AutomationFlowRunsAPI from 'dashboard/api/automationFlowRuns';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
@@ -69,6 +69,20 @@ const formatTime = seconds => {
 };
 
 onMounted(load);
+
+// Sem isso, trocar de conversa enquanto a barra lateral permanece montada
+// (o `ContactPanel` nao remonta a cada conversa) deixava o painel mostrando
+// os runs da conversa ANTERIOR - o "aconteceu de novo, ficou igual" relatado
+// era, na verdade, o mesmo diagnostico antigo sendo reexibido, nao um teste
+// novo de verdade.
+watch(
+  () => props.conversationId,
+  () => {
+    expandedRunId.value = null;
+    expandedEventId.value = null;
+    load();
+  }
+);
 </script>
 
 <template>
