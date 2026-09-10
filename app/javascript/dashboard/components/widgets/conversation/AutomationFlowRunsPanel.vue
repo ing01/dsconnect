@@ -17,6 +17,7 @@ const { t } = useI18n();
 const isLoading = ref(true);
 const runs = ref([]);
 const expandedRunId = ref(null);
+const expandedEventId = ref(null);
 
 const hasRuns = computed(() => runs.value.length > 0);
 
@@ -49,6 +50,17 @@ const load = async () => {
 
 const toggleRun = id => {
   expandedRunId.value = expandedRunId.value === id ? null : id;
+};
+
+const toggleEvent = id => {
+  expandedEventId.value = expandedEventId.value === id ? null : id;
+};
+
+const hasResult = event => event.result && Object.keys(event.result).length > 0;
+
+const formatResultValue = value => {
+  if (value === null || value === undefined) return '';
+  return typeof value === 'object' ? JSON.stringify(value) : String(value);
 };
 
 const formatTime = seconds => {
@@ -102,18 +114,35 @@ onMounted(load);
           <div
             v-for="event in run.events"
             :key="event.id"
-            class="flex items-start gap-2 text-xs"
+            class="flex flex-col gap-1 text-xs"
           >
-            <WootLabel
-              :label="event.outcome"
-              :color="event.outcome === 'failed' ? 'ruby' : 'slate'"
-              compact
-            />
-            <div class="min-w-0">
-              <span class="font-mono text-n-slate-11">{{ event.step_id }}</span>
-              <span class="text-n-slate-10"> ({{ event.step_type }})</span>
-              <p v-if="event.error" class="break-words text-n-ruby-11">{{ event.error }}</p>
-            </div>
+            <button
+              type="button"
+              class="flex items-start w-full gap-2 text-left"
+              :class="{ 'cursor-default': !hasResult(event) && !event.error }"
+              @click="toggleEvent(event.id)"
+            >
+              <WootLabel
+                :label="event.outcome"
+                :color="event.outcome === 'failed' ? 'ruby' : 'slate'"
+                compact
+              />
+              <div class="min-w-0">
+                <span class="font-mono text-n-slate-11">{{ event.step_id }}</span>
+                <span class="text-n-slate-10"> ({{ event.step_type }})</span>
+                <p v-if="event.error" class="break-words text-n-ruby-11">{{ event.error }}</p>
+              </div>
+            </button>
+
+            <dl
+              v-if="expandedEventId === event.id && hasResult(event)"
+              class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 p-2 ml-1 rounded-lg bg-n-alpha-1"
+            >
+              <template v-for="(value, key) in event.result" :key="key">
+                <dt class="font-mono text-n-slate-10">{{ key }}</dt>
+                <dd class="break-words text-n-slate-12">{{ formatResultValue(value) }}</dd>
+              </template>
+            </dl>
           </div>
         </div>
       </div>
