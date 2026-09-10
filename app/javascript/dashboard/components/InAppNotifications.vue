@@ -86,9 +86,16 @@ const onServiceWorkerMessage = event => {
 };
 
 onMounted(() => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('message', onServiceWorkerMessage);
+  if (!('serviceWorker' in navigator)) {
+    return;
   }
+
+  navigator.serviceWorker.addEventListener('message', onServiceWorkerMessage);
+  // Sem isto nada chega: quem escuta por `addEventListener` (em vez de definir
+  // `onmessage`) recebe as mensagens do service worker apenas enfileiradas, e e
+  // o `startMessages` que abre a fila. Com `onmessage` a chamada e implicita -
+  // mas ali so cabe um ouvinte, e o app perderia a chance de ter outro.
+  navigator.serviceWorker.startMessages?.();
 });
 
 onBeforeUnmount(() => {

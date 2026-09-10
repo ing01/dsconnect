@@ -22,6 +22,10 @@ export const NOTIFICATION_TYPES = [
     value: 'participating_conversation_new_message',
   },
   {
+    label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.INTERNAL_CHAT_MESSAGE',
+    value: 'internal_chat_message',
+  },
+  {
     label:
       'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.SLA_MISSED_FIRST_RESPONSE',
     value: 'sla_missed_first_response',
