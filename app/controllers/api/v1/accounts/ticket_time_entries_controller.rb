@@ -34,6 +34,8 @@ class Api::V1::Accounts::TicketTimeEntriesController < Api::V1::Accounts::BaseCo
   end
 
   def time_entry_params
-    params.require(:ticket_time_entry).permit(:category, :hours, :worked_on, :note)
+    # `level` e opcional: quando nao vem, o model o deduz de quem esta apontando
+    # (TicketTimeEntry#inferred_level).
+    params.require(:ticket_time_entry).permit(:category, :hours, :worked_on, :note, :level)
   end
 end

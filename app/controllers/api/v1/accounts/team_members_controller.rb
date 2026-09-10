@@ -5,6 +5,10 @@ class Api::V1::Accounts::TeamMembersController < Api::V1::Accounts::BaseControll
 
   def index
     @team_members = @team.team_members.map(&:user)
+    # Em que niveis cada um pode atuar, por id. Fora do agente porque o nivel e
+    # da participacao na Mesa, e nao da pessoa: a mesma pessoa pode ser Nivel 1
+    # numa Mesa e Nivel 2 em outra.
+    @levels_by_user = @team.team_members.pluck(:user_id, :levels).to_h
   end
 
   def create
@@ -29,6 +33,22 @@ class Api::V1::Accounts::TeamMembersController < Api::V1::Accounts::BaseControll
     head :ok
   end
 
+  # Define em quais niveis cada membro pode atuar, no formato
+  # `{ levels: { "<user_id>": [1, 2] } }`.
+  #
+  # So mexe em quem foi enviado: um membro ausente do payload fica como estava,
+  # entao a tela pode salvar uma linha sem reenviar a Mesa inteira.
+  def update_levels
+    ActiveRecord::Base.transaction do
+      levels_param.each do |user_id, levels|
+        member = @team.team_members.find_by(user_id: user_id)
+        member&.update!(levels: sanitize_levels(levels))
+      end
+    end
+    @team_members = @team.members
+    render action: 'create'
+  end
+
   private
 
   def members_to_be_added_ids
@@ -41,6 +61,16 @@ class Api::V1::Accounts::TeamMembersController < Api::V1::Accounts::BaseControll
 
   def current_members_ids
     @current_members_ids ||= @team.members.pluck(:id)
+  end
+
+  def levels_param
+    params.require(:levels).permit!.to_h
+  end
+
+  # So os niveis que existem, sem repeticao: o valor vem do cliente e vai para
+  # uma coluna que a consulta de permissao le direto.
+  def sanitize_levels(levels)
+    Array(levels).map(&:to_i).uniq.select { |level| AssigneeLeveled.valid_level?(level) }
   end
 
   def fetch_team

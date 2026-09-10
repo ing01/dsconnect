@@ -58,6 +58,8 @@ Rails.application.routes.draw do
           resource :onboarding, only: [:update] do
             get :help_center_generation
           end
+          # Relatorio de apontamentos: horas por nivel e por pessoa. So leitura.
+          resources :ticket_time_reports, only: [:index]
           resources :agents, only: [:index, :create, :update, :destroy] do
             post :bulk_create, on: :collection
             # Atalho administrativo: a redefinicao normal depende do e-mail de
@@ -366,6 +368,10 @@ Rails.application.routes.draw do
               collection do
                 delete :destroy
                 patch :update
+                # Em quais niveis cada membro pode atuar. Fora do `update`
+                # porque aquele trabalha com listas de ids, e nivel e atributo
+                # de cada membro.
+                patch :update_levels
               end
             end
             resources :ticket_columns, only: [:index, :create, :update, :destroy] do

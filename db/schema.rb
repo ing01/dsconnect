@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_10_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_10_110000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1888,6 +1888,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_10_100000) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "levels", default: [], null: false, array: true
     t.index ["team_id", "user_id"], name: "index_team_members_on_team_id_and_user_id", unique: true
     t.index ["team_id"], name: "index_team_members_on_team_id"
     t.index ["user_id"], name: "index_team_members_on_user_id"
@@ -1906,6 +1907,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_10_100000) do
     t.string "timezone", default: "UTC", null: false
     t.boolean "active", default: true, null: false
     t.bigint "manager_id"
+    t.boolean "assignee_levels_enabled", default: false, null: false
     t.index ["account_id"], name: "index_teams_on_account_id"
     t.index ["manager_id"], name: "index_teams_on_manager_id"
     t.index ["name", "account_id"], name: "index_teams_on_name_and_account_id", unique: true
@@ -2127,7 +2129,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_10_100000) do
     t.text "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "level"
+    t.index ["account_id", "worked_on"], name: "index_ticket_time_entries_on_account_id_and_worked_on"
     t.index ["account_id"], name: "index_ticket_time_entries_on_account_id"
+    t.index ["ticket_id", "level"], name: "index_ticket_time_entries_on_ticket_id_and_level"
     t.index ["ticket_id"], name: "index_ticket_time_entries_on_ticket_id"
     t.index ["user_id"], name: "index_ticket_time_entries_on_user_id"
   end
@@ -2161,8 +2166,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_10_100000) do
     t.datetime "due_date"
     t.datetime "scheduled_at"
     t.string "next_project_stage"
+    t.bigint "assignee_2_id"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id"], name: "index_tickets_on_account_id"
+    t.index ["assignee_2_id"], name: "index_tickets_on_assignee_2_id"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
     t.index ["company_id"], name: "index_tickets_on_company_id"
     t.index ["contact_id"], name: "index_tickets_on_contact_id"
@@ -2352,6 +2359,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_10_100000) do
   add_foreign_key "tickets", "ticket_categories", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "merged_into_id", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "parent_id", on_delete: :nullify
+  add_foreign_key "tickets", "users", column: "assignee_2_id"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").

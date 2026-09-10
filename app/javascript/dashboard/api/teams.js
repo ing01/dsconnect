@@ -37,6 +37,14 @@ export class TeamsAPI extends CacheEnabledApiClient {
       user_ids: agentsList,
     });
   }
+
+  // Em quais niveis cada membro pode atuar: `{ <user_id>: [1, 2] }`. Só os
+  // membros enviados sao alterados.
+  updateMemberLevels({ teamId, levels }) {
+    return axios.patch(`${this.url}/${teamId}/team_members/update_levels`, {
+      levels,
+    });
+  }
 }
 
 export default new TeamsAPI();

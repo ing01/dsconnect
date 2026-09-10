@@ -76,7 +76,10 @@
       },
       "ASSIGNEE": {
         "LABEL": "Assignee",
-        "NONE": "Unassigned"
+        "NONE": "Unassigned",
+        "LEVEL_1": "Assignee 1",
+        "LEVEL_2": "Assignee 2",
+        "NO_LEVEL_MEMBERS": "No member is enabled for this level."
       },
       "TEAM": {
         "LABEL": "Mesa",
@@ -318,7 +321,8 @@
           "IMPLANTACAO": "Implantação",
           "DESENVOLVIMENTO": "Desenvolvimento",
           "DEV_GERAL": "Dev geral"
-        }
+        },
+        "LEVEL": "Level {level}"
       },
       "DEVELOPMENT": {
         "TITLE": "Development",

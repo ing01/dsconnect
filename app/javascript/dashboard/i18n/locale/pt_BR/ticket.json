@@ -76,7 +76,10 @@
       },
       "ASSIGNEE": {
         "LABEL": "Responsável",
-        "NONE": "Ninguém"
+        "NONE": "Ninguém",
+        "LEVEL_1": "Responsável 1",
+        "LEVEL_2": "Responsável 2",
+        "NO_LEVEL_MEMBERS": "Nenhum membro habilitado neste nível."
       },
       "TEAM": {
         "LABEL": "Mesa de Serviço",
@@ -318,7 +321,8 @@
           "IMPLANTACAO": "Implantação",
           "DESENVOLVIMENTO": "Desenvolvimento",
           "DEV_GERAL": "Dev geral"
-        }
+        },
+        "LEVEL": "Nível {level}"
       },
       "DEVELOPMENT": {
         "TITLE": "Desenvolvimento",

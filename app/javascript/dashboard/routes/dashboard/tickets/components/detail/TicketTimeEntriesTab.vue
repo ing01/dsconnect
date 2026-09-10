@@ -9,6 +9,9 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   ticketId: { type: [Number, String], required: true },
+  // Os responsaveis de cada nivel, para o resumo dizer de quem e cada tempo.
+  // Vazio quando a Mesa nao usa niveis, e ai o resumo nem aparece.
+  levelAssignees: { type: Object, default: () => ({}) },
 });
 
 const { t } = useI18n();
@@ -29,6 +32,20 @@ const entries = computed(
 const totalHours = computed(() =>
   entries.value.reduce((sum, entry) => sum + Number(entry.hours || 0), 0)
 );
+
+// Quanto cada nivel gastou neste ticket, que e a leitura pedida:
+// "Responsavel 1: Joao - 01:35 / Responsavel 2: Carlos - 03:20".
+const hoursByLevel = computed(() =>
+  Object.entries(props.levelAssignees).map(([level, name]) => ({
+    level: Number(level),
+    name,
+    hours: entries.value
+      .filter(entry => Number(entry.level) === Number(level))
+      .reduce((sum, entry) => sum + Number(entry.hours || 0), 0),
+  }))
+);
+
+const showLevelSummary = computed(() => hoursByLevel.value.length > 0);
 
 const categoryLabel = value => t(`TICKET.DETAIL.TIME_ENTRIES.CATEGORY.${value.toUpperCase()}`);
 
@@ -88,6 +105,27 @@ watch(() => props.ticketId, load);
       </span>
     </div>
 
+    <!-- O corte por nivel, antes da lista: e a resposta que se procura ao
+         abrir a aba, e a lista detalha o que ela resume. -->
+    <div
+      v-if="showLevelSummary"
+      class="grid grid-cols-1 gap-2 sm:grid-cols-2 min-w-0"
+    >
+      <div
+        v-for="row in hoursByLevel"
+        :key="row.level"
+        class="flex flex-col gap-0.5 px-3 py-2 rounded-lg bg-n-alpha-1 min-w-0"
+      >
+        <span class="text-xs text-n-slate-10">
+          {{ t('TICKET.DETAIL.TIME_ENTRIES.LEVEL', { level: row.level }) }}
+        </span>
+        <span class="text-sm font-medium truncate text-n-slate-12">
+          {{ row.name || t('TICKET.FORM.ASSIGNEE.NONE') }}
+        </span>
+        <span class="text-sm text-n-slate-11">{{ row.hours }}h</span>
+      </div>
+    </div>
+
     <p
       v-if="!entries.length"
       class="flex items-center gap-2 text-sm text-n-slate-10"
@@ -109,6 +147,10 @@ watch(() => props.ticketId, load);
           <span class="text-xs text-n-slate-10">
             {{ entry.worked_on }}
             <template v-if="entry.user_name"> · {{ entry.user_name }}</template>
+            <template v-if="entry.level">
+              ·
+              {{ t('TICKET.DETAIL.TIME_ENTRIES.LEVEL', { level: entry.level }) }}
+            </template>
           </span>
           <span v-if="entry.note" class="text-xs text-n-slate-11 truncate" :title="entry.note">
             {{ entry.note }}

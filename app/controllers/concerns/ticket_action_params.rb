@@ -17,7 +17,7 @@ module TicketActionParams
   end
 
   def transfer_params
-    params.require(:ticket).permit(:team_id, :ticket_column_id, :status, :priority, :assignee_id).to_h.symbolize_keys
+    params.require(:ticket).permit(:team_id, :ticket_column_id, :status, :priority, :assignee_id, :assignee_2_id).to_h.symbolize_keys
   end
 
   # Which parts of the parent to copy server-side. The form is authoritative for
@@ -35,7 +35,7 @@ module TicketActionParams
 
     params.require(:ticket).permit(
       :title, :description, :priority, :company_id, :contact_id,
-      :team_id, :ticket_column_id, :ticket_category_id, :assignee_id
+      :team_id, :ticket_column_id, :ticket_category_id, :assignee_id, :assignee_2_id
     ).to_h.symbolize_keys
   end
 
@@ -50,7 +50,7 @@ module TicketActionParams
   end
 
   def ticket_params
-    params.require(:ticket).permit(:title, :description, :priority, :assignee_id, :team_id,
+    params.require(:ticket).permit(:title, :description, :priority, :assignee_id, :assignee_2_id, :team_id,
                                    :ticket_column_id, :company_id, :contact_id, :ticket_category_id,
                                    :parent_id, :project_id, :due_date, :scheduled_at, :next_project_stage,
                                    follower_ids: [])

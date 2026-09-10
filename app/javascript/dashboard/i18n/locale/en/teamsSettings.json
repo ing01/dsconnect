@@ -125,7 +125,21 @@
       "ACTIVE": {
         "LABEL": "Active department"
       },
-      "SUBMIT_CREATE": "Create team"
+      "SUBMIT_CREATE": "Create team",
+      "ASSIGNEE_LEVELS": {
+        "LABEL": "Use assignee levels on tickets",
+        "HELP": "When enabled, tickets get Assignee 1 and Assignee 2, and time entries record which level they were logged at."
+      }
+    },
+    "LEVELS": {
+      "TITLE": "Assignee levels",
+      "DESC": "Choose which levels each member can act at. Anyone unchecked will not be offered for that level.",
+      "MEMBER": "Member",
+      "LEVEL": "Level {level}",
+      "SAVE": "Save levels",
+      "SAVED": "Levels saved.",
+      "ERROR": "Could not save the levels.",
+      "NO_MEMBERS": "Add members to this service desk to set their levels."
     }
   }
 }

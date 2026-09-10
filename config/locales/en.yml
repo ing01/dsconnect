@@ -95,6 +95,9 @@ en:
       regards: Kind regards,
       company_name: Duesoft Sistemas
   tickets:
+    assignee_levels:
+      not_enabled: cannot be set because this service desk does not use assignee levels
+      not_allowed: is not allowed to act at level %{level} on this service desk
     finalized:
       immutable: this ticket is closed and can no longer be changed; reopen it first
     close:
@@ -373,7 +376,10 @@ en:
         recorded_at: Recorded date
         review_notes: Review Notes
   notifications:
+    notification_body:
+      internal_chat_attachment: 'Sent an attachment'
     notification_title:
+      internal_chat_message: '%{sender_name}'
       conversation_creation: 'A conversation (#%{display_id}) has been created in %{inbox_name}'
       conversation_assignment: 'A conversation (#%{display_id}) has been assigned to you'
       assigned_conversation_new_message: 'A new message is created in conversation (#%{display_id})'

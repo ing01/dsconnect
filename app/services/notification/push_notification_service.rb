@@ -33,13 +33,17 @@ class Notification::PushNotificationService
   def push_message
     {
       title: notification.push_message_title,
-      tag: "#{notification.notification_type}_#{conversation.display_id}_#{notification.id}",
+      tag: "#{notification.notification_type}_#{notification.primary_actor_id}_#{notification.id}",
       url: push_url
     }
   end
 
+  # Para onde o clique leva. Sai do proprio ator, e nao da Conversation: o
+  # `PRIMARY_ACTORS` ja aceita Project - e agora tambem o Chat Interno -, e
+  # montar a URL de conversa para todos quebrava com
+  # `undefined method 'display_id'` no envio.
   def push_url
-    app_account_conversation_url(account_id: conversation.account_id, id: conversation.display_id)
+    notification.push_target_url
   end
 
   def can_send_browser_push?(subscription)

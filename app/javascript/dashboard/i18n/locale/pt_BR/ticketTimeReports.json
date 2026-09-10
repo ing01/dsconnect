@@ -1,0 +1,24 @@
+{
+  "TICKET_TIME_REPORTS": {
+    "TITLE": "Apontamentos de tickets",
+    "DESC": "Horas apontadas por nível de responsável e por pessoa.",
+    "LEVEL": "Nível {level}",
+    "NO_LEVEL": "Sem nível",
+    "NO_ENTRIES": "Nenhum apontamento no período.",
+    "TOTAL_HOURS": "Total de horas",
+    "TOTAL_ENTRIES": "Apontamentos",
+    "LOADING": "Carregando...",
+    "ERROR": "Não foi possível carregar o relatório.",
+    "FILTERS": {
+      "FROM": "De",
+      "TO": "Até",
+      "TEAM": "Mesa de Serviço",
+      "LEVEL": "Nível",
+      "USER": "Usuário",
+      "ALL": "Todos",
+      "APPLY": "Aplicar",
+      "CLEAR": "Limpar filtros"
+    },
+    "HOURS": "{hours}h"
+  }
+}

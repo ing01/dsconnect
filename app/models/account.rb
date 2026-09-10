@@ -113,6 +113,9 @@ class Account < ApplicationRecord
   has_many :ticket_columns, through: :teams
   has_many :telegram_channels, dependent: :destroy_async, class_name: '::Channel::Telegram'
   has_many :tickets, dependent: :destroy_async
+  # Os apontamentos ja pendem do ticket; a associacao pela conta e o que permite
+  # o relatorio somar horas sem passar por cada ticket.
+  has_many :ticket_time_entries, dependent: :destroy_async
   has_many :projects, dependent: :destroy_async
   has_many :project_modules, dependent: :destroy_async
   has_many :project_task_templates, dependent: :destroy_async

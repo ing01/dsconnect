@@ -10,6 +10,8 @@ json.ticket_column_id resource.ticket_column_id
 json.ticket_column_name resource.ticket_column.name
 json.assignee_id resource.assignee_id
 json.assignee_name resource.assignee&.name
+json.assignee_2_id resource.assignee_2_id
+json.assignee_2_name resource.assignee_2&.name
 json.team_id resource.team_id
 json.team_name resource.team.name
 # Solicitante still comes from a linked Conversation's Contact - there is no

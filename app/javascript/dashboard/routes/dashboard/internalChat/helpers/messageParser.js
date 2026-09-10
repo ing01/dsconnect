@@ -57,11 +57,16 @@ export const parseMessage = (body, users = []) => {
 
 /**
  * Horário curto para a linha da mensagem.
- * @param {number} timestamp em milissegundos
+ *
+ * O servidor manda `created_at.to_i`, que são SEGUNDOS - a convenção de todo o
+ * resto da API. `new Date()` espera milissegundos, entao sem a conversao a
+ * mensagem caia em 1970 e mostrava uma hora qualquer.
+ *
+ * @param {number} timestamp em segundos desde a época
  * @returns {string} algo como `10:32`
  */
 export const shortTime = timestamp =>
-  new Date(timestamp).toLocaleTimeString([], {
+  new Date(timestamp * 1000).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -77,5 +82,8 @@ export const continuesBlock = (message, previous) => {
   if (!previous || previous.userId !== message.userId) return false;
   if (message.replyTo) return false;
 
-  return message.createdAt - previous.createdAt < 5 * 60 * 1000;
+  // Em segundos, pelo mesmo motivo do `shortTime`. Com o valor em
+  // milissegundos, cinco minutos viravam três dias e meio, e praticamente toda
+  // sequência da mesma pessoa acabava agrupada num bloco só.
+  return message.createdAt - previous.createdAt < 5 * 60;
 };

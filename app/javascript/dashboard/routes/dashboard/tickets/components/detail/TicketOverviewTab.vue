@@ -12,6 +12,7 @@ defineProps({
   ticket: { type: Object, required: true },
   columns: { type: Array, default: () => [] },
   agents: { type: Array, default: () => [] },
+  usesAssigneeLevels: { type: Boolean, default: false },
   categories: { type: Array, default: () => [] },
   canUpdate: { type: Boolean, default: true },
   isSavingDescription: { type: Boolean, default: false },
@@ -70,6 +71,7 @@ defineEmits([
         :columns="columns"
         :categories="categories"
         :agents="agents"
+        :uses-assignee-levels="usesAssigneeLevels"
         :can-update="canUpdate"
         @update-property="$emit('updateProperty', $event)"
         @move-to-column="$emit('moveToColumn', $event)"

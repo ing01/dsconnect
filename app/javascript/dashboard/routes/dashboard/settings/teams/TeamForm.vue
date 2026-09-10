@@ -52,12 +52,14 @@ export default {
       icon_color: iconColor = '',
       active = true,
       manager_id: managerId = null,
+      assignee_levels_enabled: assigneeLevelsEnabled = false,
     } = formData;
 
     const state = reactive({
       description,
       title,
       allowAutoAssign,
+      assigneeLevelsEnabled,
       icon,
       iconColor,
       active,
@@ -103,6 +105,7 @@ export default {
         icon_color: this.state.iconColor,
         active: this.state.active,
         manager_id: this.state.managerId || null,
+        assignee_levels_enabled: this.state.assigneeLevelsEnabled,
       });
     },
   },
@@ -191,6 +194,22 @@ export default {
         <label for="team_active">
           {{ $t('TEAMS_SETTINGS.FORM.ACTIVE.LABEL') }}
         </label>
+      </div>
+      <!-- Desligado, a Mesa segue com um responsavel so, como sempre foi. -->
+      <div class="w-full flex flex-col gap-1">
+        <div class="flex items-center gap-2">
+          <input
+            v-model="state.assigneeLevelsEnabled"
+            type="checkbox"
+            :value="true"
+          />
+          <label for="assignee_levels">
+            {{ $t('TEAMS_SETTINGS.FORM.ASSIGNEE_LEVELS.LABEL') }}
+          </label>
+        </div>
+        <p class="text-sm text-n-slate-10">
+          {{ $t('TEAMS_SETTINGS.FORM.ASSIGNEE_LEVELS.HELP') }}
+        </p>
       </div>
       <div class="flex flex-row justify-end gap-2 py-2 px-0 w-full">
         <div class="w-full">

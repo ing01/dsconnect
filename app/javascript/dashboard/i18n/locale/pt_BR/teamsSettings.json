@@ -125,7 +125,21 @@
       "ACTIVE": {
         "LABEL": "Departamento ativo"
       },
-      "SUBMIT_CREATE": "Criar novo time"
+      "SUBMIT_CREATE": "Criar novo time",
+      "ASSIGNEE_LEVELS": {
+        "LABEL": "Utilizar níveis de responsáveis no ticket",
+        "HELP": "Quando ativado, o ticket passa a ter Responsável 1 e Responsável 2, e os apontamentos registram em qual nível foram feitos."
+      }
+    },
+    "LEVELS": {
+      "TITLE": "Níveis de responsável",
+      "DESC": "Marque em quais níveis cada membro pode atuar. Quem não estiver marcado não aparece para seleção naquele nível.",
+      "MEMBER": "Membro",
+      "LEVEL": "Nível {level}",
+      "SAVE": "Salvar níveis",
+      "SAVED": "Níveis salvos.",
+      "ERROR": "Não foi possível salvar os níveis.",
+      "NO_MEMBERS": "Adicione membros à Mesa para definir os níveis."
     }
   }
 }

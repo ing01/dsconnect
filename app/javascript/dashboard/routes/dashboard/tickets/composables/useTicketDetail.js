@@ -37,6 +37,14 @@ export function useTicketDetail(ticketId) {
       store.getters['ticketColumns/getCategories'](ticket.value?.team_id) || []
   );
 
+  // Se a Mesa deste ticket usa niveis de responsavel. Vem da Mesa, e nao do
+  // ticket: e configuracao dela, e muda para todos os tickets de uma vez.
+  const usesAssigneeLevels = computed(
+    () =>
+      store.getters['teams/getTeam'](ticket.value?.team_id)
+        ?.assignee_levels_enabled === true
+  );
+
   const mesaAgents = computed(
     () =>
       store.getters['teamMembers/getTeamMembers'](ticket.value?.team_id) || []
@@ -177,6 +185,7 @@ export function useTicketDetail(ticketId) {
     columns,
     categories,
     mesaAgents,
+    usesAssigneeLevels,
     updateProperty,
     moveToColumn,
     changeStatus,

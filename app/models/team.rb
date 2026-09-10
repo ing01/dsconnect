@@ -67,6 +67,16 @@ class Team < ApplicationRecord
   # Adds multiple members to the team
   # @param user_ids [Array<Integer>] Array of user IDs to add as members
   # @return [Array<User>] Array of newly added members
+  # Quem pode ser responsavel de um nivel nesta Mesa.
+  #
+  # Sem a configuracao ligada nao ha niveis: todo membro serve para o unico
+  # responsavel que existe hoje, e a tela nao muda.
+  def members_for_level(level)
+    return members unless assignee_levels_enabled?
+
+    members.where('team_members.levels @> ARRAY[?]::integer[]', level.to_i)
+  end
+
   def add_members(user_ids)
     team_members_to_create = user_ids.map { |user_id| { user_id: user_id } }
     created_members = team_members.create(team_members_to_create)

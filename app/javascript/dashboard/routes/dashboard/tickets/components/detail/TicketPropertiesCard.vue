@@ -14,6 +14,9 @@ const props = defineProps({
   // Categories of this ticket's own Mesa, the same rule the stages follow.
   categories: { type: Array, default: () => [] },
   agents: { type: Array, default: () => [] },
+  // Quando a Mesa usa niveis, o responsavel vira Responsavel 1 e aparece o
+  // Responsavel 2. Sem isso a tela fica exatamente como sempre foi.
+  usesAssigneeLevels: { type: Boolean, default: false },
   canUpdate: { type: Boolean, default: true },
 });
 const emit = defineEmits(['updateProperty', 'moveToColumn', 'changeStatus']);
@@ -67,16 +70,36 @@ const categoryOptions = computed(() =>
   }))
 );
 
-const agentOptions = computed(() =>
-  props.agents.map(agent => ({
-    value: agent.id,
-    label: agent.name,
-    thumbnail: { name: agent.name, src: agent.thumbnail },
-  }))
-);
+const toOption = agent => ({
+  value: agent.id,
+  label: agent.name,
+  thumbnail: { name: agent.name, src: agent.thumbnail },
+});
+
+// Sem niveis, todo membro da Mesa serve. Com niveis, so quem esta habilitado
+// naquele nivel - a mesma regra que o servidor valida, para a tela nao oferecer
+// uma escolha que a API vai recusar.
+const agentsForLevel = level =>
+  props.usesAssigneeLevels
+    ? props.agents.filter(agent => (agent.levels || []).includes(level))
+    : props.agents;
+
+const agentOptions = computed(() => agentsForLevel(1).map(toOption));
+const secondLevelOptions = computed(() => agentsForLevel(2).map(toOption));
 
 const selectedAgent = computed(() =>
   props.agents.find(agent => agent.id === props.ticket.assignee_id)
+);
+
+const selectedSecondAgent = computed(() =>
+  props.agents.find(agent => agent.id === props.ticket.assignee_2_id)
+);
+
+// O rotulo muda de "Responsavel" para "Responsavel 1" so onde ha niveis.
+const firstAssigneeLabel = computed(() =>
+  props.usesAssigneeLevels
+    ? t('TICKET.FORM.ASSIGNEE.LEVEL_1')
+    : t('TICKET.FORM.ASSIGNEE.LABEL')
 );
 
 const followers = computed(() => props.ticket.followers || []);
@@ -113,6 +136,9 @@ const onCategory = value =>
 
 const onAssignee = value =>
   emit('updateProperty', { assignee_id: value ? Number(value) : null });
+
+const onSecondAssignee = value =>
+  emit('updateProperty', { assignee_2_id: value ? Number(value) : null });
 
 // `datetime-local` reads/writes "yyyy-MM-ddTHH:mm" in the browser's own
 // timezone; the API stores/returns ISO 8601. An empty string clears the field
@@ -206,7 +232,7 @@ const onScheduledAt = value =>
     </TicketPropertyRow>
 
     <!-- Members of the Mesa, not every agent in the account. -->
-    <TicketPropertyRow :label="t('TICKET.FORM.ASSIGNEE.LABEL')">
+    <TicketPropertyRow :label="firstAssigneeLabel">
       <div class="flex items-center gap-2 min-w-0">
         <Avatar
           v-if="selectedAgent"
@@ -224,12 +250,44 @@ const onScheduledAt = value =>
           clearable
           :clear-label="t('TICKET.FORM.ASSIGNEE.NONE')"
           :placeholder="t('TICKET.FORM.ASSIGNEE.NONE')"
-          :aria-label="t('TICKET.FORM.ASSIGNEE.LABEL')"
+          :aria-label="firstAssigneeLabel"
           @update:model-value="onAssignee"
         />
       </div>
       <p v-if="!agents.length" class="text-xs text-n-slate-10">
         {{ t('TICKET.FILTERS.NO_MESA_MEMBERS') }}
+      </p>
+    </TicketPropertyRow>
+
+    <!-- O Nivel 2 so existe onde a Mesa usa niveis, e pode ficar vazio
+         enquanto o ticket nao for escalado. -->
+    <TicketPropertyRow
+      v-if="usesAssigneeLevels"
+      :label="t('TICKET.FORM.ASSIGNEE.LEVEL_2')"
+    >
+      <div class="flex items-center gap-2 min-w-0">
+        <Avatar
+          v-if="selectedSecondAgent"
+          :name="selectedSecondAgent.name"
+          :src="selectedSecondAgent.thumbnail"
+          :size="24"
+          rounded-full
+          hide-offline-status
+          class="flex-shrink-0"
+        />
+        <TicketSelect
+          :model-value="ticket.assignee_2_id || null"
+          :options="secondLevelOptions"
+          :disabled="!canUpdate"
+          clearable
+          :clear-label="t('TICKET.FORM.ASSIGNEE.NONE')"
+          :placeholder="t('TICKET.FORM.ASSIGNEE.NONE')"
+          :aria-label="t('TICKET.FORM.ASSIGNEE.LEVEL_2')"
+          @update:model-value="onSecondAssignee"
+        />
+      </div>
+      <p v-if="!secondLevelOptions.length" class="text-xs text-n-slate-10">
+        {{ t('TICKET.FORM.ASSIGNEE.NO_LEVEL_MEMBERS') }}
       </p>
     </TicketPropertyRow>
 

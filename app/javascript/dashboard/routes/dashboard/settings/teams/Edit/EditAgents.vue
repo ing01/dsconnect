@@ -7,12 +7,14 @@ import { useVuelidate } from '@vuelidate/core';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import PageHeader from '../../SettingsSubPageHeader.vue';
 import AgentSelector from '../AgentSelector.vue';
+import TeamMemberLevels from '../TeamMemberLevels.vue';
 
 export default {
   components: {
     Spinner,
     PageHeader,
     AgentSelector,
+    TeamMemberLevels,
   },
   validations: {
     selectedAgents: {
@@ -50,6 +52,10 @@ export default {
     },
     teamMembers() {
       return this.$store.getters['teamMembers/getTeamMembers'](this.teamId);
+    },
+    // A atribuicao de niveis so faz sentido onde a Mesa ligou a configuracao.
+    showLevels() {
+      return this.currentTeam?.assignee_levels_enabled && this.showAgentsList;
     },
     showAgentsList() {
       const { id } = this.currentTeam;
@@ -131,5 +137,14 @@ export default {
         </div>
       </div>
     </form>
+
+    <!-- Fora do formulario acima: grava sozinho, entao mexer nos niveis nao
+         interfere no passo de escolher os membros. -->
+    <TeamMemberLevels
+      v-if="showLevels"
+      class="mt-6"
+      :team-id="teamId"
+      :members="teamMembers"
+    />
   </div>
 </template>

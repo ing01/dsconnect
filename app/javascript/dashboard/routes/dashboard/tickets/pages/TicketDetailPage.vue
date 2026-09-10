@@ -42,6 +42,7 @@ const {
   columns,
   categories,
   mesaAgents,
+  usesAssigneeLevels,
   updateProperty,
   moveToColumn,
   changeStatus,
@@ -95,6 +96,17 @@ const goToTicket = created => {
     frontendURL(`accounts/${route.params.accountId}/tickets/${created.id}`)
   );
 };
+
+// Quem responde por cada nivel neste ticket. Vazio quando a Mesa nao usa
+// niveis, e ai a aba de apontamentos nao mostra o resumo por nivel.
+const levelAssignees = computed(() => {
+  if (!usesAssigneeLevels.value || !ticket.value) return {};
+
+  return {
+    1: ticket.value.assignee_name,
+    2: ticket.value.assignee_2_name,
+  };
+});
 
 const activeTab = ref('overview');
 const isSavingDescription = ref(false);
@@ -269,6 +281,7 @@ const submitContact = contactId =>
         :columns="columns"
         :categories="categories"
         :agents="mesaAgents"
+        :uses-assignee-levels="usesAssigneeLevels"
         :can-update="canUpdate"
         :is-saving-description="isSavingDescription"
         @save-description="saveDescription"
@@ -293,6 +306,7 @@ const submitContact = contactId =>
       <TicketTimeEntriesTab
         v-else-if="activeTab === 'time_entries'"
         :ticket-id="ticket.id"
+        :level-assignees="levelAssignees"
       />
       <TicketDevelopmentTab v-else-if="activeTab === 'development'" />
       <TicketHistoryTab v-else :ticket-id="ticket.id" />

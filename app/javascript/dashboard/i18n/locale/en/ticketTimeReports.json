@@ -1,0 +1,24 @@
+{
+  "TICKET_TIME_REPORTS": {
+    "TITLE": "Ticket time log",
+    "DESC": "Hours logged by assignee level and by person.",
+    "LEVEL": "Level {level}",
+    "NO_LEVEL": "No level",
+    "NO_ENTRIES": "No time logged in this period.",
+    "TOTAL_HOURS": "Total hours",
+    "TOTAL_ENTRIES": "Entries",
+    "LOADING": "Loading...",
+    "ERROR": "Could not load the report.",
+    "FILTERS": {
+      "FROM": "From",
+      "TO": "To",
+      "TEAM": "Service desk",
+      "LEVEL": "Level",
+      "USER": "User",
+      "ALL": "All",
+      "APPLY": "Apply",
+      "CLEAR": "Clear filters"
+    },
+    "HOURS": "{hours}h"
+  }
+}
