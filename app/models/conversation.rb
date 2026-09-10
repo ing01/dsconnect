@@ -139,6 +139,9 @@ class Conversation < ApplicationRecord
   has_many :attachments, through: :messages
   has_many :reporting_events, dependent: :destroy_async
   has_many :automation_rule_pending_executions, dependent: :delete_all
+  # Historico de execucoes da triagem por etapas (AutomationRules::Flow) sobre
+  # esta conversa - onde parou, o que decidiu, e o erro de cada tentativa.
+  has_many :automation_flow_runs, dependent: :delete_all
 
   before_save :apply_queue_defaults
   before_save :ensure_snooze_until_reset

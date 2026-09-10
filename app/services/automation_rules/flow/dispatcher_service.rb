@@ -21,6 +21,17 @@ class AutomationRules::Flow::DispatcherService
       # regra por cima do proprio fluxo - a acao configurada e' o que fazia o
       # bot "parar de responder" no meio da conversa.
       return true if live_run(rule: rule, conversation: conversation).present?
+      # Uma vez encaminhada para humano, a conversa e' dele ate ele resolver -
+      # o bot nao pode "tomar de volta" so porque o cliente mandou mais uma
+      # mensagem enquanto ainda esta em aberto. Sem isso, qualquer mensagem
+      # depois de um handoff reiniciava a triagem inteira do zero (identificar
+      # empresa, perguntar ticket de novo...) por cima do atendimento humano
+      # ja em andamento - exatamente o problema: nenhuma execucao ficava mais
+      # "viva" (o handoff e status terminal), entao a checagem acima nao via
+      # nada e comecava uma nova. So volta a comecar sozinho quando a propria
+      # conversa for marcada como resolvida (o atendimento anterior realmente
+      # terminou) - ai sim uma mensagem nova e um atendimento novo de verdade.
+      return true if handed_off_while_open?(rule: rule, conversation: conversation)
       # Bloqueio nao e uma etapa configuravel - roda aqui, antes de existir
       # execucao, para nenhum fluxo mal montado poder pular essa checagem. Aqui
       # SIM cai nas acoes classicas de proposito (design original): um contato
@@ -72,6 +83,12 @@ class AutomationRules::Flow::DispatcherService
 
     def live_run(rule:, conversation:)
       AutomationFlowRun.live.find_by(automation_rule_id: rule.id, conversation_id: conversation.id)
+    end
+
+    def handed_off_while_open?(rule:, conversation:)
+      return false if conversation.resolved?
+
+      AutomationFlowRun.handed_off.exists?(automation_rule_id: rule.id, conversation_id: conversation.id)
     end
 
     # O contato de quem esta escrevendo ja e conhecido antes do fluxo comecar

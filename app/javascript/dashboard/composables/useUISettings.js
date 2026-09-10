@@ -4,9 +4,8 @@ import { useStore, useStoreGetters } from 'dashboard/composables/store';
 export const DEFAULT_CONVERSATION_SIDEBAR_ITEMS_ORDER = Object.freeze([
   { name: 'conversation_actions' },
   { name: 'tickets' },
-  { name: 'macros' },
+  { name: 'automation_flow_runs' },
   { name: 'conversation_info' },
-  { name: 'contact_attributes' },
   { name: 'contact_notes' },
   { name: 'shared_files' },
   { name: 'previous_conversation' },

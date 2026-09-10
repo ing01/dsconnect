@@ -470,6 +470,7 @@
       "MACROS": "Macros",
       "LINEAR_ISSUES": "Linked Linear Issues",
       "TICKETS": "Tickets",
+      "AUTOMATION_FLOW_RUNS": "Automation (diagnostics)",
       "SHOPIFY_ORDERS": "Shopify Orders",
       "SHARED_FILES": "Attachments"
     },
@@ -504,6 +505,10 @@
         "UNFULFILLED": "Unfulfilled"
       }
     }
+  },
+  "AUTOMATION_FLOW_RUNS": {
+    "EMPTY": "No step-by-step automation has run on this conversation yet.",
+    "CURRENT_STEP": "Stopped at step"
   },
   "CONVERSATION_CUSTOM_ATTRIBUTES": {
     "ADD_BUTTON_TEXT": "Create attribute",
