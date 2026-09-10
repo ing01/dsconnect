@@ -251,7 +251,7 @@ export const buildWhatsappTriageTemplate = ({
       value: 'sim',
     },
     next: null,
-    branches: { true: 's7', false: 's13' },
+    branches: { true: 's7', false: 's21' },
   },
   {
     id: 's7',
@@ -281,7 +281,7 @@ export const buildWhatsappTriageTemplate = ({
     id: 's9',
     type: 'send_message',
     params: { content: 'Não consegui localizar o ticket informado.' },
-    next: 's13',
+    next: 's21',
     branches: {},
   },
   {
@@ -291,7 +291,7 @@ export const buildWhatsappTriageTemplate = ({
       content:
         'Esse ticket não pôde ser associado ao seu atendimento atual. Vou continuar normalmente.',
     },
-    next: 's13',
+    next: 's21',
     branches: {},
   },
   {
@@ -312,6 +312,28 @@ export const buildWhatsappTriageTemplate = ({
   // teste mesmo para clientes diferentes, o que nao e' o comportamento
   // desejado). O ticket em si so e criado quando o caminho de nivel 3-5
   // exigir (s14) ou quando a IA de nivel 1-2 concluir (s16, sozinha).
+  //
+  // Antes de chamar a IA (nivel 1-2, s16) ou a triagem (nivel 3-5, s15), o
+  // cliente ainda so respondeu perguntas de identificacao (empresa, ticket) -
+  // nunca disse o que precisa. Sem uma pergunta explicita aqui, a IA de
+  // resolucao recebia um historico sem nenhum problema declarado e, num
+  // teste real, respondeu vazio (sem texto, sem chamar handoff de verdade) -
+  // a rede de seguranca em `ai_resolve` acabava encaminhando so por nao ter
+  // nada para responder, nao porque decidiu que devia. Perguntar aqui garante
+  // que sempre existe uma descricao real do problema no historico antes da
+  // IA (de qualquer nivel) entrar em acao.
+  {
+    id: 's21',
+    type: 'ask',
+    params: {
+      content:
+        'Certo! Agora me conta: o que está acontecendo? Pode descrever o problema com o máximo de detalhes possível.',
+      save_as: 'resposta.problema',
+      answer_type: 'text',
+    },
+    next: 's13',
+    branches: {},
+  },
   {
     id: 's13',
     type: 'condition',
@@ -545,7 +567,7 @@ export const buildWidgetTriageTemplate = ({
       value: 'sim',
     },
     next: null,
-    branches: { true: 's14', false: 's18' },
+    branches: { true: 's14', false: 's22' },
   },
   {
     id: 's14',
@@ -571,7 +593,7 @@ export const buildWidgetTriageTemplate = ({
     id: 's16',
     type: 'send_message',
     params: { content: 'Não consegui localizar o ticket informado.' },
-    next: 's18',
+    next: 's22',
     branches: {},
   },
   {
@@ -583,6 +605,23 @@ export const buildWidgetTriageTemplate = ({
       reason: 'ticket_existente',
     },
     next: null,
+    branches: {},
+  },
+  // Antes de acionar a IA (nivel 1-2 ou 3-5), o cliente so respondeu
+  // perguntas de identificacao - nunca disse o que precisa. Sem perguntar
+  // aqui, a IA de resolucao recebia um historico sem nenhum problema
+  // declarado e podia responder vazio (sem texto, sem handoff de verdade) -
+  // ver o mesmo ajuste no modelo do WhatsApp.
+  {
+    id: 's22',
+    type: 'ask',
+    params: {
+      content:
+        'Certo! Agora me conta: o que está acontecendo? Pode descrever o problema com o máximo de detalhes possível.',
+      save_as: 'resposta.problema',
+      answer_type: 'text',
+    },
+    next: 's18',
     branches: {},
   },
   // Sem ticket (ou informado nao encontrado): segue por nivel. O ticket so
