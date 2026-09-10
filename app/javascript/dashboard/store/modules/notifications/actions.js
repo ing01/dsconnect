@@ -35,25 +35,32 @@ export const actions = {
       commit(types.SET_NOTIFICATIONS_UI_FLAG, { isUpdatingUnreadCount: false });
     }
   },
+  // O contador vem do servidor depois da operacao, em vez de ser calculado aqui.
+  // `read` chama o endpoint `read_all`, que marca TODAS as notificacoes daquele
+  // ator - uma conversa com tres avisos some com os tres. Descontar 1 deixava
+  // dois fantasmas no contador, que so sumiam recarregando a pagina.
   read: async (
-    { commit },
-    { id, primaryActorType, primaryActorId, unreadCount }
+    { commit, dispatch },
+    { id, primaryActorType, primaryActorId }
   ) => {
     commit(types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: true });
     try {
       await NotificationsAPI.read(primaryActorType, primaryActorId);
-      commit(types.SET_NOTIFICATIONS_UNREAD_COUNT, unreadCount - 1);
       commit(types.READ_NOTIFICATION, { id, read_at: new Date() });
+      await dispatch('unReadCount');
       commit(types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: false });
     } catch (error) {
       commit(types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: false });
     }
   },
-  unread: async ({ commit }, { id }) => {
+  // Marcar como NAO lida devolve a notificacao a contagem, e o contador nao
+  // sabia disso: ele ficava um numero abaixo ate a proxima recarga.
+  unread: async ({ commit, dispatch }, { id }) => {
     commit(types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: true });
     try {
       await NotificationsAPI.unRead(id);
       commit(types.READ_NOTIFICATION, { id, read_at: null });
+      await dispatch('unReadCount');
       commit(types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: false });
     } catch (error) {
       commit(types.SET_NOTIFICATIONS_UI_FLAG, { isUpdating: false });
@@ -72,12 +79,23 @@ export const actions = {
     }
   },
 
-  delete: async ({ commit }, { notification, count, unreadCount }) => {
+  // Mesma razao do `read`. Aqui havia um segundo engano: quem chama envia
+  // `unread_count`, e a acao desestruturava `unreadCount` - o desconto virava
+  // NaN, e a mutacao logo em seguida restaurava o valor ANTIGO a partir do
+  // `unread_count` do payload. Apagar nunca diminuia o contador.
+  //
+  // O payload segue inteiro para a mutacao, sem renomear nada, e o numero certo
+  // vem do servidor logo depois.
+  delete: async ({ commit, dispatch }, payload) => {
+    // Fora do `try` de proposito: chamada sem payload deve estourar para quem
+    // chamou, e nao ser engolida como se a exclusao tivesse falhado na rede.
+    const { notification } = payload;
+
     commit(types.SET_NOTIFICATIONS_UI_FLAG, { isDeleting: true });
     try {
       await NotificationsAPI.delete(notification.id);
-      commit(types.SET_NOTIFICATIONS_UNREAD_COUNT, unreadCount - 1);
-      commit(types.DELETE_NOTIFICATION, { notification, count, unreadCount });
+      commit(types.DELETE_NOTIFICATION, payload);
+      await dispatch('unReadCount');
       commit(types.SET_NOTIFICATIONS_UI_FLAG, { isDeleting: false });
     } catch (error) {
       commit(types.SET_NOTIFICATIONS_UI_FLAG, { isDeleting: false });

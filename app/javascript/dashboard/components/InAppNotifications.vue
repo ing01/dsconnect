@@ -17,13 +17,11 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useStore, useMapGetter } from 'dashboard/composables/store';
+import { useStore } from 'dashboard/composables/store';
 
 const router = useRouter();
 const store = useStore();
 const { t } = useI18n();
-
-const unreadCount = useMapGetter('notifications/getUnreadCount');
 
 const notifications = ref([]);
 
@@ -97,7 +95,6 @@ const markAsRead = async notification => {
     id: notification.id,
     primaryActorType: notification.primaryActorType,
     primaryActorId: notification.primaryActorId,
-    unreadCount: unreadCount.value,
   });
 };
 
@@ -146,7 +143,7 @@ onBeforeUnmount(() => {
           </p>
           <p
             v-if="notification.body"
-            class="m-0 text-sm line-clamp-2 text-n-slate-11"
+            class="m-0 text-sm whitespace-pre-line line-clamp-3 text-n-slate-11"
           >
             {{ notification.body }}
           </p>

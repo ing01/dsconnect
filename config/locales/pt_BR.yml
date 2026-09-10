@@ -371,9 +371,14 @@ pt_BR:
         review_notes: Notas de Avaliação
   notifications:
     notification_body:
-      internal_chat_attachment: 'Enviou um anexo'
+      internal_chat_attachment: |-
+        %{sender_name}
+        Enviou um anexo
+      internal_chat_message: |-
+        %{sender_name}
+        Enviou: %{content}
     notification_title:
-      internal_chat_message: '%{sender_name}'
+      internal_chat_message: 'Chat interno'
       conversation_creation: '%{contact_name} abriu a conversa (#%{display_id}) em %{inbox_name}'
       conversation_assignment: 'A conversa de %{contact_name} (#%{display_id}) foi atribuída a você'
       assigned_conversation_new_message: 'Nova mensagem de %{contact_name} (#%{display_id})'
