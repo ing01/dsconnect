@@ -31,13 +31,39 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     return finish_by_handoff if response.nil?
 
     return finish_by_resolution if conversation.resolved?
-    return finish_by_handoff if runner.handoff_completed?
+    return finish_by_handoff if handoff_signaled?(response)
 
-    post_ai_reply!(response)
+    # Rede de seguranca final: se por qualquer outro motivo nao reconhecido
+    # aqui a resposta nao tiver nenhum texto de verdade para o cliente,
+    # encaminha em vez de esperar por uma resposta que a IA nunca vai mandar.
+    return finish_by_handoff unless post_ai_reply!(response)
+
     wait(step['id'], result: { turn: turns_used })
   end
 
   private
+
+  # O agente sinaliza handoff de tres formas possiveis - a mesma checagem que
+  # o job nativo do Captain usa (`Captain::Conversation::ResponseBuilderJob#process_response`,
+  # `v2_handoff_tool_fired?` / `v2_handoff_tool_completed?` / `legacy_v1_handoff_token?`):
+  # a `HandoffTool` foi CHAMADA durante o turno (`handoff_tool_called` na
+  # resposta), o handoff foi COMPLETADO (`runner.handoff_completed?`), ou a
+  # resposta e' o token interno `"conversation_handoff"` (usado quando a IA
+  # decide encaminhar sem passar pela ferramenta, e tambem por
+  # `AgentRunResponse#error_response` quando `generate_response` capturou um
+  # erro internamente, sem levantar excecao nenhuma).
+  #
+  # So verificar `handoff_completed?` (como esta etapa fazia antes) deixava os
+  # outros dois casos passarem batido: a etapa tentava publicar a resposta do
+  # turno de handoff como se fosse uma reply normal - texto vazio ou so o
+  # token literal - e ficava esperando a proxima mensagem do cliente para
+  # sempre, porque a IA ja tinha decidido encerrar e nunca ia responder de
+  # novo. Foi exatamente o "responde 'nao' sobre o ticket e a IA para de
+  # responder" relatado, confirmado pelo painel de diagnostico (run parado em
+  # `ai_resolve`, status `waiting`, sem nenhum erro registrado).
+  def handoff_signaled?(response)
+    response['handoff_tool_called'] || runner.handoff_completed? || response['response'] == 'conversation_handoff'
+  end
 
   # `Captain::Llm::UrgencyImpactClassifierService` (usada pela triagem de
   # nivel 3-5) ja guarda contra falha do LLM sozinha, devolvendo um Hash de
@@ -86,11 +112,11 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
   # job nativo - sem isso, a IA "responde" internamente mas o cliente nunca
   # ve nada, e a conversa fica muda ate estourar o limite de turnos.
   def post_ai_reply!(response)
-    return if response.blank?
+    return false if response.blank?
 
     response_parts = Captain::Assistant::ResponseParts.from_response(response)
     content = response_parts.customer_message_content(citation_urls: assistant.trusted_citation_urls(runner.last_run_result))
-    return if content.blank?
+    return false if content.blank?
 
     conversation.messages.create!(
       message_type: :outgoing, account_id: account.id, inbox_id: conversation.inbox_id,
@@ -98,6 +124,7 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
       additional_attributes: { agent_name: response['agent_name'] }.compact
     )
     account.increment_response_usage
+    true
   end
 
   # O texto que a IA gerou no turno do handoff nao vai para o cliente - o
