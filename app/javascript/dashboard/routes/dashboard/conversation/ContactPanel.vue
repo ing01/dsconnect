@@ -16,15 +16,14 @@ import ConversationParticipant from './ConversationParticipant.vue';
 import ContactInfo from './contact/ContactInfo.vue';
 import ContactNotes from './contact/ContactNotes.vue';
 import ConversationInfo from './ConversationInfo.vue';
-import CustomAttributes from './customAttributes/CustomAttributes.vue';
 import SharedFiles from './SharedFiles.vue';
 import Draggable from 'vuedraggable';
-import MacrosList from './Macros/List.vue';
 import ShopifyOrdersList from 'dashboard/components/widgets/conversation/ShopifyOrdersList.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import LinearIssuesList from 'dashboard/components/widgets/conversation/linear/IssuesList.vue';
 import LinearSetupCTA from 'dashboard/components/widgets/conversation/linear/LinearSetupCTA.vue';
 import TicketsList from 'dashboard/components/widgets/conversation/tickets/TicketsList.vue';
+import AutomationFlowRunsPanel from 'dashboard/components/widgets/conversation/AutomationFlowRunsPanel.vue';
 
 const props = defineProps({
   conversationId: {
@@ -262,6 +261,19 @@ onMounted(() => {
               @toggle="value => toggleSidebarUIState('is_tickets_open', value)"
             >
               <TicketsList :conversation-id="conversationId" :anchored="false" />
+            </AccordionItem>
+          </div>
+          <div v-else-if="element.name === 'automation_flow_runs'">
+            <AccordionItem
+              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.AUTOMATION_FLOW_RUNS')"
+              :is-open="isContactSidebarItemOpen('is_automation_flow_runs_open')"
+              compact
+              @toggle="
+                value =>
+                  toggleSidebarUIState('is_automation_flow_runs_open', value)
+              "
+            >
+              <AutomationFlowRunsPanel :conversation-id="conversationId" />
             </AccordionItem>
           </div>
           <div v-else-if="element.name === 'contact_notes'">

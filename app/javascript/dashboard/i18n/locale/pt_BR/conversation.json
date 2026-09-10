@@ -432,6 +432,7 @@
       "MACROS": "Macros",
       "LINEAR_ISSUES": "Problemas do Linear vinculados",
       "TICKETS": "Tickets",
+      "AUTOMATION_FLOW_RUNS": "Automação (diagnóstico)",
       "SHOPIFY_ORDERS": "Pedidos do Shopify",
       "SHARED_FILES": "Anexos"
     },
@@ -466,6 +467,10 @@
         "UNFULFILLED": "Não concluído"
       }
     }
+  },
+  "AUTOMATION_FLOW_RUNS": {
+    "EMPTY": "Nenhuma automação por etapas rodou nesta conversa ainda.",
+    "CURRENT_STEP": "Parado na etapa"
   },
   "CONVERSATION_CUSTOM_ATTRIBUTES": {
     "ADD_BUTTON_TEXT": "Criar atributo",
