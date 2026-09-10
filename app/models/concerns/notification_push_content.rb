@@ -96,6 +96,25 @@ module NotificationPushContent
     content.truncate(INTERNAL_CHAT_PREVIEW_LIMIT)
   end
 
+  # Identifica o ASSUNTO, nao a notificacao. Duas mensagens da mesma conversa
+  # compartilham a etiqueta, entao a segunda SUBSTITUI o aviso da primeira em vez
+  # de empilhar outro card - o que importa quando o aviso fica na tela ate a
+  # pessoa clicar. A etiqueta antiga trazia o id da notificacao, que e unico por
+  # definicao: nada nunca se agrupava.
+  #
+  # No Chat Interno o ator e a mensagem, entao o agrupamento tem de vir da sala;
+  # nas conversas o proprio ator ja e a conversa.
+  def push_group_tag
+    case primary_actor_type
+    when 'ChatMessage'
+      "internal_chat_#{primary_actor.chat_channel_id}"
+    when 'Project'
+      "project_#{primary_actor_id}"
+    else
+      "conversation_#{primary_actor_id}"
+    end
+  end
+
   # Para onde o clique leva, SEM host. O host certo e aquele que a pessoa ja
   # esta usando, e quem sabe disso e o navegador: o service worker resolve este
   # caminho contra a propria origem. Gravar o host aqui significaria depender do

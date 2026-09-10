@@ -33,7 +33,11 @@ class Notification::PushNotificationService
   def push_message
     {
       title: notification.push_message_title,
-      tag: "#{notification.notification_type}_#{notification.primary_actor_id}_#{notification.id}",
+      # O que o cliente precisa para marcar como lida sem consultar a API.
+      id: notification.id,
+      primary_actor_type: notification.primary_actor_type,
+      primary_actor_id: notification.primary_actor_id,
+      tag: notification.push_group_tag,
       # Caminho relativo: o service worker resolve contra a origem em uso,
       # entao o clique sempre cai no endereco que a pessoa realmente abriu.
       url: notification.push_target_path
