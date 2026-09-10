@@ -1,4 +1,7 @@
 export const NOTIFICATION_TYPES_MAPPING = {
+  // Sem esta entrada o aviso do Chat Interno aparecia na lista sem icone e
+  // sem rotulo - o card cai num par vazio quando o tipo nao esta no mapa.
+  INTERNAL_CHAT_MESSAGE: ['i-lucide-messages-square', 'text-n-teal-11'],
   CONVERSATION_MENTION: ['i-lucide-at-sign', 'text-n-blue-11'],
   CONVERSATION_ASSIGNMENT: ['i-lucide-chevrons-right', 'text-n-blue-11'],
   CONVERSATION_CREATION: ['i-lucide-mail-plus', 'text-n-blue-11'],
