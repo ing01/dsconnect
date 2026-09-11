@@ -44,12 +44,30 @@ const getMessageClasses = {
 
 const primaryActor = computed(() => props.inboxItem?.primaryActor);
 const meta = computed(() => primaryActor.value?.meta);
-const assigneeMeta = computed(() => meta.value?.sender);
+// De quem e o rosto no card. Em notificacao de conversa vem do `meta.sender`
+// do ator - o contato. O Chat Interno nao tem `meta`: o ator e uma ChatMessage,
+// cujo push_event_data traz apenas id, userId, body, createdAt, attachments,
+// reactions e replyTo. Ali o remetente esta no `secondaryActor`, ja com nome e
+// foto, entao ele serve de origem em vez de virar um card sem rosto.
+//
+// Sem este desvio, `assigneeMeta` vinha `undefined` e o `assigneeMeta.name` do
+// template estourava durante a renderizacao, derrubando a lista inteira.
+const assigneeMeta = computed(
+  () => meta.value?.sender ?? props.inboxItem?.secondaryActor
+);
 const isUnread = computed(() => !props.inboxItem?.readAt);
 const inbox = computed(() => props.stateInbox);
 
 const inboxIcon = computed(() => {
-  const { channelType, medium, voiceEnabled } = inbox.value;
+  // Nem toda notificacao nasce de uma conversa: a do Chat Interno tem uma
+  // ChatMessage como ator, que nao pertence a caixa de entrada nenhuma. Aqui
+  // `inbox` vinha `undefined` e a desestruturacao estourava DURANTE a
+  // renderizacao - derrubando a lista inteira, nao so a linha do Chat Interno.
+  // Era por isso que a Caixa de Entrada aparecia em branco, sem nem o estado
+  // vazio, enquanto o contador mostrava 1.
+  const { channelType, medium, voiceEnabled } = inbox.value ?? {};
+  if (!channelType) return '';
+
   return getInboxIconByType(channelType, medium, 'fill', voiceEnabled);
 });
 
@@ -160,8 +178,8 @@ onBeforeMount(contextMenuActions.close);
   >
     <div class="flex items-start gap-2">
       <Avatar
-        :name="assigneeMeta.name"
-        :src="assigneeMeta.thumbnail"
+        :name="assigneeMeta?.name"
+        :src="assigneeMeta?.thumbnail"
         :size="20"
         rounded-full
         class="mt-1"
