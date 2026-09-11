@@ -33,6 +33,18 @@ const emit = defineEmits([
 ]);
 
 const lastMessageInChat = computed(() => getLastMessage(props.chat));
+
+// Ver comentario equivalente em `components/widgets/conversation/ConversationCard.vue`.
+const currentContactCompanyName = computed(
+  () => props.currentContact?.companies?.[0]?.name
+);
+
+const contactDisplayName = computed(() => {
+  const name = props.currentContact.name;
+  return currentContactCompanyName.value
+    ? `${name} | ${currentContactCompanyName.value}`
+    : name;
+});
 const showLabelsSection = computed(() => props.chat.labels?.length > 0);
 
 const voiceCallData = computed(() => {
@@ -90,7 +102,7 @@ const selectedModel = computed({
 
       <div class="w-px h-3 bg-n-slate-6 flex-shrink-0" />
 
-      <div class="w-4 flex items-center justify-center flex-shrink-0">
+      <div class="flex items-center justify-center flex-shrink-0">
         <CardPriorityIcon :priority="chat.priority" show-empty />
       </div>
 
@@ -153,9 +165,10 @@ const selectedModel = computed({
       />
 
       <h4
-        class="text-heading-3 my-0 capitalize truncate text-n-slate-12 font-medium w-32 flex-shrink-0"
+        v-tooltip.top="contactDisplayName"
+        class="text-heading-3 my-0 capitalize truncate text-n-slate-12 font-medium w-48 flex-shrink-0"
       >
-        {{ currentContact.name }}
+        {{ contactDisplayName }}
       </h4>
 
       <CardContent
