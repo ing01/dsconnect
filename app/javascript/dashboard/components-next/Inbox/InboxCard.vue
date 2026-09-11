@@ -49,7 +49,15 @@ const isUnread = computed(() => !props.inboxItem?.readAt);
 const inbox = computed(() => props.stateInbox);
 
 const inboxIcon = computed(() => {
-  const { channelType, medium, voiceEnabled } = inbox.value;
+  // Nem toda notificacao nasce de uma conversa: a do Chat Interno tem uma
+  // ChatMessage como ator, que nao pertence a caixa de entrada nenhuma. Aqui
+  // `inbox` vinha `undefined` e a desestruturacao estourava DURANTE a
+  // renderizacao - derrubando a lista inteira, nao so a linha do Chat Interno.
+  // Era por isso que a Caixa de Entrada aparecia em branco, sem nem o estado
+  // vazio, enquanto o contador mostrava 1.
+  const { channelType, medium, voiceEnabled } = inbox.value ?? {};
+  if (!channelType) return '';
+
   return getInboxIconByType(channelType, medium, 'fill', voiceEnabled);
 });
 
