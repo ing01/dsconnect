@@ -1087,7 +1087,9 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
 .ProseMirror-woot-style:not(
     :where(.resizable-editor-wrapper .resizable-editor-body)
   ) {
-  @apply min-h-[5rem] max-h-[7.5rem];
+  /* Altura fixa (nao min/max) - a caixa de mensagem nao deve crescer/encolher
+     conforme o texto, so rolar internamente (`overflow-auto` acima). */
+  @apply h-16;
 }
 
 .ProseMirror-prompt-backdrop::backdrop {
