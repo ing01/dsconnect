@@ -39,6 +39,10 @@ class ChatMessage < ApplicationRecord
     {
       id: id,
       userId: user_id,
+      # A sala a que a mensagem pertence. Quem recebe isto fora do Chat
+      # Interno - a lista de Notificacoes, por exemplo - precisa dela para
+      # saber para onde levar no clique; sem o id, so a mensagem nao diz.
+      chatChannelId: chat_channel_id,
       body: content,
       createdAt: created_at.to_i,
       replyTo: reply_to_id,

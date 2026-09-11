@@ -165,16 +165,47 @@ const setSavedFilter = () => {
   store.dispatch('notifications/setNotificationFilters', inboxFilters.value);
 };
 
-const openConversation = async notificationItem => {
-  const {
-    id,
-    primaryActorId,
-    primaryActorType,
-    primaryActor: { inboxId, id: conversationId },
-    notificationType,
-  } = notificationItem;
+// Para onde o clique leva, por tipo de notificacao. Nem todo aviso vem de uma
+// conversa: o do Chat Interno tem uma ChatMessage como ator, sem inbox e sem
+// conversa, e a rota de conversa ficava com `inboxId` indefinido - o clique nao
+// ia a lugar nenhum, sem erro visivel.
+const destinationFor = notificationItem => {
+  const { primaryActorType, primaryActor } = notificationItem;
 
-  if (route.params.id === String(conversationId)) return;
+  if (primaryActorType === 'ChatMessage') {
+    const room = primaryActor?.chatChannelId;
+    if (!room) return null;
+
+    // A tela do Chat Interno escolhe a sala pela query `room`.
+    return {
+      name: 'internal_chat',
+      params: { accountId: route.params.accountId },
+      query: { room },
+    };
+  }
+
+  const { inboxId, id: conversationId } = primaryActor ?? {};
+  if (!conversationId) return null;
+
+  return {
+    name: 'inbox_view_conversation',
+    params: { inboxId, type: 'conversation', id: conversationId },
+  };
+};
+
+const openConversation = async notificationItem => {
+  const { id, primaryActorId, primaryActorType, primaryActor, notificationType } =
+    notificationItem;
+
+  // So vale para conversa: ali o `route.params.id` e o id da conversa aberta.
+  if (
+    primaryActorType !== 'ChatMessage' &&
+    route.params.id === String(primaryActor?.id)
+  ) {
+    return;
+  }
+
+  const destination = destinationFor(notificationItem);
 
   useTrack(INBOX_EVENTS.OPEN_CONVERSATION_VIA_INBOX, {
     notificationType,
@@ -185,16 +216,14 @@ const openConversation = async notificationItem => {
       id,
       primaryActorId,
       primaryActorType,
-      unreadCount: meta.value.unreadCount,
     });
 
     // to update the unread count in the store realtime
     store.dispatch('notifications/unReadCount');
 
-    router.push({
-      name: 'inbox_view_conversation',
-      params: { inboxId, type: 'conversation', id: conversationId },
-    });
+    // Marcar como lida vale mesmo sem destino - o aviso foi visto. Navegar sem
+    // destino e que nao: levaria a uma rota com parametro indefinido.
+    if (destination) router.push(destination);
   } catch {
     // error
   }
