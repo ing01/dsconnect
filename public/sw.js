@@ -17,6 +17,16 @@ const focusedWindowClients = () =>
     .matchAll({ type: 'window', includeUncontrolled: true })
     .then(windowClients => windowClients.filter(client => client.focused));
 
+// Um service worker novo normalmente fica EM ESPERA ate a pessoa fechar todas
+// as abas do site - e enquanto isso o antigo continua respondendo. Foi o que fez
+// a notificacao chegar so com o titulo depois de o corpo ja estar publicado: o
+// servidor mandava o texto e a versao velha, que nao sabia repassa-lo, e que
+// atendia. Como este worker so trata notificacao e nao serve arquivo nenhum
+// (nao ha handler de `fetch`), assumir o lugar na hora nao arrisca servir asset
+// velho para pagina nova.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', event => event.waitUntil(clients.claim()));
+
 self.addEventListener('push', event => {
   const notification = event.data && event.data.json();
 
