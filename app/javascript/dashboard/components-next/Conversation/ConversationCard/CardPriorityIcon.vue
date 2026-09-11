@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { CONVERSATION_PRIORITY } from 'shared/constants/messages';
 
-import Icon from 'dashboard/components-next/icon/Icon.vue';
+import WootLabel from 'dashboard/components-next/label/Label.vue';
 
 const props = defineProps({
   priority: {
@@ -14,14 +14,20 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  compact: {
+    type: Boolean,
+    default: true,
+  },
 });
 const { t } = useI18n();
 
-const icons = {
-  [CONVERSATION_PRIORITY.URGENT]: 'i-woot-priority-urgent',
-  [CONVERSATION_PRIORITY.HIGH]: 'i-woot-priority-high',
-  [CONVERSATION_PRIORITY.MEDIUM]: 'i-woot-priority-medium',
-  [CONVERSATION_PRIORITY.LOW]: 'i-woot-priority-low',
+// Mesmas cores usadas pra prioridade de Ticket (`routes/dashboard/tickets/helpers/ticketLabels.js`)
+// - mantem os dois lugares do produto (tickets e conversas) com a mesma linguagem visual de cor.
+const colors = {
+  [CONVERSATION_PRIORITY.URGENT]: 'ruby',
+  [CONVERSATION_PRIORITY.HIGH]: 'amber',
+  [CONVERSATION_PRIORITY.MEDIUM]: 'blue',
+  [CONVERSATION_PRIORITY.LOW]: 'slate',
 };
 
 const priorityLabels = {
@@ -31,33 +37,24 @@ const priorityLabels = {
   [CONVERSATION_PRIORITY.LOW]: 'CONVERSATION.PRIORITY.OPTIONS.LOW',
 };
 
-const iconName = computed(() => {
-  if (props.priority && icons[props.priority]) {
-    return icons[props.priority];
-  }
-  return props.showEmpty ? 'i-woot-priority-empty' : '';
+const hasPriority = computed(
+  () => !!(props.priority && priorityLabels[props.priority])
+);
+
+const label = computed(() => {
+  if (hasPriority.value) return t(priorityLabels[props.priority]);
+  return props.showEmpty ? t('CONVERSATION.PRIORITY.OPTIONS.NONE') : '';
 });
 
-const tooltipContent = computed(() => {
-  if (props.priority && priorityLabels[props.priority]) {
-    return t(priorityLabels[props.priority]);
-  }
-
-  if (props.showEmpty) {
-    return t('CONVERSATION.PRIORITY.OPTIONS.NONE');
-  }
-
-  return '';
-});
+const color = computed(() => colors[props.priority] || 'slate');
 </script>
 
 <template>
-  <Icon
-    v-tooltip.top="{
-      content: tooltipContent,
-      delay: { show: 500, hide: 0 },
-    }"
-    :icon="iconName"
-    class="size-4 text-n-slate-5"
-  />
+  <WootLabel v-if="hasPriority" :label="label" :color="color" :compact="compact" />
+  <span
+    v-else-if="showEmpty"
+    class="text-xs text-n-slate-10 whitespace-nowrap"
+  >
+    {{ label }}
+  </span>
 </template>

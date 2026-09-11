@@ -70,6 +70,20 @@ const showLabelsSection = computed(() => {
   return props.chat.labels?.length > 0 || hasSlaPolicyId.value;
 });
 
+// Contato embarca a lista de empresas vinculadas (`_contact.json.jbuilder`) -
+// mostra a primeira aqui pra diferenciar quem e' de qual empresa direto na
+// lista, sem precisar abrir a conversa.
+const currentContactCompanyName = computed(
+  () => props.currentContact?.companies?.[0]?.name
+);
+
+const contactDisplayName = computed(() => {
+  const name = props.currentContact.name;
+  return currentContactCompanyName.value
+    ? `${name} | ${currentContactCompanyName.value}`
+    : name;
+});
+
 const messagePreviewClass = computed(() => {
   return [
     hasUnread.value ? 'font-medium text-n-slate-12' : 'text-n-slate-11',
@@ -129,7 +143,7 @@ watch(
         v-if="!hideThumbnail"
         :name="currentContact.name"
         :src="currentContact.thumbnail"
-        :size="32"
+        :size="40"
         :status="currentContact.availability_status"
         :class="!showInboxName ? 'mt-4' : 'mt-8'"
         hide-offline-status
@@ -146,7 +160,7 @@ watch(
         </template>
       </Avatar>
     </div>
-    <div class="px-0 py-3 flex-1 min-w-0 border-line">
+    <div class="px-0 py-4 flex-1 min-w-0 border-line">
       <div
         v-if="showMetaSection"
         class="flex items-center min-w-0 gap-1"
@@ -176,15 +190,15 @@ watch(
           </span>
           <CardPriorityIcon
             :priority="chat.priority"
-            class="flex-shrink-0 !size-3.5"
+            class="flex-shrink-0"
           />
         </div>
       </div>
       <h4
-        class="conversation--user text-sm my-0 mx-2 capitalize pt-0.5 text-ellipsis overflow-hidden whitespace-nowrap flex-1 min-w-0 ltr:pr-16 rtl:pl-16 text-n-slate-12"
+        class="conversation--user text-base my-0 mx-2 capitalize pt-0.5 text-ellipsis overflow-hidden whitespace-nowrap flex-1 min-w-0 ltr:pr-16 rtl:pl-16 text-n-slate-12"
         :class="hasUnread ? 'font-semibold' : 'font-medium'"
       >
-        {{ currentContact.name }}
+        {{ contactDisplayName }}
       </h4>
       <VoiceCallStatus
         v-if="voiceCallData.status"
