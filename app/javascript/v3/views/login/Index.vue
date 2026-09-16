@@ -535,7 +535,7 @@ export default {
   align-items: center;
   justify-content: center;
   align-self: flex-start;
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
   isolation: isolate;
 }
 
@@ -543,7 +543,7 @@ export default {
 .login__halo {
   position: absolute;
   z-index: -2;
-  width: 190%;
+  width: 215%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: radial-gradient(
@@ -552,7 +552,7 @@ export default {
     color-mix(in srgb, var(--brand) 45%, transparent) 42%,
     transparent 68%
   );
-  filter: blur(22px);
+  filter: blur(30px);
   animation: halo 4.5s ease-in-out infinite;
 }
 
@@ -560,7 +560,7 @@ export default {
 .login__ring {
   position: absolute;
   z-index: -1;
-  width: 150%;
+  width: 165%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: conic-gradient(
@@ -584,7 +584,7 @@ export default {
 .login__brand-mark {
   position: relative;
   width: auto;
-  height: clamp(6rem, 9vw, 9.5rem);
+  height: clamp(9.5rem, 16vw, 17rem);
   filter: drop-shadow(0 10px 30px rgb(18 123 186 / 65%));
   animation:
     rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both,
@@ -635,7 +635,7 @@ export default {
 
 .login__logo {
   width: auto;
-  height: 3.5rem;
+  height: 5rem;
   filter: drop-shadow(0 6px 18px rgb(18 123 186 / 35%));
   margin-inline: auto;
   margin-bottom: 1.5rem;
@@ -835,7 +835,7 @@ export default {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-20px);
   }
 }
 
@@ -843,11 +843,11 @@ export default {
   0%,
   100% {
     opacity: 0.55;
-    transform: scale(0.92);
+    transform: scale(0.86);
   }
   50% {
     opacity: 1;
-    transform: scale(1.12);
+    transform: scale(1.24);
   }
 }
 
