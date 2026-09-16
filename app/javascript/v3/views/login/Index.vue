@@ -297,11 +297,15 @@ export default {
       <div class="login__grid" />
 
       <div class="login__brand-content">
-        <img
-          :src="globalConfig.logoThumbnail || globalConfig.logo"
-          :alt="globalConfig.installationName"
-          class="login__brand-mark"
-        />
+        <div class="login__mark">
+          <span class="login__halo" aria-hidden="true" />
+          <span class="login__ring" aria-hidden="true" />
+          <img
+            :src="globalConfig.logoThumbnail || globalConfig.logo"
+            :alt="globalConfig.installationName"
+            class="login__brand-mark"
+          />
+        </div>
         <p class="login__tagline">
           {{ replaceInstallationName($t('LOGIN.BRAND_TAGLINE')) }}
         </p>
@@ -475,21 +479,21 @@ export default {
   inset: -30%;
   background: radial-gradient(
       38% 42% at 22% 28%,
-      color-mix(in srgb, var(--brand-bright) 55%, transparent) 0%,
+      color-mix(in srgb, var(--brand-bright) 78%, transparent) 0%,
       transparent 70%
     ),
     radial-gradient(
       45% 45% at 78% 35%,
-      color-mix(in srgb, var(--brand) 60%, transparent) 0%,
+      color-mix(in srgb, var(--brand) 85%, transparent) 0%,
       transparent 72%
     ),
     radial-gradient(
       50% 50% at 50% 88%,
-      color-mix(in srgb, var(--brand-deep) 70%, transparent) 0%,
+      color-mix(in srgb, var(--brand-deep) 88%, transparent) 0%,
       transparent 75%
     );
-  filter: blur(40px);
-  animation: aurora 22s ease-in-out infinite alternate;
+  filter: blur(34px);
+  animation: aurora 14s ease-in-out infinite alternate;
 }
 
 /* Textura: uma grade fina que some nas bordas. Da materialidade sem competir
@@ -522,13 +526,69 @@ export default {
   margin-inline: auto;
 }
 
-.login__brand-mark {
-  width: auto;
-  height: 4rem;
-  margin-bottom: 2.5rem;
+/* A logo ganha profundidade por camadas: um halo que pulsa, um anel que gira
+   devagar, e a marca flutuando por cima. Separado em tres elementos porque cada
+   um precisa de um tempo proprio - juntos num so, a animacao fica mecanica. */
+.login__mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   align-self: flex-start;
-  filter: drop-shadow(0 8px 24px rgb(18 123 186 / 45%));
-  animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  margin-bottom: 3rem;
+  isolation: isolate;
+}
+
+/* Brilho azul que respira atras da marca. */
+.login__halo {
+  position: absolute;
+  z-index: -2;
+  width: 190%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--brand-bright) 85%, transparent) 0%,
+    color-mix(in srgb, var(--brand) 45%, transparent) 42%,
+    transparent 68%
+  );
+  filter: blur(22px);
+  animation: halo 4.5s ease-in-out infinite;
+}
+
+/* Anel de luz girando: da movimento continuo sem mexer na logo em si. */
+.login__ring {
+  position: absolute;
+  z-index: -1;
+  width: 150%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in srgb, var(--brand-bright) 90%, transparent) 60deg,
+    transparent 150deg,
+    transparent 360deg
+  );
+  mask: radial-gradient(
+    circle,
+    transparent 58%,
+    #000 60%,
+    #000 66%,
+    transparent 68%
+  );
+  opacity: 0.85;
+  animation: spin 9s linear infinite;
+}
+
+.login__brand-mark {
+  position: relative;
+  width: auto;
+  height: clamp(6rem, 9vw, 9.5rem);
+  filter: drop-shadow(0 10px 30px rgb(18 123 186 / 65%));
+  animation:
+    rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    float 5s ease-in-out 700ms infinite;
 }
 
 .login__tagline {
@@ -575,7 +635,8 @@ export default {
 
 .login__logo {
   width: auto;
-  height: 2.5rem;
+  height: 3.5rem;
+  filter: drop-shadow(0 6px 18px rgb(18 123 186 / 35%));
   margin-inline: auto;
   margin-bottom: 1.5rem;
 }
@@ -758,13 +819,41 @@ export default {
 
 @keyframes aurora {
   0% {
-    transform: translate3d(-4%, -2%, 0) scale(1);
+    transform: translate3d(-9%, -5%, 0) scale(1);
   }
   50% {
-    transform: translate3d(3%, 4%, 0) scale(1.08);
+    transform: translate3d(8%, 9%, 0) scale(1.18);
   }
   100% {
-    transform: translate3d(-2%, 3%, 0) scale(1.03);
+    transform: translate3d(-5%, 7%, 0) scale(1.08);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes halo {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -787,6 +876,8 @@ export default {
 
 @media (prefers-reduced-motion: reduce) {
   .login__aurora,
+  .login__halo,
+  .login__ring,
   .login__brand-mark,
   .login__tagline,
   .login__subtitle,
