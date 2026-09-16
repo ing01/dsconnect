@@ -289,133 +289,515 @@ export default {
 </script>
 
 <template>
-  <main
-    class="flex flex-col w-full min-h-screen py-20 bg-n-brand/5 dark:bg-n-background sm:px-6 lg:px-8"
-  >
-    <section class="max-w-5xl mx-auto">
-      <img
-        :src="globalConfig.logo"
-        :alt="globalConfig.installationName"
-        class="block w-auto h-8 mx-auto dark:hidden"
-      />
-      <img
-        v-if="globalConfig.logoDark"
-        :src="globalConfig.logoDark"
-        :alt="globalConfig.installationName"
-        class="hidden w-auto h-8 mx-auto dark:block"
-      />
-      <h2 class="mt-6 text-3xl font-medium text-center text-n-slate-12">
-        {{ replaceInstallationName($t('LOGIN.TITLE')) }}
-      </h2>
-      <p v-if="showSignupLink" class="mt-3 text-sm text-center text-n-slate-11">
-        {{ $t('COMMON.OR') }}
-        <router-link to="auth/signup" class="lowercase text-link text-n-brand">
-          {{ $t('LOGIN.CREATE_NEW_ACCOUNT') }}
-        </router-link>
-      </p>
-    </section>
+  <main class="login">
+    <!-- Painel da marca. Escuro nos dois temas de proposito: e uma superficie
+         de marca, nao de conteudo, e o degrade so fecha sobre o #221F20. -->
+    <aside class="login__brand" aria-hidden="true">
+      <div class="login__aurora" />
+      <div class="login__grid" />
 
-    <!-- Session Limit Section -->
-    <section v-if="sessionsLimitReached" class="mt-11">
-      <SessionLimitOverlay
-        :sessions="limitedSessions"
-        @revoke="handleSessionRevoke"
-        @revoke-all="handleSessionRevokeAll"
-        @cancel="handleSessionLimitCancel"
-      />
-    </section>
+      <div class="login__brand-content">
+        <img
+          :src="globalConfig.logoThumbnail || globalConfig.logo"
+          :alt="globalConfig.installationName"
+          class="login__brand-mark"
+        />
+        <p class="login__tagline">
+          {{ replaceInstallationName($t('LOGIN.BRAND_TAGLINE')) }}
+        </p>
+        <p class="login__subtitle">
+          {{ replaceInstallationName($t('LOGIN.BRAND_SUBTITLE')) }}
+        </p>
+      </div>
+    </aside>
 
-    <!-- MFA Verification Section -->
-    <section v-else-if="mfaRequired" class="mt-11">
-      <MfaVerification
-        :mfa-token="mfaToken"
-        @verified="handleMfaVerified"
-        @cancel="handleMfaCancel"
-      />
-    </section>
-
-    <!-- Regular Login Section -->
-    <section
-      v-else
-      class="bg-white shadow sm:mx-auto mt-11 sm:w-full sm:max-w-lg dark:bg-n-solid-2 p-11 sm:shadow-lg sm:rounded-lg"
-      :class="{
-        'mb-8 mt-15': !showGoogleOAuth,
-        'animate-wiggle': loginApi.hasErrored,
-      }"
-    >
-      <div v-if="!email">
-        <div class="flex flex-col gap-4">
-          <GoogleOAuthButton v-if="showGoogleOAuth" />
-          <div v-if="showSamlLogin" class="text-center">
-            <router-link
-              to="/app/login/sso"
-              class="inline-flex justify-center w-full px-4 py-3 items-center bg-n-background dark:bg-n-solid-3 rounded-md shadow-sm ring-1 ring-inset ring-n-container dark:ring-n-container focus:outline-offset-0 hover:bg-n-alpha-2 dark:hover:bg-n-alpha-2"
-            >
-              <Icon
-                icon="i-lucide-lock-keyhole"
-                class="size-5 text-n-slate-11"
-              />
-              <span class="ml-2 text-base font-medium text-n-slate-12">
-                {{ $t('LOGIN.SAML.LABEL') }}
-              </span>
+    <!-- Coluna do formulario -->
+    <section class="login__panel">
+      <div class="login__panel-inner">
+        <header class="login__header">
+          <img
+            :src="globalConfig.logo"
+            :alt="globalConfig.installationName"
+            class="login__logo dark:hidden"
+          />
+          <img
+            v-if="globalConfig.logoDark"
+            :src="globalConfig.logoDark"
+            :alt="globalConfig.installationName"
+            class="hidden login__logo dark:block"
+          />
+          <h1 class="login__title">
+            {{ replaceInstallationName($t('LOGIN.TITLE')) }}
+          </h1>
+          <p v-if="showSignupLink" class="login__signup">
+            {{ $t('COMMON.OR') }}
+            <router-link to="auth/signup" class="login__link lowercase">
+              {{ $t('LOGIN.CREATE_NEW_ACCOUNT') }}
             </router-link>
-          </div>
-          <SimpleDivider
-            v-if="showGoogleOAuth || showSamlLogin"
-            :label="$t('COMMON.OR')"
-            class="uppercase"
+          </p>
+        </header>
+
+        <!-- Session Limit Section -->
+        <div v-if="sessionsLimitReached" class="login__card">
+          <SessionLimitOverlay
+            :sessions="limitedSessions"
+            @revoke="handleSessionRevoke"
+            @revoke-all="handleSessionRevokeAll"
+            @cancel="handleSessionLimitCancel"
           />
         </div>
-        <form class="space-y-5" @submit.prevent="submitFormLogin">
-          <FormInput
-            v-model="credentials.email"
-            name="email_address"
-            type="text"
-            data-testid="email_input"
-            :tabindex="1"
-            required
-            :label="$t('LOGIN.EMAIL.LABEL')"
-            :placeholder="$t('LOGIN.EMAIL.PLACEHOLDER')"
-            :has-error="v$.credentials.email.$error"
-            @input="v$.credentials.email.$touch"
+
+        <!-- MFA Verification Section -->
+        <div v-else-if="mfaRequired" class="login__card">
+          <MfaVerification
+            :mfa-token="mfaToken"
+            @verified="handleMfaVerified"
+            @cancel="handleMfaCancel"
           />
-          <FormInput
-            v-model="credentials.password"
-            type="password"
-            name="password"
-            data-testid="password_input"
-            required
-            :tabindex="2"
-            :label="$t('LOGIN.PASSWORD.LABEL')"
-            :placeholder="$t('LOGIN.PASSWORD.PLACEHOLDER')"
-            :has-error="v$.credentials.password.$error"
-            @input="v$.credentials.password.$touch"
-          >
-            <p v-if="!globalConfig.disableUserProfileUpdate">
+        </div>
+
+        <!-- Regular Login Section -->
+        <div
+          v-else
+          class="login__card"
+          :class="{ 'animate-wiggle': loginApi.hasErrored }"
+        >
+          <div v-if="!email">
+            <div
+              v-if="showGoogleOAuth || showSamlLogin"
+              class="flex flex-col gap-4"
+            >
+              <GoogleOAuthButton v-if="showGoogleOAuth" />
               <router-link
-                to="auth/reset/password"
-                class="text-sm text-link"
-                tabindex="4"
+                v-if="showSamlLogin"
+                to="/app/login/sso"
+                class="login__sso"
               >
-                {{ $t('LOGIN.FORGOT_PASSWORD') }}
+                <Icon icon="i-lucide-lock-keyhole" class="size-5" />
+                <span>{{ $t('LOGIN.SAML.LABEL') }}</span>
               </router-link>
-            </p>
-          </FormInput>
-          <NextButton
-            lg
-            type="submit"
-            data-testid="submit_button"
-            class="w-full"
-            :tabindex="3"
-            :label="$t('LOGIN.SUBMIT')"
-            :disabled="loginApi.showLoading"
-            :is-loading="loginApi.showLoading"
-          />
-        </form>
-      </div>
-      <div v-else class="flex items-center justify-center">
-        <Spinner color-scheme="primary" size="" />
+              <SimpleDivider :label="$t('COMMON.OR')" class="uppercase" />
+            </div>
+
+            <form class="login__form" @submit.prevent="submitFormLogin">
+              <FormInput
+                v-model="credentials.email"
+                name="email_address"
+                type="text"
+                data-testid="email_input"
+                :tabindex="1"
+                required
+                :label="$t('LOGIN.EMAIL.LABEL')"
+                :placeholder="$t('LOGIN.EMAIL.PLACEHOLDER')"
+                :has-error="v$.credentials.email.$error"
+                @input="v$.credentials.email.$touch"
+              />
+              <FormInput
+                v-model="credentials.password"
+                type="password"
+                name="password"
+                data-testid="password_input"
+                required
+                :tabindex="2"
+                :label="$t('LOGIN.PASSWORD.LABEL')"
+                :placeholder="$t('LOGIN.PASSWORD.PLACEHOLDER')"
+                :has-error="v$.credentials.password.$error"
+                @input="v$.credentials.password.$touch"
+              >
+                <p v-if="!globalConfig.disableUserProfileUpdate">
+                  <router-link
+                    to="auth/reset/password"
+                    class="login__link text-sm"
+                    tabindex="4"
+                  >
+                    {{ $t('LOGIN.FORGOT_PASSWORD') }}
+                  </router-link>
+                </p>
+              </FormInput>
+              <NextButton
+                lg
+                type="submit"
+                data-testid="submit_button"
+                class="login__submit w-full"
+                :tabindex="3"
+                :label="$t('LOGIN.SUBMIT')"
+                :disabled="loginApi.showLoading"
+                :is-loading="loginApi.showLoading"
+              />
+            </form>
+          </div>
+          <div v-else class="flex items-center justify-center py-8">
+            <Spinner color-scheme="primary" size="" />
+          </div>
+        </div>
       </div>
     </section>
   </main>
 </template>
+
+<style scoped>
+/* Paleta pedida. O azul claro e o escuro sao tons derivados do #127bba, usados
+   so para dar profundidade ao degrade - nao sao cores novas de marca. */
+.login {
+  --ink: #221f20;
+  --slate: #3f3b3d;
+  --white: #ffffff;
+  --brand: #127bba;
+  --brand-bright: #1ea0e6;
+  --brand-deep: #0b4f78;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--white);
+}
+
+/* O painel de conteudo acompanha o tema; o da marca nao. */
+.login:where(.dark, .dark *) {
+  background: var(--ink);
+}
+
+/* ---------- Painel da marca ---------- */
+
+.login__brand {
+  position: relative;
+  display: none;
+  overflow: hidden;
+  background: var(--ink);
+  isolation: isolate;
+}
+
+/* Manchas de luz que respiram devagar. Duas camadas em tamanhos diferentes
+   evitam o efeito de "pulsacao" uniforme, que denuncia animacao barata. */
+.login__aurora {
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(
+      38% 42% at 22% 28%,
+      color-mix(in srgb, var(--brand-bright) 55%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 45% at 78% 35%,
+      color-mix(in srgb, var(--brand) 60%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      50% 50% at 50% 88%,
+      color-mix(in srgb, var(--brand-deep) 70%, transparent) 0%,
+      transparent 75%
+    );
+  filter: blur(40px);
+  animation: aurora 22s ease-in-out infinite alternate;
+}
+
+/* Textura: uma grade fina que some nas bordas. Da materialidade sem competir
+   com a logo. */
+.login__grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--white) 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--white) 6%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 46px 46px;
+  mask-image: radial-gradient(70% 60% at 50% 45%, #000 0%, transparent 100%);
+}
+
+.login__brand-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 4rem;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+.login__brand-mark {
+  width: auto;
+  height: 4rem;
+  margin-bottom: 2.5rem;
+  align-self: flex-start;
+  filter: drop-shadow(0 8px 24px rgb(18 123 186 / 45%));
+  animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.login__tagline {
+  margin: 0;
+  font-size: clamp(1.75rem, 2.4vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+  color: var(--white);
+  animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+}
+
+.login__subtitle {
+  margin: 1rem 0 0;
+  max-width: 28rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--white) 68%, transparent);
+  animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
+}
+
+/* ---------- Coluna do formulario ---------- */
+
+.login__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* O padding lateral fica aqui, num elemento so, para nao haver margem que
+     colapse ou dobre nos filhos. */
+  padding-inline: 1.5rem;
+  padding-block: 3rem;
+}
+
+.login__panel-inner {
+  width: 100%;
+  max-width: 26rem;
+  animation: rise 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.login__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login__logo {
+  width: auto;
+  height: 2.5rem;
+  margin-inline: auto;
+  margin-bottom: 1.5rem;
+}
+
+/* No desktop a marca ja aparece no painel esquerdo; repetir a logo aqui seria
+   redundante. */
+@media (min-width: 1024px) {
+  .login__logo {
+    display: none;
+  }
+
+  .login .login__logo.dark\:block {
+    display: none;
+  }
+}
+
+.login__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+.login__title:where(.dark, .dark *) {
+  color: var(--white);
+}
+
+.login__signup {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: var(--slate);
+}
+
+.login__signup:where(.dark, .dark *) {
+  color: color-mix(in srgb, var(--white) 60%, transparent);
+}
+
+.login__link {
+  font-weight: 500;
+  color: var(--brand);
+  text-underline-offset: 2px;
+}
+
+.login__link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Cartao ---------- */
+
+.login__card {
+  padding: 2rem;
+  border-radius: 1rem;
+  background: var(--white);
+  border: 1px solid color-mix(in srgb, var(--slate) 14%, transparent);
+  box-shadow:
+    0 1px 2px rgb(34 31 32 / 4%),
+    0 12px 32px -12px rgb(34 31 32 / 14%);
+  transition:
+    box-shadow 300ms ease,
+    transform 300ms ease;
+}
+
+.login__card:focus-within {
+  box-shadow:
+    0 1px 2px rgb(34 31 32 / 4%),
+    0 18px 44px -14px rgb(18 123 186 / 28%);
+}
+
+.login__card:where(.dark, .dark *) {
+  background: color-mix(in srgb, var(--slate) 42%, var(--ink));
+  border-color: color-mix(in srgb, var(--white) 10%, transparent);
+  box-shadow: 0 18px 48px -20px rgb(0 0 0 / 70%);
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Foco com halo na cor da marca, aplicado ao input de dentro do FormInput. */
+.login__card :deep(input:focus) {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.login__sso {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--slate) 20%, transparent);
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.login__sso:hover {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 6%, transparent);
+}
+
+.login__sso:where(.dark, .dark *) {
+  color: var(--white);
+  border-color: color-mix(in srgb, var(--white) 16%, transparent);
+}
+
+/* Botao: degrade da marca, com um brilho que atravessa no hover. */
+.login__submit {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--brand) 0%,
+    var(--brand-bright) 100%
+  ) !important;
+  border-color: transparent !important;
+  color: var(--white) !important;
+  box-shadow: 0 8px 20px -8px rgb(18 123 186 / 60%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.login__submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px -8px rgb(18 123 186 / 70%);
+}
+
+.login__submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login__submit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgb(255 255 255 / 28%) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+}
+
+.login__submit:hover:not(:disabled)::after {
+  animation: shine 900ms ease;
+}
+
+/* ---------- Responsivo ---------- */
+
+@media (min-width: 1024px) {
+  .login {
+    grid-template-columns: 1.05fr 1fr;
+  }
+
+  .login__brand {
+    display: block;
+  }
+
+  .login__panel {
+    padding-inline: 3rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .login {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+/* ---------- Animacoes ---------- */
+
+@keyframes aurora {
+  0% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, 4%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-2%, 3%, 0) scale(1.03);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shine {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login__aurora,
+  .login__brand-mark,
+  .login__tagline,
+  .login__subtitle,
+  .login__panel-inner,
+  .login__submit::after {
+    animation: none;
+  }
+
+  .login__submit,
+  .login__card {
+    transition: none;
+  }
+}
+</style>
