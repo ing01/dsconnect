@@ -1052,11 +1052,11 @@ const menuItems = computed(() => {
           startCollapsed: true,
           showTreeLine: true,
           children: [
-            {
+           /* {
               name: 'Live chat',
               label: t('SIDEBAR.LIVE_CHAT'),
               to: accountScopedRoute('campaigns_livechat_index'),
-            },
+            }, */
             {
               name: 'SMS',
               label: t('SIDEBAR.SMS'),
