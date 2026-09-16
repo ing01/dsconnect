@@ -385,7 +385,7 @@ const menuItems = computed(() => {
           activeOn: ['inbox_conversation'],
           to: accountScopedRoute('home'),
         },
-        {
+        /* {
           name: 'Mentions',
           label: t('SIDEBAR.MENTIONED_CONVERSATIONS'),
           icon: 'i-lucide-at-sign',
@@ -394,7 +394,7 @@ const menuItems = computed(() => {
             : 0,
           activeOn: ['conversation_through_mentions'],
           to: accountScopedRoute('conversation_mentions'),
-        },
+        }, 
         {
           name: 'Participating',
           label: t('SIDEBAR.PARTICIPATING_CONVERSATIONS'),
@@ -414,7 +414,7 @@ const menuItems = computed(() => {
             ? unattendedUnreadCount.value
             : 0,
           to: accountScopedRoute('conversation_unattended'),
-        },
+        }, */
         {
           name: 'Folders',
           label: t('SIDEBAR.CUSTOM_VIEWS_FOLDER'),
