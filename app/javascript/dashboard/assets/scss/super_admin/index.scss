@@ -11,18 +11,20 @@ body {
   // FIXME: Use a common color file for all packs
   // scss-lint:disable PropertySortOrder
   :root {
-    --slate-1: 252 252 253;
-    --slate-2: 249 249 251;
-    --slate-3: 240 240 243;
-    --slate-4: 232 232 236;
-    --slate-5: 224 225 230;
-    --slate-6: 217 217 224;
-    --slate-7: 205 206 214;
-    --slate-8: 185 187 198;
-    --slate-9: 139 141 152;
-    --slate-10: 128 131 141;
-    --slate-11: 96 100 108;
-    --slate-12: 28 32 36;
+    // slate (neutralized to match the Duesoft brand's true-neutral dark
+    // tones, #221F20 / #3F3B3D - previously a cool blue-grey)
+    --slate-1: 252 252 252;
+    --slate-2: 249 249 249;
+    --slate-3: 240 240 240;
+    --slate-4: 232 232 232;
+    --slate-5: 224 224 224;
+    --slate-6: 217 217 217;
+    --slate-7: 206 206 206;
+    --slate-8: 187 187 187;
+    --slate-9: 141 141 141;
+    --slate-10: 131 131 131;
+    --slate-11: 100 100 100;
+    --slate-12: 34 31 32;
 
     --iris-1: 253 253 255;
     --iris-2: 248 248 255;
@@ -112,18 +114,19 @@ body {
   }
 
   .dark {
-    --slate-1: 17 17 19;
-    --slate-2: 24 25 27;
-    --slate-3: 33 34 37;
-    --slate-4: 39 42 45;
-    --slate-5: 46 49 53;
-    --slate-6: 54 58 63;
-    --slate-7: 67 72 78;
-    --slate-8: 90 97 105;
-    --slate-9: 105 110 119;
-    --slate-10: 119 123 132;
-    --slate-11: 176 180 186;
-    --slate-12: 237 238 240;
+    // slate (same neutralization as :root, dark-mode ramp)
+    --slate-1: 17 17 17;
+    --slate-2: 25 25 25;
+    --slate-3: 34 34 34;
+    --slate-4: 42 42 42;
+    --slate-5: 49 49 49;
+    --slate-6: 58 58 58;
+    --slate-7: 72 72 72;
+    --slate-8: 96 96 96;
+    --slate-9: 110 110 110;
+    --slate-10: 123 123 123;
+    --slate-11: 180 180 180;
+    --slate-12: 238 238 238;
 
     --iris-1: 19 19 30;
     --iris-2: 23 22 37;
