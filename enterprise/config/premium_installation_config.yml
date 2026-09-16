@@ -12,9 +12,9 @@
 - name: LOGO_THUMBNAIL
   value: '/brand-assets/logo_thumbnail.png'
 - name: LOGO
-  value: '/brand-assets/logo.jpg'
+  value: '/brand-assets/logo.png'
 - name: LOGO_DARK
-  value: '/brand-assets/logo_dark.jpg'
+  value: '/brand-assets/logo_dark.png'
 - name: BRAND_URL
   value: 'https://www.chatwoot.com'
 - name: WIDGET_BRAND_URL
