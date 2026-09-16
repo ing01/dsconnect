@@ -17,9 +17,33 @@ import FluentIcon from 'shared/components/FluentIcon/DashboardIcon.vue';
 // Commenting it out for Vite migration
 // Vue.config.env = process.env;
 
+// As telas do v3 (login, cadastro, redefinicao de senha) sao anteriores ao
+// login, entao nao ha usuario nem conta de onde tirar o idioma. Ficava 'en'
+// fixo, e o login aparecia em ingles para todo mundo.
+//
+// A escolha passa a ser a do navegador, quando houver traducao para ela.
+// `pt-BR` vira `pt_BR`, que e como as pastas de traducao sao nomeadas; se so
+// houver o idioma base (`pt`), ele tambem serve. Sem correspondencia, cai no
+// padrao do produto.
+const DEFAULT_LOCALE = 'pt_BR';
+
+const resolveLocale = () => {
+  const requested = window.navigator?.language;
+  if (!requested) return DEFAULT_LOCALE;
+
+  const normalized = requested.replace('-', '_');
+  const base = normalized.split('_')[0];
+
+  if (i18nMessages[normalized]) return normalized;
+  if (i18nMessages[base]) return base;
+
+  return DEFAULT_LOCALE;
+};
+
 const i18n = createI18n({
   legacy: false, // https://github.com/intlify/vue-i18n/issues/1902
-  locale: 'en',
+  locale: resolveLocale(),
+  fallbackLocale: DEFAULT_LOCALE,
   messages: i18nMessages,
 });
 
