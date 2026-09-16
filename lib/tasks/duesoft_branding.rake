@@ -11,8 +11,8 @@
 # `reconcile_only_new: false` sobrescreveria qualquer outra configuracao ja
 # ajustada nesta instalacao.
 #
-#   bundle exec rake duedesk:branding
-#   bundle exec rake duedesk:branding DRY_RUN=1
+#   bundle exec rake duesoft:branding
+#   bundle exec rake duesoft:branding DRY_RUN=1
 BRANDING_KEYS = %w[
   INSTALLATION_NAME
   BRAND_NAME
@@ -39,7 +39,7 @@ def sync_branding_key(key, wanted, dry_run)
   true
 end
 
-namespace :duedesk do
+namespace :duesoft do
   desc 'Aplica nome e imagens do installation_config.yml no banco'
   task branding: :environment do
     dry_run = ENV['DRY_RUN'].present?

@@ -8,7 +8,7 @@
 # Por isso os valores acompanham config/installation_config.yml. Mudar a marca
 # exige mudar os dois arquivos, ou ela dura menos de um dia.
 - name: INSTALLATION_NAME
-  value: 'DueDesk'
+  value: 'Helpdesk Duesoft'
 - name: LOGO_THUMBNAIL
   value: '/brand-assets/logo_thumbnail.png'
 - name: LOGO
@@ -20,7 +20,7 @@
 - name: WIDGET_BRAND_URL
   value: 'https://www.chatwoot.com'
 - name: BRAND_NAME
-  value: 'DueDesk'
+  value: 'DueSoft'
 - name: TERMS_URL
   value: 'https://www.chatwoot.com/terms-of-service'
 - name: PRIVACY_URL

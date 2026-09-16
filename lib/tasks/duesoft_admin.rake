@@ -5,11 +5,11 @@
 # would live in the repository and in its history, readable by anyone who can
 # clone it, and rotating it would not remove the old one from the log.
 #
-#   ADMIN_EMAIL=voce@empresa.com ADMIN_PASSWORD='...' bundle exec rake duedesk:admin
+#   ADMIN_EMAIL=voce@empresa.com ADMIN_PASSWORD='...' bundle exec rake duesoft:admin
 #
 # Safe to run repeatedly: an existing user keeps their account membership and
 # only has the password reset when one is supplied.
-namespace :duedesk do
+namespace :duesoft do
   desc 'Create or repair the administrator from ADMIN_EMAIL / ADMIN_PASSWORD'
   task admin: :environment do
     email = ENV.fetch('ADMIN_EMAIL', nil)
@@ -17,14 +17,14 @@ namespace :duedesk do
 
     if email.blank?
       puts 'ADMIN_EMAIL nao definido. Nada a fazer.'
-      puts "Uso: ADMIN_EMAIL=voce@empresa.com ADMIN_PASSWORD='...' bundle exec rake duedesk:admin"
+      puts "Uso: ADMIN_EMAIL=voce@empresa.com ADMIN_PASSWORD='...' bundle exec rake duesoft:admin"
       next
     end
 
-    account = DueDesk::AdminSetup.account_for(ENV.fetch('ADMIN_ACCOUNT_NAME', 'DueDesk'))
-    user = DueDesk::AdminSetup.user_for(email: email, password: password,
+    account = DueSoft::AdminSetup.account_for(ENV.fetch('ADMIN_ACCOUNT_NAME', 'DueSoft'))
+    user = DueSoft::AdminSetup.user_for(email: email, password: password,
                                         name: ENV.fetch('ADMIN_NAME', 'Administrador'))
-    DueDesk::AdminSetup.grant_administrator(user: user, account: account)
+    DueSoft::AdminSetup.grant_administrator(user: user, account: account)
 
     puts "conta   : ##{account.id} #{account.name}"
     puts "usuario : ##{user.id} #{user.email} (administrator)"
@@ -32,7 +32,7 @@ namespace :duedesk do
   end
 end
 
-module DueDesk
+module DueSoft
   # Kept out of the task body so each step is nameable and testable.
   module AdminSetup
     module_function

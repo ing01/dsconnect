@@ -14,7 +14,7 @@ const latestChatwootVersion = computed(() => {
 
 const globalConfig = useMapGetter('globalConfig/get');
 
-// Duedesk is a customized fork - nudging admins to update to a fresh
+// Duesoft is a customized fork - nudging admins to update to a fresh
 // upstream Chatwoot release would be misleading, since that's not how this
 // instance gets updated.
 const hasAnUpdateAvailable = computed(() => false);

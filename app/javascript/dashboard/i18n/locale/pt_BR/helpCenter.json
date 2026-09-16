@@ -853,7 +853,7 @@
       "CONFIRM_BUTTON_LABEL": "Criar",
       "NAME": {
         "LABEL": "Nome",
-        "PLACEHOLDER": "Guia do Usuário | DueDesk",
+        "PLACEHOLDER": "Guia do Usuário | DueSoft",
         "MESSAGE": "Escolha um nome para o seu portal.",
         "ERROR": "O nome é obrigatório"
       },
@@ -976,7 +976,7 @@
         "HEADER": "Integrações",
         "DESCRIPTION": "Conecte ferramentas que ampliam os recursos da sua central de ajuda.",
         "LIVE_CHAT": {
-          "TITLE": "Chat ao vivo com o DueDesk",
+          "TITLE": "Chat ao vivo com o DueSoft",
           "DESCRIPTION": "Exiba um widget de chat ao vivo na sua central de ajuda para que os visitantes possam entrar em contato enquanto leem.",
           "PLACEHOLDER": "Selecionar widget de chat ao vivo",
           "NONE_OPTION": "Sem widget"

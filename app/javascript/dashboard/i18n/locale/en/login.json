@@ -1,6 +1,6 @@
 {
   "LOGIN": {
-    "TITLE": "Login to DueDesk",
+    "TITLE": "Login to DueSoft",
     "EMAIL": {
       "LABEL": "Email",
       "PLACEHOLDER": "example{'@'}companyname.com",
