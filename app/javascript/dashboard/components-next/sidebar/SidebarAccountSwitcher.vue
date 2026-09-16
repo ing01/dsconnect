@@ -80,7 +80,7 @@ const emitNewAccount = () => {
         @click="() => showAccountSwitcher && toggle()"
       >
         <span
-          class="text-sm font-medium leading-5 text-n-slate-12 truncate"
+          class="text-lg font-medium leading-6 text-n-slate-12 truncate"
           aria-live="polite"
         >
           {{ currentAccount.name }}
@@ -89,7 +89,7 @@ const emitNewAccount = () => {
         <span
           v-if="showAccountSwitcher"
           aria-hidden="true"
-          class="i-lucide-chevron-down size-4 text-n-slate-10 flex-shrink-0"
+          class="i-lucide-chevron-down size-5 text-n-slate-10 flex-shrink-0"
         />
       </button>
     </template>

@@ -10,11 +10,11 @@
 - name: INSTALLATION_NAME
   value: 'DSConnect'
 - name: LOGO_THUMBNAIL
-  value: '/brand-assets/logo_thumbnail.png'
+  value: '/brand-assets/logo_thumbnail.png?v=2'
 - name: LOGO
-  value: '/brand-assets/logo.png'
+  value: '/brand-assets/logo.png?v=2'
 - name: LOGO_DARK
-  value: '/brand-assets/logo_dark.png'
+  value: '/brand-assets/logo_dark.png?v=2'
 - name: BRAND_URL
   value: 'https://www.chatwoot.com'
 - name: WIDGET_BRAND_URL
