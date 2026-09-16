@@ -1,6 +1,6 @@
 # Porta a distribuição por módulo do painel (% de CLIENTES por módulo, não
 # horas - não dava pra calcular horas por módulo lá). Aqui expõe total_hours
-# também, já que o Duedesk permite calcular isso (Project tem 1 módulo só,
+# também, já que o Duesoft permite calcular isso (Project tem 1 módulo só,
 # então basta somar as horas dos projetos daquele módulo) - é um extra que o
 # painel nunca teve.
 class V2::Reports::Implementation::ModuleReportBuilder < V2::Reports::Implementation::BaseBuilder

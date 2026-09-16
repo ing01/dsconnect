@@ -6,9 +6,9 @@ import { useUISettings } from 'dashboard/composables/useUISettings';
 const SidebarControl = Symbol('SidebarControl');
 
 const DEFAULT_WIDTH = 200;
-const MIN_WIDTH = 56;
+const MIN_WIDTH = 80;
 const COLLAPSED_THRESHOLD = 160;
-const MAX_WIDTH = 320;
+const MAX_WIDTH = 400;
 
 // Shared state for active popover (only one can be open at a time)
 const activePopover = ref(null);

@@ -10,10 +10,10 @@
 # perdoe atrasos que ja aconteceram. Como o `due_at` e calculado pelo mesmo
 # servico de expediente, a varredura seguinte marca como vencido o que ja estava.
 #
-#   bundle exec rake duedesk:sla_backfill              # todas as contas
-#   bundle exec rake duedesk:sla_backfill ACCOUNT_ID=1
-#   bundle exec rake duedesk:sla_backfill DRY_RUN=1    # so relata
-namespace :duedesk do
+#   bundle exec rake duesoft:sla_backfill              # todas as contas
+#   bundle exec rake duesoft:sla_backfill ACCOUNT_ID=1
+#   bundle exec rake duesoft:sla_backfill DRY_RUN=1    # so relata
+namespace :duesoft do
   desc 'Inicia os relogios de SLA dos tickets abertos que ainda nao os tem'
   task sla_backfill: :environment do
     dry_run = ENV['DRY_RUN'].present?

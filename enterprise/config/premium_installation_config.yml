@@ -8,19 +8,19 @@
 # Por isso os valores acompanham config/installation_config.yml. Mudar a marca
 # exige mudar os dois arquivos, ou ela dura menos de um dia.
 - name: INSTALLATION_NAME
-  value: 'DueDesk'
+  value: 'DSConnect'
 - name: LOGO_THUMBNAIL
   value: '/brand-assets/logo_thumbnail.png'
 - name: LOGO
-  value: '/brand-assets/logo.jpg'
+  value: '/brand-assets/logo.png'
 - name: LOGO_DARK
-  value: '/brand-assets/logo_dark.jpg'
+  value: '/brand-assets/logo_dark.png'
 - name: BRAND_URL
   value: 'https://www.chatwoot.com'
 - name: WIDGET_BRAND_URL
   value: 'https://www.chatwoot.com'
 - name: BRAND_NAME
-  value: 'DueDesk'
+  value: 'DueSoft'
 - name: TERMS_URL
   value: 'https://www.chatwoot.com/terms-of-service'
 - name: PRIVACY_URL
