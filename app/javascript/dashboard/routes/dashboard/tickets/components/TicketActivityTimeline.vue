@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -32,6 +32,11 @@ const ACTIVITY_ICONS = {
 const { t } = useI18n();
 const store = useStore();
 
+// Quais entradas estao com o detalhe aberto. Um Set porque varias podem estar
+// abertas ao mesmo tempo - fechar uma para abrir outra obrigaria a pessoa a
+// comparar de memoria.
+const abertas = ref(new Set());
+
 const activities = computed(() =>
   store.getters['tickets/getActivities'](props.ticketId)
 );
@@ -39,15 +44,81 @@ const isLoading = computed(
   () => store.getters['tickets/getUIFlags'].isFetchingActivities
 );
 
-const activityLabel = activity => {
-  const actor = activity.user?.name || t('TICKET.ACTIVITY.SYSTEM');
-  return t(`TICKET.ACTIVITY.TYPES.${activity.activity_type.toUpperCase()}`, {
-    actor,
+const chave = tipo => (tipo || '').toUpperCase();
+
+const titulo = activity =>
+  t(`TICKET.ACTIVITY.TITLES.${chave(activity.activity_type)}`, '') ||
+  t(`TICKET.ACTIVITY.TYPES.${chave(activity.activity_type)}`, {
+    actor: activity.user?.name || t('TICKET.ACTIVITY.SYSTEM'),
   });
+
+// Nem toda atividade e mudanca de campo: "duplicou", "comentou" e "criou" nao
+// tem campo nenhum, e a linha "Mudanca em" simplesmente nao aparece.
+const campo = activity =>
+  t(`TICKET.ACTIVITY.FIELDS.${chave(activity.activity_type)}`, '') || '';
+
+const temValores = activity =>
+  Boolean(activity.previous_value || activity.new_value);
+
+const vazio = () => t('TICKET.ACTIVITY.EMPTY_VALUE');
+
+const dataHora = activity =>
+  new Date(activity.created_at * 1000).toLocaleString(undefined, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+const soData = activity =>
+  new Date(activity.created_at * 1000).toLocaleDateString();
+
+// Agrupa por dia, e o dia recebe um rotulo em vez da data crua quando e hoje ou
+// ontem - e assim que a pessoa pensa sobre o que acabou de acontecer.
+const grupos = computed(() => {
+  const hoje = new Date().toLocaleDateString();
+  const ontem = new Date(Date.now() - 86400000).toLocaleDateString();
+
+  return activities.value.reduce((acc, activity) => {
+    const dia = soData(activity);
+    const anterior = acc[acc.length - 1];
+
+    if (!anterior || anterior.dia !== dia) {
+      let rotulo = dia;
+      if (dia === hoje) rotulo = t('TICKET.ACTIVITY.TODAY');
+      else if (dia === ontem) rotulo = t('TICKET.ACTIVITY.YESTERDAY');
+
+      acc.push({ dia, rotulo, itens: [activity] });
+    } else {
+      anterior.itens.push(activity);
+    }
+
+    return acc;
+  }, []);
+});
+
+const estaAberta = id => abertas.value.has(id);
+
+const alternar = id => {
+  const proximo = new Set(abertas.value);
+  if (proximo.has(id)) proximo.delete(id);
+  else proximo.add(id);
+  abertas.value = proximo;
 };
 
-const formattedTime = activity =>
-  new Date(activity.created_at * 1000).toLocaleString();
+const autor = activity =>
+  activity.user?.name || t('TICKET.ACTIVITY.SYSTEM_ACTOR');
+
+// Nome e e-mail saem de uma frase so: os sinais < > sao pontuacao do texto, e
+// soltos no template viram string nao traduzida.
+const autorCompleto = activity =>
+  activity.user?.email
+    ? t('TICKET.ACTIVITY.ACTOR_WITH_EMAIL', {
+        name: autor(activity),
+        email: activity.user.email,
+      })
+    : autor(activity);
 
 onMounted(() => store.dispatch('tickets/fetchActivities', props.ticketId));
 </script>
@@ -60,27 +131,111 @@ onMounted(() => store.dispatch('tickets/fetchActivities', props.ticketId));
     <p v-else-if="!activities.length" class="text-sm text-n-slate-11">
       {{ t('TICKET.ACTIVITY.EMPTY') }}
     </p>
-    <ul v-else class="flex flex-col gap-4">
-      <li
-        v-for="activity in activities"
-        :key="activity.id"
-        class="flex items-start gap-2.5"
-      >
+
+    <div v-else class="flex flex-col gap-5">
+      <section v-for="grupo in grupos" :key="grupo.dia" class="flex flex-col">
         <span
-          class="flex items-center justify-center size-6 flex-shrink-0 rounded-full bg-n-slate-3 text-n-slate-11 mt-0.5"
+          class="self-start px-2 py-0.5 mb-3 text-xs font-medium rounded bg-n-alpha-2 text-n-slate-11"
         >
-          <Icon
-            :icon="ACTIVITY_ICONS[activity.activity_type] || 'i-lucide-dot'"
-            class="size-3.5"
-          />
+          {{ grupo.rotulo }}
         </span>
-        <div class="flex flex-col min-w-0">
-          <p class="text-sm text-n-slate-12">{{ activityLabel(activity) }}</p>
-          <span class="text-xs text-n-slate-10">{{
-            formattedTime(activity)
-          }}</span>
-        </div>
-      </li>
-    </ul>
+
+        <!-- O trilho vertical corre pela borda esquerda, e cada entrada
+             pendura o proprio icone nele. -->
+        <ul
+          class="flex flex-col gap-4 ltr:pl-3 rtl:pr-3 ltr:border-l rtl:border-r border-n-weak"
+        >
+          <li
+            v-for="activity in grupo.itens"
+            :key="activity.id"
+            class="relative flex items-start gap-2.5 min-w-0"
+          >
+            <span
+              class="flex items-center justify-center size-6 flex-shrink-0 rounded-full bg-n-amber-2 text-n-amber-11 ltr:-ml-[27px] rtl:-mr-[27px] mt-0.5 ring-4 ring-n-background"
+            >
+              <Icon
+                :icon="ACTIVITY_ICONS[activity.activity_type] || 'i-lucide-dot'"
+                class="size-3.5"
+              />
+            </span>
+
+            <div class="flex flex-col min-w-0 gap-0.5 flex-1">
+              <time class="text-xs text-n-slate-10">
+                {{ dataHora(activity) }}
+              </time>
+
+              <p class="m-0 text-sm font-medium text-n-slate-12">
+                {{ titulo(activity) }}
+              </p>
+
+              <p v-if="campo(activity)" class="m-0 text-sm text-n-slate-11">
+                {{
+                  t('TICKET.ACTIVITY.CHANGED_IN', { field: campo(activity) })
+                }}
+              </p>
+
+              <button
+                class="flex items-center gap-1 mt-1 text-sm cursor-pointer text-n-teal-11 hover:underline ltr:self-start rtl:self-end"
+                :aria-expanded="estaAberta(activity.id)"
+                @click="alternar(activity.id)"
+              >
+                <Icon
+                  :icon="
+                    estaAberta(activity.id) ? 'i-lucide-minus' : 'i-lucide-plus'
+                  "
+                  class="size-3.5"
+                />
+                {{ t('TICKET.ACTIVITY.MORE') }}
+              </button>
+
+              <div
+                v-if="estaAberta(activity.id)"
+                class="flex flex-col gap-3 p-3 mt-2 border rounded-lg border-n-weak bg-n-alpha-1"
+              >
+                <p class="m-0 text-sm font-medium text-n-slate-12">
+                  {{
+                    t('TICKET.ACTIVITY.DETAILS_TITLE', {
+                      title: titulo(activity),
+                    })
+                  }}
+                </p>
+
+                <!-- Antes riscado, seta, depois. O valor antigo fica legivel de
+                     proposito: e ele que explica o que mudou. -->
+                <p
+                  v-if="temValores(activity)"
+                  class="m-0 text-sm break-words text-n-slate-12"
+                >
+                  <span v-if="campo(activity)" class="font-medium">
+                    {{ campo(activity) }}:
+                  </span>
+                  <s v-if="activity.previous_value" class="text-n-slate-10">
+                    {{ activity.previous_value }}
+                  </s>
+                  <Icon
+                    v-if="activity.previous_value && activity.new_value"
+                    icon="i-lucide-arrow-right"
+                    class="inline-block mx-1 align-middle size-3.5 text-n-slate-10 rtl:rotate-180"
+                  />
+                  <span v-if="activity.new_value">
+                    {{ activity.new_value }}
+                  </span>
+                  <span v-else-if="!activity.previous_value">
+                    {{ vazio() }}
+                  </span>
+                </p>
+
+                <p class="m-0 text-sm text-n-slate-11">
+                  <span class="font-medium text-n-slate-12">
+                    {{ t('TICKET.ACTIVITY.CHANGED_BY') }}
+                  </span>
+                  {{ autorCompleto(activity) }}
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </div>
   </div>
 </template>

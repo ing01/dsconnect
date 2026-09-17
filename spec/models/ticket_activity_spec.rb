@@ -37,7 +37,9 @@ RSpec.describe TicketActivity do
         contact_changed: 24,
         classified: 25,
         customer_communication_sent: 26,
-        category_changed: 27
+        category_changed: 27,
+        blocked: 28,
+        unblocked: 29
       )
     }
   end
@@ -49,7 +51,7 @@ RSpec.describe TicketActivity do
 
       data = activity.push_event_data
       expect(data[:activity_type]).to eq('resolved')
-      expect(data[:user]).to eq({ id: user.id, name: user.name })
+      expect(data[:user]).to eq({ id: user.id, name: user.name, email: user.email })
     end
 
     it 'serializes a nil user as system-generated' do

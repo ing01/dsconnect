@@ -49,7 +49,7 @@ class TicketActivity < ApplicationRecord
       previous_value: previous_value,
       new_value: new_value,
       meta: meta,
-      user: user ? { id: user.id, name: user.name } : nil,
+      user: user ? { id: user.id, name: user.name, email: user.email } : nil,
       created_at: created_at.to_i
     }
   end
