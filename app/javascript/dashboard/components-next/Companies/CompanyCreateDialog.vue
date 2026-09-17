@@ -23,7 +23,6 @@ const cnpjLookupErrorMessage = ref('');
 
 const form = reactive({
   name: '',
-  domain: '',
   description: '',
   cnpj: '',
   legalName: '',
@@ -40,11 +39,10 @@ const form = reactive({
 
 const uiFlags = computed(() => companiesStore.getUIFlags);
 const isLookingUpCnpj = computed(() => uiFlags.value.lookingUpCnpj);
-const isFormInvalid = computed(() => !form.name.trim());
+const isFormInvalid = computed(() => !form.name.trim() || !form.cnpj.trim());
 
 const resetForm = () => {
   form.name = '';
-  form.domain = '';
   form.description = '';
   form.cnpj = '';
   form.legalName = '';
@@ -63,7 +61,6 @@ const resetForm = () => {
 
 const open = (company = {}) => {
   form.name = company.name || '';
-  form.domain = company.domain || '';
   form.description = company.description || '';
   dialogRef.value?.open();
 };
@@ -107,7 +104,6 @@ const handleConfirm = () => {
 
   emit('create', {
     name: form.name.trim(),
-    domain: form.domain.trim() || null,
     description: form.description.trim() || null,
     cnpj: form.cnpj.trim() || null,
     legalName: form.legalName.trim() || null,
@@ -148,21 +144,14 @@ defineExpose({ dialogRef, onSuccess, open });
         <span class="py-1 text-sm font-medium text-n-slate-12">
           {{ t('COMPANIES.CREATE.TITLE') }}
         </span>
-        <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input
-            v-model="form.name"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.NAME')"
-            :disabled="isLoading"
-            custom-input-class="h-8 !pt-1 !pb-1 [&:not(.error,.focus)]:!outline-transparent"
-            autofocus
-          />
-          <Input
-            v-model="form.domain"
-            :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.DOMAIN')"
-            :disabled="isLoading"
-            custom-input-class="h-8 !pt-1 !pb-1 [&:not(.error,.focus)]:!outline-transparent"
-          />
-        </div>
+        <Input
+          v-model="form.name"
+          :placeholder="t('COMPANIES.DETAIL.PROFILE.FIELDS.NAME')"
+          :disabled="isLoading"
+          custom-input-class="h-8 !pt-1 !pb-1 [&:not(.error,.focus)]:!outline-transparent"
+          class="w-full"
+          autofocus
+        />
         <div class="flex items-end w-full gap-1">
           <Input
             v-model="form.cnpj"
