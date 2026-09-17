@@ -91,6 +91,11 @@ export default {
   },
   computed: {
     ...mapGetters({ globalConfig: 'globalConfig/get' }),
+    // A mesma imagem serve a marca em tamanho normal e a textura gigante do
+    // fundo. O thumbnail vem primeiro por ser o recorte quadrado da marca.
+    brandMark() {
+      return this.globalConfig.logoThumbnail || this.globalConfig.logo;
+    },
     allowedLoginMethods() {
       return window.chatwootConfig.allowedLoginMethods || ['email'];
     },
@@ -293,15 +298,15 @@ export default {
     <!-- Painel da marca. Escuro nos dois temas de proposito: e uma superficie
          de marca, nao de conteudo, e o degrade so fecha sobre o #221F20. -->
     <aside class="login__brand" aria-hidden="true">
-      <div class="login__aurora" />
-      <div class="login__grid" />
+      <img :src="brandMark" alt="" class="login__watermark" />
+      <div class="login__depth" />
 
       <div class="login__brand-content">
         <div class="login__mark">
           <span class="login__halo" aria-hidden="true" />
           <span class="login__ring" aria-hidden="true" />
           <img
-            :src="globalConfig.logoThumbnail || globalConfig.logo"
+            :src="brandMark"
             :alt="globalConfig.installationName"
             class="login__brand-mark"
           />
@@ -472,52 +477,44 @@ export default {
   isolation: isolate;
 }
 
-/* Manchas de luz que respiram devagar. Duas camadas em tamanhos diferentes
-   evitam o efeito de "pulsacao" uniforme, que denuncia animacao barata. */
-.login__aurora {
+/* A propria marca e a textura do painel: uma copia gigante e quase apagada,
+   girando muito devagar. O azul deixa de ser mancha solta e passa a ter forma -
+   a forma da marca. Como e a mesma imagem, a identidade se repete em duas
+   escalas em vez de competir consigo mesma. */
+.login__watermark {
   position: absolute;
-  inset: -30%;
-  /* As manchas ficam fora do caminho da marca, que se apoia no canto superior
-     esquerdo do conteudo. Antes a mais clara nascia exatamente ali (22% 28%) e a
-     logo, sendo azul, se dissolvia nela. Agora a luz mora a direita e embaixo, e
-     o traco azul aparece contra o proprio #221F20 do painel - que e o fundo em
-     que ele foi desenhado para render. */
+  top: 50%;
+  left: 50%;
+  width: auto;
+  height: 150%;
+  max-width: none;
+  opacity: 0.09;
+  filter: saturate(1.6) blur(1px);
+  /* Centralizacao de base: a animacao repete este `translate` em cada quadro,
+     entao ela sobrepoe sem conflito - e quando o movimento e desligado por
+     `prefers-reduced-motion`, a marca continua no lugar certo em vez de saltar
+     para o canto. */
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  animation: drift 40s linear infinite;
+  pointer-events: none;
+}
+
+/* Profundidade: o painel escurece nas bordas e ganha um respiro de azul no
+   canto inferior direito - longe de onde a marca nitida se apoia. */
+.login__depth {
+  position: absolute;
+  inset: 0;
   background: radial-gradient(
-      42% 46% at 82% 22%,
-      color-mix(in srgb, var(--brand-bright) 82%, transparent) 0%,
+      60% 55% at 88% 82%,
+      color-mix(in srgb, var(--brand) 42%, transparent) 0%,
       transparent 70%
     ),
     radial-gradient(
-      48% 48% at 92% 62%,
-      color-mix(in srgb, var(--brand) 88%, transparent) 0%,
-      transparent 72%
-    ),
-    radial-gradient(
-      55% 52% at 38% 104%,
-      color-mix(in srgb, var(--brand-deep) 92%, transparent) 0%,
-      transparent 76%
+      120% 100% at 30% 35%,
+      transparent 0%,
+      color-mix(in srgb, var(--ink) 75%, transparent) 100%
     );
-  filter: blur(34px);
-  animation: aurora 14s ease-in-out infinite alternate;
-}
-
-/* Textura: uma grade fina que some nas bordas. Da materialidade sem competir
-   com a logo. */
-.login__grid {
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(
-      to right,
-      color-mix(in srgb, var(--white) 6%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--white) 6%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 46px 46px;
-  mask-image: radial-gradient(70% 60% at 50% 45%, #000 0%, transparent 100%);
 }
 
 .login__brand-content {
@@ -829,15 +826,18 @@ export default {
 
 /* ---------- Animacoes ---------- */
 
-@keyframes aurora {
-  0% {
-    transform: translate3d(-9%, -5%, 0) scale(1);
+/* Giro completo e lento. O `translate(-50%, -50%)` mora aqui, e nao no
+   elemento, porque `transform` e uma propriedade so: se ficasse no CSS base, a
+   animacao o sobrescreveria e a marca saltaria para fora do lugar. */
+@keyframes drift {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
   }
   50% {
-    transform: translate3d(8%, 9%, 0) scale(1.18);
+    transform: translate(-50%, -50%) rotate(180deg) scale(1.12);
   }
-  100% {
-    transform: translate3d(-5%, 7%, 0) scale(1.08);
+  to {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
   }
 }
 
@@ -887,7 +887,7 @@ export default {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .login__aurora,
+  .login__watermark,
   .login__halo,
   .login__ring,
   .login__brand-mark,
