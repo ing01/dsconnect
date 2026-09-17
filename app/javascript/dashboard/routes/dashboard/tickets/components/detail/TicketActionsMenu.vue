@@ -93,6 +93,21 @@ const operationItems = computed(() => {
       icon: 'i-lucide-arrow-right-left',
       disabled: !props.canUpdate,
     },
+    // Impedir e liberar aparecem um de cada vez, conforme o estado atual: os
+    // dois juntos obrigariam a pessoa a saber em qual deles o ticket esta.
+    props.ticket.blocked
+      ? {
+          label: label('UNBLOCK'),
+          value: 'unblock',
+          icon: 'i-lucide-play',
+          disabled: !props.canUpdate,
+        }
+      : {
+          label: label('BLOCK'),
+          value: 'block',
+          icon: 'i-lucide-octagon-pause',
+          disabled: !props.canUpdate || isTerminal.value,
+        },
     {
       label: label('RELATED_CONVERSATIONS'),
       value: 'relatedConversations',

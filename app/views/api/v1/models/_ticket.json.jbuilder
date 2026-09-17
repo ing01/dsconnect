@@ -37,6 +37,21 @@ json.cancelled_at resource.cancelled_at&.to_i
 # close). Plain columns, so the board pays nothing extra for them, and the
 # Kanban card can badge a grouped or child ticket without a second request.
 json.close_reason resource.close_reason
+
+# Impedimento. Vai no partial enxuto - e nao so no detalhe - porque o cartao do
+# Kanban precisa marcar visualmente o ticket impedido, e a listagem precisa
+# mostra-lo sem uma segunda consulta.
+json.blocked resource.blocked?
+json.blocked_at resource.blocked_at&.to_i
+json.blocked_reason resource.blocked_reason
+json.blocked_by do
+  if resource.blocked_by.present?
+    json.id resource.blocked_by.id
+    json.name resource.blocked_by.name
+  else
+    json.nil!
+  end
+end
 json.parent_id resource.parent_id
 json.merged_into_id resource.merged_into_id
 json.created_at resource.created_at.to_i

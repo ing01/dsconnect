@@ -63,6 +63,15 @@ const subject = computed(() =>
       </h1>
 
       <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- Impedido acompanha o status em vez de substitui-lo: um ticket
+             impedido continua ABERTO, e trocar o selo faria parecer que ele
+             saiu do fluxo. -->
+        <WootLabel
+          v-if="ticket.blocked"
+          :label="t('TICKET.IMPEDIMENT.LABEL')"
+          color="amber"
+          compact
+        />
         <WootLabel
           :label="t(`TICKET.STATUS.${ticket.status.toUpperCase()}`)"
           :color="statusColor(ticket.status)"

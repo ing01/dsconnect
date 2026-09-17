@@ -2,6 +2,7 @@ class Ticket < ApplicationRecord
   include Events::Types
   include TicketBroadcastable
   include TicketClosing
+  include TicketBlocking
   include TicketFinalizable
   include TicketAssigneeLevels
   include TicketCustomer

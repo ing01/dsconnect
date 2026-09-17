@@ -136,6 +136,12 @@ export function useTicketDetail(ticketId) {
   const cancel = reason =>
     runUpdate('tickets/cancelTicket', { id: ticketId.value, reason });
 
+  const block = reason =>
+    runUpdate('tickets/blockTicket', { id: ticketId.value, reason });
+
+  const unblock = () =>
+    runUpdate('tickets/unblockTicket', { id: ticketId.value });
+
   // These two return a DIFFERENT ticket than the one in view, so they do not go
   // through `runUpdate` (which refreshes this ticket's history): the caller
   // navigates to the new ticket instead.
@@ -197,6 +203,8 @@ export function useTicketDetail(ticketId) {
     assignToMe,
     adjustSla,
     cancel,
+    block,
+    unblock,
     reload: loadTicket,
   };
 }

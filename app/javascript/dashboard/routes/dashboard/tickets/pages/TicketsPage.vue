@@ -39,6 +39,9 @@ export default {
       // dialogs load its detail payload from this.
       actionTicketId: null,
       showDetailedSearch: false,
+      // Com que filtros a busca detalhada abre. Vazio pelo botao de sempre;
+      // `{ blocked: true }` pelo botao "Tickets impedidos".
+      searchPreset: {},
       targetColumnId: null,
       selectedTeamId: null,
       selectedAgentIds: [],
@@ -121,6 +124,17 @@ export default {
     },
     selectTeam(teamId) {
       this.selectedTeamId = Number(teamId);
+    },
+    // Um botao abre a busca de sempre; o outro abre a MESMA busca com o filtro
+    // de impedidos ja aplicado. O `key` no modal forca a remontagem, sem a qual
+    // o preset - lido na criacao do draft - nao valeria na segunda abertura.
+    openDetailedSearch() {
+      this.searchPreset = {};
+      this.showDetailedSearch = true;
+    },
+    openImpededSearch() {
+      this.searchPreset = { blocked: true };
+      this.showDetailedSearch = true;
     },
     // The filter row resolves add/remove/clear and hands over the full list.
     selectAgentFilter(agentIds) {
@@ -272,6 +286,19 @@ export default {
           @update="updateSort"
         />
 
+        <!-- Reaproveita a busca detalhada com o filtro ja aplicado, em vez de
+             ter tela propria: a lista de impedidos herda paginacao, ordenacao,
+             exportacao e os demais filtros sem duplicar nada. -->
+        <NextButton
+          icon="i-lucide-octagon-pause"
+          faded
+          amber
+          size="sm"
+          class="flex-shrink-0"
+          :label="$t('TICKET.IMPEDIMENT.LIST_BUTTON')"
+          @click="openImpededSearch"
+        />
+
         <NextButton
           icon="i-lucide-search"
           faded
@@ -280,7 +307,7 @@ export default {
           class="flex-shrink-0"
           :class="selectedTeamId ? '' : 'ltr:ml-auto rtl:mr-auto'"
           :label="$t('TICKET.SEARCH.BUTTON')"
-          @click="showDetailedSearch = true"
+          @click="openDetailedSearch"
         />
       </div>
     </header>
@@ -348,7 +375,11 @@ export default {
       :on-close="() => (showDetailedSearch = false)"
       size="medium"
     >
-      <TicketDetailedSearchModal :teams="teams" />
+      <TicketDetailedSearchModal
+        :key="searchPreset.blocked ? 'blocked' : 'all'"
+        :teams="teams"
+        :preset-filters="searchPreset"
+      />
     </woot-modal>
   </div>
 </template>

@@ -165,7 +165,9 @@
         "FOLLOWER_REMOVED": "{actor} removed a follower",
         "TITLE_CHANGED": "{actor} changed the title",
         "COMPANY_CHANGED": "{actor} changed the company",
-        "CONTACT_CHANGED": "{actor} changed the requester"
+        "CONTACT_CHANGED": "{actor} changed the requester",
+        "BLOCKED": "{actor} recorded an impediment",
+        "UNBLOCKED": "{actor} removed the impediment"
       }
     },
     "COMMENTS": {
@@ -697,6 +699,24 @@
         "SEARCH": "Search by name, e-mail or phone",
         "EMPTY": "No contact found.",
         "NEEDS_COMPANY": "Select a company first"
+      },
+      "BLOCK": "Impediment",
+      "UNBLOCK": "Remove impediment",
+      "BLOCK_DIALOG": {
+        "TITLE": "Record an impediment on ticket #{number}",
+        "DESCRIPTION": "The ticket stays open and on the same desk. The reason below becomes an internal comment.",
+        "REASON": "Impediment reason",
+        "REASON_PLACEHOLDER": "Describe what is blocking this ticket",
+        "REASON_HINT": "Required. This text will be posted as an internal comment.",
+        "BACK": "Back",
+        "CONFIRM": "Record impediment"
+      },
+      "UNBLOCK_DIALOG": {
+        "TITLE": "Remove the impediment from ticket #{number}",
+        "DESCRIPTION": "The ticket goes back to normal handling and leaves the blocked list.",
+        "CURRENT_REASON": "Recorded reason",
+        "BACK": "Back",
+        "CONFIRM": "Remove impediment"
       }
     },
     "CREATE": {
@@ -775,6 +795,13 @@
       "WORKING": "Generating...",
       "EMPTY": "No tickets available to export.",
       "FAILED": "The file could not be generated."
+    },
+    "IMPEDIMENT": {
+      "LABEL": "Blocked",
+      "TITLE": "Blocked ticket",
+      "META": "by {user}, {time}",
+      "META_USER": "by {user}",
+      "LIST_BUTTON": "Blocked tickets"
     }
   }
 }

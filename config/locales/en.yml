@@ -100,6 +100,9 @@ en:
       not_allowed: is not allowed to act at level %{level} on this service desk
     finalized:
       immutable: this ticket is closed and can no longer be changed; reopen it first
+    impediment:
+      reason_required: The impediment reason is required.
+      released_comment: Impediment removed by %{user_name}.
     close:
       blocked: This ticket cannot be closed yet.
     communication:

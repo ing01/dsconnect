@@ -34,7 +34,11 @@ class TicketActivity < ApplicationRecord
     contact_changed: 24,
     classified: 25,
     customer_communication_sent: 26,
-    category_changed: 27
+    category_changed: 27,
+    # Impedimento: o ticket travou por algo externo e continua ABERTO. Nao
+    # entra em `status` por isso mesmo - ver TicketBlocking.
+    blocked: 28,
+    unblocked: 29
   }
 
   def push_event_data

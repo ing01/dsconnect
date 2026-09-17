@@ -25,6 +25,8 @@ import TicketCreateDialog from '../components/create/TicketCreateDialog.vue';
 import TicketParentDialog from '../components/detail/actions/TicketParentDialog.vue';
 import TicketMergeDialog from '../components/detail/actions/TicketMergeDialog.vue';
 import TicketSlaHoursDialog from '../components/detail/actions/TicketSlaHoursDialog.vue';
+import TicketBlockDialog from '../components/detail/actions/TicketBlockDialog.vue';
+import TicketUnblockDialog from '../components/detail/actions/TicketUnblockDialog.vue';
 import TicketCancelDialog from '../components/detail/actions/TicketCancelDialog.vue';
 import TicketCloseDialog from '../components/detail/actions/TicketCloseDialog.vue';
 
@@ -53,6 +55,8 @@ const {
   assignToMe,
   adjustSla,
   cancel,
+  block,
+  unblock,
   reload,
 } = useTicketDetail(ticketId);
 
@@ -71,6 +75,8 @@ const showChildForm = ref(false);
 const parentDialog = ref(null);
 const mergeDialog = ref(null);
 const slaDialog = ref(null);
+const blockDialog = ref(null);
+const unblockDialog = ref(null);
 const cancelDialog = ref(null);
 const closeDialog = ref(null);
 
@@ -158,6 +164,8 @@ const DIALOG_BY_ACTION = {
   setParent: () => parentDialog,
   merge: () => mergeDialog,
   addSlaHours: () => slaDialog,
+  block: () => blockDialog,
+  unblock: () => unblockDialog,
   cancel: () => cancelDialog,
   close: () => closeDialog,
 };
@@ -222,6 +230,8 @@ const submitMerge = sourceId => runAction(() => merge(sourceId), mergeDialog);
 const submitSlaAdjustment = payload =>
   runAction(() => adjustSla(payload), slaDialog);
 
+const submitBlock = reason => runAction(() => block(reason), blockDialog);
+const submitUnblock = () => runAction(() => unblock(), unblockDialog);
 const submitCancel = reason => runAction(() => cancel(reason), cancelDialog);
 
 // Each of these edits one field in place, through the ticket's existing
@@ -373,6 +383,18 @@ const submitContact = contactId =>
         :ticket="ticket"
         :is-loading="isActing"
         @submit="submitSlaAdjustment"
+      />
+      <TicketBlockDialog
+        ref="blockDialog"
+        :ticket="ticket"
+        :is-loading="isActing"
+        @submit="submitBlock"
+      />
+      <TicketUnblockDialog
+        ref="unblockDialog"
+        :ticket="ticket"
+        :is-loading="isActing"
+        @submit="submitUnblock"
       />
       <TicketCancelDialog
         ref="cancelDialog"

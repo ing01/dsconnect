@@ -244,6 +244,15 @@ export default {
     </p>
 
     <div class="flex items-center flex-wrap gap-1.5">
+      <!-- Impedido vem primeiro entre os selos: e a informacao que muda o
+             que a pessoa faz com o cartao. Status e prioridade continuam ali,
+             porque o ticket segue aberto. -->
+      <WootLabel
+        v-if="ticket.blocked"
+        :label="$t('TICKET.IMPEDIMENT.LABEL')"
+        color="amber"
+        compact
+      />
       <WootLabel
         v-if="ticket.status"
         :label="statusLabel"

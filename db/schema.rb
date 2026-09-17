@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_10_180000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_17_130600) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -2167,10 +2167,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_10_180000) do
     t.datetime "scheduled_at"
     t.string "next_project_stage"
     t.bigint "assignee_2_id"
+    t.datetime "blocked_at"
+    t.text "blocked_reason"
+    t.bigint "blocked_by_id"
+    t.index ["account_id", "blocked_at"], name: "index_tickets_on_account_and_blocked", where: "(blocked_at IS NOT NULL)"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id"], name: "index_tickets_on_account_id"
     t.index ["assignee_2_id"], name: "index_tickets_on_assignee_2_id"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
+    t.index ["blocked_by_id"], name: "index_tickets_on_blocked_by_id", where: "(blocked_by_id IS NOT NULL)"
     t.index ["company_id"], name: "index_tickets_on_company_id"
     t.index ["contact_id"], name: "index_tickets_on_contact_id"
     t.index ["merged_into_id"], name: "index_tickets_on_merged_into_id"
@@ -2360,6 +2365,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_10_180000) do
   add_foreign_key "tickets", "tickets", column: "merged_into_id", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "parent_id", on_delete: :nullify
   add_foreign_key "tickets", "users", column: "assignee_2_id"
+  add_foreign_key "tickets", "users", column: "blocked_by_id"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").

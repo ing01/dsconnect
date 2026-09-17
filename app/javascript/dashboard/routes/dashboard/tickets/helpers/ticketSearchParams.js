@@ -28,4 +28,7 @@ export const toSearchParams = (filters = {}) => ({
   title: filters.title || undefined,
   created_after: filters.createdAfter || undefined,
   created_before: filters.createdBefore || undefined,
+  // Impedimento e um eixo proprio, ao lado do status: so vai quando pedido, e
+  // ausente a listagem se comporta exatamente como sempre.
+  blocked: filters.blocked ? true : undefined,
 });

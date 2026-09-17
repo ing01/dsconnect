@@ -25,6 +25,8 @@ const ACTIVITY_ICONS = {
   closed: 'i-lucide-check-check',
   conversation_linked: 'i-lucide-link',
   conversation_unlinked: 'i-lucide-unlink',
+  blocked: 'i-lucide-octagon-pause',
+  unblocked: 'i-lucide-play',
 };
 
 const { t } = useI18n();

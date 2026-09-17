@@ -29,6 +29,7 @@ class TicketFinder
     result = filter_by_attributes(result)
     result = filter_by_conversation(result)
     result = filter_by_contact(result)
+    result = filter_by_impediment(result)
     filter_by_date_and_text(result)
   end
 
@@ -39,6 +40,20 @@ class TicketFinder
     return relation.where(assignee_id: params[:assignee_id]) if params[:assignee_id].present?
 
     relation
+  end
+
+  # Impedimento e um eixo proprio, ao lado do status: um ticket impedido
+  # continua aberto. O filtro apenas recorta - nao mexe em `status` nem
+  # substitui nenhum dos filtros existentes.
+  #
+  # Ausente o parametro, a listagem nao muda em nada: e assim que o Kanban e
+  # a Busca detalhada seguem se comportando como sempre.
+  def filter_by_impediment(relation)
+    # `false.blank?` e true no Rails, entao `blank?` aqui descartaria um pedido
+    # explicito por NAO impedidos. So a ausencia do parametro desliga o filtro.
+    return relation if params[:blocked].nil? || params[:blocked] == ''
+
+    ActiveModel::Type::Boolean.new.cast(params[:blocked]) ? relation.blocked : relation.not_blocked
   end
 
   def filter_by_attributes(relation)

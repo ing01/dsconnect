@@ -14,6 +14,14 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  // Filtros ja aplicados na abertura. Serve ao botao "Tickets impedidos", que
+  // abre esta mesma busca com `blocked: true` em vez de ter tela propria - assim
+  // a listagem de impedidos herda paginacao, ordenacao, exportacao e os demais
+  // filtros sem duplicar nada.
+  presetFilters: {
+    type: Object,
+    default: () => ({}),
+  },
 });
 
 const { t } = useI18n();
@@ -57,6 +65,7 @@ const draft = reactive({
   displayId: '',
   title: '',
   ...emptySelection(),
+  ...props.presetFilters,
 });
 
 // Only applied (and therefore searched) once the agent clicks "Buscar" -
@@ -190,7 +199,15 @@ const search = () => {
 };
 
 const clearFilters = () => {
-  Object.assign(draft, { displayId: '', title: '', ...emptySelection() });
+  // O preset e reaplicado de proposito: quem abriu por "Tickets impedidos"
+  // espera continuar vendo impedidos depois de limpar os campos, nao cair na
+  // listagem geral.
+  Object.assign(draft, {
+    displayId: '',
+    title: '',
+    ...emptySelection(),
+    ...props.presetFilters,
+  });
   chosenCompanies.value = [];
   chosenContacts.value = [];
   search();

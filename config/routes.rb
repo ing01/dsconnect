@@ -420,6 +420,8 @@ Rails.application.routes.draw do
               patch :reopen
               patch :close
               patch :cancel
+              patch :block
+              patch :unblock
               patch :classify
               patch :transfer
               patch :set_parent

@@ -72,6 +72,17 @@ class TicketPolicy < ApplicationPolicy
     update?
   end
 
+  # Impedir e liberar sao tratativas do ticket, nao encerramento: seguem a mesma
+  # regra de `update?` - ticket nao finalizado, e quem atende (admin, responsavel
+  # ou membro da Mesa).
+  def block?
+    update?
+  end
+
+  def unblock?
+    update?
+  end
+
   # Every composite action from the "Acoes do ticket" menu is a mutation of the
   # ticket, so they all sit behind the same rule as `update?` - the frontend
   # hiding a menu entry is a convenience, never the check.

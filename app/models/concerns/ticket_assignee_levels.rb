@@ -63,6 +63,14 @@ module TicketAssigneeLevels
 
   def validate_level_assignee(level)
     column = AssigneeLeveled.assignee_column(level)
+
+    # So valida quem esta sendo ATRIBUIDO agora. Validando a cada salvamento, um
+    # ticket antigo cujo responsavel nao foi cadastrado no nivel ficava
+    # impossivel de salvar - e nao so para trocar o responsavel: fechar,
+    # cancelar, transferir ou impedir tambem passam por `save`, e todos
+    # quebravam por um dado que o usuario nem estava tocando.
+    return unless new_record? || will_save_change_to_attribute?(column)
+
     user_id = self[column]
     return if user_id.blank?
     return if team.members_for_level(level).exists?(id: user_id)

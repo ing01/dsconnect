@@ -122,6 +122,16 @@ class TicketsAPI extends ApiClient {
     });
   }
 
+  // Impedimento: o ticket para de andar mas continua aberto, entao isto nao
+  // pertence ao grupo de cancelar/fechar - ver TicketBlocking no servidor.
+  block(id, reason) {
+    return axios.patch(`${this.url}/${id}/block`, { reason });
+  }
+
+  unblock(id) {
+    return axios.patch(`${this.url}/${id}/unblock`);
+  }
+
   cancel(id, reason) {
     return axios.patch(`${this.url}/${id}/cancel`, { reason });
   }

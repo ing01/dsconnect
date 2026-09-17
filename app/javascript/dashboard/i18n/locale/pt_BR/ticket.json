@@ -165,7 +165,9 @@
         "FOLLOWER_REMOVED": "{actor} removeu um seguidor",
         "TITLE_CHANGED": "{actor} alterou o título",
         "COMPANY_CHANGED": "{actor} alterou a empresa",
-        "CONTACT_CHANGED": "{actor} alterou o solicitante"
+        "CONTACT_CHANGED": "{actor} alterou o solicitante",
+        "BLOCKED": "{actor} registrou um impedimento",
+        "UNBLOCKED": "{actor} retirou o impedimento"
       }
     },
     "COMMENTS": {
@@ -697,6 +699,24 @@
         "SEARCH": "Buscar por nome, e-mail ou telefone",
         "EMPTY": "Nenhum contato encontrado.",
         "NEEDS_COMPANY": "Selecione uma empresa primeiro"
+      },
+      "BLOCK": "Impedimento",
+      "UNBLOCK": "Retirar impedimento",
+      "BLOCK_DIALOG": {
+        "TITLE": "Registrar impedimento no ticket #{number}",
+        "DESCRIPTION": "O ticket continua aberto e na mesma Mesa. O motivo abaixo vira um comentário interno.",
+        "REASON": "Motivo do impedimento",
+        "REASON_PLACEHOLDER": "Descreva o que está travando o andamento do ticket",
+        "REASON_HINT": "Obrigatório. Este texto será publicado como comentário interno.",
+        "BACK": "Voltar",
+        "CONFIRM": "Registrar impedimento"
+      },
+      "UNBLOCK_DIALOG": {
+        "TITLE": "Retirar o impedimento do ticket #{number}",
+        "DESCRIPTION": "O ticket volta a ser tratado normalmente e sai da lista de impedidos.",
+        "CURRENT_REASON": "Motivo registrado",
+        "BACK": "Voltar",
+        "CONFIRM": "Retirar impedimento"
       }
     },
     "CREATE": {
@@ -775,6 +795,13 @@
       "WORKING": "Gerando...",
       "EMPTY": "Nenhum ticket disponível para exportação.",
       "FAILED": "Não foi possível gerar o arquivo."
+    },
+    "IMPEDIMENT": {
+      "LABEL": "Impedido",
+      "TITLE": "Ticket impedido",
+      "META": "por {user}, {time}",
+      "META_USER": "por {user}",
+      "LIST_BUTTON": "Tickets impedidos"
     }
   }
 }
