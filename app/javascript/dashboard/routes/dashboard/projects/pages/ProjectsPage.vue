@@ -7,6 +7,7 @@ import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { useRouter } from 'vue-router';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
+import Select from 'dashboard/components-next/select/Select.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { formatMesaName } from 'dashboard/helper/mesaName';
@@ -20,9 +21,9 @@ const { t } = useI18n();
 const store = useStore();
 const router = useRouter();
 
-const selectedTeamId = ref(null);
-const selectedImplementerId = ref(null);
-const selectedModuleId = ref(null);
+const selectedTeamId = ref('');
+const selectedImplementerId = ref('');
+const selectedModuleId = ref('');
 const searchQuery = ref('');
 const showCompleted = ref(false);
 const showCreateModal = ref(false);
@@ -37,6 +38,19 @@ const uiFlags = computed(() => store.getters['projects/getUIFlags'] || {});
 
 const activeProjectsCount = computed(() => projects.value.filter(p => p.stage !== 'finalizado').length);
 const completedProjectsCount = computed(() => projects.value.filter(p => p.stage === 'finalizado').length);
+
+const teamOptions = computed(() => [
+  { value: '', label: t('PROJECTS.FILTER.ALL_MESAS') },
+  ...teams.value.map(team => ({ value: team.id, label: formatMesaName(team.name) })),
+]);
+const implementerOptions = computed(() => [
+  { value: '', label: t('PROJECTS.FILTER.ALL_IMPLEMENTERS') },
+  ...agents.value.map(agent => ({ value: agent.id, label: agent.name })),
+]);
+const moduleOptions = computed(() => [
+  { value: '', label: t('PROJECTS.FILTER.ALL_MODULES') },
+  ...modules.value.map(mod => ({ value: mod.id, label: mod.name })),
+]);
 
 const loadProjects = () => {
   store.dispatch('projects/get', {
@@ -146,82 +160,67 @@ const goToTasksSettings = () => {
       </div>
 
       <!-- Controls Row: Team selector, Search, Active vs Completed switch -->
-      <div class="flex items-center justify-between flex-wrap gap-3 pt-3 border-t border-n-weak">
-        <div class="flex items-center gap-3 flex-wrap">
+      <div class="flex items-center justify-between flex-wrap gap-4 pt-3 border-t border-n-weak">
+        <div class="flex items-center gap-5 flex-wrap">
           <!-- Mesa Selector -->
           <div class="flex items-center gap-2">
-            <span class="text-xs font-medium text-n-slate-11">
-              {{ t('PROJECTS.FILTER.MESA') }}:
+            <Icon icon="i-lucide-users" class="size-4 text-n-slate-10" />
+            <span class="text-xs font-medium text-n-slate-11 whitespace-nowrap">
+              {{ t('PROJECTS.FILTER.MESA') }}
             </span>
-            <select
+            <Select
               v-model="selectedTeamId"
-              class="h-8 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none"
-            >
-              <option :value="null">{{ t('PROJECTS.FILTER.ALL_MESAS') }}</option>
-              <option v-for="team in teams" :key="team.id" :value="team.id">
-                {{ formatMesaName(team.name) }}
-              </option>
-            </select>
+              :options="teamOptions"
+              :aria-label="t('PROJECTS.FILTER.MESA')"
+            />
           </div>
 
           <!-- Implantador Selector -->
           <div class="flex items-center gap-2">
-            <span class="text-xs font-medium text-n-slate-11">
-              {{ t('PROJECTS.FILTER.IMPLEMENTER') }}:
+            <Icon icon="i-lucide-user-check" class="size-4 text-n-slate-10" />
+            <span class="text-xs font-medium text-n-slate-11 whitespace-nowrap">
+              {{ t('PROJECTS.FILTER.IMPLEMENTER') }}
             </span>
-            <select
+            <Select
               v-model="selectedImplementerId"
-              class="h-8 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none"
-            >
-              <option :value="null">{{ t('PROJECTS.FILTER.ALL_IMPLEMENTERS') }}</option>
-              <option v-for="agent in agents" :key="agent.id" :value="agent.id">
-                {{ agent.name }}
-              </option>
-            </select>
+              :options="implementerOptions"
+              :aria-label="t('PROJECTS.FILTER.IMPLEMENTER')"
+            />
           </div>
 
           <!-- Modulo Selector -->
           <div class="flex items-center gap-2">
-            <span class="text-xs font-medium text-n-slate-11">
-              {{ t('PROJECTS.FILTER.MODULE') }}:
+            <Icon icon="i-lucide-layers" class="size-4 text-n-slate-10" />
+            <span class="text-xs font-medium text-n-slate-11 whitespace-nowrap">
+              {{ t('PROJECTS.FILTER.MODULE') }}
             </span>
-            <select
+            <Select
               v-model="selectedModuleId"
-              class="h-8 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none"
-            >
-              <option :value="null">{{ t('PROJECTS.FILTER.ALL_MODULES') }}</option>
-              <option v-for="mod in modules" :key="mod.id" :value="mod.id">
-                {{ mod.name }}
-              </option>
-            </select>
+              :options="moduleOptions"
+              :aria-label="t('PROJECTS.FILTER.MODULE')"
+            />
           </div>
 
           <!-- Active / Completed toggle buttons -->
-          <div class="flex items-center bg-n-slate-3 p-0.5 rounded-lg text-xs">
-            <button
-              type="button"
-              class="px-3 py-1 rounded-md font-medium transition-colors"
-              :class="
-                !showCompleted
-                  ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
-                  : 'text-n-slate-11 hover:text-n-slate-12'
-              "
+          <div class="flex items-center gap-0.5 p-0.5 rounded-lg bg-n-slate-3">
+            <NextButton
+              size="sm"
+              variant="ghost"
+              color="slate"
+              no-animation
+              :class="!showCompleted && 'bg-gradient-to-r from-n-blue-9 to-n-teal-9 !text-white'"
+              :label="`${t('PROJECTS.FILTER.ACTIVE_PROJECTS')} (${activeProjectsCount})`"
               @click="showCompleted = false"
-            >
-              {{ t('PROJECTS.FILTER.ACTIVE_PROJECTS') }} ({{ activeProjectsCount }})
-            </button>
-            <button
-              type="button"
-              class="px-3 py-1 rounded-md font-medium transition-colors"
-              :class="
-                showCompleted
-                  ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
-                  : 'text-n-slate-11 hover:text-n-slate-12'
-              "
+            />
+            <NextButton
+              size="sm"
+              variant="ghost"
+              color="slate"
+              no-animation
+              :class="showCompleted && 'bg-gradient-to-r from-n-blue-9 to-n-teal-9 !text-white'"
+              :label="`${t('PROJECTS.FILTER.COMPLETED_PROJECTS')} (${completedProjectsCount})`"
               @click="showCompleted = true"
-            >
-              {{ t('PROJECTS.FILTER.COMPLETED_PROJECTS') }} ({{ completedProjectsCount }})
-            </button>
+            />
           </div>
         </div>
 
