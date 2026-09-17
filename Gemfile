@@ -222,6 +222,11 @@ gem 'prawn-table'
 # O prawn depende de `matrix`, que deixou de ser gem padrao no Ruby 3.4.
 gem 'matrix'
 
+# Leitura de planilhas .xlsx enviadas pelo usuario (importacao de Clientes e
+# Catalogo de Servicos na tela Dados). `caxlsx` acima so escreve; para ler
+# precisa de uma gem separada.
+gem 'roo'
+
 ### Gems required only in specific deployment environments ###
 ##############################################################
 

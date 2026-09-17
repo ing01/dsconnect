@@ -273,6 +273,7 @@ Rails.application.routes.draw do
           resources :data_imports, only: [:index, :show, :create] do
             collection do
               post :validate_source
+              post :upload
             end
             member do
               post :start

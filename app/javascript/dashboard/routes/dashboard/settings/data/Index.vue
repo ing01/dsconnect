@@ -17,6 +17,7 @@ import SettingsLayout from '../SettingsLayout.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import DataImportsAPI from 'dashboard/api/dataImports';
 import NewImportDialog from './NewImportDialog.vue';
+import SpreadsheetImportCard from './components/SpreadsheetImportCard.vue';
 import { importSourceFor } from './importSources';
 import {
   POLL_INTERVAL_MS,
@@ -45,6 +46,7 @@ const accountId = getters.getCurrentAccountId;
 
 const tabs = computed(() => [
   { key: 'import', label: t('DATA_IMPORTS.TABS.IMPORT') },
+  { key: 'spreadsheets', label: t('DATA_IMPORTS.TABS.SPREADSHEETS') },
   { key: 'export', label: t('DATA_IMPORTS.TABS.EXPORT') },
 ]);
 
@@ -73,6 +75,10 @@ const importTypeLabel = dataImport =>
       if (type === 'contacts') return t('DATA_IMPORTS.TYPES.CONTACTS');
       if (type === 'conversations') {
         return t('DATA_IMPORTS.TYPES.CONVERSATIONS');
+      }
+      if (type === 'clientes') return t('DATA_IMPORTS.TYPES.CLIENTES');
+      if (type === 'service_catalog') {
+        return t('DATA_IMPORTS.TYPES.SERVICE_CATALOG');
       }
       return type;
     })
@@ -241,7 +247,29 @@ onBeforeUnmount(() => {
 
     <template #body>
       <div
-        v-if="activeTab === 'export'"
+        v-if="activeTab === 'spreadsheets'"
+        class="grid grid-cols-1 gap-4 lg:grid-cols-2"
+      >
+        <SpreadsheetImportCard
+          data-type="clientes"
+          icon="i-lucide-building-2"
+          :title="$t('DATA_IMPORTS.SPREADSHEETS.CLIENTES.TITLE')"
+          :description="$t('DATA_IMPORTS.SPREADSHEETS.CLIENTES.DESCRIPTION')"
+          template-url="/downloads/clientes-modelo.xlsx"
+          template-filename="clientes-modelo.xlsx"
+        />
+        <SpreadsheetImportCard
+          data-type="service_catalog"
+          icon="i-lucide-list-tree"
+          :title="$t('DATA_IMPORTS.SPREADSHEETS.SERVICE_CATALOG.TITLE')"
+          :description="$t('DATA_IMPORTS.SPREADSHEETS.SERVICE_CATALOG.DESCRIPTION')"
+          template-url="/downloads/catalogo-servicos-modelo.xlsx"
+          template-filename="catalogo-servicos-modelo.xlsx"
+        />
+      </div>
+
+      <div
+        v-else-if="activeTab === 'export'"
         class="flex min-h-80 flex-col items-center justify-center gap-4 rounded-xl border border-n-weak bg-n-solid-1 px-6 py-16 text-center"
       >
         <span
