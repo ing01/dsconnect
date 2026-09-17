@@ -300,6 +300,7 @@ export default {
         <div class="login__mark">
           <span class="login__halo" aria-hidden="true" />
           <span class="login__ring" aria-hidden="true" />
+          <span class="login__plate" aria-hidden="true" />
           <img
             :src="globalConfig.logoThumbnail || globalConfig.logo"
             :alt="globalConfig.installationName"
@@ -548,9 +549,11 @@ export default {
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--brand-bright) 85%, transparent) 0%,
-    color-mix(in srgb, var(--brand) 45%, transparent) 42%,
-    transparent 68%
+    transparent 0%,
+    transparent 34%,
+    color-mix(in srgb, var(--brand-bright) 88%, transparent) 50%,
+    color-mix(in srgb, var(--brand) 40%, transparent) 62%,
+    transparent 74%
   );
   filter: blur(30px);
   animation: halo 4.5s ease-in-out infinite;
@@ -581,11 +584,33 @@ export default {
   animation: spin 9s linear infinite;
 }
 
+/* Disco escuro sob a marca. Sem ele a logo - que e azul - fica sobre o azul da
+   aurora e some por falta de contraste. O escuro e a cor que faz um traco azul
+   render: mesma razao pela qual a marca aparece bem no tema escuro do app. */
+.login__plate {
+  position: absolute;
+  z-index: 0;
+  width: 124%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ink) 96%, transparent) 0%,
+    color-mix(in srgb, var(--ink) 88%, transparent) 58%,
+    color-mix(in srgb, var(--ink) 40%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--white) 9%, transparent),
+    0 18px 50px -12px rgb(0 0 0 / 65%);
+}
+
 .login__brand-mark {
   position: relative;
+  z-index: 1;
   width: auto;
   height: clamp(9.5rem, 16vw, 17rem);
-  filter: drop-shadow(0 10px 30px rgb(18 123 186 / 65%));
+  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 55%))
+    drop-shadow(0 0 26px rgb(18 123 186 / 45%));
   animation:
     rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both,
     float 5s ease-in-out 700ms infinite;
