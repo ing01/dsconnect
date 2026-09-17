@@ -386,7 +386,7 @@
   },
   "ONBOARDING": {
     "TITLE": "Olá, 👋. Bem-vindo ao {installationName}!",
-    "DESCRIPTION": "Obrigado por se inscrever. Queremos que você aproveite o máximo de {installationName}. Aqui estão algumas coisas que você consegue fazer em {installationName} para que tenha uma experiência agradável.",
+    "DESCRIPTION": "Obrigado por se inscrever. Queremos que você aproveite o máximo de {installationName}!",
     "GREETING_MORNING": "👋 Bom dia, {name}. Bem-vindo a {installationName}.",
     "GREETING_AFTERNOON": "👋 Boa tarde, {name}. Bem-vindo a {installationName}.",
     "GREETING_EVENING": "👋 Boa noite, {name}. Bem-vindo a {installationName}.",
