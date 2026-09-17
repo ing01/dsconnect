@@ -101,6 +101,7 @@ en:
     finalized:
       immutable: this ticket is closed and can no longer be changed; reopen it first
     impediment:
+      recorded_comment: 'Impediment recorded: %{reason}'
       reason_required: The impediment reason is required.
       released_comment: Impediment removed by %{user_name}.
     close:

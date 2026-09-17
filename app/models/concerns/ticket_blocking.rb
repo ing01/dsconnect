@@ -67,11 +67,18 @@ module TicketBlocking
 
   private
 
-  # O comentario carrega EXATAMENTE o texto que a pessoa escreveu, sem prefixo
-  # nem enfeite: o motivo e dela, e o historico ao lado ja diz que se trata de um
-  # impedimento.
+  # O comentario anuncia o que aconteceu antes de dar o motivo: lido no meio do
+  # historico, "Aguardando o fornecedor" sozinho nao diz se e um impedimento, uma
+  # observacao ou uma resposta. O texto da pessoa vai integro depois do rotulo.
+  #
+  # O motivo cru continua guardado em `blocked_reason`, entao a tela mostra o
+  # texto limpo e o historico mostra o texto rotulado.
   def register_impediment_comment(user, motivo)
-    ticket_comments.create!(account_id: account_id, user: user, content: motivo)
+    ticket_comments.create!(
+      account_id: account_id,
+      user: user,
+      content: I18n.t('tickets.impediment.recorded_comment', reason: motivo)
+    )
   end
 
   def register_release_comment(user)

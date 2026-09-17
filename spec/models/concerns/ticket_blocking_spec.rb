@@ -28,14 +28,25 @@ RSpec.describe TicketBlocking do
       expect(ticket.reload.status).to eq('open')
     end
 
-    it 'creates an internal comment with exactly the reason given' do
+    # O comentario anuncia o que aconteceu e so depois da o motivo: lido no meio
+    # do historico, o texto cru nao diria de que movimento se trata.
+    it 'creates an internal comment carrying the reason under a label' do
       expect { ticket.block!(user, reason: 'Cliente nao respondeu o e-mail') }
         .to change { ticket.ticket_comments.count }.by(1)
 
-      expect(ticket.ticket_comments.order(:id).last).to have_attributes(
-        content: 'Cliente nao respondeu o e-mail',
-        user: user
+      comentario = ticket.ticket_comments.order(:id).last
+      expect(comentario.user).to eq(user)
+      expect(comentario.content).to include('Cliente nao respondeu o e-mail')
+      expect(comentario.content).to start_with(
+        I18n.t('tickets.impediment.recorded_comment', reason: '').strip
       )
+    end
+
+    # O campo guarda o texto limpo: e ele que a tela mostra no aviso, sem rotulo.
+    it 'stores the raw reason on the ticket, without the label' do
+      ticket.block!(user, reason: 'Cliente nao respondeu o e-mail')
+
+      expect(ticket.reload.blocked_reason).to eq('Cliente nao respondeu o e-mail')
     end
 
     it 'records the movement in the history' do

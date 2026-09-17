@@ -34,7 +34,7 @@ RSpec.describe 'Ticket impediment', type: :request do
       expect { act(:block, ticket, { reason: 'Falta aprovacao do gestor' }) }
         .to change { ticket.ticket_comments.count }.by(1)
 
-      expect(ticket.ticket_comments.order(:id).last.content).to eq('Falta aprovacao do gestor')
+      expect(ticket.ticket_comments.order(:id).last.content).to include('Falta aprovacao do gestor')
     end
 
     it 'rejects a blank reason without touching the ticket' do
