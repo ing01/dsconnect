@@ -303,7 +303,6 @@ export default {
 
       <div class="login__brand-content">
         <div class="login__mark">
-          <span class="login__halo" aria-hidden="true" />
           <span class="login__ring" aria-hidden="true" />
           <img
             :src="brandMark"
@@ -539,25 +538,6 @@ export default {
   align-self: flex-start;
   margin-bottom: 3.5rem;
   isolation: isolate;
-}
-
-/* Brilho azul que respira atras da marca. */
-.login__halo {
-  position: absolute;
-  z-index: -2;
-  width: 215%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    transparent 0%,
-    transparent 34%,
-    color-mix(in srgb, var(--brand-bright) 88%, transparent) 50%,
-    color-mix(in srgb, var(--brand) 40%, transparent) 62%,
-    transparent 74%
-  );
-  filter: blur(30px);
-  animation: halo 4.5s ease-in-out infinite;
 }
 
 /* Anel de luz girando: da movimento continuo sem mexer na logo em si. */
@@ -851,18 +831,6 @@ export default {
   }
 }
 
-@keyframes halo {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scale(0.86);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.24);
-  }
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -888,7 +856,6 @@ export default {
 
 @media (prefers-reduced-motion: reduce) {
   .login__watermark,
-  .login__halo,
   .login__ring,
   .login__brand-mark,
   .login__tagline,
