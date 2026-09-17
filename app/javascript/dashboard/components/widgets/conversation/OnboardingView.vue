@@ -1,28 +1,7 @@
 <script setup>
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useStoreGetters } from 'dashboard/composables/store';
+import { useGreeting } from 'dashboard/composables/useGreeting';
 
-const getters = useStoreGetters();
-const { t } = useI18n();
-const globalConfig = computed(() => getters['globalConfig/get'].value);
-const currentUser = computed(() => getters.getCurrentUser.value);
-
-const greetingMessage = computed(() => {
-  const hours = new Date().getHours();
-  let translationKey;
-  if (hours < 12) {
-    translationKey = 'ONBOARDING.GREETING_MORNING';
-  } else if (hours < 18) {
-    translationKey = 'ONBOARDING.GREETING_AFTERNOON';
-  } else {
-    translationKey = 'ONBOARDING.GREETING_EVENING';
-  }
-  return t(translationKey, {
-    name: currentUser.value.name,
-    installationName: globalConfig.value.installationName,
-  });
-});
+const { greetingMessage, globalConfig } = useGreeting();
 </script>
 
 <template>
