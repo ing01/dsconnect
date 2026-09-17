@@ -300,7 +300,6 @@ export default {
         <div class="login__mark">
           <span class="login__halo" aria-hidden="true" />
           <span class="login__ring" aria-hidden="true" />
-          <span class="login__plate" aria-hidden="true" />
           <img
             :src="globalConfig.logoThumbnail || globalConfig.logo"
             :alt="globalConfig.installationName"
@@ -478,20 +477,25 @@ export default {
 .login__aurora {
   position: absolute;
   inset: -30%;
+  /* As manchas ficam fora do caminho da marca, que se apoia no canto superior
+     esquerdo do conteudo. Antes a mais clara nascia exatamente ali (22% 28%) e a
+     logo, sendo azul, se dissolvia nela. Agora a luz mora a direita e embaixo, e
+     o traco azul aparece contra o proprio #221F20 do painel - que e o fundo em
+     que ele foi desenhado para render. */
   background: radial-gradient(
-      38% 42% at 22% 28%,
-      color-mix(in srgb, var(--brand-bright) 78%, transparent) 0%,
+      42% 46% at 82% 22%,
+      color-mix(in srgb, var(--brand-bright) 82%, transparent) 0%,
       transparent 70%
     ),
     radial-gradient(
-      45% 45% at 78% 35%,
-      color-mix(in srgb, var(--brand) 85%, transparent) 0%,
+      48% 48% at 92% 62%,
+      color-mix(in srgb, var(--brand) 88%, transparent) 0%,
       transparent 72%
     ),
     radial-gradient(
-      50% 50% at 50% 88%,
-      color-mix(in srgb, var(--brand-deep) 88%, transparent) 0%,
-      transparent 75%
+      55% 52% at 38% 104%,
+      color-mix(in srgb, var(--brand-deep) 92%, transparent) 0%,
+      transparent 76%
     );
   filter: blur(34px);
   animation: aurora 14s ease-in-out infinite alternate;
@@ -584,33 +588,16 @@ export default {
   animation: spin 9s linear infinite;
 }
 
-/* Disco escuro sob a marca. Sem ele a logo - que e azul - fica sobre o azul da
-   aurora e some por falta de contraste. O escuro e a cor que faz um traco azul
-   render: mesma razao pela qual a marca aparece bem no tema escuro do app. */
-.login__plate {
-  position: absolute;
-  z-index: 0;
-  width: 124%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ink) 96%, transparent) 0%,
-    color-mix(in srgb, var(--ink) 88%, transparent) 58%,
-    color-mix(in srgb, var(--ink) 40%, transparent) 100%
-  );
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--white) 9%, transparent),
-    0 18px 50px -12px rgb(0 0 0 / 65%);
-}
-
 .login__brand-mark {
   position: relative;
   z-index: 1;
   width: auto;
   height: clamp(9.5rem, 16vw, 17rem);
-  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 55%))
-    drop-shadow(0 0 26px rgb(18 123 186 / 45%));
+  /* A propria marca fica mais viva, em vez de depender de um fundo atras dela:
+     um pouco mais de saturacao e brilho no traco, uma sombra escura curta que a
+     descola do painel, e um halo azul largo que a faz existir no escuro. */
+  filter: saturate(1.2) brightness(1.12) drop-shadow(0 3px 8px rgb(0 0 0 / 60%))
+    drop-shadow(0 0 34px rgb(18 123 186 / 55%));
   animation:
     rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both,
     float 5s ease-in-out 700ms infinite;
