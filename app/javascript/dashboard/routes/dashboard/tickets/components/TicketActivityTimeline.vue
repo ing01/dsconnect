@@ -29,7 +29,10 @@ const ACTIVITY_ICONS = {
   unblocked: 'i-lucide-play',
 };
 
-const { t } = useI18n();
+// `te` diz se a chave existe. Sem ele, `t` de uma chave ausente devolve o
+// PROPRIO caminho - foi assim que "TICKET.ACTIVITY.FIELDS.COMMENT_ADDED"
+// apareceu na tela como se fosse texto.
+const { t, te } = useI18n();
 const store = useStore();
 
 // Quais entradas estao com o detalhe aberto. Um Set porque varias podem estar
@@ -46,16 +49,29 @@ const isLoading = computed(
 
 const chave = tipo => (tipo || '').toUpperCase();
 
-const titulo = activity =>
-  t(`TICKET.ACTIVITY.TITLES.${chave(activity.activity_type)}`, '') ||
-  t(`TICKET.ACTIVITY.TYPES.${chave(activity.activity_type)}`, {
-    actor: activity.user?.name || t('TICKET.ACTIVITY.SYSTEM'),
-  });
+const titulo = activity => {
+  const tipo = chave(activity.activity_type);
+  if (te(`TICKET.ACTIVITY.TITLES.${tipo}`)) {
+    return t(`TICKET.ACTIVITY.TITLES.${tipo}`);
+  }
+
+  // Tipo sem titulo proprio cai no rotulo antigo, que e uma frase completa com
+  // o autor - melhor uma frase em prosa do que o nome da chave.
+  if (te(`TICKET.ACTIVITY.TYPES.${tipo}`)) {
+    return t(`TICKET.ACTIVITY.TYPES.${tipo}`, {
+      actor: activity.user?.name || t('TICKET.ACTIVITY.SYSTEM'),
+    });
+  }
+
+  return '';
+};
 
 // Nem toda atividade e mudanca de campo: "duplicou", "comentou" e "criou" nao
 // tem campo nenhum, e a linha "Mudanca em" simplesmente nao aparece.
-const campo = activity =>
-  t(`TICKET.ACTIVITY.FIELDS.${chave(activity.activity_type)}`, '') || '';
+const campo = activity => {
+  const alvo = `TICKET.ACTIVITY.FIELDS.${chave(activity.activity_type)}`;
+  return te(alvo) ? t(alvo) : '';
+};
 
 const temValores = activity =>
   Boolean(activity.previous_value || activity.new_value);
