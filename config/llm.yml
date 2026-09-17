@@ -67,6 +67,10 @@ models:
     provider: openai
     display_name: 'Text Embedding 3 Small'
     credit_multiplier: 1
+  openai/gpt-oss-20b:
+    provider: openai
+    display_name: 'GPT-OSS 20B (Groq, gratuito)'
+    credit_multiplier: 1
 
 features:
   conversation_completion:
@@ -106,6 +110,7 @@ features:
         claude-sonnet-4.5,
         gemini-3-flash,
         gemini-3-pro,
+        'openai/gpt-oss-20b',
       ]
     default: gpt-4.1
   copilot:
