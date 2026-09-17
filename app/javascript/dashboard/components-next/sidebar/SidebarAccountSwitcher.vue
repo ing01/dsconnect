@@ -41,7 +41,7 @@ const sortedCurrentUserAccounts = computed(() => {
 });
 
 const onChangeAccount = newId => {
-  const accountUrl = `/app/accounts/${newId}/dashboard`;
+  const accountUrl = `/app/accounts/${newId}/principal`;
   window.location.href = accountUrl;
 };
 

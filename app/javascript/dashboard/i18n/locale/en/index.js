@@ -50,6 +50,7 @@ import whatsappTemplateMgmt from './whatsappTemplateMgmt.json';
 import contentTemplates from './contentTemplates.json';
 import mfa from './mfa.json';
 import onboarding from './onboarding.json';
+import principal from './principal.json';
 import projects from './projects.json';
 import implementationReport from './implementationReport.json';
 import sessionLimit from './sessionLimit.json';
@@ -108,6 +109,7 @@ export default {
   ...contentTemplates,
   ...mfa,
   ...onboarding,
+  ...principal,
   ...projects,
   ...implementationReport,
   ...sessionLimit,
