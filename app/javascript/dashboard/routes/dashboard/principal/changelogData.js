@@ -5,6 +5,59 @@
 // the array = most recent) whenever a change is worth telling the team about.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'company-required-fields',
+    date: '17 de setembro de 2026',
+    type: 'design',
+    title: 'Cadastro de Empresa mais simples',
+    description:
+      'Removemos o campo de domínio do cadastro de empresa. Agora só nome e CNPJ são obrigatórios.',
+    comparison: {
+      kind: 'text',
+      before: 'Nome',
+      after: 'Nome + CNPJ',
+    },
+  },
+  {
+    id: 'excel-import',
+    date: '17 de setembro de 2026',
+    type: 'feature',
+    title: 'Importação por planilha na tela Dados',
+    description:
+      'Nova aba "Planilhas" em Configurações > Dados: importe Clientes (empresas e contatos) e o Catálogo de Serviços a partir de um Excel, com planilha modelo pra baixar e conferência de erros linha a linha.',
+  },
+  {
+    id: 'projects-filters',
+    date: '17 de setembro de 2026',
+    type: 'design',
+    title: 'Filtros da tela de Projetos renovados',
+    description:
+      'Seletores de Equipe, Implantador e Módulo com visual mais moderno, e as abas Ativos/Concluídos agora usam o degradê azul da marca.',
+  },
+  {
+    id: 'principal-page',
+    date: '17 de setembro de 2026',
+    type: 'feature',
+    title: 'Nova página "Principal"',
+    description:
+      'Ao entrar no sistema, você cai aqui em vez de direto nas conversas: uma saudação de boas-vindas e esta lista de novidades.',
+  },
+  {
+    id: 'conversation-empty-state',
+    date: '17 de setembro de 2026',
+    type: 'design',
+    title: '"Selecione uma conversa" no lugar da saudação',
+    description:
+      'A tela de conversas passou a mostrar a mesma ilustração de balãozinho usada nos outros estados vazios, já que a saudação agora mora na página Principal.',
+  },
+  {
+    id: 'duesoft-logo',
+    date: '17 de setembro de 2026',
+    type: 'design',
+    title: 'Nova logo em toda a plataforma',
+    description:
+      'Trocamos o ícone da aba do navegador, o login e a barra lateral pela nova marca da Duesoft.',
+  },
+  {
     id: 'gradient-buttons',
     date: '17 de setembro de 2026',
     type: 'design',
@@ -31,7 +84,7 @@ export const CHANGELOG_ENTRIES = [
     type: 'design',
     title: 'Nova marca: DSConnect',
     description:
-      'Trocamos o nome e a logo em toda a plataforma — na aba do navegador, na barra lateral e na tela de login.',
+      'Trocamos o nome em toda a plataforma — na aba do navegador, na barra lateral e na tela de login.',
     comparison: {
       kind: 'text',
       before: 'Duesoft',
