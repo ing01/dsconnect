@@ -71,6 +71,10 @@ models:
     provider: openai
     display_name: 'GPT-OSS 20B (Groq, gratuito)'
     credit_multiplier: 1
+  groq/compound:
+    provider: openai
+    display_name: 'Groq Compound (Groq, gratuito)'
+    credit_multiplier: 1
 
 features:
   conversation_completion:
@@ -111,6 +115,7 @@ features:
         gemini-3-flash,
         gemini-3-pro,
         'openai/gpt-oss-20b',
+        'groq/compound',
       ]
     default: gpt-4.1
   copilot:
