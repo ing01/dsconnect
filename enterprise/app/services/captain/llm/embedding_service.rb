@@ -3,6 +3,12 @@ class Captain::Llm::EmbeddingService
 
   class EmbeddingsError < StandardError; end
 
+  # All embedding vector columns (article_embeddings, knowledge_entries,
+  # captain_faq_suggestions) are pgvector columns fixed at 1536 dimensions,
+  # matching OpenAI's text-embedding-3-small. Any other embedding model must
+  # be asked to emit the same size, or Postgres rejects the insert.
+  VECTOR_DIMENSIONS = 1536
+
   def initialize(account_id: nil)
     Llm::Config.initialize!
     @account_id = account_id
@@ -22,7 +28,7 @@ class Captain::Llm::EmbeddingService
       # settings, so pin provider explicitly instead of letting it guess from
       # the model name (e.g. "gemini-embedding-2" would otherwise be routed to
       # RubyLLM's native Gemini provider, which has no credentials here).
-      RubyLLM.embed(content, model: model, provider: :openai, assume_model_exists: true).vectors
+      RubyLLM.embed(content, model: model, provider: :openai, assume_model_exists: true, dimensions: VECTOR_DIMENSIONS).vectors
     end
   rescue RubyLLM::Error => e
     Rails.logger.error "Embedding API Error: #{e.message}"
