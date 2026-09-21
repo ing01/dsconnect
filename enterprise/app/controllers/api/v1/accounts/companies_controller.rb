@@ -91,6 +91,9 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
     @company = Current.account.companies.find(params[:id])
   end
 
+  # `client_level` (a Prioridade) nao entra aqui de proposito - e' sempre
+  # recalculada pelo model a partir de `billing_amount` (ver
+  # Company#compute_client_level), nunca definida manualmente pela request.
   def company_params
     params.require(:company).permit(
       :name,
@@ -108,7 +111,6 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :address_neighborhood,
       :address_city,
       :address_state,
-      :client_level,
       :campaign_opt_in,
       :blocked,
       :company_category_id,

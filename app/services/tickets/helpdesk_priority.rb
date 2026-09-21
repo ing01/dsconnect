@@ -7,8 +7,8 @@
 # pedida mapeia para 3 dos 4: baixa->low, media->medium, alta->urgent. `high`
 # fica de fora, reservado para escalonamento manual por uma pessoa.
 class Tickets::HelpdeskPriority
-  # 1 = sem prioridade ... 5 = prioridade maxima (Company#client_level).
-  LEVEL_BASELINE = { 1 => 'baixa', 2 => 'baixa', 3 => 'media', 4 => 'media', 5 => 'alta' }.freeze
+  # 1 = Baixa, 2 = Media, 3 = Alta (Company#client_level).
+  LEVEL_BASELINE = { 1 => 'baixa', 2 => 'media', 3 => 'alta' }.freeze
   RANK = { 'baixa' => 0, 'media' => 1, 'alta' => 2 }.freeze
   TICKET_PRIORITY = { 'baixa' => 'low', 'media' => 'medium', 'alta' => 'urgent' }.freeze
 

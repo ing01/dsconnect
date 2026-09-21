@@ -40,10 +40,13 @@ class Company < ApplicationRecord
   validates :billing_type, inclusion: { in: BILLING_TYPES }, allow_blank: true
   validates :billing_amount, :implementation_fee, numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
 
-  # 1 = no priority, 5 = maximum priority in support handling.
+  # 1 = Baixa, 2 = Media, 3 = Alta - computado de `billing_amount` em
+  # `compute_client_level`, nunca definido manualmente (ver Companies
+  # Controller#company_params, que nao permite `client_level` no request).
   validates :client_level, numericality: {
-    only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 5
+    only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 3
   }
+  before_validation :compute_client_level
 
   # Same gate as `Contact#blocked` - the WhatsApp triage flow refuses to
   # proceed for a blocked Empresa (`AutomationRules::Flow::BlockGateService`).
@@ -146,6 +149,34 @@ class Company < ApplicationRecord
   def normalize_cnpj
     self.cnpj = cnpj.gsub(/\D/, '') if cnpj.present?
     self.cnpj = nil if cnpj.blank?
+  end
+
+  # Prioridade e sempre derivada da mensalidade, nunca escolhida a mao - os
+  # limiares (a partir de qual valor cada faixa comeca) sao configurados por
+  # conta em Configuracoes > Tickets > Automacao.
+  def compute_client_level
+    self.client_level = self.class.tier_for(monthly_billing_amount, account)
+  end
+
+  # Plano anual guarda o valor total do contrato, nao a mensalidade - precisa
+  # dividir por 12 antes de comparar com os limiares (que sao sempre "por mes").
+  def monthly_billing_amount
+    return nil if billing_amount.blank?
+    return billing_amount / 12 if billing_type == 'annual'
+
+    billing_amount
+  end
+
+  def self.tier_for(monthly_amount, account)
+    return 1 if monthly_amount.blank? || account.blank?
+
+    high_min = account.priority_threshold_high_min
+    medium_min = account.priority_threshold_medium_min
+
+    return 3 if high_min.present? && monthly_amount >= high_min.to_d
+    return 2 if medium_min.present? && monthly_amount >= medium_min.to_d
+
+    1
   end
 
   def validate_cnpj_checksum

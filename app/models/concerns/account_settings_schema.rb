@@ -33,14 +33,16 @@ module AccountSettingsSchema
         'helpdesk_whatsapp_flow_enabled': { 'type': %w[boolean null] },
         'helpdesk_ai_resolve_levels': {
           'type': %w[array null],
-          'items': { 'type': 'integer', 'minimum': 1, 'maximum': 5 }
+          'items': { 'type': 'integer', 'minimum': 1, 'maximum': 3 }
         },
         'helpdesk_default_priority_on_ai_failure': {
           'type': %w[string null], 'enum': %w[baixa media alta] + [nil]
         },
         'helpdesk_open_ticket_window_days': { 'type': %w[integer null], 'minimum': 1 },
         'helpdesk_level_3to5_team_id': { 'type': %w[integer null] },
-        'helpdesk_default_queue_id': { 'type': %w[integer null] }
+        'helpdesk_default_queue_id': { 'type': %w[integer null] },
+        'priority_threshold_medium_min': { 'type': %w[number null], 'minimum': 0 },
+        'priority_threshold_high_min': { 'type': %w[number null], 'minimum': 0 }
       },
     'required': [],
     'additionalProperties': true

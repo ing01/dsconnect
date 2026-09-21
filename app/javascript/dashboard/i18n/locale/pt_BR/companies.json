@@ -204,17 +204,15 @@
           "LICENSE_EXPIRES_ON": "Data de vencimento da licença",
           "SYSTEM_STARTED_ON": "Data de início do uso do sistema",
           "MODULES": "Módulos utilizados",
-          "CLIENT_LEVEL": "Nível do cliente",
+          "CLIENT_LEVEL": "Prioridade do cliente",
           "CATEGORY": "Categoria",
           "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha"
         },
         "LEVEL": {
-          "HELP": "Indica a prioridade do cliente nos atendimentos: 1 é a prioridade mais baixa e 5 é a prioridade máxima. Use para saber quais clientes devem ser priorizados.",
-          "L1": "1 - Sem prioridade",
-          "L2": "2 - Prioridade baixa",
-          "L3": "3 - Prioridade média",
-          "L4": "4 - Prioridade alta",
-          "L5": "5 - Prioridade máxima"
+          "HELP": "Calculada automaticamente a partir da mensalidade do cliente (Configurações > Tickets > Automação define as faixas de valor). Não é possível editar manualmente.",
+          "L1": "Prioridade Baixa",
+          "L2": "Prioridade Média",
+          "L3": "Prioridade Alta"
         },
         "CATEGORY": {
           "NONE": "Nenhuma",
