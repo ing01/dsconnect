@@ -3,10 +3,14 @@
 // developers, not for the people using the product, and a real design change
 // needs a human to pick the before/after colors. Add a new entry here (top of
 // the array = most recent) whenever a change is worth telling the team about.
+//
+// `isoDate` (YYYY-MM-DD) drives the 5-day auto-hide in getVisibleChangelogEntries;
+// `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
     id: 'company-required-fields',
     date: '17 de setembro de 2026',
+    isoDate: '2026-09-17',
     type: 'design',
     title: 'Cadastro de Empresa mais simples',
     description:
@@ -20,6 +24,7 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'excel-import',
     date: '17 de setembro de 2026',
+    isoDate: '2026-09-17',
     type: 'feature',
     title: 'Importação por planilha na tela Dados',
     description:
@@ -28,6 +33,7 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'projects-filters',
     date: '17 de setembro de 2026',
+    isoDate: '2026-09-17',
     type: 'design',
     title: 'Filtros da tela de Projetos renovados',
     description:
@@ -36,6 +42,7 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'principal-page',
     date: '17 de setembro de 2026',
+    isoDate: '2026-09-17',
     type: 'feature',
     title: 'Nova página "Principal"',
     description:
@@ -44,6 +51,7 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'conversation-empty-state',
     date: '17 de setembro de 2026',
+    isoDate: '2026-09-17',
     type: 'design',
     title: '"Selecione uma conversa" no lugar da saudação',
     description:
@@ -52,6 +60,7 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'duesoft-logo',
     date: '17 de setembro de 2026',
+    isoDate: '2026-09-17',
     type: 'design',
     title: 'Nova logo em toda a plataforma',
     description:
@@ -60,6 +69,7 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'gradient-buttons',
     date: '17 de setembro de 2026',
+    isoDate: '2026-09-17',
     type: 'design',
     title: 'Botões ganharam um novo visual',
     description:
@@ -73,6 +83,7 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'sidebar-size',
     date: '17 de setembro de 2026',
+    isoDate: '2026-09-17',
     type: 'design',
     title: 'Menu lateral maior e mais legível',
     description:
@@ -81,6 +92,7 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'dsconnect-rebrand',
     date: '16 de setembro de 2026',
+    isoDate: '2026-09-16',
     type: 'design',
     title: 'Nova marca: DSConnect',
     description:
@@ -94,9 +106,25 @@ export const CHANGELOG_ENTRIES = [
   {
     id: 'implementation-reports',
     date: '8 de setembro de 2026',
+    isoDate: '2026-09-08',
     type: 'feature',
     title: 'Painel de Implantação',
     description:
       'Novo painel com relatórios de horas, ranking por implantador, distribuição por módulo e incidência de tickets no pós-implantação.',
   },
 ];
+
+const VISIBLE_DAYS = 5;
+
+// A novidade some a partir do 5º dia depois de `isoDate` (fica visível no dia
+// da publicação + 4 dias seguintes). `referenceDate` só existe para facilitar
+// teste manual; em produção sempre é "agora".
+export const getVisibleChangelogEntries = (
+  entries = CHANGELOG_ENTRIES,
+  referenceDate = new Date()
+) =>
+  entries.filter(entry => {
+    const cutoff = new Date(`${entry.isoDate}T00:00:00`);
+    cutoff.setDate(cutoff.getDate() + VISIBLE_DAYS);
+    return referenceDate < cutoff;
+  });
