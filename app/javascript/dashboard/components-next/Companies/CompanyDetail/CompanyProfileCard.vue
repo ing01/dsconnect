@@ -39,6 +39,17 @@ const clientLevelLabel = computed(() =>
   t(`COMPANIES.DETAIL.PROFILE.LEVEL.L${Number(props.company?.clientLevel) || 1}`)
 );
 
+// 1 Baixa (verde), 2 Media (laranja), 3 Alta (vermelho) - "verde" nessa
+// paleta e' o token teal, nao existe um "green" separado.
+const CLIENT_LEVEL_COLOR_CLASSES = {
+  1: 'bg-n-teal-3 text-n-teal-11',
+  2: 'bg-n-amber-3 text-n-amber-11',
+  3: 'bg-n-ruby-3 text-n-ruby-11',
+};
+const clientLevelColorClasses = computed(
+  () => CLIENT_LEVEL_COLOR_CLASSES[Number(props.company?.clientLevel) || 1]
+);
+
 const form = reactive({
   name: '',
   domain: '',
@@ -361,7 +372,8 @@ watch(
               />
             </label>
             <span
-              class="inline-flex items-center w-fit px-2 py-1 text-xs font-medium rounded-md bg-n-slate-3 text-n-slate-12"
+              class="inline-flex items-center w-fit px-3 py-1.5 text-sm font-semibold rounded-md"
+              :class="clientLevelColorClasses"
             >
               {{ clientLevelLabel }}
             </span>
