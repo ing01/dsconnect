@@ -5,6 +5,7 @@ import { useAccount } from 'dashboard/composables/useAccount';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { formatMesaName } from 'dashboard/helper/mesaName';
+import CompaniesAPI from 'dashboard/api/companies';
 
 import WithLabel from 'v3/components/Form/WithLabel.vue';
 import Switch from 'next/switch/Switch.vue';
@@ -32,6 +33,7 @@ const defaultQueueId = ref(null);
 const priorityThresholdMediumMin = ref(null);
 const priorityThresholdHighMin = ref(null);
 const isSubmitting = ref(false);
+const isRecalculating = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
 const queues = computed(() => getters['queues/getQueues'].value);
@@ -76,13 +78,15 @@ const priorityThresholdsInvalid = computed(() => {
   return medium != null && high != null && Number(high) <= Number(medium);
 });
 
-const handleSubmit = async () => {
+// Compartilhado pelo botao "Salvar" e pelo "Recalcular agora" - o recalculo
+// sempre salva primeiro, senao rodaria com os limiares antigos ainda
+// gravados no banco.
+const saveSettings = async () => {
   if (priorityThresholdsInvalid.value) {
     useAlert(t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE'));
-    return;
+    return false;
   }
 
-  isSubmitting.value = true;
   try {
     await updateAccount(
       {
@@ -97,11 +101,44 @@ const handleSubmit = async () => {
       },
       { silent: true }
     );
-    useAlert(t('TICKET.SETTINGS.AUTOMATION.API.SUCCESS'));
+    return true;
   } catch (error) {
-    useAlert(t('TICKET.SETTINGS.AUTOMATION.API.ERROR'));
+    return false;
+  }
+};
+
+const handleSubmit = async () => {
+  isSubmitting.value = true;
+  const success = await saveSettings();
+  useAlert(
+    t(
+      success
+        ? 'TICKET.SETTINGS.AUTOMATION.API.SUCCESS'
+        : 'TICKET.SETTINGS.AUTOMATION.API.ERROR'
+    )
+  );
+  isSubmitting.value = false;
+};
+
+const handleRecalculatePriorities = async () => {
+  isRecalculating.value = true;
+  try {
+    const saved = await saveSettings();
+    if (!saved) {
+      useAlert(t('TICKET.SETTINGS.AUTOMATION.API.ERROR'));
+      return;
+    }
+
+    await CompaniesAPI.recalculatePriorities();
+    useAlert(
+      t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_STARTED')
+    );
+  } catch (error) {
+    useAlert(
+      t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_ERROR')
+    );
   } finally {
-    isSubmitting.value = false;
+    isRecalculating.value = false;
   }
 };
 </script>
@@ -262,6 +299,29 @@ const handleSubmit = async () => {
             <p v-if="priorityThresholdsInvalid" class="mb-0 text-xs text-n-ruby-11">
               {{ t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE') }}
             </p>
+            <div class="flex items-center justify-between gap-2">
+              <p class="mb-0 text-xs text-n-slate-11">
+                {{
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_HELP'
+                  )
+                }}
+              </p>
+              <NextButton
+                type="button"
+                slate
+                faded
+                sm
+                :is-loading="isRecalculating"
+                :disabled="priorityThresholdsInvalid"
+                :label="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_BUTTON'
+                  )
+                "
+                @click="handleRecalculatePriorities"
+              />
+            </div>
           </div>
 
           <div class="flex flex-col gap-2 px-5 py-4">

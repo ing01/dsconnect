@@ -46,6 +46,10 @@ class CompanyAPI extends ApiClient {
     return axios.get(`${this.url}/cnpj_lookup?${buildParams({ cnpj })}`);
   }
 
+  recalculatePriorities() {
+    return axios.post(`${this.url}/recalculate_priorities`);
+  }
+
   listCredentials(id) {
     return axios.get(`${this.url}/${id}/credentials`);
   }

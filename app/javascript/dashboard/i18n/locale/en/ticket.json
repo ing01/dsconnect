@@ -536,7 +536,11 @@
             "LABEL": "Minimum amount for High priority",
             "PLACEHOLDER": "e.g. 1500"
           },
-          "INVALID_RANGE": "The High priority amount must be greater than the Medium priority amount."
+          "INVALID_RANGE": "The High priority amount must be greater than the Medium priority amount.",
+          "RECALCULATE_HELP": "Recalculates the priority of every existing client using the amounts above (saves the settings automatically first).",
+          "RECALCULATE_BUTTON": "Recalculate now",
+          "RECALCULATE_STARTED": "Recalculation started - this can take a few minutes depending on how many clients you have.",
+          "RECALCULATE_ERROR": "Could not start the recalculation. Please try again."
         },
         "LEVEL_3TO5_TEAM": {
           "LABEL": "Service desk for High priority clients",

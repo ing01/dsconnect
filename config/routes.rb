@@ -221,6 +221,7 @@ Rails.application.routes.draw do
           resources :companies, only: [:index, :show, :create, :update, :destroy] do
             collection do
               get :search
+              post :recalculate_priorities
             end
             member do
               post :destroy_custom_attributes

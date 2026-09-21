@@ -39,6 +39,14 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
     render json: result[:data]
   end
 
+  # Roda em background (pode levar um tempo com muitas Empresas) - so precisa
+  # ser chamado depois de mudar os limiares de prioridade em Configuracoes,
+  # ja que a recomputacao normal so acontece quando cada Empresa e salva.
+  def recalculate_priorities
+    Companies::RecalculatePrioritiesJob.perform_later(account_id: Current.account.id)
+    head :accepted
+  end
+
   def create
     @company = Current.account.companies.build(company_params)
     @company.save!

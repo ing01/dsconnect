@@ -536,7 +536,11 @@
             "LABEL": "A partir de qual valor é Prioridade Alta",
             "PLACEHOLDER": "Ex: 1500"
           },
-          "INVALID_RANGE": "O valor da Prioridade Alta precisa ser maior que o da Prioridade Média."
+          "INVALID_RANGE": "O valor da Prioridade Alta precisa ser maior que o da Prioridade Média.",
+          "RECALCULATE_HELP": "Recalcula a prioridade de todos os clientes já cadastrados com os valores acima (salva a configuração automaticamente antes).",
+          "RECALCULATE_BUTTON": "Recalcular agora",
+          "RECALCULATE_STARTED": "Recálculo iniciado - pode levar alguns minutos dependendo da quantidade de clientes.",
+          "RECALCULATE_ERROR": "Não foi possível iniciar o recálculo. Tente novamente."
         },
         "LEVEL_3TO5_TEAM": {
           "LABEL": "Mesa de serviço para clientes de prioridade Alta",
