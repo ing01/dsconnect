@@ -2,9 +2,10 @@ require 'roo'
 
 # Imports the "Clientes" spreadsheet (Empresa + Contatos columns) from the
 # Dados screen. One row can create/update a Company (matched by CPF/CNPJ) and
-# any number of Contacts (each matched by e-mail, then telefone) in the same
-# pass, linking them all to that Company. Multiple contacts share one cell,
-# separated by '{}'; each contact inside that cell is "Nome;E-mail;Telefone".
+# any number of Contacts (each matched by identifier, then e-mail, then
+# telefone) in the same pass, linking them all to that Company. Multiple
+# contacts share one cell, each wrapped in "{...}" and separated by ';':
+# '{1294494, Melina Mandrote, melina@x.com.br, 5518997595488, Comercial};{...}'
 #
 # Mirrors app/jobs/data_import_job.rb (the legacy contacts CSV importer) in
 # shape (status transitions), but records per-row failures as DataImportError
@@ -21,7 +22,7 @@ class ClientesImportJob < ApplicationJob
     cnpj: 'CPF/CNPJ',
     ie: 'IE',
     im: 'IM',
-    contacts: "Contatos (Separado por '{}')",
+    contacts: 'Contatos (formato: {ID, Nome, E-mail, Telefone, Setor})',
     address_street: 'Rua',
     address_number: 'Número',
     address_neighborhood: 'Bairro',
@@ -32,8 +33,8 @@ class ClientesImportJob < ApplicationJob
     status: 'Status',
   }.freeze
 
-  CONTACT_BLOCK_SEPARATOR = '{}'.freeze
-  CONTACT_FIELD_SEPARATOR = ';'.freeze
+  CONTACT_BLOCK_PATTERN = /\{([^{}]*)\}/.freeze
+  CONTACT_FIELD_SEPARATOR = ','.freeze
   BLOCKED_STATUS_LABEL = 'bloqueado'.freeze
 
   def perform(data_import)
@@ -118,28 +119,47 @@ class ClientesImportJob < ApplicationJob
     company.blocked = status_value.casecmp?(BLOCKED_STATUS_LABEL) if status_value.present?
   end
 
-  # "Maria Silva;maria@x.com;+5511999999999{}João Souza;joao@x.com;+5511988888888"
+  # '{1294494, Melina Mandrote, melina@x.com.br, 5518997595488, Comercial};{...}'
+  # Scans for "{...}" blocks directly instead of splitting on ';' first, so a
+  # stray space or missing separator between blocks still parses correctly.
   def parse_contacts(row)
     raw = cell(row, :contacts)
     return [] if raw.blank?
 
-    raw.split(CONTACT_BLOCK_SEPARATOR).filter_map do |block|
+    raw.scan(CONTACT_BLOCK_PATTERN).filter_map do |(block)|
       fields = block.split(CONTACT_FIELD_SEPARATOR).map { |field| field.to_s.strip }
       next if fields.all?(&:blank?)
 
-      { name: fields[0], email: fields[1], phone: fields[2] }
+      { identifier: fields[0], name: fields[1], email: fields[2], phone: fields[3], sector: fields[4] }
     end
   end
 
   def find_or_build_contact(contact_data)
     contact = existing_contact(contact_data) || @account.contacts.new
+    contact.identifier = contact_data[:identifier] if contact_data[:identifier].present?
     contact.name = contact_data[:name] if contact_data[:name].present?
     contact.email = contact_data[:email].downcase if contact_data[:email].present?
     contact.phone_number = normalized_phone(contact_data[:phone]) if contact_data[:phone].present?
+    apply_sector(contact, contact_data)
     contact
   end
 
+  # Nao existe coluna propria para "setor" no Contact - guarda no
+  # additional_attributes (jsonb livre) em vez de criar migracao para um
+  # unico campo de texto.
+  def apply_sector(contact, contact_data)
+    return if contact_data[:sector].blank?
+
+    contact.additional_attributes = (contact.additional_attributes || {}).merge('setor' => contact_data[:sector])
+  end
+
+  # O ID da planilha (sistema de origem da Ingrid) e a chave mais confiavel
+  # entre reimportacoes - e-mail/telefone podem mudar, o ID nao.
   def existing_contact(contact_data)
+    identifier = contact_data[:identifier]
+    found_by_identifier = @account.contacts.find_by(identifier: identifier) if identifier.present?
+    return found_by_identifier if found_by_identifier
+
     email = contact_data[:email]
     found_by_email = @account.contacts.from_email(email) if email.present?
     return found_by_email if found_by_email
