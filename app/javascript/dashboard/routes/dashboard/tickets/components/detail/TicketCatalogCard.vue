@@ -2,10 +2,17 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   ticket: { type: Object, required: true },
+  canUpdate: { type: Boolean, default: false },
 });
+
+// Classificar deixou de ser exclusividade do fechamento: o catalogo e uma
+// informacao do atendimento, e esperar o ticket acabar para registra-la
+// significa registrar de memoria, quando os detalhes ja se perderam.
+const emit = defineEmits(['editCatalog']);
 
 const { t } = useI18n();
 
@@ -18,9 +25,23 @@ const path = computed(() => props.ticket.service_catalog_item?.full_path || []);
   <section
     class="rounded-xl border border-n-weak p-4 flex flex-col gap-2 min-w-0"
   >
-    <h2 class="text-sm font-medium text-n-slate-12">
-      {{ t('TICKET.CATALOG.TITLE') }}
-    </h2>
+    <div class="flex items-center justify-between gap-2 min-w-0">
+      <h2 class="text-sm font-medium truncate text-n-slate-12">
+        {{ t('TICKET.CATALOG.TITLE') }}
+      </h2>
+      <Button
+        v-if="canUpdate"
+        variant="ghost"
+        color="slate"
+        size="xs"
+        icon="i-lucide-pencil"
+        class="flex-shrink-0"
+        :aria-label="
+          t('TICKET.CATALOG.DIALOG.TITLE', { number: ticket.display_id })
+        "
+        @click="emit('editCatalog')"
+      />
+    </div>
 
     <p
       v-if="!path.length"

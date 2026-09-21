@@ -20,6 +20,7 @@ defineProps({
 });
 
 defineEmits([
+  'editCatalog',
   'saveDescription',
   'updateProperty',
   'moveToColumn',
@@ -67,7 +68,11 @@ defineEmits([
           @edit-company="$emit('editCompany')"
           @edit-contact="$emit('editContact')"
         />
-        <TicketCatalogCard :ticket="ticket" />
+        <TicketCatalogCard
+          :ticket="ticket"
+          :can-update="canUpdate"
+          @edit-catalog="$emit('editCatalog')"
+        />
         <TicketRelationshipsCard :ticket="ticket" />
         <TicketCompanyTicketsAccordion :ticket="ticket" />
         <TicketSlaAccordion :ticket="ticket" />

@@ -815,7 +815,14 @@
       "SELECT": "Select",
       "NEEDS_CATALOG": "Select a catalogue first",
       "NEEDS_AREA": "Select an area first",
-      "UNCLASSIFIED": "This attendance is not classified yet."
+      "UNCLASSIFIED": "This attendance is not classified yet.",
+      "DIALOG": {
+        "TITLE": "Classify ticket #{number}",
+        "DESCRIPTION": "Pick the Catalogue, Area and Item that describe this ticket. It can be changed later.",
+        "NO_CATALOG": "No active service catalogue. Create one under Settings > Tickets.",
+        "BACK": "Back",
+        "CONFIRM": "Save classification"
+      }
     },
     "CLOSE": {
       "TITLE": "Close ticket #{number}",

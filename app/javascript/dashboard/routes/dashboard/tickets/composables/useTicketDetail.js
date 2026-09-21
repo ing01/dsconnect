@@ -136,6 +136,15 @@ export function useTicketDetail(ticketId) {
   const cancel = reason =>
     runUpdate('tickets/cancelTicket', { id: ticketId.value, reason });
 
+  // Classificar nao depende mais do fechamento: o catalogo e informacao do
+  // atendimento, e o endpoint `classify` ja existia - so nao havia por onde
+  // chama-lo fora do dialogo de fechar.
+  const classify = classification =>
+    runUpdate('tickets/classifyTicket', {
+      id: ticketId.value,
+      ...classification,
+    });
+
   const block = reason =>
     runUpdate('tickets/blockTicket', { id: ticketId.value, reason });
 
@@ -203,6 +212,7 @@ export function useTicketDetail(ticketId) {
     assignToMe,
     adjustSla,
     cancel,
+    classify,
     block,
     unblock,
     reload: loadTicket,

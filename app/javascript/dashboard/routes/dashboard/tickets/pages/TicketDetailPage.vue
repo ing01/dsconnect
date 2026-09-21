@@ -25,6 +25,7 @@ import TicketCreateDialog from '../components/create/TicketCreateDialog.vue';
 import TicketParentDialog from '../components/detail/actions/TicketParentDialog.vue';
 import TicketMergeDialog from '../components/detail/actions/TicketMergeDialog.vue';
 import TicketSlaHoursDialog from '../components/detail/actions/TicketSlaHoursDialog.vue';
+import TicketCatalogDialog from '../components/detail/actions/TicketCatalogDialog.vue';
 import TicketBlockDialog from '../components/detail/actions/TicketBlockDialog.vue';
 import TicketUnblockDialog from '../components/detail/actions/TicketUnblockDialog.vue';
 import TicketCancelDialog from '../components/detail/actions/TicketCancelDialog.vue';
@@ -55,6 +56,7 @@ const {
   assignToMe,
   adjustSla,
   cancel,
+  classify,
   block,
   unblock,
   reload,
@@ -75,6 +77,7 @@ const showChildForm = ref(false);
 const parentDialog = ref(null);
 const mergeDialog = ref(null);
 const slaDialog = ref(null);
+const catalogDialog = ref(null);
 const blockDialog = ref(null);
 const unblockDialog = ref(null);
 const cancelDialog = ref(null);
@@ -164,6 +167,7 @@ const DIALOG_BY_ACTION = {
   setParent: () => parentDialog,
   merge: () => mergeDialog,
   addSlaHours: () => slaDialog,
+  editCatalog: () => catalogDialog,
   block: () => blockDialog,
   unblock: () => unblockDialog,
   cancel: () => cancelDialog,
@@ -230,6 +234,8 @@ const submitMerge = sourceId => runAction(() => merge(sourceId), mergeDialog);
 const submitSlaAdjustment = payload =>
   runAction(() => adjustSla(payload), slaDialog);
 
+const submitCatalog = classification =>
+  runAction(() => classify(classification), catalogDialog);
 const submitBlock = reason => runAction(() => block(reason), blockDialog);
 const submitUnblock = () => runAction(() => unblock(), unblockDialog);
 const submitCancel = reason => runAction(() => cancel(reason), cancelDialog);
@@ -294,6 +300,7 @@ const submitContact = contactId =>
         :uses-assignee-levels="usesAssigneeLevels"
         :can-update="canUpdate"
         :is-saving-description="isSavingDescription"
+        @edit-catalog="handleAction('editCatalog')"
         @save-description="saveDescription"
         @update-property="updateProperty"
         @move-to-column="moveToColumn"
@@ -383,6 +390,12 @@ const submitContact = contactId =>
         :ticket="ticket"
         :is-loading="isActing"
         @submit="submitSlaAdjustment"
+      />
+      <TicketCatalogDialog
+        ref="catalogDialog"
+        :ticket="ticket"
+        :is-loading="isActing"
+        @submit="submitCatalog"
       />
       <TicketBlockDialog
         ref="blockDialog"

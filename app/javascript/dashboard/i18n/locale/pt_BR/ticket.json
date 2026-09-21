@@ -815,7 +815,14 @@
       "SELECT": "Selecione",
       "NEEDS_CATALOG": "Selecione um catálogo primeiro",
       "NEEDS_AREA": "Selecione uma área primeiro",
-      "UNCLASSIFIED": "Atendimento ainda não classificado."
+      "UNCLASSIFIED": "Atendimento ainda não classificado.",
+      "DIALOG": {
+        "TITLE": "Classificar o ticket #{number}",
+        "DESCRIPTION": "Escolha o Catálogo, a Área e o Item que descrevem este atendimento. Pode ser alterado depois.",
+        "NO_CATALOG": "Nenhum catálogo de serviço ativo. Cadastre um em Configurações > Tickets.",
+        "BACK": "Voltar",
+        "CONFIRM": "Salvar classificação"
+      }
     },
     "CLOSE": {
       "TITLE": "Fechar ticket #{number}",
