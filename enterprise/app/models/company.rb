@@ -97,23 +97,43 @@ class Company < ApplicationRecord
 
   CNPJ_FIRST_DIGIT_WEIGHTS = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2].freeze
   CNPJ_SECOND_DIGIT_WEIGHTS = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2].freeze
+  CPF_FIRST_DIGIT_WEIGHTS = [10, 9, 8, 7, 6, 5, 4, 3, 2].freeze
+  CPF_SECOND_DIGIT_WEIGHTS = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2].freeze
 
-  # Publico e de classe porque a checagem vale fora do cadastro: a triagem das
-  # automacoes precisa recusar um CNPJ invalido antes de procurar a empresa, e
-  # duas implementacoes da mesma conta acabariam divergindo.
+  # `cnpj` holds either document: clientes PJ trazem CNPJ (14 digitos), mas a
+  # importacao por planilha e a triagem do WhatsApp tambem aceitam CPF (11
+  # digitos) para cliente pessoa fisica. Publico e de classe porque a checagem
+  # vale fora do cadastro: a triagem das automacoes precisa recusar um
+  # documento invalido antes de procurar a empresa, e duas implementacoes da
+  # mesma conta acabariam divergindo.
   def self.valid_cnpj?(value)
     digits = value.to_s.gsub(/\D/, '')
-    return false unless digits.match?(/\A\d{14}\z/)
     return false if digits.chars.uniq.length == 1
 
+    case digits.length
+    when 11 then valid_cpf_digits?(digits)
+    when 14 then valid_cnpj_digits?(digits)
+    else false
+    end
+  end
+
+  def self.valid_cnpj_digits?(digits)
     numbers = digits.chars.map(&:to_i)
-    first = cnpj_check_digit(numbers[0..11], CNPJ_FIRST_DIGIT_WEIGHTS)
-    second = cnpj_check_digit(numbers[0..11] + [first], CNPJ_SECOND_DIGIT_WEIGHTS)
+    first = mod11_check_digit(numbers[0..11], CNPJ_FIRST_DIGIT_WEIGHTS)
+    second = mod11_check_digit(numbers[0..11] + [first], CNPJ_SECOND_DIGIT_WEIGHTS)
 
     numbers[12] == first && numbers[13] == second
   end
 
-  def self.cnpj_check_digit(digits, weights)
+  def self.valid_cpf_digits?(digits)
+    numbers = digits.chars.map(&:to_i)
+    first = mod11_check_digit(numbers[0..8], CPF_FIRST_DIGIT_WEIGHTS)
+    second = mod11_check_digit(numbers[0..8] + [first], CPF_SECOND_DIGIT_WEIGHTS)
+
+    numbers[9] == first && numbers[10] == second
+  end
+
+  def self.mod11_check_digit(digits, weights)
     remainder = digits.each_with_index.sum { |digit, index| digit * weights[index] } % 11
     remainder < 2 ? 0 : 11 - remainder
   end

@@ -468,7 +468,7 @@
       "UPLOAD_ERROR": "Não foi possível enviar a planilha. Tente novamente.",
       "CLIENTES": {
         "TITLE": "Importar Clientes",
-        "DESCRIPTION": "Cria ou atualiza empresas (por CNPJ) e contatos (por e-mail/telefone) a partir de uma planilha."
+        "DESCRIPTION": "Cria ou atualiza empresas (por CPF/CNPJ) e contatos (por e-mail/telefone) a partir de uma planilha."
       },
       "SERVICE_CATALOG": {
         "TITLE": "Importar Catálogo de Serviços",

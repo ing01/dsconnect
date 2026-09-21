@@ -1,8 +1,10 @@
 require 'roo'
 
-# Imports the "Clientes" spreadsheet (Empresa + Contato columns) from the
-# Dados screen. One row can create/update a Company (matched by CNPJ) and a
-# Contact (matched by e-mail, then telefone) in the same pass, linking them.
+# Imports the "Clientes" spreadsheet (Empresa + Contatos columns) from the
+# Dados screen. One row can create/update a Company (matched by CPF/CNPJ) and
+# any number of Contacts (each matched by e-mail, then telefone) in the same
+# pass, linking them all to that Company. Multiple contacts share one cell,
+# separated by '{}'; each contact inside that cell is "Nome;E-mail;Telefone".
 #
 # Mirrors app/jobs/data_import_job.rb (the legacy contacts CSV importer) in
 # shape (status transitions), but records per-row failures as DataImportError
@@ -14,15 +16,25 @@ class ClientesImportJob < ApplicationJob
   retry_on ActiveStorage::FileNotFoundError, wait: 1.minute, attempts: 3
 
   COLUMNS = {
-    company_name: 'Nome da Empresa',
-    cnpj: 'CNPJ',
-    domain: 'Domínio da Empresa',
+    company_name: 'Nome Fantasia',
+    legal_name: 'Razão Social',
+    cnpj: 'CPF/CNPJ',
+    ie: 'IE',
+    im: 'IM',
+    contacts: "Contatos (Separado por '{}')",
+    address_street: 'Rua',
+    address_number: 'Número',
+    address_neighborhood: 'Bairro',
+    address_complement: 'Complemento',
+    address_zip_code: 'CEP',
     city: 'Cidade',
     state: 'Estado',
-    contact_name: 'Nome do Contato',
-    email: 'E-mail do Contato',
-    phone: 'Telefone do Contato',
+    status: 'Status',
   }.freeze
+
+  CONTACT_BLOCK_SEPARATOR = '{}'.freeze
+  CONTACT_FIELD_SEPARATOR = ';'.freeze
+  BLOCKED_STATUS_LABEL = 'bloqueado'.freeze
 
   def perform(data_import)
     @data_import = data_import
@@ -59,11 +71,12 @@ class ClientesImportJob < ApplicationJob
       company = find_or_build_company(row)
       company&.save!
 
-      contact = find_or_build_contact(row)
-      contact.company_id = company.id if company
-      contact.save!
-
-      link_contact_to_company(contact, company) if company
+      parse_contacts(row).each do |contact_data|
+        contact = find_or_build_contact(contact_data)
+        contact.company_id = company.id if company
+        contact.save!
+        link_contact_to_company(contact, company) if company
+      end
     end
     @processed += 1
   rescue ActiveRecord::RecordInvalid => e
@@ -77,39 +90,67 @@ class ClientesImportJob < ApplicationJob
   end
 
   def find_or_build_company(row)
-    cnpj_digits = cell(row, :cnpj).gsub(/\D/, '')
-    return nil if cnpj_digits.blank?
+    document_digits = cell(row, :cnpj).gsub(/\D/, '')
+    return nil if document_digits.blank?
 
-    company = @account.companies.find_by(cnpj: cnpj_digits) || @account.companies.new
+    company = @account.companies.find_by(cnpj: document_digits) || @account.companies.new
     company.name = cell(row, :company_name) if cell(row, :company_name).present?
-    company.cnpj = cnpj_digits
-    company.domain = cell(row, :domain) if cell(row, :domain).present?
+    company.legal_name = cell(row, :legal_name) if cell(row, :legal_name).present?
+    company.cnpj = document_digits
+    company.ie = cell(row, :ie) if cell(row, :ie).present?
+    company.im = cell(row, :im) if cell(row, :im).present?
+    company.address_street = cell(row, :address_street) if cell(row, :address_street).present?
+    company.address_number = cell(row, :address_number) if cell(row, :address_number).present?
+    company.address_neighborhood = cell(row, :address_neighborhood) if cell(row, :address_neighborhood).present?
+    company.address_complement = cell(row, :address_complement) if cell(row, :address_complement).present?
+    company.address_zip_code = cell(row, :address_zip_code) if cell(row, :address_zip_code).present?
     company.address_city = cell(row, :city) if cell(row, :city).present?
     company.address_state = cell(row, :state) if cell(row, :state).present?
+    apply_status(company, row)
     company
   end
 
-  def find_or_build_contact(row)
-    contact = existing_contact(row) || @account.contacts.new
-    contact.name = cell(row, :contact_name) if cell(row, :contact_name).present?
-    contact.email = cell(row, :email).downcase if cell(row, :email).present?
-    contact.phone_number = normalized_phone(row) if cell(row, :phone).present?
+  # Deixa o "blocked" como esta quando a celula vem vazia (mesma regra dos
+  # outros campos), em vez de reativar sem querer uma Empresa que foi
+  # bloqueada manualmente fora da planilha.
+  def apply_status(company, row)
+    status_value = cell(row, :status)
+    company.blocked = status_value.casecmp?(BLOCKED_STATUS_LABEL) if status_value.present?
+  end
+
+  # "Maria Silva;maria@x.com;+5511999999999{}João Souza;joao@x.com;+5511988888888"
+  def parse_contacts(row)
+    raw = cell(row, :contacts)
+    return [] if raw.blank?
+
+    raw.split(CONTACT_BLOCK_SEPARATOR).filter_map do |block|
+      fields = block.split(CONTACT_FIELD_SEPARATOR).map { |field| field.to_s.strip }
+      next if fields.all?(&:blank?)
+
+      { name: fields[0], email: fields[1], phone: fields[2] }
+    end
+  end
+
+  def find_or_build_contact(contact_data)
+    contact = existing_contact(contact_data) || @account.contacts.new
+    contact.name = contact_data[:name] if contact_data[:name].present?
+    contact.email = contact_data[:email].downcase if contact_data[:email].present?
+    contact.phone_number = normalized_phone(contact_data[:phone]) if contact_data[:phone].present?
     contact
   end
 
-  def existing_contact(row)
-    email = cell(row, :email)
+  def existing_contact(contact_data)
+    email = contact_data[:email]
     found_by_email = @account.contacts.from_email(email) if email.present?
     return found_by_email if found_by_email
 
-    phone = normalized_phone(row)
+    phone = normalized_phone(contact_data[:phone])
     return nil if phone.blank?
 
     @account.contacts.find_by(phone_number: phone)
   end
 
-  def normalized_phone(row)
-    phone = cell(row, :phone)
+  def normalized_phone(phone)
     return nil if phone.blank?
 
     phone.start_with?('+') ? phone : "+#{phone.gsub(/\D/, '')}"
