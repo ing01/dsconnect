@@ -267,15 +267,7 @@ export default {
             emoji="🏢"
             :title="$t('CONTACT_PANEL.COMPANY')"
             editable
-            @update="
-              value =>
-                updateContactField({
-                  additional_attributes: {
-                    ...additionalAttributes,
-                    company_name: value,
-                  },
-                })
-            "
+            :on-edit-click="toggleEditModal"
           />
           <ContactInfoRow
             v-if="location || additionalAttributes.location"

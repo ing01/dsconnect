@@ -12,12 +12,14 @@ import parsePhoneNumber from 'libphonenumber-js';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'next/avatar/Avatar.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
+import ContactCompaniesField from 'dashboard/components-next/Contacts/ContactCompaniesField.vue';
 
 export default {
   components: {
     NextButton,
     Avatar,
     ComboBox,
+    ContactCompaniesField,
   },
   props: {
     contact: {
@@ -41,6 +43,7 @@ export default {
     return {
       countries: countries,
       companyName: '',
+      selectedCompanies: [],
       description: '',
       email: '',
       name: '',
@@ -68,6 +71,12 @@ export default {
     bio: {},
   },
   computed: {
+    hasCompaniesFeature() {
+      return this.$store.getters['accounts/isFeatureEnabledonAccount'](
+        this.$route.params.accountId,
+        'companies'
+      );
+    },
     parsePhoneNumber() {
       return parsePhoneNumber(this.phoneNumber);
     },
@@ -150,6 +159,7 @@ export default {
       this.email = emailAddress || '';
       this.phoneNumber = phoneNumber || '';
       this.companyName = additionalAttributes.company_name || '';
+      this.selectedCompanies = this.contact.companies || [];
       this.country = {
         id: additionalAttributes.country_code || '',
         name:
@@ -185,11 +195,19 @@ export default {
           city: this.city,
         },
       };
+      if (this.hasCompaniesFeature) {
+        contactObject.company_ids = this.selectedCompanies.map(company =>
+          Number(company.id)
+        );
+      }
       if (this.avatarFile) {
         contactObject.avatar = this.avatarFile;
         contactObject.isFormData = true;
       }
       return contactObject;
+    },
+    onCompaniesUpdate(companies) {
+      this.selectedCompanies = companies;
     },
     setPhoneCode(code) {
       if (this.phoneNumber !== '' && this.parsePhoneNumber) {
@@ -339,7 +357,17 @@ export default {
         </div>
       </div>
     </div>
+    <div v-if="hasCompaniesFeature" class="w-full mb-4">
+      <label>
+        {{ $t('CONTACT_FORM.FORM.COMPANY_NAME.LABEL') }}
+      </label>
+      <ContactCompaniesField
+        :model-value="selectedCompanies"
+        @update:model-value="onCompaniesUpdate"
+      />
+    </div>
     <woot-input
+      v-else
       v-model="companyName"
       class="w-full"
       :label="$t('CONTACT_FORM.FORM.COMPANY_NAME.LABEL')"

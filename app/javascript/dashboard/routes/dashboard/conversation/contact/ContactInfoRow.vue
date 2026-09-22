@@ -40,6 +40,13 @@ export default {
       type: String,
       default: '',
     },
+    // Some fields (e.g. linked Company) need a richer editor than plain text
+    // - when set, the pencil button calls this instead of entering inline
+    // text-edit mode.
+    onEditClick: {
+      type: Function,
+      default: null,
+    },
   },
   emits: ['update'],
   data() {
@@ -56,6 +63,10 @@ export default {
     },
     startEditing() {
       if (!this.editable) return;
+      if (this.onEditClick) {
+        this.onEditClick();
+        return;
+      }
       this.editValue = this.value || '';
       this.isEditing = true;
       this.$nextTick(() => {
