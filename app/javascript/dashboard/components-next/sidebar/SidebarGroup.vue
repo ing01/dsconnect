@@ -316,6 +316,7 @@ watch(
             :start-collapsed="child.startCollapsed"
             :show-tree-line="child.showTreeLine"
             :end-tree-line="child.showTreeLine && isLastVisibleChild(child)"
+            :as-menu-item="child.asMenuItem"
             :is-expanded="isExpanded"
             :active-child="activeChild"
             :sort-options="child.sortOptions"

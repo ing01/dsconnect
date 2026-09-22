@@ -35,6 +35,12 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  // Este cabecalho e um item de menu, e nao o rotulo de uma secao: deve ficar
+  // igual aos irmaos que nao tem submenu (SidebarGroupLeaf).
+  asMenuItem: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['toggle', 'update-sort']);
@@ -52,8 +58,9 @@ const TREE_ELBOW =
       :type="collapsible ? 'button' : undefined"
       :aria-expanded="collapsible ? isExpanded : undefined"
       :title="label"
-      class="relative flex h-8 w-full min-w-0 items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-n-slate-10 select-none"
+      class="relative flex w-full min-w-0 items-center justify-between gap-2 rounded-lg px-2 py-1.5 select-none"
       :class="[
+        asMenuItem ? 'h-9 text-n-slate-11' : 'h-8 text-n-slate-10',
         showTreeLine && TREE_VERTICAL_LINE,
         showTreeLine &&
           (endTreeLine ? `before:h-3 ${TREE_ELBOW}` : 'before:-bottom-1'),
@@ -68,9 +75,17 @@ const TREE_ELBOW =
       @click.stop="collapsible ? emit('toggle') : undefined"
     >
       <div class="inline-flex min-w-0 items-center gap-2">
-        <Icon v-if="icon" :icon="icon" class="size-4 flex-shrink-0" />
+        <Icon
+          v-if="icon"
+          :icon="icon"
+          class="flex-shrink-0"
+          :class="asMenuItem ? 'size-5' : 'size-4'"
+        />
         <span
-          class="flex-grow truncate text-start text-sm font-medium leading-5"
+          class="flex-grow truncate text-start"
+          :class="
+            asMenuItem ? 'text-base' : 'text-sm font-medium leading-5'
+          "
         >
           {{ label }}
         </span>

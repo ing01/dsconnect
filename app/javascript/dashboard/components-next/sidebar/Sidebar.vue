@@ -769,6 +769,7 @@ const menuItems = computed(() => {
           activeOn: ['ticket_settings_wrapper'],
           collapsible: true,
           showTreeLine: true,
+          asMenuItem: true,
           children: [
             {
               name: 'Settings Ticket Stages',
@@ -809,6 +810,7 @@ const menuItems = computed(() => {
           activeOn: ['project_settings_wrapper'],
           collapsible: true,
           showTreeLine: true,
+          asMenuItem: true,
           children: [
             {
               name: 'Settings Project Modules',
@@ -974,6 +976,7 @@ const menuItems = computed(() => {
           collapsible: true,
           startCollapsed: true,
           showTreeLine: true,
+          asMenuItem: true,
           children: [
             {
               name: 'Overview',
@@ -1058,6 +1061,7 @@ const menuItems = computed(() => {
           collapsible: true,
           startCollapsed: true,
           showTreeLine: true,
+          asMenuItem: true,
           children: [
            /* {
               name: 'Live chat',

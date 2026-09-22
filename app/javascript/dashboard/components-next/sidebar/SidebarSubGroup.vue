@@ -26,6 +26,8 @@ const props = defineProps({
   startCollapsed: { type: Boolean, default: false },
   showTreeLine: { type: Boolean, default: false },
   endTreeLine: { type: Boolean, default: false },
+  // Vide SidebarGroupSeparator: cabecalho que e item de menu, nao rotulo.
+  asMenuItem: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update-sort']);
@@ -163,6 +165,7 @@ watch([hasActiveChild, storageKey], expandSubGroupOnActiveChild, {
         :is-expanded="isSubGroupExpanded"
         :show-tree-line="showTreeLine"
         :end-tree-line="endTreeLine"
+        :as-menu-item="asMenuItem"
         :sort-options="sortOptions"
         :active-sort="activeSort"
         class="my-1"
