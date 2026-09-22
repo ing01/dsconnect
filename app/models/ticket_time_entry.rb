@@ -7,7 +7,7 @@ class TicketTimeEntry < ApplicationRecord
 
   validates :category, inclusion: { in: CATEGORIES }
   # Nulo e valido: Mesa sem niveis aponta como sempre apontou.
-  validates :level, inclusion: { in: AssigneeLeveled::LEVELS }, allow_nil: true
+  validates :level, inclusion: { in: AssigneeLeveled::ALL_LEVELS }, allow_nil: true
   validates :hours, presence: true, numericality: { greater_than: 0 }
   validates :worked_on, presence: true
 

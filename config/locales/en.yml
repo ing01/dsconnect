@@ -98,6 +98,7 @@ en:
     assignee_levels:
       not_enabled: cannot be set because this service desk does not use assignee levels
       not_allowed: is not allowed to act at level %{level} on this service desk
+      beyond_count: cannot be set because this service desk only uses %{count} levels
     finalized:
       immutable: this ticket is closed and can no longer be changed; reopen it first
     impediment:

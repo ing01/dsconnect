@@ -55,8 +55,22 @@ class Tickets::TimeEntriesReportBuilder
   def by_level
     totals_by_level = scope.group(:level).sum(:hours)
 
-    (AssigneeLeveled::LEVELS + [nil]).map do |level|
+    (levels + [nil]).map do |level|
       { level: level, hours: totals_by_level[level].to_f }
+    end
+  end
+
+  # Os niveis do relatorio sao os que a CONTA usa - o maior numero entre as Mesas
+  # dela -, e nao os cinco que o sistema sabe guardar: um Nivel 4 zerado numa
+  # conta que atende em dois seria uma linha sobre nada.
+  #
+  # Filtrado por uma Mesa, sao os niveis daquela Mesa.
+  def levels
+    @levels ||= begin
+      mesas = account.teams.where(assignee_levels_enabled: true)
+      mesas = mesas.where(id: params[:team_id]) if params[:team_id].present?
+      maximo = mesas.maximum(:assignee_levels_count) || AssigneeLeveled::MIN_LEVEL
+      (AssigneeLeveled::FIRST_LEVEL..maximo).to_a
     end
   end
 

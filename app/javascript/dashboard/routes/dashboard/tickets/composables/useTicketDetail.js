@@ -45,6 +45,14 @@ export function useTicketDetail(ticketId) {
         ?.assignee_levels_enabled === true
   );
 
+  // Quais niveis, e nao apenas se ha niveis: a Mesa decide quantos, e a tela
+  // desenha um campo de responsavel por nivel.
+  const assigneeLevels = computed(
+    () =>
+      store.getters['teams/getTeam'](ticket.value?.team_id)?.assignee_levels ||
+      []
+  );
+
   const mesaAgents = computed(
     () =>
       store.getters['teamMembers/getTeamMembers'](ticket.value?.team_id) || []
@@ -201,6 +209,7 @@ export function useTicketDetail(ticketId) {
     categories,
     mesaAgents,
     usesAssigneeLevels,
+    assigneeLevels,
     updateProperty,
     moveToColumn,
     changeStatus,

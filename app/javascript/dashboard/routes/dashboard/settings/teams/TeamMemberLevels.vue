@@ -8,14 +8,19 @@ import Button from 'dashboard/components-next/button/Button.vue';
 const props = defineProps({
   teamId: { type: [Number, String], required: true },
   members: { type: Array, default: () => [] },
+  // Quantos niveis esta Mesa usa. Vem dela, e nao de uma lista escrita aqui:
+  // uma copia no frontend divergiria do servidor no primeiro nivel novo.
+  levelsCount: { type: Number, default: 2 },
 });
 
 const { t } = useI18n();
 const store = useStore();
 
-// Os niveis que existem. Espelha AssigneeLeveled::LEVELS no servidor: um Nivel
-// 3 no futuro entra aqui e nos dois lugares do backend, sem coluna nova.
-const LEVELS = [1, 2];
+// Uma coluna por nivel da Mesa. Subir a Mesa para tres niveis acrescenta a
+// coluna do Nivel 3 aqui sozinho.
+const LEVELS = computed(() =>
+  Array.from({ length: props.levelsCount }, (_, indice) => indice + 1)
+);
 
 const isSaving = ref(false);
 // Rascunho local: a tela so grava quando a pessoa confirma, entao marcar e
@@ -28,7 +33,10 @@ watch(
   () => props.members,
   members => {
     draft.value = Object.fromEntries(
-      members.map(member => [member.id, [...(member.levels || [])]])
+      members.map(member => [
+        member.id,
+        (member.levels || []).filter(level => LEVELS.value.includes(level)),
+      ])
     );
   },
   { immediate: true, deep: true }

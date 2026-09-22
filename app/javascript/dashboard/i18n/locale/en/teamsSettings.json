@@ -128,7 +128,10 @@
       "SUBMIT_CREATE": "Create team",
       "ASSIGNEE_LEVELS": {
         "LABEL": "Use assignee levels on tickets",
-        "HELP": "When enabled, tickets get Assignee 1 and Assignee 2, and time entries record which level they were logged at."
+        "HELP": "When enabled, tickets get one assignee per level, and time entries record which level they were logged at.",
+        "COUNT_LABEL": "How many levels this Mesa uses",
+        "COUNT_OPTION": "{count} levels",
+        "COUNT_HELP": "Each level gets its own assignee field on the ticket. After increasing it, enable members for the new level on the Agents tab."
       }
     },
     "LEVELS": {

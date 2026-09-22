@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_22_090005) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1046,7 +1046,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_090005) do
 
   create_table "contracts", force: :cascade do |t|
     t.bigint "account_id", null: false
-    t.integer "responsible_contact_id"
+    t.bigint "responsible_contact_id"
     t.string "contract_type"
     t.string "total_value_mode", default: "auto", null: false
     t.decimal "total_value", precision: 12, scale: 2
@@ -1943,6 +1943,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_090005) do
     t.boolean "active", default: true, null: false
     t.bigint "manager_id"
     t.boolean "assignee_levels_enabled", default: false, null: false
+    t.integer "assignee_levels_count", default: 2, null: false
     t.index ["account_id"], name: "index_teams_on_account_id"
     t.index ["manager_id"], name: "index_teams_on_manager_id"
     t.index ["name", "account_id"], name: "index_teams_on_name_and_account_id", unique: true
@@ -2205,10 +2206,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_090005) do
     t.datetime "blocked_at"
     t.text "blocked_reason"
     t.bigint "blocked_by_id"
+    t.bigint "assignee_3_id"
+    t.bigint "assignee_4_id"
+    t.bigint "assignee_5_id"
     t.index ["account_id", "blocked_at"], name: "index_tickets_on_account_and_blocked", where: "(blocked_at IS NOT NULL)"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id"], name: "index_tickets_on_account_id"
     t.index ["assignee_2_id"], name: "index_tickets_on_assignee_2_id"
+    t.index ["assignee_3_id"], name: "index_tickets_on_assignee_3_id", where: "(assignee_3_id IS NOT NULL)"
+    t.index ["assignee_4_id"], name: "index_tickets_on_assignee_4_id", where: "(assignee_4_id IS NOT NULL)"
+    t.index ["assignee_5_id"], name: "index_tickets_on_assignee_5_id", where: "(assignee_5_id IS NOT NULL)"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
     t.index ["blocked_by_id"], name: "index_tickets_on_blocked_by_id", where: "(blocked_by_id IS NOT NULL)"
     t.index ["company_id"], name: "index_tickets_on_company_id"
@@ -2406,6 +2413,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_090005) do
   add_foreign_key "tickets", "tickets", column: "merged_into_id", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "parent_id", on_delete: :nullify
   add_foreign_key "tickets", "users", column: "assignee_2_id"
+  add_foreign_key "tickets", "users", column: "assignee_3_id"
+  add_foreign_key "tickets", "users", column: "assignee_4_id"
+  add_foreign_key "tickets", "users", column: "assignee_5_id"
   add_foreign_key "tickets", "users", column: "blocked_by_id"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).

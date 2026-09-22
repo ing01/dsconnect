@@ -24,7 +24,8 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
 
   # `_ticket` reads all of these; without the preload the board fires a query per
   # association per ticket.
-  BOARD_TICKET_INCLUDES = [:team, :ticket_column, :ticket_category, :assignee, :company, :contact,
+  BOARD_TICKET_INCLUDES = [:team, :ticket_column, :ticket_category, :company, :contact,
+                           *AssigneeLeveled.assignee_associations,
                            { conversations: :contact }].freeze
 
   private
@@ -35,7 +36,7 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
 
   def team_params
     params.require(:team).permit(:name, :description, :allow_auto_assign, :icon, :icon_color, :manager_id, :active,
-                                 :assignee_levels_enabled)
+                                 :assignee_levels_enabled, :assignee_levels_count)
   end
 
   # TeamPolicy#update? checks the team's manager, so authorization must run

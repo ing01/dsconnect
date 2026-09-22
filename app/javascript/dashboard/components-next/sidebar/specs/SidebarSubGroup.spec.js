@@ -154,6 +154,36 @@ describe('SidebarSubGroup', () => {
     expect(wrapper.find('.sidebar-leaf').isVisible()).toBe(false);
   });
 
+  // "Tickets" e "Projetos", em Configuracoes, sao itens do mesmo menu que Conta e
+  // Agentes - so por acaso abrem submenu. Com a aparencia de rotulo de secao
+  // (menor e mais apagada) eles liam como desabilitados ao lado dos irmaos.
+  describe('cabecalho como item de menu', () => {
+    const cabecalho = props => mountSubGroup(props).find('button');
+
+    it('matches the leaf typography and colour when asked to', () => {
+      const classes = cabecalho({ asMenuItem: true }).classes();
+
+      expect(classes).toContain('text-n-slate-11');
+      expect(classes).toContain('h-9');
+      expect(classes).not.toContain('text-n-slate-10');
+    });
+
+    it('keeps the section-label look by default', () => {
+      const classes = cabecalho().classes();
+
+      expect(classes).toContain('text-n-slate-10');
+      expect(classes).toContain('h-8');
+    });
+
+    it('sizes the label and the icon like a leaf', () => {
+      const wrapper = mountSubGroup({ asMenuItem: true });
+
+      expect(wrapper.find('span.flex-grow').classes()).toContain('text-base');
+      expect(wrapper.find('span.flex-grow').classes()).not.toContain('text-sm');
+      expect(wrapper.find('.size-5').exists()).toBe(true);
+    });
+  });
+
   it('expands a stored minimized section when one of its children is active', () => {
     window.localStorage.setItem(
       LOCAL_STORAGE_KEYS.SIDEBAR_MINIMIZED_SECTIONS,

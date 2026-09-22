@@ -128,7 +128,10 @@
       "SUBMIT_CREATE": "Criar novo time",
       "ASSIGNEE_LEVELS": {
         "LABEL": "Utilizar níveis de responsáveis no ticket",
-        "HELP": "Quando ativado, o ticket passa a ter Responsável 1 e Responsável 2, e os apontamentos registram em qual nível foram feitos."
+        "HELP": "Quando ativado, o ticket passa a ter um responsável por nível, e os apontamentos registram em qual nível foram feitos.",
+        "COUNT_LABEL": "Quantos níveis esta Mesa usa",
+        "COUNT_OPTION": "{count} níveis",
+        "COUNT_HELP": "Cada nível ganha um campo de responsável no ticket. Ao aumentar, habilite os membros do nível novo na aba Agentes."
       }
     },
     "LEVELS": {

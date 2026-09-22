@@ -53,6 +53,7 @@ export default {
       active = true,
       manager_id: managerId = null,
       assignee_levels_enabled: assigneeLevelsEnabled = false,
+      assignee_levels_count: assigneeLevelsCount = 2,
     } = formData;
 
     const state = reactive({
@@ -60,6 +61,7 @@ export default {
       title,
       allowAutoAssign,
       assigneeLevelsEnabled,
+      assigneeLevelsCount,
       icon,
       iconColor,
       active,
@@ -74,6 +76,11 @@ export default {
   },
   computed: {
     ...mapGetters({ agents: 'agents/getAgents' }),
+    // Do minimo ao teto que o servidor sabe guardar (AssigneeLeveled::MAX_LEVEL):
+    // uma Mesa "com niveis" de um nivel so seria a Mesa sem niveis.
+    LEVEL_COUNTS() {
+      return [2, 3, 4, 5];
+    },
   },
   mounted() {
     this.$store.dispatch('agents/get');
@@ -106,6 +113,7 @@ export default {
         active: this.state.active,
         manager_id: this.state.managerId || null,
         assignee_levels_enabled: this.state.assigneeLevelsEnabled,
+        assignee_levels_count: Number(this.state.assigneeLevelsCount),
       });
     },
   },
@@ -210,6 +218,30 @@ export default {
         <p class="text-sm text-n-slate-10">
           {{ $t('TEAMS_SETTINGS.FORM.ASSIGNEE_LEVELS.HELP') }}
         </p>
+
+        <!-- Quantos niveis. So aparece com a configuracao ligada, porque sem ela
+             o numero nao significa nada. O teto e o do servidor: o ticket tem uma
+             coluna de responsavel por nivel ate ali. -->
+        <div
+          v-if="state.assigneeLevelsEnabled"
+          class="flex flex-col gap-1 mt-1 ltr:ml-6 rtl:mr-6 max-w-xs"
+        >
+          <label for="assignee_levels_count" class="text-sm">
+            {{ $t('TEAMS_SETTINGS.FORM.ASSIGNEE_LEVELS.COUNT_LABEL') }}
+          </label>
+          <select
+            id="assignee_levels_count"
+            v-model="state.assigneeLevelsCount"
+            class="mb-0 text-sm"
+          >
+            <option v-for="count in LEVEL_COUNTS" :key="count" :value="count">
+              {{ $t('TEAMS_SETTINGS.FORM.ASSIGNEE_LEVELS.COUNT_OPTION', { count }) }}
+            </option>
+          </select>
+          <p class="text-sm text-n-slate-10">
+            {{ $t('TEAMS_SETTINGS.FORM.ASSIGNEE_LEVELS.COUNT_HELP') }}
+          </p>
+        </div>
       </div>
       <div class="flex flex-row justify-end gap-2 py-2 px-0 w-full">
         <div class="w-full">
