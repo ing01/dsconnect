@@ -16,13 +16,13 @@ class Contract < ApplicationRecord
 
   belongs_to :account
   belongs_to :responsible_contact, class_name: 'Contact', optional: true
-  has_many :contract_products, -> { includes(:product) }, dependent: :destroy, autosave: true
+  has_many :contract_product_groups, -> { includes(:product_group) }, dependent: :destroy, autosave: true
   # `dependent: :nullify` - apagar um Contrato nao pode levar Empresas junto,
   # so desvincula-las (elas voltam a ter cobranca manual, como antes de terem
   # um contrato).
   has_many :companies, dependent: :nullify
 
-  accepts_nested_attributes_for :contract_products, allow_destroy: true
+  accepts_nested_attributes_for :contract_product_groups, allow_destroy: true
 
   validates :contract_type, inclusion: { in: Company::BILLING_TYPES }, allow_blank: true
   validates :total_value_mode, inclusion: { in: TOTAL_VALUE_MODES }
@@ -44,12 +44,12 @@ class Contract < ApplicationRecord
     account.companies.where(id: target_ids.to_a).find_each { |company| company.update!(contract_id: id) }
   end
 
-  # Soma das linhas de produto (padrao), a menos que o valor tenha sido
-  # sobrescrito manualmente - e' o que alimenta `billing_amount` de cada
+  # Soma das linhas de grupo de produtos (padrao), a menos que o valor tenha
+  # sido sobrescrito manualmente - e' o que alimenta `billing_amount` de cada
   # Empresa vinculada quando o contrato e' selecionado (ver `Company#sync_billing_from_contract`).
   def computed_total_value
     return total_value.to_d if total_value_mode == 'manual' && total_value.present?
 
-    contract_products.sum(&:subtotal)
+    contract_product_groups.sum(&:subtotal)
   end
 end

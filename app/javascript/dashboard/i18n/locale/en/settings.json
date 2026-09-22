@@ -355,6 +355,7 @@
     "APPLICATIONS": "Applications",
     "LABELS": "Labels",
     "PRODUCTS": "Products",
+    "PRODUCT_GROUPS": "Product Groups",
     "CUSTOM_ATTRIBUTES": "Custom Attributes",
     "AUTOMATION": "Automation",
     "MACROS": "Macros",

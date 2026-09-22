@@ -24,6 +24,7 @@ module Enterprise::Concerns::Account
     has_many :company_categories, dependent: :destroy_async
     has_many :system_modules, dependent: :destroy_async
     has_many :products, dependent: :destroy_async
+    has_many :product_groups, dependent: :destroy_async
     has_many :contracts, dependent: :destroy_async
     has_many :calls, dependent: :destroy_async
 

@@ -34,14 +34,14 @@
         "REMOVE": "Remove {name}"
       },
       "PRODUCTS": {
-        "LABEL": "Products",
-        "SELECT_PLACEHOLDER": "Select a product",
-        "PRODUCT": "Product",
-        "UNIT_VALUE": "Product value",
+        "LABEL": "Product groups",
+        "SELECT_PLACEHOLDER": "Select a product group",
+        "PRODUCT": "Product group",
+        "UNIT_VALUE": "Value",
         "LICENSES_QTY": "License qty.",
         "IMPLEMENTATION_FEE": "Implementation fee",
-        "ADD_LINE": "Add product",
-        "NEW_PLACEHOLDER": "New product",
+        "ADD_LINE": "Add product group",
+        "NEW_PLACEHOLDER": "New product group",
         "NEW_BUTTON": "Create"
       },
       "TOTAL_VALUE": {
@@ -52,21 +52,60 @@
   },
   "PRODUCTS": {
     "HEADER": "Products",
-    "DESCRIPTION": "Products that can be included in a Contract.",
+    "DESCRIPTION": "Products that make up the Product Groups used in Contracts.",
     "LOADING": "Loading products...",
     "EMPTY_STATE": "No products yet.",
-    "ADD_PLACEHOLDER": "New product name",
-    "ADD_BUTTON": "Add",
+    "ADD_BUTTON": "New product",
     "DELETE_CONFIRM": "Delete this product?",
     "DELETE_CONFIRM_YES": "Yes, delete",
     "DELETE_CONFIRM_NO": "No, keep it",
+    "FORM": {
+      "CREATE_TITLE": "New product",
+      "EDIT_TITLE": "Edit product",
+      "NAME": "Product name",
+      "VALUE": "Value",
+      "GROUP": "Product group",
+      "GROUP_SELECT_PLACEHOLDER": "Select a group",
+      "NEW_GROUP_PLACEHOLDER": "New product group",
+      "NEW_GROUP_BUTTON": "Create group",
+      "SAVE": "Save product"
+    },
     "MESSAGES": {
       "CREATE_SUCCESS": "Product created.",
-      "CREATE_ERROR": "Could not create the product.",
       "UPDATE_SUCCESS": "Product updated.",
-      "UPDATE_ERROR": "Could not update the product.",
+      "SAVE_ERROR": "Could not save the product.",
       "DELETE_SUCCESS": "Product deleted.",
       "DELETE_ERROR": "Could not delete the product."
+    }
+  },
+  "PRODUCT_GROUPS": {
+    "HEADER": "Product Groups",
+    "DESCRIPTION": "Every product belongs to a group. The group's value sums its products by default, and it's what fills a Contract's lines.",
+    "LOADING": "Loading product groups...",
+    "EMPTY_STATE": "No product groups yet.",
+    "ADD_BUTTON": "New group",
+    "DELETE_CONFIRM": "Delete this product group?",
+    "LIST": {
+      "PRODUCTS_COUNT": "Products",
+      "VALUE": "Value",
+      "MANUAL_BADGE": "manual"
+    },
+    "FORM": {
+      "CREATE_TITLE": "New product group",
+      "EDIT_TITLE": "Edit product group",
+      "NAME": "Group name",
+      "VALUE_LABEL": "Group value",
+      "MANUAL_TOGGLE": "Set value manually",
+      "AUTO_HELP": "Automatically sums the value of every product in this group.",
+      "SAVE": "Save group"
+    },
+    "MESSAGES": {
+      "CREATE_SUCCESS": "Product group created.",
+      "CREATE_ERROR": "Could not create the product group.",
+      "UPDATE_SUCCESS": "Product group updated.",
+      "SAVE_ERROR": "Could not save the product group.",
+      "DELETE_SUCCESS": "Product group deleted.",
+      "DELETE_ERROR": "Could not delete the product group."
     }
   }
 }

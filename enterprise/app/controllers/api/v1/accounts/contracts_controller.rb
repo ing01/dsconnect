@@ -44,7 +44,7 @@ class Api::V1::Accounts::ContractsController < Api::V1::Accounts::EnterpriseAcco
 
   def resolved_contracts
     @resolved_contracts ||= Current.account.contracts.includes(:responsible_contact, :companies,
-                                                                 contract_products: :product)
+                                                                 contract_product_groups: :product_group)
   end
 
   def set_current_page
@@ -73,7 +73,7 @@ class Api::V1::Accounts::ContractsController < Api::V1::Accounts::EnterpriseAcco
     params.require(:contract).permit(
       :responsible_contact_id, :contract_type, :total_value_mode, :total_value,
       company_ids: [],
-      contract_products_attributes: %i[id product_id unit_value licenses_qty implementation_fee _destroy]
+      contract_product_groups_attributes: %i[id product_group_id unit_value licenses_qty implementation_fee _destroy]
     )
   end
 

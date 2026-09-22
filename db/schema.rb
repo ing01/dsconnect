@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_22_130006) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1032,16 +1032,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
     t.index ["phone_number", "account_id"], name: "index_contacts_on_phone_number_and_account_id"
   end
 
-  create_table "contract_products", force: :cascade do |t|
+  create_table "contract_product_groups", force: :cascade do |t|
     t.bigint "contract_id", null: false
-    t.bigint "product_id", null: false
     t.decimal "unit_value", precision: 12, scale: 2, default: "0.0", null: false
     t.integer "licenses_qty", default: 1, null: false
     t.decimal "implementation_fee", precision: 12, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "product_group_id", null: false
     t.index ["contract_id"], name: "index_contract_products_on_contract_id"
-    t.index ["product_id"], name: "index_contract_products_on_product_id"
+    t.index ["product_group_id"], name: "index_contract_products_on_product_group_id"
   end
 
   create_table "contracts", force: :cascade do |t|
@@ -1678,13 +1678,27 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
     t.index ["user_id"], name: "index_portals_members_on_user_id"
   end
 
+  create_table "product_groups", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.string "total_value_mode", default: "auto", null: false
+    t.decimal "total_value", precision: 12, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_product_groups_on_account_id_and_name", unique: true
+    t.index ["account_id"], name: "index_product_groups_on_account_id"
+  end
+
   create_table "products", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "value", precision: 12, scale: 2
+    t.bigint "product_group_id", null: false
     t.index ["account_id", "name"], name: "index_products_on_account_id_and_name", unique: true
     t.index ["account_id"], name: "index_products_on_account_id"
+    t.index ["product_group_id"], name: "index_products_on_product_group_id"
   end
 
   create_table "project_module_task_templates", force: :cascade do |t|
@@ -2349,8 +2363,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
   add_foreign_key "company_credentials", "users", column: "updated_by_id"
   add_foreign_key "company_system_modules", "companies"
   add_foreign_key "company_system_modules", "system_modules"
-  add_foreign_key "contract_products", "contracts"
-  add_foreign_key "contract_products", "products"
+  add_foreign_key "contract_product_groups", "contracts"
+  add_foreign_key "contract_product_groups", "product_groups"
   add_foreign_key "contracts", "accounts"
   add_foreign_key "contracts", "contacts", column: "responsible_contact_id"
   add_foreign_key "conversation_flow_states", "accounts"
@@ -2365,7 +2379,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
   add_foreign_key "inboxes", "portals"
   add_foreign_key "mood_entries", "accounts"
   add_foreign_key "mood_entries", "users"
+  add_foreign_key "product_groups", "accounts"
   add_foreign_key "products", "accounts"
+  add_foreign_key "products", "product_groups"
   add_foreign_key "project_module_task_templates", "project_modules"
   add_foreign_key "project_module_task_templates", "project_task_templates"
   add_foreign_key "project_modules", "accounts"

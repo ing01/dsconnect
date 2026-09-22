@@ -897,6 +897,12 @@ const menuItems = computed(() => {
           to: accountScopedRoute('products_list'),
         },
         {
+          name: 'Settings Product Groups',
+          label: t('SIDEBAR.PRODUCT_GROUPS'),
+          icon: 'i-lucide-boxes',
+          to: accountScopedRoute('product_groups_list'),
+        },
+        {
           name: 'Settings Custom Attributes',
           label: t('SIDEBAR.CUSTOM_ATTRIBUTES'),
           icon: 'i-lucide-code',

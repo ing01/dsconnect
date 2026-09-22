@@ -4,7 +4,7 @@ class Api::V1::Accounts::ProductsController < Api::V1::Accounts::EnterpriseAccou
   before_action :fetch_product, only: [:update, :destroy]
 
   def index
-    @products = Current.account.products.ordered_by_name
+    @products = Current.account.products.includes(:product_group).ordered_by_name
   end
 
   def create
@@ -34,6 +34,6 @@ class Api::V1::Accounts::ProductsController < Api::V1::Accounts::EnterpriseAccou
   end
 
   def product_params
-    params.require(:product).permit(:name)
+    params.require(:product).permit(:name, :value, :product_group_id)
   end
 end
