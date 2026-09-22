@@ -9,7 +9,8 @@ module TicketListing
 
   DEFAULT_PER_PAGE = 25
 
-  LIST_INCLUDES = [:team, :ticket_column, :ticket_category, :assignee, :company, :contact,
+  LIST_INCLUDES = [:team, :ticket_column, :ticket_category, :company, :contact,
+                   *AssigneeLeveled.assignee_associations,
                    { conversations: :contact }].freeze
 
   private

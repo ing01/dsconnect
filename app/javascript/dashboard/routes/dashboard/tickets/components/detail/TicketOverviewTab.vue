@@ -14,6 +14,7 @@ defineProps({
   columns: { type: Array, default: () => [] },
   agents: { type: Array, default: () => [] },
   usesAssigneeLevels: { type: Boolean, default: false },
+  assigneeLevels: { type: Array, default: () => [] },
   categories: { type: Array, default: () => [] },
   canUpdate: { type: Boolean, default: true },
   isSavingDescription: { type: Boolean, default: false },
@@ -100,6 +101,7 @@ defineEmits([
           :categories="categories"
           :agents="agents"
           :uses-assignee-levels="usesAssigneeLevels"
+          :assignee-levels="assigneeLevels"
           :can-update="canUpdate"
           @update-property="$emit('updateProperty', $event)"
           @move-to-column="$emit('moveToColumn', $event)"

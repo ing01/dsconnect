@@ -46,6 +46,7 @@ const {
   categories,
   mesaAgents,
   usesAssigneeLevels,
+  assigneeLevels,
   updateProperty,
   moveToColumn,
   changeStatus,
@@ -111,10 +112,16 @@ const goToTicket = created => {
 const levelAssignees = computed(() => {
   if (!usesAssigneeLevels.value || !ticket.value) return {};
 
-  return {
-    1: ticket.value.assignee_name,
-    2: ticket.value.assignee_2_name,
-  };
+  // Uma entrada por nivel da Mesa: com tres niveis, o resumo de apontamentos
+  // mostra tres, sem ninguem acrescentar a linha aqui.
+  return Object.fromEntries(
+    assigneeLevels.value.map(level => [
+      level,
+      level === 1
+        ? ticket.value.assignee_name
+        : ticket.value[`assignee_${level}_name`],
+    ])
+  );
 });
 
 const activeTab = ref('overview');
@@ -298,6 +305,7 @@ const submitContact = contactId =>
         :categories="categories"
         :agents="mesaAgents"
         :uses-assignee-levels="usesAssigneeLevels"
+        :assignee-levels="assigneeLevels"
         :can-update="canUpdate"
         :is-saving-description="isSavingDescription"
         @edit-catalog="handleAction('editCatalog')"

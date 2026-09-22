@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
@@ -9,9 +9,6 @@ import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 
 const { t } = useI18n();
 const store = useStore();
-
-// Espelha AssigneeLeveled::LEVELS no servidor.
-const LEVELS = [1, 2];
 
 const teams = useMapGetter('teams/getTeams');
 const agents = useMapGetter('agents/getAgents');
@@ -40,6 +37,34 @@ const load = async () => {
   }
 };
 
+// Os niveis do relatorio saem das Mesas, e nao de uma lista escrita aqui: a
+// quantidade e configuracao de cada Mesa, e uma copia no frontend voltaria a
+// divergir do servidor no primeiro nivel novo. Com uma Mesa escolhida, sao os
+// niveis dela; sem, o maior numero entre as que usam niveis - a mesma conta que
+// o Tickets::TimeEntriesReportBuilder faz.
+const LEVELS = computed(() => {
+  const comNiveis = (teams.value || []).filter(
+    team => team.assignee_levels_enabled
+  );
+  const escolhida = filters.value.teamId
+    ? comNiveis.filter(team => team.id === Number(filters.value.teamId))
+    : comNiveis;
+  const maximo = escolhida.reduce(
+    (maior, team) => Math.max(maior, team.assignee_levels_count || 2),
+    2
+  );
+
+  return Array.from({ length: maximo }, (_, indice) => indice + 1);
+});
+
+// Trocar a Mesa pode deixar o nivel escolhido fora da lista dela; voltar ao
+// vazio evita consultar um nivel que aquela Mesa nao usa.
+watch(LEVELS, niveis => {
+  if (filters.value.level && !niveis.includes(Number(filters.value.level))) {
+    filters.value.level = '';
+  }
+});
+
 const clear = () => {
   filters.value = { from: '', to: '', teamId: '', level: '', userId: '' };
   load();
@@ -50,7 +75,7 @@ const clear = () => {
 const usersByLevel = computed(() => {
   const rows = report.value?.by_user || [];
 
-  return [...LEVELS, null].map(level => ({
+  return [...LEVELS.value, null].map(level => ({
     level,
     hours: report.value?.by_level?.find(row => row.level === level)?.hours || 0,
     users: rows.filter(row => row.level === level),

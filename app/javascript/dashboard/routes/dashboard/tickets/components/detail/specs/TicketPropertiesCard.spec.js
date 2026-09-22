@@ -217,4 +217,53 @@ describe('TicketPropertiesCard', () => {
 
     expect(isDisabled(wrapper, 2)).toBe(true);
   });
+
+  // Quantos niveis a Mesa usa e configuracao, e a tela desenha um campo por
+  // nivel. Antes eram dois campos escritos a mao, e o terceiro nivel nao tinha
+  // como aparecer.
+  describe('niveis de responsavel', () => {
+    const comNiveis = (levels, overrides = {}) =>
+      mountCard({
+        usesAssigneeLevels: true,
+        assigneeLevels: levels,
+        agents: [
+          { id: 9, name: 'Ana', thumbnail: '', levels: [1] },
+          { id: 10, name: 'Bruno', thumbnail: '', levels: [2] },
+          { id: 11, name: 'Carla', thumbnail: '', levels: [3] },
+        ],
+        ...overrides,
+      });
+
+    it('shows one assignee field per level of the desk', () => {
+      // [0] prioridade, [1] status, [2] estagio, [3] categoria, depois um por nivel
+      expect(selects(comNiveis([1, 2])).length).toBe(6);
+      expect(selects(comNiveis([1, 2, 3])).length).toBe(7);
+    });
+
+    it('offers only the agents enabled for that level', () => {
+      const wrapper = comNiveis([1, 2, 3]);
+      const nivel3 = selects(wrapper)[6];
+
+      expect(nivel3.findAll('[data-value]').map(node => node.text())).toContain(
+        'Carla'
+      );
+      expect(
+        nivel3.findAll('[data-value]').map(node => node.text())
+      ).not.toContain('Bruno');
+    });
+
+    it('saves the third level into its own field, not on top of the second', async () => {
+      const wrapper = comNiveis([1, 2, 3]);
+
+      await choose(wrapper, 6, 11);
+
+      expect(wrapper.emitted('updateProperty')[0][0]).toEqual({
+        assignee_3_id: 11,
+      });
+    });
+
+    it('keeps the single assignee field on a desk without levels', () => {
+      expect(selects(mountCard()).length).toBe(5);
+    });
+  });
 });

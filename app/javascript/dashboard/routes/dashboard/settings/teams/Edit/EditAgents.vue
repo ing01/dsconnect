@@ -57,6 +57,10 @@ export default {
     showLevels() {
       return this.currentTeam?.assignee_levels_enabled && this.showAgentsList;
     },
+    // Quantos niveis a Mesa usa - a tabela de niveis tem uma coluna por nivel.
+    levelsCount() {
+      return this.currentTeam?.assignee_levels_count || 2;
+    },
     showAgentsList() {
       const { id } = this.currentTeam;
       return id && !this.uiFlags.isFetching;
@@ -145,6 +149,7 @@ export default {
       class="mt-6"
       :team-id="teamId"
       :members="teamMembers"
+      :levels-count="levelsCount"
     />
   </div>
 </template>

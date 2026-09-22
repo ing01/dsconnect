@@ -16,8 +16,13 @@ module TicketActionParams
     Current.account.conversations.find_by(id: params[:conversation_id])&.inbox&.channel_type || 'manual'
   end
 
+  # Os campos de responsavel de todos os niveis. Gerados, e nao escritos a mao:
+  # um nivel novo nao pode depender de alguem lembrar de acrescenta-lo aqui -
+  # esquecer fazia o valor chegar na API e ser descartado em silencio.
+  ASSIGNEE_PARAMS = AssigneeLeveled::ALL_LEVELS.map { |level| AssigneeLeveled.assignee_column(level) }.freeze
+
   def transfer_params
-    params.require(:ticket).permit(:team_id, :ticket_column_id, :status, :priority, :assignee_id, :assignee_2_id).to_h.symbolize_keys
+    params.require(:ticket).permit(:team_id, :ticket_column_id, :status, :priority, *ASSIGNEE_PARAMS).to_h.symbolize_keys
   end
 
   # Which parts of the parent to copy server-side. The form is authoritative for
@@ -35,7 +40,7 @@ module TicketActionParams
 
     params.require(:ticket).permit(
       :title, :description, :priority, :company_id, :contact_id,
-      :team_id, :ticket_column_id, :ticket_category_id, :assignee_id, :assignee_2_id
+      :team_id, :ticket_column_id, :ticket_category_id, *ASSIGNEE_PARAMS
     ).to_h.symbolize_keys
   end
 
@@ -50,9 +55,9 @@ module TicketActionParams
   end
 
   def ticket_params
-    params.require(:ticket).permit(:title, :description, :priority, :assignee_id, :assignee_2_id, :team_id,
+    params.require(:ticket).permit(:title, :description, :priority, :team_id,
                                    :ticket_column_id, :company_id, :contact_id, :ticket_category_id,
                                    :parent_id, :project_id, :due_date, :scheduled_at, :next_project_stage,
-                                   follower_ids: [])
+                                   *ASSIGNEE_PARAMS, follower_ids: [])
   end
 end

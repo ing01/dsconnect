@@ -92,6 +92,7 @@ pt_BR:
     assignee_levels:
       not_enabled: não pode ser definido porque esta Mesa não usa níveis de responsável
       not_allowed: não está habilitado a atuar no nível %{level} desta Mesa
+      beyond_count: não pode ser definido porque esta Mesa usa apenas %{count} níveis
     finalized:
       immutable: este ticket está finalizado e não pode mais ser alterado; reabra-o antes
     impediment:

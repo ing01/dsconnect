@@ -67,10 +67,14 @@ class Api::V1::Accounts::TeamMembersController < Api::V1::Accounts::BaseControll
     params.require(:levels).permit!.to_h
   end
 
-  # So os niveis que existem, sem repeticao: o valor vem do cliente e vai para
-  # uma coluna que a consulta de permissao le direto.
+  # So os niveis que ESTA Mesa usa, sem repeticao: o valor vem do cliente e vai
+  # para uma coluna que a consulta de permissao le direto. Uma Mesa que atende em
+  # dois niveis nao guarda habilitacao de Nivel 3 - se amanha ela passar a usar
+  # tres, a habilitacao e dada de novo, de proposito: ninguem herda um nivel que
+  # nao existia quando foi cadastrado.
   def sanitize_levels(levels)
-    Array(levels).map(&:to_i).uniq.select { |level| AssigneeLeveled.valid_level?(level) }
+    niveis_da_mesa = @team.assignee_levels
+    Array(levels).map(&:to_i).uniq.select { |level| niveis_da_mesa.include?(level) }
   end
 
   def fetch_team

@@ -10,8 +10,13 @@ json.ticket_column_id resource.ticket_column_id
 json.ticket_column_name resource.ticket_column.name
 json.assignee_id resource.assignee_id
 json.assignee_name resource.assignee&.name
-json.assignee_2_id resource.assignee_2_id
-json.assignee_2_name resource.assignee_2&.name
+# Os responsaveis do Nivel 2 em diante, so os niveis que a Mesa deste ticket usa.
+# Emitir todos os cinco sempre engordaria o payload do Kanban, que inlina cada
+# ticket de cada Estagio, com campos que aquela Mesa nao tem como preencher.
+(AssigneeLeveled::MIN_LEVEL..resource.team.assignee_levels_count).each do |level|
+  json.set! AssigneeLeveled.assignee_column(level), resource[AssigneeLeveled.assignee_column(level)]
+  json.set! :"assignee_#{level}_name", resource.assignee_for_level(level)&.name
+end
 json.team_id resource.team_id
 json.team_name resource.team.name
 # Solicitante still comes from a linked Conversation's Contact - there is no

@@ -49,6 +49,12 @@ class Team < ApplicationRecord
   has_many :ticket_sla_policies, dependent: :destroy
 
   validates :timezone, inclusion: { in: TZInfo::Timezone.all_identifiers }
+  # Quantos niveis a Mesa usa. O teto e o numero de colunas de responsavel que o
+  # ticket tem; passar dele gravaria num campo que nao existe.
+  validates :assignee_levels_count,
+            numericality: { only_integer: true,
+                            greater_than_or_equal_to: AssigneeLeveled::MIN_LEVEL,
+                            less_than_or_equal_to: AssigneeLeveled::MAX_LEVEL }
 
   before_destroy :capture_filtered_unread_count_member_ids, prepend: true
   after_destroy_commit :invalidate_filtered_unread_counts_after_destroy
@@ -67,6 +73,22 @@ class Team < ApplicationRecord
   # Adds multiple members to the team
   # @param user_ids [Array<Integer>] Array of user IDs to add as members
   # @return [Array<User>] Array of newly added members
+  # Os niveis que ESTA Mesa usa. Fonte unica para a tela, para a validacao do
+  # ticket e para o cadastro de quem atua em cada nivel - ninguem mais precisa
+  # saber contar.
+  #
+  # Sem a configuracao ligada a Mesa tem o responsavel unico de sempre, que e o
+  # Nivel 1: assim quem percorre os niveis funciona nos dois casos, sem `if`.
+  def assignee_levels
+    return [AssigneeLeveled::FIRST_LEVEL] unless assignee_levels_enabled?
+
+    (AssigneeLeveled::FIRST_LEVEL..assignee_levels_count).to_a
+  end
+
+  def uses_assignee_level?(level)
+    assignee_levels.include?(level.to_i)
+  end
+
   # Quem pode ser responsavel de um nivel nesta Mesa.
   #
   # Sem a configuracao ligada nao ha niveis: todo membro serve para o unico

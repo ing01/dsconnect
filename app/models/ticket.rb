@@ -13,8 +13,12 @@ class Ticket < ApplicationRecord
   belongs_to :account
   belongs_to :ticket_column
   belongs_to :assignee, class_name: 'User', optional: true
-  # O Nivel 2. `assignee` continua sendo o Nivel 1 - vide AssigneeLeveled.
-  belongs_to :assignee_2, class_name: 'User', optional: true
+  # Os responsaveis do Nivel 2 ao teto. `assignee` continua sendo o Nivel 1 -
+  # vide AssigneeLeveled. Declarados em laco porque a quantidade que cada Mesa
+  # usa e configuracao: o registro tem lugar para todos, e a Mesa diz quais valem.
+  (AssigneeLeveled::MIN_LEVEL..AssigneeLeveled::MAX_LEVEL).each do |level|
+    belongs_to AssigneeLeveled.assignee_association(level), class_name: 'User', optional: true
+  end
   # The ticket's "Mesa de Servico". Mandatory and always kept consistent
   # with `ticket_column.team_id` (see `team_matches_ticket_column`) - a
   # ticket's Mesa is defined by which Mesa's Estagio it currently sits in.
