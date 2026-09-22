@@ -567,6 +567,13 @@
           "LABEL": "Habilitar o fluxo de triagem do WhatsApp",
           "HELP": "Desligado, nenhuma conversa recebida pelo WhatsApp é assumida pelo fluxo automático, mesmo com uma automação configurada."
         },
+        "TEST_MODE": {
+          "TITLE": "Modo de teste da automação do WhatsApp",
+          "DESCRIPTION": "Com um número preenchido aqui, o fluxo de triagem e o Captain só respondem automaticamente a esse número. Mensagens de qualquer outro cliente continuam chegando normalmente na conversa, só não recebem resposta automática. Deixe em branco pra desligar e voltar ao normal pra todo mundo.",
+          "PLACEHOLDER": "+5511999999999",
+          "INVALID_NUMBER": "Informe um número válido, com \"+\" e o DDI, sem espaços (ex: +5511999999999).",
+          "ACTIVE_WARNING": "Modo de teste ativo: só {number} recebe resposta automática no WhatsApp agora."
+        },
         "AI_RESOLVE_LEVELS": {
           "LABEL": "Níveis de cliente que a IA tenta resolver sozinha",
           "HELP": "Os níveis não marcados aqui só recebem triagem da IA e são encaminhados para um humano - nunca uma tentativa completa de resolução."

@@ -32,6 +32,7 @@ const level3to5TeamId = ref(null);
 const defaultQueueId = ref(null);
 const priorityThresholdMediumMin = ref(null);
 const priorityThresholdHighMin = ref(null);
+const whatsappAutomationTestModeNumber = ref('');
 const isSubmitting = ref(false);
 const isRecalculating = ref(false);
 
@@ -62,6 +63,8 @@ watch(
       settings.priority_threshold_medium_min ?? null;
     priorityThresholdHighMin.value =
       settings.priority_threshold_high_min ?? null;
+    whatsappAutomationTestModeNumber.value =
+      settings.whatsapp_automation_test_mode_number || '';
   },
   { deep: true, immediate: true }
 );
@@ -78,12 +81,24 @@ const priorityThresholdsInvalid = computed(() => {
   return medium != null && high != null && Number(high) <= Number(medium);
 });
 
+// Mesmo formato que o cadastro de contato usa pro telefone: + seguido de
+// 2 a 15 digitos (E.164). Vazio e valido - e' como se a trava estivesse
+// desligada.
+const testModeNumberInvalid = computed(() => {
+  const value = whatsappAutomationTestModeNumber.value.trim();
+  return value.length > 0 && !/^\+[1-9]\d{1,14}$/.test(value);
+});
+
 // Compartilhado pelo botao "Salvar" e pelo "Recalcular agora" - o recalculo
 // sempre salva primeiro, senao rodaria com os limiares antigos ainda
 // gravados no banco.
 const saveSettings = async () => {
   if (priorityThresholdsInvalid.value) {
     useAlert(t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE'));
+    return false;
+  }
+  if (testModeNumberInvalid.value) {
+    useAlert(t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.INVALID_NUMBER'));
     return false;
   }
 
@@ -98,6 +113,8 @@ const saveSettings = async () => {
         helpdesk_default_queue_id: defaultQueueId.value || null,
         priority_threshold_medium_min: priorityThresholdMediumMin.value || null,
         priority_threshold_high_min: priorityThresholdHighMin.value || null,
+        whatsapp_automation_test_mode_number:
+          whatsappAutomationTestModeNumber.value.trim() || null,
       },
       { silent: true }
     );
@@ -170,6 +187,43 @@ const handleRecalculatePriorities = async () => {
               </p>
             </div>
             <Switch v-model="whatsappFlowEnabled" />
+          </div>
+
+          <div class="flex flex-col gap-2 px-5 py-4">
+            <div class="flex flex-col gap-1">
+              <h3 class="text-heading-2 text-n-slate-12">
+                {{ t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.TITLE') }}
+              </h3>
+              <p class="mb-0 text-body-para text-n-slate-11">
+                {{ t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.DESCRIPTION') }}
+              </p>
+            </div>
+            <input
+              v-model="whatsappAutomationTestModeNumber"
+              type="text"
+              class="mb-0 max-w-xs"
+              :placeholder="
+                t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.PLACEHOLDER')
+              "
+            />
+            <p
+              v-if="testModeNumberInvalid"
+              class="mb-0 text-xs text-n-ruby-11"
+            >
+              {{ t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.INVALID_NUMBER') }}
+            </p>
+            <div
+              v-else-if="whatsappAutomationTestModeNumber.trim()"
+              class="py-2 px-3 mt-1 bg-n-amber-3 outline-n-amber-4 text-n-amber-11 outline outline-1 -outline-offset-1 rounded-xl"
+            >
+              <p class="mb-0 text-body-para">
+                {{
+                  t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.ACTIVE_WARNING', {
+                    number: whatsappAutomationTestModeNumber.trim(),
+                  })
+                }}
+              </p>
+            </div>
           </div>
 
           <div class="flex flex-col gap-2 px-5 py-4">
