@@ -68,7 +68,37 @@ class Account < ApplicationRecord
   # Empresa - ver Company#tier_for. Abaixo de `priority_threshold_medium_min`
   # e' sempre Baixa.
   store_accessor :settings, :priority_threshold_medium_min, :priority_threshold_high_min
+  # Trava temporaria de homologacao: com um numero configurado aqui, a
+  # automacao (fluxo de triagem + Captain) do WhatsApp so responde a esse
+  # numero - qualquer outro contato so recebe a mensagem registrada na
+  # conversa, sem resposta automatica. Ver AutomationRules::Flow::BlockGateService
+  # e Enterprise::MessageTemplates::HookExecutionService. Vazio = sem trava,
+  # comportamento normal pra todo mundo.
+  store_accessor :settings, :whatsapp_automation_test_mode_number
+  # Distribuicao automatica de conversas de WhatsApp entre agentes - ver
+  # AutoAssignment::AssignmentService#find_available_agent (e a versao
+  # enterprise dele), unico ponto que le essas 3 chaves. `enabled` desligado
+  # nunca impede atribuicao manual, so a automatica; `max_open_chats` em
+  # branco = sem limite; `excluded_agent_ids` fica de fora da distribuicao
+  # automatica mas continua podendo ser atribuido a mao.
+  store_accessor :settings, :whatsapp_auto_assignment_enabled, :whatsapp_auto_assignment_max_open_chats,
+                  :whatsapp_auto_assignment_excluded_agent_ids
   include AccountCaptainAutoResolve
+
+  # phone_number vem sempre em E.164 (+DDI...); nil/blank nunca "bate" com o
+  # numero de teste, mesmo se o campo de teste tambem estiver vazio.
+  def whatsapp_automation_allowed_for?(phone_number)
+    test_number = whatsapp_automation_test_mode_number
+    return true if test_number.blank?
+
+    phone_number.present? && phone_number == test_number
+  end
+
+  # Ausente (nil) = ligado - so desliga quando alguem explicitamente desmarca
+  # o toggle na tela (grava `false`).
+  def whatsapp_auto_assignment_enabled?
+    whatsapp_auto_assignment_enabled != false
+  end
 
   has_many :account_users, dependent: :destroy_async
   has_many :agent_bot_inboxes, dependent: :destroy_async

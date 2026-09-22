@@ -16,6 +16,7 @@ class Project < ApplicationRecord
   enum status: { active: 0, completed: 1, cancelled: 2 }
 
   before_validation :sync_status_with_stage
+  after_save :sync_system_started_on_to_company, if: :saved_change_to_system_started_on?
   # Only when finalizing (not on every save) - a project already sitting in
   # `finalizado` must stay editable (renaming it, fixing a date) even if a
   # ticket got reopened afterwards.
@@ -84,5 +85,17 @@ class Project < ApplicationRecord
     elsif completed? && stage != 'finalizado'
       self.status = :active
     end
+  end
+
+  # "Data de inicio do uso do sistema" na Empresa nao e' mais digitada a mao
+  # quando ela tem Projeto - vem daqui. Uma Empresa pode ter mais de um
+  # Projeto (um por modulo contratado); quando mais de um tem essa data
+  # preenchida, vale a mais antiga (primeira vez que o cliente comecou a usar
+  # qualquer parte do sistema) - decisao confirmada com a Ingrid.
+  def sync_system_started_on_to_company
+    return if company.blank?
+
+    earliest = company.projects.where.not(system_started_on: nil).minimum(:system_started_on)
+    company.update!(system_started_on: earliest)
   end
 end

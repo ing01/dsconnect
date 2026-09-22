@@ -1,0 +1,72 @@
+{
+  "CONTRACTS": {
+    "HEADER": "Contratos",
+    "SEARCH_PLACEHOLDER": "Buscar por empresa ou responsável...",
+    "LOADING": "Carregando contratos...",
+    "EMPTY_STATE": "Nenhum contrato cadastrado ainda.",
+    "NO_COMPANIES": "Nenhuma empresa vinculada",
+    "ACTIONS": {
+      "CREATE": "Novo contrato"
+    },
+    "MESSAGES": {
+      "CREATE_SUCCESS": "Contrato criado.",
+      "UPDATE_SUCCESS": "Contrato atualizado.",
+      "SAVE_ERROR": "Não foi possível salvar o contrato."
+    },
+    "FORM": {
+      "CREATE_TITLE": "Novo contrato",
+      "EDIT_TITLE": "Editar contrato",
+      "SAVE": "Salvar contrato",
+      "RESPONSIBLE": {
+        "LABEL": "Responsável (quem assinou)",
+        "PLACEHOLDER": "Buscar contato...",
+        "SEARCH_PLACEHOLDER": "Buscar contato..."
+      },
+      "CONTRACT_TYPE": {
+        "LABEL": "Tipo de contrato",
+        "MONTHLY": "Mensalidade",
+        "ANNUAL": "Anuidade"
+      },
+      "COMPANIES": {
+        "LABEL": "Empresas participantes",
+        "ADD_PLACEHOLDER": "Adicionar empresa...",
+        "SEARCH_PLACEHOLDER": "Buscar empresas...",
+        "REMOVE": "Remover {name}"
+      },
+      "PRODUCTS": {
+        "LABEL": "Produtos",
+        "SELECT_PLACEHOLDER": "Selecione um produto",
+        "PRODUCT": "Produto",
+        "UNIT_VALUE": "Valor do produto",
+        "LICENSES_QTY": "Qtd. de licenças",
+        "IMPLEMENTATION_FEE": "Valor da implantação",
+        "ADD_LINE": "Adicionar produto",
+        "NEW_PLACEHOLDER": "Novo produto",
+        "NEW_BUTTON": "Criar"
+      },
+      "TOTAL_VALUE": {
+        "LABEL": "Valor total do contrato",
+        "MANUAL_TOGGLE": "Definir valor manualmente"
+      }
+    }
+  },
+  "PRODUCTS": {
+    "HEADER": "Produtos",
+    "DESCRIPTION": "Produtos que podem ser incluídos em um Contrato.",
+    "LOADING": "Carregando produtos...",
+    "EMPTY_STATE": "Nenhum produto cadastrado ainda.",
+    "ADD_PLACEHOLDER": "Nome do novo produto",
+    "ADD_BUTTON": "Adicionar",
+    "DELETE_CONFIRM": "Excluir este produto?",
+    "DELETE_CONFIRM_YES": "Sim, excluir",
+    "DELETE_CONFIRM_NO": "Não, manter",
+    "MESSAGES": {
+      "CREATE_SUCCESS": "Produto criado.",
+      "CREATE_ERROR": "Não foi possível criar o produto.",
+      "UPDATE_SUCCESS": "Produto atualizado.",
+      "UPDATE_ERROR": "Não foi possível atualizar o produto.",
+      "DELETE_SUCCESS": "Produto excluído.",
+      "DELETE_ERROR": "Não foi possível excluir o produto."
+    }
+  }
+}

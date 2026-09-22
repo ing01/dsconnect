@@ -11,6 +11,9 @@
     "TAB_HEADING": "Conversations",
     "MENTION_HEADING": "Mentions",
     "UNATTENDED_HEADING": "Unattended",
+    "CHANNEL_TYPE_VIEWS": {
+      "Channel::Email": "Emails"
+    },
     "SEARCH": {
       "INPUT": "Search for People, Chats, Saved Replies .."
     },

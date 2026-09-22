@@ -513,6 +513,13 @@ const menuItems = computed(() => {
       },
     },
     {
+      name: 'Emails',
+      label: t('SIDEBAR.EMAILS'),
+      icon: 'i-lucide-mail',
+      to: accountScopedRoute('email_conversations'),
+      activeOn: ['email_conversations', 'conversation_through_emails'],
+    },
+    {
       name: 'Tickets',
       label: t('SIDEBAR.TICKETS'),
       icon: 'i-lucide-kanban-square',
@@ -554,6 +561,12 @@ const menuItems = computed(() => {
             { page: 1, search: undefined }
           ),
           activeOn: ['companies_dashboard_index', 'companies_dashboard_show'],
+        },
+        {
+          name: 'Contracts',
+          label: t('SIDEBAR.CONTRACTS'),
+          to: accountScopedRoute('contracts_dashboard_index'),
+          activeOn: ['contracts_dashboard_index'],
         },
         {
           name: 'Contacts',
@@ -876,6 +889,12 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.LABELS'),
           icon: 'i-lucide-tags',
           to: accountScopedRoute('labels_list'),
+        },
+        {
+          name: 'Settings Products',
+          label: t('SIDEBAR.PRODUCTS'),
+          icon: 'i-lucide-package',
+          to: accountScopedRoute('products_list'),
         },
         {
           name: 'Settings Custom Attributes',

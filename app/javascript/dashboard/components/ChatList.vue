@@ -59,6 +59,11 @@ const props = defineProps({
   label: { type: String, default: '' },
   conversationType: { type: String, default: '' },
   foldersId: { type: [String, Number], default: 0 },
+  // "Lente" fixa por tipo de canal (ex: 'Channel::Email'), pra telas como
+  // Emails que mostram so as conversas das caixas daquele tipo. Reaproveita
+  // o mesmo mecanismo de Pastas (activeFolder/hasActiveFolders) com uma
+  // pasta sintetica em vez de uma CustomView salva - ver channelTypeFolder.
+  channelType: { type: String, default: '' },
   showConversationList: { default: true, type: Boolean },
   isOnExpandedLayout: { default: false, type: Boolean },
 });
@@ -140,7 +145,39 @@ const hasAppliedFilters = computed(() => {
   return appliedFilters.value.length !== 0;
 });
 
+const channelTypeInboxIds = computed(() => {
+  if (!props.channelType) return [];
+  return inboxesList.value
+    .filter(ibx => ibx.channel_type === props.channelType)
+    .map(ibx => ibx.id);
+});
+
+// Mesmo formato que filterQueryGenerator produz pra uma CustomView de
+// verdade (ver helper/filterQueryGenerator.js), so que montado na hora em
+// vez de vir salvo no banco - permite reaproveitar fetchSavedFilteredConversations
+// sem precisar criar uma Pasta real pra cada tipo de canal.
+const channelTypeFolder = computed(() => {
+  if (!props.channelType) return undefined;
+  return {
+    id: `channel-type-${props.channelType}`,
+    name: t(`CHAT_LIST.CHANNEL_TYPE_VIEWS.${props.channelType}`),
+    query: {
+      payload: [
+        {
+          attribute_key: 'inbox_id',
+          filter_operator: 'equal_to',
+          values: channelTypeInboxIds.value,
+          query_operator: undefined,
+        },
+      ],
+    },
+  };
+});
+
 const activeFolder = computed(() => {
+  if (channelTypeFolder.value) {
+    return channelTypeFolder.value;
+  }
   if (props.foldersId) {
     const activeView = folders.value.filter(
       view => view.id === Number(props.foldersId)
@@ -159,7 +196,9 @@ const activeFolderName = computed(() => {
 });
 
 const hasActiveFolders = computed(() => {
-  return Boolean(activeFolder.value && props.foldersId !== 0);
+  return Boolean(
+    activeFolder.value && (props.foldersId !== 0 || Boolean(props.channelType))
+  );
 });
 
 const hasAppliedFiltersOrActiveFolders = computed(() => {
@@ -455,6 +494,10 @@ function onCloseAddFoldersModal() {
 }
 
 function onClickOpenDeleteFoldersModal() {
+  // A "pasta" por tipo de canal (Emails) e' sintetica, nao existe como
+  // CustomView no banco - nao ha o que excluir.
+  if (props.channelType) return;
+
   showDeleteFoldersModal.value = true;
 }
 
@@ -865,6 +908,10 @@ watch(
 );
 watch(
   computed(() => props.conversationType),
+  () => resetAndFetchData()
+);
+watch(
+  computed(() => props.channelType),
   () => resetAndFetchData()
 );
 

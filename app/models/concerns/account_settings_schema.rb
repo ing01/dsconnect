@@ -42,7 +42,14 @@ module AccountSettingsSchema
         'helpdesk_level_3to5_team_id': { 'type': %w[integer null] },
         'helpdesk_default_queue_id': { 'type': %w[integer null] },
         'priority_threshold_medium_min': { 'type': %w[number null], 'minimum': 0 },
-        'priority_threshold_high_min': { 'type': %w[number null], 'minimum': 0 }
+        'priority_threshold_high_min': { 'type': %w[number null], 'minimum': 0 },
+        'whatsapp_automation_test_mode_number': { 'type': %w[string null] },
+        'whatsapp_auto_assignment_enabled': { 'type': %w[boolean null] },
+        'whatsapp_auto_assignment_max_open_chats': { 'type': %w[integer null], 'minimum': 1 },
+        'whatsapp_auto_assignment_excluded_agent_ids': {
+          'type': %w[array null],
+          'items': { 'type': 'integer' }
+        }
       },
     'required': [],
     'additionalProperties': true

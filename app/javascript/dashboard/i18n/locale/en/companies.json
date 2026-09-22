@@ -201,8 +201,8 @@
           "BILLING_TYPE": "Billing cycle",
           "BILLING_AMOUNT": "Amount paid",
           "IMPLEMENTATION_FEE": "Implementation fee",
-          "LICENSE_EXPIRES_ON": "License expiration date",
           "SYSTEM_STARTED_ON": "System start date",
+          "SYSTEM_STARTED_ON_FROM_PROJECT": "Comes automatically from the implementation Project (earliest date across this Company's Projects).",
           "MODULES": "Modules in use",
           "CLIENT_LEVEL": "Client priority",
           "CATEGORY": "Category",
@@ -230,6 +230,14 @@
           "MONTHLY": "Monthly",
           "ANNUAL": "Annual",
           "MONTHLY_EQUIVALENT": "≈ {amount} per month"
+        },
+        "CONTRACT": {
+          "LABEL": "Linked contract",
+          "NONE": "No contract linked",
+          "UNNAMED": "Contract with no companies",
+          "SELECT": "Select contract",
+          "CHANGE": "Change contract",
+          "SEARCH_PLACEHOLDER": "Search contract..."
         },
         "MODULES": {
           "ADD_PLACEHOLDER": "New module name",

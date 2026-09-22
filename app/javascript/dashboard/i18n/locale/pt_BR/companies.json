@@ -201,8 +201,8 @@
           "BILLING_TYPE": "Tipo de cobrança",
           "BILLING_AMOUNT": "Valor pago",
           "IMPLEMENTATION_FEE": "Valor da implantação",
-          "LICENSE_EXPIRES_ON": "Data de vencimento da licença",
           "SYSTEM_STARTED_ON": "Data de início do uso do sistema",
+          "SYSTEM_STARTED_ON_FROM_PROJECT": "Vem automaticamente do Projeto de implantação (data mais antiga entre os Projetos desta Empresa).",
           "MODULES": "Módulos utilizados",
           "CLIENT_LEVEL": "Prioridade do cliente",
           "CATEGORY": "Categoria",
@@ -230,6 +230,14 @@
           "MONTHLY": "Mensalidade",
           "ANNUAL": "Anuidade",
           "MONTHLY_EQUIVALENT": "≈ {amount} por mês"
+        },
+        "CONTRACT": {
+          "LABEL": "Contrato vinculado",
+          "NONE": "Nenhum contrato vinculado",
+          "UNNAMED": "Contrato sem empresas",
+          "SELECT": "Selecionar contrato",
+          "CHANGE": "Trocar contrato",
+          "SEARCH_PLACEHOLDER": "Buscar contrato..."
         },
         "MODULES": {
           "ADD_PLACEHOLDER": "Nome do novo módulo",

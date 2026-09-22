@@ -18,6 +18,9 @@ module Enterprise::AutoAssignment::AssignmentService
     agents = filter_agents_by_team(inbox.available_agents, conversation)
     return nil if agents.nil?
 
+    agents = filter_agents_by_whatsapp_assignment_settings(agents)
+    return nil if agents.empty?
+
     agents = filter_agents_by_rate_limit(agents)
     agents = filter_agents_by_capacity(agents) if capacity_filtering_enabled?
     return nil if agents.empty?
@@ -32,6 +35,29 @@ module Enterprise::AutoAssignment::AssignmentService
 
     capacity_service = Enterprise::AutoAssignment::CapacityService.new
     agents.select { |agent_member| capacity_service.agent_has_capacity?(agent_member.user, inbox) }
+  end
+
+  # Configuracao de "Distribuicao automatica de WhatsApp" (tela de Automacao,
+  # ver Account#whatsapp_auto_assignment_*) - so entra em jogo pra caixas de
+  # WhatsApp, e e' independente da politica de capacidade acima (essa aqui
+  # nao depende do flag premium `advanced_assignment`).
+  def filter_agents_by_whatsapp_assignment_settings(agents)
+    return agents unless inbox.whatsapp?
+    return agents.none unless account.whatsapp_auto_assignment_enabled?
+
+    excluded_ids = Array(account.whatsapp_auto_assignment_excluded_agent_ids)
+    agents = agents.where.not(user_id: excluded_ids) if excluded_ids.present?
+
+    filter_agents_by_whatsapp_open_chat_limit(agents)
+  end
+
+  def filter_agents_by_whatsapp_open_chat_limit(agents)
+    limit = account.whatsapp_auto_assignment_max_open_chats.to_i
+    return agents unless limit.positive?
+
+    agents.select do |agent_member|
+      inbox.conversations.open.where(assignee_id: agent_member.user_id).count < limit
+    end
   end
 
   def capacity_filtering_enabled?

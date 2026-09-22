@@ -80,6 +80,8 @@ class Webhooks::WhatsappEventsJob < MutexApplicationJob
     case channel.provider
     when 'whatsapp_cloud'
       Whatsapp::IncomingMessageWhatsappCloudService.new(inbox: channel.inbox, params: params).perform
+    when 'astere_zap'
+      Whatsapp::IncomingMessageAsterezapService.new(inbox: channel.inbox, params: params).perform
     else
       Whatsapp::IncomingMessageService.new(inbox: channel.inbox, params: params).perform
     end
@@ -92,6 +94,12 @@ class Webhooks::WhatsappEventsJob < MutexApplicationJob
   def contact_sender_id(params)
     value = params.dig(:entry, 0, :changes, 0, :value) || params
     return contact_sender_id_from_message_echoes(value[:message_echoes]) if value[:message_echoes].present?
+    # Payload achatado do AstereZap ({type, phone, messageId, ...}) nao tem
+    # `messages`/`contacts` - sem isso, contact_sender_id_from_messages sempre
+    # devolve nil, o que pula o mutex abaixo e permite duas mensagens
+    # concorrentes do mesmo contato criarem 2 conversas em paralelo (visto ao
+    # vivo: 2 conversas com created_at identico pro mesmo contato).
+    return value[:phone].to_s.gsub(/\D/, '').presence if value[:messages].blank? && value[:phone].present?
 
     contact_sender_id_from_messages(value[:messages], value[:contacts])
   end

@@ -30,6 +30,8 @@ const variables = computed(() => variablesFor(steps.value));
 const update = next => emit('update:modelValue', next);
 
 const label = key => t(`AUTOMATION.FLOW.STEP.${key.toUpperCase()}`);
+const description = key =>
+  t(`AUTOMATION.FLOW.STEP_DESCRIPTION.${key.toUpperCase()}`);
 
 const fieldsFor = step => findStepType(step.type)?.fields || [];
 const branchesFor = step => findStepType(step.type)?.branches || [];
@@ -139,6 +141,7 @@ const setBranch = (index, key, value) => {
           v-for="definition in FLOW_STEP_TYPES"
           :key="definition.type"
           :value="definition.type"
+          :title="description(definition.type)"
         >
           {{ label(definition.type) }}
         </option>
@@ -156,16 +159,21 @@ const setBranch = (index, key, value) => {
       :key="step.id"
       class="flex flex-col gap-3 p-3 border rounded-lg border-n-weak bg-n-alpha-black2"
     >
-      <div class="flex items-center gap-2">
+      <div class="flex items-start gap-2">
         <span
-          class="px-1.5 py-0.5 text-xs rounded bg-n-alpha-2 text-n-slate-11 font-medium"
+          class="px-1.5 py-0.5 text-xs rounded bg-n-alpha-2 text-n-slate-11 font-medium mt-0.5"
         >
           {{ step.id }}
         </span>
-        <span class="text-sm font-medium text-n-slate-12">
-          {{ label(step.type) }}
-        </span>
-        <div class="flex items-center gap-1 ml-auto">
+        <div class="flex flex-col min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ label(step.type) }}
+          </span>
+          <span class="text-xs text-n-slate-10">
+            {{ description(step.type) }}
+          </span>
+        </div>
+        <div class="flex items-center gap-1 ml-auto shrink-0">
           <button
             type="button"
             class="p-1 rounded text-n-slate-11 hover:bg-n-alpha-2"

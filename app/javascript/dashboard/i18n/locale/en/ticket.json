@@ -566,6 +566,27 @@
           "LABEL": "Enable the WhatsApp triage flow",
           "HELP": "When off, incoming WhatsApp conversations are never picked up by the automated flow, regardless of any automation rule configured."
         },
+        "AUTO_ASSIGNMENT": {
+          "TITLE": "WhatsApp auto-assignment",
+          "DESCRIPTION": "Controls whether new WhatsApp conversations get assigned to an available agent on their own. When off, they still arrive normally, just without automatic assignment - anyone can pick them up manually.",
+          "MAX_OPEN_CHATS": {
+            "LABEL": "Open chats limit per agent",
+            "HELP": "An agent who already has this many open WhatsApp conversations stops receiving new ones automatically until they resolve one. Leave blank for no limit.",
+            "PLACEHOLDER": "No limit"
+          },
+          "EXCLUDED_AGENTS": {
+            "LABEL": "Agents excluded from auto-assignment",
+            "HELP": "Checked agents never receive a WhatsApp conversation automatically - they can still be assigned manually as usual.",
+            "EMPTY": "No agents found."
+          }
+        },
+        "TEST_MODE": {
+          "TITLE": "WhatsApp automation test mode",
+          "DESCRIPTION": "With a number set here, the triage flow and Captain only reply automatically to that number. Messages from any other customer still arrive normally in the conversation, they just don't get an automatic reply. Leave it blank to turn this off and go back to normal for everyone.",
+          "PLACEHOLDER": "+15551234567",
+          "INVALID_NUMBER": "Enter a valid number, with \"+\" and the country code, no spaces (e.g. +15551234567).",
+          "ACTIVE_WARNING": "Test mode is on: only {number} gets an automatic WhatsApp reply right now."
+        },
         "AI_RESOLVE_LEVELS": {
           "LABEL": "Client levels the AI tries to resolve on its own",
           "HELP": "Levels not selected here only get triaged by the AI and handed off to a human - never a full resolution attempt."

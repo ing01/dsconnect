@@ -19,8 +19,19 @@ json.address_state resource.address_state
 json.billing_type resource.billing_type
 json.billing_amount resource.billing_amount
 json.implementation_fee resource.implementation_fee
-json.license_expires_on resource.license_expires_on
 json.system_started_on resource.system_started_on
+json.projects_count resource.projects.count
+json.contract_id resource.contract_id
+if resource.contract.present?
+  json.contract do
+    json.id resource.contract.id
+    json.contract_type resource.contract.contract_type
+    json.computed_total_value resource.contract.computed_total_value
+    json.company_names resource.contract.companies.pluck(:name)
+  end
+else
+  json.contract nil
+end
 json.system_modules resource.system_modules.map { |system_module| { id: system_module.id, name: system_module.name } }
 json.client_level resource.client_level
 json.campaign_opt_in resource.campaign_opt_in
