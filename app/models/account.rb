@@ -83,7 +83,14 @@ class Account < ApplicationRecord
   # automatica mas continua podendo ser atribuido a mao.
   store_accessor :settings, :whatsapp_auto_assignment_enabled, :whatsapp_auto_assignment_max_open_chats,
                   :whatsapp_auto_assignment_excluded_agent_ids
+  # Pesquisa de satisfacao por digito (1-5) no WhatsApp - ver
+  # Whatsapp::CsatDigitSurveyService, unico lugar que le essas 2 chaves.
+  # Mensagem em branco cai no texto padrao (`whatsapp_csat_survey_message_or_default`).
+  store_accessor :settings, :whatsapp_csat_survey_enabled, :whatsapp_csat_survey_message
   include AccountCaptainAutoResolve
+
+  DEFAULT_WHATSAPP_CSAT_SURVEY_MESSAGE =
+    'Como você avalia nosso atendimento? Responda com um número de 1 a 5, sendo 1 (péssimo) e 5 (ótimo).'.freeze
 
   # phone_number vem sempre em E.164 (+DDI...); nil/blank nunca "bate" com o
   # numero de teste, mesmo se o campo de teste tambem estiver vazio.
@@ -92,6 +99,10 @@ class Account < ApplicationRecord
     return true if test_number.blank?
 
     phone_number.present? && phone_number == test_number
+  end
+
+  def whatsapp_csat_survey_message_or_default
+    whatsapp_csat_survey_message.presence || DEFAULT_WHATSAPP_CSAT_SURVEY_MESSAGE
   end
 
   # Ausente (nil) = ligado - so desliga quando alguem explicitamente desmarca

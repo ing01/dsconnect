@@ -581,6 +581,14 @@
             "EMPTY": "Nenhum agente encontrado."
           }
         },
+        "CSAT_SURVEY": {
+          "TITLE": "Pesquisa de satisfação no WhatsApp",
+          "DESCRIPTION": "Ao resolver uma conversa de WhatsApp, envia a mensagem abaixo pedindo pro cliente responder com uma nota de 1 a 5 (1 = péssimo, 5 = ótimo), digitando o número. A nota é registrada nos relatórios de CSAT normalmente.",
+          "MESSAGE_LABEL": "Mensagem da pesquisa",
+          "MESSAGE_PLACEHOLDER": "Como você avalia nosso atendimento? Responda com um número de 1 a 5...",
+          "MESSAGE_HELP": "O cliente responde digitando só o número (1 a 5) na própria conversa de WhatsApp.",
+          "MESSAGE_REQUIRED": "Escreva a mensagem da pesquisa antes de salvar."
+        },
         "TEST_MODE": {
           "TITLE": "Modo de teste da automação do WhatsApp",
           "DESCRIPTION": "Com um número preenchido aqui, o fluxo de triagem e o Captain só respondem automaticamente a esse número. Mensagens de qualquer outro cliente continuam chegando normalmente na conversa, só não recebem resposta automática. Deixe em branco pra desligar e voltar ao normal pra todo mundo.",

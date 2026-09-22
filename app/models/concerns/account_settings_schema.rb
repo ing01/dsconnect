@@ -49,7 +49,9 @@ module AccountSettingsSchema
         'whatsapp_auto_assignment_excluded_agent_ids': {
           'type': %w[array null],
           'items': { 'type': 'integer' }
-        }
+        },
+        'whatsapp_csat_survey_enabled': { 'type': %w[boolean null] },
+        'whatsapp_csat_survey_message': { 'type': %w[string null] }
       },
     'required': [],
     'additionalProperties': true
