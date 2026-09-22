@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'product-groups',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'feature',
+    title: 'Grupo de Produtos',
+    description:
+      'Novo cadastro em Configurações: todo Produto agora pertence a um Grupo, e ganhou um campo de Valor próprio. O Grupo soma o valor dos produtos automaticamente (ou pode ser definido na mão), e é ele - não mais o produto individual - que agora se vincula nas linhas de um Contrato.',
+  },
+  {
     id: 'whatsapp-csat-survey',
     date: '22 de setembro de 2026',
     isoDate: '2026-09-22',
