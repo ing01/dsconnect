@@ -16,13 +16,19 @@ class Whatsapp::IncomingMessageAsterezapService < Whatsapp::IncomingMessageBaseS
 
   # WhatsApp Web (o que o AstereZap automatiza) as vezes reporta o mesmo
   # contato brasileiro em formatos diferentes entre uma mensagem e outra -
-  # com o "9" extra numa, sem nele na proxima. Chatwoot ja tem
-  # Whatsapp::PhoneNumberNormalizationService pra isso, mas ele so acha um
-  # contato existente se o formato ja tiver sido normalizado antes (nao
-  # ajuda na primeira mensagem de um contato novo). Normalizando aqui, antes
-  # do numero virar `from`/`wa_id`, toda mensagem do mesmo numero cai sempre
-  # no mesmo formato - o que evitou o bug real: 3 mensagens do mesmo cliente
-  # viraram 2 contatos/conversas diferentes.
+  # com o "9" extra numa, sem nele na proxima. So normalizar pra um formato
+  # canonico (primeira tentativa) nao e suficiente: se o contato ja existe
+  # no banco gravado no formato "errado" (por ter sido criado antes dessa
+  # normalizacao existir, ou por qualquer outra mensagem anterior), a
+  # proxima mensagem no formato canonico nunca encontra esse registro e cria
+  # um contato/conversa novo por cima - foi exatamente o que aconteceu com
+  # "Cesar" (contato 554499577573 x 5544999577573, a mesma pessoa).
+  #
+  # Por isso a resolucao aqui sempre confere as DUAS formas possiveis contra
+  # o que ja existe nesta caixa antes de decidir: a que ja tiver um
+  # ContactInbox correspondente vence (preserva o historico), e so cai no
+  # formato canonico (com o "9") quando nenhuma das duas existir ainda -
+  # contato genuinamente novo.
   PHONE_NORMALIZERS = [
     Whatsapp::PhoneNormalizers::BrazilPhoneNormalizer,
     Whatsapp::PhoneNormalizers::ArgentinaPhoneNormalizer,
@@ -31,8 +37,27 @@ class Whatsapp::IncomingMessageAsterezapService < Whatsapp::IncomingMessageBaseS
 
   private
 
-  def canonical_phone(raw_phone)
+  def resolve_phone_for_inbox(raw_phone)
     digits = raw_phone.to_s.gsub(/\D/, '')
+    candidates = phone_candidates(digits)
+    existing = candidates.find { |candidate| inbox.contact_inboxes.exists?(source_id: candidate) }
+    existing || canonical_phone(digits)
+  end
+
+  # Devolve as duas grafias possiveis pro mesmo numero brasileiro (com e sem
+  # o "9" do celular) - pra numeros de outros paises, so a forma unica.
+  def phone_candidates(digits)
+    return [canonical_phone(digits)] unless digits.start_with?('55') && [12, 13].include?(digits.length)
+
+    ddd = digits[2, 2]
+    local = digits[4..]
+    with_nine = local.length == 9 ? local : "9#{local}"
+    without_nine = local.length == 9 && local.start_with?('9') ? local[1..] : local
+
+    ["55#{ddd}#{with_nine}", "55#{ddd}#{without_nine}"].uniq
+  end
+
+  def canonical_phone(digits)
     normalizer = PHONE_NORMALIZERS.find { |candidate| candidate.handles_country?(digits) }
     return digits if normalizer.blank?
 
@@ -85,7 +110,7 @@ class Whatsapp::IncomingMessageAsterezapService < Whatsapp::IncomingMessageBaseS
     type = message_content_type(payload)
     {
       id: payload[:messageId],
-      from: canonical_phone(payload[:phone]),
+      from: resolve_phone_for_inbox(payload[:phone]),
       type: type
     }.merge(content_field(type, payload))
   end
@@ -117,7 +142,7 @@ class Whatsapp::IncomingMessageAsterezapService < Whatsapp::IncomingMessageBaseS
 
   def contact_from(payload)
     {
-      wa_id: canonical_phone(payload[:phone]),
+      wa_id: resolve_phone_for_inbox(payload[:phone]),
       profile: { name: payload[:pushName].presence || payload[:phone] }
     }
   end
