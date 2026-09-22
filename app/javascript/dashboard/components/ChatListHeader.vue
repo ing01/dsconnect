@@ -39,6 +39,11 @@ const hasAppliedFiltersOrActiveFolders = computed(() => {
 const allCount = computed(() => props.conversationStats?.allCount || 0);
 const formattedAllCount = computed(() => formatNumber(allCount.value));
 
+// Snoozed/All stay in the ConversationBasicFilter dropdown - these three cover
+// the day-to-day switching (including bot conversations, which sit in
+// "pending" until handed off) without needing to open that dropdown first.
+const QUICK_STATUSES = ['open', 'pending', 'resolved'];
+
 const toggleConversationLayout = () => {
   const { LAYOUT_TYPES } = wootConstants;
   const {
@@ -78,14 +83,27 @@ const toggleConversationLayout = () => {
       >
         {{ formattedAllCount }}
       </span>
-      <span
-        v-if="!hasAppliedFiltersOrActiveFolders"
-        class="px-2 py-1 my-0.5 mx-1 rounded-md capitalize bg-n-slate-3 text-xxs text-n-slate-12 shrink-0"
-      >
-        {{ $t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${activeStatus}.TEXT`) }}
-      </span>
     </div>
     <div class="flex items-center gap-1">
+      <div
+        v-if="!hasAppliedFiltersOrActiveFolders"
+        class="flex items-center gap-0.5 p-0.5 rounded-lg bg-n-slate-3 shrink-0"
+      >
+        <NextButton
+          v-for="status in QUICK_STATUSES"
+          :key="status"
+          size="xs"
+          variant="ghost"
+          color="slate"
+          no-animation
+          :class="
+            activeStatus === status &&
+            'bg-gradient-to-r from-n-blue-9 to-n-teal-9 !text-white'
+          "
+          :label="$t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${status}.TEXT`)"
+          @click="onBasicFilterChange(status, 'status')"
+        />
+      </div>
       <template v-if="hasAppliedFilters && !hasActiveFolders">
         <div class="relative">
           <NextButton

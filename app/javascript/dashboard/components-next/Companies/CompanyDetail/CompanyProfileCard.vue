@@ -8,7 +8,6 @@ import { dynamicTime } from 'shared/helpers/timeHelper';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
-import Select from 'dashboard/components-next/select/Select.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import CompanyModulesField from 'dashboard/components-next/Companies/CompanyDetail/CompanyModulesField.vue';
 import CompanyCategoryField from 'dashboard/components-next/Companies/CompanyDetail/CompanyCategoryField.vue';
@@ -36,10 +35,20 @@ const FISCAL_FIELDS = [
   'addressState',
 ];
 
-const CLIENT_LEVEL_OPTIONS = [1, 2, 3, 4, 5].map(level => ({
-  value: level,
-  label: t(`COMPANIES.DETAIL.PROFILE.LEVEL.L${level}`),
-}));
+const clientLevelLabel = computed(() =>
+  t(`COMPANIES.DETAIL.PROFILE.LEVEL.L${Number(props.company?.clientLevel) || 1}`)
+);
+
+// 1 Baixa (verde), 2 Media (laranja), 3 Alta (vermelho) - "verde" nessa
+// paleta e' o token teal, nao existe um "green" separado.
+const CLIENT_LEVEL_COLOR_CLASSES = {
+  1: 'bg-n-teal-3 text-n-teal-11',
+  2: 'bg-n-amber-3 text-n-amber-11',
+  3: 'bg-n-ruby-3 text-n-ruby-11',
+};
+const clientLevelColorClasses = computed(
+  () => CLIENT_LEVEL_COLOR_CLASSES[Number(props.company?.clientLevel) || 1]
+);
 
 const form = reactive({
   name: '',
@@ -56,7 +65,6 @@ const form = reactive({
   addressNeighborhood: '',
   addressCity: '',
   addressState: '',
-  clientLevel: 1,
   companyCategoryId: 0,
   campaignOptIn: false,
   systemModuleIds: [],
@@ -99,7 +107,6 @@ const hasChanges = computed(
     FISCAL_FIELDS.some(
       field => (form[field] || '').trim() !== (props.company?.[field] || '')
     ) ||
-    form.clientLevel !== Number(props.company?.clientLevel || 1) ||
     (form.companyCategoryId || 0) !==
       (props.company?.companyCategoryId || 0) ||
     form.campaignOptIn !== Boolean(props.company?.campaignOptIn) ||
@@ -130,7 +137,6 @@ const syncForm = company => {
   FISCAL_FIELDS.forEach(field => {
     form[field] = company?.[field] || '';
   });
-  form.clientLevel = Number(company?.clientLevel || 1);
   form.companyCategoryId = company?.companyCategoryId || 0;
   form.campaignOptIn = Boolean(company?.campaignOptIn);
   form.systemModuleIds = (company?.systemModules || []).map(m => m.id);
@@ -197,7 +203,6 @@ const handleUpdateCompany = async () => {
         attrs[field] = form[field].trim() || null;
         return attrs;
       }, {}),
-      clientLevel: form.clientLevel,
       companyCategoryId: form.companyCategoryId || null,
       campaignOptIn: form.campaignOptIn,
       systemModuleIds: form.systemModuleIds,
@@ -366,11 +371,12 @@ watch(
                 class="cursor-help i-lucide-circle-help size-3.5 text-n-slate-10"
               />
             </label>
-            <Select
-              v-model="form.clientLevel"
-              :options="CLIENT_LEVEL_OPTIONS"
-              :disabled="isUpdating"
-            />
+            <span
+              class="inline-flex items-center w-fit px-3 py-1.5 text-sm font-semibold rounded-md"
+              :class="clientLevelColorClasses"
+            >
+              {{ clientLevelLabel }}
+            </span>
           </div>
           <div class="flex flex-col gap-1">
             <label class="text-sm text-n-slate-11">

@@ -39,6 +39,14 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
     render json: result[:data]
   end
 
+  # Roda em background (pode levar um tempo com muitas Empresas) - so precisa
+  # ser chamado depois de mudar os limiares de prioridade em Configuracoes,
+  # ja que a recomputacao normal so acontece quando cada Empresa e salva.
+  def recalculate_priorities
+    Companies::RecalculatePrioritiesJob.perform_later(account_id: Current.account.id)
+    head :accepted
+  end
+
   def create
     @company = Current.account.companies.build(company_params)
     @company.save!
@@ -91,6 +99,9 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
     @company = Current.account.companies.find(params[:id])
   end
 
+  # `client_level` (a Prioridade) nao entra aqui de proposito - e' sempre
+  # recalculada pelo model a partir de `billing_amount` (ver
+  # Company#compute_client_level), nunca definida manualmente pela request.
   def company_params
     params.require(:company).permit(
       :name,
@@ -108,7 +119,6 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :address_neighborhood,
       :address_city,
       :address_state,
-      :client_level,
       :campaign_opt_in,
       :blocked,
       :company_category_id,

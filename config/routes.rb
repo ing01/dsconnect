@@ -221,6 +221,7 @@ Rails.application.routes.draw do
           resources :companies, only: [:index, :show, :create, :update, :destroy] do
             collection do
               get :search
+              post :recalculate_priorities
             end
             member do
               post :destroy_custom_attributes
@@ -273,6 +274,7 @@ Rails.application.routes.draw do
           resources :data_imports, only: [:index, :show, :create] do
             collection do
               post :validate_source
+              post :upload
             end
             member do
               post :start

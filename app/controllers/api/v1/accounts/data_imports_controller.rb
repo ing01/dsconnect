@@ -78,6 +78,20 @@ class Api::V1::Accounts::DataImportsController < Api::V1::Accounts::BaseControll
     render_show
   end
 
+  def upload
+    if params[:import_file].blank? || DataImport::UPLOAD_DATA_TYPES.exclude?(params[:data_type])
+      render json: { message: 'Invalid file or data type' }, status: :unprocessable_entity
+      return
+    end
+
+    ActiveRecord::Base.transaction do
+      @data_import = Current.account.data_imports.create!(data_type: params[:data_type], initiated_by: Current.user)
+      @data_import.import_file.attach(params[:import_file])
+    end
+
+    render_show
+  end
+
   def skip_logs
     send_data(
       skip_logs_csv,

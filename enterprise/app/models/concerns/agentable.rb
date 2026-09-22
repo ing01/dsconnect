@@ -9,6 +9,14 @@ module Concerns::Agentable
       instructions: ->(context) { agent_instructions(context) },
       tools: agent_tools,
       model: agent_model,
+      # Chatwoot only ever configures the openai_api_key/openai_api_base
+      # RubyLLM settings (see config/initializers/ai_agents.rb), so the
+      # provider is always 'openai' - pin it explicitly instead of letting
+      # the gem guess from the model name, which misreads a slash (e.g. a
+      # custom/self-hosted model id like "openai/gpt-oss-20b" served by an
+      # OpenAI-compatible endpoint such as Groq) as an OpenRouter model id.
+      provider: :openai,
+      assume_model_exists: true,
       temperature: temperature.presence&.to_f || DEFAULT_TEMPERATURE,
       response_schema: agent_response_schema
     )

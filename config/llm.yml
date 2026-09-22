@@ -67,6 +67,26 @@ models:
     provider: openai
     display_name: 'Text Embedding 3 Small'
     credit_multiplier: 1
+  openai/gpt-oss-20b:
+    provider: openai
+    display_name: 'GPT-OSS 20B (Groq, gratuito)'
+    credit_multiplier: 1
+  groq/compound:
+    provider: openai
+    display_name: 'Groq Compound (Groq, gratuito)'
+    credit_multiplier: 1
+  gemini-2.0-flash:
+    provider: openai
+    display_name: 'Gemini 2.0 Flash (Google, gratuito) - descontinuado'
+    credit_multiplier: 1
+  gemini-3.6-flash:
+    provider: openai
+    display_name: 'Gemini 3.6 Flash (Google, gratuito)'
+    credit_multiplier: 1
+  qwen/qwen3.8-27b:
+    provider: openai
+    display_name: 'Qwen3 8B/27B (Groq, gratuito)'
+    credit_multiplier: 1
 
 features:
   conversation_completion:
@@ -106,6 +126,11 @@ features:
         claude-sonnet-4.5,
         gemini-3-flash,
         gemini-3-pro,
+        'openai/gpt-oss-20b',
+        'groq/compound',
+        'gemini-2.0-flash',
+        'gemini-3.6-flash',
+        'qwen/qwen3.8-27b',
       ]
     default: gpt-4.1
   copilot:

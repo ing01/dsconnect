@@ -15,6 +15,10 @@ class DataImportPolicy < ApplicationPolicy
     create?
   end
 
+  def upload?
+    create?
+  end
+
   def start?
     show?
   end

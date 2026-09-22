@@ -67,6 +67,9 @@ class Captain::Assistant::ResponseRewriter
         name: AGENT_NAME,
         instructions: INSTRUCTIONS,
         model: @assistant.agent_model,
+        # See the matching comment in enterprise/app/models/concerns/agentable.rb.
+        provider: :openai,
+        assume_model_exists: true,
         temperature: 0,
         response_schema: Captain::ResponseSchema
       )

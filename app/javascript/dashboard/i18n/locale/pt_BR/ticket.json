@@ -562,7 +562,7 @@
       },
       "AUTOMATION": {
         "TITLE": "Automação WhatsApp",
-        "DESCRIPTION": "Configurações do fluxo automático de triagem do WhatsApp: quais níveis de cliente a IA tenta resolver sozinha, a prioridade padrão quando ela falha, e para onde vão os tickets de nível 3-5.",
+        "DESCRIPTION": "Configurações do fluxo automático de triagem do WhatsApp: quais níveis de cliente a IA tenta resolver sozinha, a prioridade padrão quando ela falha, e para onde vão os tickets de prioridade Alta.",
         "WHATSAPP_FLOW": {
           "LABEL": "Habilitar o fluxo de triagem do WhatsApp",
           "HELP": "Desligado, nenhuma conversa recebida pelo WhatsApp é assumida pelo fluxo automático, mesmo com uma automação configurada."
@@ -586,9 +586,26 @@
           "HELP": "Deixe em branco para reaproveitar qualquer ticket aberto, sem limite de idade (comportamento atual). Com um valor, um ticket aberto mais antigo é tratado como obsoleto e um novo é criado no lugar.",
           "PLACEHOLDER": "Sem limite"
         },
+        "PRIORITY_THRESHOLDS": {
+          "TITLE": "Prioridade de clientes por mensalidade",
+          "DESCRIPTION": "Defina a partir de qual valor de mensalidade um cliente vira Prioridade Média e Prioridade Alta. Abaixo do primeiro valor, o cliente fica em Prioridade Baixa automaticamente - sem precisar configurar cliente por cliente.",
+          "MEDIUM_MIN": {
+            "LABEL": "A partir de qual valor é Prioridade Média",
+            "PLACEHOLDER": "Ex: 500"
+          },
+          "HIGH_MIN": {
+            "LABEL": "A partir de qual valor é Prioridade Alta",
+            "PLACEHOLDER": "Ex: 1500"
+          },
+          "INVALID_RANGE": "O valor da Prioridade Alta precisa ser maior que o da Prioridade Média.",
+          "RECALCULATE_HELP": "Recalcula a prioridade de todos os clientes já cadastrados com os valores acima (salva a configuração automaticamente antes).",
+          "RECALCULATE_BUTTON": "Recalcular agora",
+          "RECALCULATE_STARTED": "Recálculo iniciado - pode levar alguns minutos dependendo da quantidade de clientes.",
+          "RECALCULATE_ERROR": "Não foi possível iniciar o recálculo. Tente novamente."
+        },
         "LEVEL_3TO5_TEAM": {
-          "LABEL": "Mesa de serviço para tickets de nível 3-5",
-          "HELP": "Para onde a conversa é roteada quando a IA termina a triagem de um cliente nível 3, 4 ou 5.",
+          "LABEL": "Mesa de serviço para clientes de prioridade Alta",
+          "HELP": "Para onde a conversa é roteada quando a IA termina a triagem de um cliente de prioridade Alta.",
           "NONE": "Não definido"
         },
         "DEFAULT_QUEUE": {

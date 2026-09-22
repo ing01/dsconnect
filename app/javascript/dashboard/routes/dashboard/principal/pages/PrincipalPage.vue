@@ -1,9 +1,12 @@
 <script setup>
+import { computed } from 'vue';
 import { useGreeting } from 'dashboard/composables/useGreeting';
 import ChangelogEntryCard from '../components/ChangelogEntryCard.vue';
-import { CHANGELOG_ENTRIES } from '../changelogData';
+import { getVisibleChangelogEntries } from '../changelogData';
 
 const { greetingMessage, globalConfig } = useGreeting();
+
+const visibleChangelogEntries = computed(() => getVisibleChangelogEntries());
 </script>
 
 <template>
@@ -44,7 +47,7 @@ const { greetingMessage, globalConfig } = useGreeting();
       </p>
       <div class="flex flex-col gap-3">
         <ChangelogEntryCard
-          v-for="entry in CHANGELOG_ENTRIES"
+          v-for="entry in visibleChangelogEntries"
           :key="entry.id"
           v-bind="entry"
         />

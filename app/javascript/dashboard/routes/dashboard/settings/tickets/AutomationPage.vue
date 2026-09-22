@@ -5,6 +5,7 @@ import { useAccount } from 'dashboard/composables/useAccount';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { formatMesaName } from 'dashboard/helper/mesaName';
+import CompaniesAPI from 'dashboard/api/companies';
 
 import WithLabel from 'v3/components/Form/WithLabel.vue';
 import Switch from 'next/switch/Switch.vue';
@@ -17,9 +18,10 @@ const store = useStore();
 const getters = useStoreGetters();
 const { currentAccount, updateAccount } = useAccount();
 
-// Niveis do cliente que existem hoje (Company#client_level, 1-5) - nao lido
-// de lugar nenhum dinamico porque a escala em si e fixa no backend.
-const LEVELS = [1, 2, 3, 4, 5];
+// Niveis do cliente que existem hoje (Company#client_level, 1-3: Baixa/
+// Media/Alta) - nao lido de lugar nenhum dinamico porque a escala em si e
+// fixa no backend.
+const LEVELS = [1, 2, 3];
 const PRIORITY_OPTIONS = ['baixa', 'media', 'alta'];
 
 const whatsappFlowEnabled = ref(true);
@@ -28,7 +30,10 @@ const defaultPriorityOnAiFailure = ref('baixa');
 const openTicketWindowDays = ref(null);
 const level3to5TeamId = ref(null);
 const defaultQueueId = ref(null);
+const priorityThresholdMediumMin = ref(null);
+const priorityThresholdHighMin = ref(null);
 const isSubmitting = ref(false);
+const isRecalculating = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
 const queues = computed(() => getters['queues/getQueues'].value);
@@ -53,6 +58,10 @@ watch(
       settings.helpdesk_open_ticket_window_days ?? null;
     level3to5TeamId.value = settings.helpdesk_level_3to5_team_id ?? null;
     defaultQueueId.value = settings.helpdesk_default_queue_id ?? null;
+    priorityThresholdMediumMin.value =
+      settings.priority_threshold_medium_min ?? null;
+    priorityThresholdHighMin.value =
+      settings.priority_threshold_high_min ?? null;
   },
   { deep: true, immediate: true }
 );
@@ -63,8 +72,21 @@ const toggleLevel = level => {
     : [...aiResolveLevels.value, level].sort((a, b) => a - b);
 };
 
-const handleSubmit = async () => {
-  isSubmitting.value = true;
+const priorityThresholdsInvalid = computed(() => {
+  const medium = priorityThresholdMediumMin.value;
+  const high = priorityThresholdHighMin.value;
+  return medium != null && high != null && Number(high) <= Number(medium);
+});
+
+// Compartilhado pelo botao "Salvar" e pelo "Recalcular agora" - o recalculo
+// sempre salva primeiro, senao rodaria com os limiares antigos ainda
+// gravados no banco.
+const saveSettings = async () => {
+  if (priorityThresholdsInvalid.value) {
+    useAlert(t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE'));
+    return false;
+  }
+
   try {
     await updateAccount(
       {
@@ -74,14 +96,49 @@ const handleSubmit = async () => {
         helpdesk_open_ticket_window_days: openTicketWindowDays.value || null,
         helpdesk_level_3to5_team_id: level3to5TeamId.value || null,
         helpdesk_default_queue_id: defaultQueueId.value || null,
+        priority_threshold_medium_min: priorityThresholdMediumMin.value || null,
+        priority_threshold_high_min: priorityThresholdHighMin.value || null,
       },
       { silent: true }
     );
-    useAlert(t('TICKET.SETTINGS.AUTOMATION.API.SUCCESS'));
+    return true;
   } catch (error) {
-    useAlert(t('TICKET.SETTINGS.AUTOMATION.API.ERROR'));
+    return false;
+  }
+};
+
+const handleSubmit = async () => {
+  isSubmitting.value = true;
+  const success = await saveSettings();
+  useAlert(
+    t(
+      success
+        ? 'TICKET.SETTINGS.AUTOMATION.API.SUCCESS'
+        : 'TICKET.SETTINGS.AUTOMATION.API.ERROR'
+    )
+  );
+  isSubmitting.value = false;
+};
+
+const handleRecalculatePriorities = async () => {
+  isRecalculating.value = true;
+  try {
+    const saved = await saveSettings();
+    if (!saved) {
+      useAlert(t('TICKET.SETTINGS.AUTOMATION.API.ERROR'));
+      return;
+    }
+
+    await CompaniesAPI.recalculatePriorities();
+    useAlert(
+      t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_STARTED')
+    );
+  } catch (error) {
+    useAlert(
+      t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_ERROR')
+    );
   } finally {
-    isSubmitting.value = false;
+    isRecalculating.value = false;
   }
 };
 </script>
@@ -184,6 +241,87 @@ const handleSubmit = async () => {
                 "
               />
             </WithLabel>
+          </div>
+
+          <div class="flex flex-col gap-3 px-5 py-4">
+            <div class="flex flex-col gap-1">
+              <h3 class="text-heading-2 text-n-slate-12">
+                {{ t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.TITLE') }}
+              </h3>
+              <p class="mb-0 text-body-para text-n-slate-11">
+                {{
+                  t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.DESCRIPTION')
+                }}
+              </p>
+            </div>
+            <div class="grid w-full gap-4 sm:grid-cols-2">
+              <WithLabel
+                :label="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.MEDIUM_MIN.LABEL'
+                  )
+                "
+              >
+                <input
+                  v-model.number="priorityThresholdMediumMin"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="mb-0"
+                  :placeholder="
+                    t(
+                      'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.MEDIUM_MIN.PLACEHOLDER'
+                    )
+                  "
+                />
+              </WithLabel>
+              <WithLabel
+                :label="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.HIGH_MIN.LABEL'
+                  )
+                "
+              >
+                <input
+                  v-model.number="priorityThresholdHighMin"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="mb-0"
+                  :placeholder="
+                    t(
+                      'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.HIGH_MIN.PLACEHOLDER'
+                    )
+                  "
+                />
+              </WithLabel>
+            </div>
+            <p v-if="priorityThresholdsInvalid" class="mb-0 text-xs text-n-ruby-11">
+              {{ t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE') }}
+            </p>
+            <div class="flex items-center justify-between gap-2">
+              <p class="mb-0 text-xs text-n-slate-11">
+                {{
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_HELP'
+                  )
+                }}
+              </p>
+              <NextButton
+                type="button"
+                slate
+                faded
+                sm
+                :is-loading="isRecalculating"
+                :disabled="priorityThresholdsInvalid"
+                :label="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_BUTTON'
+                  )
+                "
+                @click="handleRecalculatePriorities"
+              />
+            </div>
           </div>
 
           <div class="flex flex-col gap-2 px-5 py-4">

@@ -562,7 +562,7 @@
       },
       "AUTOMATION": {
         "TITLE": "WhatsApp Automation",
-        "DESCRIPTION": "Settings for the automated WhatsApp triage flow: which client levels the AI tries to resolve on its own, the fallback priority when it fails, and where level 3-5 tickets are routed.",
+        "DESCRIPTION": "Settings for the automated WhatsApp triage flow: which client levels the AI tries to resolve on its own, the fallback priority when it fails, and where High priority tickets are routed.",
         "WHATSAPP_FLOW": {
           "LABEL": "Enable the WhatsApp triage flow",
           "HELP": "When off, incoming WhatsApp conversations are never picked up by the automated flow, regardless of any automation rule configured."
@@ -586,9 +586,26 @@
           "HELP": "Leave blank to reuse any open ticket regardless of age (current behavior). With a value, an older open ticket is treated as stale and a new one is created instead.",
           "PLACEHOLDER": "No limit"
         },
+        "PRIORITY_THRESHOLDS": {
+          "TITLE": "Client priority by monthly fee",
+          "DESCRIPTION": "Set the monthly fee amounts at which a client becomes Medium and High priority. Below the first value, the client is automatically Low priority - no need to configure it per client.",
+          "MEDIUM_MIN": {
+            "LABEL": "Minimum amount for Medium priority",
+            "PLACEHOLDER": "e.g. 500"
+          },
+          "HIGH_MIN": {
+            "LABEL": "Minimum amount for High priority",
+            "PLACEHOLDER": "e.g. 1500"
+          },
+          "INVALID_RANGE": "The High priority amount must be greater than the Medium priority amount.",
+          "RECALCULATE_HELP": "Recalculates the priority of every existing client using the amounts above (saves the settings automatically first).",
+          "RECALCULATE_BUTTON": "Recalculate now",
+          "RECALCULATE_STARTED": "Recalculation started - this can take a few minutes depending on how many clients you have.",
+          "RECALCULATE_ERROR": "Could not start the recalculation. Please try again."
+        },
         "LEVEL_3TO5_TEAM": {
-          "LABEL": "Service desk for level 3-5 tickets",
-          "HELP": "Where the conversation is routed once the AI finishes triaging a level 3, 4 or 5 client.",
+          "LABEL": "Service desk for High priority clients",
+          "HELP": "Where the conversation is routed once the AI finishes triaging a High priority client.",
           "NONE": "Not set"
         },
         "DEFAULT_QUEUE": {

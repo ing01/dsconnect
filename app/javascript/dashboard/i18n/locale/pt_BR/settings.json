@@ -448,12 +448,32 @@
     },
     "TABS": {
       "IMPORT": "Importar",
+      "SPREADSHEETS": "Planilhas",
       "EXPORT": "Exportar"
     },
     "TYPES": {
       "CONTACTS": "Contatos",
       "CONVERSATIONS": "Conversas",
-      "MESSAGES": "Mensagens"
+      "MESSAGES": "Mensagens",
+      "CLIENTES": "Clientes",
+      "SERVICE_CATALOG": "Catálogo de Serviços"
+    },
+    "SPREADSHEETS": {
+      "DOWNLOAD_TEMPLATE": "Baixar planilha modelo",
+      "CHOOSE_FILE": "Escolher arquivo",
+      "SUBMIT": "Importar",
+      "PROCESSING": "Processando a planilha...",
+      "RESULT_SUMMARY": "{processed} de {total} linhas importadas com sucesso",
+      "ERROR_COUNT": "{count} linha não importada (baixar detalhes) | {count} linhas não importadas (baixar detalhes)",
+      "UPLOAD_ERROR": "Não foi possível enviar a planilha. Tente novamente.",
+      "CLIENTES": {
+        "TITLE": "Importar Clientes",
+        "DESCRIPTION": "Cria ou atualiza empresas (por CPF/CNPJ) e contatos (por e-mail/telefone) a partir de uma planilha."
+      },
+      "SERVICE_CATALOG": {
+        "TITLE": "Importar Catálogo de Serviços",
+        "DESCRIPTION": "Cria a árvore Catálogo > Área > Item usada na classificação dos tickets."
+      }
     },
     "DRAWER": {
       "TITLE": "Nova importação",

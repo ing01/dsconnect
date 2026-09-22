@@ -64,6 +64,10 @@ class Account < ApplicationRecord
   store_accessor :settings, :helpdesk_whatsapp_flow_enabled, :helpdesk_ai_resolve_levels,
                   :helpdesk_default_priority_on_ai_failure, :helpdesk_open_ticket_window_days,
                   :helpdesk_level_3to5_team_id, :helpdesk_default_queue_id
+  # Limiares de mensalidade que definem a Prioridade (Baixa/Media/Alta) de uma
+  # Empresa - ver Company#tier_for. Abaixo de `priority_threshold_medium_min`
+  # e' sempre Baixa.
+  store_accessor :settings, :priority_threshold_medium_min, :priority_threshold_high_min
   include AccountCaptainAutoResolve
 
   has_many :account_users, dependent: :destroy_async

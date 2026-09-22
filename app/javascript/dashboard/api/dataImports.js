@@ -27,6 +27,15 @@ class DataImportsAPI extends ApiClient {
     return axios.post(`${this.url}/validate_source`, payload);
   }
 
+  upload(dataType, file) {
+    const formData = new FormData();
+    formData.append('data_type', dataType);
+    formData.append('import_file', file);
+    return axios.post(`${this.url}/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  }
+
   downloadSkipLogs(id) {
     return axios.get(`${this.url}/${id}/skip_logs.csv`, {
       responseType: 'blob',

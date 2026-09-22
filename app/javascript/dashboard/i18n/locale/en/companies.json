@@ -204,17 +204,15 @@
           "LICENSE_EXPIRES_ON": "License expiration date",
           "SYSTEM_STARTED_ON": "System start date",
           "MODULES": "Modules in use",
-          "CLIENT_LEVEL": "Client level",
+          "CLIENT_LEVEL": "Client priority",
           "CATEGORY": "Category",
           "CAMPAIGN_OPT_IN": "Receive automatic campaign messages"
         },
         "LEVEL": {
-          "HELP": "Indicates how much service priority the client has: 1 is the lowest priority and 5 is the highest. Use it to know which clients should be prioritized.",
-          "L1": "1 - No priority",
-          "L2": "2 - Low priority",
-          "L3": "3 - Medium priority",
-          "L4": "4 - High priority",
-          "L5": "5 - Maximum priority"
+          "HELP": "Automatically calculated from the client's monthly fee (Settings > Tickets > Automation defines the amount ranges). Cannot be edited manually.",
+          "L1": "Low priority",
+          "L2": "Medium priority",
+          "L3": "High priority"
         },
         "CATEGORY": {
           "NONE": "None",

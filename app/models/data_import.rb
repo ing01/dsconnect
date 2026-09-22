@@ -36,7 +36,8 @@ class DataImport < ApplicationRecord
   ACTIVE_INTERCOM_IMPORT_RUN_ID_KEY = 'active_intercom_import_run_id'.freeze
   IMPORT_STALLED_AFTER = 15.minutes
   INTERCOM_STALLED_AFTER = IMPORT_STALLED_AFTER
-  LEGACY_DATA_TYPES = ['contacts'].freeze
+  LEGACY_DATA_TYPES = %w[contacts clientes service_catalog].freeze
+  UPLOAD_DATA_TYPES = %w[clientes service_catalog].freeze
   INTEGRATION_DATA_TYPES = %w[freshdesk intercom].freeze
   IMPORT_TYPES = %w[contacts conversations].freeze
 
@@ -69,6 +70,14 @@ class DataImport < ApplicationRecord
 
   def legacy_contacts_csv_import?
     data_type == 'contacts' && source_provider.blank?
+  end
+
+  def clientes_import?
+    data_type == 'clientes' && source_provider.blank?
+  end
+
+  def service_catalog_import?
+    data_type == 'service_catalog' && source_provider.blank?
   end
 
   def intercom_import?
@@ -132,10 +141,10 @@ class DataImport < ApplicationRecord
   end
 
   def process_data_import
-    return unless legacy_contacts_csv_import?
-
     # we wait for the file to be uploaded to the cloud
-    DataImportJob.set(wait: 1.minute).perform_later(self)
+    return DataImportJob.set(wait: 1.minute).perform_later(self) if legacy_contacts_csv_import?
+    return ClientesImportJob.set(wait: 1.minute).perform_later(self) if clientes_import?
+    return ServiceCatalogImportJob.set(wait: 1.minute).perform_later(self) if service_catalog_import?
   end
 
   def validate_import_types
