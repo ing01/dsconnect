@@ -285,9 +285,25 @@
         "FIND_OPEN_TICKET_BY_NUMBER": "Validate ticket number given by customer",
         "FIND_OPEN_TICKET_FOR_CUSTOMER": "Find existing open ticket (avoid duplicates)",
         "LIST_COMPANIES": "List companies and ask which one",
-        "AI_RESOLVE": "AI: try to resolve (levels 1-2)",
-        "AI_TRIAGE": "AI: triage only, hand off to support (levels 3-5)",
+        "AI_RESOLVE": "AI: try to resolve (Low/Medium priority)",
+        "AI_TRIAGE": "AI: triage only, hand off to support (High priority)",
         "LINK_CONTACT_TO_COMPANY": "Verify contact and link to the company"
+      },
+      "STEP_DESCRIPTION": {
+        "SEND_MESSAGE": "Sends a message to the customer and moves straight to the next step, without waiting for a reply.",
+        "ASK": "Asks the customer something and pauses the flow until they reply.",
+        "FIND_COMPANY": "Looks up the Company already registered using the CNPJ collected. Never creates a new one - if none is found, follows the \"Not found\" path.",
+        "FIND_CONTACT": "Looks up the requester within the Company already identified in this conversation.",
+        "CONDITION": "Compares a value collected earlier in the flow (e.g. a customer's reply) and picks which path to follow based on it.",
+        "CREATE_TICKET": "Creates the Ticket with everything collected so far (Team, Stage, Category, Priority) and links it to the conversation.",
+        "HANDOFF": "Ends the automation and hands the conversation off to a person on the team.",
+        "CHECK_COMPANY_BLOCKED": "Re-checks whether the identified Company is blocked - used when it's only discovered partway through the conversation (e.g. via CNPJ).",
+        "FIND_OPEN_TICKET_BY_NUMBER": "Checks that the ticket number the customer gave actually exists, is open, and belongs to them, before linking the conversation to it.",
+        "FIND_OPEN_TICKET_FOR_CUSTOMER": "Checks whether this customer already has an open ticket on the same Team, to avoid creating a duplicate.",
+        "LIST_COMPANIES": "Shows the customer the Companies linked to them and waits for them to pick one.",
+        "AI_RESOLVE": "The AI tries to resolve the customer's question on its own, using the same tools Captain already uses. The ticket is only created at the end, already resolved or handed off - meant for Low/Medium priority customers.",
+        "AI_TRIAGE": "The AI doesn't try to resolve anything, it only classifies urgency/impact and always hands off to a person - meant for High priority customers.",
+        "LINK_CONTACT_TO_COMPANY": "Confirms the customer's contact and links it to the Company already identified, merging duplicate contacts by email when needed."
       },
       "FIELD": {
         "CONTENT": "Message",

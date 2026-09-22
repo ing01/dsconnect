@@ -284,9 +284,25 @@
         "FIND_OPEN_TICKET_BY_NUMBER": "Validar número de ticket informado pelo cliente",
         "FIND_OPEN_TICKET_FOR_CUSTOMER": "Localizar ticket aberto existente (evitar duplicidade)",
         "LIST_COMPANIES": "Listar empresas e perguntar qual delas",
-        "AI_RESOLVE": "IA: tentar resolver (níveis 1-2)",
-        "AI_TRIAGE": "IA: só triagem, encaminha para suporte (níveis 3-5)",
+        "AI_RESOLVE": "IA: tentar resolver (Prioridade Baixa/Média)",
+        "AI_TRIAGE": "IA: só triagem, encaminha para suporte (Prioridade Alta)",
         "LINK_CONTACT_TO_COMPANY": "Verificar contato e vincular à empresa"
+      },
+      "STEP_DESCRIPTION": {
+        "SEND_MESSAGE": "Envia uma mensagem pro cliente e segue direto pra próxima etapa, sem esperar resposta.",
+        "ASK": "Faz uma pergunta pro cliente e pausa o fluxo até ele responder.",
+        "FIND_COMPANY": "Procura a Empresa já cadastrada usando o CNPJ informado. Nunca cria uma nova — se não encontrar, segue pelo caminho \"Se não encontrar\".",
+        "FIND_CONTACT": "Procura o solicitante dentro da Empresa que já foi identificada nesta conversa.",
+        "CONDITION": "Compara uma informação coletada no fluxo (por exemplo, uma resposta do cliente) e decide qual caminho seguir a partir disso.",
+        "CREATE_TICKET": "Cria o Ticket com as informações coletadas até aqui (Mesa, Estágio, Categoria, Prioridade) e vincula à conversa.",
+        "HANDOFF": "Encerra a automação e passa o atendimento pra uma pessoa da equipe.",
+        "CHECK_COMPANY_BLOCKED": "Confere de novo se a Empresa identificada está bloqueada — usado quando ela só é descoberta no meio da conversa (por exemplo, pelo CNPJ).",
+        "FIND_OPEN_TICKET_BY_NUMBER": "Confere se o número de ticket informado pelo cliente existe, está aberto e pertence a ele, antes de vincular a conversa a esse ticket.",
+        "FIND_OPEN_TICKET_FOR_CUSTOMER": "Verifica se esse cliente já tem um ticket aberto na mesma Mesa, pra não criar um duplicado.",
+        "LIST_COMPANIES": "Mostra pro cliente as Empresas vinculadas a ele e espera que escolha uma.",
+        "AI_RESOLVE": "A IA tenta resolver a dúvida do cliente sozinha, com as mesmas ferramentas do Captain. Só cria o ticket no final, já resolvido ou encaminhado — pensado pra clientes de Prioridade Baixa ou Média.",
+        "AI_TRIAGE": "A IA não tenta resolver, só classifica urgência/impacto e sempre encaminha pra um atendente — pensado pra clientes de Prioridade Alta.",
+        "LINK_CONTACT_TO_COMPANY": "Confirma o contato do cliente e vincula à Empresa já identificada, unindo cadastros duplicados por e-mail quando necessário."
       },
       "FIELD": {
         "CONTENT": "Mensagem",
