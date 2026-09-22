@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-csat-survey',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'feature',
+    title: 'Pesquisa de satisfação no WhatsApp',
+    description:
+      'Nova seção em Configurações > Automação: ao resolver uma conversa de WhatsApp, envia uma mensagem (editável) pedindo pro cliente avaliar de 1 a 5 digitando o número. A nota entra nos relatórios de CSAT normalmente. Desligado por padrão - precisa ser ativado.',
+  },
+  {
     id: 'whatsapp-auto-assignment-controls',
     date: '22 de setembro de 2026',
     isoDate: '2026-09-22',
