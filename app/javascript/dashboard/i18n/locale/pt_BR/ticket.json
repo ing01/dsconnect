@@ -567,6 +567,20 @@
           "LABEL": "Habilitar o fluxo de triagem do WhatsApp",
           "HELP": "Desligado, nenhuma conversa recebida pelo WhatsApp é assumida pelo fluxo automático, mesmo com uma automação configurada."
         },
+        "AUTO_ASSIGNMENT": {
+          "TITLE": "Distribuição automática de WhatsApp",
+          "DESCRIPTION": "Controla se conversas novas de WhatsApp são atribuídas sozinhas a um agente disponível. Desligado, elas continuam chegando normalmente, só sem atribuição automática - qualquer um pode assumir na mão.",
+          "MAX_OPEN_CHATS": {
+            "LABEL": "Limite de conversas abertas por agente",
+            "HELP": "Um agente que já tiver essa quantidade de conversas de WhatsApp em aberto para de receber novas automaticamente, até resolver alguma. Em branco, sem limite.",
+            "PLACEHOLDER": "Sem limite"
+          },
+          "EXCLUDED_AGENTS": {
+            "LABEL": "Agentes fora da distribuição automática",
+            "HELP": "Marcados aqui, nunca recebem conversa de WhatsApp automaticamente - continuam podendo ser atribuídos na mão normalmente.",
+            "EMPTY": "Nenhum agente encontrado."
+          }
+        },
         "TEST_MODE": {
           "TITLE": "Modo de teste da automação do WhatsApp",
           "DESCRIPTION": "Com um número preenchido aqui, o fluxo de triagem e o Captain só respondem automaticamente a esse número. Mensagens de qualquer outro cliente continuam chegando normalmente na conversa, só não recebem resposta automática. Deixe em branco pra desligar e voltar ao normal pra todo mundo.",

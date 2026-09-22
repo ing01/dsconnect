@@ -25,6 +25,9 @@ const LEVELS = [1, 2, 3];
 const PRIORITY_OPTIONS = ['baixa', 'media', 'alta'];
 
 const whatsappFlowEnabled = ref(true);
+const whatsappAutoAssignmentEnabled = ref(true);
+const whatsappAutoAssignmentMaxOpenChats = ref(null);
+const whatsappAutoAssignmentExcludedAgentIds = ref([]);
 const aiResolveLevels = ref([1, 2]);
 const defaultPriorityOnAiFailure = ref('baixa');
 const openTicketWindowDays = ref(null);
@@ -38,10 +41,12 @@ const isRecalculating = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
 const queues = computed(() => getters['queues/getQueues'].value);
+const agents = computed(() => getters['agents/getAgents'].value);
 
 onBeforeMount(() => {
   store.dispatch('teams/get');
   store.dispatch('queues/get');
+  store.dispatch('agents/get');
 });
 
 watch(
@@ -65,6 +70,12 @@ watch(
       settings.priority_threshold_high_min ?? null;
     whatsappAutomationTestModeNumber.value =
       settings.whatsapp_automation_test_mode_number || '';
+    whatsappAutoAssignmentEnabled.value =
+      settings.whatsapp_auto_assignment_enabled ?? true;
+    whatsappAutoAssignmentMaxOpenChats.value =
+      settings.whatsapp_auto_assignment_max_open_chats ?? null;
+    whatsappAutoAssignmentExcludedAgentIds.value =
+      settings.whatsapp_auto_assignment_excluded_agent_ids || [];
   },
   { deep: true, immediate: true }
 );
@@ -73,6 +84,15 @@ const toggleLevel = level => {
   aiResolveLevels.value = aiResolveLevels.value.includes(level)
     ? aiResolveLevels.value.filter(item => item !== level)
     : [...aiResolveLevels.value, level].sort((a, b) => a - b);
+};
+
+const toggleExcludedAgent = agentId => {
+  whatsappAutoAssignmentExcludedAgentIds.value =
+    whatsappAutoAssignmentExcludedAgentIds.value.includes(agentId)
+      ? whatsappAutoAssignmentExcludedAgentIds.value.filter(
+          id => id !== agentId
+        )
+      : [...whatsappAutoAssignmentExcludedAgentIds.value, agentId];
 };
 
 const priorityThresholdsInvalid = computed(() => {
@@ -115,6 +135,11 @@ const saveSettings = async () => {
         priority_threshold_high_min: priorityThresholdHighMin.value || null,
         whatsapp_automation_test_mode_number:
           whatsappAutomationTestModeNumber.value.trim() || null,
+        whatsapp_auto_assignment_enabled: whatsappAutoAssignmentEnabled.value,
+        whatsapp_auto_assignment_max_open_chats:
+          whatsappAutoAssignmentMaxOpenChats.value || null,
+        whatsapp_auto_assignment_excluded_agent_ids:
+          whatsappAutoAssignmentExcludedAgentIds.value,
       },
       { silent: true }
     );
@@ -187,6 +212,92 @@ const handleRecalculatePriorities = async () => {
               </p>
             </div>
             <Switch v-model="whatsappFlowEnabled" />
+          </div>
+
+          <div class="flex flex-col gap-3 px-5 py-4">
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex flex-col gap-1">
+                <h3 class="text-heading-2 text-n-slate-12">
+                  {{ t('TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.TITLE') }}
+                </h3>
+                <p class="mb-0 text-body-para text-n-slate-11">
+                  {{
+                    t('TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.DESCRIPTION')
+                  }}
+                </p>
+              </div>
+              <Switch v-model="whatsappAutoAssignmentEnabled" />
+            </div>
+
+            <template v-if="whatsappAutoAssignmentEnabled">
+              <WithLabel
+                :label="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.LABEL'
+                  )
+                "
+                :help-message="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.HELP'
+                  )
+                "
+              >
+                <input
+                  v-model.number="whatsappAutoAssignmentMaxOpenChats"
+                  type="number"
+                  min="1"
+                  class="mb-0 max-w-xs"
+                  :placeholder="
+                    t(
+                      'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.PLACEHOLDER'
+                    )
+                  "
+                />
+              </WithLabel>
+
+              <WithLabel
+                :label="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.LABEL'
+                  )
+                "
+                :help-message="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.HELP'
+                  )
+                "
+              >
+                <div
+                  v-if="agents.length"
+                  class="flex flex-col gap-2 pt-1 max-h-48 overflow-y-auto"
+                >
+                  <label
+                    v-for="agent in agents"
+                    :key="agent.id"
+                    class="flex items-center gap-2 text-sm text-n-slate-12"
+                  >
+                    <input
+                      type="checkbox"
+                      class="m-0"
+                      :checked="
+                        whatsappAutoAssignmentExcludedAgentIds.includes(
+                          agent.id
+                        )
+                      "
+                      @change="toggleExcludedAgent(agent.id)"
+                    />
+                    {{ agent.name }}
+                  </label>
+                </div>
+                <p v-else class="mb-0 text-xs text-n-slate-11">
+                  {{
+                    t(
+                      'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.EMPTY'
+                    )
+                  }}
+                </p>
+              </WithLabel>
+            </template>
           </div>
 
           <div class="flex flex-col gap-2 px-5 py-4">

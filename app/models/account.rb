@@ -75,6 +75,14 @@ class Account < ApplicationRecord
   # e Enterprise::MessageTemplates::HookExecutionService. Vazio = sem trava,
   # comportamento normal pra todo mundo.
   store_accessor :settings, :whatsapp_automation_test_mode_number
+  # Distribuicao automatica de conversas de WhatsApp entre agentes - ver
+  # AutoAssignment::AssignmentService#find_available_agent (e a versao
+  # enterprise dele), unico ponto que le essas 3 chaves. `enabled` desligado
+  # nunca impede atribuicao manual, so a automatica; `max_open_chats` em
+  # branco = sem limite; `excluded_agent_ids` fica de fora da distribuicao
+  # automatica mas continua podendo ser atribuido a mao.
+  store_accessor :settings, :whatsapp_auto_assignment_enabled, :whatsapp_auto_assignment_max_open_chats,
+                  :whatsapp_auto_assignment_excluded_agent_ids
   include AccountCaptainAutoResolve
 
   # phone_number vem sempre em E.164 (+DDI...); nil/blank nunca "bate" com o
@@ -84,6 +92,12 @@ class Account < ApplicationRecord
     return true if test_number.blank?
 
     phone_number.present? && phone_number == test_number
+  end
+
+  # Ausente (nil) = ligado - so desliga quando alguem explicitamente desmarca
+  # o toggle na tela (grava `false`).
+  def whatsapp_auto_assignment_enabled?
+    whatsapp_auto_assignment_enabled != false
   end
 
   has_many :account_users, dependent: :destroy_async
