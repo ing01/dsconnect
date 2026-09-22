@@ -254,7 +254,9 @@
           "WHATSAPP_CLOUD_DESC": "Configuração rápida via Meta",
           "WHATSAPP_CLOUD_MANUAL_SETUP_DESC": "Configuração manual com credenciais da Cloud API",
           "TWILIO_DESC": "Conectar através de credenciais Twilio",
-          "360_DIALOG": "360Dialog"
+          "360_DIALOG": "360Dialog",
+          "ASTEREZAP": "AstereZap",
+          "ASTEREZAP_DESC": "Conectar via instância AstereZap (WhatsApp Web)"
         },
         "SELECT_PROVIDER": {
           "TITLE": "Selecione seu provedor de API",
@@ -297,6 +299,18 @@
           "SUBTITLE": "Você deve configurar a URL do webhook e o token de verificação no portal do desenvolvedor do Facebook com os valores mostrados abaixo.",
           "WEBHOOK_URL": "URL do Webhook",
           "WEBHOOK_VERIFICATION_TOKEN": "Token de verificação Webhook"
+        },
+        "ASTEREZAP": {
+          "INSTANCE_ID": {
+            "LABEL": "Instance ID",
+            "PLACEHOLDER": "ID da instância, na aba \"Dados\" do painel AstereZap",
+            "ERROR": "Este campo é obrigatório"
+          },
+          "TOKEN": {
+            "LABEL": "Token",
+            "PLACEHOLDER": "Token da instância, na aba \"Dados\" do painel AstereZap",
+            "ERROR": "Este campo é obrigatório"
+          }
         },
         "SUBMIT_BUTTON": "Criar canal do WhatsApp",
         "EMBEDDED_SIGNUP": {
