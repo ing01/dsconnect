@@ -68,7 +68,23 @@ class Account < ApplicationRecord
   # Empresa - ver Company#tier_for. Abaixo de `priority_threshold_medium_min`
   # e' sempre Baixa.
   store_accessor :settings, :priority_threshold_medium_min, :priority_threshold_high_min
+  # Trava temporaria de homologacao: com um numero configurado aqui, a
+  # automacao (fluxo de triagem + Captain) do WhatsApp so responde a esse
+  # numero - qualquer outro contato so recebe a mensagem registrada na
+  # conversa, sem resposta automatica. Ver AutomationRules::Flow::BlockGateService
+  # e Enterprise::MessageTemplates::HookExecutionService. Vazio = sem trava,
+  # comportamento normal pra todo mundo.
+  store_accessor :settings, :whatsapp_automation_test_mode_number
   include AccountCaptainAutoResolve
+
+  # phone_number vem sempre em E.164 (+DDI...); nil/blank nunca "bate" com o
+  # numero de teste, mesmo se o campo de teste tambem estiver vazio.
+  def whatsapp_automation_allowed_for?(phone_number)
+    test_number = whatsapp_automation_test_mode_number
+    return true if test_number.blank?
+
+    phone_number.present? && phone_number == test_number
+  end
 
   has_many :account_users, dependent: :destroy_async
   has_many :agent_bot_inboxes, dependent: :destroy_async

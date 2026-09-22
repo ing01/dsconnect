@@ -42,7 +42,8 @@ module AccountSettingsSchema
         'helpdesk_level_3to5_team_id': { 'type': %w[integer null] },
         'helpdesk_default_queue_id': { 'type': %w[integer null] },
         'priority_threshold_medium_min': { 'type': %w[number null], 'minimum': 0 },
-        'priority_threshold_high_min': { 'type': %w[number null], 'minimum': 0 }
+        'priority_threshold_high_min': { 'type': %w[number null], 'minimum': 0 },
+        'whatsapp_automation_test_mode_number': { 'type': %w[string null] }
       },
     'required': [],
     'additionalProperties': true

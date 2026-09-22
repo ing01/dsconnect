@@ -40,6 +40,16 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
 
   private
 
+  # WhatsApp Web (o que o AstereZap automatiza por baixo) marca como suspeito
+  # um numero que responde tudo instantaneo, sem intervalo humano nenhum -
+  # risco real de banimento/limitacao, diferente da Business Platform oficial
+  # da Meta (que nao tem esse problema). Por isso todo envio espera um tempo
+  # proporcional ao tamanho da mensagem antes de postar, simulando alguem
+  # digitando.
+  MIN_TYPING_DELAY_SECONDS = 1.5
+  MAX_TYPING_DELAY_SECONDS = 12.0
+  CHARACTERS_TYPED_PER_SECOND = 12.0
+
   def api_base_path
     ENV.fetch('ASTEREZAP_BASE_URL', 'https://zap.astere.com.br/v1')
   end
@@ -50,6 +60,8 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
   end
 
   def send_text_message(phone_number, message)
+    simulate_typing(phone_number, message.outgoing_content)
+
     response = HTTParty.post(
       "#{instance_path}/send-text",
       headers: api_headers,
@@ -63,6 +75,8 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
     attachment = message.attachments.first
     type = attachment_endpoint_type(attachment.file_type)
 
+    simulate_typing(phone_number, message.outgoing_content)
+
     body = { phone: phone_number, type.to_sym => attachment.download_url }
     body['caption'] = message.outgoing_content if type != 'audio' && message.outgoing_content.present?
     body['fileName'] = attachment.file.filename.to_s if type == 'document'
@@ -74,6 +88,32 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
     )
 
     process_response(response, message)
+  end
+
+  def simulate_typing(phone_number, content)
+    duration = typing_duration_for(content)
+    notify_typing(phone_number, duration)
+    sleep(duration)
+  end
+
+  def typing_duration_for(content)
+    variable_part = content.to_s.length / CHARACTERS_TYPED_PER_SECOND
+    (MIN_TYPING_DELAY_SECONDS + rand + variable_part).clamp(MIN_TYPING_DELAY_SECONDS, MAX_TYPING_DELAY_SECONDS)
+  end
+
+  # Indicador visual de "digitando..." - melhor esforco, so. O formato exato
+  # do send-presence nao esta confirmado na documentacao publica do AstereZap,
+  # entao qualquer falha aqui e' ignorada sem afetar o envio de verdade: quem
+  # protege contra banimento e' o `sleep` em `simulate_typing`, nao isto.
+  def notify_typing(phone_number, duration)
+    HTTParty.post(
+      "#{instance_path}/send-presence",
+      headers: api_headers,
+      body: { phone: phone_number, presence: 'composing', delay: (duration * 1000).to_i }.to_json,
+      timeout: 5
+    )
+  rescue StandardError => e
+    Rails.logger.warn("[AstereZap] send-presence falhou: #{e.message}")
   end
 
   def attachment_endpoint_type(file_type)

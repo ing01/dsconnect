@@ -15,6 +15,7 @@ class AutomationRules::Flow::BlockGateService
     return false if contact.blank?
     return false if contact.blocked?
     return false if whatsapp_inbox? && !whatsapp_flow_enabled?
+    return false if whatsapp_inbox? && !whatsapp_test_mode_allowed?
     return false if primary_company&.blocked?
 
     true
@@ -34,6 +35,10 @@ class AutomationRules::Flow::BlockGateService
 
   def whatsapp_inbox?
     conversation.inbox.channel_type == 'Channel::Whatsapp'
+  end
+
+  def whatsapp_test_mode_allowed?
+    conversation.account.whatsapp_automation_allowed_for?(contact.phone_number)
   end
 
   def whatsapp_flow_enabled?

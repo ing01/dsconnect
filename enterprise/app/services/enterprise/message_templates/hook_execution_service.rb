@@ -1,6 +1,7 @@
 module Enterprise::MessageTemplates::HookExecutionService
   def trigger_templates
     super
+    return if whatsapp_automation_test_mode_blocked?
     return unless captain_conversation_message?
 
     # Eligibility is demand-level: every inbound customer message in a
@@ -34,6 +35,14 @@ module Enterprise::MessageTemplates::HookExecutionService
   end
 
   private
+
+  # Trava de homologacao (Account#whatsapp_automation_test_mode_number) - so
+  # vale pra caixas de WhatsApp, nunca bloqueia o Captain em widget/e-mail/etc.
+  def whatsapp_automation_test_mode_blocked?
+    return false unless inbox.channel_type == 'Channel::Whatsapp'
+
+    !conversation.account.whatsapp_automation_allowed_for?(conversation.contact&.phone_number)
+  end
 
   def track_captain_eligibility
     return unless conversation.account.feature_enabled?('captain_integration_v2')
