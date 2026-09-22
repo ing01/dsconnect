@@ -513,6 +513,13 @@ const menuItems = computed(() => {
       },
     },
     {
+      name: 'Emails',
+      label: t('SIDEBAR.EMAILS'),
+      icon: 'i-lucide-mail',
+      to: accountScopedRoute('email_conversations'),
+      activeOn: ['email_conversations', 'conversation_through_emails'],
+    },
+    {
       name: 'Tickets',
       label: t('SIDEBAR.TICKETS'),
       icon: 'i-lucide-kanban-square',

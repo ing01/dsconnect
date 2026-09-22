@@ -52,6 +52,10 @@ export default {
       type: [String, Number],
       default: 0,
     },
+    channelType: {
+      type: String,
+      default: '',
+    },
   },
   setup() {
     const { uiSettings, updateUISettings } = useUISettings();
@@ -203,6 +207,7 @@ export default {
       :team-id="teamId"
       :conversation-type="conversationType"
       :folders-id="foldersId"
+      :channel-type="channelType"
       :is-on-expanded-layout="isOnExpandedLayout"
       @conversation-load="onConversationLoad"
     />

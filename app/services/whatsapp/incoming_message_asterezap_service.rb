@@ -14,7 +14,30 @@ class Whatsapp::IncomingMessageAsterezapService < Whatsapp::IncomingMessageBaseS
     'ERROR' => 'failed'
   }.freeze
 
+  # WhatsApp Web (o que o AstereZap automatiza) as vezes reporta o mesmo
+  # contato brasileiro em formatos diferentes entre uma mensagem e outra -
+  # com o "9" extra numa, sem nele na proxima. Chatwoot ja tem
+  # Whatsapp::PhoneNumberNormalizationService pra isso, mas ele so acha um
+  # contato existente se o formato ja tiver sido normalizado antes (nao
+  # ajuda na primeira mensagem de um contato novo). Normalizando aqui, antes
+  # do numero virar `from`/`wa_id`, toda mensagem do mesmo numero cai sempre
+  # no mesmo formato - o que evitou o bug real: 3 mensagens do mesmo cliente
+  # viraram 2 contatos/conversas diferentes.
+  PHONE_NORMALIZERS = [
+    Whatsapp::PhoneNormalizers::BrazilPhoneNormalizer,
+    Whatsapp::PhoneNormalizers::ArgentinaPhoneNormalizer,
+    Whatsapp::PhoneNormalizers::MexicoPhoneNormalizer
+  ].map(&:new).freeze
+
   private
+
+  def canonical_phone(raw_phone)
+    digits = raw_phone.to_s.gsub(/\D/, '')
+    normalizer = PHONE_NORMALIZERS.find { |candidate| candidate.handles_country?(digits) }
+    return digits if normalizer.blank?
+
+    normalizer.normalize(digits)
+  end
 
   def processed_params
     @processed_params ||= if status_event?
@@ -62,7 +85,7 @@ class Whatsapp::IncomingMessageAsterezapService < Whatsapp::IncomingMessageBaseS
     type = message_content_type(payload)
     {
       id: payload[:messageId],
-      from: payload[:phone],
+      from: canonical_phone(payload[:phone]),
       type: type
     }.merge(content_field(type, payload))
   end
@@ -94,7 +117,7 @@ class Whatsapp::IncomingMessageAsterezapService < Whatsapp::IncomingMessageBaseS
 
   def contact_from(payload)
     {
-      wa_id: payload[:phone],
+      wa_id: canonical_phone(payload[:phone]),
       profile: { name: payload[:pushName].presence || payload[:phone] }
     }
   end
