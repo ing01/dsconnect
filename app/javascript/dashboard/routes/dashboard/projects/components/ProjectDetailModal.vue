@@ -47,6 +47,7 @@ const cancelReason = ref('');
 const notes = ref('');
 const supportEndsOn = ref('');
 const contractSignedOn = ref('');
+const systemStartedOn = ref('');
 const completionType = ref('');
 const editName = ref('');
 const editCompanyId = ref(null);
@@ -88,6 +89,7 @@ watch(
     notes.value = updated.notes || '';
     supportEndsOn.value = updated.support_ends_on || '';
     contractSignedOn.value = updated.contract_signed_on || '';
+    systemStartedOn.value = updated.system_started_on || '';
     completionType.value = updated.completion_type || '';
     editName.value = updated.name || '';
     editCompanyId.value = updated.company_id || null;
@@ -128,6 +130,7 @@ const onImplementerChange = event => {
 const saveNotes = () => saveField({ notes: notes.value });
 const saveSupportEndsOn = () => saveField({ support_ends_on: supportEndsOn.value || null });
 const saveContractSignedOn = () => saveField({ contract_signed_on: contractSignedOn.value || null });
+const saveSystemStartedOn = () => saveField({ system_started_on: systemStartedOn.value || null });
 const saveCompletionType = () => saveField({ completion_type: completionType.value || null });
 
 const saveName = () => {
@@ -365,6 +368,16 @@ const currentStageColor = computed(() => {
             class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 w-full focus:border-n-brand focus:outline-none"
             @change="saveSupportEndsOn"
           />
+        </div>
+        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak col-span-2">
+          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.SYSTEM_STARTED_ON.LABEL') }}</span>
+          <input
+            v-model="systemStartedOn"
+            type="date"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 w-full focus:border-n-brand focus:outline-none"
+            @change="saveSystemStartedOn"
+          />
+          <span class="text-n-slate-10 block text-[11px] mt-1">{{ t('PROJECTS.FORM.SYSTEM_STARTED_ON.HELP') }}</span>
         </div>
       </div>
 

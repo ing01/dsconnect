@@ -7,7 +7,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   sort_on :contacts_count, internal_name: :order_on_contacts_count, type: :scope, scope_params: [:direction]
 
   RESULTS_PER_PAGE = 25
-  BILLING_ATTRS = %i[billing_type billing_amount implementation_fee license_expires_on system_started_on].freeze
+  BILLING_ATTRS = %i[billing_type billing_amount implementation_fee contract_id system_started_on].freeze
 
   before_action :ensure_companies_enabled!
   before_action :check_authorization
@@ -151,7 +151,20 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   end
 
   def company_update_params
-    company_params.except(:custom_attributes).merge(custom_attributes: company_custom_attributes)
+    merged_params = company_params.except(:custom_attributes).merge(custom_attributes: company_custom_attributes)
+    strip_system_started_on_if_has_projects(merged_params)
+  end
+
+  # "Data de inicio do uso do sistema" so e' editavel a mao quando a Empresa
+  # nao tem nenhum Projeto - com Projeto, ela vem de la sozinha
+  # (`Project#sync_system_started_on_to_company`). Reforcado aqui (nao so
+  # desabilitando o campo no frontend) pra uma request manual nao conseguir
+  # burlar a regra.
+  def strip_system_started_on_if_has_projects(company_attrs)
+    return company_attrs unless company_attrs.key?(:system_started_on)
+    return company_attrs unless @company.projects.exists?
+
+    company_attrs.except(:system_started_on)
   end
 
   def custom_attributes_to_destroy

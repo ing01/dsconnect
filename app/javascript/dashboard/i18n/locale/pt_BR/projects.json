@@ -84,6 +84,10 @@
       "SUPPORT_ENDS_ON": {
         "LABEL": "Previsão de fim do acompanhamento"
       },
+      "SYSTEM_STARTED_ON": {
+        "LABEL": "Data de início do uso do sistema",
+        "HELP": "Ao preencher, atualiza automaticamente essa data no cadastro da Empresa."
+      },
       "NOTES": {
         "LABEL": "Observação",
         "PLACEHOLDER": "Anotações sobre este projeto..."

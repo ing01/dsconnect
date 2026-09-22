@@ -244,6 +244,12 @@ Rails.application.routes.draw do
           end
           resources :system_modules, only: [:index, :create]
           resources :company_categories, only: [:index, :create]
+          resources :products, only: [:index, :create, :update, :destroy]
+          resources :contracts, only: [:index, :show, :create, :update, :destroy] do
+            collection do
+              get :search
+            end
+          end
           resources :mood_entries, only: [:index, :create] do
             collection do
               get :today

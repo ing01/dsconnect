@@ -11,6 +11,7 @@ import campaign from './campaign.json';
 import cannedMgmt from './cannedMgmt.json';
 import chatlist from './chatlist.json';
 import companies from './companies.json';
+import contracts from './contracts.json';
 import components from './components.json';
 import contact from './contact.json';
 import contactFilters from './contactFilters.json';
@@ -114,4 +115,5 @@ export default {
   ...implementationReport,
   ...sessionLimit,
   ...yearInReview,
+  ...contracts,
 };

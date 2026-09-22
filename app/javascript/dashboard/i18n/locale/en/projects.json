@@ -84,6 +84,10 @@
       "SUPPORT_ENDS_ON": {
         "LABEL": "Expected support end date"
       },
+      "SYSTEM_STARTED_ON": {
+        "LABEL": "System usage start date",
+        "HELP": "Filling this in automatically updates this date on the Company record."
+      },
       "NOTES": {
         "LABEL": "Notes",
         "PLACEHOLDER": "Notes about this project..."

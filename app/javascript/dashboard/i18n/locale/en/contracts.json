@@ -1,0 +1,72 @@
+{
+  "CONTRACTS": {
+    "HEADER": "Contracts",
+    "SEARCH_PLACEHOLDER": "Search by company or responsible...",
+    "LOADING": "Loading contracts...",
+    "EMPTY_STATE": "No contracts yet.",
+    "NO_COMPANIES": "No company linked",
+    "ACTIONS": {
+      "CREATE": "New contract"
+    },
+    "MESSAGES": {
+      "CREATE_SUCCESS": "Contract created.",
+      "UPDATE_SUCCESS": "Contract updated.",
+      "SAVE_ERROR": "Could not save the contract."
+    },
+    "FORM": {
+      "CREATE_TITLE": "New contract",
+      "EDIT_TITLE": "Edit contract",
+      "SAVE": "Save contract",
+      "RESPONSIBLE": {
+        "LABEL": "Responsible (who signed)",
+        "PLACEHOLDER": "Search contact...",
+        "SEARCH_PLACEHOLDER": "Search contact..."
+      },
+      "CONTRACT_TYPE": {
+        "LABEL": "Contract type",
+        "MONTHLY": "Monthly",
+        "ANNUAL": "Annual"
+      },
+      "COMPANIES": {
+        "LABEL": "Participating companies",
+        "ADD_PLACEHOLDER": "Add company...",
+        "SEARCH_PLACEHOLDER": "Search companies...",
+        "REMOVE": "Remove {name}"
+      },
+      "PRODUCTS": {
+        "LABEL": "Products",
+        "SELECT_PLACEHOLDER": "Select a product",
+        "PRODUCT": "Product",
+        "UNIT_VALUE": "Product value",
+        "LICENSES_QTY": "License qty.",
+        "IMPLEMENTATION_FEE": "Implementation fee",
+        "ADD_LINE": "Add product",
+        "NEW_PLACEHOLDER": "New product",
+        "NEW_BUTTON": "Create"
+      },
+      "TOTAL_VALUE": {
+        "LABEL": "Total contract value",
+        "MANUAL_TOGGLE": "Set value manually"
+      }
+    }
+  },
+  "PRODUCTS": {
+    "HEADER": "Products",
+    "DESCRIPTION": "Products that can be included in a Contract.",
+    "LOADING": "Loading products...",
+    "EMPTY_STATE": "No products yet.",
+    "ADD_PLACEHOLDER": "New product name",
+    "ADD_BUTTON": "Add",
+    "DELETE_CONFIRM": "Delete this product?",
+    "DELETE_CONFIRM_YES": "Yes, delete",
+    "DELETE_CONFIRM_NO": "No, keep it",
+    "MESSAGES": {
+      "CREATE_SUCCESS": "Product created.",
+      "CREATE_ERROR": "Could not create the product.",
+      "UPDATE_SUCCESS": "Product updated.",
+      "UPDATE_ERROR": "Could not update the product.",
+      "DELETE_SUCCESS": "Product deleted.",
+      "DELETE_ERROR": "Could not delete the product."
+    }
+  }
+}

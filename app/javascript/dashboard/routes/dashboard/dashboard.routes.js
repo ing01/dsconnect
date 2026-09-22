@@ -4,6 +4,7 @@ import { routes as searchRoutes } from '../../modules/search/search.routes';
 import { routes as callRoutes } from './calls/routes';
 import { routes as contactRoutes } from './contacts/routes';
 import { routes as companyRoutes } from './companies/routes';
+import { routes as contractRoutes } from './contracts/routes';
 import { routes as moodCheckinRoutes } from './moodCheckins/routes';
 import { routes as agendaRoutes } from './agenda/routes';
 import { routes as inboxRoutes } from './inbox/routes';
@@ -35,6 +36,7 @@ export default {
         ...callRoutes,
         ...contactRoutes,
         ...companyRoutes,
+        ...contractRoutes,
         ...moodCheckinRoutes,
         ...searchRoutes,
         ...helpcenterRoutes.routes,

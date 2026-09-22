@@ -46,6 +46,10 @@ class Company < ApplicationRecord
   validates :client_level, numericality: {
     only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 3
   }
+  # Precisa rodar ANTES de `compute_client_level`: o vinculo com um contrato
+  # muda `billing_amount`, e a prioridade so pode ser calculada depois disso -
+  # senao usa o valor antigo, de antes da troca.
+  before_validation :sync_billing_from_contract, if: :will_save_change_to_contract_id?
   before_validation :compute_client_level
 
   # Same gate as `Contact#blocked` - the WhatsApp triage flow refuses to
@@ -53,6 +57,7 @@ class Company < ApplicationRecord
 
   belongs_to :account
   belongs_to :company_category, optional: true
+  belongs_to :contract, optional: true
   # `contacts` (via the FK) is the Empresa's primary/first contacts - kept for
   # counter_cache/ticket compatibility. `company_contacts` is the full
   # membership list, since a Contact can now work at more than one Empresa.
@@ -65,6 +70,9 @@ class Company < ApplicationRecord
   has_many :company_credentials, dependent: :destroy
   has_many :company_system_modules, dependent: :destroy
   has_many :system_modules, through: :company_system_modules
+  # `nullify` - excluir um Projeto nao pode apagar a Empresa nem seu
+  # historico de cobranca, so o vinculo com aquele Projeto especifico.
+  has_many :projects, dependent: :nullify
   before_validation :prepare_jsonb_attributes
   before_validation :normalize_cnpj
   after_create_commit :fetch_favicon, if: -> { domain.present? }
@@ -149,6 +157,25 @@ class Company < ApplicationRecord
   def normalize_cnpj
     self.cnpj = cnpj.gsub(/\D/, '') if cnpj.present?
     self.cnpj = nil if cnpj.blank?
+  end
+
+  # So dispara no MOMENTO em que o vinculo com o contrato muda (selecionar ou
+  # trocar) - depois disso `billing_type`/`billing_amount` viram colunas
+  # normais, editaveis a mao (botao de "editar" no frontend) sem nunca mais
+  # serem sobrescritas so por o Contrato em si mudar de valor depois.
+  #
+  # Empresa participante recebe o valor TOTAL do contrato, nunca dividido
+  # entre as participantes - decisao confirmada com a Ingrid (contrato
+  # inteiro justifica aquele nivel de atendimento pra qualquer uma delas).
+  def sync_billing_from_contract
+    if contract.blank?
+      self.billing_type = nil
+      self.billing_amount = nil
+      return
+    end
+
+    self.billing_type = contract.contract_type
+    self.billing_amount = contract.computed_total_value
   end
 
   # Prioridade e sempre derivada da mensalidade, nunca escolhida a mao - os

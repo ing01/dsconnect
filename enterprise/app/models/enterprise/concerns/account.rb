@@ -23,6 +23,8 @@ module Enterprise::Concerns::Account
     has_many :company_credentials, dependent: :destroy_async
     has_many :company_categories, dependent: :destroy_async
     has_many :system_modules, dependent: :destroy_async
+    has_many :products, dependent: :destroy_async
+    has_many :contracts, dependent: :destroy_async
     has_many :calls, dependent: :destroy_async
 
     has_one :saml_settings, dependent: :destroy_async, class_name: 'AccountSamlSettings'

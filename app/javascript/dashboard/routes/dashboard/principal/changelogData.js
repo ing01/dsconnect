@@ -8,6 +8,69 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'contracts-products',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'feature',
+    title: 'Contratos e Produtos',
+    description:
+      'Nova tela de Contratos: responsável, tipo, empresas participantes e uma ou mais linhas de produto (com valor, licenças e implantação). Produtos ganharam cadastro próprio em Configurações. A cobrança da Empresa agora vem do contrato vinculado, editável manualmente quando precisar.',
+  },
+  {
+    id: 'company-billing-layout',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'design',
+    title: 'Cadastro de Empresa centralizado + data automática',
+    description:
+      'Corrigimos o formulário de Empresa que estava puxado pra direita. A "Data de início do uso do sistema" agora vem sozinha do Projeto de implantação quando existir um, e só é editável a mão pra clientes sem Projeto.',
+  },
+  {
+    id: 'contact-company-search',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'feature',
+    title: 'Busca de empresa no cadastro de contato',
+    description:
+      'Vincular uma Empresa a um contato agora tem busca de verdade, em vez de digitar o nome solto.',
+  },
+  {
+    id: 'whatsapp-astere-zap',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'feature',
+    title: 'Novo provedor de WhatsApp: AstereZap',
+    description:
+      'A integração de WhatsApp passou a suportar a AstereZap além da Meta, com proteção contra conversas duplicadas e simulação de digitação nas respostas automáticas.',
+  },
+  {
+    id: 'automation-test-mode',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'feature',
+    title: 'Modo de teste da automação do WhatsApp',
+    description:
+      'Nova tela em Configurações > Automação pra restringir as respostas automáticas a um único número de teste, sem precisar mexer em código.',
+  },
+  {
+    id: 'automation-flow-descriptions',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'design',
+    title: 'Fluxo de automação mais claro',
+    description:
+      'Cada etapa do editor de fluxo de automação agora mostra uma descrição do que ela faz.',
+  },
+  {
+    id: 'company-priority-colors',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'design',
+    title: 'Cores na prioridade do cliente',
+    description:
+      'Baixa, Média e Alta agora aparecem em verde, laranja e vermelho no cadastro da Empresa.',
+  },
+  {
     id: 'company-required-fields',
     date: '17 de setembro de 2026',
     isoDate: '2026-09-17',

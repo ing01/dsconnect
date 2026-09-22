@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_21_090000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_22_090005) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -914,17 +914,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_21_090000) do
     t.string "billing_type"
     t.decimal "billing_amount", precision: 12, scale: 2
     t.decimal "implementation_fee", precision: 12, scale: 2
-    t.date "license_expires_on"
     t.date "system_started_on"
     t.bigint "company_category_id"
     t.integer "client_level", default: 1, null: false
     t.boolean "campaign_opt_in", default: false, null: false
     t.boolean "blocked", default: false, null: false
+    t.bigint "contract_id"
     t.index ["account_id", "cnpj"], name: "index_companies_on_account_and_cnpj", unique: true, where: "(cnpj IS NOT NULL)"
     t.index ["account_id", "domain"], name: "index_companies_on_account_and_domain", unique: true, where: "(domain IS NOT NULL)"
     t.index ["account_id"], name: "index_companies_on_account_id"
     t.index ["blocked"], name: "index_companies_on_blocked"
     t.index ["company_category_id"], name: "index_companies_on_company_category_id"
+    t.index ["contract_id"], name: "index_companies_on_contract_id"
     t.index ["name", "account_id"], name: "index_companies_on_name_and_account_id"
   end
 
@@ -1029,6 +1030,30 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_21_090000) do
     t.index ["identifier", "account_id"], name: "uniq_identifier_per_account_contact", unique: true
     t.index ["name", "email", "phone_number", "identifier"], name: "index_contacts_on_name_email_phone_number_identifier", opclass: :gin_trgm_ops, using: :gin
     t.index ["phone_number", "account_id"], name: "index_contacts_on_phone_number_and_account_id"
+  end
+
+  create_table "contract_products", force: :cascade do |t|
+    t.bigint "contract_id", null: false
+    t.bigint "product_id", null: false
+    t.decimal "unit_value", precision: 12, scale: 2, default: "0.0", null: false
+    t.integer "licenses_qty", default: 1, null: false
+    t.decimal "implementation_fee", precision: 12, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contract_id"], name: "index_contract_products_on_contract_id"
+    t.index ["product_id"], name: "index_contract_products_on_product_id"
+  end
+
+  create_table "contracts", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.integer "responsible_contact_id"
+    t.string "contract_type"
+    t.string "total_value_mode", default: "auto", null: false
+    t.decimal "total_value", precision: 12, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_contracts_on_account_id"
+    t.index ["responsible_contact_id"], name: "index_contracts_on_responsible_contact_id"
   end
 
   create_table "conversation_flow_states", force: :cascade do |t|
@@ -1653,6 +1678,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_21_090000) do
     t.index ["user_id"], name: "index_portals_members_on_user_id"
   end
 
+  create_table "products", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_products_on_account_id_and_name", unique: true
+    t.index ["account_id"], name: "index_products_on_account_id"
+  end
+
   create_table "project_module_task_templates", force: :cascade do |t|
     t.bigint "project_module_id", null: false
     t.bigint "project_task_template_id", null: false
@@ -1710,6 +1744,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_21_090000) do
     t.text "notes"
     t.date "support_ends_on"
     t.date "contract_signed_on"
+    t.date "system_started_on"
     t.index ["account_id", "stage"], name: "index_projects_on_account_id_and_stage"
     t.index ["account_id", "status"], name: "index_projects_on_account_id_and_status"
     t.index ["account_id"], name: "index_projects_on_account_id"
@@ -2297,6 +2332,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_21_090000) do
   add_foreign_key "campaign_recipients", "inboxes", on_delete: :cascade
   add_foreign_key "checklists", "accounts"
   add_foreign_key "companies", "company_categories"
+  add_foreign_key "companies", "contracts"
   add_foreign_key "company_categories", "accounts"
   add_foreign_key "company_contacts", "companies"
   add_foreign_key "company_contacts", "contacts"
@@ -2306,6 +2342,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_21_090000) do
   add_foreign_key "company_credentials", "users", column: "updated_by_id"
   add_foreign_key "company_system_modules", "companies"
   add_foreign_key "company_system_modules", "system_modules"
+  add_foreign_key "contract_products", "contracts"
+  add_foreign_key "contract_products", "products"
+  add_foreign_key "contracts", "accounts"
+  add_foreign_key "contracts", "contacts", column: "responsible_contact_id"
   add_foreign_key "conversation_flow_states", "accounts"
   add_foreign_key "conversation_flow_states", "conversation_flows"
   add_foreign_key "conversation_flow_states", "conversations"
@@ -2318,6 +2358,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_21_090000) do
   add_foreign_key "inboxes", "portals"
   add_foreign_key "mood_entries", "accounts"
   add_foreign_key "mood_entries", "users"
+  add_foreign_key "products", "accounts"
   add_foreign_key "project_module_task_templates", "project_modules"
   add_foreign_key "project_module_task_templates", "project_task_templates"
   add_foreign_key "project_modules", "accounts"
