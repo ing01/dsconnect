@@ -9,6 +9,7 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
+import CardLayout from 'dashboard/components-next/CardLayout.vue';
 import ContractFormDialog from 'dashboard/components-next/Contracts/ContractFormDialog.vue';
 
 const DEBOUNCE_DELAY = 300;
@@ -84,7 +85,7 @@ onMounted(() => fetchPage(1));
   <section class="flex w-full h-full overflow-hidden bg-n-surface-1">
     <div class="flex flex-col w-full h-full">
       <header class="sticky top-0 z-10 px-6">
-        <div class="flex items-center justify-between w-full py-6 gap-2 mx-auto max-w-5xl">
+        <div class="flex flex-col xs:flex-row items-start xs:items-center justify-between w-full py-7 gap-3 mx-auto max-w-5xl">
           <span class="text-xl font-medium truncate text-n-slate-12">
             {{ t('CONTRACTS.HEADER') }}
           </span>
@@ -93,46 +94,61 @@ onMounted(() => fetchPage(1));
               :model-value="searchValue"
               type="search"
               :placeholder="t('CONTRACTS.SEARCH_PLACEHOLDER')"
-              custom-input-class="h-8 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-8 !py-1 rtl:!pr-8"
+              custom-input-class="h-9 [&:not(.focus)]:!border-transparent bg-n-alpha-2 dark:bg-n-solid-1 ltr:!pl-9 !py-1 rtl:!pr-9"
+              class="w-64"
               @input="onSearch($event.target.value)"
             >
               <template #prefix>
-                <Icon icon="i-lucide-search" class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-2 rtl:right-2" />
+                <Icon icon="i-lucide-search" class="absolute -translate-y-1/2 text-n-slate-11 size-4 top-1/2 ltr:left-3 rtl:right-3" />
               </template>
             </Input>
-            <Button icon="i-lucide-plus" size="sm" :label="t('CONTRACTS.ACTIONS.CREATE')" @click="openCreateDialog" />
+            <Button icon="i-lucide-plus" :label="t('CONTRACTS.ACTIONS.CREATE')" @click="openCreateDialog" />
           </div>
         </div>
       </header>
 
       <main class="flex-1 px-6 overflow-y-auto">
         <div class="w-full mx-auto max-w-5xl py-4">
-          <div v-if="isFetching" class="flex items-center justify-center p-8">
+          <div v-if="isFetching" class="flex items-center justify-center p-12">
             <span class="text-base text-n-slate-11">{{ t('CONTRACTS.LOADING') }}</span>
           </div>
-          <div v-else-if="!contracts.length" class="flex items-center justify-center p-8">
+          <div v-else-if="!contracts.length" class="flex items-center justify-center p-12">
             <span class="text-base text-n-slate-11">{{ t('CONTRACTS.EMPTY_STATE') }}</span>
           </div>
-          <div v-else class="flex flex-col gap-3">
-            <button
+          <div v-else class="flex flex-col gap-4">
+            <CardLayout
               v-for="contract in contracts"
               :key="contract.id"
-              type="button"
-              class="flex flex-col items-start gap-2 p-4 text-left rounded-xl border border-n-weak bg-n-solid-1 hover:border-n-slate-6 hover:shadow-sm transition-all"
+              layout="row"
+              class="cursor-pointer"
               @click="openEditDialog(contract)"
             >
-              <div class="flex items-center justify-between w-full gap-2">
-                <span class="text-sm font-medium text-n-slate-12">
+              <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+                <span class="text-base font-medium truncate text-n-slate-12">
                   {{ contract.companies?.map(c => c.name).join(', ') || t('CONTRACTS.NO_COMPANIES') }}
                 </span>
-                <span class="text-sm font-medium text-n-slate-12">{{ formatMoney(contract.computedTotalValue) }}</span>
+                <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 min-w-0">
+                  <span
+                    v-if="contract.responsibleContact"
+                    class="inline-flex items-center gap-1.5 text-sm text-n-slate-11 truncate"
+                  >
+                    <Icon icon="i-lucide-user" class="flex-shrink-0 size-4 text-n-slate-10" />
+                    {{ contract.responsibleContact.name }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-sm text-n-slate-11">
+                    <Icon icon="i-lucide-calendar-clock" class="flex-shrink-0 size-4 text-n-slate-10" />
+                    {{ t(`CONTRACTS.FORM.CONTRACT_TYPE.${(contract.contractType || '').toUpperCase()}`) }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-sm text-n-slate-11">
+                    <Icon icon="i-lucide-package" class="flex-shrink-0 size-4 text-n-slate-10" />
+                    {{ contract.contractProducts?.length || 0 }} {{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}
+                  </span>
+                </div>
               </div>
-              <div class="flex items-center gap-3 text-xs text-n-slate-11">
-                <span v-if="contract.responsibleContact">{{ t('CONTRACTS.FORM.RESPONSIBLE.LABEL') }}: {{ contract.responsibleContact.name }}</span>
-                <span>{{ t(`CONTRACTS.FORM.CONTRACT_TYPE.${(contract.contractType || '').toUpperCase()}`) }}</span>
-                <span>{{ contract.contractProducts?.length || 0 }} {{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}</span>
-              </div>
-            </button>
+              <span class="flex-shrink-0 text-base font-semibold text-n-slate-12">
+                {{ formatMoney(contract.computedTotalValue) }}
+              </span>
+            </CardLayout>
           </div>
         </div>
       </main>

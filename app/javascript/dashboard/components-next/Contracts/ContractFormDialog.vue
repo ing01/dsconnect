@@ -171,8 +171,8 @@ defineExpose({ dialogRef, onSuccess, open });
       </span>
 
       <div class="grid w-full gap-4 sm:grid-cols-2">
-        <div class="flex flex-col gap-1">
-          <label class="text-sm text-n-slate-11">{{ t('CONTRACTS.FORM.RESPONSIBLE.LABEL') }}</label>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.RESPONSIBLE.LABEL') }}</label>
           <ContractResponsibleField
             v-model="form.responsibleContactId"
             :responsible-name="form.responsibleName"
@@ -180,26 +180,26 @@ defineExpose({ dialogRef, onSuccess, open });
             @select="handleResponsibleSelect"
           />
         </div>
-        <div class="flex flex-col gap-1">
-          <label class="text-sm text-n-slate-11">{{ t('CONTRACTS.FORM.CONTRACT_TYPE.LABEL') }}</label>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.CONTRACT_TYPE.LABEL') }}</label>
           <Select v-model="form.contractType" :options="CONTRACT_TYPE_OPTIONS" :disabled="isLoading" />
         </div>
       </div>
 
-      <div class="flex flex-col gap-1">
-        <label class="text-sm text-n-slate-11">{{ t('CONTRACTS.FORM.COMPANIES.LABEL') }}</label>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.COMPANIES.LABEL') }}</label>
         <ContractCompaniesField v-model="form.companies" :disabled="isLoading" />
       </div>
 
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between">
-          <label class="text-sm text-n-slate-11">{{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}</label>
-          <div class="flex items-center gap-1">
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-2">
+          <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}</label>
+          <div class="flex items-center gap-2">
             <input
               v-model="newProductName"
               type="text"
               :placeholder="t('CONTRACTS.FORM.PRODUCTS.NEW_PLACEHOLDER')"
-              class="h-7 px-2 text-xs rounded border border-n-weak bg-n-solid-1 text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-9 px-3 text-sm rounded-lg border border-n-weak bg-n-solid-1 text-n-slate-12 focus:border-n-brand focus:outline-none"
               @keyup.enter="handleCreateProduct"
             />
             <Button
@@ -216,29 +216,29 @@ defineExpose({ dialogRef, onSuccess, open });
         <div
           v-for="(line, index) in form.lines"
           :key="index"
-          class="grid grid-cols-[1.4fr_1fr_0.7fr_1fr_auto] gap-2 items-end p-2 rounded-lg border border-n-weak bg-n-alpha-1"
+          class="grid grid-cols-[1.4fr_1fr_0.8fr_1fr_auto] gap-3 items-end p-3 rounded-lg border border-n-weak bg-n-alpha-1"
         >
-          <div class="flex flex-col gap-1">
-            <span class="text-[11px] text-n-slate-10">{{ t('CONTRACTS.FORM.PRODUCTS.PRODUCT') }}</span>
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-medium text-n-slate-11">{{ t('CONTRACTS.FORM.PRODUCTS.PRODUCT') }}</span>
             <select
               v-model="line.productId"
-              class="h-8 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
             >
               <option value="" disabled>{{ t('CONTRACTS.FORM.PRODUCTS.SELECT_PLACEHOLDER') }}</option>
               <option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }}</option>
             </select>
           </div>
-          <div class="flex flex-col gap-1">
-            <span class="text-[11px] text-n-slate-10">{{ t('CONTRACTS.FORM.PRODUCTS.UNIT_VALUE') }}</span>
-            <Input v-model="line.unitValue" type="number" custom-input-class="h-8 !pt-1 !pb-1" />
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-medium text-n-slate-11">{{ t('CONTRACTS.FORM.PRODUCTS.UNIT_VALUE') }}</span>
+            <Input v-model="line.unitValue" type="number" custom-input-class="h-9 text-sm" />
           </div>
-          <div class="flex flex-col gap-1">
-            <span class="text-[11px] text-n-slate-10">{{ t('CONTRACTS.FORM.PRODUCTS.LICENSES_QTY') }}</span>
-            <Input v-model="line.licensesQty" type="number" custom-input-class="h-8 !pt-1 !pb-1" />
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-medium text-n-slate-11">{{ t('CONTRACTS.FORM.PRODUCTS.LICENSES_QTY') }}</span>
+            <Input v-model="line.licensesQty" type="number" custom-input-class="h-9 text-sm" />
           </div>
-          <div class="flex flex-col gap-1">
-            <span class="text-[11px] text-n-slate-10">{{ t('CONTRACTS.FORM.PRODUCTS.IMPLEMENTATION_FEE') }}</span>
-            <Input v-model="line.implementationFee" type="number" custom-input-class="h-8 !pt-1 !pb-1" />
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-medium text-n-slate-11">{{ t('CONTRACTS.FORM.PRODUCTS.IMPLEMENTATION_FEE') }}</span>
+            <Input v-model="line.implementationFee" type="number" custom-input-class="h-9 text-sm" />
           </div>
           <Button
             icon="i-lucide-trash-2"
@@ -275,9 +275,9 @@ defineExpose({ dialogRef, onSuccess, open });
           v-if="form.totalValueMode === 'manual'"
           v-model="form.totalValue"
           type="number"
-          custom-input-class="h-8 !pt-1 !pb-1"
+          custom-input-class="h-9 text-sm"
         />
-        <span v-else class="text-sm text-n-slate-12">
+        <span v-else class="text-lg font-semibold text-n-slate-12">
           {{ computedTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
         </span>
       </div>
