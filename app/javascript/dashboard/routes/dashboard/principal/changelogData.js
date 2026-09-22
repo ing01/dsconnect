@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-auto-assignment-controls',
+    date: '22 de setembro de 2026',
+    isoDate: '2026-09-22',
+    type: 'feature',
+    title: 'Controle da distribuição automática do WhatsApp',
+    description:
+      'Nova seção em Configurações > Automação: ligar/desligar a distribuição automática, definir um limite de conversas abertas por agente e marcar agentes que ficam de fora da distribuição automática (mas continuam podendo ser atribuídos na mão).',
+  },
+  {
     id: 'contracts-products',
     date: '22 de setembro de 2026',
     isoDate: '2026-09-22',
