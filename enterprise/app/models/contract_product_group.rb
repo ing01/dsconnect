@@ -19,11 +19,12 @@ class ContractProductGroup < ApplicationRecord
   validates :licenses_qty, numericality: { only_integer: true, greater_than: 0 }
   validates :implementation_fee, numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
 
-  # Uma linha do contrato: N licencas de um Grupo de Produtos pelo valor
-  # unitario (pre-preenchido do grupo na hora de montar o contrato, mas
-  # editavel por linha - ver ContractFormDialog no frontend), mais a
-  # implantacao (unica, nao multiplicada pela quantidade de licencas).
+  # Uma linha do contrato: o valor da mensalidade de um Grupo de Produtos
+  # (pre-preenchido do grupo na hora de montar o contrato, mas editavel por
+  # linha - ver ContractFormDialog no frontend) mais a implantacao.
+  # `licenses_qty` e' so informativo - nao entra nessa conta de proposito
+  # (confirmado com a Ingrid: quantidade de licencas nao influencia o valor).
   def subtotal
-    (unit_value * licenses_qty) + (implementation_fee || 0)
+    unit_value + (implementation_fee || 0)
   end
 end

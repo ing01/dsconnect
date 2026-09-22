@@ -35,10 +35,11 @@
       },
       "PRODUCTS": {
         "LABEL": "Product groups",
-        "SELECT_PLACEHOLDER": "Select a product group",
+        "SELECT_PLACEHOLDER": "Select a group",
         "PRODUCT": "Product group",
-        "UNIT_VALUE": "Value",
+        "UNIT_VALUE": "Monthly fee value",
         "LICENSES_QTY": "License qty.",
+        "LICENSES_QTY_HELP": "Informational only - doesn't affect the contract value.",
         "IMPLEMENTATION_FEE": "Implementation fee",
         "ADD_LINE": "Add product group",
         "NEW_PLACEHOLDER": "New product group",

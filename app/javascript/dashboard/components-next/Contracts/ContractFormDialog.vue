@@ -53,12 +53,13 @@ const form = reactive({
 // linha so some da tela mas continua no banco entrando na soma do total.
 const removedLineIds = ref([]);
 
+// `licensesQty` e' so informativo - nao entra na conta do valor total
+// (confirmado com a Ingrid: quantidade de licencas nunca influencia o valor).
 const computedTotal = computed(() =>
   form.lines.reduce((total, line) => {
     const unit = Number(line.unitValue) || 0;
-    const qty = Number(line.licensesQty) || 0;
     const fee = Number(line.implementationFee) || 0;
-    return total + unit * qty + fee;
+    return total + unit + fee;
   }, 0)
 );
 
@@ -202,14 +203,14 @@ defineExpose({ dialogRef, onSuccess, open });
       </div>
 
       <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex flex-col gap-2">
           <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}</label>
           <div class="flex items-center gap-2">
             <input
               v-model="newGroupName"
               type="text"
               :placeholder="t('CONTRACTS.FORM.PRODUCTS.NEW_PLACEHOLDER')"
-              class="h-9 px-3 text-sm rounded-lg border border-n-weak bg-n-solid-1 text-n-slate-12 focus:border-n-brand focus:outline-none"
+              class="h-9 px-3 text-sm rounded-lg border border-n-weak bg-n-solid-1 text-n-slate-12 focus:border-n-brand focus:outline-none w-64"
               @keyup.enter="handleCreateGroup"
             />
             <Button
@@ -217,6 +218,7 @@ defineExpose({ dialogRef, onSuccess, open });
               size="sm"
               variant="faded"
               slate
+              class="flex-shrink-0 whitespace-nowrap"
               :disabled="!newGroupName.trim()"
               @click="handleCreateGroup"
             />
@@ -244,7 +246,12 @@ defineExpose({ dialogRef, onSuccess, open });
             <Input v-model="line.unitValue" type="number" custom-input-class="h-9 text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <span class="text-xs font-medium text-n-slate-11">{{ t('CONTRACTS.FORM.PRODUCTS.LICENSES_QTY') }}</span>
+            <span
+              class="text-xs font-medium text-n-slate-11"
+              :title="t('CONTRACTS.FORM.PRODUCTS.LICENSES_QTY_HELP')"
+            >
+              {{ t('CONTRACTS.FORM.PRODUCTS.LICENSES_QTY') }}
+            </span>
             <Input v-model="line.licensesQty" type="number" custom-input-class="h-9 text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
