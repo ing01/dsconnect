@@ -15,6 +15,7 @@ import TicketMesaSelector from '../components/TicketMesaSelector.vue';
 import TicketSortMenu from '../components/TicketSortMenu.vue';
 import { readSortPreference, writeSortPreference } from '../helpers/ticketSort';
 import TicketDetailedSearchModal from '../components/TicketDetailedSearchModal.vue';
+import TicketImpededModal from '../components/TicketImpededModal.vue';
 
 const LAST_TEAM_STORAGE_KEY = 'ticket-kanban-last-team-id';
 
@@ -31,6 +32,7 @@ export default {
     TicketMesaSelector,
     TicketSortMenu,
     TicketDetailedSearchModal,
+    TicketImpededModal,
   },
   data() {
     return {
@@ -41,7 +43,7 @@ export default {
       showDetailedSearch: false,
       // Com que filtros a busca detalhada abre. Vazio pelo botao de sempre;
       // `{ blocked: true }` pelo botao "Tickets impedidos".
-      searchPreset: {},
+      showImpededList: false,
       targetColumnId: null,
       selectedTeamId: null,
       selectedAgentIds: [],
@@ -125,16 +127,13 @@ export default {
     selectTeam(teamId) {
       this.selectedTeamId = Number(teamId);
     },
-    // Um botao abre a busca de sempre; o outro abre a MESMA busca com o filtro
-    // de impedidos ja aplicado. O `key` no modal forca a remontagem, sem a qual
-    // o preset - lido na criacao do draft - nao valeria na segunda abertura.
     openDetailedSearch() {
-      this.searchPreset = {};
       this.showDetailedSearch = true;
     },
+    // Tela propria, e nao a busca detalhada com um filtro: a pergunta aqui e so
+    // "o que esta travado comigo?", e os filtros da busca atrapalham a resposta.
     openImpededSearch() {
-      this.searchPreset = { blocked: true };
-      this.showDetailedSearch = true;
+      this.showImpededList = true;
     },
     // The filter row resolves add/remove/clear and hands over the full list.
     selectAgentFilter(agentIds) {
@@ -286,9 +285,6 @@ export default {
           @update="updateSort"
         />
 
-        <!-- Reaproveita a busca detalhada com o filtro ja aplicado, em vez de
-             ter tela propria: a lista de impedidos herda paginacao, ordenacao,
-             exportacao e os demais filtros sem duplicar nada. -->
         <NextButton
           icon="i-lucide-octagon-pause"
           faded
@@ -375,11 +371,17 @@ export default {
       :on-close="() => (showDetailedSearch = false)"
       size="medium"
     >
-      <TicketDetailedSearchModal
-        :key="searchPreset.blocked ? 'blocked' : 'all'"
-        :teams="teams"
-        :preset-filters="searchPreset"
-      />
+      <TicketDetailedSearchModal :teams="teams" />
+    </woot-modal>
+
+    <woot-modal
+      v-model:show="showImpededList"
+      :on-close="() => (showImpededList = false)"
+      size="medium"
+    >
+      <!-- Remonta a cada abertura, e por isso rebusca: a lista precisa refletir
+           os impedimentos retirados desde a ultima vez. -->
+      <TicketImpededModal @close="showImpededList = false" />
     </woot-modal>
   </div>
 </template>

@@ -884,7 +884,10 @@
       "TITLE": "Blocked ticket",
       "META": "by {user}, {time}",
       "META_USER": "by {user}",
-      "LIST_BUTTON": "Blocked tickets"
+      "LIST_BUTTON": "Blocked tickets",
+      "LIST_TITLE": "My blocked tickets",
+      "LIST_DESCRIPTION": "Tickets assigned to you that are waiting on something to move forward.",
+      "LIST_EMPTY": "You have no blocked tickets."
     }
   }
 }

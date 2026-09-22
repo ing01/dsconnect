@@ -884,7 +884,10 @@
       "TITLE": "Ticket impedido",
       "META": "por {user}, {time}",
       "META_USER": "por {user}",
-      "LIST_BUTTON": "Tickets impedidos"
+      "LIST_BUTTON": "Tickets impedidos",
+      "LIST_TITLE": "Meus tickets impedidos",
+      "LIST_DESCRIPTION": "Tickets sob sua responsabilidade que estão aguardando algo para seguir.",
+      "LIST_EMPTY": "Você não tem nenhum ticket impedido."
     }
   }
 }
