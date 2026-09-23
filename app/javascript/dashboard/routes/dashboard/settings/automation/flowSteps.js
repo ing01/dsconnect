@@ -181,14 +181,15 @@ export const buildStep = (type, steps) => {
 
 // O modelo pronto de triagem de WhatsApp: em vez de montar cada etapa a mao,
 // o admin escolhe so o que e realmente uma decisao dele (Mesa, Estagio,
-// Categoria, Assistente) e este monta o resto - a mesma sequencia descrita
-// no guia de configuracao. Substitui totalmente as etapas atuais.
+// Categoria) e este monta o resto - a mesma sequencia descrita no guia de
+// configuracao. Substitui totalmente as etapas atuais. Todo cliente, de
+// qualquer nivel, passa so pela triagem por IA (nunca uma etapa tenta
+// resolver o problema sozinha - so classifica e encaminha pra humano).
 export const buildWhatsappTriageTemplate = ({
   teamId,
   ticketColumnId,
   ticketCategoryId,
-  assistantId,
-  level3to5TeamId,
+  triageTeamId,
 }) => [
   {
     id: 's1',
@@ -310,18 +311,13 @@ export const buildWhatsappTriageTemplate = ({
   // explicito: "quando e conversa nova, sempre um novo ticket"; dedup
   // automatico por contato+empresa+mesa reaproveitava tickets antigos de
   // teste mesmo para clientes diferentes, o que nao e' o comportamento
-  // desejado). O ticket em si so e criado quando o caminho de nivel 3-5
-  // exigir (s14) ou quando a IA de nivel 1-2 concluir (s16, sozinha).
+  // desejado). O ticket em si so e criado em s14, sempre - todo cliente, de
+  // qualquer nivel, segue o mesmo caminho ate a triagem por IA (s15).
   //
-  // Antes de chamar a IA (nivel 1-2, s16) ou a triagem (nivel 3-5, s15), o
-  // cliente ainda so respondeu perguntas de identificacao (empresa, ticket) -
-  // nunca disse o que precisa. Sem uma pergunta explicita aqui, a IA de
-  // resolucao recebia um historico sem nenhum problema declarado e, num
-  // teste real, respondeu vazio (sem texto, sem chamar handoff de verdade) -
-  // a rede de seguranca em `ai_resolve` acabava encaminhando so por nao ter
-  // nada para responder, nao porque decidiu que devia. Perguntar aqui garante
-  // que sempre existe uma descricao real do problema no historico antes da
-  // IA (de qualquer nivel) entrar em acao.
+  // Antes da triagem (s15), o cliente ainda so respondeu perguntas de
+  // identificacao (empresa, ticket) - nunca disse o que precisa. Perguntar
+  // aqui garante que sempre existe uma descricao real do problema no
+  // historico antes da IA classificar a prioridade.
   {
     id: 's21',
     type: 'ask',
@@ -331,19 +327,8 @@ export const buildWhatsappTriageTemplate = ({
       save_as: 'resposta.problema',
       answer_type: 'text',
     },
-    next: 's13',
+    next: 's14',
     branches: {},
-  },
-  {
-    id: 's13',
-    type: 'condition',
-    params: {
-      variable: 'empresa.nivel',
-      operator: 'greater_than_or_equal',
-      value: '3',
-    },
-    next: null,
-    branches: { true: 's14', false: 's16' },
   },
   {
     id: 's14',
@@ -351,7 +336,7 @@ export const buildWhatsappTriageTemplate = ({
     params: {
       title: '{{empresa.nome}} | {{contato.nome}}',
       description: 'Atendimento aberto pelo fluxo automático de WhatsApp.',
-      team_id: level3to5TeamId || teamId,
+      team_id: triageTeamId || teamId,
       ticket_column_id: ticketColumnId,
       ticket_category_id: ticketCategoryId,
       priority: 'medium',
@@ -362,25 +347,7 @@ export const buildWhatsappTriageTemplate = ({
   {
     id: 's15',
     type: 'ai_triage',
-    params: { team_id: level3to5TeamId || '' },
-    next: null,
-    branches: {},
-  },
-  // Niveis 1-2 (12-14): a IA tenta resolver de verdade primeiro. So cria o
-  // ticket no final - resolvido (fecha direto) ou encaminhado (handoff) -
-  // nunca antes de saber qual dos dois aconteceu.
-  {
-    id: 's16',
-    type: 'ai_resolve',
-    params: {
-      assistant_id: assistantId,
-      max_turns: 6,
-      title: '{{empresa.nome}} | {{contato.nome}}',
-      description: 'Atendimento aberto pelo fluxo automático de WhatsApp.',
-      team_id: teamId,
-      ticket_column_id: ticketColumnId,
-      ticket_category_id: ticketCategoryId,
-    },
+    params: { team_id: triageTeamId || '' },
     next: null,
     branches: {},
   },
@@ -433,15 +400,13 @@ export const buildWhatsappTriageTemplate = ({
 // O modelo pronto de triagem do Widget: sem telefone para identificar o
 // cliente automaticamente, a ordem se inverte em relacao ao WhatsApp - CNPJ
 // primeiro, depois nome/e-mail (reaproveitados se o Widget/pre-chat ja
-// souber), so entao nivel e ticket. O ticket so e criado no final (a etapa
-// `ai_resolve` cria sozinha quando resolve ou encaminha; a `create_ticket`
-// antes da `ai_triage` documenta a triagem assim que ela comeca).
+// souber), so entao ticket e triagem. Todo cliente, de qualquer nivel, passa
+// so pela triagem por IA (nunca uma etapa tenta resolver o problema sozinha).
 export const buildWidgetTriageTemplate = ({
   teamId,
   ticketColumnId,
   ticketCategoryId,
-  assistantId,
-  level3to5TeamId,
+  triageTeamId,
 }) => [
   {
     id: 's1',
@@ -607,11 +572,10 @@ export const buildWidgetTriageTemplate = ({
     next: null,
     branches: {},
   },
-  // Antes de acionar a IA (nivel 1-2 ou 3-5), o cliente so respondeu
-  // perguntas de identificacao - nunca disse o que precisa. Sem perguntar
-  // aqui, a IA de resolucao recebia um historico sem nenhum problema
-  // declarado e podia responder vazio (sem texto, sem handoff de verdade) -
-  // ver o mesmo ajuste no modelo do WhatsApp.
+  // Antes da triagem por IA, o cliente so respondeu perguntas de
+  // identificacao - nunca disse o que precisa. Sem perguntar aqui, a IA
+  // recebia um historico sem nenhum problema declarado - ver o mesmo ajuste
+  // no modelo do WhatsApp.
   {
     id: 's22',
     type: 'ask',
@@ -621,37 +585,11 @@ export const buildWidgetTriageTemplate = ({
       save_as: 'resposta.problema',
       answer_type: 'text',
     },
-    next: 's18',
+    next: 's20',
     branches: {},
   },
-  // Sem ticket (ou informado nao encontrado): segue por nivel. O ticket so
-  // e criado no final de cada caminho, nunca aqui.
-  {
-    id: 's18',
-    type: 'condition',
-    params: {
-      variable: 'empresa.nivel',
-      operator: 'greater_than_or_equal',
-      value: '3',
-    },
-    next: null,
-    branches: { true: 's20', false: 's19' },
-  },
-  {
-    id: 's19',
-    type: 'ai_resolve',
-    params: {
-      assistant_id: assistantId,
-      max_turns: 6,
-      title: '{{empresa.nome}} | {{contato.nome}}',
-      description: 'Atendimento aberto pelo fluxo automático do Widget.',
-      team_id: teamId,
-      ticket_column_id: ticketColumnId,
-      ticket_category_id: ticketCategoryId,
-    },
-    next: null,
-    branches: {},
-  },
+  // Sem ticket (ou informado nao encontrado): todo cliente, de qualquer
+  // nivel, segue o mesmo caminho ate a triagem por IA (s21).
   {
     id: 's20',
     type: 'create_ticket',
@@ -669,7 +607,7 @@ export const buildWidgetTriageTemplate = ({
   {
     id: 's21',
     type: 'ai_triage',
-    params: { team_id: level3to5TeamId || '' },
+    params: { team_id: triageTeamId || '' },
     next: null,
     branches: {},
   },

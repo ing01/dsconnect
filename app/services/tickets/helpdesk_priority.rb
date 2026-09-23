@@ -4,13 +4,14 @@
 #
 # `Ticket#priority` continua com 4 valores (low/medium/high/urgent) porque
 # `TicketSlaPolicy` depende disso (unicidade por time) - a escala de 3 valores
-# pedida mapeia para 3 dos 4: baixa->low, media->medium, alta->urgent. `high`
-# fica de fora, reservado para escalonamento manual por uma pessoa.
+# pedida mapeia para 3 dos 4: baixa->low, media->medium, alta->high. `urgent`
+# fica de fora, reservado para escalonamento manual por uma pessoa (a IA nunca
+# atribui `urgent` sozinha).
 class Tickets::HelpdeskPriority
   # 1 = Baixa, 2 = Media, 3 = Alta (Company#client_level).
   LEVEL_BASELINE = { 1 => 'baixa', 2 => 'media', 3 => 'alta' }.freeze
   RANK = { 'baixa' => 0, 'media' => 1, 'alta' => 2 }.freeze
-  TICKET_PRIORITY = { 'baixa' => 'low', 'media' => 'medium', 'alta' => 'urgent' }.freeze
+  TICKET_PRIORITY = { 'baixa' => 'low', 'media' => 'medium', 'alta' => 'high' }.freeze
 
   class << self
     # `urgencia`/`impacto` sao opcionais - sem eles (por exemplo, um nivel 1/2
