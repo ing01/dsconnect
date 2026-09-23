@@ -10,6 +10,7 @@
 #  updated_at             :datetime         not null
 #  account_id             :bigint           not null
 #  responsible_contact_id :integer
+#  signed_on              :date
 #
 class Contract < ApplicationRecord
   TOTAL_VALUE_MODES = %w[auto manual].freeze

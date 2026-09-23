@@ -143,6 +143,13 @@ onMounted(() => fetchPage(1));
                     <Icon icon="i-lucide-package" class="flex-shrink-0 size-4 text-n-slate-10" />
                     {{ contract.contractProductGroups?.length || 0 }} {{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}
                   </span>
+                  <span
+                    v-if="contract.signedOn"
+                    class="inline-flex items-center gap-1.5 text-sm text-n-slate-11"
+                  >
+                    <Icon icon="i-lucide-signature" class="flex-shrink-0 size-4 text-n-slate-10" />
+                    {{ contract.signedOn }}
+                  </span>
                 </div>
               </div>
               <span class="flex-shrink-0 text-base font-semibold text-n-slate-12">

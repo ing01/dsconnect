@@ -27,6 +27,9 @@
         "MONTHLY": "Monthly",
         "ANNUAL": "Annual"
       },
+      "SIGNED_ON": {
+        "LABEL": "Signature date"
+      },
       "COMPANIES": {
         "LABEL": "Participating companies",
         "ADD_PLACEHOLDER": "Add company...",
@@ -48,7 +51,22 @@
       "TOTAL_VALUE": {
         "LABEL": "Total contract value",
         "MANUAL_TOGGLE": "Set value manually"
-      }
+      },
+      "EXPORT_PDF": "Export PDF"
+    },
+    "PRINT": {
+      "TITLE": "Service Agreement",
+      "NOT_INFORMED": "Not informed",
+      "NOT_SIGNED": "Not signed",
+      "PRODUCT_TABLE": {
+        "GROUP": "Product group",
+        "MONTHLY_VALUE": "Monthly fee value",
+        "LICENSES_QTY": "License qty.",
+        "IMPLEMENTATION_FEE": "Implementation"
+      },
+      "SIGNATURE_CONTRACTOR": "Client signature",
+      "SIGNATURE_CONTRACTED": "Contractor signature",
+      "GENERATED_AT": "Document generated on {date}"
     }
   },
   "PRODUCTS": {

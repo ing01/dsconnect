@@ -27,6 +27,9 @@
         "MONTHLY": "Mensalidade",
         "ANNUAL": "Anuidade"
       },
+      "SIGNED_ON": {
+        "LABEL": "Data de assinatura"
+      },
       "COMPANIES": {
         "LABEL": "Empresas participantes",
         "ADD_PLACEHOLDER": "Adicionar empresa...",
@@ -48,7 +51,22 @@
       "TOTAL_VALUE": {
         "LABEL": "Valor total do contrato",
         "MANUAL_TOGGLE": "Definir valor manualmente"
-      }
+      },
+      "EXPORT_PDF": "Exportar PDF"
+    },
+    "PRINT": {
+      "TITLE": "Contrato de Prestação de Serviços",
+      "NOT_INFORMED": "Não informado",
+      "NOT_SIGNED": "Não assinado",
+      "PRODUCT_TABLE": {
+        "GROUP": "Grupo de produtos",
+        "MONTHLY_VALUE": "Valor da mensalidade",
+        "LICENSES_QTY": "Qtd. de licenças",
+        "IMPLEMENTATION_FEE": "Implantação"
+      },
+      "SIGNATURE_CONTRACTOR": "Assinatura do Contratante (Cliente)",
+      "SIGNATURE_CONTRACTED": "Assinatura da Contratada",
+      "GENERATED_AT": "Documento gerado em {date}"
     }
   },
   "PRODUCTS": {

@@ -1,5 +1,6 @@
 json.id resource.id
 json.contract_type resource.contract_type
+json.signed_on resource.signed_on
 json.total_value_mode resource.total_value_mode
 json.total_value resource.total_value
 json.computed_total_value resource.computed_total_value

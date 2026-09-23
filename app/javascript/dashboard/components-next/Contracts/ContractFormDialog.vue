@@ -10,6 +10,7 @@ import ContractResponsibleField from 'dashboard/components-next/Contracts/Contra
 import ContractCompaniesField from 'dashboard/components-next/Contracts/ContractCompaniesField.vue';
 import { useProductGroupsStore } from 'dashboard/stores/productGroups';
 import { useAlert } from 'dashboard/composables';
+import { exportContractToPdf } from 'dashboard/helper/contractPdfExport';
 
 const props = defineProps({
   isLoading: { type: Boolean, default: false },
@@ -42,6 +43,7 @@ const form = reactive({
   responsibleContactId: '',
   responsibleName: '',
   contractType: '',
+  signedOn: '',
   companies: [],
   lines: [emptyLine()],
   totalValueMode: 'auto',
@@ -76,6 +78,7 @@ const resetForm = () => {
   form.responsibleContactId = '';
   form.responsibleName = '';
   form.contractType = '';
+  form.signedOn = '';
   form.companies = [];
   form.lines = [emptyLine()];
   form.totalValueMode = 'auto';
@@ -91,6 +94,7 @@ const open = (contract = null) => {
     form.responsibleContactId = contract.responsibleContactId || '';
     form.responsibleName = contract.responsibleContact?.name || '';
     form.contractType = contract.contractType || '';
+    form.signedOn = contract.signedOn || '';
     form.companies = contract.companies || [];
     form.lines = contract.contractProductGroups?.length
       ? contract.contractProductGroups.map(line => ({
@@ -149,6 +153,7 @@ const handleConfirm = () => {
     id: editingId.value,
     responsibleContactId: form.responsibleContactId || null,
     contractType: form.contractType,
+    signedOn: form.signedOn || null,
     companyIds: form.companies.map(company => Number(company.id)),
     totalValueMode: form.totalValueMode,
     totalValue: form.totalValueMode === 'manual' ? form.totalValue : null,
@@ -163,6 +168,34 @@ const handleConfirm = () => {
       ...removedLineIds.value.map(id => ({ id, _destroy: true })),
     ],
   });
+};
+
+const handleExportPdf = () => {
+  const exportTotalValue =
+    form.totalValueMode === 'manual'
+      ? Number(form.totalValue) || 0
+      : computedTotal.value;
+
+  exportContractToPdf(
+    {
+      id: editingId.value,
+      responsibleName: form.responsibleName,
+      contractType: form.contractType,
+      signedOn: form.signedOn,
+      companies: form.companies,
+      lines: form.lines.map(line => ({
+        productGroupName:
+          productGroups.value.find(
+            group => group.id === Number(line.productGroupId)
+          )?.name || '',
+        unitValue: line.unitValue,
+        licensesQty: line.licensesQty,
+        implementationFee: line.implementationFee,
+      })),
+      totalValue: exportTotalValue,
+    },
+    t
+  );
 };
 
 const closeDialog = () => dialogRef.value?.close();
@@ -181,7 +214,7 @@ defineExpose({ dialogRef, onSuccess, open });
         {{ isEditing ? t('CONTRACTS.FORM.EDIT_TITLE') : t('CONTRACTS.FORM.CREATE_TITLE') }}
       </span>
 
-      <div class="grid w-full gap-4 sm:grid-cols-2">
+      <div class="grid w-full gap-4 sm:grid-cols-3">
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.RESPONSIBLE.LABEL') }}</label>
           <ContractResponsibleField
@@ -194,6 +227,15 @@ defineExpose({ dialogRef, onSuccess, open });
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.CONTRACT_TYPE.LABEL') }}</label>
           <Select v-model="form.contractType" :options="CONTRACT_TYPE_OPTIONS" :disabled="isLoading" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.SIGNED_ON.LABEL') }}</label>
+          <input
+            v-model="form.signedOn"
+            type="date"
+            :disabled="isLoading"
+            class="h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+          />
         </div>
       </div>
 
@@ -310,13 +352,24 @@ defineExpose({ dialogRef, onSuccess, open });
           class="h-10 hover:!no-underline hover:text-n-brand"
           @click="closeDialog"
         />
-        <Button
-          :label="t('CONTRACTS.FORM.SAVE')"
-          color="blue"
-          type="submit"
-          :disabled="isFormInvalid || isLoading"
-          :is-loading="isLoading"
-        />
+        <div class="flex items-center gap-2">
+          <Button
+            v-if="isEditing"
+            :label="t('CONTRACTS.FORM.EXPORT_PDF')"
+            icon="i-lucide-file-down"
+            variant="faded"
+            slate
+            type="button"
+            @click="handleExportPdf"
+          />
+          <Button
+            :label="t('CONTRACTS.FORM.SAVE')"
+            color="blue"
+            type="submit"
+            :disabled="isFormInvalid || isLoading"
+            :is-loading="isLoading"
+          />
+        </div>
       </div>
     </template>
   </Dialog>
