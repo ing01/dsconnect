@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ai-triage-all-levels',
+    date: '23 de setembro de 2026',
+    isoDate: '2026-09-23',
+    type: 'feature',
+    title: 'Triagem por IA para todo cliente',
+    description:
+      'O fluxo automático de WhatsApp/Widget agora sempre passa pela triagem por IA (classifica a prioridade e encaminha pra um atendente humano), pra qualquer nível de cliente - a etapa em que a IA tentava resolver sozinha antes de abrir o ticket foi removida. A prioridade "Alta" também passou a aparecer como "Alta" na tela, em vez de "Urgente". Automações já configuradas precisam clicar em "Recriar o fluxo" no assistente pra receber essa mudança.',
+  },
+  {
     id: 'contract-description-title',
     date: '23 de setembro de 2026',
     isoDate: '2026-09-23',
