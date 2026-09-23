@@ -40,6 +40,7 @@ const emptyLine = () => ({
 });
 
 const form = reactive({
+  description: '',
   responsibleContactId: '',
   responsibleName: '',
   contractType: '',
@@ -68,6 +69,7 @@ const computedTotal = computed(() =>
 const isEditing = computed(() => Boolean(editingId.value));
 const isFormInvalid = computed(
   () =>
+    !form.description.trim() ||
     !form.contractType ||
     !form.companies.length ||
     form.lines.some(line => !line.productGroupId || !line.unitValue)
@@ -75,6 +77,7 @@ const isFormInvalid = computed(
 
 const resetForm = () => {
   editingId.value = null;
+  form.description = '';
   form.responsibleContactId = '';
   form.responsibleName = '';
   form.contractType = '';
@@ -91,6 +94,7 @@ const open = (contract = null) => {
   productGroupsStore.get();
   if (contract) {
     editingId.value = contract.id;
+    form.description = contract.description || '';
     form.responsibleContactId = contract.responsibleContactId || '';
     form.responsibleName = contract.responsibleContact?.name || '';
     form.contractType = contract.contractType || '';
@@ -151,6 +155,7 @@ const handleConfirm = () => {
 
   emit('submit', {
     id: editingId.value,
+    description: form.description.trim(),
     responsibleContactId: form.responsibleContactId || null,
     contractType: form.contractType,
     signedOn: form.signedOn || null,
@@ -179,6 +184,7 @@ const handleExportPdf = () => {
   exportContractToPdf(
     {
       id: editingId.value,
+      description: form.description,
       responsibleName: form.responsibleName,
       contractType: form.contractType,
       signedOn: form.signedOn,
@@ -213,6 +219,17 @@ defineExpose({ dialogRef, onSuccess, open });
       <span class="py-1 text-sm font-medium text-n-slate-12">
         {{ isEditing ? t('CONTRACTS.FORM.EDIT_TITLE') : t('CONTRACTS.FORM.CREATE_TITLE') }}
       </span>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.DESCRIPTION.LABEL') }}</label>
+        <Input
+          v-model="form.description"
+          :placeholder="t('CONTRACTS.FORM.DESCRIPTION.PLACEHOLDER')"
+          :disabled="isLoading"
+          custom-input-class="h-9"
+        />
+        <p class="mb-0 text-xs text-n-slate-11">{{ t('CONTRACTS.FORM.DESCRIPTION.HELP') }}</p>
+      </div>
 
       <div class="grid w-full gap-4 sm:grid-cols-3">
         <div class="flex flex-col gap-1.5">

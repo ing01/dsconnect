@@ -125,7 +125,7 @@ onMounted(() => fetchPage(1));
             >
               <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                 <span class="text-base font-medium truncate text-n-slate-12">
-                  {{ contract.companies?.map(c => c.name).join(', ') || t('CONTRACTS.NO_COMPANIES') }}
+                  {{ contract.displayLabel || t('CONTRACTS.NO_COMPANIES') }}
                 </span>
                 <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 min-w-0">
                   <span

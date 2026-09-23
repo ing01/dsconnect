@@ -1,7 +1,7 @@
 {
   "CONTRACTS": {
     "HEADER": "Contracts",
-    "SEARCH_PLACEHOLDER": "Search by company or responsible...",
+    "SEARCH_PLACEHOLDER": "Search by description, company or responsible...",
     "LOADING": "Loading contracts...",
     "EMPTY_STATE": "No contracts yet.",
     "NO_COMPANIES": "No company linked",
@@ -17,6 +17,11 @@
       "CREATE_TITLE": "New contract",
       "EDIT_TITLE": "Edit contract",
       "SAVE": "Save contract",
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "E.g.: protocol, contract code...",
+        "HELP": "Works as the contract's title - shown alongside the company in lists and in the PDF."
+      },
       "RESPONSIBLE": {
         "LABEL": "Responsible (who signed)",
         "PLACEHOLDER": "Search contact...",

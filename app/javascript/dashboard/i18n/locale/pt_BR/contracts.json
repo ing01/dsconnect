@@ -1,7 +1,7 @@
 {
   "CONTRACTS": {
     "HEADER": "Contratos",
-    "SEARCH_PLACEHOLDER": "Buscar por empresa ou responsável...",
+    "SEARCH_PLACEHOLDER": "Buscar por descrição, empresa ou responsável...",
     "LOADING": "Carregando contratos...",
     "EMPTY_STATE": "Nenhum contrato cadastrado ainda.",
     "NO_COMPANIES": "Nenhuma empresa vinculada",
@@ -17,6 +17,11 @@
       "CREATE_TITLE": "Novo contrato",
       "EDIT_TITLE": "Editar contrato",
       "SAVE": "Salvar contrato",
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Ex: protocolo, código do contrato...",
+        "HELP": "Serve como título do contrato - aparece junto com a empresa nas listas e no PDF."
+      },
       "RESPONSIBLE": {
         "LABEL": "Responsável (quem assinou)",
         "PLACEHOLDER": "Buscar contato...",

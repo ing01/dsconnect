@@ -63,13 +63,16 @@ export const exportContractToPdf = (contract, t) => {
     .join('');
 
   const generatedAt = new Date().toLocaleString('pt-BR');
+  const heading = contract.description
+    ? escapeHtml(contract.description)
+    : escapeHtml(t('CONTRACTS.PRINT.TITLE'));
 
   win.document.write(`
     <!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8" />
-        <title>${escapeHtml(t('CONTRACTS.PRINT.TITLE'))} #${contract.id}</title>
+        <title>${heading} - ${companiesLabel}</title>
         <style>
           @page { margin: 2cm; }
           body { font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; font-size: 12px; line-height: 1.6; }
@@ -94,8 +97,8 @@ export const exportContractToPdf = (contract, t) => {
         </style>
       </head>
       <body>
-        <h1>${escapeHtml(t('CONTRACTS.PRINT.TITLE'))} #${contract.id}</h1>
-        <p class="muted">${escapeHtml(t('CONTRACTS.PRINT.GENERATED_AT', { date: generatedAt }))}</p>
+        <h1>${heading} - ${companiesLabel}</h1>
+        <p class="muted">${escapeHtml(t('CONTRACTS.PRINT.TITLE'))} #${contract.id} &middot; ${escapeHtml(t('CONTRACTS.PRINT.GENERATED_AT', { date: generatedAt }))}</p>
 
         <div class="section">
           <div class="row"><span>${t('CONTRACTS.FORM.RESPONSIBLE.LABEL')}</span><span>${responsibleLabel}</span></div>

@@ -11,6 +11,7 @@
 #  account_id             :bigint           not null
 #  responsible_contact_id :integer
 #  signed_on              :date
+#  description            :string
 #
 class Contract < ApplicationRecord
   TOTAL_VALUE_MODES = %w[auto manual].freeze
@@ -31,9 +32,27 @@ class Contract < ApplicationRecord
 
   scope :search_by_participant_or_responsible, lambda { |query|
     left_joins(:companies, :responsible_contact)
-      .where('companies.name ILIKE :search OR contacts.name ILIKE :search', search: "%#{query.strip}%")
+      .where(
+        'contracts.description ILIKE :search OR companies.name ILIKE :search OR contacts.name ILIKE :search',
+        search: "%#{query.strip}%"
+      )
       .distinct
   }
+
+  # "Descricao" funciona como titulo/identificador do contrato (protocolo,
+  # codigo, etc. - confirmado com a Ingrid) - em qualquer lugar que precise
+  # rotular um contrato pra alguem escolher/reconhecer, o formato e' sempre
+  # "titulo + empresa(s)", nunca so um dos dois.
+  def display_label
+    # `map(&:name)` (nao `.pluck`) de proposito - respeita o eager loading de
+    # `companies` que o index/search do controller ja faz, sem disparar uma
+    # query nova por contrato.
+    company_names = companies.map(&:name).join(', ')
+    return company_names if description.blank?
+    return description if company_names.blank?
+
+    "#{description} - #{company_names}"
+  end
 
   # Substitui o conjunto de Empresas participantes por `ids` - cada mudanca
   # passa por `Company#update!` (nao `update_all`) pra disparar

@@ -71,7 +71,7 @@ class Api::V1::Accounts::ContractsController < Api::V1::Accounts::EnterpriseAcco
   # `update_all` que pularia esse callback.
   def contract_params
     params.require(:contract).permit(
-      :responsible_contact_id, :contract_type, :total_value_mode, :total_value, :signed_on,
+      :responsible_contact_id, :contract_type, :total_value_mode, :total_value, :signed_on, :description,
       company_ids: [],
       contract_product_groups_attributes: %i[id product_group_id unit_value licenses_qty implementation_fee _destroy]
     )
