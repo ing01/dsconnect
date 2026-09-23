@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'contract-signed-on-pdf',
+    date: '23 de setembro de 2026',
+    isoDate: '2026-09-23',
+    type: 'feature',
+    title: 'Data de assinatura e exportação em PDF no Contrato',
+    description:
+      'Contratos ganharam o campo "Data de assinatura" e um botão "Exportar PDF" (abre uma versão formatada pra impressão/salvar como PDF, com tabela de produtos, valor total e linhas de assinatura).',
+  },
+  {
     id: 'product-groups',
     date: '22 de setembro de 2026',
     isoDate: '2026-09-22',
