@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ai-triage-criteria-cnpj',
+    date: '24 de setembro de 2026',
+    isoDate: '2026-09-24',
+    type: 'feature',
+    title: 'Critério de prioridade da IA e CNPJ sempre no WhatsApp',
+    description:
+      'A IA de triagem agora usa critérios concretos pra classificar baixa/média/alta (sistema fora do ar ou problema com dinheiro = alta; dúvida, sugestão ou algo pontual sem pressa = baixa). O WhatsApp também passou a sempre pedir o CNPJ pra identificar a empresa, no mesmo padrão do Widget do site.',
+  },
+  {
     id: 'ai-triage-all-levels',
     date: '23 de setembro de 2026',
     isoDate: '2026-09-23',
