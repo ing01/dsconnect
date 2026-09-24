@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-autoassign-vs-queue-fix',
+    date: '24 de setembro de 2026',
+    isoDate: '2026-09-24',
+    type: 'feature',
+    title: 'Fila da triagem não é mais atropelada pela distribuição automática',
+    description:
+      'A distribuição automática do WhatsApp estava pegando conversas que a triagem por IA já tinha mandado pra uma fila (Suporte N1/N2) e atribuindo sozinha pra um atendente, sem passar por "Na Fila". Agora ela ignora qualquer conversa que já tenha fila definida.',
+  },
+  {
     id: 'ai-triage-priority-queues',
     date: '24 de setembro de 2026',
     isoDate: '2026-09-24',
