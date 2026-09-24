@@ -146,6 +146,10 @@ class Conversation < ApplicationRecord
   before_save :apply_queue_defaults
   before_save :ensure_snooze_until_reset
   before_save :set_status_changed_at
+  # DIAGNOSTICO TEMPORARIO (remover depois de achar a causa): registra de onde
+  # vem toda mudanca de assignee_id, pra pegar em flagrante um caminho que
+  # ainda nao apareceu em nenhum log (Rails/Sidekiq) investigado ate agora.
+  before_save :log_assignee_change_source_temp, if: :will_save_change_to_assignee_id?
   before_create :determine_conversation_status
   before_create :ensure_waiting_since
 
@@ -367,6 +371,15 @@ class Conversation < ApplicationRecord
     return unless queue_id.present? && queue_id_changed?
 
     queue&.apply_defaults_to(self)
+  end
+
+  # DIAGNOSTICO TEMPORARIO - ver comentario junto do `before_save` que chama isto.
+  def log_assignee_change_source_temp
+    app_frames = caller.select { |line| line.include?('/app/') || line.include?('/enterprise/') }.first(12)
+    Rails.logger.warn(
+      "[DIAG-ASSIGNEE] conversation=#{id || 'new'} change=#{assignee_id_change.inspect} " \
+      "current_user=#{Current.user&.id.inspect} caller=\n  #{app_frames.join("\n  ")}"
+    )
   end
 
   def allowed_keys?
