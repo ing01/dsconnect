@@ -129,6 +129,7 @@ pt_BR:
         existing: "Seu atendimento continuará no ticket #%{numero}."
       errors:
         empty_message: "a mensagem esta vazia"
+        blank_answer: "Não consegui identificar uma resposta em texto. Pode escrever o que está acontecendo?"
         too_many_steps: "o fluxo executou etapas demais e foi interrompido"
         timeout: "o cliente nao respondeu no prazo"
         unexpected: "Desculpe, tive um problema para continuar seu atendimento. Vou te transferir para um atendente."

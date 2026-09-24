@@ -135,6 +135,7 @@ en:
         existing: "Your request will continue under ticket #%{numero}."
       errors:
         empty_message: "the message is empty"
+        blank_answer: "I couldn't find a text reply there. Can you write what's happening?"
         too_many_steps: "the flow ran too many steps and was stopped"
         timeout: "the customer did not reply in time"
         unexpected: "Sorry, I ran into a problem continuing your request. I'll transfer you to an agent."

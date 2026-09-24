@@ -87,6 +87,11 @@ export const FLOW_STEP_TYPES = [
     branches: ['blocked'],
   },
   {
+    type: 'check_problem_clarity',
+    fields: [],
+    branches: ['unclear'],
+  },
+  {
     type: 'find_open_ticket_by_number',
     fields: [
       { key: 'number_from', kind: 'variable', default: 'resposta.numero_ticket' },
@@ -228,6 +233,29 @@ export const buildWhatsappTriageTemplate = ({
       save_as: 'resposta.problema',
       answer_type: 'text',
     },
+    next: 's9',
+    branches: {},
+  },
+  // Confere se deu pra entender o problema antes de classificar - "preciso
+  // de ajuda" ou so o nome de um modulo nao da. Faz UMA pergunta a mais
+  // (s10) quando falta informacao, nunca mais que isso: s10 ja segue direto
+  // pro ticket, sem checar de novo.
+  {
+    id: 's9',
+    type: 'check_problem_clarity',
+    params: {},
+    next: 's7',
+    branches: { unclear: 's10' },
+  },
+  {
+    id: 's10',
+    type: 'ask',
+    params: {
+      content:
+        'Entendi que precisa de suporte, consegue detalhar melhor o que está ocorrendo?',
+      save_as: 'resposta.problema',
+      answer_type: 'text',
+    },
     next: 's7',
     branches: {},
   },
@@ -364,6 +392,28 @@ export const buildWidgetTriageTemplate = ({
     params: {
       content:
         'Perfeito! Encontrei o CNPJ {{empresa.cnpj}} vinculado à empresa *{{empresa.nome}}*.\n\nO que está acontecendo?',
+      save_as: 'resposta.problema',
+      answer_type: 'text',
+    },
+    next: 's15',
+    branches: {},
+  },
+  // Confere se deu pra entender o problema antes de classificar - mesma
+  // logica do modelo do WhatsApp (s16 ja segue direto pro ticket, nunca
+  // checa duas vezes).
+  {
+    id: 's15',
+    type: 'check_problem_clarity',
+    params: {},
+    next: 's10',
+    branches: { unclear: 's16' },
+  },
+  {
+    id: 's16',
+    type: 'ask',
+    params: {
+      content:
+        'Entendi que precisa de suporte, consegue detalhar melhor o que está ocorrendo?',
       save_as: 'resposta.problema',
       answer_type: 'text',
     },

@@ -21,6 +21,7 @@ class AutomationRules::Flow::RunnerService
     'create_ticket' => AutomationRules::Flow::Steps::CreateTicket,
     'handoff' => AutomationRules::Flow::Steps::Handoff,
     'check_company_blocked' => AutomationRules::Flow::Steps::CheckCompanyBlocked,
+    'check_problem_clarity' => AutomationRules::Flow::Steps::CheckProblemClarity,
     'find_open_ticket_by_number' => AutomationRules::Flow::Steps::FindOpenTicketByNumber,
     'find_open_ticket_for_customer' => AutomationRules::Flow::Steps::FindOpenTicketForCustomer,
     'list_companies' => AutomationRules::Flow::Steps::ListCompanies,
