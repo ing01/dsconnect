@@ -37,7 +37,14 @@ class AutoAssignment::AssignmentService
     # pegar manualmente na fila - a distribuicao automatica da inbox nao pode
     # "roubar" e atribuir sozinha por cima, senao a conversa nunca aparece
     # como disponivel "Na Fila" pra ninguem escolher.
-    scope = inbox.conversations.unassigned.open.where(queue_id: nil)
+    #
+    # `queue_id: nil` sozinho nao bastava: esta varredura roda logo que a
+    # conversa e criada, antes do fluxo de triagem terminar e definir a fila -
+    # nesse instante `queue_id` ainda esta em branco, entao a conversa era
+    # atribuida aqui mesmo assim, antes da triagem ter a chance de rotear.
+    # `missing(:automation_flow_runs)` exclui qualquer conversa que esteja (ou
+    # tenha estado) dentro de um fluxo automatico, independente do timing.
+    scope = inbox.conversations.unassigned.open.where(queue_id: nil).missing(:automation_flow_runs)
 
     # Skip stale backlog with no activity beyond the age threshold
     policy = inbox.assignment_policy
