@@ -636,9 +636,19 @@
           "HELP": "Para onde a conversa é roteada quando a IA termina a triagem de um cliente de prioridade Alta.",
           "NONE": "Não definido"
         },
+        "QUEUE_LOW": {
+          "LABEL": "Fila para prioridade Baixa/Média",
+          "HELP": "Para onde vai a conversa quando a IA classifica a prioridade como Baixa ou Média.",
+          "NONE": "Não definido"
+        },
+        "QUEUE_HIGH": {
+          "LABEL": "Fila para prioridade Alta/Urgente",
+          "HELP": "Para onde vai a conversa quando a IA classifica a prioridade como Alta (ou quando um atendente marca como Urgente).",
+          "NONE": "Não definido"
+        },
         "DEFAULT_QUEUE": {
-          "LABEL": "Fila de atendimento",
-          "HELP": "Para qual fila a conversa é enviada ao ser encaminhada para um humano (a IA não resolveu, ou terminou a triagem). A fila pode atribuir automaticamente a um atendente e reforçar a prioridade, conforme configurado nela.",
+          "LABEL": "Fila padrão (reserva)",
+          "HELP": "Usada só quando a fila por prioridade acima não está definida. Se as duas de cima estiverem preenchidas, esta não é usada pela triagem por IA.",
           "NONE": "Não definido"
         },
         "SAVE": "Salvar configurações de automação",

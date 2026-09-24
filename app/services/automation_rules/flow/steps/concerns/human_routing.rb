@@ -21,7 +21,21 @@ module AutomationRules::Flow::Steps::Concerns::HumanRouting
     conversation.update!(attrs)
   end
 
-  def default_queue_id
-    params[:queue_id].presence || account.helpdesk_default_queue_id
+  # A fila explicita da etapa sempre vence, quando configurada. Sem isso, a
+  # conta pode ter uma fila por faixa de prioridade (ex: "Suporte N1" para
+  # baixa/media, "Suporte N2" para alta/urgente) - so cai na fila padrao da
+  # conta se nem a etapa nem a faixa de prioridade tiverem fila definida.
+  HIGH_PRIORITY_TIER = %w[high urgent].freeze
+
+  def queue_id_for(priority)
+    params[:queue_id].presence || queue_id_by_priority_tier(priority) || account.helpdesk_default_queue_id
+  end
+
+  def queue_id_by_priority_tier(priority)
+    if HIGH_PRIORITY_TIER.include?(priority.to_s)
+      account.helpdesk_queue_high_id
+    else
+      account.helpdesk_queue_low_id
+    end
   end
 end

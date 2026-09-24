@@ -174,7 +174,7 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     # nem prioridade nenhuma - so o `ai_triage` (nivel 3-5) fazia esse
     # roteamento; a IA que tenta resolver (nivel 1-2) e nao consegue precisa
     # do mesmo tratamento quando desiste.
-    route_conversation_to_humans!(team_id: params[:team_id], priority: level_priority, queue_id: default_queue_id)
+    route_conversation_to_humans!(team_id: params[:team_id], priority: level_priority, queue_id: queue_id_for(level_priority))
     post_ticket_reference!(ticket, pre_existing: pre_existing)
     handoff(result: handoff_diagnostics)
   end

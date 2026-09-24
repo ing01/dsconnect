@@ -82,7 +82,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
 
   def route_conversation_to_humans(priority)
     team_id = params[:team_id].presence || account.helpdesk_level_3to5_team_id
-    route_conversation_to_humans!(team_id: team_id, priority: priority, queue_id: default_queue_id)
+    route_conversation_to_humans!(team_id: team_id, priority: priority, queue_id: queue_id_for(priority))
   end
 
   def summary_result(classification, priority)

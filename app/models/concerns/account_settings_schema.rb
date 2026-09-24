@@ -41,6 +41,8 @@ module AccountSettingsSchema
         'helpdesk_open_ticket_window_days': { 'type': %w[integer null], 'minimum': 1 },
         'helpdesk_level_3to5_team_id': { 'type': %w[integer null] },
         'helpdesk_default_queue_id': { 'type': %w[integer null] },
+        'helpdesk_queue_low_id': { 'type': %w[integer null] },
+        'helpdesk_queue_high_id': { 'type': %w[integer null] },
         'priority_threshold_medium_min': { 'type': %w[number null], 'minimum': 0 },
         'priority_threshold_high_min': { 'type': %w[number null], 'minimum': 0 },
         'whatsapp_automation_test_mode_number': { 'type': %w[string null] },

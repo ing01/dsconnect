@@ -40,6 +40,8 @@ const defaultPriorityOnAiFailure = ref('baixa');
 const openTicketWindowDays = ref(null);
 const level3to5TeamId = ref(null);
 const defaultQueueId = ref(null);
+const queueLowId = ref(null);
+const queueHighId = ref(null);
 const priorityThresholdMediumMin = ref(null);
 const priorityThresholdHighMin = ref(null);
 const whatsappAutomationTestModeNumber = ref('');
@@ -71,6 +73,8 @@ watch(
       settings.helpdesk_open_ticket_window_days ?? null;
     level3to5TeamId.value = settings.helpdesk_level_3to5_team_id ?? null;
     defaultQueueId.value = settings.helpdesk_default_queue_id ?? null;
+    queueLowId.value = settings.helpdesk_queue_low_id ?? null;
+    queueHighId.value = settings.helpdesk_queue_high_id ?? null;
     priorityThresholdMediumMin.value =
       settings.priority_threshold_medium_min ?? null;
     priorityThresholdHighMin.value =
@@ -151,6 +155,8 @@ const saveSettings = async () => {
         helpdesk_open_ticket_window_days: openTicketWindowDays.value || null,
         helpdesk_level_3to5_team_id: level3to5TeamId.value || null,
         helpdesk_default_queue_id: defaultQueueId.value || null,
+        helpdesk_queue_low_id: queueLowId.value || null,
+        helpdesk_queue_high_id: queueHighId.value || null,
         priority_threshold_medium_min: priorityThresholdMediumMin.value || null,
         priority_threshold_high_min: priorityThresholdHighMin.value || null,
         whatsapp_automation_test_mode_number:
@@ -561,6 +567,38 @@ const handleRecalculatePriorities = async () => {
                 </option>
                 <option v-for="team in teams" :key="team.id" :value="team.id">
                   {{ formatMesaName(team.name) }}
+                </option>
+              </select>
+            </WithLabel>
+          </div>
+
+          <div class="flex flex-col gap-2 px-5 py-4">
+            <WithLabel
+              :label="t('TICKET.SETTINGS.AUTOMATION.QUEUE_LOW.LABEL')"
+              :help-message="t('TICKET.SETTINGS.AUTOMATION.QUEUE_LOW.HELP')"
+            >
+              <select v-model="queueLowId" class="mb-0">
+                <option :value="null">
+                  {{ t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.NONE') }}
+                </option>
+                <option v-for="queue in queues" :key="queue.id" :value="queue.id">
+                  {{ queue.name }}
+                </option>
+              </select>
+            </WithLabel>
+          </div>
+
+          <div class="flex flex-col gap-2 px-5 py-4">
+            <WithLabel
+              :label="t('TICKET.SETTINGS.AUTOMATION.QUEUE_HIGH.LABEL')"
+              :help-message="t('TICKET.SETTINGS.AUTOMATION.QUEUE_HIGH.HELP')"
+            >
+              <select v-model="queueHighId" class="mb-0">
+                <option :value="null">
+                  {{ t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.NONE') }}
+                </option>
+                <option v-for="queue in queues" :key="queue.id" :value="queue.id">
+                  {{ queue.name }}
                 </option>
               </select>
             </WithLabel>

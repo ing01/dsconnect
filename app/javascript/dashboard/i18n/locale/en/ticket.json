@@ -636,9 +636,19 @@
           "HELP": "Where the conversation is routed once the AI finishes triaging a High priority client.",
           "NONE": "Not set"
         },
+        "QUEUE_LOW": {
+          "LABEL": "Queue for Low/Medium priority",
+          "HELP": "Where the conversation goes when the AI classifies priority as Low or Medium.",
+          "NONE": "Not set"
+        },
+        "QUEUE_HIGH": {
+          "LABEL": "Queue for High/Urgent priority",
+          "HELP": "Where the conversation goes when the AI classifies priority as High (or an agent marks it Urgent).",
+          "NONE": "Not set"
+        },
         "DEFAULT_QUEUE": {
-          "LABEL": "Support queue",
-          "HELP": "Which queue the conversation is sent to when handed off to a human (the AI could not resolve it, or finished triaging). The queue can auto-assign an agent and boost priority, as configured on it.",
+          "LABEL": "Default queue (fallback)",
+          "HELP": "Only used when the priority queue above isn't set. If both of those are filled in, this one is not used by the AI triage.",
           "NONE": "Not set"
         },
         "SAVE": "Save automation settings",
