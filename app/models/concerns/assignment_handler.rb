@@ -21,8 +21,17 @@ module AssignmentHandler
     self.assignee_id = nil if team&.members&.exclude?(assignee)
   end
 
+  # Corrida encontrada em producao (2026-09-24): a triagem por IA sempre muda
+  # o `team_id` da conversa (`route_conversation_to_humans!`), o que disparava
+  # ESTE metodo no MESMO save - escolhendo um agente do time por rodizio
+  # simultaneamente a conversa entrar na fila manual. Nao aparecia em log
+  # nenhum (nao e job, nao e request separada) porque roda inline dentro do
+  # mesmo `update!` da triagem. Mesma trava das demais atribuicoes
+  # automaticas: com uma automacao de fluxo ativa, o time so muda a conversa
+  # de mesa, nunca escolhe um dono sozinho.
   def find_assignee_from_team
     return if team&.allow_auto_assign.blank?
+    return if pending_flow_automation?
 
     team_members_with_capacity = inbox.member_ids_with_assignment_capacity & team.members.ids
     ::AutoAssignment::AgentAssignmentService.new(conversation: self, allowed_agent_ids: team_members_with_capacity).find_assignee
