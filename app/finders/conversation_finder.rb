@@ -238,8 +238,15 @@ class ConversationFinder
   def conversations
     @conversations = conversations_base_query
 
-    sort_by, sort_order = SORT_OPTIONS[params[:sort_by]] || SORT_OPTIONS['last_activity_at_desc']
-    @conversations = @conversations.send(sort_by, sort_order)
+    if @assignee_type == 'queue'
+      # A aba "Na fila" sempre usa a ordem da fila (devolvidas primeiro,
+      # depois prioridade/antiguidade) - nao depende do sort_by escolhido
+      # pelo usuario, que vale pras outras abas.
+      @conversations = @conversations.sort_on_queue_position
+    else
+      sort_by, sort_order = SORT_OPTIONS[params[:sort_by]] || SORT_OPTIONS['last_activity_at_desc']
+      @conversations = @conversations.send(sort_by, sort_order)
+    end
 
     if params[:updated_within].present?
       @conversations.where('conversations.updated_at > ?', Time.zone.now - params[:updated_within].to_i.seconds)

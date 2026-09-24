@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_24_190000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_24_200000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1159,6 +1159,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_24_190000) do
     t.bigint "assignee_agent_bot_id"
     t.datetime "status_changed_at"
     t.bigint "queue_id"
+    t.datetime "requeued_at"
     t.index ["account_id", "display_id"], name: "index_conversations_on_account_id_and_display_id", unique: true
     t.index ["account_id", "id"], name: "index_conversations_on_id_and_account_id"
     t.index ["account_id", "inbox_id", "status", "assignee_id"], name: "conv_acid_inbid_stat_asgnid_idx"
@@ -1174,6 +1175,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_24_190000) do
     t.index ["inbox_id"], name: "index_conversations_on_inbox_id"
     t.index ["priority"], name: "index_conversations_on_priority"
     t.index ["queue_id"], name: "index_conversations_on_queue_id"
+    t.index ["requeued_at"], name: "index_conversations_on_requeued_at"
     t.index ["status", "account_id"], name: "index_conversations_on_status_and_account_id"
     t.index ["status", "priority"], name: "index_conversations_on_status_and_priority"
     t.index ["team_id"], name: "index_conversations_on_team_id"

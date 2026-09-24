@@ -22,6 +22,14 @@ module SortHandler
       order(generate_sql_query("(waiting_since IS NULL), waiting_since #{sort_direction.to_s.upcase}, created_at ASC"))
     end
 
+    # Aba "Na fila": conversas devolvidas por um atendente (`requeued_at`
+    # presente) sempre vem primeiro, ignorando prioridade - entre elas, a mais
+    # antiga devolvida primeiro. As demais seguem a ordem normal de
+    # prioridade/antiguidade.
+    def sort_on_queue_position(_sort_direction = :desc)
+      order(generate_sql_query('(requeued_at IS NULL) ASC, requeued_at ASC, priority DESC NULLS LAST, created_at ASC'))
+    end
+
     def last_messaged_conversations
       Message.except(:order).select(
         'DISTINCT ON (conversation_id) conversation_id, id, created_at, message_type'

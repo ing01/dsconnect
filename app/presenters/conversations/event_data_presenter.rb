@@ -18,6 +18,7 @@ class Conversations::EventDataPresenter < SimpleDelegator
       priority: priority,
       queue_id: queue_id,
       waiting_since: waiting_since.to_i,
+      requeued_at: requeued_at.to_i,
       **push_timestamps
     }
   end

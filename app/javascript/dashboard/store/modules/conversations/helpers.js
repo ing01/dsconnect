@@ -117,6 +117,7 @@ const SORT_OPTIONS = {
   waiting_since_asc: ['sortOnWaitingSince', 'asc'],
   waiting_since_desc: ['sortOnWaitingSince', 'desc'],
   priority_desc_created_at_asc: ['sortOnPriorityCreatedAt', 'desc'],
+  queue_position: ['sortOnQueuePosition', 'desc'],
 };
 const sortAscending = (valueA, valueB) => valueA - valueB;
 const sortDescending = (valueA, valueB) => valueB - valueA;
@@ -141,6 +142,27 @@ const sortConfig = {
   },
 
   sortOnPriorityCreatedAt: (a, b) => {
+    const DEFAULT_FOR_NULL = 0;
+    const p1 = CONVERSATION_PRIORITY_ORDER[a.priority] || DEFAULT_FOR_NULL;
+    const p2 = CONVERSATION_PRIORITY_ORDER[b.priority] || DEFAULT_FOR_NULL;
+    if (p1 !== p2) return p2 - p1;
+    return a.created_at - b.created_at;
+  },
+
+  // Aba "Na fila": conversas devolvidas por um atendente (`requeued_at`
+  // presente) sempre na frente, ignorando prioridade - entre elas, a mais
+  // antiga devolvida primeiro. Mesmo criterio do backend
+  // (`SortHandler#sort_on_queue_position`).
+  sortOnQueuePosition: (a, b) => {
+    const aRequeuedAt = a.requeued_at || 0;
+    const bRequeuedAt = b.requeued_at || 0;
+    if (!!aRequeuedAt !== !!bRequeuedAt) {
+      return aRequeuedAt ? -1 : 1;
+    }
+    if (aRequeuedAt && bRequeuedAt && aRequeuedAt !== bRequeuedAt) {
+      return aRequeuedAt - bRequeuedAt;
+    }
+
     const DEFAULT_FOR_NULL = 0;
     const p1 = CONVERSATION_PRIORITY_ORDER[a.priority] || DEFAULT_FOR_NULL;
     const p2 = CONVERSATION_PRIORITY_ORDER[b.priority] || DEFAULT_FOR_NULL;

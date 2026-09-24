@@ -43,6 +43,10 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
   # `FOR UPDATE SKIP LOCKED` garante que dois atendentes clicando ao mesmo
   # tempo nunca pegam a mesma conversa - quem perde a corrida so encontra a
   # fila com uma conversa a menos, nunca um erro nem duplicidade.
+  #
+  # Ordem: conversas devolvidas por um atendente (`requeued_at` presente)
+  # sempre na frente, ignorando prioridade - so depois disso prioridade e
+  # antiguidade decidem (mesmo criterio de `SortHandler#sort_on_queue_position`).
   def claim_next_conversation
     queue_ids = Current.account.queues.where(team_id: current_user.teams.ids).ids
     return if queue_ids.empty?
@@ -50,7 +54,7 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
     Conversation.transaction do
       candidate = Current.account.conversations
                          .where(queue_id: queue_ids, assignee_id: nil, status: :open)
-                         .order(Arel.sql('priority DESC NULLS LAST'), created_at: :asc)
+                         .order(Arel.sql('(requeued_at IS NULL) ASC, requeued_at ASC, priority DESC NULLS LAST, created_at ASC'))
                          .lock('FOR UPDATE SKIP LOCKED')
                          .first
       next if candidate.blank?
