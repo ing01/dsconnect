@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-message-order-fix',
+    date: '24 de setembro de 2026',
+    isoDate: '2026-09-24',
+    type: 'feature',
+    title: 'Corrige ordem de entrega das mensagens no WhatsApp',
+    description:
+      'Quando o bot mandava duas mensagens seguidas rapidamente (ex: saudação + pedido de CNPJ), elas às vezes chegavam trocadas no WhatsApp do cliente, mesmo aparecendo certas dentro do Chatwoot. Agora cada mensagem espera a anterior da mesma conversa realmente sair antes de ser despachada.',
+  },
+  {
     id: 'whatsapp-autoassign-vs-queue-fix',
     date: '24 de setembro de 2026',
     isoDate: '2026-09-24',
