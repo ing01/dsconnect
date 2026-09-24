@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'queue-requeue-priority',
+    date: '24 de setembro de 2026',
+    isoDate: '2026-09-24',
+    type: 'feature',
+    title: 'Conversa devolvida pra fila vai pra frente',
+    description:
+      'Quando um atendente desatribui uma conversa que já tinha dono, ela agora pula pro início da fila, independente da prioridade, e ganha um selo "Conversa desatribuída" no card - assim dá pra ver que ela já estava em atendimento antes. Volta ao normal assim que alguém pega a conversa de novo.',
+  },
+  {
     id: 'queue-order-lock',
     date: '24 de setembro de 2026',
     isoDate: '2026-09-24',
