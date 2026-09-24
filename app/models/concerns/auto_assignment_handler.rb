@@ -39,11 +39,15 @@ module AutoAssignmentHandler
 
   def should_run_auto_assignment?
     return false unless inbox.enable_auto_assignment?
+    # Tem que vir ANTES do atalho de resolvido/suspenso logo abaixo - sem
+    # isso, uma conversa dentro do fluxo de triagem que fosse resolvida ou
+    # suspensa furava a trava (o atalho devolvia `true` direto, sem nunca
+    # chegar a checar `pending_flow_automation?`).
+    return false if pending_flow_automation?
     # Assignment V2: Resolved/snoozed conversations still have an assignee, so bypass the
     # assignee-blank check below. The AssignmentJob needs to run to rebalance assignments.
     return true if conversation_status_changed_to_resolved_or_snoozed?
     return false if assignee_agent_bot_id.present?
-    return false if pending_flow_automation?
 
     # run only if assignee is blank or doesn't have access to inbox
     assignee.blank? || inbox.members.exclude?(assignee)
