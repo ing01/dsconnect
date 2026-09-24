@@ -23,13 +23,19 @@ class Captain::Llm::UrgencyImpactClassifierService < Llm::BaseAiService
     atrapalha a operacao do cliente. Use estes criterios:
 
     ALTA (impacto e/ou urgencia): o sistema esta fora do ar ou travado para todo
-    mundo na empresa; ou o problema envolve dinheiro (cobranca errada, pagamento,
-    nota fiscal, qualquer perda financeira).
+    mundo na empresa; ou existe um ERRO financeiro real (cobranca errada,
+    cobranca duplicada, pagamento nao reconhecido, qualquer perda de dinheiro).
+    Um pedido de rotina que envolve dinheiro sem nenhum erro - por exemplo,
+    pedir para emitir uma nota fiscal, gerar um boleto ou tirar duvida sobre
+    cobranca - NAO conta como alta so por mencionar dinheiro; so conta se algo
+    saiu errado.
 
-    BAIXA: duvida de como usar alguma funcao (o cliente nao relata erro, so nao
-    sabe fazer algo); sugestao ou pedido de melhoria (nao e um problema real);
-    afeta so uma pessoa e ela consegue continuar trabalhando de outro jeito; nada
-    no texto sugere pressa ou prazo.
+    BAIXA: duvida de como usar alguma funcao ou pedido de rotina (o cliente nao
+    relata nenhum erro, so quer que algo seja feito ou nao sabe fazer algo -
+    isto inclui pedir para emitir nota fiscal, gerar boleto, etc.); sugestao ou
+    pedido de melhoria (nao e um problema real); afeta so uma pessoa e ela
+    consegue continuar trabalhando de outro jeito; nada no texto sugere pressa
+    ou prazo.
 
     MEDIA: qualquer coisa que nao se encaixa claramente em alta ou baixa - por
     exemplo, um erro real que atrapalha o trabalho mas tem contorno, ou que afeta
