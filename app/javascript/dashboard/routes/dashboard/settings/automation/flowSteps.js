@@ -198,20 +198,8 @@ export const buildWhatsappTriageTemplate = ({
       content:
         'Olá, você está no canal de atendimento. Um momento enquanto busco suas informações.',
     },
-    next: 's2',
+    next: 's17',
     branches: {},
-  },
-  // Identifica o cliente (a Empresa) primeiro - antes de perguntar qualquer
-  // outra coisa, inclusive se ja existe um ticket aberto. Contato sem
-  // nenhuma empresa ainda (cliente novo), ou que recusa a(s) empresa(s)
-  // apresentada(s), cai no CNPJ manual (s17-s20) antes de voltar ao fluxo
-  // principal em s3.
-  {
-    id: 's2',
-    type: 'list_companies',
-    params: { save_as: 'resposta.empresa_escolhida' },
-    next: 's3',
-    branches: { no_companies: 's17', not_selected: 's17' },
   },
   {
     id: 's3',
@@ -351,10 +339,10 @@ export const buildWhatsappTriageTemplate = ({
     next: null,
     branches: {},
   },
-  // CNPJ manual (6-8): cliente novo sem empresa vinculada, ou que recusou a
-  // empresa sugerida - pede o CNPJ, localiza e confirma antes de voltar ao
-  // fluxo principal (s3, checar bloqueio). Nao encontrado (7.2): informa e
-  // encaminha para humano, nunca assume que e cliente sem validar.
+  // Identifica o cliente (a Empresa) pelo CNPJ, sempre - pede, localiza e
+  // confirma antes de seguir pro fluxo principal (s3, checar bloqueio). Nao
+  // encontrado: informa e encaminha para humano, nunca assume que e cliente
+  // sem validar.
   {
     id: 's17',
     type: 'ask',

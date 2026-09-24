@@ -250,7 +250,7 @@
       "REMOVE": "Remover etapa",
       "WIZARD": {
         "TITLE": "Modelo de triagem de atendimento",
-        "DESCRIPTION": "Responda algumas perguntas e isso monta o fluxo completo pra você - escolha WhatsApp (identifica pelo telefone) ou o widget do site (pede CNPJ, nome e e-mail). Ele identifica a empresa, checa bloqueios, verifica se já existe um ticket aberto, cria o ticket e faz uma triagem por IA - só para classificar a prioridade - antes de encaminhar para um atendente humano.",
+        "DESCRIPTION": "Responda algumas perguntas e isso monta o fluxo completo pra você - escolha WhatsApp ou o widget do site (os dois pedem CNPJ pra identificar a empresa). Ele identifica a empresa, checa bloqueios, verifica se já existe um ticket aberto, cria o ticket e faz uma triagem por IA - só para classificar a prioridade - antes de encaminhar para um atendente humano.",
         "OPEN": "Configurar com o modelo",
         "REOPEN": "Recriar com o modelo",
         "CLOSE": "Fechar",
@@ -259,7 +259,7 @@
         "REPLACE_WARNING": "Montar o modelo de novo substitui todas as etapas abaixo por uma cópia nova.",
         "REBUILD": "Recriar o fluxo",
         "STEP_CHANNEL": "Para qual canal é esse fluxo?",
-        "CHANNEL_WHATSAPP": "WhatsApp (identifica pelo número de telefone)",
+        "CHANNEL_WHATSAPP": "WhatsApp (pede CNPJ pra identificar a empresa)",
         "CHANNEL_WIDGET": "Widget do site (pede CNPJ, nome e e-mail)",
         "STEP_TEAM": "Em qual mesa de serviço os tickets devem ser criados?",
         "STEP_COLUMN": "Em qual estágio um ticket novo deve começar?",
