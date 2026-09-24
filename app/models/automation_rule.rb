@@ -67,7 +67,7 @@ class AutomationRule < ApplicationRecord
   def flow_step_types
     %w[send_message ask find_company find_contact condition create_ticket handoff
        check_company_blocked find_open_ticket_by_number find_open_ticket_for_customer
-       list_companies ai_resolve ai_triage link_contact_to_company].freeze
+       list_companies ai_resolve ai_triage link_contact_to_company check_problem_clarity].freeze
   end
 
   # Uma automacao com etapas e um fluxo; sem etapas, continua sendo a regra
