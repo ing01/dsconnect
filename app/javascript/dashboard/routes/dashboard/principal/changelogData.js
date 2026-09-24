@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'triage-flow-rewrite',
+    date: '24 de setembro de 2026',
+    isoDate: '2026-09-24',
+    type: 'feature',
+    title: 'Fluxo de triagem reescrito: mais rápido e objetivo',
+    description:
+      'O fluxo de triagem (WhatsApp e Widget) foi redesenhado do zero: só pede CNPJ, confere se a empresa está habilitada, pergunta o problema, classifica a prioridade e já encaminha pra fila certa - sem "já tem ticket aberto?" nem outras perguntas. Novo campo "Telefone de suporte" em Configurações > Tickets > Automação, usado quando a empresa não está habilitada. Precisa clicar em "Recriar o fluxo" pra receber a mudança.',
+  },
+  {
     id: 'whatsapp-message-order-fix',
     date: '24 de setembro de 2026',
     isoDate: '2026-09-24',
