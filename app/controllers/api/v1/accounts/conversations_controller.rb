@@ -178,9 +178,18 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   def handle_human_open
     @conversation.with_lock do
       @conversation.assignee_agent_bot = nil
-      @conversation.assignee = Current.user if Current.user.agent?
+      @conversation.assignee = Current.user if Current.user.agent? && !manual_queue_conversation?
       @conversation.save!
     end
+  end
+
+  # Uma conversa numa fila de distribuicao manual (ex: triagem por IA,
+  # "Suporte N1/N2") so pode ganhar dono por uma escolha explicita - abrir ou
+  # reabrir a conversa nao pode reivindicar ela sozinho, senao a fila vira
+  # decoracao: quem primeiro olhar a conversa ja fica com ela, fora de
+  # qualquer ordem.
+  def manual_queue_conversation?
+    @conversation.queue_id.present? && @conversation.queue&.manual?
   end
 
   def conversation
