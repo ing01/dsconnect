@@ -136,6 +136,8 @@ pt_BR:
   errors:
     agents:
       password_reset_not_allowed: este agente também pertence a outra conta, então a senha dele não pode ser redefinida por aqui
+    queues:
+      out_of_order_assignment: "Você não pode escolher essa conversa livremente - use \"Pegar próximo da fila\" pra pegar a próxima em ordem."
     account:
       not_authorized: Você não está autorizado a acessar esta conta
       email_limit_exceeded: O limite diário de envio de e-mails desta conta foi atingido

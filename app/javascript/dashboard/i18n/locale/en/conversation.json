@@ -456,6 +456,7 @@
     "TEAM_LABEL": "Assigned Team",
     "QUEUE_LABEL": "Queue",
     "QUEUE_NONE": "None",
+    "QUEUE_ORDER_LOCKED": "You can only pick up the next conversation in the queue, in order. Use \"Pick up next in queue\" on the \"Queue\" tab.",
     "SELECT": {
       "PLACEHOLDER": "None"
     },

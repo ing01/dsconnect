@@ -13,6 +13,7 @@ import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import ConversationFilter from 'next/filter/ConversationFilter.vue';
 import SaveCustomView from 'next/filter/SaveCustomView.vue';
 import ChatTypeTabs from './widgets/ChatTypeTabs.vue';
+import NextButton from 'dashboard/components-next/button/Button.vue';
 import DeleteCustomViews from 'dashboard/routes/dashboard/customviews/DeleteCustomViews.vue';
 import ConversationBulkActions from './widgets/conversation/conversationBulkActions/Index.vue';
 import TeleportWithDirection from 'dashboard/components-next/TeleportWithDirection.vue';
@@ -39,7 +40,12 @@ import filterQueryGenerator from '../helper/filterQueryGenerator.js';
 import languages from 'dashboard/components/widgets/conversation/advancedFilterItems/languages';
 import countries from 'shared/constants/countries';
 import { generateValuesForEditCustomViews } from 'dashboard/helper/customViewsHelper';
-import { conversationListPageURL } from '../helper/URLHelper';
+import {
+  conversationListPageURL,
+  conversationUrl,
+  frontendURL,
+} from '../helper/URLHelper';
+import QueuesAPI from 'dashboard/api/queues';
 import {
   isOnMentionsView,
   isOnParticipatingView,
@@ -78,6 +84,7 @@ const store = useStore();
 const resolveAttributesModalRef = ref(null);
 
 const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
+const isClaimingNextInQueue = ref(false);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
@@ -688,6 +695,34 @@ function openLastItemAfterDeleteInFolder() {
   }
 }
 
+// "Pegar próximo da fila": sempre a mais antiga/prioritária ainda sem dono,
+// nunca uma escolhida a mao - o backend (Queues#claim_next) e quem decide
+// qual, com trava atomica contra dois cliques ao mesmo tempo.
+async function claimNextInQueue() {
+  isClaimingNextInQueue.value = true;
+  try {
+    const {
+      data: { conversation },
+    } = await QueuesAPI.claimNext();
+
+    if (!conversation) {
+      useAlert(t('CHAT_LIST.QUEUE.CLAIM_NEXT.EMPTY'));
+      return;
+    }
+
+    fetchConversations();
+    router.push(
+      frontendURL(
+        conversationUrl({ accountId: route.params.accountId, id: conversation.display_id })
+      )
+    );
+  } catch (error) {
+    useAlert(t('CHAT_LIST.QUEUE.CLAIM_NEXT.ERROR'));
+  } finally {
+    isClaimingNextInQueue.value = false;
+  }
+}
+
 function redirectToConversationList() {
   const {
     params: { accountId, inbox_id: inboxId, label, teamId },
@@ -985,6 +1020,21 @@ watch(conversationFilters, (newVal, oldVal) => {
       is-compact
       @chat-tab-change="updateAssigneeTab"
     />
+
+    <div
+      v-if="activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.QUEUE"
+      class="flex justify-end px-4 py-2"
+    >
+      <NextButton
+        size="sm"
+        faded
+        blue
+        icon="i-lucide-arrow-right-to-line"
+        :label="$t('CHAT_LIST.QUEUE.CLAIM_NEXT.BUTTON')"
+        :is-loading="isClaimingNextInQueue"
+        @click="claimNextInQueue"
+      />
+    </div>
 
     <p
       v-if="!chatListLoading && !conversationList.length"

@@ -31,6 +31,7 @@ json.accounts do
     # availability derived from presence
     json.availability_status account_user.availability_status
     json.auto_offline account_user.auto_offline
+    json.enforce_queue_order account_user.enforce_queue_order
     json.api_and_webhooks account_user.account.feature_enabled?('api_and_webhooks')
     json.partial! 'api/v1/models/account_user', account_user: account_user if ChatwootApp.enterprise?
   end

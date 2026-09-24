@@ -397,7 +397,11 @@ Rails.application.routes.draw do
             resource :working_hours, controller: 'team_working_hours', only: [:show, :update]
           end
 
-          resources :queues, only: [:index, :create, :show, :update, :destroy]
+          resources :queues, only: [:index, :create, :show, :update, :destroy] do
+            collection do
+              post :claim_next
+            end
+          end
 
           # Chat Interno: conversa entre funcionarios, separada das
           # Conversations com clientes.

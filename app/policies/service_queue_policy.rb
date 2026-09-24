@@ -9,6 +9,13 @@ class ServiceQueuePolicy < ApplicationPolicy
     true
   end
 
+  # Pegar a proxima conversa da fila e conveniente pra qualquer atendente,
+  # travado ou nao - a trava (`enforce_queue_order`) so restringe a escolha
+  # LIVRE, nunca este caminho.
+  def claim_next?
+    true
+  end
+
   def create?
     administrator? || queue_manager? || team_manager?
   end

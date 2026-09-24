@@ -87,6 +87,10 @@
           "PLACEHOLDER": "Por favor, selecione a disponibilidade do agente",
           "ERROR": "A disponibilidade é necessária"
         },
+        "ENFORCE_QUEUE_ORDER": {
+          "LABEL": "Obrigar a pegar a próxima da fila, em ordem",
+          "HELP": "Quando ligado, este agente não escolhe livremente uma conversa da fila - só pode pegar a próxima (por prioridade, depois mais antiga) usando o botão \"Pegar próximo da fila\". Administradores nunca são afetados por isso."
+        },
         "SUBMIT": "Editar agente"
       },
       "BUTTON_TEXT": "Alterar",
