@@ -33,7 +33,11 @@ class AutoAssignment::AssignmentService
   end
 
   def unassigned_conversations(limit)
-    scope = inbox.conversations.unassigned.open
+    # Uma conversa com fila definida (ex: triagem por IA) fica pra alguem
+    # pegar manualmente na fila - a distribuicao automatica da inbox nao pode
+    # "roubar" e atribuir sozinha por cima, senao a conversa nunca aparece
+    # como disponivel "Na Fila" pra ninguem escolher.
+    scope = inbox.conversations.unassigned.open.where(queue_id: nil)
 
     # Skip stale backlog with no activity beyond the age threshold
     policy = inbox.assignment_policy
