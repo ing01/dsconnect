@@ -33,6 +33,7 @@ module Enterprise::Api::V1::AccountsSettings
       :helpdesk_default_queue_id,
       :helpdesk_queue_low_id,
       :helpdesk_queue_high_id,
+      :helpdesk_support_phone_number,
       :priority_threshold_medium_min,
       :priority_threshold_high_min,
       :whatsapp_automation_test_mode_number,

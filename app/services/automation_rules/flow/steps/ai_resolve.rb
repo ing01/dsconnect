@@ -66,8 +66,8 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     response['handoff_tool_called'] || runner.handoff_completed? || response['response'] == 'conversation_handoff'
   end
 
-  # `Captain::Llm::UrgencyImpactClassifierService` (usada pela triagem de
-  # nivel 3-5) ja guarda contra falha do LLM sozinha, devolvendo um Hash de
+  # `Captain::Llm::TriagePriorityClassifierService` (usada pela triagem) ja
+  # guarda contra falha do LLM sozinha, devolvendo um Hash de
   # erro em vez de estourar. `AgentRunnerService#generate_response` (usada
   # aqui, nivel 1-2) nao tem essa protecao - sem este rescue, qualquer erro do
   # provedor (timeout, chave invalida, resposta malformada) subia ate o

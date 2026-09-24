@@ -636,6 +636,11 @@
           "HELP": "Para onde a conversa é roteada quando a IA termina a triagem de um cliente de prioridade Alta.",
           "NONE": "Não definido"
         },
+        "SUPPORT_PHONE": {
+          "LABEL": "Telefone de suporte",
+          "HELP": "Exibido ao cliente quando a empresa não está habilitada para atendimento por este canal.",
+          "PLACEHOLDER": "Ex: (11) 4000-0000"
+        },
         "QUEUE_LOW": {
           "LABEL": "Fila para prioridade Baixa/Média",
           "HELP": "Para onde vai a conversa quando a IA classifica a prioridade como Baixa ou Média.",

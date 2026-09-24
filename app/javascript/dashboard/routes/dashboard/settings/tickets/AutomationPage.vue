@@ -42,6 +42,7 @@ const level3to5TeamId = ref(null);
 const defaultQueueId = ref(null);
 const queueLowId = ref(null);
 const queueHighId = ref(null);
+const supportPhoneNumber = ref('');
 const priorityThresholdMediumMin = ref(null);
 const priorityThresholdHighMin = ref(null);
 const whatsappAutomationTestModeNumber = ref('');
@@ -75,6 +76,7 @@ watch(
     defaultQueueId.value = settings.helpdesk_default_queue_id ?? null;
     queueLowId.value = settings.helpdesk_queue_low_id ?? null;
     queueHighId.value = settings.helpdesk_queue_high_id ?? null;
+    supportPhoneNumber.value = settings.helpdesk_support_phone_number || '';
     priorityThresholdMediumMin.value =
       settings.priority_threshold_medium_min ?? null;
     priorityThresholdHighMin.value =
@@ -157,6 +159,7 @@ const saveSettings = async () => {
         helpdesk_default_queue_id: defaultQueueId.value || null,
         helpdesk_queue_low_id: queueLowId.value || null,
         helpdesk_queue_high_id: queueHighId.value || null,
+        helpdesk_support_phone_number: supportPhoneNumber.value.trim() || null,
         priority_threshold_medium_min: priorityThresholdMediumMin.value || null,
         priority_threshold_high_min: priorityThresholdHighMin.value || null,
         whatsapp_automation_test_mode_number:
@@ -601,6 +604,20 @@ const handleRecalculatePriorities = async () => {
                   {{ queue.name }}
                 </option>
               </select>
+            </WithLabel>
+          </div>
+
+          <div class="flex flex-col gap-2 px-5 py-4">
+            <WithLabel
+              :label="t('TICKET.SETTINGS.AUTOMATION.SUPPORT_PHONE.LABEL')"
+              :help-message="t('TICKET.SETTINGS.AUTOMATION.SUPPORT_PHONE.HELP')"
+            >
+              <input
+                v-model="supportPhoneNumber"
+                type="text"
+                class="mb-0 max-w-xs"
+                :placeholder="t('TICKET.SETTINGS.AUTOMATION.SUPPORT_PHONE.PLACEHOLDER')"
+              />
             </WithLabel>
           </div>
 

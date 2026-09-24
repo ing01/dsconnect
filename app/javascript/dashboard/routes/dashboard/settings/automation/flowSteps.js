@@ -181,10 +181,11 @@ export const buildStep = (type, steps) => {
 
 // O modelo pronto de triagem de WhatsApp: em vez de montar cada etapa a mao,
 // o admin escolhe so o que e realmente uma decisao dele (Mesa, Estagio,
-// Categoria) e este monta o resto - a mesma sequencia descrita no guia de
-// configuracao. Substitui totalmente as etapas atuais. Todo cliente, de
-// qualquer nivel, passa so pela triagem por IA (nunca uma etapa tenta
-// resolver o problema sozinha - so classifica e encaminha pra humano).
+// Categoria) e este monta o resto. Triagem rapida e objetiva (pedido da
+// Ingrid, revisao completa do fluxo): so CNPJ, confere habilitacao, pergunta
+// o problema, classifica e encaminha - sem "ja tem ticket aberto?" nem
+// nenhuma outra pergunta alem do minimo necessario. A IA nunca tenta
+// resolver, so classifica e encaminha pra humano.
 export const buildWhatsappTriageTemplate = ({
   teamId,
   ticketColumnId,
@@ -193,215 +194,10 @@ export const buildWhatsappTriageTemplate = ({
 }) => [
   {
     id: 's1',
-    type: 'send_message',
-    params: {
-      content:
-        'Olá, você está no canal de atendimento. Um momento enquanto busco suas informações.',
-    },
-    next: 's17',
-    branches: {},
-  },
-  {
-    id: 's3',
-    type: 'check_company_blocked',
-    params: {},
-    next: 's5',
-    branches: { blocked: 's4' },
-  },
-  {
-    id: 's4',
-    type: 'handoff',
-    params: {
-      content:
-        'Não conseguimos continuar esse atendimento por aqui. Vou te transferir para um atendente.',
-      reason: 'empresa_bloqueada',
-    },
-    next: null,
-    branches: {},
-  },
-  {
-    id: 's5',
     type: 'ask',
     params: {
       content:
-        'Você já possui um ticket aberto para esse atendimento? Responda sim ou não.',
-      save_as: 'resposta.tem_ticket',
-      answer_type: 'text',
-    },
-    next: 's6',
-    branches: {},
-  },
-  {
-    id: 's6',
-    type: 'condition',
-    params: {
-      variable: 'resposta.tem_ticket',
-      operator: 'contains',
-      value: 'sim',
-    },
-    next: null,
-    branches: { true: 's7', false: 's21' },
-  },
-  {
-    id: 's7',
-    type: 'ask',
-    params: {
-      content: 'Certo. Por favor, informe o número do ticket.',
-      save_as: 'resposta.numero_ticket',
-      answer_type: 'ticket_number',
-      retry_message: 'Não consegui reconhecer esse número. Pode enviar de novo?',
-    },
-    next: 's8',
-    branches: {},
-  },
-  // Ticket valido (10.1): vincula e encaminha IMEDIATAMENTE para humano - a
-  // IA nunca continua tentando resolver quando ja existe um ticket aberto.
-  // Nao encontrado (10.2) e de outro cliente/empresa (10.4) avisam o motivo
-  // e seguem o fluxo normal (nao criam ticket aqui - so mais adiante, se
-  // for o caso).
-  {
-    id: 's8',
-    type: 'find_open_ticket_by_number',
-    params: { number_from: 'resposta.numero_ticket' },
-    next: 's11',
-    branches: { not_found: 's9', not_owned: 's10' },
-  },
-  {
-    id: 's9',
-    type: 'send_message',
-    params: { content: 'Não consegui localizar o ticket informado.' },
-    next: 's21',
-    branches: {},
-  },
-  {
-    id: 's10',
-    type: 'send_message',
-    params: {
-      content:
-        'Esse ticket não pôde ser associado ao seu atendimento atual. Vou continuar normalmente.',
-    },
-    next: 's21',
-    branches: {},
-  },
-  {
-    id: 's11',
-    type: 'handoff',
-    params: {
-      content:
-        'Perfeito. Localizei o ticket #{{ticket.numero}}. Vou encaminhar seu atendimento para a equipe responsável dar continuidade.',
-      reason: 'ticket_existente',
-    },
-    next: null,
-    branches: {},
-  },
-  // Sem ticket aberto (11): sempre um atendimento novo - nao ha nenhuma
-  // busca por ticket existente sem o cliente informar o numero (pedido
-  // explicito: "quando e conversa nova, sempre um novo ticket"; dedup
-  // automatico por contato+empresa+mesa reaproveitava tickets antigos de
-  // teste mesmo para clientes diferentes, o que nao e' o comportamento
-  // desejado). O ticket em si so e criado em s14, sempre - todo cliente, de
-  // qualquer nivel, segue o mesmo caminho ate a triagem por IA (s15).
-  //
-  // Antes da triagem (s15), o cliente ainda so respondeu perguntas de
-  // identificacao (empresa, ticket) - nunca disse o que precisa. Perguntar
-  // aqui garante que sempre existe uma descricao real do problema no
-  // historico antes da IA classificar a prioridade.
-  {
-    id: 's21',
-    type: 'ask',
-    params: {
-      content:
-        'Certo! Agora me conta: o que está acontecendo? Pode descrever o problema com o máximo de detalhes possível.',
-      save_as: 'resposta.problema',
-      answer_type: 'text',
-    },
-    next: 's14',
-    branches: {},
-  },
-  {
-    id: 's14',
-    type: 'create_ticket',
-    params: {
-      title: '{{empresa.nome}} | {{contato.nome}}',
-      description: 'Atendimento aberto pelo fluxo automático de WhatsApp.',
-      team_id: triageTeamId || teamId,
-      ticket_column_id: ticketColumnId,
-      ticket_category_id: ticketCategoryId,
-      priority: 'medium',
-    },
-    next: 's15',
-    branches: {},
-  },
-  {
-    id: 's15',
-    type: 'ai_triage',
-    params: { team_id: triageTeamId || '' },
-    next: null,
-    branches: {},
-  },
-  // Identifica o cliente (a Empresa) pelo CNPJ, sempre - pede, localiza e
-  // confirma antes de seguir pro fluxo principal (s3, checar bloqueio). Nao
-  // encontrado: informa e encaminha para humano, nunca assume que e cliente
-  // sem validar.
-  {
-    id: 's17',
-    type: 'ask',
-    params: {
-      content: 'Certo. Por favor, informe o CNPJ da empresa sobre a qual você deseja falar.',
-      save_as: 'resposta.cnpj',
-      answer_type: 'cnpj',
-      retry_message: 'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
-    },
-    next: 's18',
-    branches: {},
-  },
-  {
-    id: 's18',
-    type: 'find_company',
-    params: { cnpj_from: 'resposta.cnpj' },
-    next: 's20',
-    branches: { not_found: 's19' },
-  },
-  {
-    id: 's19',
-    type: 'handoff',
-    params: {
-      content:
-        'Não encontrei o CNPJ informado entre nossos clientes. Vou transferir você para um atendente.',
-      reason: 'cnpj_nao_encontrado',
-    },
-    next: null,
-    branches: {},
-  },
-  {
-    id: 's20',
-    type: 'send_message',
-    params: {
-      content:
-        'Encontrei a empresa {{empresa.nome}}, CNPJ {{empresa.cnpj}}. Vamos prosseguir com o atendimento referente a ela.',
-    },
-    next: 's3',
-    branches: {},
-  },
-];
-
-// O modelo pronto de triagem do Widget: sem telefone para identificar o
-// cliente automaticamente, a ordem se inverte em relacao ao WhatsApp - CNPJ
-// primeiro, depois nome/e-mail (reaproveitados se o Widget/pre-chat ja
-// souber), so entao ticket e triagem. Todo cliente, de qualquer nivel, passa
-// so pela triagem por IA (nunca uma etapa tenta resolver o problema sozinha).
-export const buildWidgetTriageTemplate = ({
-  teamId,
-  ticketColumnId,
-  ticketCategoryId,
-  triageTeamId,
-}) => [
-  {
-    id: 's1',
-    type: 'ask',
-    params: {
-      content:
-        'Olá! Para começarmos, preciso identificar a empresa que você representa. Informe o CNPJ da empresa.',
+        'Olá! Você está no atendimento da Duesoft.\n\nPara começarmos, me informe o CNPJ da empresa.',
       save_as: 'resposta.cnpj',
       answer_type: 'cnpj',
       retry_message: 'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
@@ -413,47 +209,120 @@ export const buildWidgetTriageTemplate = ({
     id: 's2',
     type: 'find_company',
     params: { cnpj_from: 'resposta.cnpj' },
-    next: 's4',
-    branches: { not_found: 's3' },
+    next: 's3',
+    branches: { not_found: 's6' },
   },
   {
     id: 's3',
-    type: 'handoff',
-    params: {
-      content: 'Não encontrei o CNPJ informado entre nossos clientes.',
-      reason: 'cnpj_nao_encontrado',
-    },
-    next: null,
-    branches: {},
+    type: 'check_company_blocked',
+    params: {},
+    next: 's4',
+    branches: { blocked: 's5' },
   },
   {
     id: 's4',
-    type: 'check_company_blocked',
-    params: {},
-    next: 's6',
-    branches: { blocked: 's5' },
+    type: 'ask',
+    params: {
+      content:
+        'Perfeito! Encontrei o CNPJ {{empresa.cnpj}} vinculado à empresa *{{empresa.nome}}*.\n\nO que está acontecendo?',
+      save_as: 'resposta.problema',
+      answer_type: 'text',
+    },
+    next: 's7',
+    branches: {},
   },
   {
     id: 's5',
     type: 'handoff',
     params: {
       content:
-        'Não conseguimos continuar esse atendimento por aqui. Vou te transferir para um atendente.',
+        'No momento, a empresa *{{empresa.nome}}* não está habilitada para atendimento por este canal.\n\nPara verificar a situação e obter orientações, entre em contato conosco pelo telefone {{conta.telefone_suporte}}.',
       reason: 'empresa_bloqueada',
     },
     next: null,
     branches: {},
   },
-  // Nome e e-mail: so pergunta o que o Widget/pre-chat ainda nao sabe.
   {
     id: 's6',
-    type: 'condition',
-    params: { variable: 'contato.nome', operator: 'is_present' },
+    type: 'handoff',
+    params: {
+      content:
+        'Não localizei esse CNPJ em nossa base.\n\nVou encaminhar você para o atendimento para que nossa equipe possa verificar.',
+      reason: 'cnpj_nao_encontrado',
+    },
     next: null,
-    branches: { true: 's8', false: 's7' },
+    branches: {},
   },
   {
     id: 's7',
+    type: 'create_ticket',
+    params: {
+      title: '{{empresa.nome}} | {{contato.nome}}',
+      description: 'Atendimento aberto pelo fluxo automático de WhatsApp.',
+      team_id: triageTeamId || teamId,
+      ticket_column_id: ticketColumnId,
+      ticket_category_id: ticketCategoryId,
+      priority: 'medium',
+    },
+    next: 's8',
+    branches: {},
+  },
+  {
+    id: 's8',
+    type: 'ai_triage',
+    params: { team_id: triageTeamId || '' },
+    next: null,
+    branches: {},
+  },
+];
+
+// O modelo pronto de triagem do Widget: mesma espinha dorsal do WhatsApp
+// (CNPJ - habilitacao - problema - classificacao - fila), so que aqui, sem
+// telefone pra identificar quem esta escrevendo, ainda pergunta nome/e-mail
+// (so o que o pre-chat do Widget nao trouxer) antes da pergunta do problema.
+export const buildWidgetTriageTemplate = ({
+  teamId,
+  ticketColumnId,
+  ticketCategoryId,
+  triageTeamId,
+}) => [
+  {
+    id: 's1',
+    type: 'ask',
+    params: {
+      content:
+        'Olá! Você está no atendimento da Duesoft.\n\nPara começarmos, me informe o CNPJ da empresa.',
+      save_as: 'resposta.cnpj',
+      answer_type: 'cnpj',
+      retry_message: 'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
+    },
+    next: 's2',
+    branches: {},
+  },
+  {
+    id: 's2',
+    type: 'find_company',
+    params: { cnpj_from: 'resposta.cnpj' },
+    next: 's3',
+    branches: { not_found: 's12' },
+  },
+  {
+    id: 's3',
+    type: 'check_company_blocked',
+    params: {},
+    next: 's4',
+    branches: { blocked: 's13' },
+  },
+  // Nome e e-mail: so pergunta o que o Widget/pre-chat ainda nao sabe.
+  {
+    id: 's4',
+    type: 'condition',
+    params: { variable: 'contato.nome', operator: 'is_present' },
+    next: null,
+    branches: { true: 's6', false: 's5' },
+  },
+  {
+    id: 's5',
     type: 'ask',
     params: {
       content:
@@ -461,22 +330,41 @@ export const buildWidgetTriageTemplate = ({
       save_as: 'resposta.nome',
       answer_type: 'text',
     },
+    next: 's6',
+    branches: {},
+  },
+  {
+    id: 's6',
+    type: 'condition',
+    params: { variable: 'contato.email', operator: 'is_present' },
+    next: null,
+    branches: { true: 's8', false: 's7' },
+  },
+  {
+    id: 's7',
+    type: 'ask',
+    params: {
+      content: 'Qual é o seu e-mail?',
+      save_as: 'resposta.email',
+      answer_type: 'text',
+    },
     next: 's8',
     branches: {},
   },
   {
     id: 's8',
-    type: 'condition',
-    params: { variable: 'contato.email', operator: 'is_present' },
-    next: null,
-    branches: { true: 's10', false: 's9' },
+    type: 'link_contact_to_company',
+    params: {},
+    next: 's9',
+    branches: { inconsistent: 's14' },
   },
   {
     id: 's9',
     type: 'ask',
     params: {
-      content: 'Qual é o seu e-mail?',
-      save_as: 'resposta.email',
+      content:
+        'Perfeito! Encontrei o CNPJ {{empresa.cnpj}} vinculado à empresa *{{empresa.nome}}*.\n\nO que está acontecendo?',
+      save_as: 'resposta.problema',
       answer_type: 'text',
     },
     next: 's10',
@@ -484,118 +372,55 @@ export const buildWidgetTriageTemplate = ({
   },
   {
     id: 's10',
-    type: 'link_contact_to_company',
-    params: {},
-    next: 's12',
-    branches: { inconsistent: 's11' },
+    type: 'create_ticket',
+    params: {
+      title: '{{empresa.nome}} | {{contato.nome}}',
+      description: 'Atendimento aberto pelo fluxo automático do Widget.',
+      team_id: triageTeamId || teamId,
+      ticket_column_id: ticketColumnId,
+      ticket_category_id: ticketCategoryId,
+      priority: 'medium',
+    },
+    next: 's11',
+    branches: {},
   },
   {
     id: 's11',
+    type: 'ai_triage',
+    params: { team_id: triageTeamId || '' },
+    next: null,
+    branches: {},
+  },
+  {
+    id: 's12',
+    type: 'handoff',
+    params: {
+      content:
+        'Não localizei esse CNPJ em nossa base.\n\nVou encaminhar você para o atendimento para que nossa equipe possa verificar.',
+      reason: 'cnpj_nao_encontrado',
+    },
+    next: null,
+    branches: {},
+  },
+  {
+    id: 's13',
+    type: 'handoff',
+    params: {
+      content:
+        'No momento, a empresa *{{empresa.nome}}* não está habilitada para atendimento por este canal.\n\nPara verificar a situação e obter orientações, entre em contato conosco pelo telefone {{conta.telefone_suporte}}.',
+      reason: 'empresa_bloqueada',
+    },
+    next: null,
+    branches: {},
+  },
+  {
+    id: 's14',
     type: 'handoff',
     params: {
       content:
         'Para continuar, preciso confirmar alguns dados com um de nossos atendentes.',
       reason: 'informacoes_inconsistentes',
     },
-    next: null,
-    branches: {},
-  },
-  {
-    id: 's12',
-    type: 'ask',
-    params: {
-      content: 'Você já possui um ticket aberto para esse atendimento?',
-      save_as: 'resposta.tem_ticket',
-      answer_type: 'text',
-    },
-    next: 's13',
-    branches: {},
-  },
-  {
-    id: 's13',
-    type: 'condition',
-    params: {
-      variable: 'resposta.tem_ticket',
-      operator: 'contains',
-      value: 'sim',
-    },
-    next: null,
-    branches: { true: 's14', false: 's22' },
-  },
-  {
-    id: 's14',
-    type: 'ask',
-    params: {
-      content:
-        'Certo. Informe o número do ticket para que eu possa localizar seu atendimento.',
-      save_as: 'resposta.numero_ticket',
-      answer_type: 'ticket_number',
-      retry_message: 'Não consegui reconhecer esse número. Pode enviar de novo?',
-    },
-    next: 's15',
-    branches: {},
-  },
-  {
-    id: 's15',
-    type: 'find_open_ticket_by_number',
-    params: { number_from: 'resposta.numero_ticket' },
-    next: 's17',
-    branches: { not_found: 's16', not_owned: 's16' },
-  },
-  {
-    id: 's16',
-    type: 'send_message',
-    params: { content: 'Não consegui localizar o ticket informado.' },
-    next: 's22',
-    branches: {},
-  },
-  {
-    id: 's17',
-    type: 'handoff',
-    params: {
-      content:
-        'Perfeito! Localizei o ticket #{{ticket.numero}}. Vou encaminhar seu atendimento para a equipe responsável dar continuidade.',
-      reason: 'ticket_existente',
-    },
-    next: null,
-    branches: {},
-  },
-  // Antes da triagem por IA, o cliente so respondeu perguntas de
-  // identificacao - nunca disse o que precisa. Sem perguntar aqui, a IA
-  // recebia um historico sem nenhum problema declarado - ver o mesmo ajuste
-  // no modelo do WhatsApp.
-  {
-    id: 's22',
-    type: 'ask',
-    params: {
-      content:
-        'Certo! Agora me conta: o que está acontecendo? Pode descrever o problema com o máximo de detalhes possível.',
-      save_as: 'resposta.problema',
-      answer_type: 'text',
-    },
-    next: 's20',
-    branches: {},
-  },
-  // Sem ticket (ou informado nao encontrado): todo cliente, de qualquer
-  // nivel, segue o mesmo caminho ate a triagem por IA (s21).
-  {
-    id: 's20',
-    type: 'create_ticket',
-    params: {
-      title: '{{empresa.nome}} | {{contato.nome}}',
-      description: 'Atendimento aberto pelo fluxo automático do Widget.',
-      team_id: teamId,
-      ticket_column_id: ticketColumnId,
-      ticket_category_id: ticketCategoryId,
-      priority: 'medium',
-    },
-    next: 's21',
-    branches: {},
-  },
-  {
-    id: 's21',
-    type: 'ai_triage',
-    params: { team_id: triageTeamId || '' },
     next: null,
     branches: {},
   },

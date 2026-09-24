@@ -1,13 +1,15 @@
-# Niveis 3-5: a IA so faz triagem, nunca tenta resolver. Uma unica chamada
-# classifica urgencia/impacto, a prioridade sai de `Tickets::HelpdeskPriority`
-# (determinado pelo backend, nao pela IA), o resumo fica gravado no Ticket
-# para quem for atender, e a Conversation e roteada para o time humano - esta
-# etapa sempre termina em handoff, nunca segue para uma proxima.
+# A IA so faz triagem, nunca tenta resolver. Uma unica chamada classifica o
+# problema numa faixa de prioridade, o resultado final sai de
+# `Tickets::HelpdeskPriority` (determinado pelo backend, nao pela IA - combina
+# com o nivel do cliente), o resumo fica gravado no Ticket para quem for
+# atender, e a Conversation e roteada para o time humano - esta etapa sempre
+# termina em handoff, nunca segue para uma proxima.
 class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Base
   include AutomationRules::Flow::Steps::Concerns::TicketBuilder
   include AutomationRules::Flow::Steps::Concerns::HumanRouting
 
   TRANSCRIPT_MESSAGE_LIMIT = 20
+  PRIORITY_LABELS = { 'low' => 'BAIXA', 'medium' => 'MÉDIA', 'high' => 'ALTA', 'urgent' => 'ALTA' }.freeze
 
   def perform
     pre_existing = run.ticket.present?
@@ -19,7 +21,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
 
     ticket.update!(priority: priority, custom_attributes: (ticket.custom_attributes || {}).merge(triage_summary(ticket, classification)))
     route_conversation_to_humans(priority)
-    post_handoff_message!
+    post_handoff_message!(priority)
     post_ticket_reference!(ticket, pre_existing: pre_existing)
 
     handoff(result: summary_result(classification, priority))
@@ -30,8 +32,13 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
   # Sem isso o cliente nao sabe que o atendimento foi entendido e passado
   # adiante - a etapa so mexia em dados internos (ticket, prioridade, time),
   # nunca respondia de verdade na conversa.
-  def post_handoff_message!
-    content = rendered(:content).presence || I18n.t('automations.flow.ai_triage.default_handoff_message')
+  #
+  # Grava a prioridade como variavel resolvivel ANTES de renderizar o
+  # `content` - permite usar `{{triagem.prioridade}}` na mensagem, do mesmo
+  # jeito que `{{empresa.nome}}` ja funciona hoje.
+  def post_handoff_message!(priority)
+    run.write_variable('triagem.prioridade', PRIORITY_LABELS.fetch(priority, priority.to_s.upcase))
+    content = rendered(:content).presence || I18n.t('automations.flow.ai_triage.default_handoff_message', prioridade: run.read_variable('triagem.prioridade'))
     say(content)
     conversation.bot_handoff!(dispatch_event: false)
   end
@@ -45,7 +52,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
   end
 
   def classify
-    Captain::Llm::UrgencyImpactClassifierService.new(conversation: conversation).classify(transcript: transcript)
+    Captain::Llm::TriagePriorityClassifierService.new(conversation: conversation).classify(transcript: transcript)
   end
 
   # Falha da IA nunca trava o fluxo: cai na prioridade padrao configuravel
@@ -56,8 +63,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
 
     Tickets::HelpdeskPriority.ticket_priority_for(
       client_level: run.read_variable('empresa.nivel'),
-      urgencia: classification['urgencia'],
-      impacto: classification['impacto']
+      problema: classification['prioridade']
     )
   end
 
@@ -87,7 +93,7 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
 
   def summary_result(classification, priority)
     {
-      urgencia: classification['urgencia'], impacto: classification['impacto'],
+      prioridade: classification['prioridade'],
       priority: priority, model: classification['model'], ai_error: classification['error']
     }.compact
   end

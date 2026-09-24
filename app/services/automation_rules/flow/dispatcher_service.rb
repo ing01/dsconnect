@@ -43,6 +43,7 @@ class AutomationRules::Flow::DispatcherService
         conversation: conversation, status: :running
       )
       seed_known_contact(run, conversation)
+      seed_account_settings(run, conversation)
       AutomationRules::Flow::RunnerService.new(run: run).perform
       true
     rescue ActiveRecord::RecordNotUnique
@@ -103,6 +104,14 @@ class AutomationRules::Flow::DispatcherService
       run.write_variable('contato.id', contact.id)
       run.write_variable('contato.nome', contact.name)
       run.write_variable('contato.email', contact.email)
+    end
+
+    # `{{conta.telefone_suporte}}` fica disponivel pra qualquer mensagem do
+    # fluxo (ex: empresa bloqueada) - lido de novo a cada execucao, nunca
+    # gravado no modelo do fluxo, entao mudar a configuracao vale para a
+    # proxima conversa sem precisar "recriar o fluxo".
+    def seed_account_settings(run, conversation)
+      run.write_variable('conta.telefone_suporte', conversation.account.helpdesk_support_phone_number)
     end
   end
 end

@@ -636,6 +636,11 @@
           "HELP": "Where the conversation is routed once the AI finishes triaging a High priority client.",
           "NONE": "Not set"
         },
+        "SUPPORT_PHONE": {
+          "LABEL": "Support phone number",
+          "HELP": "Shown to the customer when the company isn't enabled for support on this channel.",
+          "PLACEHOLDER": "E.g.: (11) 4000-0000"
+        },
         "QUEUE_LOW": {
           "LABEL": "Queue for Low/Medium priority",
           "HELP": "Where the conversation goes when the AI classifies priority as Low or Medium.",

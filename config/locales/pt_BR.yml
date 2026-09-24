@@ -123,7 +123,7 @@ pt_BR:
       ai_resolve:
         error_message: "Vou te transferir para um atendente para continuar seu atendimento."
       ai_triage:
-        default_handoff_message: "Obrigado pelas informações! Vou encaminhar seu atendimento para a nossa equipe de suporte, que vai continuar por aqui."
+        default_handoff_message: "Obrigado pelas informações!\n\nSeu chamado foi classificado com prioridade %{prioridade}.\n\nEm breve, um de nossos atendentes irá assumir a conversa e dar continuidade ao seu atendimento."
       ticket_reference:
         created: "Seu atendimento foi registrado no ticket #%{numero}."
         existing: "Seu atendimento continuará no ticket #%{numero}."

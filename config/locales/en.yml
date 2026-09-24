@@ -129,7 +129,7 @@ en:
       ai_resolve:
         error_message: "I'll transfer you to an agent to continue your request."
       ai_triage:
-        default_handoff_message: "Thanks for the details! I'll transfer your request to our support team, who will take it from here."
+        default_handoff_message: "Thanks for the details!\n\nYour request has been classified with %{prioridade} priority.\n\nOne of our agents will pick up the conversation shortly."
       ticket_reference:
         created: "Your request has been registered as ticket #%{numero}."
         existing: "Your request will continue under ticket #%{numero}."
