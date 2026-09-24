@@ -188,8 +188,18 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   # reabrir a conversa nao pode reivindicar ela sozinho, senao a fila vira
   # decoracao: quem primeiro olhar a conversa ja fica com ela, fora de
   # qualquer ordem.
+  #
+  # `queue_id` sozinho nao bastava: um agente pode abrir a conversa ENQUANTO
+  # a triagem ainda esta rodando, antes dela definir a fila - nesse instante
+  # `queue_id` ainda esta em branco, e o assignee gravado aqui nao e mais
+  # desfeito depois (o roteamento so seta time/fila/prioridade, nunca limpa
+  # o assignee). Mesma corrida ja corrigida em
+  # `AutoAssignmentHandler#pending_flow_automation?` - aqui repetida porque e
+  # um controller, nao o mesmo modulo.
   def manual_queue_conversation?
-    @conversation.queue_id.present? && @conversation.queue&.manual?
+    return true if @conversation.queue_id.present? && @conversation.queue&.manual?
+
+    @conversation.account.automation_rules.where(active: true).any?(&:flow?)
   end
 
   def conversation
