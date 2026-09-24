@@ -31,6 +31,8 @@ module Enterprise::Api::V1::AccountsSettings
       :helpdesk_open_ticket_window_days,
       :helpdesk_level_3to5_team_id,
       :helpdesk_default_queue_id,
+      :helpdesk_queue_low_id,
+      :helpdesk_queue_high_id,
       :priority_threshold_medium_min,
       :priority_threshold_high_min,
       :whatsapp_automation_test_mode_number,
