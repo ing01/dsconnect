@@ -1,13 +1,16 @@
 # Uma unica chamada estruturada ao LLM - nao um agente com ferramentas - para
-# classificar urgencia/impacto de um atendimento de nivel 3-5. So interpreta;
-# quem decide a prioridade final e o `Tickets::HelpdeskPriority`, com base
-# nesta classificacao mais o nivel do cliente (a IA nunca define prioridade
-# sozinha, so descreve o problema em termos que o backend consegue validar).
+# classificar urgencia/impacto de um atendimento, de qualquer nivel de
+# cliente. So interpreta; quem decide a prioridade final e o
+# `Tickets::HelpdeskPriority`, com base nesta classificacao mais o nivel do
+# cliente (a IA nunca define prioridade sozinha, so descreve o problema em
+# termos que o backend consegue validar).
 class Captain::Llm::UrgencyImpactClassifierService < Llm::BaseAiService
   include Integrations::LlmInstrumentation
 
   LEVELS = %w[baixa media alta].freeze
 
+  # Criterios definidos pela Ingrid (conta DSConnect) - nao inventar novos
+  # criterios nem extrapolar alem do que foi combinado com ela.
   SYSTEM_PROMPT = <<~PROMPT.freeze
     Voce e um classificador de triagem de suporte tecnico. A partir da transcricao
     de uma conversa com um cliente, responda SOMENTE com um objeto JSON, sem nenhum
@@ -15,8 +18,28 @@ class Captain::Llm::UrgencyImpactClassifierService < Llm::BaseAiService
     {"urgencia": "baixa" | "media" | "alta", "impacto": "baixa" | "media" | "alta",
      "resumo_problema": "resumo objetivo do problema relatado",
      "acao_sugerida": "proximo passo sugerido para quem for atender"}
+
     "urgencia" e o quao rapido isto precisa ser tratado. "impacto" e o quanto isto
-    atrapalha a operacao do cliente. Nunca invente informacao que a conversa nao deu.
+    atrapalha a operacao do cliente. Use estes criterios:
+
+    ALTA (impacto e/ou urgencia): o sistema esta fora do ar ou travado para todo
+    mundo na empresa; ou o problema envolve dinheiro (cobranca errada, pagamento,
+    nota fiscal, qualquer perda financeira).
+
+    BAIXA: duvida de como usar alguma funcao (o cliente nao relata erro, so nao
+    sabe fazer algo); sugestao ou pedido de melhoria (nao e um problema real);
+    afeta so uma pessoa e ela consegue continuar trabalhando de outro jeito; nada
+    no texto sugere pressa ou prazo.
+
+    MEDIA: qualquer coisa que nao se encaixa claramente em alta ou baixa - por
+    exemplo, um erro real que atrapalha o trabalho mas tem contorno, ou que afeta
+    um grupo de pessoas sem travar a empresa inteira, sem envolver dinheiro e sem
+    parar tudo.
+
+    O nivel do cliente ja e considerado separadamente pelo sistema depois desta
+    classificacao - nao tente adivinhar ou usar isso aqui, julgue so pelo que a
+    conversa realmente diz sobre o problema. Nunca invente informacao que a
+    conversa nao deu.
   PROMPT
 
   def initialize(conversation:)
