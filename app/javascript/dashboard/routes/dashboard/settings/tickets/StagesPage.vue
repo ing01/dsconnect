@@ -182,8 +182,16 @@ onBeforeMount(async () => {
           >
             <template #default>
               <BaseTableCell>
-                <span class="text-body-main text-n-slate-12">
-                  {{ stage.name }}
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="text-body-main text-n-slate-12">
+                    {{ stage.name }}
+                  </span>
+                  <span
+                    v-if="stage.hidden"
+                    class="text-xxs font-medium text-n-slate-11 bg-n-slate-4 rounded-full px-1.5 py-0.5"
+                  >
+                    {{ $t('TICKET.SETTINGS.FORM.HIDDEN.BADGE') }}
+                  </span>
                 </span>
               </BaseTableCell>
 

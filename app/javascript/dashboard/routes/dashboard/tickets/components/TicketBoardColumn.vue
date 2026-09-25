@@ -171,6 +171,7 @@ export default {
             v-show="isVisible(element)"
             :ticket="element"
             :agents="agents"
+            :is-completed="column.kind === 'completed'"
             @click="$emit('openTicket', element)"
             @menu-action="$emit('menuAction', $event)"
           />

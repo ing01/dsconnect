@@ -10,9 +10,12 @@ class TicketColumn < ApplicationRecord
 
   # `pending` and `completed` mark the mandatory "Pendente"/"Finalizado"
   # Estagios of a Mesa's Kanban: `pending` is where Projects::CreateTicketsService
-  # lands new project tickets, `completed` is hidden from the board by default
-  # (see TicketBoard.vue). `normal` is every other Estagio - a Mesa can have as
-  # many of those as it wants, but at most one of each required kind.
+  # lands new project tickets, `completed` is just the required "done" slot -
+  # neither is hidden from the board because of its kind anymore. `hidden` (a
+  # separate column) is what controls board visibility for ANY Estagio, kind
+  # included (see TicketBoard.vue). `normal` is every other Estagio - a Mesa
+  # can have as many of those as it wants, but at most one of each required
+  # kind.
   KINDS = %w[normal pending completed].freeze
 
   validates :name, presence: true
@@ -51,6 +54,7 @@ class TicketColumn < ApplicationRecord
       team_id: team_id,
       stage_threshold: stage_threshold,
       kind: kind,
+      hidden: hidden,
       require_due_date: require_due_date,
       require_scheduled_at: require_scheduled_at,
       require_appointment: require_appointment,
@@ -76,7 +80,7 @@ class TicketColumn < ApplicationRecord
 
   # Pendente/Finalizado are mandatory Estagios of a Mesa's Kanban - deleting
   # either would silently break Projects::CreateTicketsService (no `pending`
-  # target left) and the "hidden by default" behaviour of Finalizado.
+  # target left) or leave tickets with no "done" slot to land in.
   def ensure_not_required_kind
     return if kind == 'normal'
 

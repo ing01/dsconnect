@@ -35,6 +35,7 @@ export default {
       position: this.stageCount,
       stageThreshold: '',
       kind: 'normal',
+      hidden: false,
       requireDueDate: false,
       requireScheduledAt: false,
       requireAppointment: false,
@@ -70,6 +71,7 @@ export default {
           position: this.position,
           stage_threshold: hoursMinutesToSeconds(this.stageThreshold),
           kind: this.kind,
+          hidden: this.hidden,
           require_due_date: this.requireDueDate,
           require_scheduled_at: this.requireScheduledAt,
           require_appointment: this.requireAppointment,
@@ -162,6 +164,14 @@ export default {
           {{ $t('TICKET.SETTINGS.FORM.KIND.HINT') }}
         </p>
       </label>
+
+      <label class="flex items-center gap-2">
+        <input v-model="hidden" type="checkbox" />
+        {{ $t('TICKET.SETTINGS.FORM.HIDDEN.LABEL') }}
+      </label>
+      <p class="-mt-3 text-sm text-n-slate-11">
+        {{ $t('TICKET.SETTINGS.FORM.HIDDEN.HINT') }}
+      </p>
 
       <fieldset class="flex flex-col gap-2">
         <legend class="text-sm">

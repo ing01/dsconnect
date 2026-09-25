@@ -480,7 +480,12 @@
           "NORMAL": "Normal",
           "PENDING": "Pending",
           "COMPLETED": "Completed",
-          "HINT": "Pending and Completed are mandatory and unique per service desk. \"Pending\" receives tickets generated from a Project; \"Completed\" is hidden from the board by default."
+          "HINT": "Pending and Completed are mandatory and unique per service desk. \"Pending\" receives tickets generated from a Project."
+        },
+        "HIDDEN": {
+          "LABEL": "Hide this stage from the Kanban board",
+          "HINT": "Tickets stay in it normally - only the column doesn't show on the board. Use the detailed search to find them.",
+          "BADGE": "Hidden"
         },
         "RULES": {
           "LABEL": "Require before moving a ticket into this stage",

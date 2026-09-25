@@ -480,7 +480,12 @@
           "NORMAL": "Normal",
           "PENDING": "Pendente",
           "COMPLETED": "Finalizado",
-          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto; \"Finalizado\" fica oculto do quadro por padrão."
+          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto."
+        },
+        "HIDDEN": {
+          "LABEL": "Ocultar este estágio do quadro Kanban",
+          "HINT": "Os tickets continuam nele normalmente - só a coluna não aparece no quadro. Use a Busca detalhada para encontrá-los.",
+          "BADGE": "Oculta"
         },
         "RULES": {
           "LABEL": "Exigir antes de mover um ticket para esta coluna",
