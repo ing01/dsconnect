@@ -41,7 +41,11 @@ class TicketActivity < ApplicationRecord
     unblocked: 29,
     # Nota livre deixada por uma Automacao de Estagio (TicketColumn#automation_actions,
     # acao `post_note`) - `user` fica nulo de proposito, o autor e a automacao.
-    automation_note: 30
+    automation_note: 30,
+    # Registrado por Tickets::ImportService (Configuracoes > Tickets >
+    # Importar) - guarda o numero original e quem criou no sistema anterior,
+    # ja que o Ticket nao tem coluna propria pra nenhum dos dois.
+    imported: 31
   }
 
   def push_event_data

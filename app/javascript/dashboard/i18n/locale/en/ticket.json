@@ -170,6 +170,7 @@
       },
       "TITLES": {
         "AUTOMATION_NOTE": "Automated note",
+        "IMPORTED": "Ticket imported",
         "ASSIGNEE_CHANGED": "Ticket updated",
         "BLOCKED": "Impediment recorded",
         "CANCELLED": "Ticket cancelled",
@@ -203,6 +204,7 @@
       },
       "FIELDS": {
         "AUTOMATION_NOTE": "Note",
+        "IMPORTED": "Source",
         "ASSIGNEE_CHANGED": "Assignee",
         "BLOCKED": "Impediment reason",
         "CATEGORY_CHANGED": "Category",
@@ -730,6 +732,30 @@
           "SUCCESS": "Attendance schedule updated.",
           "ERROR": "Could not update the attendance schedule.",
           "LOAD_ERROR": "Could not load the periods already configured."
+        }
+      },
+      "IMPORT": {
+        "TITLE": "Import tickets",
+        "DESCRIPTION": "Import tickets from another system from a CSV spreadsheet.",
+        "FIELDS": {
+          "TITLE": "Spreadsheet template",
+          "DESCRIPTION": "Download the template below to see the exact expected format, with a filled-in example. Desk, Stage and Category need to already exist with those names (Category is created automatically if missing)."
+        },
+        "DOWNLOAD_TEMPLATE": "Download example template",
+        "FILE_LABEL": "CSV file",
+        "FILE_HINT": "Very large files (thousands of rows) may need to be split into smaller batches.",
+        "SUBMIT": "Import",
+        "API": {
+          "SUCCESS": "Import finished: {count} ticket(s) created.",
+          "ERROR": "Could not import the file."
+        },
+        "RESULT": {
+          "TITLE": "Import result",
+          "CREATED": "{count} ticket(s) created",
+          "SKIPPED": "{count} row(s) with errors",
+          "ERRORS_TITLE": "Errors",
+          "WARNINGS_TITLE": "Warnings",
+          "ROW_MESSAGE": "Row {row}: {message}"
         }
       }
     },

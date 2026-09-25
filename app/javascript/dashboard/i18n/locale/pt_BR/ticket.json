@@ -170,6 +170,7 @@
       },
       "TITLES": {
         "AUTOMATION_NOTE": "Nota automática",
+        "IMPORTED": "Ticket importado",
         "ASSIGNEE_CHANGED": "Ticket alterado",
         "BLOCKED": "Impedimento registrado",
         "CANCELLED": "Ticket cancelado",
@@ -203,6 +204,7 @@
       },
       "FIELDS": {
         "AUTOMATION_NOTE": "Nota",
+        "IMPORTED": "Origem",
         "ASSIGNEE_CHANGED": "Responsável",
         "BLOCKED": "Motivo do impedimento",
         "CATEGORY_CHANGED": "Categoria",
@@ -730,6 +732,30 @@
           "SUCCESS": "Configuração de atendimento atualizada.",
           "ERROR": "Não foi possível atualizar a configuração de atendimento.",
           "LOAD_ERROR": "Não foi possível carregar os horários já configurados."
+        }
+      },
+      "IMPORT": {
+        "TITLE": "Importar tickets",
+        "DESCRIPTION": "Importe tickets de outro sistema a partir de uma planilha CSV.",
+        "FIELDS": {
+          "TITLE": "Modelo da planilha",
+          "DESCRIPTION": "Baixe o modelo abaixo pra ver o formato exato esperado, com um exemplo preenchido. Time, Estágio e Categoria precisam já existir com esses nomes (Categoria é criada automaticamente se não existir)."
+        },
+        "DOWNLOAD_TEMPLATE": "Baixar modelo de exemplo",
+        "FILE_LABEL": "Arquivo CSV",
+        "FILE_HINT": "Arquivos muito grandes (milhares de linhas) podem precisar ser divididos em partes menores.",
+        "SUBMIT": "Importar",
+        "API": {
+          "SUCCESS": "Importação concluída: {count} ticket(s) criado(s).",
+          "ERROR": "Não foi possível importar o arquivo."
+        },
+        "RESULT": {
+          "TITLE": "Resultado da importação",
+          "CREATED": "{count} ticket(s) criado(s)",
+          "SKIPPED": "{count} linha(s) com erro",
+          "ERRORS_TITLE": "Erros",
+          "WARNINGS_TITLE": "Avisos",
+          "ROW_MESSAGE": "Linha {row}: {message}"
         }
       }
     },

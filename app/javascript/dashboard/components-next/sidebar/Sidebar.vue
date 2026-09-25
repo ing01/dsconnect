@@ -820,6 +820,12 @@ const menuItems = computed(() => {
               activeOn: ['ticket_attendance_schedule_settings'],
               to: accountScopedRoute('ticket_attendance_schedule_settings'),
             },
+            {
+              name: 'Settings Ticket Import',
+              label: t('SIDEBAR.TICKET_IMPORT'),
+              activeOn: ['ticket_import_settings'],
+              to: accountScopedRoute('ticket_import_settings'),
+            },
           ],
         },
         {

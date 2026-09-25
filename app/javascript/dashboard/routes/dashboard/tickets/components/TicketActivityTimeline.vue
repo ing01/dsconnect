@@ -28,6 +28,7 @@ const ACTIVITY_ICONS = {
   blocked: 'i-lucide-octagon-pause',
   unblocked: 'i-lucide-play',
   automation_note: 'i-lucide-zap',
+  imported: 'i-lucide-file-input',
 };
 
 // `te` diz se a chave existe. Sem ele, `t` de uma chave ausente devolve o

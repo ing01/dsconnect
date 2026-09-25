@@ -469,6 +469,11 @@ Rails.application.routes.draw do
             resources :time_entries, controller: 'ticket_time_entries', only: [:index, :create, :update, :destroy]
           end
 
+          # Importacao de tickets de outro sistema, via CSV - Configuracoes >
+          # Tickets > Importar. Nao aninhado em `tickets`: importa um lote,
+          # nao mexe num ticket especifico.
+          resources :ticket_imports, only: [:create]
+
           resources :projects do
             member do
               post :generate_tickets
