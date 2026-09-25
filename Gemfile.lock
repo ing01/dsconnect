@@ -794,6 +794,12 @@ GEM
     reverse_markdown (2.1.1)
       nokogiri
     rexml (3.4.4)
+    roo (3.0.0)
+      base64 (~> 0.2)
+      csv (~> 3)
+      logger (~> 1)
+      nokogiri (~> 1)
+      rubyzip (>= 3.0.0, < 4.0.0)
     rotp (6.3.0)
     rspec-core (3.13.0)
       rspec-support (~> 3.13.0)
@@ -1176,6 +1182,7 @@ DEPENDENCIES
   responders (>= 3.1.1)
   rest-client
   reverse_markdown
+  roo
   rspec-rails (>= 6.1.5)
   rspec_junit_formatter
   rubocop
