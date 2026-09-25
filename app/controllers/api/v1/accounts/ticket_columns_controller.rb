@@ -72,8 +72,19 @@ class Api::V1::Accounts::TicketColumnsController < Api::V1::Accounts::BaseContro
     # `stage_threshold` aceita nulo de proposito: e assim que se diz que o
     # Estagio deixou de ter prazo.
     params.require(:ticket_column).permit(
-      :name, :stage_threshold, :kind, :hidden,
+      :name, :stage_threshold, :kind, :hidden, :automations_enabled,
       :require_due_date, :require_scheduled_at, :require_appointment, :require_assignee
-    )
+    ).merge(automation_actions_permit)
+  end
+
+  # `automation_actions` e uma lista aberta - cada tipo de acao tem seus proprios
+  # campos (so `type`/`value` hoje, mas o formato e generico de proposito), entao
+  # uma lista fixa de chaves permitidas nao daria conta sem engessar tipos
+  # futuros. O que protege aqui e a validacao do model, que so aceita tipos
+  # conhecidos (TicketColumn::AUTOMATION_ACTION_TYPES).
+  def automation_actions_permit
+    return {} unless params.dig(:ticket_column, :automation_actions)
+
+    { automation_actions: params[:ticket_column][:automation_actions].map { |action| action.permit!.to_h } }
   end
 end

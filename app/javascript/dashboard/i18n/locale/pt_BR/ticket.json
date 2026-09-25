@@ -169,6 +169,7 @@
         "UNBLOCKED": "{actor} retirou o impedimento"
       },
       "TITLES": {
+        "AUTOMATION_NOTE": "Nota automática",
         "ASSIGNEE_CHANGED": "Ticket alterado",
         "BLOCKED": "Impedimento registrado",
         "CANCELLED": "Ticket cancelado",
@@ -201,6 +202,7 @@
         "UNBLOCKED": "Impedimento retirado"
       },
       "FIELDS": {
+        "AUTOMATION_NOTE": "Nota",
         "ASSIGNEE_CHANGED": "Responsável",
         "BLOCKED": "Motivo do impedimento",
         "CATEGORY_CHANGED": "Categoria",
@@ -486,6 +488,27 @@
           "LABEL": "Ocultar este estágio do quadro Kanban",
           "HINT": "Os tickets continuam nele normalmente - só a coluna não aparece no quadro. Use a Busca detalhada para encontrá-los.",
           "BADGE": "Oculta"
+        },
+        "AUTOMATION": {
+          "LABEL": "Automação de estágio",
+          "HELP": "Ações que rodam sozinhas sempre que um ticket entrar neste estágio.",
+          "ENABLED": "Ativar automação deste estágio",
+          "ADD_ACTION": "Adicionar ação",
+          "REMOVE_ACTION": "Remover ação",
+          "UNASSIGN": "Remover responsável",
+          "NOTE_PLACEHOLDER": "Texto que vai aparecer no histórico do ticket...",
+          "ACTION_TYPES": {
+            "SET_PRIORITY": "Mudar a prioridade",
+            "SET_STATUS": "Mudar o status",
+            "SET_ASSIGNEE": "Mudar o responsável",
+            "CLEAR_DUE_DATE": "Limpar a data de vencimento",
+            "CLEAR_SCHEDULED_AT": "Limpar a data de agendamento",
+            "POST_NOTE": "Adicionar uma nota automática"
+          },
+          "ACTION_HINTS": {
+            "CLEAR_DUE_DATE": "A data de vencimento do ticket é apagada.",
+            "CLEAR_SCHEDULED_AT": "A data de agendamento do ticket é apagada."
+          }
         },
         "RULES": {
           "LABEL": "Exigir antes de mover um ticket para esta coluna",

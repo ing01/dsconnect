@@ -5,6 +5,7 @@ import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import DurationInput from './DurationInput.vue';
+import StageAutomationEditor from './StageAutomationEditor.vue';
 import {
   hoursMinutesToSeconds,
   secondsToHoursMinutes,
@@ -14,6 +15,7 @@ export default {
   components: {
     NextButton,
     DurationInput,
+    StageAutomationEditor,
   },
   props: {
     stage: {
@@ -28,6 +30,10 @@ export default {
       type: Number,
       default: 0,
     },
+    agents: {
+      type: Array,
+      default: () => [],
+    },
   },
   emits: ['close'],
   data() {
@@ -38,6 +44,10 @@ export default {
       stageThreshold: secondsToHoursMinutes(this.stage.stage_threshold),
       kind: this.stage.kind || 'normal',
       hidden: !!this.stage.hidden,
+      automationsEnabled: this.stage.automations_enabled ?? true,
+      automationActions: this.stage.automation_actions
+        ? this.stage.automation_actions.map(action => ({ ...action }))
+        : [],
       requireDueDate: !!this.stage.require_due_date,
       requireScheduledAt: !!this.stage.require_scheduled_at,
       requireAppointment: !!this.stage.require_appointment,
@@ -91,6 +101,8 @@ export default {
           stage_threshold: hoursMinutesToSeconds(this.stageThreshold),
           kind: this.kind,
           hidden: this.hidden,
+          automations_enabled: this.automationsEnabled,
+          automation_actions: this.automationActions,
           require_due_date: this.requireDueDate,
           require_scheduled_at: this.requireScheduledAt,
           require_appointment: this.requireAppointment,
@@ -196,6 +208,24 @@ export default {
       <p class="-mt-3 text-sm text-n-slate-11">
         {{ $t('TICKET.SETTINGS.FORM.HIDDEN.HINT') }}
       </p>
+
+      <fieldset class="flex flex-col gap-2">
+        <legend class="text-sm">
+          {{ $t('TICKET.SETTINGS.FORM.AUTOMATION.LABEL') }}
+        </legend>
+        <p class="mb-0 text-sm text-n-slate-11">
+          {{ $t('TICKET.SETTINGS.FORM.AUTOMATION.HELP') }}
+        </p>
+        <label class="flex items-center gap-2">
+          <input v-model="automationsEnabled" type="checkbox" />
+          {{ $t('TICKET.SETTINGS.FORM.AUTOMATION.ENABLED') }}
+        </label>
+        <StageAutomationEditor
+          v-if="automationsEnabled"
+          v-model="automationActions"
+          :agents="agents"
+        />
+      </fieldset>
 
       <fieldset class="flex flex-col gap-2">
         <legend class="text-sm">

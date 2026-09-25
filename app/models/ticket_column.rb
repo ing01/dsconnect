@@ -18,6 +18,14 @@ class TicketColumn < ApplicationRecord
   # kind.
   KINDS = %w[normal pending completed].freeze
 
+  # Acoes que "Automacao de Estagio" (Configuracoes > Estagios) pode rodar
+  # sozinha quando um ticket ENTRA nesta coluna - ver TicketColumnAutomationListener
+  # (escuta o evento `ticket.moved`) e Tickets::ColumnAutomationService (executa
+  # a lista). Cada item de `automation_actions` e um hash `{ "type" => ..., "value" => ... }`;
+  # `value` fica de fora da validacao de formato aqui porque o que ele aceita
+  # depende do `type` (ver Tickets::ColumnAutomationService).
+  AUTOMATION_ACTION_TYPES = %w[set_priority set_status set_assignee clear_due_date clear_scheduled_at post_note].freeze
+
   validates :name, presence: true
   validates :kind, inclusion: { in: KINDS }
   # O prazo do Estagio, em segundos. Nulo significa "esta coluna nao tem prazo" -
@@ -25,6 +33,7 @@ class TicketColumn < ApplicationRecord
   validates :stage_threshold, numericality: { greater_than: 0 }, allow_nil: true
   validate :team_change_requires_empty_column, on: :update
   validate :kind_uniqueness_per_team, if: -> { kind != 'normal' }
+  validate :automation_actions_format
 
   before_validation :set_default_position, on: :create
   before_save :reset_position_for_new_team, if: -> { persisted? && team_id_changed? }
@@ -55,6 +64,8 @@ class TicketColumn < ApplicationRecord
       stage_threshold: stage_threshold,
       kind: kind,
       hidden: hidden,
+      automation_actions: automation_actions,
+      automations_enabled: automations_enabled,
       require_due_date: require_due_date,
       require_scheduled_at: require_scheduled_at,
       require_appointment: require_appointment,
@@ -113,5 +124,19 @@ class TicketColumn < ApplicationRecord
     return unless exists
 
     errors.add(:base, I18n.t("errors.ticket_column.kind_taken.#{kind}"))
+  end
+
+  # So o que impediria a automacao de rodar: uma acao de tipo desconhecido.
+  # `value` nao e validado aqui de proposito - o significado dele muda por
+  # `type`, e Tickets::ColumnAutomationService ja ignora silenciosamente um
+  # valor vazio/invalido em vez de derrubar a execucao das outras acoes.
+  def automation_actions_format
+    return if automation_actions.blank?
+    return errors.add(:automation_actions, 'must be a list of actions') unless automation_actions.is_a?(Array)
+
+    unknown = automation_actions.filter_map { |action| action['type'] || action[:type] }.uniq - AUTOMATION_ACTION_TYPES
+    return if unknown.empty?
+
+    errors.add(:automation_actions, "unsupported action types: #{unknown.join(', ')}")
   end
 end

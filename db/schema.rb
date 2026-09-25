@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_150000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_180000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -2074,6 +2074,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_150000) do
     t.boolean "require_assignee", default: false, null: false
     t.string "kind", default: "normal", null: false
     t.boolean "hidden", default: false, null: false
+    t.jsonb "automation_actions", default: [], null: false
+    t.boolean "automations_enabled", default: true, null: false
     t.index ["team_id", "kind"], name: "index_ticket_columns_on_team_id_and_kind_unique", unique: true, where: "((kind)::text <> 'normal'::text)"
     t.index ["team_id", "position"], name: "index_ticket_columns_on_team_id_and_position"
     t.index ["team_id"], name: "index_ticket_columns_on_team_id"

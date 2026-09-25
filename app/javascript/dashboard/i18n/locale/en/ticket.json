@@ -169,6 +169,7 @@
         "UNBLOCKED": "{actor} removed the impediment"
       },
       "TITLES": {
+        "AUTOMATION_NOTE": "Automated note",
         "ASSIGNEE_CHANGED": "Ticket updated",
         "BLOCKED": "Impediment recorded",
         "CANCELLED": "Ticket cancelled",
@@ -201,6 +202,7 @@
         "UNBLOCKED": "Impediment removed"
       },
       "FIELDS": {
+        "AUTOMATION_NOTE": "Note",
         "ASSIGNEE_CHANGED": "Assignee",
         "BLOCKED": "Impediment reason",
         "CATEGORY_CHANGED": "Category",
@@ -486,6 +488,27 @@
           "LABEL": "Hide this stage from the Kanban board",
           "HINT": "Tickets stay in it normally - only the column doesn't show on the board. Use the detailed search to find them.",
           "BADGE": "Hidden"
+        },
+        "AUTOMATION": {
+          "LABEL": "Stage automation",
+          "HELP": "Actions that run on their own whenever a ticket enters this stage.",
+          "ENABLED": "Enable this stage's automation",
+          "ADD_ACTION": "Add action",
+          "REMOVE_ACTION": "Remove action",
+          "UNASSIGN": "Remove assignee",
+          "NOTE_PLACEHOLDER": "Text that will show up in the ticket's history...",
+          "ACTION_TYPES": {
+            "SET_PRIORITY": "Change the priority",
+            "SET_STATUS": "Change the status",
+            "SET_ASSIGNEE": "Change the assignee",
+            "CLEAR_DUE_DATE": "Clear the due date",
+            "CLEAR_SCHEDULED_AT": "Clear the scheduled date",
+            "POST_NOTE": "Add an automated note"
+          },
+          "ACTION_HINTS": {
+            "CLEAR_DUE_DATE": "The ticket's due date is cleared.",
+            "CLEAR_SCHEDULED_AT": "The ticket's scheduled date is cleared."
+          }
         },
         "RULES": {
           "LABEL": "Require before moving a ticket into this stage",

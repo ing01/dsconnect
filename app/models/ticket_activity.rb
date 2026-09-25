@@ -38,7 +38,10 @@ class TicketActivity < ApplicationRecord
     # Impedimento: o ticket travou por algo externo e continua ABERTO. Nao
     # entra em `status` por isso mesmo - ver TicketBlocking.
     blocked: 28,
-    unblocked: 29
+    unblocked: 29,
+    # Nota livre deixada por uma Automacao de Estagio (TicketColumn#automation_actions,
+    # acao `post_note`) - `user` fica nulo de proposito, o autor e a automacao.
+    automation_note: 30
   }
 
   def push_event_data

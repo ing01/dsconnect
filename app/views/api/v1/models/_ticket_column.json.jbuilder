@@ -6,6 +6,8 @@ json.team_id resource.team_id
 json.stage_threshold resource.stage_threshold
 json.kind resource.kind
 json.hidden resource.hidden
+json.automation_actions resource.automation_actions
+json.automations_enabled resource.automations_enabled
 json.require_due_date resource.require_due_date
 json.require_scheduled_at resource.require_scheduled_at
 json.require_appointment resource.require_appointment
