@@ -6,6 +6,8 @@ import CategoriesPage from './CategoriesPage.vue';
 import CatalogPage from './CatalogPage.vue';
 import PrioritiesPage from './PrioritiesPage.vue';
 import AutomationPage from './AutomationPage.vue';
+import AttendanceSchedulePage from './AttendanceSchedulePage.vue';
+import ImportTicketsPage from './ImportTicketsPage.vue';
 
 // One page per subject rather than a single scrolling screen: Estagios and
 // Categorias belong to a Mesa, the Catalogo is account-wide, and mixing them
@@ -65,6 +67,22 @@ export default {
             permissions: ['administrator'],
           },
           component: AutomationPage,
+        },
+        {
+          path: 'attendance-schedule',
+          name: 'ticket_attendance_schedule_settings',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: AttendanceSchedulePage,
+        },
+        {
+          path: 'import',
+          name: 'ticket_import_settings',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: ImportTicketsPage,
         },
       ],
     },

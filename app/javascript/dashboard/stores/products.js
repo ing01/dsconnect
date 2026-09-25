@@ -1,4 +1,5 @@
 import camelcaseKeys from 'camelcase-keys';
+import snakecaseKeys from 'snakecase-keys';
 import { defineStore } from 'pinia';
 import ProductAPI from 'dashboard/api/products';
 import { throwErrorMessage } from 'dashboard/store/utils/api';
@@ -29,13 +30,13 @@ export const useProductsStore = defineStore('products', {
       }
     },
 
-    async create(name) {
+    async create(payload) {
       this.uiFlags.isCreating = true;
       try {
         const {
-          data: { payload },
-        } = await ProductAPI.create({ name });
-        const record = camelcaseKeys(payload, { deep: true });
+          data: { payload: created },
+        } = await ProductAPI.create(snakecaseKeys(payload, { deep: true }));
+        const record = camelcaseKeys(created, { deep: true });
         this.records.push(record);
         return record;
       } catch (error) {
@@ -45,13 +46,13 @@ export const useProductsStore = defineStore('products', {
       }
     },
 
-    async update(id, name) {
+    async update(id, payload) {
       this.uiFlags.isUpdating = true;
       try {
         const {
-          data: { payload },
-        } = await ProductAPI.update(id, { name });
-        const record = camelcaseKeys(payload, { deep: true });
+          data: { payload: updated },
+        } = await ProductAPI.update(id, snakecaseKeys(payload, { deep: true }));
+        const record = camelcaseKeys(updated, { deep: true });
         this.records = this.records.map(item =>
           item.id === record.id ? record : item
         );

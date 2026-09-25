@@ -39,6 +39,11 @@ module AutoAssignmentHandler
 
   def should_run_auto_assignment?
     return false unless inbox.enable_auto_assignment?
+    # Tem que vir ANTES do atalho de resolvido/suspenso logo abaixo - sem
+    # isso, uma conversa dentro do fluxo de triagem que fosse resolvida ou
+    # suspensa furava a trava (o atalho devolvia `true` direto, sem nunca
+    # chegar a checar `pending_flow_automation?`).
+    return false if pending_flow_automation?
     # Assignment V2: Resolved/snoozed conversations still have an assignee, so bypass the
     # assignee-blank check below. The AssignmentJob needs to run to rebalance assignments.
     return true if conversation_status_changed_to_resolved_or_snoozed?
@@ -46,5 +51,18 @@ module AutoAssignmentHandler
 
     # run only if assignee is blank or doesn't have access to inbox
     assignee.blank? || inbox.members.exclude?(assignee)
+  end
+
+  # Este `after_save` roda sincrono, ANTES do listener que dispara o fluxo
+  # automatico de triagem (que so comeca depois do commit, via evento
+  # `conversation_created`/`message_created`). Nesse instante a conversa ainda
+  # nao tem `AutomationFlowRun` nenhum - excluir por isso (como
+  # `AutoAssignment::AssignmentService` ja faz na varredura em lote) nao
+  # adianta aqui, porque a execucao ainda nem existe. A unica forma de nao
+  # perder a corrida e verificar ANTES se a conta tem alguma automacao com
+  # fluxo ativa - se tiver, o roteamento (Mesa/Fila/prioridade) fica por conta
+  # dela, nunca desta atribuicao generica da inbox.
+  def pending_flow_automation?
+    account.automation_rules.where(active: true).any?(&:flow?)
   end
 end

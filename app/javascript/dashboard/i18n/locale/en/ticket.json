@@ -169,6 +169,8 @@
         "UNBLOCKED": "{actor} removed the impediment"
       },
       "TITLES": {
+        "AUTOMATION_NOTE": "Automated note",
+        "IMPORTED": "Ticket imported",
         "ASSIGNEE_CHANGED": "Ticket updated",
         "BLOCKED": "Impediment recorded",
         "CANCELLED": "Ticket cancelled",
@@ -201,6 +203,8 @@
         "UNBLOCKED": "Impediment removed"
       },
       "FIELDS": {
+        "AUTOMATION_NOTE": "Note",
+        "IMPORTED": "Source",
         "ASSIGNEE_CHANGED": "Assignee",
         "BLOCKED": "Impediment reason",
         "CATEGORY_CHANGED": "Category",
@@ -386,7 +390,8 @@
       },
       "DEVELOPMENT": {
         "TITLE": "Development",
-        "EMPTY": "No development item linked."
+        "EMPTY": "No development item linked.",
+        "JIRA_KEY_IMPORTED": "Imported Jira key:"
       },
       "TAB_HISTORY": "History",
       "RELATIONSHIPS": {
@@ -480,7 +485,33 @@
           "NORMAL": "Normal",
           "PENDING": "Pending",
           "COMPLETED": "Completed",
-          "HINT": "Pending and Completed are mandatory and unique per service desk. \"Pending\" receives tickets generated from a Project; \"Completed\" is hidden from the board by default."
+          "HINT": "Pending and Completed are mandatory and unique per service desk. \"Pending\" receives tickets generated from a Project."
+        },
+        "HIDDEN": {
+          "LABEL": "Hide this stage from the Kanban board",
+          "HINT": "Tickets stay in it normally - only the column doesn't show on the board. Use the detailed search to find them.",
+          "BADGE": "Hidden"
+        },
+        "AUTOMATION": {
+          "LABEL": "Stage automation",
+          "HELP": "Actions that run on their own whenever a ticket enters this stage.",
+          "ENABLED": "Enable this stage's automation",
+          "ADD_ACTION": "Add action",
+          "REMOVE_ACTION": "Remove action",
+          "UNASSIGN": "Remove assignee",
+          "NOTE_PLACEHOLDER": "Text that will show up in the ticket's history...",
+          "ACTION_TYPES": {
+            "SET_PRIORITY": "Change the priority",
+            "SET_STATUS": "Change the status",
+            "SET_ASSIGNEE": "Change the assignee",
+            "CLEAR_DUE_DATE": "Clear the due date",
+            "CLEAR_SCHEDULED_AT": "Clear the scheduled date",
+            "POST_NOTE": "Add an automated note"
+          },
+          "ACTION_HINTS": {
+            "CLEAR_DUE_DATE": "The ticket's due date is cleared.",
+            "CLEAR_SCHEDULED_AT": "The ticket's scheduled date is cleared."
+          }
         },
         "RULES": {
           "LABEL": "Require before moving a ticket into this stage",
@@ -588,6 +619,19 @@
             "EMPTY": "No agents found."
           }
         },
+        "CSAT_SURVEY": {
+          "TITLE": "WhatsApp satisfaction survey",
+          "DESCRIPTION": "When a WhatsApp conversation is resolved, sends the message below asking the customer to reply with a rating from 1 to 5 (1 = terrible, 5 = great) by typing the number. The rating is recorded in the normal CSAT reports.",
+          "MESSAGE_LABEL": "Survey message",
+          "MESSAGE_PLACEHOLDER": "How would you rate our support? Reply with a number from 1 to 5...",
+          "MESSAGE_HELP": "The customer replies by typing just the number (1 to 5) in the WhatsApp conversation itself.",
+          "MESSAGE_REQUIRED": "Write the survey message before saving.",
+          "REPLY_WINDOW": {
+            "LABEL": "Window to reply to the survey (minutes)",
+            "PLACEHOLDER": "Default: 30",
+            "HELP": "While the rating hasn't been answered and this time hasn't passed, a new message from the customer reopens the same conversation to record the rating, instead of opening a new conversation and restarting the triage."
+          }
+        },
         "TEST_MODE": {
           "TITLE": "WhatsApp automation test mode",
           "DESCRIPTION": "With a number set here, the triage flow and Captain only reply automatically to that number. Messages from any other customer still arrive normally in the conversation, they just don't get an automatic reply. Leave it blank to turn this off and go back to normal for everyone.",
@@ -636,15 +680,93 @@
           "HELP": "Where the conversation is routed once the AI finishes triaging a High priority client.",
           "NONE": "Not set"
         },
+        "SUPPORT_PHONE": {
+          "LABEL": "Support phone number",
+          "HELP": "Shown to the customer when the company isn't enabled for support on this channel.",
+          "PLACEHOLDER": "E.g.: (11) 4000-0000"
+        },
+        "QUEUE_LOW": {
+          "LABEL": "Queue for Low/Medium priority",
+          "HELP": "Where the conversation goes when the AI classifies priority as Low or Medium.",
+          "NONE": "Not set"
+        },
+        "QUEUE_HIGH": {
+          "LABEL": "Queue for High/Urgent priority",
+          "HELP": "Where the conversation goes when the AI classifies priority as High (or an agent marks it Urgent).",
+          "NONE": "Not set"
+        },
         "DEFAULT_QUEUE": {
-          "LABEL": "Support queue",
-          "HELP": "Which queue the conversation is sent to when handed off to a human (the AI could not resolve it, or finished triaging). The queue can auto-assign an agent and boost priority, as configured on it.",
+          "LABEL": "Default queue (fallback)",
+          "HELP": "Only used when the priority queue above isn't set. If both of those are filled in, this one is not used by the AI triage.",
           "NONE": "Not set"
         },
         "SAVE": "Save automation settings",
         "API": {
           "SUCCESS": "Automation settings updated.",
           "ERROR": "Could not update the automation settings."
+        }
+      },
+      "ATTENDANCE_SCHEDULE": {
+        "TITLE": "Attendance Schedule",
+        "DESCRIPTION": "Sets which days and hours the automated triage can start. Outside that window, the customer gets an offline notice and the conversation drops into the queue to wait for the next attendance window.",
+        "ENABLED": {
+          "LABEL": "Attendance schedule active",
+          "HELP": "When on, messages outside the periods below never start the automated triage - they only get the offline notice."
+        },
+        "OFFLINE_MESSAGE": {
+          "LABEL": "Offline message",
+          "HELP": "Sent to the customer when they write outside the configured schedule.",
+          "PLACEHOLDER": "E.g.: We're currently outside our attendance hours...",
+          "REQUIRED": "Required while the attendance schedule is active."
+        },
+        "WINDOW": {
+          "TITLE": "Days and hours",
+          "DESCRIPTION": "Add as many periods as you need per day - for example, a normal morning/afternoon shift plus a weekend on-call period in the evening.",
+          "ADD": "Add period",
+          "EMPTY": "No periods - closed all day.",
+          "UNTIL": "until",
+          "INVALID_RANGE": "Each period needs an end time after its start time."
+        },
+        "DAYS": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday"
+        },
+        "SAVE": "Save attendance schedule",
+        "API": {
+          "SUCCESS": "Attendance schedule updated.",
+          "ERROR": "Could not update the attendance schedule.",
+          "LOAD_ERROR": "Could not load the periods already configured."
+        }
+      },
+      "IMPORT": {
+        "TITLE": "Import tickets",
+        "DESCRIPTION": "Import tickets from another system from a CSV spreadsheet.",
+        "FIELDS": {
+          "TITLE": "Spreadsheet template",
+          "DESCRIPTION": "Download the template below to see the exact expected format, with a filled-in example. Desk, Stage and Category need to already exist with those names (Category is created automatically if missing)."
+        },
+        "DOWNLOAD_TEMPLATE": "Download example template",
+        "FILE_LABEL": "CSV file",
+        "FILE_HINT": "The import runs in the background - spreadsheets with tens of thousands of rows work fine, they just take longer. Fully empty rows (common in CSVs saved by Excel) are ignored automatically.",
+        "SUBMIT": "Import",
+        "API": {
+          "ERROR": "Could not upload the file."
+        },
+        "RESULT": {
+          "TITLE": "Import result",
+          "PROCESSING": "Processing...",
+          "PROCESSING_WITH_TOTAL": "Processing... {processed} of {total} rows",
+          "FAILED": "The import failed: {message}",
+          "CREATED": "{count} ticket(s) created",
+          "SKIPPED": "{count} row(s) with errors",
+          "ERRORS_TITLE": "Errors",
+          "WARNINGS_TITLE": "Warnings",
+          "ROW_MESSAGE": "Row {row}: {message}"
         }
       }
     },

@@ -333,7 +333,10 @@ const submitContact = contactId =>
         :ticket-id="ticket.id"
         :level-assignees="levelAssignees"
       />
-      <TicketDevelopmentTab v-else-if="activeTab === 'development'" />
+      <TicketDevelopmentTab
+        v-else-if="activeTab === 'development'"
+        :ticket="ticket"
+      />
       <TicketHistoryTab v-else :ticket-id="ticket.id" />
 
       <TicketTitleDialog

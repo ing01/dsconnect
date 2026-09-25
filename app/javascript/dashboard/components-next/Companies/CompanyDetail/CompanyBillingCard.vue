@@ -74,8 +74,7 @@ const contractLabel = computed(() => {
   const contract = props.company?.contract;
   if (!contract) return t('COMPANIES.DETAIL.PROFILE.CONTRACT.NONE');
 
-  const companyNames = (contract.companyNames || []).join(', ');
-  return companyNames || t('COMPANIES.DETAIL.PROFILE.CONTRACT.UNNAMED');
+  return contract.displayLabel || t('COMPANIES.DETAIL.PROFILE.CONTRACT.UNNAMED');
 });
 
 const isCurrentCompany = companyId => Number(props.company?.id) === companyId;
@@ -129,9 +128,7 @@ const fetchContracts = async query => {
     } = await ContractAPI.search(query || '');
     contractOptions.value = (payload || []).map(contract => ({
       value: contract.id,
-      label:
-        (contract.companies || []).map(c => c.name).join(', ') ||
-        t('COMPANIES.DETAIL.PROFILE.CONTRACT.UNNAMED'),
+      label: contract.displayLabel || t('COMPANIES.DETAIL.PROFILE.CONTRACT.UNNAMED'),
     }));
   } catch {
     contractOptions.value = [];

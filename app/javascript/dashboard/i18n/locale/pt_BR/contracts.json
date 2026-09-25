@@ -1,7 +1,7 @@
 {
   "CONTRACTS": {
     "HEADER": "Contratos",
-    "SEARCH_PLACEHOLDER": "Buscar por empresa ou responsável...",
+    "SEARCH_PLACEHOLDER": "Buscar por descrição, empresa ou responsável...",
     "LOADING": "Carregando contratos...",
     "EMPTY_STATE": "Nenhum contrato cadastrado ainda.",
     "NO_COMPANIES": "Nenhuma empresa vinculada",
@@ -17,6 +17,11 @@
       "CREATE_TITLE": "Novo contrato",
       "EDIT_TITLE": "Editar contrato",
       "SAVE": "Salvar contrato",
+      "DESCRIPTION": {
+        "LABEL": "Descrição",
+        "PLACEHOLDER": "Ex: protocolo, código do contrato...",
+        "HELP": "Serve como título do contrato - aparece junto com a empresa nas listas e no PDF."
+      },
       "RESPONSIBLE": {
         "LABEL": "Responsável (quem assinou)",
         "PLACEHOLDER": "Buscar contato...",
@@ -27,6 +32,9 @@
         "MONTHLY": "Mensalidade",
         "ANNUAL": "Anuidade"
       },
+      "SIGNED_ON": {
+        "LABEL": "Data de assinatura"
+      },
       "COMPANIES": {
         "LABEL": "Empresas participantes",
         "ADD_PLACEHOLDER": "Adicionar empresa...",
@@ -34,39 +42,94 @@
         "REMOVE": "Remover {name}"
       },
       "PRODUCTS": {
-        "LABEL": "Produtos",
-        "SELECT_PLACEHOLDER": "Selecione um produto",
-        "PRODUCT": "Produto",
-        "UNIT_VALUE": "Valor do produto",
+        "LABEL": "Grupos de produtos",
+        "SELECT_PLACEHOLDER": "Selecione um grupo",
+        "PRODUCT": "Grupo de produtos",
+        "UNIT_VALUE": "Valor da mensalidade",
         "LICENSES_QTY": "Qtd. de licenças",
+        "LICENSES_QTY_HELP": "Só informativo - não influencia no valor do contrato.",
         "IMPLEMENTATION_FEE": "Valor da implantação",
-        "ADD_LINE": "Adicionar produto",
-        "NEW_PLACEHOLDER": "Novo produto",
+        "ADD_LINE": "Adicionar grupo de produtos",
+        "NEW_PLACEHOLDER": "Novo grupo de produtos",
         "NEW_BUTTON": "Criar"
       },
       "TOTAL_VALUE": {
         "LABEL": "Valor total do contrato",
         "MANUAL_TOGGLE": "Definir valor manualmente"
-      }
+      },
+      "EXPORT_PDF": "Exportar PDF"
+    },
+    "PRINT": {
+      "TITLE": "Contrato de Prestação de Serviços",
+      "NOT_INFORMED": "Não informado",
+      "NOT_SIGNED": "Não assinado",
+      "PRODUCT_TABLE": {
+        "GROUP": "Grupo de produtos",
+        "MONTHLY_VALUE": "Valor da mensalidade",
+        "LICENSES_QTY": "Qtd. de licenças",
+        "IMPLEMENTATION_FEE": "Implantação"
+      },
+      "SIGNATURE_CONTRACTOR": "Assinatura do Contratante (Cliente)",
+      "SIGNATURE_CONTRACTED": "Assinatura da Contratada",
+      "GENERATED_AT": "Documento gerado em {date}"
     }
   },
   "PRODUCTS": {
     "HEADER": "Produtos",
-    "DESCRIPTION": "Produtos que podem ser incluídos em um Contrato.",
+    "DESCRIPTION": "Produtos que compõem os Grupos de Produtos usados nos Contratos.",
     "LOADING": "Carregando produtos...",
     "EMPTY_STATE": "Nenhum produto cadastrado ainda.",
-    "ADD_PLACEHOLDER": "Nome do novo produto",
-    "ADD_BUTTON": "Adicionar",
+    "ADD_BUTTON": "Novo produto",
     "DELETE_CONFIRM": "Excluir este produto?",
     "DELETE_CONFIRM_YES": "Sim, excluir",
     "DELETE_CONFIRM_NO": "Não, manter",
+    "FORM": {
+      "CREATE_TITLE": "Novo produto",
+      "EDIT_TITLE": "Editar produto",
+      "NAME": "Nome do produto",
+      "VALUE": "Valor",
+      "GROUP": "Grupo de produtos",
+      "GROUP_SELECT_PLACEHOLDER": "Selecione um grupo",
+      "NEW_GROUP_PLACEHOLDER": "Novo grupo de produtos",
+      "NEW_GROUP_BUTTON": "Criar grupo",
+      "SAVE": "Salvar produto"
+    },
     "MESSAGES": {
       "CREATE_SUCCESS": "Produto criado.",
-      "CREATE_ERROR": "Não foi possível criar o produto.",
       "UPDATE_SUCCESS": "Produto atualizado.",
-      "UPDATE_ERROR": "Não foi possível atualizar o produto.",
+      "SAVE_ERROR": "Não foi possível salvar o produto.",
       "DELETE_SUCCESS": "Produto excluído.",
       "DELETE_ERROR": "Não foi possível excluir o produto."
+    }
+  },
+  "PRODUCT_GROUPS": {
+    "HEADER": "Grupos de Produtos",
+    "DESCRIPTION": "Cada produto pertence a um grupo. O valor do grupo soma os produtos dele por padrão, e é o que preenche as linhas de um Contrato.",
+    "LOADING": "Carregando grupos de produtos...",
+    "EMPTY_STATE": "Nenhum grupo de produtos cadastrado ainda.",
+    "ADD_BUTTON": "Novo grupo",
+    "DELETE_CONFIRM": "Excluir este grupo de produtos?",
+    "LIST": {
+      "PRODUCTS_COUNT": "Produtos",
+      "VALUE": "Valor",
+      "MANUAL_BADGE": "manual"
+    },
+    "FORM": {
+      "CREATE_TITLE": "Novo grupo de produtos",
+      "EDIT_TITLE": "Editar grupo de produtos",
+      "NAME": "Nome do grupo",
+      "VALUE_LABEL": "Valor do grupo",
+      "MANUAL_TOGGLE": "Definir valor manualmente",
+      "AUTO_HELP": "Soma automaticamente o valor de todos os produtos deste grupo.",
+      "SAVE": "Salvar grupo"
+    },
+    "MESSAGES": {
+      "CREATE_SUCCESS": "Grupo de produtos criado.",
+      "CREATE_ERROR": "Não foi possível criar o grupo de produtos.",
+      "UPDATE_SUCCESS": "Grupo de produtos atualizado.",
+      "SAVE_ERROR": "Não foi possível salvar o grupo de produtos.",
+      "DELETE_SUCCESS": "Grupo de produtos excluído.",
+      "DELETE_ERROR": "Não foi possível excluir o grupo de produtos."
     }
   }
 }

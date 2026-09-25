@@ -169,6 +169,8 @@
         "UNBLOCKED": "{actor} retirou o impedimento"
       },
       "TITLES": {
+        "AUTOMATION_NOTE": "Nota automática",
+        "IMPORTED": "Ticket importado",
         "ASSIGNEE_CHANGED": "Ticket alterado",
         "BLOCKED": "Impedimento registrado",
         "CANCELLED": "Ticket cancelado",
@@ -201,6 +203,8 @@
         "UNBLOCKED": "Impedimento retirado"
       },
       "FIELDS": {
+        "AUTOMATION_NOTE": "Nota",
+        "IMPORTED": "Origem",
         "ASSIGNEE_CHANGED": "Responsável",
         "BLOCKED": "Motivo do impedimento",
         "CATEGORY_CHANGED": "Categoria",
@@ -386,7 +390,8 @@
       },
       "DEVELOPMENT": {
         "TITLE": "Desenvolvimento",
-        "EMPTY": "Nenhum item de desenvolvimento vinculado."
+        "EMPTY": "Nenhum item de desenvolvimento vinculado.",
+        "JIRA_KEY_IMPORTED": "Key do Jira Importado:"
       },
       "TAB_HISTORY": "Histórico",
       "RELATIONSHIPS": {
@@ -480,7 +485,33 @@
           "NORMAL": "Normal",
           "PENDING": "Pendente",
           "COMPLETED": "Finalizado",
-          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto; \"Finalizado\" fica oculto do quadro por padrão."
+          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto."
+        },
+        "HIDDEN": {
+          "LABEL": "Ocultar este estágio do quadro Kanban",
+          "HINT": "Os tickets continuam nele normalmente - só a coluna não aparece no quadro. Use a Busca detalhada para encontrá-los.",
+          "BADGE": "Oculta"
+        },
+        "AUTOMATION": {
+          "LABEL": "Automação de estágio",
+          "HELP": "Ações que rodam sozinhas sempre que um ticket entrar neste estágio.",
+          "ENABLED": "Ativar automação deste estágio",
+          "ADD_ACTION": "Adicionar ação",
+          "REMOVE_ACTION": "Remover ação",
+          "UNASSIGN": "Remover responsável",
+          "NOTE_PLACEHOLDER": "Texto que vai aparecer no histórico do ticket...",
+          "ACTION_TYPES": {
+            "SET_PRIORITY": "Mudar a prioridade",
+            "SET_STATUS": "Mudar o status",
+            "SET_ASSIGNEE": "Mudar o responsável",
+            "CLEAR_DUE_DATE": "Limpar a data de vencimento",
+            "CLEAR_SCHEDULED_AT": "Limpar a data de agendamento",
+            "POST_NOTE": "Adicionar uma nota automática"
+          },
+          "ACTION_HINTS": {
+            "CLEAR_DUE_DATE": "A data de vencimento do ticket é apagada.",
+            "CLEAR_SCHEDULED_AT": "A data de agendamento do ticket é apagada."
+          }
         },
         "RULES": {
           "LABEL": "Exigir antes de mover um ticket para esta coluna",
@@ -588,6 +619,19 @@
             "EMPTY": "Nenhum agente encontrado."
           }
         },
+        "CSAT_SURVEY": {
+          "TITLE": "Pesquisa de satisfação no WhatsApp",
+          "DESCRIPTION": "Ao resolver uma conversa de WhatsApp, envia a mensagem abaixo pedindo pro cliente responder com uma nota de 1 a 5 (1 = péssimo, 5 = ótimo), digitando o número. A nota é registrada nos relatórios de CSAT normalmente.",
+          "MESSAGE_LABEL": "Mensagem da pesquisa",
+          "MESSAGE_PLACEHOLDER": "Como você avalia nosso atendimento? Responda com um número de 1 a 5...",
+          "MESSAGE_HELP": "O cliente responde digitando só o número (1 a 5) na própria conversa de WhatsApp.",
+          "MESSAGE_REQUIRED": "Escreva a mensagem da pesquisa antes de salvar.",
+          "REPLY_WINDOW": {
+            "LABEL": "Janela para responder a pesquisa (minutos)",
+            "PLACEHOLDER": "Padrão: 30",
+            "HELP": "Enquanto a nota não é respondida e esse tempo não passou, uma mensagem nova do cliente reabre a mesma conversa para registrar a nota, em vez de abrir uma conversa nova e reiniciar a triagem."
+          }
+        },
         "TEST_MODE": {
           "TITLE": "Modo de teste da automação do WhatsApp",
           "DESCRIPTION": "Com um número preenchido aqui, o fluxo de triagem e o Captain só respondem automaticamente a esse número. Mensagens de qualquer outro cliente continuam chegando normalmente na conversa, só não recebem resposta automática. Deixe em branco pra desligar e voltar ao normal pra todo mundo.",
@@ -636,15 +680,93 @@
           "HELP": "Para onde a conversa é roteada quando a IA termina a triagem de um cliente de prioridade Alta.",
           "NONE": "Não definido"
         },
+        "SUPPORT_PHONE": {
+          "LABEL": "Telefone de suporte",
+          "HELP": "Exibido ao cliente quando a empresa não está habilitada para atendimento por este canal.",
+          "PLACEHOLDER": "Ex: (11) 4000-0000"
+        },
+        "QUEUE_LOW": {
+          "LABEL": "Fila para prioridade Baixa/Média",
+          "HELP": "Para onde vai a conversa quando a IA classifica a prioridade como Baixa ou Média.",
+          "NONE": "Não definido"
+        },
+        "QUEUE_HIGH": {
+          "LABEL": "Fila para prioridade Alta/Urgente",
+          "HELP": "Para onde vai a conversa quando a IA classifica a prioridade como Alta (ou quando um atendente marca como Urgente).",
+          "NONE": "Não definido"
+        },
         "DEFAULT_QUEUE": {
-          "LABEL": "Fila de atendimento",
-          "HELP": "Para qual fila a conversa é enviada ao ser encaminhada para um humano (a IA não resolveu, ou terminou a triagem). A fila pode atribuir automaticamente a um atendente e reforçar a prioridade, conforme configurado nela.",
+          "LABEL": "Fila padrão (reserva)",
+          "HELP": "Usada só quando a fila por prioridade acima não está definida. Se as duas de cima estiverem preenchidas, esta não é usada pela triagem por IA.",
           "NONE": "Não definido"
         },
         "SAVE": "Salvar configurações de automação",
         "API": {
           "SUCCESS": "Configurações de automação atualizadas.",
           "ERROR": "Não foi possível atualizar as configurações de automação."
+        }
+      },
+      "ATTENDANCE_SCHEDULE": {
+        "TITLE": "Configuração de Atendimento",
+        "DESCRIPTION": "Define em quais dias e horários a triagem automática pode começar. Fora desse período, o cliente recebe um aviso de que o atendimento está offline e a conversa cai na fila esperando o próximo horário.",
+        "ENABLED": {
+          "LABEL": "Horário de atendimento ativo",
+          "HELP": "Quando ligado, mensagens fora dos períodos abaixo não iniciam a triagem automática - só recebem o aviso de offline."
+        },
+        "OFFLINE_MESSAGE": {
+          "LABEL": "Mensagem de offline",
+          "HELP": "Enviada ao cliente quando ele escreve fora do horário configurado.",
+          "PLACEHOLDER": "Ex: No momento estamos fora do horário de atendimento...",
+          "REQUIRED": "Obrigatório enquanto o horário de atendimento estiver ativo."
+        },
+        "WINDOW": {
+          "TITLE": "Dias e horários",
+          "DESCRIPTION": "Adicione quantos períodos precisar por dia - por exemplo, expediente normal de manhã/tarde e um plantão à noite no fim de semana.",
+          "ADD": "Adicionar período",
+          "EMPTY": "Nenhum período - fechado o dia todo.",
+          "UNTIL": "até",
+          "INVALID_RANGE": "Cada período precisa ter um horário final depois do inicial."
+        },
+        "DAYS": {
+          "0": "Domingo",
+          "1": "Segunda-feira",
+          "2": "Terça-feira",
+          "3": "Quarta-feira",
+          "4": "Quinta-feira",
+          "5": "Sexta-feira",
+          "6": "Sábado"
+        },
+        "SAVE": "Salvar configuração de atendimento",
+        "API": {
+          "SUCCESS": "Configuração de atendimento atualizada.",
+          "ERROR": "Não foi possível atualizar a configuração de atendimento.",
+          "LOAD_ERROR": "Não foi possível carregar os horários já configurados."
+        }
+      },
+      "IMPORT": {
+        "TITLE": "Importar tickets",
+        "DESCRIPTION": "Importe tickets de outro sistema a partir de uma planilha CSV.",
+        "FIELDS": {
+          "TITLE": "Modelo da planilha",
+          "DESCRIPTION": "Baixe o modelo abaixo pra ver o formato exato esperado, com um exemplo preenchido. Time, Estágio e Categoria precisam já existir com esses nomes (Categoria é criada automaticamente se não existir)."
+        },
+        "DOWNLOAD_TEMPLATE": "Baixar modelo de exemplo",
+        "FILE_LABEL": "Arquivo CSV",
+        "FILE_HINT": "A importação roda em segundo plano - planilhas com dezenas de milhares de linhas funcionam normalmente, só demoram mais. Linhas totalmente vazias (comuns em CSVs salvos pelo Excel) são ignoradas automaticamente.",
+        "SUBMIT": "Importar",
+        "API": {
+          "ERROR": "Não foi possível enviar o arquivo."
+        },
+        "RESULT": {
+          "TITLE": "Resultado da importação",
+          "PROCESSING": "Processando...",
+          "PROCESSING_WITH_TOTAL": "Processando... {processed} de {total} linhas",
+          "FAILED": "A importação falhou: {message}",
+          "CREATED": "{count} ticket(s) criado(s)",
+          "SKIPPED": "{count} linha(s) com erro",
+          "ERRORS_TITLE": "Erros",
+          "WARNINGS_TITLE": "Avisos",
+          "ROW_MESSAGE": "Linha {row}: {message}"
         }
       }
     },

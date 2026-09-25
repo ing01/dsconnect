@@ -32,8 +32,7 @@ const channel = ref('whatsapp');
 const teamId = ref(null);
 const ticketColumnId = ref(null);
 const ticketCategoryId = ref(null);
-const assistantId = ref(null);
-const level3to5TeamId = ref(null);
+const triageTeamId = ref(null);
 
 const teams = computed(() => getters['teams/getTeams'].value || []);
 const columns = computed(() =>
@@ -42,13 +41,9 @@ const columns = computed(() =>
 const categories = computed(() =>
   teamId.value ? getters['ticketColumns/getCategories'].value(teamId.value) : []
 );
-const assistants = computed(
-  () => getters['captainAssistants/getRecords'].value || []
-);
 
 onBeforeMount(() => {
   store.dispatch('teams/get');
-  store.dispatch('captainAssistants/get');
 });
 
 // Estagio e categoria pertencem a Mesa - trocar a Mesa invalida as escolhas
@@ -63,11 +58,7 @@ watch(teamId, id => {
 });
 
 const isComplete = computed(
-  () =>
-    teamId.value &&
-    ticketColumnId.value &&
-    ticketCategoryId.value &&
-    assistantId.value
+  () => teamId.value && ticketColumnId.value && ticketCategoryId.value
 );
 
 const apply = () => {
@@ -84,8 +75,7 @@ const apply = () => {
     teamId: teamId.value,
     ticketColumnId: ticketColumnId.value,
     ticketCategoryId: ticketCategoryId.value,
-    assistantId: assistantId.value,
-    level3to5TeamId: level3to5TeamId.value,
+    triageTeamId: triageTeamId.value,
   });
   emit('apply', steps);
   useAlert(t('AUTOMATION.FLOW.WIZARD.APPLIED'));
@@ -187,23 +177,10 @@ const apply = () => {
           </select>
         </li>
         <li class="flex flex-col gap-1">
-          {{ t('AUTOMATION.FLOW.WIZARD.STEP_ASSISTANT') }}
-          <select v-model="assistantId" class="mb-0">
-            <option :value="null">{{ t('AUTOMATION.FLOW.NOT_SET') }}</option>
-            <option
-              v-for="assistant in assistants"
-              :key="assistant.id"
-              :value="assistant.id"
-            >
-              {{ assistant.name }}
-            </option>
-          </select>
-        </li>
-        <li class="flex flex-col gap-1">
-          {{ t('AUTOMATION.FLOW.WIZARD.STEP_LEVEL_3TO5_TEAM') }}
-          <select v-model="level3to5TeamId" class="mb-0">
+          {{ t('AUTOMATION.FLOW.WIZARD.STEP_TRIAGE_TEAM') }}
+          <select v-model="triageTeamId" class="mb-0">
             <option :value="null">
-              {{ t('AUTOMATION.FLOW.WIZARD.LEVEL_3TO5_TEAM_DEFAULT') }}
+              {{ t('AUTOMATION.FLOW.WIZARD.TRIAGE_TEAM_DEFAULT') }}
             </option>
             <option v-for="team in teams" :key="team.id" :value="team.id">
               {{ formatMesaName(team.name) }}

@@ -23,16 +23,27 @@ const { currentAccount, updateAccount } = useAccount();
 // fixa no backend.
 const LEVELS = [1, 2, 3];
 const PRIORITY_OPTIONS = ['baixa', 'media', 'alta'];
+// Mesmo texto padrao de Account::DEFAULT_WHATSAPP_CSAT_SURVEY_MESSAGE - so
+// pra pre-preencher o campo com algo editavel em vez de vazio antes do
+// primeiro salvamento; o backend tem o mesmo default como rede de seguranca.
+const DEFAULT_CSAT_SURVEY_MESSAGE =
+  'Como você avalia nosso atendimento? Responda com um número de 1 a 5, sendo 1 (péssimo) e 5 (ótimo).';
 
 const whatsappFlowEnabled = ref(true);
 const whatsappAutoAssignmentEnabled = ref(true);
 const whatsappAutoAssignmentMaxOpenChats = ref(null);
 const whatsappAutoAssignmentExcludedAgentIds = ref([]);
+const whatsappCsatSurveyEnabled = ref(false);
+const whatsappCsatSurveyMessage = ref(DEFAULT_CSAT_SURVEY_MESSAGE);
+const whatsappCsatSurveyReplyWindowMinutes = ref(null);
 const aiResolveLevels = ref([1, 2]);
 const defaultPriorityOnAiFailure = ref('baixa');
 const openTicketWindowDays = ref(null);
 const level3to5TeamId = ref(null);
 const defaultQueueId = ref(null);
+const queueLowId = ref(null);
+const queueHighId = ref(null);
+const supportPhoneNumber = ref('');
 const priorityThresholdMediumMin = ref(null);
 const priorityThresholdHighMin = ref(null);
 const whatsappAutomationTestModeNumber = ref('');
@@ -64,6 +75,9 @@ watch(
       settings.helpdesk_open_ticket_window_days ?? null;
     level3to5TeamId.value = settings.helpdesk_level_3to5_team_id ?? null;
     defaultQueueId.value = settings.helpdesk_default_queue_id ?? null;
+    queueLowId.value = settings.helpdesk_queue_low_id ?? null;
+    queueHighId.value = settings.helpdesk_queue_high_id ?? null;
+    supportPhoneNumber.value = settings.helpdesk_support_phone_number || '';
     priorityThresholdMediumMin.value =
       settings.priority_threshold_medium_min ?? null;
     priorityThresholdHighMin.value =
@@ -76,6 +90,12 @@ watch(
       settings.whatsapp_auto_assignment_max_open_chats ?? null;
     whatsappAutoAssignmentExcludedAgentIds.value =
       settings.whatsapp_auto_assignment_excluded_agent_ids || [];
+    whatsappCsatSurveyEnabled.value =
+      settings.whatsapp_csat_survey_enabled ?? false;
+    whatsappCsatSurveyMessage.value =
+      settings.whatsapp_csat_survey_message || DEFAULT_CSAT_SURVEY_MESSAGE;
+    whatsappCsatSurveyReplyWindowMinutes.value =
+      settings.whatsapp_csat_survey_reply_window_minutes ?? null;
   },
   { deep: true, immediate: true }
 );
@@ -109,6 +129,11 @@ const testModeNumberInvalid = computed(() => {
   return value.length > 0 && !/^\+[1-9]\d{1,14}$/.test(value);
 });
 
+const csatSurveyMessageInvalid = computed(
+  () =>
+    whatsappCsatSurveyEnabled.value && !whatsappCsatSurveyMessage.value.trim()
+);
+
 // Compartilhado pelo botao "Salvar" e pelo "Recalcular agora" - o recalculo
 // sempre salva primeiro, senao rodaria com os limiares antigos ainda
 // gravados no banco.
@@ -121,6 +146,10 @@ const saveSettings = async () => {
     useAlert(t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.INVALID_NUMBER'));
     return false;
   }
+  if (csatSurveyMessageInvalid.value) {
+    useAlert(t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_REQUIRED'));
+    return false;
+  }
 
   try {
     await updateAccount(
@@ -131,6 +160,9 @@ const saveSettings = async () => {
         helpdesk_open_ticket_window_days: openTicketWindowDays.value || null,
         helpdesk_level_3to5_team_id: level3to5TeamId.value || null,
         helpdesk_default_queue_id: defaultQueueId.value || null,
+        helpdesk_queue_low_id: queueLowId.value || null,
+        helpdesk_queue_high_id: queueHighId.value || null,
+        helpdesk_support_phone_number: supportPhoneNumber.value.trim() || null,
         priority_threshold_medium_min: priorityThresholdMediumMin.value || null,
         priority_threshold_high_min: priorityThresholdHighMin.value || null,
         whatsapp_automation_test_mode_number:
@@ -140,6 +172,10 @@ const saveSettings = async () => {
           whatsappAutoAssignmentMaxOpenChats.value || null,
         whatsapp_auto_assignment_excluded_agent_ids:
           whatsappAutoAssignmentExcludedAgentIds.value,
+        whatsapp_csat_survey_enabled: whatsappCsatSurveyEnabled.value,
+        whatsapp_csat_survey_message: whatsappCsatSurveyMessage.value.trim() || null,
+        whatsapp_csat_survey_reply_window_minutes:
+          whatsappCsatSurveyReplyWindowMinutes.value || null,
       },
       { silent: true }
     );
@@ -298,6 +334,63 @@ const handleRecalculatePriorities = async () => {
                 </p>
               </WithLabel>
             </template>
+          </div>
+
+          <div class="flex flex-col gap-3 px-5 py-4">
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex flex-col gap-1">
+                <h3 class="text-heading-2 text-n-slate-12">
+                  {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.TITLE') }}
+                </h3>
+                <p class="mb-0 text-body-para text-n-slate-11">
+                  {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.DESCRIPTION') }}
+                </p>
+              </div>
+              <Switch v-model="whatsappCsatSurveyEnabled" />
+            </div>
+
+            <div v-if="whatsappCsatSurveyEnabled" class="flex flex-col gap-1">
+              <label class="text-sm text-n-slate-12">
+                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_LABEL') }}
+              </label>
+              <textarea
+                v-model="whatsappCsatSurveyMessage"
+                rows="3"
+                class="mb-0"
+                :placeholder="
+                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_PLACEHOLDER')
+                "
+              />
+              <p
+                v-if="csatSurveyMessageInvalid"
+                class="mb-0 text-xs text-n-ruby-11"
+              >
+                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_REQUIRED') }}
+              </p>
+              <p v-else class="mb-0 text-xs text-n-slate-11">
+                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_HELP') }}
+              </p>
+
+              <label class="text-sm text-n-slate-12">
+                {{
+                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.LABEL')
+                }}
+              </label>
+              <input
+                v-model.number="whatsappCsatSurveyReplyWindowMinutes"
+                type="number"
+                min="1"
+                class="mb-0 max-w-xs"
+                :placeholder="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.PLACEHOLDER'
+                  )
+                "
+              />
+              <p class="mb-0 text-xs text-n-slate-11">
+                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.HELP') }}
+              </p>
+            </div>
           </div>
 
           <div class="flex flex-col gap-2 px-5 py-4">
@@ -504,6 +597,52 @@ const handleRecalculatePriorities = async () => {
                   {{ formatMesaName(team.name) }}
                 </option>
               </select>
+            </WithLabel>
+          </div>
+
+          <div class="flex flex-col gap-2 px-5 py-4">
+            <WithLabel
+              :label="t('TICKET.SETTINGS.AUTOMATION.QUEUE_LOW.LABEL')"
+              :help-message="t('TICKET.SETTINGS.AUTOMATION.QUEUE_LOW.HELP')"
+            >
+              <select v-model="queueLowId" class="mb-0">
+                <option :value="null">
+                  {{ t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.NONE') }}
+                </option>
+                <option v-for="queue in queues" :key="queue.id" :value="queue.id">
+                  {{ queue.name }}
+                </option>
+              </select>
+            </WithLabel>
+          </div>
+
+          <div class="flex flex-col gap-2 px-5 py-4">
+            <WithLabel
+              :label="t('TICKET.SETTINGS.AUTOMATION.QUEUE_HIGH.LABEL')"
+              :help-message="t('TICKET.SETTINGS.AUTOMATION.QUEUE_HIGH.HELP')"
+            >
+              <select v-model="queueHighId" class="mb-0">
+                <option :value="null">
+                  {{ t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.NONE') }}
+                </option>
+                <option v-for="queue in queues" :key="queue.id" :value="queue.id">
+                  {{ queue.name }}
+                </option>
+              </select>
+            </WithLabel>
+          </div>
+
+          <div class="flex flex-col gap-2 px-5 py-4">
+            <WithLabel
+              :label="t('TICKET.SETTINGS.AUTOMATION.SUPPORT_PHONE.LABEL')"
+              :help-message="t('TICKET.SETTINGS.AUTOMATION.SUPPORT_PHONE.HELP')"
+            >
+              <input
+                v-model="supportPhoneNumber"
+                type="text"
+                class="mb-0 max-w-xs"
+                :placeholder="t('TICKET.SETTINGS.AUTOMATION.SUPPORT_PHONE.PLACEHOLDER')"
+              />
             </WithLabel>
           </div>
 

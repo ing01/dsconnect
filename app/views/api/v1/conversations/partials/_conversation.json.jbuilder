@@ -64,6 +64,7 @@ json.last_activity_at conversation.last_activity_at.to_i
 json.priority conversation.priority
 json.queue_id conversation.queue_id
 json.waiting_since conversation.waiting_since.to_i.to_i
+json.requeued_at conversation.requeued_at.to_i
 sla_applicable = conversation.account.feature_enabled?('sla') && (!conversation.respond_to?(:sla_applicable?) || conversation.sla_applicable?)
 json.sla_policy_id sla_applicable ? conversation.sla_policy_id : nil
 json.partial! 'enterprise/api/v1/conversations/partials/conversation', conversation: conversation if ChatwootApp.enterprise?

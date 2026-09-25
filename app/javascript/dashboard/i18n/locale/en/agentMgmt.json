@@ -87,6 +87,10 @@
           "PLACEHOLDER": "Please select an availability status",
           "ERROR": "Availability is required"
         },
+        "ENFORCE_QUEUE_ORDER": {
+          "LABEL": "Require picking up the queue in order",
+          "HELP": "When enabled, this agent can't freely pick a conversation from the queue - only the next one (by priority, then oldest) via the \"Pick up next in queue\" button. Administrators are never affected by this."
+        },
         "SUBMIT": "Edit Agent"
       },
       "BUTTON_TEXT": "Edit",

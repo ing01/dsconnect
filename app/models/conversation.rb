@@ -29,6 +29,7 @@
 #  display_id             :integer          not null
 #  inbox_id               :integer          not null
 #  queue_id               :bigint
+#  requeued_at            :datetime
 #  sla_policy_id          :bigint
 #  team_id                :bigint
 #
@@ -48,6 +49,7 @@
 #  index_conversations_on_inbox_id                    (inbox_id)
 #  index_conversations_on_priority                    (priority)
 #  index_conversations_on_queue_id                    (queue_id)
+#  index_conversations_on_requeued_at                 (requeued_at)
 #  index_conversations_on_status_and_account_id       (status,account_id)
 #  index_conversations_on_status_and_priority         (status,priority)
 #  index_conversations_on_team_id                     (team_id)
@@ -146,6 +148,11 @@ class Conversation < ApplicationRecord
   before_save :apply_queue_defaults
   before_save :ensure_snooze_until_reset
   before_save :set_status_changed_at
+  before_save :set_requeued_at
+  # DIAGNOSTICO TEMPORARIO (remover depois de achar a causa): registra de onde
+  # vem toda mudanca de assignee_id, pra pegar em flagrante um caminho que
+  # ainda nao apareceu em nenhum log (Rails/Sidekiq) investigado ate agora.
+  before_save :log_assignee_change_source_temp, if: :will_save_change_to_assignee_id?
   before_create :determine_conversation_status
   before_create :ensure_waiting_since
 
@@ -292,11 +299,11 @@ class Conversation < ApplicationRecord
   end
 
   def handle_resolved_status_change
-    # When conversation is resolved, clear waiting_since using update_column to avoid callbacks
+    # When conversation is resolved, clear waiting_since/requeued_at using update_columns to avoid callbacks
     return unless saved_change_to_status? && status == 'resolved'
 
     # rubocop:disable Rails/SkipsModelValidations
-    update_column(:waiting_since, nil)
+    update_columns(waiting_since: nil, requeued_at: nil)
     # rubocop:enable Rails/SkipsModelValidations
   end
 
@@ -306,6 +313,20 @@ class Conversation < ApplicationRecord
 
   def set_status_changed_at
     self.status_changed_at = Time.current if new_record? || status_changed?
+  end
+
+  # Marca o momento em que um atendente devolve a conversa pra fila
+  # (desatribui uma conversa que ja tinha dono, com fila atribuida) - usado
+  # pra furar a fila (ver `SortHandler#sort_on_queue_position`). Some de novo
+  # assim que a conversa ganha um novo assignee.
+  def set_requeued_at
+    return unless assignee_id_changed?
+
+    if assignee_id.blank? && assignee_id_was.present? && queue_id.present?
+      self.requeued_at = Time.current
+    elsif assignee_id.present?
+      self.requeued_at = nil
+    end
   end
 
   def ensure_waiting_since
@@ -360,13 +381,22 @@ class Conversation < ApplicationRecord
 
   def list_of_keys
     %w[team_id queue_id assignee_id assignee_agent_bot_id status snoozed_until custom_attributes label_list waiting_since
-       first_reply_created_at priority]
+       first_reply_created_at priority requeued_at]
   end
 
   def apply_queue_defaults
     return unless queue_id.present? && queue_id_changed?
 
     queue&.apply_defaults_to(self)
+  end
+
+  # DIAGNOSTICO TEMPORARIO - ver comentario junto do `before_save` que chama isto.
+  def log_assignee_change_source_temp
+    app_frames = caller.select { |line| line.include?('/app/') || line.include?('/enterprise/') }.first(12)
+    Rails.logger.warn(
+      "[DIAG-ASSIGNEE] conversation=#{id || 'new'} change=#{assignee_id_change.inspect} " \
+      "current_user=#{Current.user&.id.inspect} caller=\n  #{app_frames.join("\n  ")}"
+    )
   end
 
   def allowed_keys?

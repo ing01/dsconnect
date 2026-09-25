@@ -37,12 +37,18 @@ class AutomationRules::Flow::DispatcherService
       # SIM cai nas acoes classicas de proposito (design original): um contato
       # bloqueado nao entra no fluxo, mas a regra pode ainda querer marcar algo.
       return false unless AutomationRules::Flow::BlockGateService.new(conversation: conversation).allowed?
+      # Fora do horario de atendimento (Configuracao de Atendimento), a triagem
+      # nem comeca - o cliente so recebe o aviso de offline e a conversa cai na
+      # fila esperando o proximo horario. So vale pra COMECAR um fluxo: uma
+      # execucao ja em andamento (checagem acima) nunca e interrompida no meio.
+      return true if outside_attendance_hours(conversation)
 
       run = AutomationFlowRun.create!(
         account_id: conversation.account_id, automation_rule: rule,
         conversation: conversation, status: :running
       )
       seed_known_contact(run, conversation)
+      seed_account_settings(run, conversation)
       AutomationRules::Flow::RunnerService.new(run: run).perform
       true
     rescue ActiveRecord::RecordNotUnique
@@ -91,6 +97,38 @@ class AutomationRules::Flow::DispatcherService
       AutomationFlowRun.handed_off.exists?(automation_rule_id: rule.id, conversation_id: conversation.id)
     end
 
+    # Mesma regra dos handoffs do fluxo (`Steps::Handoff`, rede de seguranca do
+    # runner): sem fila, a conversa ficava so aberta, sem aparecer em nenhuma
+    # aba pra ninguem pegar. O aviso de offline so sai uma vez por dia por
+    # conversa - sem isso, cada mensagem nova do cliente fora do horario
+    # repetia o aviso inteiro.
+    def outside_attendance_hours(conversation)
+      account = conversation.account
+      return false if account.within_attendance_hours?
+
+      send_offline_notice(account, conversation)
+      route_to_queue(account, conversation)
+      conversation.bot_handoff!(dispatch_event: false)
+      true
+    end
+
+    def send_offline_notice(account, conversation)
+      return if conversation.messages.today.where("content_attributes ->> 'attendance_offline_notice' = 'true'").exists?
+
+      Messages::MessageBuilder.new(
+        nil, conversation,
+        { content: account.attendance_offline_message_or_default, private: false,
+          content_attributes: { attendance_offline_notice: true } }
+      ).perform
+    end
+
+    def route_to_queue(account, conversation)
+      return if conversation.queue_id.present?
+
+      queue_id = account.helpdesk_default_queue_id
+      conversation.update!(queue_id: queue_id) if queue_id.present?
+    end
+
     # O contato de quem esta escrevendo ja e conhecido antes do fluxo comecar
     # (o WhatsApp resolve isso por telefone antes de a Conversation existir) -
     # nao ha motivo para uma etapa `find_contact` (que busca por NOME dentro de
@@ -103,6 +141,14 @@ class AutomationRules::Flow::DispatcherService
       run.write_variable('contato.id', contact.id)
       run.write_variable('contato.nome', contact.name)
       run.write_variable('contato.email', contact.email)
+    end
+
+    # `{{conta.telefone_suporte}}` fica disponivel pra qualquer mensagem do
+    # fluxo (ex: empresa bloqueada) - lido de novo a cada execucao, nunca
+    # gravado no modelo do fluxo, entao mudar a configuracao vale para a
+    # proxima conversa sem precisar "recriar o fluxo".
+    def seed_account_settings(run, conversation)
+      run.write_variable('conta.telefone_suporte', conversation.account.helpdesk_support_phone_number)
     end
   end
 end

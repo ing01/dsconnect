@@ -193,18 +193,21 @@ pt_BR:
       ai_resolve:
         error_message: "Vou te transferir para um atendente para continuar seu atendimento."
       ai_triage:
-        default_handoff_message: "Obrigado pelas informações! Vou encaminhar seu atendimento para a nossa equipe de suporte, que vai continuar por aqui."
+        default_handoff_message: "Obrigado pelas informações!\n\nEm breve, um de nossos atendentes irá assumir a conversa e dar continuidade ao seu atendimento."
       ticket_reference:
         created: "Seu atendimento foi registrado no ticket #%{numero}."
         existing: "Seu atendimento continuará no ticket #%{numero}."
       errors:
         empty_message: "a mensagem esta vazia"
+        blank_answer: "Não consegui identificar uma resposta em texto. Pode escrever o que está acontecendo?"
         too_many_steps: "o fluxo executou etapas demais e foi interrompido"
         timeout: "o cliente nao respondeu no prazo"
         unexpected: "Desculpe, tive um problema para continuar seu atendimento. Vou te transferir para um atendente."
   errors:
     agents:
       password_reset_not_allowed: este agente também pertence a outra conta, então a senha dele não pode ser redefinida por aqui
+    queues:
+      out_of_order_assignment: "Você não pode escolher essa conversa livremente - use \"Pegar próximo da fila\" pra pegar a próxima em ordem."
     account:
       not_authorized: Você não está autorizado a acessar esta conta
       email_limit_exceeded: O limite diário de envio de e-mails desta conta foi atingido
@@ -548,6 +551,7 @@ pt_BR:
       ways_to_reach_you_message_body: 'Informe à equipe uma forma de contatá-lo.'
       email_input_box_message_body: 'Seja notificado por e-mail'
       csat_input_message_body: 'Por favor, classifique a conversa'
+      whatsapp_csat_thank_you: 'Obrigado pela sua avaliação!'
     reply:
       email:
         header:

@@ -4,7 +4,6 @@ import { useStore, useStoreGetters } from 'dashboard/composables/store';
 export const DEFAULT_CONVERSATION_SIDEBAR_ITEMS_ORDER = Object.freeze([
   { name: 'conversation_actions' },
   { name: 'tickets' },
-  { name: 'automation_flow_runs' },
   { name: 'conversation_info' },
   { name: 'contact_notes' },
   { name: 'shared_files' },
@@ -34,6 +33,11 @@ const slugifyChannel = name =>
  * @param {Object} uiSettings - Reactive UI settings object.
  * @returns {Array} Ordered list of sidebar items.
  */
+// Painel interno de diagnostico (mostra o passo a passo da triagem por
+// automacao) - nunca deve aparecer pro atendente, mesmo que a ordem
+// personalizada de algum agente ainda tenha esse item salvo de antes.
+const HIDDEN_CONVERSATION_SIDEBAR_ITEMS = ['automation_flow_runs'];
+
 const useConversationSidebarItemsOrder = uiSettings => {
   return computed(() => {
     const { conversation_sidebar_items_order: itemsOrder } = uiSettings.value;
@@ -49,7 +53,9 @@ const useConversationSidebarItemsOrder = uiSettings => {
         itemsOrderCopy.push(item);
       }
     });
-    return itemsOrderCopy;
+    return itemsOrderCopy.filter(
+      item => !HIDDEN_CONVERSATION_SIDEBAR_ITEMS.includes(item.name)
+    );
   });
 };
 

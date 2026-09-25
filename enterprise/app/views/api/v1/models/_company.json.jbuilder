@@ -25,6 +25,8 @@ json.contract_id resource.contract_id
 if resource.contract.present?
   json.contract do
     json.id resource.contract.id
+    json.description resource.contract.description
+    json.display_label resource.contract.display_label
     json.contract_type resource.contract.contract_type
     json.computed_total_value resource.contract.computed_total_value
     json.company_names resource.contract.companies.pluck(:name)

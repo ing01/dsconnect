@@ -264,6 +264,7 @@ Rails.application.routes.draw do
           resources :system_modules, only: [:index, :create]
           resources :company_categories, only: [:index, :create]
           resources :products, only: [:index, :create, :update, :destroy]
+          resources :product_groups, only: [:index, :create, :update, :destroy]
           resources :contracts, only: [:index, :show, :create, :update, :destroy] do
             collection do
               get :search
@@ -418,7 +419,19 @@ Rails.application.routes.draw do
             resource :working_hours, controller: 'team_working_hours', only: [:show, :update]
           end
 
-          resources :queues, only: [:index, :create, :show, :update, :destroy]
+          resources :queues, only: [:index, :create, :show, :update, :destroy] do
+            collection do
+              post :claim_next
+            end
+          end
+
+          # Configuracao de Atendimento: dias/horarios em que a triagem
+          # automatica pode comecar - conta inteira, nao por Inbox/Mesa.
+          resources :attendance_windows, only: [:index] do
+            collection do
+              post :bulk_update
+            end
+          end
 
           # Chat Interno: conversa entre funcionarios, separada das
           # Conversations com clientes.
@@ -479,6 +492,13 @@ Rails.application.routes.draw do
             end
             resources :time_entries, controller: 'ticket_time_entries', only: [:index, :create, :update, :destroy]
           end
+
+          # Importacao de tickets de outro sistema, via CSV - Configuracoes >
+          # Tickets > Importar. Nao aninhado em `tickets`: importa um lote,
+          # nao mexe num ticket especifico. `show` e consultado
+          # periodicamente pra acompanhar o progresso (roda em segundo
+          # plano - ver Tickets::ImportJob).
+          resources :ticket_imports, only: [:create, :show]
 
           resources :projects do
             member do

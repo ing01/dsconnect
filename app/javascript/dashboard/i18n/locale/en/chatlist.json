@@ -7,6 +7,14 @@
       "404": "There are no active conversations in this group."
     },
     "FAILED_TO_SEND": "Failed to send",
+    "QUEUE": {
+      "CLAIM_NEXT": {
+        "BUTTON": "Pick up next in queue",
+        "EMPTY": "There are no conversations available in the queue right now.",
+        "ERROR": "Could not pick up the next conversation in the queue."
+      },
+      "REQUEUED_LABEL": "Unassigned conversation"
+    },
     "FETCH_ERROR": "Couldn't load conversations. Please try again.",
     "TAB_HEADING": "Conversations",
     "MENTION_HEADING": "Mentions",

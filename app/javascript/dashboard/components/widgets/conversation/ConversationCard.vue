@@ -9,6 +9,7 @@ import CardLabels from './conversationCardComponents/CardLabels.vue';
 import CardPriorityIcon from 'dashboard/components-next/Conversation/ConversationCard/CardPriorityIcon.vue';
 import UnreadBadge from 'dashboard/components-next/Conversation/ConversationCard/UnreadBadge.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
+import RequeuedCardLabel from './components/RequeuedCardLabel.vue';
 import VoiceCallStatus from './VoiceCallStatus.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 
@@ -50,7 +51,11 @@ const voiceCallData = computed(() => {
 });
 
 const showMetaSection = computed(() => {
-  return (props.showAssignee && props.assignee.name) || props.chat.priority;
+  return (
+    (props.showAssignee && props.assignee.name) ||
+    props.chat.priority ||
+    props.chat.requeued_at
+  );
 });
 
 const isAgentBotAssignee = computed(
@@ -179,6 +184,7 @@ watch(
           />
           <span class="truncate">{{ assignee.name }}</span>
         </span>
+        <RequeuedCardLabel :chat="chat" class="flex-shrink-0" />
         <CardPriorityIcon :priority="chat.priority" class="flex-shrink-0" />
       </div>
       <h4

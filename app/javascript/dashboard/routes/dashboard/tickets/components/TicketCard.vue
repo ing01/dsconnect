@@ -29,6 +29,12 @@ export default {
       type: Boolean,
       default: false,
     },
+    // O card da coluna "Finalizado" (TicketColumn#kind == 'completed') ganha
+    // um tratamento visual proprio - ver `cardClass` abaixo.
+    isCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   // The menu now carries its intent in one event: the card names the action,
   // the page decides how to run it.
@@ -42,6 +48,14 @@ export default {
     };
   },
   computed: {
+    // "Finalizado" ganha um verde/teal inteiro (mesmo tom que o selo de
+    // status "resolvido" ja usa - ver ticketLabels.js) em vez do card neutro
+    // padrao, pra bater o olho ja diferenciar um ticket concluido dos demais.
+    cardClass() {
+      return this.isCompleted
+        ? 'border-n-teal-7 bg-n-teal-4 hover:border-n-teal-8'
+        : 'border-n-weak bg-n-solid-1 hover:border-n-slate-6';
+    },
     priorityColor() {
       return priorityColor(this.ticket.priority);
     },
@@ -205,9 +219,15 @@ export default {
 
 <template>
   <div
-    class="drag-handle group relative flex flex-col gap-2 rounded-xl border border-n-weak bg-n-solid-1 p-3 cursor-pointer hover:border-n-slate-6 hover:shadow-sm transition-shadow"
+    class="drag-handle group relative flex flex-col gap-2 rounded-xl border p-3 cursor-pointer hover:shadow-sm transition-shadow"
+    :class="cardClass"
     @click="$emit('click', ticket)"
   >
+    <Icon
+      v-if="isCompleted"
+      icon="i-lucide-circle-check"
+      class="absolute -top-2 -left-2 size-5 rounded-full bg-n-solid-2 text-n-teal-9"
+    />
     <div class="flex items-start justify-between gap-2">
       <p class="text-sm font-medium text-n-slate-12 line-clamp-2">
         <span v-if="ticket.display_id" class="text-n-slate-10 font-normal">

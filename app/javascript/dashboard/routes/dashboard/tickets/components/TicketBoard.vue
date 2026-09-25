@@ -67,11 +67,13 @@ export default {
   },
   methods: {
     syncLocalState(board) {
-      // O Estagio "Finalizado" (kind: 'completed') nunca aparece no quadro: os
-      // tickets continuam gravados nele, e quem precisa ve-los usa a Busca
-      // detalhada, que filtra por status.
+      // Qualquer Estagio marcado como oculto (Configuracoes > Estagios) nao
+      // aparece no quadro - os tickets continuam gravados nele, e quem
+      // precisa ve-los usa a Busca detalhada, que filtra por status. Nao e
+      // mais fixo por `kind`: o Estagio "Finalizado" e uma coluna normal por
+      // padrao, so some se alguem marcar "ocultar" nele especificamente.
       const columns = (board?.ticket_columns || []).filter(
-        column => column.kind !== 'completed'
+        column => !column.hidden
       );
       this.columns = columns.map(column => ({ ...column }));
 

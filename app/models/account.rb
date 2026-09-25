@@ -63,7 +63,8 @@ class Account < ApplicationRecord
   # AutomationRules::Flow::BlockGateService and the ai_resolve/ai_triage steps.
   store_accessor :settings, :helpdesk_whatsapp_flow_enabled, :helpdesk_ai_resolve_levels,
                   :helpdesk_default_priority_on_ai_failure, :helpdesk_open_ticket_window_days,
-                  :helpdesk_level_3to5_team_id, :helpdesk_default_queue_id
+                  :helpdesk_level_3to5_team_id, :helpdesk_default_queue_id,
+                  :helpdesk_queue_low_id, :helpdesk_queue_high_id, :helpdesk_support_phone_number
   # Limiares de mensalidade que definem a Prioridade (Baixa/Media/Alta) de uma
   # Empresa - ver Company#tier_for. Abaixo de `priority_threshold_medium_min`
   # e' sempre Baixa.
@@ -83,7 +84,25 @@ class Account < ApplicationRecord
   # automatica mas continua podendo ser atribuido a mao.
   store_accessor :settings, :whatsapp_auto_assignment_enabled, :whatsapp_auto_assignment_max_open_chats,
                   :whatsapp_auto_assignment_excluded_agent_ids
+  # Pesquisa de satisfacao por digito (1-5) no WhatsApp - ver
+  # Whatsapp::CsatDigitSurveyService, unico lugar que le essas chaves.
+  # Mensagem em branco cai no texto padrao (`whatsapp_csat_survey_message_or_default`).
+  # `reply_window_minutes` em branco cai no padrao (`Whatsapp::CsatDigitSurveyService::DEFAULT_REPLY_WINDOW_MINUTES`).
+  store_accessor :settings, :whatsapp_csat_survey_enabled, :whatsapp_csat_survey_message,
+                  :whatsapp_csat_survey_reply_window_minutes
+  # Configuracao de Atendimento: dias/horarios em que a triagem automatica
+  # (AutomationRules::Flow) pode comecar - ver AttendanceWindow e
+  # `within_attendance_hours?`. Mensagem em branco cai no texto padrao
+  # (`attendance_offline_message_or_default`).
+  store_accessor :settings, :attendance_schedule_enabled, :attendance_offline_message
   include AccountCaptainAutoResolve
+
+  DEFAULT_WHATSAPP_CSAT_SURVEY_MESSAGE =
+    'Como você avalia nosso atendimento? Responda com um número de 1 a 5, sendo 1 (péssimo) e 5 (ótimo).'.freeze
+
+  DEFAULT_ATTENDANCE_OFFLINE_MESSAGE =
+    'No momento estamos fora do horário de atendimento. Assim que retomarmos, ' \
+    'vamos continuar por aqui.'.freeze
 
   # phone_number vem sempre em E.164 (+DDI...); nil/blank nunca "bate" com o
   # numero de teste, mesmo se o campo de teste tambem estiver vazio.
@@ -92,6 +111,33 @@ class Account < ApplicationRecord
     return true if test_number.blank?
 
     phone_number.present? && phone_number == test_number
+  end
+
+  def whatsapp_csat_survey_message_or_default
+    whatsapp_csat_survey_message.presence || DEFAULT_WHATSAPP_CSAT_SURVEY_MESSAGE
+  end
+
+  def attendance_offline_message_or_default
+    attendance_offline_message.presence || DEFAULT_ATTENDANCE_OFFLINE_MESSAGE
+  end
+
+  # Ausente (nil) = desligado - a Configuracao de Atendimento so passa a valer
+  # depois que alguem liga o toggle na tela, mesmo que ja existam periodos
+  # cadastrados (evita travar quem so estava testando a tela).
+  def attendance_schedule_enabled?
+    ActiveModel::Type::Boolean.new.cast(attendance_schedule_enabled)
+  end
+
+  # `at` sempre em UTC (o padrao do Rails); convertido aqui pro fuso da conta
+  # antes de comparar contra os minutos gravados. Sem nenhum periodo
+  # cadastrado ainda, considera sempre dentro do horario - a automacao nao
+  # pode travar sozinha so porque a tela ainda nao foi preenchida.
+  def within_attendance_hours?(at: Time.current)
+    return true unless attendance_schedule_enabled?
+    return true if attendance_windows.blank?
+
+    local = at.in_time_zone(reporting_timezone.presence || 'UTC')
+    attendance_windows.covers?(day_of_week: local.wday, minute_of_day: (local.hour * 60) + local.min)
   end
 
   # Ausente (nil) = ligado - so desliga quando alguem explicitamente desmarca
@@ -107,6 +153,7 @@ class Account < ApplicationRecord
   has_many :api_channels, dependent: :destroy_async, class_name: '::Channel::Api'
   has_many :articles, dependent: :destroy_async, class_name: '::Article'
   has_many :assignment_policies, dependent: :destroy_async
+  has_many :attendance_windows, dependent: :destroy_async
   has_many :automation_rules, dependent: :destroy_async
   has_many :automation_rule_pending_executions, dependent: :delete_all
   has_many :macros, dependent: :destroy_async
@@ -142,6 +189,7 @@ class Account < ApplicationRecord
   has_many :service_catalogs, dependent: :destroy_async
   has_many :teams, dependent: :destroy_async
   has_many :queues, class_name: 'ServiceQueue', dependent: :destroy_async
+  has_many :ticket_imports, dependent: :destroy_async
   # Estagios live under a Mesa; reached through it so account-scoped lookups
   # (a transfer target, a stage select) don't have to join by hand.
   has_many :ticket_columns, through: :teams

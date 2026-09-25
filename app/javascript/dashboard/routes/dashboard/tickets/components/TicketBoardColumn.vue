@@ -177,6 +177,7 @@ export default {
             :ticket="element"
             :agents="agents"
             :read-only="readOnly"
+            :is-completed="column.kind === 'completed'"
             @click="$emit('openTicket', element)"
             @menu-action="$emit('menuAction', $event)"
           />

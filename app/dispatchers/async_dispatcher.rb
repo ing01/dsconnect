@@ -19,8 +19,10 @@ class AsyncDispatcher < BaseDispatcher
       ParticipationListener.instance,
       Conversations::UnreadCounts::Listener.instance,
       ReportingEventListener.instance,
+      TicketColumnAutomationListener.instance,
       TicketSlaListener.instance,
-      WebhookListener.instance
+      WebhookListener.instance,
+      WhatsappCsatSurveyListener.instance
     ]
   end
 end

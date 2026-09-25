@@ -21,6 +21,7 @@ class AutomationRules::Flow::RunnerService
     'create_ticket' => AutomationRules::Flow::Steps::CreateTicket,
     'handoff' => AutomationRules::Flow::Steps::Handoff,
     'check_company_blocked' => AutomationRules::Flow::Steps::CheckCompanyBlocked,
+    'check_problem_clarity' => AutomationRules::Flow::Steps::CheckProblemClarity,
     'find_open_ticket_by_number' => AutomationRules::Flow::Steps::FindOpenTicketByNumber,
     'find_open_ticket_for_customer' => AutomationRules::Flow::Steps::FindOpenTicketForCustomer,
     'list_companies' => AutomationRules::Flow::Steps::ListCompanies,
@@ -157,11 +158,23 @@ class AutomationRules::Flow::RunnerService
       { content: I18n.t('automations.flow.errors.unexpected'), private: false,
         content_attributes: { automation_rule_id: run.automation_rule_id } }
     ).perform
+    route_to_default_queue(conversation)
     conversation.bot_handoff!(dispatch_event: false)
   rescue StandardError
     # Falhar ao AVISAR sobre a falha original nao pode subir de novo - o
     # `run.update!` que chamou isto ja deixou o status correto gravado.
     nil
+  end
+
+  # Mesma regra do handoff deliberado (`Steps::Handoff`): uma falha nao
+  # controlada tambem e "a automacao nao sabe o que fazer" - sem fila, a
+  # conversa ficava so aberta, sem aparecer em nenhuma aba pra ninguem pegar.
+  # Nunca sobrescreve uma fila que a etapa que falhou ja tenha definido antes.
+  def route_to_default_queue(conversation)
+    return if conversation.queue_id.present?
+
+    queue_id = run.account.helpdesk_default_queue_id
+    conversation.update!(queue_id: queue_id) if queue_id.present?
   end
 
   def unsupported(step)

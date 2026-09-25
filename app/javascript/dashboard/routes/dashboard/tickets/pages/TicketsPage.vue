@@ -49,9 +49,9 @@ export default {
       selectedAgentIds: [],
       quickSearch: '',
       sort: null,
-      // The "Finalizado" Estagio (TicketColumn#kind == 'completed') is hidden
-      // from the board by default, mirroring the Ativos/Concluidos toggle on
-      // the Projects board.
+      // Any Estagio can be hidden from the board (TicketColumn#hidden,
+      // Configuracoes > Estagios) - "Finalizado" is not a special case
+      // anymore, see TicketBoard.vue.
     };
   },
   computed: {

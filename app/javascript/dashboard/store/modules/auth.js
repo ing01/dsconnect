@@ -52,6 +52,14 @@ export const getters = {
     return currentAccount.auto_offline;
   },
 
+  getCurrentUserEnforceQueueOrder($state, $getters) {
+    const { accounts = [] } = $state.currentUser;
+    const [currentAccount = {}] = accounts.filter(
+      account => account.id === $getters.getCurrentAccountId
+    );
+    return currentAccount.enforce_queue_order;
+  },
+
   getCurrentAccountId(_, __, rootState) {
     if (rootState.route.params && rootState.route.params.accountId) {
       return Number(rootState.route.params.accountId);

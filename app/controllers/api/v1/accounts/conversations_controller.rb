@@ -178,9 +178,28 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   def handle_human_open
     @conversation.with_lock do
       @conversation.assignee_agent_bot = nil
-      @conversation.assignee = Current.user if Current.user.agent?
+      @conversation.assignee = Current.user if Current.user.agent? && !manual_queue_conversation?
       @conversation.save!
     end
+  end
+
+  # Uma conversa numa fila de distribuicao manual (ex: triagem por IA,
+  # "Suporte N1/N2") so pode ganhar dono por uma escolha explicita - abrir ou
+  # reabrir a conversa nao pode reivindicar ela sozinho, senao a fila vira
+  # decoracao: quem primeiro olhar a conversa ja fica com ela, fora de
+  # qualquer ordem.
+  #
+  # `queue_id` sozinho nao bastava: um agente pode abrir a conversa ENQUANTO
+  # a triagem ainda esta rodando, antes dela definir a fila - nesse instante
+  # `queue_id` ainda esta em branco, e o assignee gravado aqui nao e mais
+  # desfeito depois (o roteamento so seta time/fila/prioridade, nunca limpa
+  # o assignee). Mesma corrida ja corrigida em
+  # `AutoAssignmentHandler#pending_flow_automation?` - aqui repetida porque e
+  # um controller, nao o mesmo modulo.
+  def manual_queue_conversation?
+    return true if @conversation.queue_id.present? && @conversation.queue&.manual?
+
+    @conversation.account.automation_rules.where(active: true).any?(&:flow?)
   end
 
   def conversation

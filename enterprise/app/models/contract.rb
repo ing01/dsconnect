@@ -10,19 +10,21 @@
 #  updated_at             :datetime         not null
 #  account_id             :bigint           not null
 #  responsible_contact_id :integer
+#  signed_on              :date
+#  description            :string
 #
 class Contract < ApplicationRecord
   TOTAL_VALUE_MODES = %w[auto manual].freeze
 
   belongs_to :account
   belongs_to :responsible_contact, class_name: 'Contact', optional: true
-  has_many :contract_products, -> { includes(:product) }, dependent: :destroy, autosave: true
+  has_many :contract_product_groups, -> { includes(:product_group) }, dependent: :destroy, autosave: true
   # `dependent: :nullify` - apagar um Contrato nao pode levar Empresas junto,
   # so desvincula-las (elas voltam a ter cobranca manual, como antes de terem
   # um contrato).
   has_many :companies, dependent: :nullify
 
-  accepts_nested_attributes_for :contract_products, allow_destroy: true
+  accepts_nested_attributes_for :contract_product_groups, allow_destroy: true
 
   validates :contract_type, inclusion: { in: Company::BILLING_TYPES }, allow_blank: true
   validates :total_value_mode, inclusion: { in: TOTAL_VALUE_MODES }
@@ -30,9 +32,27 @@ class Contract < ApplicationRecord
 
   scope :search_by_participant_or_responsible, lambda { |query|
     left_joins(:companies, :responsible_contact)
-      .where('companies.name ILIKE :search OR contacts.name ILIKE :search', search: "%#{query.strip}%")
+      .where(
+        'contracts.description ILIKE :search OR companies.name ILIKE :search OR contacts.name ILIKE :search',
+        search: "%#{query.strip}%"
+      )
       .distinct
   }
+
+  # "Descricao" funciona como titulo/identificador do contrato (protocolo,
+  # codigo, etc. - confirmado com a Ingrid) - em qualquer lugar que precise
+  # rotular um contrato pra alguem escolher/reconhecer, o formato e' sempre
+  # "titulo + empresa(s)", nunca so um dos dois.
+  def display_label
+    # `map(&:name)` (nao `.pluck`) de proposito - respeita o eager loading de
+    # `companies` que o index/search do controller ja faz, sem disparar uma
+    # query nova por contrato.
+    company_names = companies.map(&:name).join(', ')
+    return company_names if description.blank?
+    return description if company_names.blank?
+
+    "#{description} - #{company_names}"
+  end
 
   # Substitui o conjunto de Empresas participantes por `ids` - cada mudanca
   # passa por `Company#update!` (nao `update_all`) pra disparar
@@ -44,12 +64,12 @@ class Contract < ApplicationRecord
     account.companies.where(id: target_ids.to_a).find_each { |company| company.update!(contract_id: id) }
   end
 
-  # Soma das linhas de produto (padrao), a menos que o valor tenha sido
-  # sobrescrito manualmente - e' o que alimenta `billing_amount` de cada
+  # Soma das linhas de grupo de produtos (padrao), a menos que o valor tenha
+  # sido sobrescrito manualmente - e' o que alimenta `billing_amount` de cada
   # Empresa vinculada quando o contrato e' selecionado (ver `Company#sync_billing_from_contract`).
   def computed_total_value
     return total_value.to_d if total_value_mode == 'manual' && total_value.present?
 
-    contract_products.sum(&:subtotal)
+    contract_product_groups.sum(&:subtotal)
   end
 end

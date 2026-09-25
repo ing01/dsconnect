@@ -322,6 +322,7 @@ const confirmDeletion = () => {
         :email="currentAgent.email"
         :availability="currentAgent.availability_status"
         :custom-role-id="currentAgent.custom_role_id"
+        :enforce-queue-order="currentAgent.enforce_queue_order"
         @close="hideEditPopup"
       />
     </woot-modal>

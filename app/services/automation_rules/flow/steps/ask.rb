@@ -31,10 +31,13 @@ class AutomationRules::Flow::Steps::Ask < AutomationRules::Flow::Steps::Base
 
   def receive_answer
     answer = message.content.to_s.strip
-    return retry_answer if answer.blank?
+    # Mensagem sem texto (so imagem/audio/figurinha, sem legenda) - `content`
+    # vem vazio mesmo a mensagem existindo. Sem isto, o bot ficava mudo
+    # esperando pra sempre, sem o cliente saber que precisava escrever algo.
+    return retry_answer(reason: :blank) if answer.blank?
 
     normalized = normalize(answer)
-    return retry_answer(invalid: true) if normalized.nil?
+    return retry_answer(reason: :invalid) if normalized.nil?
 
     run.write_variable(save_as, normalized)
     continue(result: { answer: normalized })
@@ -49,9 +52,11 @@ class AutomationRules::Flow::Steps::Ask < AutomationRules::Flow::Steps::Base
 
   # Uma resposta que nao serve nao derruba o fluxo: o bot explica e pergunta de
   # novo, que e o que uma pessoa faria.
-  def retry_answer(invalid: false)
-    say(rendered(:retry_message).presence || I18n.t('automations.flow.retry')) if invalid
-    wait(step['id'], result: { rejected: true })
+  def retry_answer(reason:)
+    content = reason == :invalid ? rendered(:retry_message).presence : nil
+    content ||= I18n.t(reason == :blank ? 'automations.flow.errors.blank_answer' : 'automations.flow.retry')
+    say(content)
+    wait(step['id'], result: { rejected: true, reason: reason })
   end
 
   def normalize(answer)

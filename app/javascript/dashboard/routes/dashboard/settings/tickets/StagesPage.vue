@@ -30,6 +30,7 @@ const showDeleteConfirmationPopup = ref(false);
 const isReordering = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
+const agents = computed(() => getters['agents/getAgents'].value);
 const uiFlags = computed(() => getters['ticketColumns/getUIFlags'].value);
 const selectedBoard = computed(() =>
   selectedTeamId.value
@@ -129,6 +130,7 @@ watch(selectedTeamId, teamId => {
 
 onBeforeMount(async () => {
   await store.dispatch('teams/get');
+  store.dispatch('agents/get');
   selectedTeamId.value = teams.value[0]?.id ?? null;
 });
 </script>
@@ -182,8 +184,16 @@ onBeforeMount(async () => {
           >
             <template #default>
               <BaseTableCell>
-                <span class="text-body-main text-n-slate-12">
-                  {{ stage.name }}
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="text-body-main text-n-slate-12">
+                    {{ stage.name }}
+                  </span>
+                  <span
+                    v-if="stage.hidden"
+                    class="text-xxs font-medium text-n-slate-11 bg-n-slate-4 rounded-full px-1.5 py-0.5"
+                  >
+                    {{ $t('TICKET.SETTINGS.FORM.HIDDEN.BADGE') }}
+                  </span>
                 </span>
               </BaseTableCell>
 
@@ -274,6 +284,7 @@ onBeforeMount(async () => {
         :teams="teams"
         :team-id="selectedTeamId"
         :stage-count="stages.length"
+        :agents="agents"
         @close="hideAddPopup"
       />
     </woot-modal>
@@ -283,6 +294,7 @@ onBeforeMount(async () => {
         :stage="selectedStage"
         :teams="teams"
         :stage-count="stages.length"
+        :agents="agents"
         @close="hideEditPopup"
       />
     </woot-modal>

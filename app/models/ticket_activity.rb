@@ -39,8 +39,21 @@ class TicketActivity < ApplicationRecord
     # entra em `status` por isso mesmo - ver TicketBlocking.
     blocked: 28,
     unblocked: 29,
+    # Nota livre deixada por uma Automacao de Estagio (TicketColumn#automation_actions,
+    # acao `post_note`) - `user` fica nulo de proposito, o autor e a automacao.
+    automation_note: 30,
+    # Registrado por Tickets::ImportService (Configuracoes > Tickets >
+    # Importar) - guarda o numero original e quem criou no sistema anterior,
+    # ja que o Ticket nao tem coluna propria pra nenhum dos dois.
+    imported: 31,
     # Chamado aberto pelo cliente, aprovado na triagem e encaminhado.
-    triaged: 30
+    #
+    # 32, e nao 30: os dois lados deste merge reivindicaram o 30, e o numero
+    # fica GRAVADO na linha. Quem cedeu foi a triagem, porque `automation_note`
+    # e `imported` ja rodaram em producao e tem linhas com 30 e 31; a triagem so
+    # existia em banco de desenvolvimento, onde o remanejamento e uma linha de
+    # UPDATE.
+    triaged: 32
   }
 
   def push_event_data

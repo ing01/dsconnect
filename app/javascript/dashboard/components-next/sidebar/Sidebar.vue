@@ -822,6 +822,18 @@ const menuItems = computed(() => {
               activeOn: ['ticket_automation_settings'],
               to: accountScopedRoute('ticket_automation_settings'),
             },
+            {
+              name: 'Settings Ticket Attendance Schedule',
+              label: t('SIDEBAR.TICKET_ATTENDANCE_SCHEDULE'),
+              activeOn: ['ticket_attendance_schedule_settings'],
+              to: accountScopedRoute('ticket_attendance_schedule_settings'),
+            },
+            {
+              name: 'Settings Ticket Import',
+              label: t('SIDEBAR.TICKET_IMPORT'),
+              activeOn: ['ticket_import_settings'],
+              to: accountScopedRoute('ticket_import_settings'),
+            },
           ],
         },
         {
@@ -903,6 +915,12 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.PRODUCTS'),
           icon: 'i-lucide-package',
           to: accountScopedRoute('products_list'),
+        },
+        {
+          name: 'Settings Product Groups',
+          label: t('SIDEBAR.PRODUCT_GROUPS'),
+          icon: 'i-lucide-boxes',
+          to: accountScopedRoute('product_groups_list'),
         },
         {
           name: 'Settings Custom Attributes',

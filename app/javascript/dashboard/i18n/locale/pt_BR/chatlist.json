@@ -7,6 +7,14 @@
       "404": "Não há conversas ativas neste grupo."
     },
     "FAILED_TO_SEND": "Falha ao enviar",
+    "QUEUE": {
+      "CLAIM_NEXT": {
+        "BUTTON": "Pegar próximo da fila",
+        "EMPTY": "Não há conversas disponíveis na fila no momento.",
+        "ERROR": "Não foi possível pegar a próxima conversa da fila."
+      },
+      "REQUEUED_LABEL": "Conversa desatribuída"
+    },
     "FETCH_ERROR": "Não foi possível carregar as conversas. Por favor, tente novamente.",
     "TAB_HEADING": "Conversas",
     "MENTION_HEADING": "Menções",

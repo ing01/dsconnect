@@ -65,6 +65,8 @@ export default {
     ...mapGetters({
       currentChat: 'getSelectedChat',
       currentUser: 'getCurrentUser',
+      currentUserRole: 'getCurrentRole',
+      currentUserEnforceQueueOrder: 'getCurrentUserEnforceQueueOrder',
       teams: 'teams/getTeams',
       queues: 'queues/getQueues',
     }),
@@ -192,7 +194,20 @@ export default {
           });
       },
     },
+    // Atendente com a trava de fila ligada nao escolhe livremente - so pega
+    // a proxima em ordem (botao "Pegar próximo da fila" na lista "Na fila").
+    // Administrador nunca e afetado.
+    isQueueOrderLocked() {
+      return (
+        this.hasAnAssignedQueue &&
+        this.currentUserRole !== 'administrator' &&
+        !!this.currentUserEnforceQueueOrder
+      );
+    },
     showSelfAssign() {
+      if (this.isQueueOrderLocked) {
+        return false;
+      }
       if (!this.assignedAgent) {
         return true;
       }
@@ -290,6 +305,7 @@ export default {
         </template>
       </ContactDetailsItem>
       <MultiselectDropdown
+        v-if="!isQueueOrderLocked"
         :options="agentsList"
         :selected-item="assignedAgent"
         :multiselector-title="$t('AGENT_MGMT.MULTI_SELECTOR.TITLE.AGENT')"
@@ -302,6 +318,14 @@ export default {
         "
         @select="onClickAssignAgent"
       />
+      <div v-else class="px-2 pb-2">
+        <p class="mb-0 text-sm text-n-slate-12">
+          {{ assignedAgent ? assignedAgent.name : $t('CONVERSATION_SIDEBAR.QUEUE_NONE') }}
+        </p>
+        <p class="mb-0 text-xs text-n-slate-11">
+          {{ $t('CONVERSATION_SIDEBAR.QUEUE_ORDER_LOCKED') }}
+        </p>
+      </div>
     </div>
     <div>
       <ContactDetailsItem

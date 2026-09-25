@@ -418,6 +418,7 @@
     "TEAM_LABEL": "Time atribuído",
     "QUEUE_LABEL": "Fila",
     "QUEUE_NONE": "Nenhuma",
+    "QUEUE_ORDER_LOCKED": "Você só pode pegar a próxima conversa da fila, em ordem. Use \"Pegar próximo da fila\" na aba \"Na fila\".",
     "SELECT": {
       "PLACEHOLDER": "Nenhuma"
     },

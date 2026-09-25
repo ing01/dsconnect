@@ -7,7 +7,7 @@ import { useProductsStore } from 'dashboard/stores/products';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
-import Input from 'dashboard/components-next/input/Input.vue';
+import ProductFormDialog from './ProductFormDialog.vue';
 import {
   BaseTable,
   BaseTableRow,
@@ -17,55 +17,41 @@ import {
 const { t } = useI18n();
 const productsStore = useProductsStore();
 
-const newProductName = ref('');
-const editingId = ref(null);
-const editingName = ref('');
+const formDialogRef = ref(null);
 const selectedProduct = ref(null);
 const showDeleteConfirmationPopup = ref(false);
 
 const products = computed(() => productsStore.getProducts);
 const uiFlags = computed(() => productsStore.uiFlags);
+const isSaving = computed(() => uiFlags.value.isCreating || uiFlags.value.isUpdating);
 
 const tableHeaders = computed(() => [
-  t('PRODUCTS.HEADER'),
+  t('PRODUCTS.FORM.NAME'),
+  t('PRODUCTS.FORM.GROUP'),
+  t('PRODUCTS.FORM.VALUE'),
   '',
 ]);
 
-const createProduct = async () => {
-  const name = newProductName.value.trim();
-  if (!name) return;
+const formatMoney = value =>
+  value == null
+    ? '—'
+    : Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+const openCreateDialog = () => formDialogRef.value?.open();
+const openEditDialog = product => formDialogRef.value?.open(product);
+
+const handleSubmit = async payload => {
   try {
-    await productsStore.create(name);
-    newProductName.value = '';
-    useAlert(t('PRODUCTS.MESSAGES.CREATE_SUCCESS'));
+    if (payload.id) {
+      await productsStore.update(payload.id, payload);
+      useAlert(t('PRODUCTS.MESSAGES.UPDATE_SUCCESS'));
+    } else {
+      await productsStore.create(payload);
+      useAlert(t('PRODUCTS.MESSAGES.CREATE_SUCCESS'));
+    }
+    formDialogRef.value?.onSuccess();
   } catch {
-    useAlert(t('PRODUCTS.MESSAGES.CREATE_ERROR'));
-  }
-};
-
-const startEditing = product => {
-  editingId.value = product.id;
-  editingName.value = product.name;
-};
-
-const cancelEditing = () => {
-  editingId.value = null;
-  editingName.value = '';
-};
-
-const saveEditing = async product => {
-  const name = editingName.value.trim();
-  if (!name || name === product.name) {
-    cancelEditing();
-    return;
-  }
-  try {
-    await productsStore.update(product.id, name);
-    useAlert(t('PRODUCTS.MESSAGES.UPDATE_SUCCESS'));
-  } catch {
-    useAlert(t('PRODUCTS.MESSAGES.UPDATE_ERROR'));
-  } finally {
-    cancelEditing();
+    useAlert(t('PRODUCTS.MESSAGES.SAVE_ERROR'));
   }
 };
 
@@ -105,21 +91,12 @@ onBeforeMount(() => {
         :description="t('PRODUCTS.DESCRIPTION')"
       >
         <template #actions>
-          <div class="flex items-center gap-2">
-            <Input
-              v-model="newProductName"
-              :placeholder="t('PRODUCTS.ADD_PLACEHOLDER')"
-              custom-input-class="h-8 !pt-1 !pb-1"
-              @keyup.enter="createProduct"
-            />
-            <Button
-              :label="t('PRODUCTS.ADD_BUTTON')"
-              size="sm"
-              :is-loading="uiFlags.isCreating"
-              :disabled="!newProductName.trim()"
-              @click="createProduct"
-            />
-          </div>
+          <Button
+            icon="i-lucide-plus"
+            size="sm"
+            :label="t('PRODUCTS.ADD_BUTTON')"
+            @click="openCreateDialog"
+          />
         </template>
       </BaseSettingsHeader>
     </template>
@@ -129,17 +106,18 @@ onBeforeMount(() => {
           <BaseTableRow v-for="product in items" :key="product.id" :item="product">
             <template #default>
               <BaseTableCell>
-                <Input
-                  v-if="editingId === product.id"
-                  v-model="editingName"
-                  custom-input-class="h-8 !pt-1 !pb-1"
-                  autofocus
-                  @keyup.enter="saveEditing(product)"
-                  @blur="saveEditing(product)"
-                  @keyup.esc="cancelEditing"
-                />
-                <span v-else class="text-body-main text-n-slate-12">
+                <span class="text-body-main text-n-slate-12">
                   {{ product.name }}
+                </span>
+              </BaseTableCell>
+              <BaseTableCell>
+                <span class="text-body-main text-n-slate-11">
+                  {{ product.productGroupName || '—' }}
+                </span>
+              </BaseTableCell>
+              <BaseTableCell>
+                <span class="text-body-main text-n-slate-11">
+                  {{ formatMoney(product.value) }}
                 </span>
               </BaseTableCell>
               <BaseTableCell align="end">
@@ -148,7 +126,7 @@ onBeforeMount(() => {
                     icon="i-woot-edit-pen"
                     slate
                     sm
-                    @click="startEditing(product)"
+                    @click="openEditDialog(product)"
                   />
                   <Button
                     icon="i-woot-bin"
@@ -164,6 +142,8 @@ onBeforeMount(() => {
         </template>
       </BaseTable>
     </template>
+
+    <ProductFormDialog ref="formDialogRef" :is-loading="isSaving" @submit="handleSubmit" />
 
     <woot-delete-modal
       v-model:show="showDeleteConfirmationPopup"

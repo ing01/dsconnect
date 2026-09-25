@@ -41,6 +41,9 @@ module AccountSettingsSchema
         'helpdesk_open_ticket_window_days': { 'type': %w[integer null], 'minimum': 1 },
         'helpdesk_level_3to5_team_id': { 'type': %w[integer null] },
         'helpdesk_default_queue_id': { 'type': %w[integer null] },
+        'helpdesk_queue_low_id': { 'type': %w[integer null] },
+        'helpdesk_queue_high_id': { 'type': %w[integer null] },
+        'helpdesk_support_phone_number': { 'type': %w[string null] },
         'priority_threshold_medium_min': { 'type': %w[number null], 'minimum': 0 },
         'priority_threshold_high_min': { 'type': %w[number null], 'minimum': 0 },
         'whatsapp_automation_test_mode_number': { 'type': %w[string null] },
@@ -49,7 +52,12 @@ module AccountSettingsSchema
         'whatsapp_auto_assignment_excluded_agent_ids': {
           'type': %w[array null],
           'items': { 'type': 'integer' }
-        }
+        },
+        'whatsapp_csat_survey_enabled': { 'type': %w[boolean null] },
+        'whatsapp_csat_survey_message': { 'type': %w[string null] },
+        'whatsapp_csat_survey_reply_window_minutes': { 'type': %w[integer null], 'minimum': 1 },
+        'attendance_schedule_enabled': { 'type': %w[boolean null] },
+        'attendance_offline_message': { 'type': %w[string null] }
       },
     'required': [],
     'additionalProperties': true

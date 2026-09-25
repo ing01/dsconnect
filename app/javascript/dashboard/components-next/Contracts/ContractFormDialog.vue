@@ -8,8 +8,9 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import ContractResponsibleField from 'dashboard/components-next/Contracts/ContractResponsibleField.vue';
 import ContractCompaniesField from 'dashboard/components-next/Contracts/ContractCompaniesField.vue';
-import { useProductsStore } from 'dashboard/stores/products';
+import { useProductGroupsStore } from 'dashboard/stores/productGroups';
 import { useAlert } from 'dashboard/composables';
+import { exportContractToPdf } from 'dashboard/helper/contractPdfExport';
 
 const props = defineProps({
   isLoading: { type: Boolean, default: false },
@@ -18,30 +19,32 @@ const props = defineProps({
 const emit = defineEmits(['submit']);
 
 const { t } = useI18n();
-const productsStore = useProductsStore();
+const productGroupsStore = useProductGroupsStore();
 const dialogRef = ref(null);
 const editingId = ref(null);
-const newProductName = ref('');
+const newGroupName = ref('');
 
 const CONTRACT_TYPE_OPTIONS = [
   { value: 'monthly', label: t('CONTRACTS.FORM.CONTRACT_TYPE.MONTHLY') },
   { value: 'annual', label: t('CONTRACTS.FORM.CONTRACT_TYPE.ANNUAL') },
 ];
 
-const products = computed(() => productsStore.getProducts);
+const productGroups = computed(() => productGroupsStore.getProductGroups);
 
 const emptyLine = () => ({
   id: null,
-  productId: '',
+  productGroupId: '',
   unitValue: '',
   licensesQty: 1,
   implementationFee: '',
 });
 
 const form = reactive({
+  description: '',
   responsibleContactId: '',
   responsibleName: '',
   contractType: '',
+  signedOn: '',
   companies: [],
   lines: [emptyLine()],
   totalValueMode: 'auto',
@@ -53,48 +56,54 @@ const form = reactive({
 // linha so some da tela mas continua no banco entrando na soma do total.
 const removedLineIds = ref([]);
 
+// `licensesQty` e' so informativo - nao entra na conta do valor total
+// (confirmado com a Ingrid: quantidade de licencas nunca influencia o valor).
 const computedTotal = computed(() =>
   form.lines.reduce((total, line) => {
     const unit = Number(line.unitValue) || 0;
-    const qty = Number(line.licensesQty) || 0;
     const fee = Number(line.implementationFee) || 0;
-    return total + unit * qty + fee;
+    return total + unit + fee;
   }, 0)
 );
 
 const isEditing = computed(() => Boolean(editingId.value));
 const isFormInvalid = computed(
   () =>
+    !form.description.trim() ||
     !form.contractType ||
     !form.companies.length ||
-    form.lines.some(line => !line.productId || !line.unitValue)
+    form.lines.some(line => !line.productGroupId || !line.unitValue)
 );
 
 const resetForm = () => {
   editingId.value = null;
+  form.description = '';
   form.responsibleContactId = '';
   form.responsibleName = '';
   form.contractType = '';
+  form.signedOn = '';
   form.companies = [];
   form.lines = [emptyLine()];
   form.totalValueMode = 'auto';
   form.totalValue = '';
-  newProductName.value = '';
+  newGroupName.value = '';
   removedLineIds.value = [];
 };
 
 const open = (contract = null) => {
-  productsStore.get();
+  productGroupsStore.get();
   if (contract) {
     editingId.value = contract.id;
+    form.description = contract.description || '';
     form.responsibleContactId = contract.responsibleContactId || '';
     form.responsibleName = contract.responsibleContact?.name || '';
     form.contractType = contract.contractType || '';
+    form.signedOn = contract.signedOn || '';
     form.companies = contract.companies || [];
-    form.lines = contract.contractProducts?.length
-      ? contract.contractProducts.map(line => ({
+    form.lines = contract.contractProductGroups?.length
+      ? contract.contractProductGroups.map(line => ({
           id: line.id,
-          productId: line.productId,
+          productGroupId: line.productGroupId,
           unitValue: line.unitValue,
           licensesQty: line.licensesQty,
           implementationFee: line.implementationFee || '',
@@ -120,14 +129,24 @@ const removeLine = index => {
   if (removed?.id) removedLineIds.value.push(removed.id);
 };
 
-const handleCreateProduct = async () => {
-  const name = newProductName.value.trim();
+// Pre-preenche o valor da linha com o valor do Grupo de Produtos escolhido -
+// o usuario ainda pode editar `line.unitValue` livremente depois (fica
+// guardado por linha, nao amarrado ao grupo pra sempre).
+const handleGroupSelect = line => {
+  const group = productGroups.value.find(
+    candidate => candidate.id === Number(line.productGroupId)
+  );
+  if (group) line.unitValue = group.computedValue;
+};
+
+const handleCreateGroup = async () => {
+  const name = newGroupName.value.trim();
   if (!name) return;
   try {
-    await productsStore.create(name);
-    newProductName.value = '';
+    await productGroupsStore.create({ name });
+    newGroupName.value = '';
   } catch {
-    useAlert(t('PRODUCTS.MESSAGES.CREATE_ERROR'));
+    useAlert(t('PRODUCT_GROUPS.MESSAGES.CREATE_ERROR'));
   }
 };
 
@@ -136,15 +155,17 @@ const handleConfirm = () => {
 
   emit('submit', {
     id: editingId.value,
+    description: form.description.trim(),
     responsibleContactId: form.responsibleContactId || null,
     contractType: form.contractType,
+    signedOn: form.signedOn || null,
     companyIds: form.companies.map(company => Number(company.id)),
     totalValueMode: form.totalValueMode,
     totalValue: form.totalValueMode === 'manual' ? form.totalValue : null,
-    contractProductsAttributes: [
+    contractProductGroupsAttributes: [
       ...form.lines.map(line => ({
         id: line.id || undefined,
-        productId: line.productId,
+        productGroupId: line.productGroupId,
         unitValue: line.unitValue,
         licensesQty: line.licensesQty,
         implementationFee: line.implementationFee || null,
@@ -152,6 +173,35 @@ const handleConfirm = () => {
       ...removedLineIds.value.map(id => ({ id, _destroy: true })),
     ],
   });
+};
+
+const handleExportPdf = () => {
+  const exportTotalValue =
+    form.totalValueMode === 'manual'
+      ? Number(form.totalValue) || 0
+      : computedTotal.value;
+
+  exportContractToPdf(
+    {
+      id: editingId.value,
+      description: form.description,
+      responsibleName: form.responsibleName,
+      contractType: form.contractType,
+      signedOn: form.signedOn,
+      companies: form.companies,
+      lines: form.lines.map(line => ({
+        productGroupName:
+          productGroups.value.find(
+            group => group.id === Number(line.productGroupId)
+          )?.name || '',
+        unitValue: line.unitValue,
+        licensesQty: line.licensesQty,
+        implementationFee: line.implementationFee,
+      })),
+      totalValue: exportTotalValue,
+    },
+    t
+  );
 };
 
 const closeDialog = () => dialogRef.value?.close();
@@ -170,7 +220,18 @@ defineExpose({ dialogRef, onSuccess, open });
         {{ isEditing ? t('CONTRACTS.FORM.EDIT_TITLE') : t('CONTRACTS.FORM.CREATE_TITLE') }}
       </span>
 
-      <div class="grid w-full gap-4 sm:grid-cols-2">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.DESCRIPTION.LABEL') }}</label>
+        <Input
+          v-model="form.description"
+          :placeholder="t('CONTRACTS.FORM.DESCRIPTION.PLACEHOLDER')"
+          :disabled="isLoading"
+          custom-input-class="h-9"
+        />
+        <p class="mb-0 text-xs text-n-slate-11">{{ t('CONTRACTS.FORM.DESCRIPTION.HELP') }}</p>
+      </div>
+
+      <div class="grid w-full gap-4 sm:grid-cols-3">
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.RESPONSIBLE.LABEL') }}</label>
           <ContractResponsibleField
@@ -184,6 +245,15 @@ defineExpose({ dialogRef, onSuccess, open });
           <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.CONTRACT_TYPE.LABEL') }}</label>
           <Select v-model="form.contractType" :options="CONTRACT_TYPE_OPTIONS" :disabled="isLoading" />
         </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.SIGNED_ON.LABEL') }}</label>
+          <input
+            v-model="form.signedOn"
+            type="date"
+            :disabled="isLoading"
+            class="h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+          />
+        </div>
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -192,23 +262,24 @@ defineExpose({ dialogRef, onSuccess, open });
       </div>
 
       <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex flex-col gap-2">
           <label class="text-sm font-medium text-n-slate-12">{{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}</label>
           <div class="flex items-center gap-2">
             <input
-              v-model="newProductName"
+              v-model="newGroupName"
               type="text"
               :placeholder="t('CONTRACTS.FORM.PRODUCTS.NEW_PLACEHOLDER')"
-              class="h-9 px-3 text-sm rounded-lg border border-n-weak bg-n-solid-1 text-n-slate-12 focus:border-n-brand focus:outline-none"
-              @keyup.enter="handleCreateProduct"
+              class="h-9 px-3 text-sm rounded-lg border border-n-weak bg-n-solid-1 text-n-slate-12 focus:border-n-brand focus:outline-none w-64"
+              @keyup.enter="handleCreateGroup"
             />
             <Button
               :label="t('CONTRACTS.FORM.PRODUCTS.NEW_BUTTON')"
               size="sm"
               variant="faded"
               slate
-              :disabled="!newProductName.trim()"
-              @click="handleCreateProduct"
+              class="flex-shrink-0 whitespace-nowrap"
+              :disabled="!newGroupName.trim()"
+              @click="handleCreateGroup"
             />
           </div>
         </div>
@@ -221,11 +292,12 @@ defineExpose({ dialogRef, onSuccess, open });
           <div class="flex flex-col gap-1.5">
             <span class="text-xs font-medium text-n-slate-11">{{ t('CONTRACTS.FORM.PRODUCTS.PRODUCT') }}</span>
             <select
-              v-model="line.productId"
+              v-model="line.productGroupId"
               class="h-9 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+              @change="handleGroupSelect(line)"
             >
               <option value="" disabled>{{ t('CONTRACTS.FORM.PRODUCTS.SELECT_PLACEHOLDER') }}</option>
-              <option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }}</option>
+              <option v-for="group in productGroups" :key="group.id" :value="group.id">{{ group.name }}</option>
             </select>
           </div>
           <div class="flex flex-col gap-1.5">
@@ -233,7 +305,12 @@ defineExpose({ dialogRef, onSuccess, open });
             <Input v-model="line.unitValue" type="number" custom-input-class="h-9 text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <span class="text-xs font-medium text-n-slate-11">{{ t('CONTRACTS.FORM.PRODUCTS.LICENSES_QTY') }}</span>
+            <span
+              class="text-xs font-medium text-n-slate-11"
+              :title="t('CONTRACTS.FORM.PRODUCTS.LICENSES_QTY_HELP')"
+            >
+              {{ t('CONTRACTS.FORM.PRODUCTS.LICENSES_QTY') }}
+            </span>
             <Input v-model="line.licensesQty" type="number" custom-input-class="h-9 text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
@@ -292,13 +369,24 @@ defineExpose({ dialogRef, onSuccess, open });
           class="h-10 hover:!no-underline hover:text-n-brand"
           @click="closeDialog"
         />
-        <Button
-          :label="t('CONTRACTS.FORM.SAVE')"
-          color="blue"
-          type="submit"
-          :disabled="isFormInvalid || isLoading"
-          :is-loading="isLoading"
-        />
+        <div class="flex items-center gap-2">
+          <Button
+            v-if="isEditing"
+            :label="t('CONTRACTS.FORM.EXPORT_PDF')"
+            icon="i-lucide-file-down"
+            variant="faded"
+            slate
+            type="button"
+            @click="handleExportPdf"
+          />
+          <Button
+            :label="t('CONTRACTS.FORM.SAVE')"
+            color="blue"
+            type="submit"
+            :disabled="isFormInvalid || isLoading"
+            :is-loading="isLoading"
+          />
+        </div>
       </div>
     </template>
   </Dialog>

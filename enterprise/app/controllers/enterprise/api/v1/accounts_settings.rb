@@ -31,12 +31,20 @@ module Enterprise::Api::V1::AccountsSettings
       :helpdesk_open_ticket_window_days,
       :helpdesk_level_3to5_team_id,
       :helpdesk_default_queue_id,
+      :helpdesk_queue_low_id,
+      :helpdesk_queue_high_id,
+      :helpdesk_support_phone_number,
       :priority_threshold_medium_min,
       :priority_threshold_high_min,
       :whatsapp_automation_test_mode_number,
       :whatsapp_auto_assignment_enabled,
       :whatsapp_auto_assignment_max_open_chats,
-      { whatsapp_auto_assignment_excluded_agent_ids: [] }
+      { whatsapp_auto_assignment_excluded_agent_ids: [] },
+      :whatsapp_csat_survey_enabled,
+      :whatsapp_csat_survey_message,
+      :whatsapp_csat_survey_reply_window_minutes,
+      :attendance_schedule_enabled,
+      :attendance_offline_message
     ]
   end
 end

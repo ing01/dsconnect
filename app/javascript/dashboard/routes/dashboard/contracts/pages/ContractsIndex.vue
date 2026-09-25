@@ -125,7 +125,7 @@ onMounted(() => fetchPage(1));
             >
               <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                 <span class="text-base font-medium truncate text-n-slate-12">
-                  {{ contract.companies?.map(c => c.name).join(', ') || t('CONTRACTS.NO_COMPANIES') }}
+                  {{ contract.displayLabel || t('CONTRACTS.NO_COMPANIES') }}
                 </span>
                 <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 min-w-0">
                   <span
@@ -141,7 +141,14 @@ onMounted(() => fetchPage(1));
                   </span>
                   <span class="inline-flex items-center gap-1.5 text-sm text-n-slate-11">
                     <Icon icon="i-lucide-package" class="flex-shrink-0 size-4 text-n-slate-10" />
-                    {{ contract.contractProducts?.length || 0 }} {{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}
+                    {{ contract.contractProductGroups?.length || 0 }} {{ t('CONTRACTS.FORM.PRODUCTS.LABEL') }}
+                  </span>
+                  <span
+                    v-if="contract.signedOn"
+                    class="inline-flex items-center gap-1.5 text-sm text-n-slate-11"
+                  >
+                    <Icon icon="i-lucide-signature" class="flex-shrink-0 size-4 text-n-slate-10" />
+                    {{ contract.signedOn }}
                   </span>
                 </div>
               </div>

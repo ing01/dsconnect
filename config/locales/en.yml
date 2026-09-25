@@ -199,18 +199,21 @@ en:
       ai_resolve:
         error_message: "I'll transfer you to an agent to continue your request."
       ai_triage:
-        default_handoff_message: "Thanks for the details! I'll transfer your request to our support team, who will take it from here."
+        default_handoff_message: "Thanks for the details!\n\nYour request has been classified with %{prioridade} priority.\n\nOne of our agents will pick up the conversation shortly."
       ticket_reference:
         created: "Your request has been registered as ticket #%{numero}."
         existing: "Your request will continue under ticket #%{numero}."
       errors:
         empty_message: "the message is empty"
+        blank_answer: "I couldn't find a text reply there. Can you write what's happening?"
         too_many_steps: "the flow ran too many steps and was stopped"
         timeout: "the customer did not reply in time"
         unexpected: "Sorry, I ran into a problem continuing your request. I'll transfer you to an agent."
   errors:
     agents:
       password_reset_not_allowed: this agent also belongs to another account, so their password cannot be reset from here
+    queues:
+      out_of_order_assignment: "You can't pick this conversation freely - use \"Pick up next in queue\" to grab the next one in order."
     account:
       not_authorized: You are not authorized to access this account
       email_limit_exceeded: The daily email limit for this account has been reached
@@ -555,6 +558,7 @@ en:
       ways_to_reach_you_message_body: 'Give the team a way to reach you.'
       email_input_box_message_body: 'Get notified by email'
       csat_input_message_body: 'Please rate the conversation'
+      whatsapp_csat_thank_you: 'Thank you for your feedback!'
     reply:
       email:
         header:
