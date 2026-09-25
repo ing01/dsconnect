@@ -244,7 +244,7 @@ export const buildWhatsappTriageTemplate = ({
     id: 's9',
     type: 'check_problem_clarity',
     params: {},
-    next: 's7',
+    next: 's11',
     branches: { unclear: 's10' },
   },
   {
@@ -256,7 +256,7 @@ export const buildWhatsappTriageTemplate = ({
       save_as: 'resposta.problema',
       answer_type: 'text',
     },
-    next: 's7',
+    next: 's11',
     branches: {},
   },
   {
@@ -279,6 +279,17 @@ export const buildWhatsappTriageTemplate = ({
       reason: 'cnpj_nao_encontrado',
     },
     next: null,
+    branches: {},
+  },
+  // Antes de criar o ticket, confere se este contato/empresa ja tem um aberto
+  // na mesma Mesa - sem branch `found` configurado, so segue direto pro
+  // create_ticket dos dois jeitos (achou ou nao), que ja reaproveita
+  // sozinho um ticket que este passo tenha encontrado.
+  {
+    id: 's11',
+    type: 'find_open_ticket_for_customer',
+    params: { team_id: triageTeamId || teamId },
+    next: 's7',
     branches: {},
   },
   {
@@ -405,7 +416,7 @@ export const buildWidgetTriageTemplate = ({
     id: 's15',
     type: 'check_problem_clarity',
     params: {},
-    next: 's10',
+    next: 's17',
     branches: { unclear: 's16' },
   },
   {
@@ -417,6 +428,15 @@ export const buildWidgetTriageTemplate = ({
       save_as: 'resposta.problema',
       answer_type: 'text',
     },
+    next: 's17',
+    branches: {},
+  },
+  // Antes de criar o ticket, confere se este contato/empresa ja tem um aberto
+  // na mesma Mesa - mesma logica do modelo do WhatsApp.
+  {
+    id: 's17',
+    type: 'find_open_ticket_for_customer',
+    params: { team_id: triageTeamId || teamId },
     next: 's10',
     branches: {},
   },
