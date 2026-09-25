@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-stage-automation',
+    date: '25 de setembro de 2026',
+    isoDate: '2026-09-25',
+    type: 'feature',
+    title: 'Automação de Estágio no Kanban de tickets',
+    description:
+      'Em Configurações > Estágios (adicionar/editar), nova seção "Automação de estágio": configure ações que rodam sozinhas sempre que um ticket entrar naquela coluna - mudar prioridade, mudar status (resolver/fechar/cancelar/reabrir), mudar responsável, limpar data de vencimento/agendamento, ou adicionar uma nota automática no histórico do ticket. Dá pra combinar quantas ações quiser por estágio, e desativar sem perder a configuração.',
+  },
+  {
     id: 'kanban-finalizado-column',
     date: '25 de setembro de 2026',
     isoDate: '2026-09-25',
