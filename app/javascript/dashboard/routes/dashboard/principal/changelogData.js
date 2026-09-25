@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-import',
+    date: '25 de setembro de 2026',
+    isoDate: '2026-09-25',
+    type: 'feature',
+    title: 'Importação de tickets de outro sistema (CSV)',
+    description:
+      'Nova tela em Configurações > Tickets > Importar: envie uma planilha CSV com os tickets de um sistema anterior (Número, Cliente, Título, Descrição, Status, Estágio, Contato, Time, Prioridade, Catálogo de Serviços, Ticket pai, Criado por, Criado em, Categoria, Data, entre outros) e o sistema cria os tickets automaticamente, linkando com Mesa, Categoria, Cliente e Contato já cadastrados. Tem um botão para baixar um modelo de exemplo com o formato certo, e o resultado (criados, avisos, erros por linha) aparece na hora.',
+  },
+  {
     id: 'ticket-stage-automation',
     date: '25 de setembro de 2026',
     isoDate: '2026-09-25',
