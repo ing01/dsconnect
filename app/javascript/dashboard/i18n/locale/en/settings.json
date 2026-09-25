@@ -435,6 +435,7 @@
     "TICKET_CATEGORIES": "Categories",
     "TICKET_PRIORITIES": "Priorities & SLA",
     "TICKET_AUTOMATION": "WhatsApp Automation",
+    "TICKET_ATTENDANCE_SCHEDULE": "Attendance Schedule",
     "PROJECT_SETTINGS": "Projects",
     "PROJECT_MODULES": "Modules",
     "PROJECT_TASKS": "Tasks",

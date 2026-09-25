@@ -435,6 +435,7 @@
     "TICKET_CATEGORIES": "Categorias",
     "TICKET_PRIORITIES": "Prioridades e SLA",
     "TICKET_AUTOMATION": "Automação WhatsApp",
+    "TICKET_ATTENDANCE_SCHEDULE": "Configuração de Atendimento",
     "PROJECT_SETTINGS": "Projetos",
     "PROJECT_MODULES": "Módulos",
     "PROJECT_TASKS": "Tarefas",

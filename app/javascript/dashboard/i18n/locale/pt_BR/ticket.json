@@ -661,6 +661,43 @@
           "SUCCESS": "Configurações de automação atualizadas.",
           "ERROR": "Não foi possível atualizar as configurações de automação."
         }
+      },
+      "ATTENDANCE_SCHEDULE": {
+        "TITLE": "Configuração de Atendimento",
+        "DESCRIPTION": "Define em quais dias e horários a triagem automática pode começar. Fora desse período, o cliente recebe um aviso de que o atendimento está offline e a conversa cai na fila esperando o próximo horário.",
+        "ENABLED": {
+          "LABEL": "Horário de atendimento ativo",
+          "HELP": "Quando ligado, mensagens fora dos períodos abaixo não iniciam a triagem automática - só recebem o aviso de offline."
+        },
+        "OFFLINE_MESSAGE": {
+          "LABEL": "Mensagem de offline",
+          "HELP": "Enviada ao cliente quando ele escreve fora do horário configurado.",
+          "PLACEHOLDER": "Ex: No momento estamos fora do horário de atendimento...",
+          "REQUIRED": "Obrigatório enquanto o horário de atendimento estiver ativo."
+        },
+        "WINDOW": {
+          "TITLE": "Dias e horários",
+          "DESCRIPTION": "Adicione quantos períodos precisar por dia - por exemplo, expediente normal de manhã/tarde e um plantão à noite no fim de semana.",
+          "ADD": "Adicionar período",
+          "EMPTY": "Nenhum período - fechado o dia todo.",
+          "UNTIL": "até",
+          "INVALID_RANGE": "Cada período precisa ter um horário final depois do inicial."
+        },
+        "DAYS": {
+          "0": "Domingo",
+          "1": "Segunda-feira",
+          "2": "Terça-feira",
+          "3": "Quarta-feira",
+          "4": "Quinta-feira",
+          "5": "Sexta-feira",
+          "6": "Sábado"
+        },
+        "SAVE": "Salvar configuração de atendimento",
+        "API": {
+          "SUCCESS": "Configuração de atendimento atualizada.",
+          "ERROR": "Não foi possível atualizar a configuração de atendimento.",
+          "LOAD_ERROR": "Não foi possível carregar os horários já configurados."
+        }
       }
     },
     "MESA_SELECTOR": {

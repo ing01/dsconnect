@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_24_200000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -262,6 +262,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_24_200000) do
     t.jsonb "meta", default: {}
     t.index ["account_id"], name: "index_attachments_on_account_id"
     t.index ["message_id"], name: "index_attachments_on_message_id"
+  end
+
+  create_table "attendance_windows", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.integer "day_of_week", null: false
+    t.integer "start_minute", null: false
+    t.integer "end_minute", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "day_of_week"], name: "index_attendance_windows_on_account_id_and_day_of_week"
+    t.index ["account_id"], name: "index_attendance_windows_on_account_id"
   end
 
   create_table "audits", force: :cascade do |t|
@@ -2345,6 +2356,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_24_200000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_bots", "conversation_flows"
+  add_foreign_key "attendance_windows", "accounts"
   add_foreign_key "calendar_event_attendees", "calendar_events"
   add_foreign_key "calendar_event_attendees", "users"
   add_foreign_key "calendar_event_tickets", "calendar_events"

@@ -403,6 +403,14 @@ Rails.application.routes.draw do
             end
           end
 
+          # Configuracao de Atendimento: dias/horarios em que a triagem
+          # automatica pode comecar - conta inteira, nao por Inbox/Mesa.
+          resources :attendance_windows, only: [:index] do
+            collection do
+              post :bulk_update
+            end
+          end
+
           # Chat Interno: conversa entre funcionarios, separada das
           # Conversations com clientes.
           resources :chat_channels, only: [:index, :show, :create] do

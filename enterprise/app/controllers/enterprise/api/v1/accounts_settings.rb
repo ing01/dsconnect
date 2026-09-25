@@ -41,7 +41,9 @@ module Enterprise::Api::V1::AccountsSettings
       :whatsapp_auto_assignment_max_open_chats,
       { whatsapp_auto_assignment_excluded_agent_ids: [] },
       :whatsapp_csat_survey_enabled,
-      :whatsapp_csat_survey_message
+      :whatsapp_csat_survey_message,
+      :attendance_schedule_enabled,
+      :attendance_offline_message
     ]
   end
 end

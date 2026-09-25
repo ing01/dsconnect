@@ -814,6 +814,12 @@ const menuItems = computed(() => {
               activeOn: ['ticket_automation_settings'],
               to: accountScopedRoute('ticket_automation_settings'),
             },
+            {
+              name: 'Settings Ticket Attendance Schedule',
+              label: t('SIDEBAR.TICKET_ATTENDANCE_SCHEDULE'),
+              activeOn: ['ticket_attendance_schedule_settings'],
+              to: accountScopedRoute('ticket_attendance_schedule_settings'),
+            },
           ],
         },
         {

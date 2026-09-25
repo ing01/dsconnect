@@ -661,6 +661,43 @@
           "SUCCESS": "Automation settings updated.",
           "ERROR": "Could not update the automation settings."
         }
+      },
+      "ATTENDANCE_SCHEDULE": {
+        "TITLE": "Attendance Schedule",
+        "DESCRIPTION": "Sets which days and hours the automated triage can start. Outside that window, the customer gets an offline notice and the conversation drops into the queue to wait for the next attendance window.",
+        "ENABLED": {
+          "LABEL": "Attendance schedule active",
+          "HELP": "When on, messages outside the periods below never start the automated triage - they only get the offline notice."
+        },
+        "OFFLINE_MESSAGE": {
+          "LABEL": "Offline message",
+          "HELP": "Sent to the customer when they write outside the configured schedule.",
+          "PLACEHOLDER": "E.g.: We're currently outside our attendance hours...",
+          "REQUIRED": "Required while the attendance schedule is active."
+        },
+        "WINDOW": {
+          "TITLE": "Days and hours",
+          "DESCRIPTION": "Add as many periods as you need per day - for example, a normal morning/afternoon shift plus a weekend on-call period in the evening.",
+          "ADD": "Add period",
+          "EMPTY": "No periods - closed all day.",
+          "UNTIL": "until",
+          "INVALID_RANGE": "Each period needs an end time after its start time."
+        },
+        "DAYS": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday"
+        },
+        "SAVE": "Save attendance schedule",
+        "API": {
+          "SUCCESS": "Attendance schedule updated.",
+          "ERROR": "Could not update the attendance schedule.",
+          "LOAD_ERROR": "Could not load the periods already configured."
+        }
       }
     },
     "MESA_SELECTOR": {
