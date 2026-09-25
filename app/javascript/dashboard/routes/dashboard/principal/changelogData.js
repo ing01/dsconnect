@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'attendance-schedule',
+    date: '25 de setembro de 2026',
+    isoDate: '2026-09-25',
+    type: 'feature',
+    title: 'Nova Configuração de Atendimento (horário de funcionamento)',
+    description:
+      'Nova aba em Configurações > Tickets > Configuração de Atendimento: defina os dias e horários em que a triagem automática deve funcionar, com quantos períodos precisar por dia (dá pra ter um plantão de fim de semana com horário diferente do expediente normal). Fora do horário, o cliente recebe uma mensagem de offline configurável e a conversa cai direto na fila, sem passar pelas perguntas da triagem.',
+  },
+  {
     id: 'flow-dedup-ticket-and-queue-fallback',
     date: '25 de setembro de 2026',
     isoDate: '2026-09-25',
