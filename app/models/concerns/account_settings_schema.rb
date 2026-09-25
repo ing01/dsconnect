@@ -55,6 +55,7 @@ module AccountSettingsSchema
         },
         'whatsapp_csat_survey_enabled': { 'type': %w[boolean null] },
         'whatsapp_csat_survey_message': { 'type': %w[string null] },
+        'whatsapp_csat_survey_reply_window_minutes': { 'type': %w[integer null], 'minimum': 1 },
         'attendance_schedule_enabled': { 'type': %w[boolean null] },
         'attendance_offline_message': { 'type': %w[string null] }
       },

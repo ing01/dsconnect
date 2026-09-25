@@ -586,7 +586,12 @@
           "MESSAGE_LABEL": "Mensagem da pesquisa",
           "MESSAGE_PLACEHOLDER": "Como você avalia nosso atendimento? Responda com um número de 1 a 5...",
           "MESSAGE_HELP": "O cliente responde digitando só o número (1 a 5) na própria conversa de WhatsApp.",
-          "MESSAGE_REQUIRED": "Escreva a mensagem da pesquisa antes de salvar."
+          "MESSAGE_REQUIRED": "Escreva a mensagem da pesquisa antes de salvar.",
+          "REPLY_WINDOW": {
+            "LABEL": "Janela para responder a pesquisa (minutos)",
+            "PLACEHOLDER": "Padrão: 30",
+            "HELP": "Enquanto a nota não é respondida e esse tempo não passou, uma mensagem nova do cliente reabre a mesma conversa para registrar a nota, em vez de abrir uma conversa nova e reiniciar a triagem."
+          }
         },
         "TEST_MODE": {
           "TITLE": "Modo de teste da automação do WhatsApp",

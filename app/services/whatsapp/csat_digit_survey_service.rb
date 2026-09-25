@@ -12,8 +12,48 @@
 # pra nunca mandar as duas.
 class Whatsapp::CsatDigitSurveyService
   RATING_PATTERN = /\A[1-5]\z/
+  DEFAULT_REPLY_WINDOW_MINUTES = 30
 
   pattr_initialize [:conversation!]
+
+  class << self
+    # Usado por `Whatsapp::IncomingMessageBaseService#set_conversation`: sem
+    # isso, a resposta com a nota (so um numero de 1 a 5) cai numa conversa
+    # NOVA - regra padrao do WhatsApp pra conversa resolvida -, a pesquisa
+    # nunca e capturada e a triagem comeca do zero por engano. So reabre a
+    # conversa resolvida enquanto a pesquisa mais recente ainda estiver sem
+    # resposta e dentro da janela configurada - depois disso (ou se ja foi
+    # respondida), uma mensagem nova volta a abrir conversa nova normalmente.
+    def pending_reply_conversation(contact:, inbox:)
+      return nil unless inbox.account.whatsapp_csat_survey_enabled
+
+      conversation = contact.conversations.where(inbox_id: inbox.id, status: :resolved).order(created_at: :desc).first
+      return nil if conversation.blank?
+
+      survey_message = new(conversation: conversation).pending_survey_message
+      return nil if survey_message.blank?
+      return nil if survey_message.created_at < reply_window_minutes(inbox.account).minutes.ago
+
+      conversation
+    end
+
+    def reply_window_minutes(account)
+      account.whatsapp_csat_survey_reply_window_minutes.presence || DEFAULT_REPLY_WINDOW_MINUTES
+    end
+  end
+
+  # A pesquisa mais recente desta conversa que ainda nao tem resposta -
+  # `left_joins` + `id: nil` acha exatamente isso sem precisar de uma coluna
+  # "respondida" separada em Message. Publico (nao privado): reaproveitado por
+  # `self.pending_reply_conversation` acima, pra nao duplicar a query.
+  def pending_survey_message
+    conversation.messages
+                .where(content_type: :input_csat)
+                .left_joins(:csat_survey_response)
+                .where(csat_survey_responses: { id: nil })
+                .order(created_at: :desc)
+                .first
+  end
 
   def send_survey
     return unless should_send_survey?
@@ -43,6 +83,7 @@ class Whatsapp::CsatDigitSurveyService
 
     save_response!(survey_message_record, rating)
     send_thank_you!
+    resolve_conversation_again!
   end
 
   private
@@ -76,18 +117,6 @@ class Whatsapp::CsatDigitSurveyService
     end
   end
 
-  # A pesquisa mais recente desta conversa que ainda nao tem resposta -
-  # `left_joins` + `id: nil` acha exatamente isso sem precisar de uma coluna
-  # "respondida" separada em Message.
-  def pending_survey_message
-    conversation.messages
-                .where(content_type: :input_csat)
-                .left_joins(:csat_survey_response)
-                .where(csat_survey_responses: { id: nil })
-                .order(created_at: :desc)
-                .first
-  end
-
   def parse_rating(content)
     value = content.to_s.strip
     return nil unless value.match?(RATING_PATTERN)
@@ -114,5 +143,13 @@ class Whatsapp::CsatDigitSurveyService
       message_type: :outgoing,
       content: I18n.t('conversations.templates.whatsapp_csat_thank_you')
     )
+  end
+
+  # A conversa so foi reaberta pra receber a nota (ver
+  # `self.pending_reply_conversation`) - sem isso, ficava "aberta" sozinha
+  # depois de capturar a resposta, aparecendo pra um atendente resolver de
+  # novo por nada.
+  def resolve_conversation_again!
+    conversation.update!(status: :resolved) unless conversation.resolved?
   end
 end

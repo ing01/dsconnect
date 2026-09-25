@@ -35,6 +35,7 @@ const whatsappAutoAssignmentMaxOpenChats = ref(null);
 const whatsappAutoAssignmentExcludedAgentIds = ref([]);
 const whatsappCsatSurveyEnabled = ref(false);
 const whatsappCsatSurveyMessage = ref(DEFAULT_CSAT_SURVEY_MESSAGE);
+const whatsappCsatSurveyReplyWindowMinutes = ref(null);
 const aiResolveLevels = ref([1, 2]);
 const defaultPriorityOnAiFailure = ref('baixa');
 const openTicketWindowDays = ref(null);
@@ -93,6 +94,8 @@ watch(
       settings.whatsapp_csat_survey_enabled ?? false;
     whatsappCsatSurveyMessage.value =
       settings.whatsapp_csat_survey_message || DEFAULT_CSAT_SURVEY_MESSAGE;
+    whatsappCsatSurveyReplyWindowMinutes.value =
+      settings.whatsapp_csat_survey_reply_window_minutes ?? null;
   },
   { deep: true, immediate: true }
 );
@@ -171,6 +174,8 @@ const saveSettings = async () => {
           whatsappAutoAssignmentExcludedAgentIds.value,
         whatsapp_csat_survey_enabled: whatsappCsatSurveyEnabled.value,
         whatsapp_csat_survey_message: whatsappCsatSurveyMessage.value.trim() || null,
+        whatsapp_csat_survey_reply_window_minutes:
+          whatsappCsatSurveyReplyWindowMinutes.value || null,
       },
       { silent: true }
     );
@@ -364,6 +369,26 @@ const handleRecalculatePriorities = async () => {
               </p>
               <p v-else class="mb-0 text-xs text-n-slate-11">
                 {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_HELP') }}
+              </p>
+
+              <label class="text-sm text-n-slate-12">
+                {{
+                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.LABEL')
+                }}
+              </label>
+              <input
+                v-model.number="whatsappCsatSurveyReplyWindowMinutes"
+                type="number"
+                min="1"
+                class="mb-0 max-w-xs"
+                :placeholder="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.PLACEHOLDER'
+                  )
+                "
+              />
+              <p class="mb-0 text-xs text-n-slate-11">
+                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.HELP') }}
               </p>
             </div>
           </div>

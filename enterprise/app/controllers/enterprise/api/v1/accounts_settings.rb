@@ -42,6 +42,7 @@ module Enterprise::Api::V1::AccountsSettings
       { whatsapp_auto_assignment_excluded_agent_ids: [] },
       :whatsapp_csat_survey_enabled,
       :whatsapp_csat_survey_message,
+      :whatsapp_csat_survey_reply_window_minutes,
       :attendance_schedule_enabled,
       :attendance_offline_message
     ]

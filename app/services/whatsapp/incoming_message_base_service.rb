@@ -120,11 +120,20 @@ class Whatsapp::IncomingMessageBaseService
     @conversation = if @inbox.lock_to_single_conversation
                       conversations.last
                     else
-                      conversations.where.not(status: :resolved).last
+                      conversations.where.not(status: :resolved).last || pending_csat_reply_conversation
                     end
     return if @conversation
 
     @conversation = ::Conversation.create!(conversation_params)
+  end
+
+  # Sem isso, a resposta da pesquisa de satisfacao por digito (so um numero
+  # de 1 a 5) caia numa conversa NOVA - regra padrao pra conversa resolvida -
+  # em vez de ser capturada como a nota da conversa que a gerou. So reabre a
+  # conversa resolvida enquanto a pesquisa ainda esta sem resposta e dentro da
+  # janela configurada; ver `Whatsapp::CsatDigitSurveyService.pending_reply_conversation`.
+  def pending_csat_reply_conversation
+    Whatsapp::CsatDigitSurveyService.pending_reply_conversation(contact: @contact, inbox: @inbox)
   end
 
   def attach_files

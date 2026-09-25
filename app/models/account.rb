@@ -85,9 +85,11 @@ class Account < ApplicationRecord
   store_accessor :settings, :whatsapp_auto_assignment_enabled, :whatsapp_auto_assignment_max_open_chats,
                   :whatsapp_auto_assignment_excluded_agent_ids
   # Pesquisa de satisfacao por digito (1-5) no WhatsApp - ver
-  # Whatsapp::CsatDigitSurveyService, unico lugar que le essas 2 chaves.
+  # Whatsapp::CsatDigitSurveyService, unico lugar que le essas chaves.
   # Mensagem em branco cai no texto padrao (`whatsapp_csat_survey_message_or_default`).
-  store_accessor :settings, :whatsapp_csat_survey_enabled, :whatsapp_csat_survey_message
+  # `reply_window_minutes` em branco cai no padrao (`Whatsapp::CsatDigitSurveyService::DEFAULT_REPLY_WINDOW_MINUTES`).
+  store_accessor :settings, :whatsapp_csat_survey_enabled, :whatsapp_csat_survey_message,
+                  :whatsapp_csat_survey_reply_window_minutes
   # Configuracao de Atendimento: dias/horarios em que a triagem automatica
   # (AutomationRules::Flow) pode comecar - ver AttendanceWindow e
   # `within_attendance_hours?`. Mensagem em branco cai no texto padrao

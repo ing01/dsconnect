@@ -586,7 +586,12 @@
           "MESSAGE_LABEL": "Survey message",
           "MESSAGE_PLACEHOLDER": "How would you rate our support? Reply with a number from 1 to 5...",
           "MESSAGE_HELP": "The customer replies by typing just the number (1 to 5) in the WhatsApp conversation itself.",
-          "MESSAGE_REQUIRED": "Write the survey message before saving."
+          "MESSAGE_REQUIRED": "Write the survey message before saving.",
+          "REPLY_WINDOW": {
+            "LABEL": "Window to reply to the survey (minutes)",
+            "PLACEHOLDER": "Default: 30",
+            "HELP": "While the rating hasn't been answered and this time hasn't passed, a new message from the customer reopens the same conversation to record the rating, instead of opening a new conversation and restarting the triage."
+          }
         },
         "TEST_MODE": {
           "TITLE": "WhatsApp automation test mode",
