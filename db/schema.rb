@@ -1030,7 +1030,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.string "country_code", default: ""
     t.boolean "blocked", default: false, null: false
     t.bigint "company_id"
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.boolean "client_access_enabled", default: false, null: false
+    t.datetime "client_access_enabled_at"
+    t.datetime "client_last_sign_in_at"
+    t.integer "client_tickets_visibility", default: 0, null: false
     t.index "lower((email)::text), account_id", name: "index_contacts_on_lower_email_account_id"
+    t.index ["account_id", "client_access_enabled"], name: "index_contacts_on_account_and_client_access", where: "client_access_enabled"
     t.index ["account_id", "contact_type"], name: "index_contacts_on_account_id_and_contact_type"
     t.index ["account_id", "email", "phone_number", "identifier"], name: "index_contacts_on_nonempty_fields", where: "(((email)::text <> ''::text) OR ((phone_number)::text <> ''::text) OR ((identifier)::text <> ''::text))"
     t.index ["account_id", "last_activity_at"], name: "index_contacts_on_account_id_and_last_activity_at", order: { last_activity_at: "DESC NULLS LAST" }
@@ -1042,6 +1050,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.index ["identifier", "account_id"], name: "uniq_identifier_per_account_contact", unique: true
     t.index ["name", "email", "phone_number", "identifier"], name: "index_contacts_on_name_email_phone_number_identifier", opclass: :gin_trgm_ops, using: :gin
     t.index ["phone_number", "account_id"], name: "index_contacts_on_phone_number_and_account_id"
+    t.index ["reset_password_token"], name: "index_contacts_on_reset_password_token", unique: true
   end
 
   create_table "contract_product_groups", force: :cascade do |t|
@@ -1052,8 +1061,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "product_group_id", null: false
-    t.index ["contract_id"], name: "index_contract_products_on_contract_id"
-    t.index ["product_group_id"], name: "index_contract_products_on_product_group_id"
+    t.index ["contract_id"], name: "index_contract_product_groups_on_contract_id"
+    t.index ["product_group_id"], name: "index_contract_product_groups_on_product_group_id"
   end
 
   create_table "contracts", force: :cascade do |t|
@@ -2024,7 +2033,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "ticket_customer_communication_id"
     t.index ["account_id"], name: "index_ticket_attachments_on_account_id"
+    t.index ["ticket_customer_communication_id"], name: "index_ticket_attachments_on_communication", where: "(ticket_customer_communication_id IS NOT NULL)"
     t.index ["ticket_id", "created_at"], name: "index_ticket_attachments_on_ticket_id_and_created_at"
     t.index ["ticket_id"], name: "index_ticket_attachments_on_ticket_id"
     t.index ["user_id"], name: "index_ticket_attachments_on_user_id"
@@ -2036,6 +2047,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "require_attachment", default: false, null: false
+    t.boolean "client_visible", default: false, null: false
     t.index ["team_id", "name"], name: "index_ticket_categories_on_team_id_and_name", unique: true
     t.index ["team_id", "position"], name: "index_ticket_categories_on_team_id_and_position"
     t.index ["team_id"], name: "index_ticket_categories_on_team_id"
@@ -2112,7 +2125,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.bigint "user_id"
     t.bigint "contact_id"
     t.string "channel", default: "email", null: false
-    t.string "to_email", null: false
+    t.string "to_email"
     t.string "subject", null: false
     t.text "body", null: false
     t.string "status", default: "pending", null: false
@@ -2121,10 +2134,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.boolean "closing", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "direction", default: "outbound", null: false
     t.index ["account_id"], name: "index_ticket_customer_communications_on_account_id"
     t.index ["contact_id"], name: "index_ticket_customer_communications_on_contact_id"
     t.index ["ticket_id", "closing", "status"], name: "index_ticket_customer_comms_on_ticket_closing_status"
     t.index ["ticket_id", "created_at"], name: "idx_on_ticket_id_created_at_154ff74295"
+    t.index ["ticket_id", "direction"], name: "idx_on_ticket_id_direction_316d325d08"
     t.index ["ticket_id"], name: "index_ticket_customer_communications_on_ticket_id"
     t.index ["user_id"], name: "index_ticket_customer_communications_on_user_id"
   end
@@ -2257,9 +2272,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.bigint "assignee_3_id"
     t.bigint "assignee_4_id"
     t.bigint "assignee_5_id"
+    t.boolean "pending_triage", default: false, null: false
+    t.datetime "triaged_at"
+    t.bigint "triaged_by_id"
     t.string "jira_key"
     t.index ["account_id", "blocked_at"], name: "index_tickets_on_account_and_blocked", where: "(blocked_at IS NOT NULL)"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
+    t.index ["account_id", "pending_triage"], name: "index_tickets_on_account_and_pending_triage", where: "pending_triage"
     t.index ["account_id"], name: "index_tickets_on_account_id"
     t.index ["assignee_2_id"], name: "index_tickets_on_assignee_2_id"
     t.index ["assignee_3_id"], name: "index_tickets_on_assignee_3_id", where: "(assignee_3_id IS NOT NULL)"
@@ -2279,6 +2298,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
     t.index ["ticket_category_id"], name: "index_tickets_on_ticket_category_id"
     t.index ["ticket_column_id", "position"], name: "index_tickets_on_ticket_column_id_and_position"
     t.index ["ticket_column_id"], name: "index_tickets_on_ticket_column_id"
+    t.index ["triaged_by_id"], name: "index_tickets_on_triaged_by_id", where: "(triaged_by_id IS NOT NULL)"
   end
 
   create_table "user_sessions", force: :cascade do |t|
@@ -2438,6 +2458,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
   add_foreign_key "service_catalogs", "accounts"
   add_foreign_key "system_modules", "accounts"
   add_foreign_key "teams", "users", column: "manager_id"
+  add_foreign_key "ticket_attachments", "ticket_customer_communications"
   add_foreign_key "ticket_categories", "teams"
   add_foreign_key "ticket_checklist_items", "accounts"
   add_foreign_key "ticket_checklist_items", "tickets"
@@ -2470,6 +2491,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
   add_foreign_key "tickets", "users", column: "assignee_4_id"
   add_foreign_key "tickets", "users", column: "assignee_5_id"
   add_foreign_key "tickets", "users", column: "blocked_by_id"
+  add_foreign_key "tickets", "users", column: "triaged_by_id"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").

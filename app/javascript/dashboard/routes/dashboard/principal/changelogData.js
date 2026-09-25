@@ -8,6 +8,34 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-area',
+    date: '25 de setembro de 2026',
+    isoDate: '2026-09-25',
+    type: 'feature',
+    title:
+      'Área do Cliente: o contato da empresa entra e acompanha os chamados',
+    description:
+      'O contato cadastrado numa Empresa passa a ter acesso próprio ao sistema. Em Empresas > contato, novo botão para liberar o acesso e definir a senha - ele entra pela mesma tela de login da equipe, com o e-mail do cadastro. Lá dentro ele vê só os chamados da própria empresa, em lista separada por Estágio (com grupos que dá pra recolher) ou em Kanban, e abre chamado informando apenas Categoria, Assunto, Descrição e anexos. Dentro do ticket ele acompanha Informações gerais, Comunicação (só as mensagens que não são internas, e ele pode responder e mandar imagens), Compromissos e Checklist, esses dois só para visualizar. Também recebe notificações e pode redefinir a senha pelo "Esqueci minha senha" da tela de login.',
+  },
+  {
+    id: 'ticket-triage',
+    date: '25 de setembro de 2026',
+    isoDate: '2026-09-25',
+    type: 'feature',
+    title: 'Triagem dos chamados abertos pelo cliente',
+    description:
+      'Chamado aberto pela Área do Cliente não entra direto no Kanban da equipe: ele espera numa tela nova de Triagem, onde alguém confere e encaminha para a Mesa e o Estágio certos. Quem tem acesso à tela é avisado assim que algo chega na fila. Em Configurações > Tickets > Categorias, duas opções novas por categoria: exigir anexo na abertura (útil em "Erro", que quase sempre precisa de print ou log) e escolher quais categorias aparecem para o cliente - como Categoria é por Mesa, sem isso o mesmo nome se repetia uma vez por Mesa na lista dele.',
+  },
+  {
+    id: 'ticket-tabs-overflow',
+    date: '25 de setembro de 2026',
+    isoDate: '2026-09-25',
+    type: 'improvement',
+    title: 'Abas de ticket não rolam mais para o lado',
+    description:
+      'A barra de abas deixou de ter rolagem horizontal. Quando as abas não cabem na tela, aparece um botão "+" com a lista de todos os chamados abertos, cada um com botão para fechar - e a aba que você está lendo nunca é escondida.',
+  },
+  {
     id: 'ticket-import',
     date: '25 de setembro de 2026',
     isoDate: '2026-09-25',
