@@ -23,7 +23,10 @@ class Whatsapp::CsatDigitSurveyService
       inbox_id: conversation.inbox_id,
       message_type: :outgoing,
       content_type: :input_csat,
-      content: survey_message
+      content: survey_message,
+      # Sem esta marca, `MessageContentPresenter` troca o texto por engano -
+      # ver o comentario em `should_append_survey_link?`.
+      content_attributes: { whatsapp_csat_digit_survey: true }
     )
     terminate_live_flow_runs!
     message

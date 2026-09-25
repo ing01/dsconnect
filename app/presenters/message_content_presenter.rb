@@ -23,8 +23,17 @@ class MessageContentPresenter < SimpleDelegator
     end
   end
 
+  # A pesquisa por digito do WhatsApp (`Whatsapp::CsatDigitSurveyService`) usa
+  # o mesmo `content_type: :input_csat` da pesquisa nativa, mas ja escreve o
+  # texto pronto (pede pra responder 1-5) - sem esta excecao, este metodo
+  # trocava esse texto pelo link da pesquisa nativa (que nem esta habilitada
+  # nesta conta), mandando a mensagem errada pro cliente no WhatsApp.
   def should_append_survey_link?
-    input_csat? && !inbox.web_widget?
+    input_csat? && !inbox.web_widget? && !digit_survey?
+  end
+
+  def digit_survey?
+    content_attributes['whatsapp_csat_digit_survey'].present?
   end
 
   def survey_url(conversation_uuid)
