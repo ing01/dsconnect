@@ -24,6 +24,16 @@ class ContactAPI extends ApiClient {
     return axios.get(`${this.url}/${id}?include_contact_inboxes=false`);
   }
 
+  // Liga/desliga o acesso do contato a Area do Cliente e define a credencial.
+  // Rota do proprio contato: o acesso e um atributo do cadastro dele.
+  setClientAccess(id, { enabled, password, ticketsVisibility }) {
+    return axios.patch(`${this.url}/${id}/client_access`, {
+      enabled,
+      password,
+      tickets_visibility: ticketsVisibility,
+    });
+  }
+
   update(id, data) {
     return axios.patch(`${this.url}/${id}?include_contact_inboxes=false`, data);
   }

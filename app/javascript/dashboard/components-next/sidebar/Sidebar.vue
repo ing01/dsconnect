@@ -527,6 +527,14 @@ const menuItems = computed(() => {
       activeOn: ['tickets_index'],
     },
     {
+      // A fila do que os clientes abriram e ainda ninguem aceitou.
+      name: 'Triagem',
+      label: t('SIDEBAR.TICKET_TRIAGE'),
+      icon: 'i-lucide-inbox',
+      to: accountScopedRoute('tickets_triage'),
+      activeOn: ['tickets_triage'],
+    },
+    {
       name: 'Projects',
       label: t('SIDEBAR.PROJECTS'),
       icon: 'i-lucide-kanban',

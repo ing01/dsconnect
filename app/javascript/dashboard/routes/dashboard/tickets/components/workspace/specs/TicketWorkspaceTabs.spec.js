@@ -59,6 +59,35 @@ const tabTexts = wrapper => tabs(wrapper).map(tab => tab.text());
 const closeButton = (wrapper, index) =>
   tabs(wrapper)[index].findAll('button')[1];
 
+// O jsdom nao faz layout: toda medida e zero, e sem forcar as dimensoes o
+// transbordo nunca aconteceria no teste.
+//
+// Aqui a faixa tem 300px e cada aba 200px: cabe UMA (a segunda ja estouraria os
+// 240px que sobram depois de reservar o botao "+"), e as outras duas vao para a
+// lista.
+const forcarTransbordo = async wrapper => {
+  const faixa = tabs(wrapper)[0].element.parentElement;
+  Object.defineProperty(faixa, 'clientWidth', {
+    value: 300,
+    configurable: true,
+  });
+  tabs(wrapper).forEach(tab => {
+    Object.defineProperty(tab.element, 'offsetWidth', {
+      value: 200,
+      configurable: true,
+    });
+  });
+
+  // A medicao roda quando as abas mudam e no redimensionamento - nao ha mais
+  // rolagem para escutar.
+  window.dispatchEvent(new Event('resize'));
+  await flushPromises();
+  await flushPromises();
+};
+
+const botaoTransbordo = wrapper =>
+  wrapper.findAll('button').find(b => b.attributes('aria-expanded'));
+
 describe('TicketWorkspaceTabs', () => {
   beforeEach(() => {
     push.mockClear();
@@ -209,5 +238,78 @@ describe('TicketWorkspaceTabs', () => {
 
     expect(tabTexts(wrapper)).toHaveLength(1);
     expect(tabTexts(wrapper)[0]).toContain('#26');
+  });
+
+  // Rolar para procurar uma aba que nao se sabe onde esta e pior do que abrir
+  // uma lista com todas.
+  describe('transbordo', () => {
+    // Tres abas: as do armazenamento mais a da rota.
+    const abrirTres = async () => {
+      records.value = [ticket(1), ticket(2), ticket(3)];
+      const wrapper = await mountBar({
+        ticketId: '1',
+        stored: { ticketIds: [1, 2, 3], activeTicketId: 1 },
+      });
+      await forcarTransbordo(wrapper);
+      return wrapper;
+    };
+
+    it('stays hidden while every tab fits', async () => {
+      records.value = [ticket(1)];
+      const wrapper = await mountBar({ ticketId: '1' });
+
+      expect(botaoTransbordo(wrapper)).toBeUndefined();
+    });
+
+    it('counts the tabs that do not fit', async () => {
+      const wrapper = await abrirTres();
+
+      // A faixa cabe uma; duas ficam de fora.
+      expect(botaoTransbordo(wrapper).text()).toContain('2');
+    });
+
+    // Sem rolagem: uma aba cortada pela metade nao se le, e procurar arrastando
+    // e pior do que abrir a lista.
+    it('never scrolls the strip', async () => {
+      const wrapper = await abrirTres();
+      const faixa = tabs(wrapper)[0].element.parentElement;
+
+      expect(faixa.className).toContain('overflow-hidden');
+      expect(faixa.className).not.toContain('overflow-x-auto');
+    });
+
+    it('draws only the tabs that fit', async () => {
+      const wrapper = await abrirTres();
+
+      const desenhadas = tabs(wrapper).filter(
+        tab => tab.element.style.display !== 'none'
+      );
+      expect(desenhadas).toHaveLength(1);
+    });
+
+    it('lists every open tab, not only the hidden ones', async () => {
+      const wrapper = await abrirTres();
+      await botaoTransbordo(wrapper).trigger('click');
+
+      const painel = wrapper.find('[aria-expanded="true"]').element
+        .parentElement;
+      expect(painel.textContent).toContain('#1');
+    });
+
+    it('closes a tab from the list', async () => {
+      const wrapper = await abrirTres();
+      await botaoTransbordo(wrapper).trigger('click');
+      const antes = tabs(wrapper).length;
+
+      const painel = wrapper.find('[aria-expanded="true"]').element
+        .parentElement;
+      const fechar = [...painel.querySelectorAll('button')].filter(b =>
+        b.getAttribute('aria-label')
+      );
+      await fechar[fechar.length - 1].click();
+      await flushPromises();
+
+      expect(tabs(wrapper).length).toBeLessThan(antes);
+    });
   });
 });

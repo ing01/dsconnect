@@ -31,9 +31,12 @@ const mountColumn = (props = {}) =>
         // Stands in for vuedraggable: renders the item slot once per ticket
         // with the same slot prop the real component passes.
         Draggable: {
-          props: { list: { type: Array, default: () => [] } },
+          props: {
+            list: { type: Array, default: () => [] },
+            disabled: { type: Boolean, default: false },
+          },
           template:
-            '<div><slot v-for="element in list" name="item" :element="element" /></div>',
+            '<div :data-disabled="String(disabled)"><slot v-for="element in list" name="item" :element="element" /></div>',
         },
         Icon: true,
         TicketCard: true,
@@ -42,6 +45,38 @@ const mountColumn = (props = {}) =>
   });
 
 describe('TicketBoardColumn', () => {
+  // A Area do Cliente monta ESTE componente, e nao uma copia dele - por isso o
+  // modo leitura mora aqui. O padrao e `false`: o Kanban dos agentes nao muda.
+  describe('read-only', () => {
+    const draggable = wrapper => wrapper.find('[data-disabled]');
+    const addButton = wrapper =>
+      wrapper
+        .findAll('button')
+        .filter(b => b.attributes('aria-label')?.includes('ADD_TICKET'));
+
+    it('keeps drag and the add button for agents', () => {
+      const wrapper = mountColumn();
+
+      expect(draggable(wrapper).attributes('data-disabled')).toBe('false');
+      expect(addButton(wrapper)).toHaveLength(1);
+    });
+
+    it('drops drag and the add button when read only', () => {
+      const wrapper = mountColumn({ readOnly: true });
+
+      expect(draggable(wrapper).attributes('data-disabled')).toBe('true');
+      expect(addButton(wrapper)).toHaveLength(0);
+    });
+
+    it('passes the mode down to the card', () => {
+      const wrapper = mountColumn({ readOnly: true });
+
+      expect(
+        wrapper.findComponent({ name: 'TicketCard' }).props('readOnly')
+      ).toBe(true);
+    });
+  });
+
   describe('counter', () => {
     it('shows the number of tickets in the stage', () => {
       expect(mountColumn().vm.visibleCount).toBe(3);

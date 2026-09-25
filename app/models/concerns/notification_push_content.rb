@@ -23,7 +23,8 @@ module NotificationPushContent
       'sla_missed_resolution' => 'notifications.notification_title.sla_missed_resolution',
       'project_contract_end_overdue' => 'notifications.notification_title.project_contract_end_overdue',
       'project_support_end_overdue' => 'notifications.notification_title.project_support_end_overdue',
-      'internal_chat_message' => 'notifications.notification_title.internal_chat_message'
+      'internal_chat_message' => 'notifications.notification_title.internal_chat_message',
+      'ticket_triage_pending' => 'notifications.notification_title.ticket_triage_pending'
     }
 
     i18n_key = notification_title_map[notification_type]
@@ -48,15 +49,16 @@ module NotificationPushContent
     case notification_type
     when 'conversation_creation'
       { display_id: conversation.display_id, inbox_name: primary_actor.inbox.name, contact_name: requester_name }
-    when 'conversation_assignment', 'assigned_conversation_new_message',
-         'participating_conversation_new_message', 'conversation_mention'
-      { display_id: conversation.display_id, contact_name: requester_name }
     when 'project_contract_end_overdue', 'project_support_end_overdue'
       { project_name: primary_actor.name }
     when 'internal_chat_message'
       { sender_name: primary_actor.user&.name.to_s }
+    when 'ticket_triage_pending'
+      { display_id: primary_actor.display_id, company_name: primary_actor.company&.name.to_s }
     else
-      { display_id: primary_actor.display_id }
+      # A familia das conversas, mais os SLAs. Chave sobrando e ignorada pela
+      # interpolacao, entao um ramo so responde por todas.
+      { display_id: primary_actor.display_id, contact_name: requester_name }
     end
   end
 
@@ -103,53 +105,5 @@ module NotificationPushContent
              sender_name: sender_name,
              content: content.truncate(INTERNAL_CHAT_PREVIEW_LIMIT))
     end
-  end
-
-  # Identifica o ASSUNTO, nao a notificacao. Duas mensagens da mesma conversa
-  # compartilham a etiqueta, entao a segunda SUBSTITUI o aviso da primeira em vez
-  # de empilhar outro card - o que importa quando o aviso fica na tela ate a
-  # pessoa clicar. A etiqueta antiga trazia o id da notificacao, que e unico por
-  # definicao: nada nunca se agrupava.
-  #
-  # No Chat Interno o ator e a mensagem, entao o agrupamento tem de vir da sala;
-  # nas conversas o proprio ator ja e a conversa.
-  def push_group_tag
-    case primary_actor_type
-    when 'ChatMessage'
-      "internal_chat_#{primary_actor.chat_channel_id}"
-    when 'Project'
-      "project_#{primary_actor_id}"
-    else
-      "conversation_#{primary_actor_id}"
-    end
-  end
-
-  # Para onde o clique leva, SEM host. O host certo e aquele que a pessoa ja
-  # esta usando, e quem sabe disso e o navegador: o service worker resolve este
-  # caminho contra a propria origem. Gravar o host aqui significaria depender do
-  # FRONTEND_URL, que envelhece a cada troca de endereco - e um tunel temporario
-  # troca de endereco a cada reinicio, levando a notificacao para um lugar morto.
-  def push_target_path
-    case primary_actor_type
-    when 'ChatMessage'
-      # A tela do Chat Interno escolhe a sala por `?room=` (InternalChatPage).
-      # Nao ha helper de rota para ela: o /app e servido pelo mesmo dashboard
-      # e as rotas internas sao do lado do navegador.
-      "/app/accounts/#{account_id}/internal-chat?room=#{primary_actor.chat_channel_id}"
-    when 'Project'
-      "/app/accounts/#{account_id}/projects?project=#{primary_actor_id}"
-    else
-      app_account_conversation_path(account_id: account_id, id: conversation.display_id)
-    end
-  end
-
-  # Versao absoluta, para quem precisa de host: e-mail, por exemplo, que nao tem
-  # navegador para resolver caminho relativo.
-  def push_target_url
-    "#{frontend_base_url}#{push_target_path}"
-  end
-
-  def frontend_base_url
-    ENV.fetch('FRONTEND_URL', '')
   end
 end

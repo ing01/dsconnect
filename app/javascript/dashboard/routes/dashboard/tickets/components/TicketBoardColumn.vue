@@ -16,6 +16,9 @@ export default {
     // positions against the column's real, full ticket list even while a
     // filter is active - only what's rendered is affected.
     filters: { type: Object, default: () => ({}) },
+    // Vide TicketCard: o mesmo Estagio, sem o que e acao do atendimento -
+    // arrastar e abrir ticket na coluna. Padrao `false`.
+    readOnly: { type: Boolean, default: false },
   },
   emits: [
     'addTicket',
@@ -144,6 +147,7 @@ export default {
             <Icon icon="i-lucide-panel-left-close" class="size-5" />
           </button>
           <button
+            v-if="!readOnly"
             v-tooltip="$t('TICKET.BOARD.ADD_TICKET')"
             type="button"
             :class="addButtonClass"
@@ -159,6 +163,7 @@ export default {
 
       <Draggable
         :list="tickets"
+        :disabled="readOnly"
         group="tickets"
         item-key="id"
         animation="200"
@@ -171,6 +176,7 @@ export default {
             v-show="isVisible(element)"
             :ticket="element"
             :agents="agents"
+            :read-only="readOnly"
             @click="$emit('openTicket', element)"
             @menu-action="$emit('menuAction', $event)"
           />

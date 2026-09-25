@@ -12,13 +12,43 @@ import PaginationFooter from 'dashboard/components-next/pagination/PaginationFoo
 // `filters` is the flat, camelCase state owned by TicketDetailedSearchModal
 // (the "Busca detalhada" panel) - this component only turns it into
 // backend query params and renders the resulting page of results.
+//
+// `groups` inverte essa origem. Quando vem preenchido, a lista desenha o que lhe
+// entregaram - ja separado por Estagio - e NAO fala com o store: e o caminho da
+// Area do Cliente, que tem API propria e ja carregou os chamados para o Kanban.
+// Buscar de novo criaria uma segunda verdade: a lista poderia mostrar um
+// conjunto diferente do quadro ao lado, com o mesmo botao alternando entre os
+// dois.
+//
+// Cada grupo e `{ id, name, rows }`. Vem pronto, e nao agrupado aqui, porque a
+// ORDEM dos Estagios e a da Mesa (`position`) - reagrupar por nome acabaria
+// alfabetico, com "Aguardando" antes de "Pendente".
 const props = defineProps({
   filters: {
     type: Object,
     required: true,
   },
+  groups: { type: Array, default: null },
+  loading: { type: Boolean, default: false },
+  // So no modo `groups`: e a chave de onde fica guardado o que esta recolhido.
+  accountId: { type: [Number, String], default: null },
+  teamId: { type: [Number, String], default: null },
 });
+
+// Quem abre o ticket muda com a origem: no painel e a rota interna; com
+// `groups`, quem entregou os dados e quem sabe para onde ir.
+const emit = defineEmits(['openTicket']);
 import { statusColor } from '../helpers/ticketLabels';
+import { sortTickets } from '../helpers/ticketSort';
+import {
+  readCollapsedColumnIds,
+  toggleCollapsedColumn,
+} from '../helpers/collapsedColumns';
+
+// Recolher um Estagio AQUI nao pode recolher a coluna no Kanban: sao duas
+// formas de ler o mesmo quadro, e quem esconde "Concluido" da lista pode muito
+// bem querer ve-lo no quadro.
+const COLLAPSE_SCOPE = 'list';
 
 const PER_PAGE = 25;
 
@@ -27,10 +57,11 @@ const store = useStore();
 const router = useRouter();
 const currentAccountId = useMapGetter('getCurrentAccountId');
 
-const tickets = computed(() => store.getters['tickets/getTicketsList']);
-const listMeta = computed(() => store.getters['tickets/getListMeta']);
+// A lista foi entregue pronta? Decide TUDO abaixo: origem das linhas, quem
+// ordena, se ha paginacao e se o store e consultado.
+const recebeLinhas = computed(() => props.groups !== null);
+
 const uiFlags = computed(() => store.getters['tickets/getUIFlags']);
-const isLoading = computed(() => uiFlags.value.isFetchingList);
 
 // Cada cabecalho e a chave que o servidor entende (Tickets::SearchOrdering).
 // A ordenacao vai para o servidor porque a lista e paginada la: ordenar so as
@@ -47,8 +78,118 @@ const COLUMNS = [
   { key: 'assignee', label: 'ASSIGNEE' },
 ];
 
+// Com `groups` a ordenacao acontece aqui, e nao no servidor - entao so valem as
+// colunas que `sortTickets` sabe comparar. As demais viram texto simples: um
+// cabecalho que parece botao e nao ordena nada e pior que um que nao clica.
+const SORT_FIELD_BY_COLUMN = {
+  display_id: 'display_id',
+  created_at: 'created_at',
+  title: 'title',
+  company: 'company_name',
+  status: 'status',
+  assignee: 'assignee_name',
+};
+
 const sortBy = ref('');
 const sortOrder = ref('asc');
+
+const podeOrdenar = key =>
+  !recebeLinhas.value || Boolean(SORT_FIELD_BY_COLUMN[key]);
+
+// Os Estagios recolhidos. Preferencia de quem olha, guardada por (conta, Mesa)
+// como a do Kanban - e num `scope` proprio, para uma tela nao mexer na outra.
+//
+// `validIds` limpa Estagio que nao existe mais: um excluido nao pode ficar
+// ressuscitando como recolhido.
+const lerRecolhidos = () =>
+  recebeLinhas.value
+    ? readCollapsedColumnIds(
+        props.accountId,
+        props.teamId,
+        (props.groups || []).map(grupo => Number(grupo.id)),
+        COLLAPSE_SCOPE
+      )
+    : [];
+
+// Lido ja aqui, e nao no `onMounted`: de la a leitura chegaria depois da
+// primeira pintura, e os grupos recolhidos piscariam abertos antes de sumir.
+const recolhidos = ref(lerRecolhidos());
+
+const estaRecolhido = id => recolhidos.value.includes(Number(id));
+
+const alternarGrupo = id => {
+  recolhidos.value = toggleCollapsedColumn(
+    props.accountId,
+    props.teamId,
+    id,
+    COLLAPSE_SCOPE
+  );
+};
+
+// A ordenacao escolhida no cabecalho vale DENTRO de cada Estagio: a separacao
+// por Estagio e o que se pediu ver, e ordenar por cima dela desmancharia os
+// grupos.
+const grupos = computed(() =>
+  (props.groups || []).map(grupo => ({
+    ...grupo,
+    rows: SORT_FIELD_BY_COLUMN[sortBy.value]
+      ? sortTickets(grupo.rows, {
+          field: SORT_FIELD_BY_COLUMN[sortBy.value],
+          direction: sortOrder.value,
+        })
+      : grupo.rows,
+  }))
+);
+
+// Sem grupo nenhum com linha, a tela mostra o estado vazio - e nao um
+// cabecalho de tabela sozinho.
+const temLinhas = computed(() => grupos.value.some(grupo => grupo.rows.length));
+
+const tickets = computed(() =>
+  recebeLinhas.value ? [] : store.getters['tickets/getTicketsList']
+);
+
+// A tabela desenha UMA sequencia, venha ela de onde vier: no modo `groups` os
+// cabecalhos de Estagio entram como linha, e o grupo recolhido simplesmente nao
+// contribui com as dele. Manter uma so sequencia evita a marcacao da linha do
+// ticket existir duas vezes neste arquivo.
+const linhasVisiveis = computed(() => {
+  if (!recebeLinhas.value) {
+    return tickets.value.map(ticket => ({
+      tipo: 'ticket',
+      chave: `t-${ticket.id}`,
+      ticket,
+    }));
+  }
+
+  return grupos.value.flatMap(grupo => [
+    { tipo: 'grupo', chave: `g-${grupo.id}`, grupo },
+    ...(estaRecolhido(grupo.id)
+      ? []
+      : grupo.rows.map(ticket => ({
+          tipo: 'ticket',
+          chave: `t-${ticket.id}`,
+          ticket,
+        }))),
+  ]);
+});
+
+const vazio = computed(() =>
+  recebeLinhas.value ? !temLinhas.value : !tickets.value.length
+);
+
+// `count: 0` no modo agrupado esconde a paginacao de proposito: paginar de 25
+// em 25 cortaria os grupos ao meio, e e o Estagio recolhido que faz o papel de
+// tirar volume da tela.
+const listMeta = computed(() =>
+  recebeLinhas.value
+    ? { currentPage: 1, count: 0 }
+    : store.getters['tickets/getListMeta']
+);
+
+const isLoading = computed(() =>
+  recebeLinhas.value ? props.loading : uiFlags.value.isFetchingList
+);
 
 const requestParams = computed(() => ({
   page: listMeta.value.currentPage || 1,
@@ -68,18 +209,26 @@ const loadTickets = (page = 1) => {
 // coluna recomeca crescente e volta para a primeira pagina, porque a ordem
 // mudou e a pagina atual deixou de significar o mesmo conjunto.
 const sortByColumn = key => {
+  if (!podeOrdenar(key)) return;
+
   if (sortBy.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
   } else {
     sortBy.value = key;
     sortOrder.value = 'asc';
   }
+
+  if (recebeLinhas.value) return;
   loadTickets(1);
 };
 
 const onPageChange = page => loadTickets(page);
 
 const openTicket = ticket => {
+  if (recebeLinhas.value) {
+    emit('openTicket', ticket);
+    return;
+  }
   router.push(
     frontendURL(`accounts/${currentAccountId.value}/tickets/${ticket.id}`)
   );
@@ -87,11 +236,27 @@ const openTicket = ticket => {
 
 watch(
   () => props.filters,
-  () => loadTickets(1),
+  () => {
+    // Quem entrega os grupos ja os filtrou - nao ha o que recarregar.
+    if (recebeLinhas.value) return;
+    loadTickets(1);
+  },
   { deep: true }
 );
 
-onMounted(() => loadTickets(1));
+// Cada Mesa lembra os proprios Estagios recolhidos, entao trocar de Mesa
+// refaz a leitura.
+watch(
+  () => [props.teamId, props.groups],
+  () => {
+    recolhidos.value = lerRecolhidos();
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  if (!recebeLinhas.value) loadTickets(1);
+});
 </script>
 
 <template>
@@ -100,10 +265,7 @@ onMounted(() => loadTickets(1));
       <Spinner />
     </div>
 
-    <div
-      v-else-if="!tickets.length"
-      class="flex items-center justify-center flex-1"
-    >
+    <div v-else-if="vazio" class="flex items-center justify-center flex-1">
       <p class="text-sm text-n-slate-11">{{ t('TICKET.LIST.EMPTY') }}</p>
     </div>
 
@@ -126,10 +288,16 @@ onMounted(() => loadTickets(1));
                   : 'none'
               "
             >
-              <button
-                type="button"
-                class="flex items-center gap-1 font-medium transition-colors hover:text-n-slate-12"
-                :class="sortBy === column.key ? 'text-n-slate-12' : ''"
+              <component
+                :is="podeOrdenar(column.key) ? 'button' : 'span'"
+                :type="podeOrdenar(column.key) ? 'button' : null"
+                class="flex items-center gap-1 font-medium transition-colors"
+                :class="[
+                  podeOrdenar(column.key)
+                    ? 'hover:text-n-slate-12'
+                    : 'cursor-default',
+                  sortBy === column.key ? 'text-n-slate-12' : '',
+                ]"
                 @click="sortByColumn(column.key)"
               >
                 {{ t(`TICKET.LIST.COLUMNS.${column.label}`) }}
@@ -144,49 +312,85 @@ onMounted(() => loadTickets(1));
                   "
                   class="size-3"
                 />
-              </button>
+              </component>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="ticket in tickets"
-            :key="ticket.id"
-            class="border-b border-n-weak last:border-b-0 cursor-pointer hover:bg-n-slate-2"
-            @click="openTicket(ticket)"
-          >
-            <td class="px-3 py-2 text-n-slate-10 whitespace-nowrap">
-              #{{ ticket.display_id }}
-            </td>
-            <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-              {{ new Date(ticket.created_at * 1000).toLocaleDateString() }}
-            </td>
-            <td class="px-3 py-2 text-n-slate-12 font-medium max-w-xs truncate">
-              {{ ticket.title }}
-            </td>
-            <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-              {{ ticket.company_name || '—' }}
-            </td>
-            <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-              {{ ticket.requester_name || '—' }}
-            </td>
-            <td class="px-3 py-2">
-              <WootLabel
-                :label="t(`TICKET.STATUS.${ticket.status.toUpperCase()}`)"
-                :color="statusColor(ticket.status)"
-                compact
-              />
-            </td>
-            <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-              {{ ticket.team_name || '—' }}
-            </td>
-            <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-              {{ ticket.ticket_column_name || '—' }}
-            </td>
-            <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-              {{ ticket.assignee_name || '—' }}
-            </td>
-          </tr>
+          <template v-for="linha in linhasVisiveis" :key="linha.chave">
+            <!-- O Estagio. Clicar na faixa inteira recolhe ou abre: e um alvo
+                 muito maior que o sinal de mais, e o cliente vai usar isso para
+                 esconder o que nao quer acompanhar. -->
+            <tr v-if="linha.tipo === 'grupo'" class="bg-n-alpha-black2">
+              <td :colspan="COLUMNS.length" class="p-0 border-b border-n-weak">
+                <button
+                  type="button"
+                  class="flex items-center w-full gap-2 px-3 py-2 text-left transition-colors hover:bg-n-slate-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-n-brand"
+                  :aria-expanded="!estaRecolhido(linha.grupo.id)"
+                  @click="alternarGrupo(linha.grupo.id)"
+                >
+                  <span
+                    class="size-3.5 text-n-slate-10"
+                    :class="
+                      estaRecolhido(linha.grupo.id)
+                        ? 'i-lucide-plus'
+                        : 'i-lucide-minus'
+                    "
+                  />
+                  <span class="text-sm font-medium text-n-slate-12">
+                    {{ linha.grupo.name }}
+                  </span>
+                  <span class="text-sm text-n-slate-10">
+                    ({{ linha.grupo.rows.length }})
+                  </span>
+                </button>
+              </td>
+            </tr>
+
+            <tr
+              v-else
+              class="border-b border-n-weak last:border-b-0 cursor-pointer hover:bg-n-slate-2"
+              @click="openTicket(linha.ticket)"
+            >
+              <td class="px-3 py-2 text-n-slate-10 whitespace-nowrap">
+                #{{ linha.ticket.display_id }}
+              </td>
+              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
+                {{
+                  new Date(linha.ticket.created_at * 1000).toLocaleDateString()
+                }}
+              </td>
+              <td
+                class="px-3 py-2 text-n-slate-12 font-medium max-w-xs truncate"
+              >
+                {{ linha.ticket.title }}
+              </td>
+              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
+                {{ linha.ticket.company_name || '—' }}
+              </td>
+              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
+                {{ linha.ticket.requester_name || '—' }}
+              </td>
+              <td class="px-3 py-2">
+                <WootLabel
+                  :label="
+                    t(`TICKET.STATUS.${linha.ticket.status.toUpperCase()}`)
+                  "
+                  :color="statusColor(linha.ticket.status)"
+                  compact
+                />
+              </td>
+              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
+                {{ linha.ticket.team_name || '—' }}
+              </td>
+              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
+                {{ linha.ticket.ticket_column_name || '—' }}
+              </td>
+              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
+                {{ linha.ticket.assignee_name || '—' }}
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>

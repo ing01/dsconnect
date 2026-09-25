@@ -50,6 +50,13 @@ class ContactPolicy < ApplicationPolicy
   def destroy?
     @account_user.administrator?
   end
+
+  # Liberar acesso a Area do Cliente e emitir uma credencial de login para
+  # alguem de fora - decisao de administrador, e nao tratativa de atendimento.
+  # Por isso fica ao lado de `destroy?`/`import?`, e nao de `update?`.
+  def client_access?
+    @account_user.administrator?
+  end
 end
 
 ContactPolicy.prepend_mod_with('ContactPolicy')

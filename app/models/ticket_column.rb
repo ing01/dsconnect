@@ -5,7 +5,10 @@ class TicketColumn < ApplicationRecord
   # What the Kanban renders. Separate from `tickets` on purpose: positioning and
   # re-indexing must keep seeing every ticket in the column, otherwise a closed
   # ticket's slot would be handed out twice.
-  has_many :operational_tickets, -> { operational.order(:position, :id) },
+  # `triaged`: o chamado aberto pelo cliente so entra no quadro depois de alguem
+  # aceita-lo na triagem. Ate la ele existe, aparece para o cliente e esta na
+  # fila de triagem - mas nao entre os atendimentos em andamento da equipe.
+  has_many :operational_tickets, -> { operational.triaged.order(:position, :id) },
            class_name: 'Ticket', inverse_of: :ticket_column, dependent: nil
 
   # `pending` and `completed` mark the mandatory "Pendente"/"Finalizado"

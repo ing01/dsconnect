@@ -124,6 +124,15 @@ class TicketsAPI extends ApiClient {
 
   // Impedimento: o ticket para de andar mas continua aberto, entao isto nao
   // pertence ao grupo de cancelar/fechar - ver TicketBlocking no servidor.
+  // Triagem: aceita o chamado do cliente e o encaminha, numa acao so.
+  approveTriage(id, { teamId, ticketColumnId, ticketCategoryId }) {
+    return axios.patch(`${this.url}/${id}/approve_triage`, {
+      team_id: teamId,
+      ticket_column_id: ticketColumnId,
+      ticket_category_id: ticketCategoryId,
+    });
+  }
+
   block(id, reason) {
     return axios.patch(`${this.url}/${id}/block`, { reason });
   }

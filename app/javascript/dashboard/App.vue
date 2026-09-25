@@ -9,6 +9,7 @@ import PendingEmailVerificationBanner from './components/app/PendingEmailVerific
 import LowBackupCodesBanner from './components/app/LowBackupCodesBanner.vue';
 import MoodCheckInBanner from './components/app/MoodCheckInBanner.vue';
 import vueActionCable from './helper/actionCable';
+import { isClientArea } from 'dashboard/helper/clientSession';
 import { useRouter } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
 import WootSnackbarBox from './components/SnackbarContainer.vue';
@@ -105,6 +106,14 @@ export default {
       mql.onchange = e => setColorTheme(e.matches);
     },
     setLocale(locale) {
+      // A Área do Cliente resolve o próprio idioma no boot (vide
+      // `entrypoints/dashboard.js`): ela não tem usuário nem conta interna de
+      // onde herdar, e `window.chatwootConfig.selectedLocale` chega com o
+      // `I18n.locale` do servidor - que, sem sessão de usuário, é o padrão da
+      // instalação. Sem esta guarda o `mounted` aqui desfaz aquele ajuste e a
+      // área inteira volta para o inglês.
+      if (isClientArea()) return;
+
       if (locale) {
         this.$root.$i18n.locale = locale;
       }

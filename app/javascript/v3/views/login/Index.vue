@@ -9,6 +9,8 @@ import { SESSION_STORAGE_KEYS } from 'dashboard/constants/sessionStorage';
 import SessionStorage from 'shared/helpers/sessionStorage';
 import { useBranding } from 'shared/composables/useBranding';
 import AnalyticsHelper from 'dashboard/helper/AnalyticsHelper';
+import ClientAreaAPI from 'dashboard/api/clientArea';
+import { setClientSession } from 'dashboard/helper/clientSession';
 import { SESSION_EVENTS } from 'dashboard/helper/AnalyticsHelper/events';
 
 // components
@@ -205,7 +207,12 @@ export default {
           this.handleImpersonation();
           this.showAlertMessage(this.$t('LOGIN.API.SUCCESS_MESSAGE'));
         })
-        .catch(response => {
+        .catch(async response => {
+          // Antes de declarar credencial invalida: pode ser um CONTATO com
+          // acesso a Area do Cliente. O usuario interno nunca passa por aqui
+          // quando acerta a senha - o fluxo dele termina no `then` acima.
+          if (await this.tryClientLogin(credentials)) return;
+
           if (response?.errorCode === USER_NOT_CONFIRMED_ERROR_CODE) {
             this.loginApi.showLoading = false;
             this.$router.push({
@@ -224,6 +231,32 @@ export default {
             response?.message || this.$t('LOGIN.API.UNAUTH')
           );
         });
+    },
+    // Tenta a Area do Cliente com a mesma credencial. Devolve `true` quando
+    // entrou - e ai a navegacao ja aconteceu.
+    async tryClientLogin(credentials) {
+      const { email: userEmail, password } = credentials;
+      if (!userEmail || !password) return false;
+
+      try {
+        const { data } = await ClientAreaAPI.login({
+          email: userEmail,
+          password,
+        });
+        setClientSession(data);
+        window.location = '/app/client/tickets';
+        return true;
+      } catch (error) {
+        // 401 e a resposta esperada para "nao e um cliente": segue o erro do
+        // login interno, que e de onde a pessoa mais provavelmente veio.
+        // Qualquer outra coisa e defeito nosso e precisa aparecer - engolir
+        // tudo foi o que escondeu a chamada que nem chegava a sair.
+        if (error?.response?.status !== 401) {
+          // eslint-disable-next-line no-console
+          console.error('Falha ao tentar o acesso da Área do Cliente', error);
+        }
+        return false;
+      }
     },
     submitFormLogin() {
       if (this.v$.credentials.email.$invalid && !this.email) {

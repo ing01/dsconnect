@@ -1,5 +1,9 @@
 module Enterprise::Concerns::Contact
   extend ActiveSupport::Concern
+  # O acesso a Area do Cliente mora aqui porque depende de Empresa - e Empresa e
+  # enterprise. O contato e a identidade do cliente; nao ha cadastro separado.
+  include ContactClientAccess
+
   included do
     # `company` (via company_id) is the primary/first Empresa - kept for the
     # counter_cache and as the fallback everywhere a single company is still

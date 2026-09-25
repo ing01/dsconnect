@@ -44,6 +44,7 @@ import conversationFlowsSettings from './conversationFlowsSettings.json';
 import helpdeskOverview from './helpdeskOverview.json';
 import teamsSettings from './teamsSettings.json';
 import internalChat from './internalChat.json';
+import clientArea from './clientArea.json';
 import ticket from './ticket.json';
 import ticketTimeReports from './ticketTimeReports.json';
 import whatsappTemplates from './whatsappTemplates.json';
@@ -103,6 +104,7 @@ export default {
   ...helpdeskOverview,
   ...teamsSettings,
   ...internalChat,
+  ...clientArea,
   ...ticket,
   ...ticketTimeReports,
   ...whatsappTemplates,

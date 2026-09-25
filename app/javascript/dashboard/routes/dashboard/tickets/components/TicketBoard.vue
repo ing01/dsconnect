@@ -35,6 +35,11 @@ export default {
       type: Object,
       default: null,
     },
+    // O mesmo quadro, sem as acoes do atendimento - vide TicketBoardColumn.
+    readOnly: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['addTicket', 'openTicket', 'moveTicket', 'menuAction'],
   data() {
@@ -117,6 +122,7 @@ export default {
         :agents="agents"
         :filters="filters"
         :is-collapsed="isCollapsed(column.id)"
+        :read-only="readOnly"
         @toggle-collapse="toggleColumn"
         @add-ticket="$emit('addTicket', $event)"
         @open-ticket="$emit('openTicket', $event)"

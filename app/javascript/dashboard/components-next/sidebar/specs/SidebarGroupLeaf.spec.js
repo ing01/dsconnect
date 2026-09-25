@@ -36,6 +36,30 @@ const mountLeaf = props =>
   });
 
 describe('SidebarGroupLeaf', () => {
+  // Menu recolhido: so o icone, com o nome no `title`. A Area do Cliente monta
+  // ESTE componente, e nao uma copia - por isso o modo mora aqui.
+  describe('collapsed', () => {
+    it('shows the label by default', () => {
+      expect(mountLeaf().text()).toContain('Support');
+    });
+
+    it('hides the label and the badge when collapsed', () => {
+      const wrapper = mountLeaf({ collapsed: true, badgeCount: 7 });
+
+      expect(wrapper.text()).not.toContain('Support');
+      expect(
+        wrapper.find('[data-test-id="sidebar-unread-badge"]').exists()
+      ).toBe(false);
+    });
+
+    it('centres the icon when collapsed', () => {
+      expect(mountLeaf({ collapsed: true }).find('a').classes()).toContain(
+        'justify-center'
+      );
+      expect(mountLeaf().find('a').classes()).not.toContain('justify-center');
+    });
+  });
+
   it('renders unread badge when count is present', () => {
     const wrapper = mountLeaf({ badgeCount: 7 });
     const badge = wrapper.find('[data-test-id="sidebar-unread-badge"]');

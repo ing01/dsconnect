@@ -5,6 +5,7 @@ import { useAlert } from 'dashboard/composables';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import Button from 'dashboard/components-next/button/Button.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import {
   BaseTable,
@@ -24,6 +25,13 @@ const formDialog = ref(null);
 const deleteDialog = ref(null);
 const editing = ref(null);
 const name = ref('');
+// Exigir anexo na abertura. Por Categoria, porque "Erro" quase sempre precisa
+// de print ou log e "Duvida" nao.
+const requireAttachment = ref(false);
+// Aparece no select da Area do Cliente. Categoria e por Mesa, e as mesmas seis
+// existem em cada uma - sem esta marca, cada nome se repetia uma vez por Mesa na
+// lista do cliente. Aqui se escolhe QUAL "Erro" ele ve.
+const clientVisible = ref(false);
 const isSaving = ref(false);
 
 // Categories are scoped to the Mesa, exactly like the Estagios above.
@@ -33,12 +41,16 @@ const categories = computed(
 
 const headers = computed(() => [
   t('TICKET.SETTINGS.CATEGORIES.NAME'),
+  t('TICKET.SETTINGS.CATEGORIES.REQUIRE_ATTACHMENT_COLUMN'),
+  t('TICKET.SETTINGS.CATEGORIES.CLIENT_VISIBLE_COLUMN'),
   t('TICKET.SETTINGS.TABLE.ACTIONS'),
 ]);
 
 const openForm = category => {
   editing.value = category || null;
   name.value = category?.name || '';
+  requireAttachment.value = Boolean(category?.require_attachment);
+  clientVisible.value = Boolean(category?.client_visible);
   formDialog.value?.open();
 };
 
@@ -53,10 +65,14 @@ const save = async () => {
           teamId: props.teamId,
           categoryId: editing.value.id,
           name: trimmed,
+          require_attachment: requireAttachment.value,
+          client_visible: clientVisible.value,
         })
       : store.dispatch('ticketColumns/createCategory', {
           teamId: props.teamId,
           name: trimmed,
+          require_attachment: requireAttachment.value,
+          client_visible: clientVisible.value,
         });
     await action;
     formDialog.value?.close();
@@ -124,6 +140,26 @@ watch(
                 {{ category.name }}
               </span>
             </BaseTableCell>
+            <BaseTableCell>
+              <span
+                v-if="category.require_attachment"
+                class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-md text-n-amber-11 bg-n-alpha-2"
+              >
+                <Icon icon="i-lucide-paperclip" class="size-3" />
+                {{ t('TICKET.SETTINGS.CATEGORIES.REQUIRED_BADGE') }}
+              </span>
+              <span v-else class="text-sm text-n-slate-10">—</span>
+            </BaseTableCell>
+            <BaseTableCell>
+              <span
+                v-if="category.client_visible"
+                class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-md text-n-teal-11 bg-n-alpha-2"
+              >
+                <Icon icon="i-lucide-eye" class="size-3" />
+                {{ t('TICKET.SETTINGS.CATEGORIES.CLIENT_VISIBLE_BADGE') }}
+              </span>
+              <span v-else class="text-sm text-n-slate-10">—</span>
+            </BaseTableCell>
             <BaseTableCell align="end">
               <div class="flex justify-end flex-shrink-0 gap-3">
                 <Button
@@ -172,6 +208,34 @@ watch(
           class="w-full mb-0"
           @keyup.enter="save"
         />
+      </label>
+
+      <!-- Exigir anexo na abertura. Vale para os dois formularios: o do agente
+           e o da Area do Cliente. -->
+      <label class="flex items-start gap-2 mt-4 cursor-pointer">
+        <input v-model="requireAttachment" type="checkbox" class="mt-1 mb-0" />
+        <span class="flex flex-col">
+          <span class="text-sm text-n-slate-12">
+            {{ t('TICKET.SETTINGS.CATEGORIES.REQUIRE_ATTACHMENT') }}
+          </span>
+          <span class="text-xs text-n-slate-11">
+            {{ t('TICKET.SETTINGS.CATEGORIES.REQUIRE_ATTACHMENT_HELP') }}
+          </span>
+        </span>
+      </label>
+
+      <!-- Qual Categoria o cliente ve. Como as mesmas existem em cada Mesa, e
+           aqui que se escolhe qual delas recebe o chamado vindo de fora. -->
+      <label class="flex items-start gap-2 mt-4 cursor-pointer">
+        <input v-model="clientVisible" type="checkbox" class="mt-1 mb-0" />
+        <span class="flex flex-col">
+          <span class="text-sm text-n-slate-12">
+            {{ t('TICKET.SETTINGS.CATEGORIES.CLIENT_VISIBLE') }}
+          </span>
+          <span class="text-xs text-n-slate-11">
+            {{ t('TICKET.SETTINGS.CATEGORIES.CLIENT_VISIBLE_HELP') }}
+          </span>
+        </span>
       </label>
     </Dialog>
 

@@ -42,6 +42,25 @@ Rails.application.routes.draw do
   get '/api', to: 'api#index'
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
+      # A Area do Cliente. Fora de `accounts/:account_id` de proposito: a conta
+      # do cliente vem do contato autenticado, nunca da URL - assim nao existe id
+      # de conta para ele trocar.
+      namespace :client do
+        resource :session, only: [:create, :destroy], controller: 'sessions'
+        resources :tickets, only: [:index, :show, :create] do
+          # A resposta do cliente entra na conversa do ticket.
+          resources :communications, only: [:create]
+        end
+        resources :teams, only: [:index]
+        resources :notifications, only: [:index]
+        # A lista plana de Categorias do formulario de abertura.
+        resources :categories, only: [:index]
+        # A redefinicao de senha. Sem sessao de proposito - quem esqueceu a
+        # senha nao tem nenhuma; quem autoriza e o token do e-mail. O PEDIDO do
+        # link entra pelo botao compartilhado da tela de login.
+        resource :password, only: [:update], controller: 'passwords'
+      end
+
       # ----------------------------------
       # start of account scoped api routes
       resources :accounts, only: [:create, :show, :update] do
@@ -267,6 +286,9 @@ Rails.application.routes.draw do
               get :contactable_inboxes
               post :destroy_custom_attributes
               delete :avatar
+              # Acesso do contato a Area do Cliente: ligar, desligar e definir
+              # a credencial. E atributo do contato, entao mora na rota dele.
+              patch :client_access
             end
             scope module: :contacts do
               resources :conversations, only: [:index]
@@ -430,6 +452,8 @@ Rails.application.routes.draw do
               patch :cancel
               patch :block
               patch :unblock
+              # Triagem: aceitar o chamado do cliente e encaminha-lo.
+              patch :approve_triage
               patch :classify
               patch :transfer
               patch :set_parent

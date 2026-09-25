@@ -24,10 +24,11 @@ const communications = computed(
 );
 const email = computed(() => props.ticket.customer_email);
 
-// The subject is not the agent's to write: the server titles the message with
-// the ticket header so the customer recognises the thread. Shown here so what
-// will be sent is visible.
-const subject = computed(() => props.ticket.display_subject);
+// O assunto nao aparece em lugar nenhum desta tela. Ele existe para o CLIENTE
+// reconhecer a thread na caixa de entrada dele - aqui dentro, quem le ja esta
+// no ticket, e repetir "#34 - [EMPRESA] | [Agente] | [titulo]" em cada linha so
+// empurra a mensagem para baixo. Quem monta o assunto e o servidor
+// (`ticket.display_subject`), e ele continua indo no cabecalho do e-mail.
 
 const canSend = computed(() => !!email.value && !!body.value.trim());
 
@@ -78,11 +79,6 @@ const send = async () => {
           <span class="text-n-slate-12">{{ email }}</span>
         </p>
 
-        <p class="text-sm truncate text-n-slate-11" :title="subject">
-          {{ t('TICKET.CLOSE.SUBJECT') }}:
-          <span class="text-n-slate-12">{{ subject }}</span>
-        </p>
-
         <FullEditor
           v-model="body"
           class="min-w-0 [&_.ProseMirror]:min-h-[8rem]"
@@ -122,10 +118,21 @@ const send = async () => {
                 formatDate(communication.sent_at || communication.created_at)
               }}
             </span>
+            <!-- A conversa tem dois sentidos: o que a equipe enviou ao cliente
+                 e o que ele respondeu pela Area do Cliente. Sem distinguir, a
+                 resposta recebida apareceria como "null → null". -->
             <span class="text-xs truncate text-n-slate-11">
-              {{ `${communication.user_name} → ${communication.to_email}` }}
+              {{
+                communication.direction === 'inbound'
+                  ? t('TICKET.COMMUNICATION.FROM_CUSTOMER', {
+                      name:
+                        communication.author_name || communication.contact_name,
+                    })
+                  : `${communication.user_name} → ${communication.to_email}`
+              }}
             </span>
             <WootLabel
+              v-if="communication.direction !== 'inbound'"
               :label="
                 t(
                   `TICKET.COMMUNICATION.STATUS.${communication.status.toUpperCase()}`
@@ -142,13 +149,12 @@ const send = async () => {
             />
           </div>
 
-          <span class="text-sm font-medium truncate text-n-slate-12">
-            {{ communication.subject }}
-          </span>
-
-          <!-- The body is the agent's own rich text, already sanitised on the
-               way out; shown as plain text here to keep the list compact. -->
-          <p class="text-sm truncate text-n-slate-11">
+          <!-- O corpo e o texto do agente, ja higienizado na saida; mostrado
+               como texto puro para a lista ficar compacta. Sem o assunto acima:
+               ele e igual em todas as linhas e nao distingue uma da outra. Por
+               isso o corpo herda o destaque que era do titulo - e ele que diz
+               qual comunicacao e qual. Segue em UMA linha: a lista e indice. -->
+          <p class="text-sm truncate text-n-slate-12">
             {{ communication.body.replace(/<[^>]*>/g, ' ').trim() }}
           </p>
 

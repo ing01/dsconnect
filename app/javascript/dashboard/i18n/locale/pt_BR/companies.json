@@ -80,23 +80,53 @@
         "FORM": {
           "ADD_TITLE": "Adicionar credenciais de acesso",
           "EDIT_TITLE": "Editar credenciais de acesso",
-          "LABEL": { "LABEL": "Rótulo", "PLACEHOLDER": "Ex.: Servidor de produção" },
+          "LABEL": {
+            "LABEL": "Rótulo",
+            "PLACEHOLDER": "Ex.: Servidor de produção"
+          },
           "SECTION_DB": "Banco de dados",
-          "DB_TYPE": { "LABEL": "Tipo do banco" },
-          "DB_NAME": { "LABEL": "Nome do banco" },
-          "DB_HOST": { "LABEL": "Host" },
-          "DB_PORT": { "LABEL": "Porta" },
-          "DB_USERNAME": { "LABEL": "Usuário" },
-          "DB_PASSWORD": { "LABEL": "Senha" },
+          "DB_TYPE": {
+            "LABEL": "Tipo do banco"
+          },
+          "DB_NAME": {
+            "LABEL": "Nome do banco"
+          },
+          "DB_HOST": {
+            "LABEL": "Host"
+          },
+          "DB_PORT": {
+            "LABEL": "Porta"
+          },
+          "DB_USERNAME": {
+            "LABEL": "Usuário"
+          },
+          "DB_PASSWORD": {
+            "LABEL": "Senha"
+          },
           "SECTION_REMOTE_ACCESS": "Acesso remoto",
-          "REMOTE_ACCESS_TYPE": { "LABEL": "Programa utilizado", "PLACEHOLDER": "Anydesk, TeamViewer, etc." },
-          "REMOTE_ACCESS_ID": { "LABEL": "ID de acesso remoto" },
-          "REMOTE_ACCESS_PASSWORD": { "LABEL": "Senha de acesso remoto" },
+          "REMOTE_ACCESS_TYPE": {
+            "LABEL": "Programa utilizado",
+            "PLACEHOLDER": "Anydesk, TeamViewer, etc."
+          },
+          "REMOTE_ACCESS_ID": {
+            "LABEL": "ID de acesso remoto"
+          },
+          "REMOTE_ACCESS_PASSWORD": {
+            "LABEL": "Senha de acesso remoto"
+          },
           "SECTION_RDP": "RDP",
-          "RDP_ADDRESS": { "LABEL": "Endereço do RDP" },
-          "RDP_USERNAME": { "LABEL": "Usuário do RDP" },
-          "RDP_PASSWORD": { "LABEL": "Senha do RDP" },
-          "NOTES": { "LABEL": "Observações" },
+          "RDP_ADDRESS": {
+            "LABEL": "Endereço do RDP"
+          },
+          "RDP_USERNAME": {
+            "LABEL": "Usuário do RDP"
+          },
+          "RDP_PASSWORD": {
+            "LABEL": "Senha do RDP"
+          },
+          "NOTES": {
+            "LABEL": "Observações"
+          },
           "SAVE": "Salvar",
           "CANCEL": "Cancelar"
         },
@@ -163,6 +193,27 @@
           "REMOVE_ERROR": "Não foi possível remover o contato da empresa.",
           "CREATE_SUCCESS": "Contato criado e vinculado à empresa.",
           "CREATE_ERROR": "Não foi possível criar o contato."
+        },
+        "CLIENT_ACCESS": {
+          "ACTION": "Acesso à Área do Cliente",
+          "TITLE": "Acesso à Área do Cliente",
+          "BADGE_ON": "Acesso ativo",
+          "BADGE_OFF": "Sem acesso",
+          "ENABLE_LABEL": "Permitir que este contato acesse a Área do Cliente",
+          "ENABLE_HELP": "Ele entra na mesma tela de login, com o e-mail do cadastro.",
+          "NO_EMAIL": "Este contato não tem e-mail cadastrado. O e-mail é o login da Área do Cliente.",
+          "PASSWORD": "Senha",
+          "NEW_PASSWORD": "Nova senha (opcional)",
+          "PASSWORD_HINT": "Mínimo de 8 caracteres.",
+          "KEEP_PASSWORD": "Deixe em branco para manter a senha atual",
+          "VISIBILITY": "O que ele enxerga",
+          "VISIBILITY_OWN": "Apenas os chamados que ele abriu",
+          "VISIBILITY_COMPANY": "Todos os chamados da empresa",
+          "CANCEL": "Cancelar",
+          "CONFIRM": "Salvar",
+          "ENABLED": "Acesso à Área do Cliente liberado.",
+          "DISABLED": "Acesso à Área do Cliente desativado.",
+          "ERROR": "Não foi possível salvar o acesso."
         }
       },
       "AVATAR": {

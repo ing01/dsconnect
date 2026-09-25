@@ -3,6 +3,9 @@ class TicketAttachment < ApplicationRecord
   belongs_to :ticket
   # Optional so removing an agent never takes the files they uploaded with them.
   belongs_to :user, optional: true
+  # Presente quando o arquivo veio junto de uma mensagem da conversa; nulo no
+  # anexo solto do ticket.
+  belongs_to :ticket_customer_communication, optional: true
 
   has_one_attached :file
 

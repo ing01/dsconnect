@@ -8,7 +8,25 @@ RSpec.describe 'Devise::Mailer' do
     let!(:confirmable_user) { create(:user, inviter: inviter_val, account: account) }
     let(:inviter_val) { nil }
     let(:mail) { Devise::Mailer.confirmation_instructions(confirmable_user.reload, nil, {}) }
-    let(:mail_body) { CGI.unescapeHTML(mail.body.to_s) }
+    # `decoded`, e nao `to_s`: o corpo vai em quoted-printable, onde "começar"
+    # viaja como "come=C3=A7ar" - comparar com o cru falharia em toda frase
+    # acentuada.
+    let(:mail_body) { CGI.unescapeHTML(mail.body.decoded) }
+
+    # O Devise::Mailer manda em portugues, sempre - vide ForcedPortugueseLocale.
+    # As expectativas leem as MESMAS chaves que a view, e nao literais: assim
+    # reescrever o texto nao quebra o teste, e uma chave perdida quebra.
+    def texto(chave, **args)
+      I18n.with_locale(ClientAreaLocale::LOCALE) do
+        I18n.t("devise.mailer.confirmation_instructions.#{chave}", **args)
+      end
+    end
+
+    def saudacao(nome)
+      I18n.with_locale(ClientAreaLocale::LOCALE) do
+        I18n.t('devise.mailer.confirmation_body.greeting', name: nome)
+      end
+    end
 
     before do
       # to verify the token in email
@@ -23,8 +41,8 @@ RSpec.describe 'Devise::Mailer' do
     end
 
     it 'uses the user\'s name' do
-      expect(mail.body.to_s).to include("Hi #{CGI.escapeHTML(confirmable_user.name)},")
-      expect(mail_body).to include("Hi #{confirmable_user.name},")
+      expect(mail.body.to_s).to include(saudacao(CGI.escapeHTML(confirmable_user.name)))
+      expect(mail_body).to include(saudacao(confirmable_user.name))
     end
 
     context 'when the user name contains HTML' do
@@ -33,16 +51,16 @@ RSpec.describe 'Devise::Mailer' do
       end
 
       it 'escapes the name in the rendered email body' do
-        expect(mail.body.to_s).to include("Hi #{CGI.escapeHTML(confirmable_user.name)},")
-        expect(mail.body.to_s).not_to include("Hi #{confirmable_user.name},")
+        expect(mail.body.to_s).to include(saudacao(CGI.escapeHTML(confirmable_user.name)))
+        expect(mail.body.to_s).not_to include(saudacao(confirmable_user.name))
       end
     end
 
     it 'shows the default confirmation state' do
-      expect(mail_body).to include('Confirm your email to get started')
-      expect(mail_body).to include('Welcome to Chatwoot. We just need to verify your email address before you can start using your account.')
-      expect(mail_body).to include('Confirm my account')
-      expect(mail_body).not_to include('Workspace invitation')
+      expect(mail_body).to include(texto('welcome.heading'))
+      expect(mail_body).to include(texto('welcome.intro', brand: 'Chatwoot'))
+      expect(mail_body).to include(texto('welcome.action'))
+      expect(mail_body).not_to include(texto('invite.eyebrow'))
     end
 
     it 'sends a confirmation link' do
@@ -51,17 +69,21 @@ RSpec.describe 'Devise::Mailer' do
     end
 
     it 'does not render the agent notification preferences footer' do
-      expect(mail_body).not_to include('Manage notification preferences')
+      expect(mail_body).not_to include(
+        I18n.with_locale(ClientAreaLocale::LOCALE) { I18n.t('mailer_layout.manage_preferences') }
+      )
     end
 
     context 'when there is an inviter' do
       let(:inviter_val) { create(:user, :administrator, skip_confirmation: true, account: account) }
 
       it 'refers to the inviter and their account' do
-        expect(mail_body).to include("You're invited to join #{account.name}")
-        expect(mail_body).to include("#{inviter_val.name} invited you to join the #{account.name} workspace on Chatwoot.")
-        expect(mail_body).to include('Accept invitation')
-        expect(mail_body).not_to include('Confirm your email to get started')
+        expect(mail_body).to include(texto('invite.heading_account', account: account.name))
+        expect(mail_body).to include(
+          texto('invite.intro_account', inviter: inviter_val.name, account: account.name, brand: 'Chatwoot')
+        )
+        expect(mail_body).to include(texto('invite.action'))
+        expect(mail_body).not_to include(texto('welcome.heading'))
       end
 
       it 'sends a password reset link' do

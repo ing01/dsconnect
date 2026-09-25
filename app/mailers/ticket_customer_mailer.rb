@@ -7,6 +7,9 @@
 # customer and the closing of the ticket are different messages, and sending one
 # then the other produces two distinct e-mails.
 class TicketCustomerMailer < ApplicationMailer
+  # Vai para o cliente: portugues sempre, independente da conta.
+  include ForcedPortugueseLocale
+
   # Ordinary correspondence from the Comunicacao com cliente area.
   def customer_message(communication)
     prepare(communication)

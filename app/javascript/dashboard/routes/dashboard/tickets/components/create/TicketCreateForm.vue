@@ -38,6 +38,7 @@ const {
   columns,
   categories,
   mesaMembers,
+  requiresAttachment,
   isValid,
   toPayload,
   resetForNext,
@@ -266,6 +267,11 @@ defineExpose({ resetForNext });
         </span>
 
         <TicketFileInput v-model="files" />
+        <!-- A Categoria escolhida exige anexo: dito aqui, e nao so no botao
+             desabilitado, para a pessoa saber o que falta. -->
+        <span v-if="requiresAttachment" class="text-xs text-n-amber-11">
+          {{ t('TICKET.CREATE.ATTACHMENT_REQUIRED') }}
+        </span>
       </div>
 
       <aside class="flex flex-col gap-4 min-w-0">

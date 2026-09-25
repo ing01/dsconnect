@@ -24,6 +24,9 @@ const props = defineProps({
   ariaLabel: { type: String, default: '' },
   multiple: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
+  // Campo em erro: a borda muda para destacar o que falta preencher. Padrao
+  // `false`, entao nenhum uso existente muda.
+  hasError: { type: Boolean, default: false },
   // A busca dentro do menu só aparece quando pedida - listas curtas não
   // precisam dela.
   showSearch: { type: Boolean, default: false },
@@ -141,7 +144,12 @@ defineExpose({ close });
   <OnClickOutside class="relative w-full" @trigger="isOpen = false">
     <button
       type="button"
-      class="flex items-center justify-between w-full h-10 gap-2 px-3 text-sm border rounded-lg border-n-strong bg-n-alpha-black2 text-n-slate-12 hover:border-n-slate-8 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand disabled:opacity-50 disabled:cursor-not-allowed"
+      class="flex items-center justify-between w-full h-10 gap-2 px-3 text-sm border rounded-lg bg-n-alpha-black2 text-n-slate-12 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand disabled:opacity-50 disabled:cursor-not-allowed"
+      :class="
+        hasError
+          ? 'border-n-ruby-8 hover:border-n-ruby-9'
+          : 'border-n-strong hover:border-n-slate-8'
+      "
       :aria-label="ariaLabel || undefined"
       :aria-expanded="isOpen"
       aria-haspopup="menu"

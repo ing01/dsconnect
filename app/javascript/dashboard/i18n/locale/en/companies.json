@@ -80,23 +80,53 @@
         "FORM": {
           "ADD_TITLE": "Add access credentials",
           "EDIT_TITLE": "Edit access credentials",
-          "LABEL": { "LABEL": "Label", "PLACEHOLDER": "e.g. Production server" },
+          "LABEL": {
+            "LABEL": "Label",
+            "PLACEHOLDER": "e.g. Production server"
+          },
           "SECTION_DB": "Database",
-          "DB_TYPE": { "LABEL": "Database type" },
-          "DB_NAME": { "LABEL": "Database name" },
-          "DB_HOST": { "LABEL": "Host" },
-          "DB_PORT": { "LABEL": "Port" },
-          "DB_USERNAME": { "LABEL": "Username" },
-          "DB_PASSWORD": { "LABEL": "Password" },
+          "DB_TYPE": {
+            "LABEL": "Database type"
+          },
+          "DB_NAME": {
+            "LABEL": "Database name"
+          },
+          "DB_HOST": {
+            "LABEL": "Host"
+          },
+          "DB_PORT": {
+            "LABEL": "Port"
+          },
+          "DB_USERNAME": {
+            "LABEL": "Username"
+          },
+          "DB_PASSWORD": {
+            "LABEL": "Password"
+          },
           "SECTION_REMOTE_ACCESS": "Remote access",
-          "REMOTE_ACCESS_TYPE": { "LABEL": "Program used", "PLACEHOLDER": "Anydesk, TeamViewer, etc." },
-          "REMOTE_ACCESS_ID": { "LABEL": "Remote access ID" },
-          "REMOTE_ACCESS_PASSWORD": { "LABEL": "Remote access password" },
+          "REMOTE_ACCESS_TYPE": {
+            "LABEL": "Program used",
+            "PLACEHOLDER": "Anydesk, TeamViewer, etc."
+          },
+          "REMOTE_ACCESS_ID": {
+            "LABEL": "Remote access ID"
+          },
+          "REMOTE_ACCESS_PASSWORD": {
+            "LABEL": "Remote access password"
+          },
           "SECTION_RDP": "RDP",
-          "RDP_ADDRESS": { "LABEL": "RDP address" },
-          "RDP_USERNAME": { "LABEL": "RDP username" },
-          "RDP_PASSWORD": { "LABEL": "RDP password" },
-          "NOTES": { "LABEL": "Notes" },
+          "RDP_ADDRESS": {
+            "LABEL": "RDP address"
+          },
+          "RDP_USERNAME": {
+            "LABEL": "RDP username"
+          },
+          "RDP_PASSWORD": {
+            "LABEL": "RDP password"
+          },
+          "NOTES": {
+            "LABEL": "Notes"
+          },
           "SAVE": "Save",
           "CANCEL": "Cancel"
         },
@@ -163,6 +193,27 @@
           "REMOVE_ERROR": "Could not remove contact from company.",
           "CREATE_SUCCESS": "Contact created and linked to company.",
           "CREATE_ERROR": "Could not create the contact."
+        },
+        "CLIENT_ACCESS": {
+          "ACTION": "Client Area access",
+          "TITLE": "Client Area access",
+          "BADGE_ON": "Access on",
+          "BADGE_OFF": "No access",
+          "ENABLE_LABEL": "Let this contact sign in to the Client Area",
+          "ENABLE_HELP": "They use the same login screen, with the e-mail on file.",
+          "NO_EMAIL": "This contact has no e-mail. The e-mail is the Client Area login.",
+          "PASSWORD": "Password",
+          "NEW_PASSWORD": "New password (optional)",
+          "PASSWORD_HINT": "At least 8 characters.",
+          "KEEP_PASSWORD": "Leave blank to keep the current password",
+          "VISIBILITY": "What they see",
+          "VISIBILITY_OWN": "Only the tickets they opened",
+          "VISIBILITY_COMPANY": "Every ticket of the company",
+          "CANCEL": "Cancel",
+          "CONFIRM": "Save",
+          "ENABLED": "Client Area access enabled.",
+          "DISABLED": "Client Area access disabled.",
+          "ERROR": "Could not save the access."
         }
       },
       "AVATAR": {

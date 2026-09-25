@@ -22,6 +22,13 @@ export default {
       type: Array,
       default: () => [],
     },
+    // Modo leitura: o cartao continua o mesmo, sem o menu de acoes - usado na
+    // Area do Cliente, onde nenhuma dessas acoes e do cliente. Padrao `false`,
+    // entao o Kanban dos agentes nao muda.
+    readOnly: {
+      type: Boolean,
+      default: false,
+    },
   },
   // The menu now carries its intent in one event: the card names the action,
   // the page decides how to run it.
@@ -208,7 +215,7 @@ export default {
         </span>
         {{ ticket.title }}
       </p>
-      <div class="flex-shrink-0">
+      <div v-if="!readOnly" class="flex-shrink-0">
         <NextButton
           ref="menuTrigger"
           icon="i-lucide-ellipsis-vertical"

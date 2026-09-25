@@ -4,9 +4,22 @@ class DeviseOverrides::PasswordsController < Devise::PasswordsController
   skip_before_action :require_no_authentication, raise: false
   skip_before_action :authenticate_user!, raise: false
 
+  # O MESMO botao "Esqueci minha senha" serve aos dois: a tela de login e
+  # compartilhada, e quem digita o e-mail nao tem como saber se e usuario
+  # interno ou contato da Area do Cliente. Usuario primeiro; so quando nenhum
+  # responde e que o contato e procurado.
+  #
+  # A resposta e sempre 200, como ja era: dizer "este e-mail nao existe"
+  # transformaria a tela num verificador de cadastro.
   def create
     @user = User.from_email(params[:email])
-    @user&.send_reset_password_instructions
+
+    if @user
+      @user.send_reset_password_instructions
+    else
+      Contact.client_recoverable_from_email(params[:email])&.send_client_reset_password_instructions
+    end
+
     build_response(I18n.t('messages.reset_password'), 200)
   end
 

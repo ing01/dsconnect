@@ -29,6 +29,8 @@
 
 class Notification < ApplicationRecord
   include NotificationPushContent
+  # O texto do aviso vem do concern acima; o destino, deste.
+  include NotificationTarget
   include MessageFormatHelper
   belongs_to :account
   belongs_to :user
@@ -50,7 +52,9 @@ class Notification < ApplicationRecord
     # Chat Interno entre agentes. O numero e novo de proposito: os bits de
     # NotificationSetting saem daqui, e renumerar trocaria a preferencia de
     # quem ja escolheu.
-    internal_chat_message: 11
+    internal_chat_message: 11,
+    # Chamado aberto pelo cliente, esperando alguem aceitar na Triagem.
+    ticket_triage_pending: 12
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES
@@ -60,7 +64,7 @@ class Notification < ApplicationRecord
   after_destroy_commit :dispatch_destroy_event
   after_update_commit :dispatch_update_event
 
-  PRIMARY_ACTORS = %w[Conversation Project ChatMessage].freeze
+  PRIMARY_ACTORS = %w[Conversation Project ChatMessage Ticket].freeze
 
   def push_event_data
     # Secondary actor could be nil for cases like system assigning conversation

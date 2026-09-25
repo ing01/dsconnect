@@ -1,6 +1,8 @@
 class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   include TicketExporting
   include TicketImpedimentActions
+  # Triagem dos chamados abertos pelo cliente - a acao `approve_triage`.
+  include TicketTriageActions
   include TicketListing
 
   include TicketActionParams
@@ -12,7 +14,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   # rubocop:disable Rails/LexicallyScopedActionFilter
   before_action :fetch_ticket, only: [:show, :update, :destroy, :move, :resolve, :reopen, :close, :cancel, :classify,
                                       :transfer, :create_child, :set_parent, :merge, :duplicate, :assign_to_me,
-                                      :add_sla_hours, :block, :unblock]
+                                      :add_sla_hours, :block, :unblock, :approve_triage]
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :check_authorization
 

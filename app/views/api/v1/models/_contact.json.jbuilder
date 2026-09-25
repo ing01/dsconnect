@@ -5,6 +5,12 @@ json.id resource.id
 json.name resource.name
 json.phone_number resource.phone_number
 json.blocked resource.blocked
+# Acesso a Area do Cliente. Vai no proprio contato porque e ele que tem o
+# acesso - nao ha cadastro de cliente em outro lugar para consultar.
+json.client_access_enabled resource.client_access_enabled
+json.client_access_ready resource.client_access?
+json.client_tickets_visibility resource.client_tickets_visibility
+json.client_last_sign_in_at resource.client_last_sign_in_at&.to_i
 json.identifier resource.identifier
 if Current.account&.feature_enabled?('companies')
   json.company_id resource.company_id

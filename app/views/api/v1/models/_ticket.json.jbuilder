@@ -46,6 +46,9 @@ json.close_reason resource.close_reason
 # Impedimento. Vai no partial enxuto - e nao so no detalhe - porque o cartao do
 # Kanban precisa marcar visualmente o ticket impedido, e a listagem precisa
 # mostra-lo sem uma segunda consulta.
+# Triagem: chamado aberto pelo cliente que ainda nao foi aceito pela equipe.
+json.pending_triage resource.pending_triage
+json.triaged_at resource.triaged_at&.to_i
 json.blocked resource.blocked?
 json.blocked_at resource.blocked_at&.to_i
 json.blocked_reason resource.blocked_reason

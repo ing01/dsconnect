@@ -31,6 +31,6 @@ class Api::V1::Accounts::TicketCategoriesController < Api::V1::Accounts::BaseCon
   end
 
   def ticket_category_params
-    params.require(:ticket_category).permit(:name, :position)
+    params.require(:ticket_category).permit(:name, :position, :require_attachment, :client_visible)
   end
 end

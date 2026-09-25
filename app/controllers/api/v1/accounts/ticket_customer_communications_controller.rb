@@ -17,7 +17,7 @@ class Api::V1::Accounts::TicketCustomerCommunicationsController < Api::V1::Accou
 
     @communication = Tickets::CustomerCommunicationService.new(
       ticket: @ticket, user: Current.user, body: params[:body],
-      closing: ActiveModel::Type::Boolean.new.cast(params[:closing])
+      closing: closing_param
     ).perform
     render 'show', status: :created
   rescue StandardError => e
@@ -25,6 +25,14 @@ class Api::V1::Accounts::TicketCustomerCommunicationsController < Api::V1::Accou
   end
 
   private
+
+  # Ausente quer dizer correspondencia comum. `cast(nil)` devolve nil, e nil
+  # gravado numa coluna NOT NULL atropela o default do banco: a insercao
+  # estourava com o erro cru do Postgres na resposta. A tela sempre manda o
+  # campo, entao so quem chama a API direto batia nisso.
+  def closing_param
+    ActiveModel::Type::Boolean.new.cast(params[:closing]) || false
+  end
 
   def fetch_ticket
     @ticket = Current.account.tickets.find(params[:ticket_id])

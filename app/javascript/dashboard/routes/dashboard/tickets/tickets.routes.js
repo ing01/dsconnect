@@ -3,6 +3,7 @@ import { frontendURL } from 'dashboard/helper/URLHelper.js';
 import TicketsWorkspaceRouteView from './pages/TicketsWorkspaceRouteView.vue';
 import TicketsPage from './pages/TicketsPage.vue';
 import TicketDetailPage from './pages/TicketDetailPage.vue';
+import TicketTriagePage from './pages/TicketTriagePage.vue';
 
 const meta = {
   permissions: ['administrator', 'agent', 'custom_role'],
@@ -22,6 +23,13 @@ const ticketsRoutes = {
           name: 'tickets_index',
           meta,
           component: TicketsPage,
+        },
+        // Antes de `:ticketId`: senao "triage" seria lido como um id de ticket.
+        {
+          path: 'triage',
+          name: 'tickets_triage',
+          meta,
+          component: TicketTriagePage,
         },
         {
           path: ':ticketId',

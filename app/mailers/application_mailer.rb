@@ -55,7 +55,16 @@ class ApplicationMailer < ActionMailer::Base
     # expose variables you want to be exposed in liquid
     locals = {
       global_config: GlobalConfig.get('BRAND_NAME', 'BRAND_URL'),
-      action_url: @action_url
+      action_url: @action_url,
+      # O rodape do layout `mailer/base.liquid` trazia estes textos fixos em
+      # ingles, e eles saiam assim mesmo numa conta em portugues - o corpo
+      # traduzido terminava com "This email was sent by". Sendo Liquid, o
+      # template nao tem `t()`: a traducao precisa chegar como variavel.
+      # Rodam dentro do `around_action :switch_locale`, entao seguem o idioma
+      # da conta.
+      footer_sent_by: I18n.t('mailer_layout.sent_by'),
+      footer_notifications_enabled: I18n.t('mailer_layout.notifications_enabled'),
+      footer_manage_preferences: I18n.t('mailer_layout.manage_preferences')
     }
 
     locals.merge({ attachment_url: @attachment_url }) if @attachment_url

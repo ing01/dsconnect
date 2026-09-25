@@ -3,8 +3,8 @@
     "WORKSPACE": {
       "KANBAN": "Kanban",
       "CLOSE_TAB": "Fechar aba",
-      "SCROLL_LEFT": "Rolar abas para a esquerda",
-      "SCROLL_RIGHT": "Rolar abas para a direita"
+      "ALL_TABS": "Ver todas as abas",
+      "ALL_TABS_COUNT": "{count} chamado(s) aberto(s)"
     },
     "HEADER": "Tickets",
     "DESCRIPTION": "Organize os tickets em um quadro Kanban por Mesa de Serviço e vincule-os às conversas relacionadas.",
@@ -501,7 +501,15 @@
         "DELETE": "Excluir categoria",
         "NAME": "Nome",
         "SAVE": "Salvar",
-        "EMPTY": "Nenhuma categoria cadastrada nesta mesa."
+        "EMPTY": "Nenhuma categoria cadastrada nesta mesa.",
+        "REQUIRE_ATTACHMENT": "Exigir arquivo ou imagem na abertura",
+        "REQUIRE_ATTACHMENT_HELP": "Quem abrir um chamado nesta categoria precisará anexar ao menos um arquivo. Vale para os agentes e para a Área do Cliente.",
+        "REQUIRE_ATTACHMENT_COLUMN": "Anexo",
+        "REQUIRED_BADGE": "Obrigatório",
+        "CLIENT_VISIBLE": "Mostrar na Área do Cliente",
+        "CLIENT_VISIBLE_HELP": "O cliente escolhe apenas a categoria, nunca a Mesa. Como as mesmas categorias existem em cada Mesa, marque só a desta Mesa para o nome não se repetir na lista dele.",
+        "CLIENT_VISIBLE_COLUMN": "Área do Cliente",
+        "CLIENT_VISIBLE_BADGE": "Visível"
       },
       "CATALOG": {
         "TITLE": "Catálogo de Serviços",
@@ -842,7 +850,8 @@
       "FILES": {
         "ADD": "Anexar arquivos",
         "REMOVE": "Remover arquivo"
-      }
+      },
+      "ATTACHMENT_REQUIRED": "Esta categoria exige pelo menos um arquivo ou imagem."
     },
     "CATALOG": {
       "TITLE": "Catálogo de Serviços",
@@ -889,7 +898,8 @@
         "SENT": "Enviada",
         "FAILED": "Falhou",
         "PENDING": "Pendente"
-      }
+      },
+      "FROM_CUSTOMER": "Resposta de {name}"
     },
     "EXPORT": {
       "LABEL": "Exportar",
@@ -908,6 +918,25 @@
       "LIST_TITLE": "Meus tickets impedidos",
       "LIST_DESCRIPTION": "Tickets sob sua responsabilidade que estão aguardando algo para seguir.",
       "LIST_EMPTY": "Você não tem nenhum ticket impedido."
+    },
+    "TRIAGE": {
+      "TITLE": "Triagem de chamados",
+      "DESCRIPTION": "Chamados abertos pelos clientes, aguardando aceite. Enquanto estiverem aqui, não aparecem no Kanban.",
+      "EMPTY": "Nenhum chamado aguardando triagem.",
+      "OPEN": "Abrir",
+      "APPROVE": "Aceitar e encaminhar",
+      "OPENED_BY": "{name} · {company} · {at}",
+      "SUGGESTED": "Categoria informada: {category} · Mesa de entrada: {team}",
+      "APPROVED": "Chamado #{number} encaminhado.",
+      "DIALOG": {
+        "TITLE": "Encaminhar o chamado #{number}",
+        "DESCRIPTION": "Escolha a Mesa e o Estágio que vão atender. A categoria pode ser corrigida aqui.",
+        "TEAM": "Mesa de serviço",
+        "COLUMN": "Estágio",
+        "CATEGORY": "Categoria",
+        "CATEGORY_KEEP": "Manter a que o cliente informou",
+        "CONFIRM": "Encaminhar"
+      }
     }
   }
 }

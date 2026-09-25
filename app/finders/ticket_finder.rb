@@ -30,6 +30,7 @@ class TicketFinder
     result = filter_by_conversation(result)
     result = filter_by_contact(result)
     result = filter_by_impediment(result)
+    result = filter_by_triage(result)
     filter_by_date_and_text(result)
   end
 
@@ -48,6 +49,15 @@ class TicketFinder
   #
   # Ausente o parametro, a listagem nao muda em nada: e assim que o Kanban e
   # a Busca detalhada seguem se comportando como sempre.
+  # A fila de triagem: os chamados abertos pelo cliente que ainda nao foram
+  # aceitos. Ausente, a listagem se comporta como sempre - ela nao exclui os
+  # pendentes, porque a Busca detalhada procura em tudo.
+  def filter_by_triage(relation)
+    return relation if params[:pending_triage].nil? || params[:pending_triage] == ''
+
+    ActiveModel::Type::Boolean.new.cast(params[:pending_triage]) ? relation.pending_triage : relation.triaged
+  end
+
   def filter_by_impediment(relation)
     # `false.blank?` e true no Rails, entao `blank?` aqui descartaria um pedido
     # explicito por NAO impedidos. So a ausencia do parametro desliga o filtro.

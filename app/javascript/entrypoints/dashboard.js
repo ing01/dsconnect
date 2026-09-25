@@ -10,6 +10,7 @@ import WootWizard from 'components/ui/Wizard.vue';
 import FloatingVue from 'floating-vue';
 import WootUiKit from 'dashboard/components';
 import App from 'dashboard/App.vue';
+import { clientLocale, isClientArea } from 'dashboard/helper/clientSession';
 import i18nMessages from 'dashboard/i18n';
 import createAxios from 'dashboard/helper/APIHelper';
 
@@ -39,6 +40,14 @@ const i18n = createI18n({
   locale: 'en',
   messages: i18nMessages,
 });
+
+// A Área do Cliente não tem usuário interno de quem herdar o idioma, e o i18n
+// nasce em inglês. Definido aqui, antes do `mount`, para as telas já
+// renderizarem traduzidas - no `mounted` de um componente as filhas já teriam
+// aparecido em inglês antes da troca.
+if (isClientArea()) {
+  i18n.global.locale.value = clientLocale();
+}
 
 sync(store, router);
 

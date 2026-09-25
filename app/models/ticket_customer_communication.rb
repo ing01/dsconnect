@@ -11,17 +11,43 @@ class TicketCustomerCommunication < ApplicationRecord
   belongs_to :contact, optional: true
 
   STATUSES = %w[pending sent failed].freeze
+  # `outbound` e o que a equipe envia ao cliente; `inbound` e a resposta dele,
+  # escrita na Area do Cliente. A mesma conversa, lida dos dois lados.
+  DIRECTIONS = %w[outbound inbound].freeze
 
-  validates :to_email, :subject, :body, presence: true
+  validates :subject, :body, presence: true
+  validates :direction, inclusion: { in: DIRECTIONS }
+  # So a mensagem que SAI precisa de destinatario. A que chega ja chegou - nao
+  # ha entrega a fazer, e exigir um e-mail aqui seria inventar um.
+  validates :to_email, presence: true, if: :outbound?
   validates :status, inclusion: { in: STATUSES }
-  validate :to_email_looks_deliverable
+  validate :to_email_looks_deliverable, if: :outbound?
 
   before_validation :ensure_account_id
 
+  # Os arquivos que vieram com a mensagem. Continuam sendo anexos do ticket -
+  # aparecem na area de Arquivos como qualquer outro -, mas sabem de onde vieram.
+  has_many :ticket_attachments, dependent: :nullify
+
   scope :sent, -> { where(status: 'sent') }
+  scope :outbound, -> { where(direction: 'outbound') }
+  scope :inbound, -> { where(direction: 'inbound') }
   # What satisfies the closing requirement: a closing message that actually went
   # out. A pending or failed one does not count.
   scope :closing_sent, -> { sent.where(closing: true) }
+
+  def outbound?
+    direction == 'outbound'
+  end
+
+  def inbound?
+    direction == 'inbound'
+  end
+
+  # Quem escreveu. Do lado de fora e o contato; do lado de dentro, o agente.
+  def author_name
+    inbound? ? contact&.name : user&.name
+  end
 
   def mark_sent!
     update!(status: 'sent', sent_at: Time.zone.now, error_message: nil)

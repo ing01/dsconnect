@@ -8,6 +8,7 @@ import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
+import ClientAccessDialog from './ClientAccessDialog.vue';
 
 const props = defineProps({
   company: {
@@ -52,6 +53,7 @@ const emit = defineEmits([
   'search',
   'selectContact',
   'update:currentPage',
+  'refreshContacts',
 ]);
 
 const route = useRoute();
@@ -60,6 +62,8 @@ const { t } = useI18n();
 
 const selectedContactId = ref(null);
 const searchQuery = ref('');
+// O contato cujo acesso a Area do Cliente esta sendo configurado.
+const contactForAccess = ref(null);
 
 const hasContacts = computed(() => props.contacts.length > 0);
 const currentPage = computed(() => Number(props.meta?.page || 1));
@@ -79,6 +83,13 @@ const openContact = contactId => {
       contactId,
     },
   });
+};
+
+const aoSalvarAcesso = () => {
+  contactForAccess.value = null;
+  // A lista e relida para o selo refletir o que acabou de mudar.
+  emit('search', searchQuery.value.trim());
+  emit('refreshContacts');
 };
 
 const contactMeta = contact =>
@@ -336,6 +347,29 @@ const handleContactSelect = contactId => {
             </div>
           </button>
 
+          <!-- O estado do acesso e o proprio controle: sempre visivel (dizer
+               se o contato entra ou nao e informacao, nao detalhe) e clicavel,
+               porque e exatamente ali que se quer mexer nisso. Escondido atras
+               de um hover, ninguem acha. -->
+          <button
+            type="button"
+            class="shrink-0 px-2 py-1 text-xs rounded-md cursor-pointer border transition-colors"
+            :class="
+              contact.clientAccessEnabled
+                ? 'text-n-teal-11 bg-n-alpha-2 border-n-teal-6 hover:bg-n-alpha-3'
+                : 'text-n-slate-11 bg-n-alpha-1 border-n-weak hover:bg-n-alpha-2'
+            "
+            :disabled="isBusy"
+            :title="t('COMPANIES.DETAIL.CONTACTS.CLIENT_ACCESS.ACTION')"
+            @click.stop="contactForAccess = contact"
+          >
+            {{
+              contact.clientAccessEnabled
+                ? t('COMPANIES.DETAIL.CONTACTS.CLIENT_ACCESS.BADGE_ON')
+                : t('COMPANIES.DETAIL.CONTACTS.CLIENT_ACCESS.BADGE_OFF')
+            }}
+          </button>
+
           <Button
             icon="i-lucide-unlink"
             color="slate"
@@ -360,5 +394,18 @@ const handleContactSelect = contactId => {
         @update:current-page="emit('update:currentPage', $event)"
       />
     </div>
+
+    <woot-modal
+      v-if="contactForAccess"
+      show
+      :on-close="() => (contactForAccess = null)"
+      size="medium"
+    >
+      <ClientAccessDialog
+        :contact="contactForAccess"
+        @saved="aoSalvarAcesso"
+        @close="contactForAccess = null"
+      />
+    </woot-modal>
   </div>
 </template>

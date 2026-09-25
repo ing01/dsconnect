@@ -14,6 +14,9 @@ const props = defineProps({
   badgeCount: { type: [Number, String], default: 0 },
   hideTreeLine: { type: Boolean, default: false },
   thinTreeLine: { type: Boolean, default: false },
+  // Menu recolhido: so o icone, com o nome no `title`. Padrao `false`, entao
+  // nenhum uso existente muda.
+  collapsed: { type: Boolean, default: false },
 });
 
 const { resolvePermissions, resolveFeatureFlag } = useSidebarContext();
@@ -47,6 +50,7 @@ const TREE_CONNECTOR =
       class="flex h-9 items-center gap-2 px-2 py-1 rounded-lg ltr:hover:bg-gradient-to-r rtl:hover:bg-gradient-to-l from-transparent via-n-slate-3/70 to-n-slate-3/70 group min-w-0"
       :class="{
         'text-n-slate-12 bg-n-alpha-2 active': active,
+        'justify-center': collapsed,
       }"
     >
       <component
@@ -58,8 +62,10 @@ const TREE_CONNECTOR =
         <span v-if="icon" class="size-5 grid place-content-center rounded-full">
           <Icon :icon="icon" class="size-5 inline-block" />
         </span>
-        <div class="flex-1 truncate min-w-0 text-base">{{ label }}</div>
-        <SidebarUnreadBadge :count="badgeCount" />
+        <div v-if="!collapsed" class="flex-1 truncate min-w-0 text-base">
+          {{ label }}
+        </div>
+        <SidebarUnreadBadge v-if="!collapsed" :count="badgeCount" />
       </template>
     </component>
   </Policy>

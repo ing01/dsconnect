@@ -122,6 +122,15 @@ class TicketPolicy < ApplicationPolicy
     editable? && (administrator? || assigned_to_user?)
   end
 
+  # Aceitar um chamado do cliente e encaminha-lo. Nao segue `update?` de
+  # proposito: o chamado em triagem ainda nao tem responsavel, e a Mesa de
+  # entrada foi escolhida pela Categoria - exigir ser membro dela deixaria a
+  # fila parada sempre que a Categoria apontasse para a Mesa errada, que e
+  # justamente o que a triagem existe para corrigir.
+  def approve_triage?
+    editable?
+  end
+
   def destroy?
     administrator?
   end

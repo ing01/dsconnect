@@ -116,11 +116,22 @@ export function useTicketCreation(context) {
     'priority',
   ];
 
+  // A Categoria escolhida pode exigir anexo. A regra vem do cadastro dela - a
+  // mesma que a Area do Cliente respeita -, e nao de uma lista aqui.
+  const selectedCategory = computed(() =>
+    categories.value.find(c => c.id === form.value.ticketCategoryId)
+  );
+
+  const requiresAttachment = computed(() =>
+    Boolean(selectedCategory.value?.require_attachment)
+  );
+
   const isValid = computed(
     () =>
       REQUIRED.every(field => !!form.value[field]) &&
       form.value.title.trim().length > 0 &&
-      form.value.description.trim().length > 0
+      form.value.description.trim().length > 0 &&
+      (!requiresAttachment.value || files.value.length > 0)
   );
 
   // Snake case, because this is what the tickets endpoint expects.
@@ -162,6 +173,7 @@ export function useTicketCreation(context) {
     columns,
     categories,
     mesaMembers,
+    requiresAttachment,
     isValid,
     toPayload,
     resetForNext,

@@ -3,8 +3,8 @@
     "WORKSPACE": {
       "KANBAN": "Kanban",
       "CLOSE_TAB": "Close tab",
-      "SCROLL_LEFT": "Scroll tabs left",
-      "SCROLL_RIGHT": "Scroll tabs right"
+      "ALL_TABS": "See every tab",
+      "ALL_TABS_COUNT": "{count} ticket(s) open"
     },
     "HEADER": "Tickets",
     "DESCRIPTION": "Organize tickets on a Kanban board per Mesa (Team) and link them to their related conversations.",
@@ -501,7 +501,15 @@
         "DELETE": "Delete category",
         "NAME": "Name",
         "SAVE": "Save",
-        "EMPTY": "No category in this desk yet."
+        "EMPTY": "No category in this desk yet.",
+        "REQUIRE_ATTACHMENT": "Require a file or image when opening",
+        "REQUIRE_ATTACHMENT_HELP": "Anyone opening a ticket in this category must attach at least one file. Applies to agents and to the Client Area.",
+        "REQUIRE_ATTACHMENT_COLUMN": "Attachment",
+        "REQUIRED_BADGE": "Required",
+        "CLIENT_VISIBLE": "Show in the Client Area",
+        "CLIENT_VISIBLE_HELP": "Clients pick only the category, never the Mesa. Since the same categories exist in every Mesa, tick only this one so the name is not repeated in their list.",
+        "CLIENT_VISIBLE_COLUMN": "Client Area",
+        "CLIENT_VISIBLE_BADGE": "Visible"
       },
       "CATALOG": {
         "TITLE": "Service catalogue",
@@ -842,7 +850,8 @@
       "FILES": {
         "ADD": "Attach files",
         "REMOVE": "Remove file"
-      }
+      },
+      "ATTACHMENT_REQUIRED": "This category requires at least one file or image."
     },
     "CATALOG": {
       "TITLE": "Service catalogue",
@@ -889,7 +898,8 @@
         "SENT": "Sent",
         "FAILED": "Failed",
         "PENDING": "Pending"
-      }
+      },
+      "FROM_CUSTOMER": "Reply from {name}"
     },
     "EXPORT": {
       "LABEL": "Export",
@@ -908,6 +918,25 @@
       "LIST_TITLE": "My blocked tickets",
       "LIST_DESCRIPTION": "Tickets assigned to you that are waiting on something to move forward.",
       "LIST_EMPTY": "You have no blocked tickets."
+    },
+    "TRIAGE": {
+      "TITLE": "Ticket triage",
+      "DESCRIPTION": "Tickets opened by clients, waiting to be accepted. While here, they stay out of the Kanban.",
+      "EMPTY": "No ticket waiting for triage.",
+      "OPEN": "Open",
+      "APPROVE": "Accept and route",
+      "OPENED_BY": "{name} · {company} · {at}",
+      "SUGGESTED": "Category given: {category} · Entry Mesa: {team}",
+      "APPROVED": "Ticket #{number} routed.",
+      "DIALOG": {
+        "TITLE": "Route ticket #{number}",
+        "DESCRIPTION": "Choose the Mesa and stage that will handle it. The category can be fixed here.",
+        "TEAM": "Mesa",
+        "COLUMN": "Stage",
+        "CATEGORY": "Category",
+        "CATEGORY_KEEP": "Keep the one the client chose",
+        "CONFIRM": "Route"
+      }
     }
   }
 }

@@ -1,5 +1,7 @@
 class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   include Sift
+  # Acesso a Area do Cliente - a acao `client_access` vem daqui.
+  include ContactClientAccessActions
   sort_on :email, type: :string
   sort_on :name, internal_name: :order_on_name, type: :scope, scope_params: [:direction]
   sort_on :phone_number, type: :string
@@ -13,7 +15,14 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   before_action :check_authorization
   before_action :set_current_page, only: [:index, :active, :search, :filter]
-  before_action :fetch_contact, only: [:show, :update, :destroy, :avatar, :contactable_inboxes, :destroy_custom_attributes]
+  # `client_access` vive em ContactClientAccessActions, mas precisa estar NESTA
+  # lista: o Rails deduplica callbacks pelo nome do filtro, e declarar
+  # `fetch_contact` de novo no concern substituiria esta declaracao em vez de
+  # somar - o @contact chegaria nulo na acao.
+  # rubocop:disable Rails/LexicallyScopedActionFilter
+  before_action :fetch_contact, only: [:show, :update, :destroy, :avatar, :contactable_inboxes, :destroy_custom_attributes,
+                                       :client_access]
+  # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :set_include_contact_inboxes, only: [:index, :active, :search, :filter, :show, :update]
 
   def index

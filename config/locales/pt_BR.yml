@@ -78,6 +78,71 @@ pt_BR:
   profile_settings:
     sessions:
       cannot_revoke_current: Você não pode revogar a sessão atual.
+  devise:
+    mailer:
+      confirmation_body:
+        greeting: "Olá %{name},"
+        fallback: 'Se o botão não funcionar, abra'
+        fallback_link: este link seguro
+      reset_password_instructions:
+        greeting: "Olá %{email}!"
+        intro: Alguém pediu um link para alterar sua senha. Você pode fazer isso pelo link abaixo.
+        action: Alterar minha senha
+        ignore: Se não foi você quem pediu, ignore esta mensagem.
+        unchanged: Sua senha não muda até você acessar o link acima e criar uma nova.
+      password_change:
+        greeting: "Olá %{email}!"
+        body: Estamos avisando que a sua senha foi alterada.
+      unlock_instructions:
+        greeting: "Olá %{email}!"
+        locked: Sua conta foi bloqueada por excesso de tentativas de acesso sem sucesso.
+        instruction: 'Clique no link abaixo para desbloquear a sua conta:'
+        action: Desbloquear minha conta
+      confirmation_instructions:
+        labels:
+          new_email: Novo e-mail
+          invited_by: Convidado por
+          workspace: Espaço de trabalho
+        welcome:
+          eyebrow: Boas-vindas
+          heading: Confirme seu e-mail para começar
+          intro: Boas-vindas ao %{brand}. Só precisamos confirmar seu endereço de e-mail antes de você começar a usar sua conta.
+          supporting: Leva só um instante.
+          action: Confirmar minha conta
+        email_update:
+          eyebrow: Troca de e-mail
+          heading: Confirme seu novo endereço de e-mail
+          intro: Recebemos um pedido para alterar o endereço de e-mail da sua conta no %{brand}.
+          supporting: Confirme o novo endereço abaixo para concluir a troca.
+          action: Confirmar endereço de e-mail
+        ready:
+          eyebrow: Conta pronta
+          heading: Sua conta está pronta
+          intro: Sua conta no %{brand} já está ativa.
+          supporting: Use o botão abaixo para entrar e continuar de onde parou.
+          action: Abrir minha conta
+        invite:
+          eyebrow: Convite
+          heading_account: "Você foi convidado para o %{account}"
+          heading_brand: "Você foi convidado para conhecer o %{brand}"
+          intro_account: "%{inviter} convidou você para o espaço de trabalho %{account}, no %{brand}."
+          intro_brand: "%{inviter} convidou você para conhecer o %{brand}."
+          supporting: Crie sua conta para começar a trabalhar com a sua equipe.
+          action: Aceitar convite
+  mailer_layout:
+    sent_by: Este e-mail foi enviado por
+    notifications_enabled: Você está recebendo este e-mail porque as notificações por e-mail estão ativas na sua conta.
+    manage_preferences: Gerenciar preferências de notificação
+  client_password_mailer:
+    reset_password_instructions:
+      subject: Redefinição de senha - Área do Cliente
+      greeting: "Olá %{name},"
+      intro: Recebemos um pedido para redefinir a senha de acesso à Área do Cliente.
+      action: Definir uma nova senha
+      fallback: 'Se o botão acima não funcionar, copie e cole este endereço no navegador:'
+      expires_in: Este link vale por %{hours} horas.
+      ignore: Se não foi você quem pediu, ignore esta mensagem - sua senha atual continua valendo.
+      regards: Atenciosamente, Duesoft Sistemas
   ticket_customer_mailer:
     customer_message:
       greeting: "Olá %{contact}, da empresa %{company}."
@@ -89,6 +154,11 @@ pt_BR:
       regards: Atenciosamente,
       company_name: Duesoft Sistemas
   tickets:
+    triage:
+      not_pending: este chamado não está aguardando triagem
+      column_mismatch: o estágio escolhido não pertence a esta Mesa
+    attachments:
+      required_by_category: esta categoria exige pelo menos um arquivo ou imagem no chamado
     assignee_levels:
       not_enabled: não pode ser definido porque esta Mesa não usa níveis de responsável
       not_allowed: não está habilitado a atuar no nível %{level} desta Mesa
@@ -393,6 +463,7 @@ pt_BR:
       sla_missed_resolution: 'Meta de SLA de Resolução não alcançada para a conversa (#%{display_id})'
       project_contract_end_overdue: 'A data de fim de contrato de %{project_name} está vencida'
       project_support_end_overdue: 'A data de fim de acompanhamento de %{project_name} está vencida'
+      ticket_triage_pending: 'Novo chamado de %{company_name} (#%{display_id}) aguardando triagem'
     unknown_contact: 'Contato sem nome'
     attachment: 'Anexo'
     no_content: 'Sem conteúdo'
@@ -493,7 +564,18 @@ pt_BR:
       transcript_subject: 'Transcrição da conversa'
     survey:
       response: 'Por favor, classifique esta conversa, %{link}'
+  client_area:
+    communication:
+      empty: Escreva uma mensagem antes de enviar.
+    unauthorized: Sessão inválida ou acesso à Área do Cliente desativado.
+    invalid_credentials: E-mail ou senha inválidos.
+    password:
+      updated: Senha alterada. Entre com a nova senha.
+      invalid_token: Este link de redefinição não é mais válido. Peça um novo na tela de login.
   contacts:
+    client_access:
+      email_required: é obrigatório para o acesso à Área do Cliente
+      password_required: precisa ser definida para liberar o acesso à Área do Cliente
     online:
       delete: '%{contact_name} está Online, por favor, tente novamente mais tarde'
   integration_apps:

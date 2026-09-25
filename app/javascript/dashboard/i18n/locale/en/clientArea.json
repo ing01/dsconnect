@@ -1,0 +1,121 @@
+{
+  "CLIENT_AREA": {
+    "TITLE": "Client Area",
+    "LOGOUT": "Sign out",
+    "BOARD": {
+      "TEAM": "Mesa",
+      "COUNT": "{count} ticket(s)",
+      "NEW_TICKET": "New ticket",
+      "EMPTY": "There are no tickets to show yet.",
+      "EMPTY_COLUMN": "No tickets here.",
+      "OPENED_BY_ME": "Opened by you",
+      "ERROR": "Could not load your tickets.",
+      "SEARCH": "Search by number or title",
+      "ALL_STATUSES": "All statuses",
+      "ALL_PRIORITIES": "All priorities",
+      "CLEAR_FILTERS": "Clear filters",
+      "SHOW_COMPLETED": "Show finished",
+      "STATUS": "Status",
+      "PRIORITY": "Priority",
+      "DESCRIPTION": "Follow your company tickets and open new ones.",
+      "VIEW": {
+        "LABEL": "View mode",
+        "LIST": "List",
+        "KANBAN": "Kanban"
+      }
+    },
+    "NEW_TICKET": {
+      "TITLE": "Open a new ticket",
+      "DESCRIPTION": "Tell us what is happening. The team classifies and routes the ticket.",
+      "CATEGORY": "Category",
+      "SUBJECT": "Subject",
+      "SUBJECT_PLACEHOLDER": "Summarise the problem in one line",
+      "BODY": "Description",
+      "BODY_PLACEHOLDER": "Describe what happened, with as much detail as you can",
+      "CANCEL": "Cancel",
+      "CONFIRM": "Open ticket",
+      "CREATED": "Ticket #{number} opened.",
+      "ERROR": "Could not open the ticket.",
+      "FILES": "Files and images",
+      "FILES_REQUIRED": "This category requires at least one file or image.",
+      "ERRORS": {
+        "SUBJECT": "Subject",
+        "BODY": "Description",
+        "FILES": "File or image",
+        "SUMMARY": "Still missing: {fields}.",
+        "CATEGORY": "Category"
+      },
+      "CATEGORY_PLACEHOLDER": "Choose the kind of problem",
+      "CATEGORY_SEARCH": "Search category",
+      "TRIAGE_NOTE": "The team will review the ticket and route it to the right area."
+    },
+    "DETAIL": {
+      "BACK": "Back",
+      "NOT_FOUND": "Ticket not found.",
+      "TABS": {
+        "OVERVIEW": "Overview",
+        "COMMUNICATION": "Communication",
+        "APPOINTMENTS": "Appointments",
+        "CHECKLIST": "Checklist"
+      },
+      "FIELDS": {
+        "STATUS": "Status",
+        "STAGE": "Stage",
+        "TEAM": "Mesa",
+        "CATEGORY": "Category",
+        "REQUESTED_BY": "Opened by",
+        "CREATED_AT": "Opened at",
+        "DUE_DATE": "Due date",
+        "CLOSED_AT": "Closed at"
+      },
+      "DESCRIPTION": "Description",
+      "NO_DESCRIPTION": "No description.",
+      "NO_COMMUNICATION": "No message has been sent yet.",
+      "CLOSING_NOTICE": "Closing notice",
+      "NO_APPOINTMENTS": "No appointment scheduled.",
+      "NO_CHECKLIST": "No checklist item.",
+      "CHECKLIST_PROGRESS": "{done} of {total} done",
+      "REQUIRED": "Required",
+      "COMMUNICATION": {
+        "SEND_TITLE": "Reply",
+        "PLACEHOLDER": "Write your message to the team",
+        "SEND": "Send",
+        "SENT": "Message sent.",
+        "SEND_ERROR": "Could not send the message.",
+        "FROM_TEAM": "Team",
+        "FROM_YOU": "You",
+        "ATTACH": "Attach files"
+      },
+      "PENDING_TRIAGE": "Waiting for triage"
+    },
+    "MENU": {
+      "TICKETS": "Tickets",
+      "NOTIFICATIONS": "Notifications",
+      "COLLAPSE": "Collapse menu",
+      "EXPAND": "Expand menu",
+      "TOGGLE": "Menu"
+    },
+    "NOTIFICATIONS": {
+      "TITLE": "Notifications",
+      "DESCRIPTION": "What the team wrote on your tickets.",
+      "EMPTY": "No news on your tickets yet.",
+      "ERROR": "Could not load the notifications."
+    },
+    "PASSWORD": {
+      "TITLE": "Set a new password",
+      "DESCRIPTION": "Choose the password you will use to sign in to the Client Area.",
+      "DONE_DESCRIPTION": "Password changed. Sign in with the new one.",
+      "NEW": "New password",
+      "NEW_PLACEHOLDER": "At least 6 characters",
+      "CONFIRM": "Repeat the new password",
+      "CONFIRM_PLACEHOLDER": "Type the same password",
+      "SAVE": "Save password",
+      "GO_TO_LOGIN": "Go to sign in",
+      "ERRORS": {
+        "TOO_SHORT": "The password needs at least {count} characters.",
+        "MISMATCH": "The two passwords do not match.",
+        "GENERIC": "The password could not be changed. Try again."
+      }
+    }
+  }
+}

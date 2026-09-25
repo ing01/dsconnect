@@ -84,6 +84,71 @@ en:
     sessions:
       cannot_revoke_current: You cannot revoke the current session.
 
+  devise:
+    mailer:
+      confirmation_body:
+        greeting: "Hi %{name},"
+        fallback: If the button does not work, open
+        fallback_link: this secure link
+      reset_password_instructions:
+        greeting: "Hello %{email}!"
+        intro: Someone has requested a link to change your password. You can do this through the link below.
+        action: Change my password
+        ignore: If you didn't request this, please ignore this email.
+        unchanged: Your password won't change until you access the link above and create a new one.
+      password_change:
+        greeting: "Hello %{email}!"
+        body: We're contacting you to notify you that your password has been changed.
+      unlock_instructions:
+        greeting: "Hello %{email}!"
+        locked: Your account has been locked due to an excessive number of unsuccessful sign in attempts.
+        instruction: 'Click the link below to unlock your account:'
+        action: Unlock my account
+      confirmation_instructions:
+        labels:
+          new_email: New email
+          invited_by: Invited by
+          workspace: Workspace
+        welcome:
+          eyebrow: Welcome
+          heading: Confirm your email to get started
+          intro: Welcome to %{brand}. We just need to verify your email address before you can start using your account.
+          supporting: This only takes a moment.
+          action: Confirm my account
+        email_update:
+          eyebrow: Email update
+          heading: Confirm your new email address
+          intro: We received a request to update the email address on your %{brand} account.
+          supporting: Confirm the new address below to finish the change.
+          action: Confirm email address
+        ready:
+          eyebrow: Account ready
+          heading: Your account is ready
+          intro: Your %{brand} account is already active.
+          supporting: Use the button below to sign in and continue where you left off.
+          action: Open my account
+        invite:
+          eyebrow: Workspace invitation
+          heading_account: "You're invited to join %{account}"
+          heading_brand: "You're invited to try %{brand}"
+          intro_account: "%{inviter} invited you to join the %{account} workspace on %{brand}."
+          intro_brand: "%{inviter} invited you to try %{brand}."
+          supporting: Create your account to start collaborating with your team.
+          action: Accept invitation
+  mailer_layout:
+    sent_by: This email was sent by
+    notifications_enabled: You're receiving this email because email notifications are enabled for your account.
+    manage_preferences: Manage notification preferences
+  client_password_mailer:
+    reset_password_instructions:
+      subject: Password reset - Client Area
+      greeting: "Hi %{name},"
+      intro: We received a request to reset your Client Area password.
+      action: Set a new password
+      fallback: "If the button above does not work, copy and paste this address into your browser:"
+      expires_in: This link is valid for %{hours} hours.
+      ignore: If you did not ask for this, ignore this message - your current password still works.
+      regards: Regards, Duesoft Sistemas
   ticket_customer_mailer:
     customer_message:
       greeting: "Hello %{contact}, from %{company}."
@@ -95,6 +160,11 @@ en:
       regards: Kind regards,
       company_name: Duesoft Sistemas
   tickets:
+    triage:
+      not_pending: this ticket is not waiting for triage
+      column_mismatch: the chosen stage does not belong to this Mesa
+    attachments:
+      required_by_category: this category requires at least one file or image on the ticket
     assignee_levels:
       not_enabled: cannot be set because this service desk does not use assignee levels
       not_allowed: is not allowed to act at level %{level} on this service desk
@@ -400,6 +470,7 @@ en:
       sla_missed_resolution: 'SLA target resolution missed for conversation (#%{display_id})'
       project_contract_end_overdue: 'Contract end date is overdue for %{project_name}'
       project_support_end_overdue: 'Support end date is overdue for %{project_name}'
+      ticket_triage_pending: 'New ticket from %{company_name} (#%{display_id}) waiting for triage'
     unknown_contact: 'Unnamed contact'
     attachment: 'Attachment'
     no_content: 'No content'
@@ -500,7 +571,18 @@ en:
       transcript_subject: 'Conversation Transcript'
     survey:
       response: 'Please rate this conversation, %{link}'
+  client_area:
+    communication:
+      empty: Write a message before sending.
+    unauthorized: Invalid session or Client Area access is disabled.
+    invalid_credentials: Invalid e-mail or password.
+    password:
+      updated: Password changed. Sign in with the new one.
+      invalid_token: This reset link is no longer valid. Ask for a new one on the login screen.
   contacts:
+    client_access:
+      email_required: is required for Client Area access
+      password_required: must be set before enabling Client Area access
     online:
       delete: '%{contact_name} is Online, please try again later'
   integration_apps:

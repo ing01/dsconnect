@@ -6,11 +6,24 @@ import { LocalStorage } from 'shared/helpers/localStorage';
 // storing column ids (not indexes) keeps it stable across renames/reorders.
 export const COLLAPSED_COLUMNS_KEY_PREFIX = 'ticket-kanban-collapsed-columns';
 
-export const collapsedColumnsKey = (accountId, teamId) =>
-  `${COLLAPSED_COLUMNS_KEY_PREFIX}::${accountId}::${teamId}`;
+// `scope` separa preferencias que falam dos MESMOS Estagios em telas
+// diferentes: recolher um grupo na lista nao pode recolher a coluna no Kanban,
+// que e outra forma de ler. Sem scope a chave fica como sempre foi, para o
+// Kanban nao perder o que os usuarios ja tinham guardado.
+export const collapsedColumnsKey = (accountId, teamId, scope = null) =>
+  scope
+    ? `${COLLAPSED_COLUMNS_KEY_PREFIX}::${scope}::${accountId}::${teamId}`
+    : `${COLLAPSED_COLUMNS_KEY_PREFIX}::${accountId}::${teamId}`;
 
-export const readCollapsedColumnIds = (accountId, teamId, validIds = null) => {
-  const stored = LocalStorage.get(collapsedColumnsKey(accountId, teamId));
+export const readCollapsedColumnIds = (
+  accountId,
+  teamId,
+  validIds = null,
+  scope = null
+) => {
+  const stored = LocalStorage.get(
+    collapsedColumnsKey(accountId, teamId, scope)
+  );
   const ids = Array.isArray(stored)
     ? stored.map(Number).filter(Number.isFinite)
     : [];
@@ -20,18 +33,23 @@ export const readCollapsedColumnIds = (accountId, teamId, validIds = null) => {
   return validIds ? ids.filter(id => validIds.includes(id)) : ids;
 };
 
-export const writeCollapsedColumnIds = (accountId, teamId, ids) =>
-  LocalStorage.set(collapsedColumnsKey(accountId, teamId), [
+export const writeCollapsedColumnIds = (accountId, teamId, ids, scope = null) =>
+  LocalStorage.set(collapsedColumnsKey(accountId, teamId, scope), [
     ...new Set(ids.map(Number)),
   ]);
 
-export const toggleCollapsedColumn = (accountId, teamId, columnId) => {
+export const toggleCollapsedColumn = (
+  accountId,
+  teamId,
+  columnId,
+  scope = null
+) => {
   const id = Number(columnId);
-  const current = readCollapsedColumnIds(accountId, teamId);
+  const current = readCollapsedColumnIds(accountId, teamId, null, scope);
   const next = current.includes(id)
     ? current.filter(storedId => storedId !== id)
     : [...current, id];
 
-  writeCollapsedColumnIds(accountId, teamId, next);
+  writeCollapsedColumnIds(accountId, teamId, next, scope);
   return next;
 };

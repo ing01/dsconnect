@@ -13,9 +13,14 @@ class TicketCategory < ApplicationRecord
   delegate :account, to: :team
 
   scope :ordered, -> { order(:position, :id) }
+  # A lista da Area do Cliente. Ordenada por NOME, e nao por posicao: a posicao e
+  # de dentro da Mesa, e aqui as Categorias vem de Mesas diferentes - ordenar por
+  # ela embaralharia nomes sem criterio visivel para quem le.
+  scope :client_visible, -> { where(client_visible: true).order(:name, :id) }
 
   def push_event_data
-    { id: id, name: name, position: position, team_id: team_id }
+    { id: id, name: name, position: position, team_id: team_id,
+      require_attachment: require_attachment, client_visible: client_visible }
   end
 
   private

@@ -8,6 +8,8 @@ class Ticket < ApplicationRecord
   include TicketCustomer
   include TicketOpening
   include TicketRelatable
+  include TicketCategoryAttachments
+  include TicketTriage
   include TicketSlaExtendable
 
   belongs_to :account

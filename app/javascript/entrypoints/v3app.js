@@ -21,29 +21,18 @@ import FluentIcon from 'shared/components/FluentIcon/DashboardIcon.vue';
 // login, entao nao ha usuario nem conta de onde tirar o idioma. Ficava 'en'
 // fixo, e o login aparecia em ingles para todo mundo.
 //
-// A escolha passa a ser a do navegador, quando houver traducao para ela.
-// `pt-BR` vira `pt_BR`, que e como as pastas de traducao sao nomeadas; se so
-// houver o idioma base (`pt`), ele tambem serve. Sem correspondencia, cai no
-// padrao do produto.
-const DEFAULT_LOCALE = 'pt_BR';
-
-const resolveLocale = () => {
-  const requested = window.navigator?.language;
-  if (!requested) return DEFAULT_LOCALE;
-
-  const normalized = requested.replace('-', '_');
-  const base = normalized.split('_')[0];
-
-  if (i18nMessages[normalized]) return normalized;
-  if (i18nMessages[base]) return base;
-
-  return DEFAULT_LOCALE;
-};
+// Portugues, SEMPRE - inclusive aqui, que e o bundle do login, do cadastro e da
+// redefinicao de senha. Seguir `navigator.language`, como era antes, punha a
+// tela de entrada em ingles no navegador de quem estivesse com outro idioma,
+// que e justamente o que nao se quer.
+//
+// Mesma regra de `ClientAreaLocale::LOCALE` no servidor.
+const LOCALE = 'pt_BR';
 
 const i18n = createI18n({
   legacy: false, // https://github.com/intlify/vue-i18n/issues/1902
-  locale: resolveLocale(),
-  fallbackLocale: DEFAULT_LOCALE,
+  locale: LOCALE,
+  fallbackLocale: LOCALE,
   messages: i18nMessages,
 });
 
