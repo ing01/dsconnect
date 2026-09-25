@@ -14,7 +14,7 @@ export const CHANGELOG_ENTRIES = [
     type: 'feature',
     title: 'Importação de tickets de outro sistema (CSV)',
     description:
-      'Nova tela em Configurações > Tickets > Importar: envie uma planilha CSV com os tickets de um sistema anterior (Número, Cliente, Título, Descrição, Status, Estágio, Contato, Time, Prioridade, Catálogo de Serviços, Ticket pai, Criado por, Criado em, Categoria, Data, entre outros) e o sistema cria os tickets automaticamente, linkando com Mesa, Categoria, Cliente e Contato já cadastrados. Tem um botão para baixar um modelo de exemplo com o formato certo, e o resultado (criados, avisos, erros por linha) aparece na hora.',
+      'Nova tela em Configurações > Tickets > Importar: envie uma planilha CSV com os tickets de um sistema anterior (Número, Cliente, Título, Descrição, Status, Estágio, Contato, Time, Prioridade, Catálogo de Serviços, Ticket pai, Criado por, Criado em, Categoria, Data, Desenvolvimento, entre outros) e o sistema cria os tickets automaticamente, linkando com Mesa, Categoria, Cliente e Contato já cadastrados. A coluna "Desenvolvimento" vira a chave do Jira, mostrada na aba "Desenvolvimento" do ticket. Tem um botão para baixar um modelo de exemplo com o formato certo, e o resultado (criados, avisos, erros por linha) aparece na hora.',
   },
   {
     id: 'ticket-stage-automation',
