@@ -46,7 +46,7 @@ export default {
     // padrao, pra bater o olho ja diferenciar um ticket concluido dos demais.
     cardClass() {
       return this.isCompleted
-        ? 'border-n-teal-6 bg-n-teal-2 hover:border-n-teal-8'
+        ? 'border-n-teal-7 bg-n-teal-4 hover:border-n-teal-8'
         : 'border-n-weak bg-n-solid-1 hover:border-n-slate-6';
     },
     priorityColor() {
