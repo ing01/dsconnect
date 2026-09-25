@@ -744,14 +744,16 @@
         },
         "DOWNLOAD_TEMPLATE": "Download example template",
         "FILE_LABEL": "CSV file",
-        "FILE_HINT": "Very large files (thousands of rows) may need to be split into smaller batches.",
+        "FILE_HINT": "The import runs in the background - spreadsheets with tens of thousands of rows work fine, they just take longer. Fully empty rows (common in CSVs saved by Excel) are ignored automatically.",
         "SUBMIT": "Import",
         "API": {
-          "SUCCESS": "Import finished: {count} ticket(s) created.",
-          "ERROR": "Could not import the file."
+          "ERROR": "Could not upload the file."
         },
         "RESULT": {
           "TITLE": "Import result",
+          "PROCESSING": "Processing...",
+          "PROCESSING_WITH_TOTAL": "Processing... {processed} of {total} rows",
+          "FAILED": "The import failed: {message}",
           "CREATED": "{count} ticket(s) created",
           "SKIPPED": "{count} row(s) with errors",
           "ERRORS_TITLE": "Errors",

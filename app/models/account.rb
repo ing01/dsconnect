@@ -189,6 +189,7 @@ class Account < ApplicationRecord
   has_many :service_catalogs, dependent: :destroy_async
   has_many :teams, dependent: :destroy_async
   has_many :queues, class_name: 'ServiceQueue', dependent: :destroy_async
+  has_many :ticket_imports, dependent: :destroy_async
   # Estagios live under a Mesa; reached through it so account-scoped lookups
   # (a transfer target, a stage select) don't have to join by hand.
   has_many :ticket_columns, through: :teams

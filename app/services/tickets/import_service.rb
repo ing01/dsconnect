@@ -1,9 +1,9 @@
 require 'csv'
 
 # Importa tickets de uma planilha (CSV) exportada de outro sistema -
-# Configuracoes > Tickets > Importar. Cada linha e processada isolada: uma
-# falha numa linha (ex: Mesa/Estagio inexistente) so descarta aquela linha,
-# nunca o lote inteiro.
+# Configuracoes > Tickets > Importar (roda em segundo plano, ver
+# Tickets::ImportJob). Cada linha e processada isolada: uma falha numa linha
+# (ex: Mesa/Estagio inexistente) so descarta aquela linha, nunca o lote inteiro.
 #
 # Cabecalho esperado (nomes exatos, sem acento tambem funciona - ver
 # HEADER_ALIASES): Numero, Cliente, Titulo, Descricao, Status, Estagio,
@@ -16,8 +16,17 @@ require 'csv'
 # segunda liga o "Ticket pai" usando o "Numero" original que cada ticket
 # guarda em `custom_attributes['imported_ticket_number']` - funciona tanto
 # para um pai importado no mesmo arquivo quanto num arquivo anterior.
+#
+# Uma planilha real pode ter dezenas de milhares de linhas - por isso Mesa,
+# Estagio, Categoria, Cliente, Contato e Catalogo de Servicos sao carregados
+# so uma vez cada (memoizados nos metodos `*_by_*` abaixo) em vez de uma
+# consulta nova por linha.
 class Tickets::ImportService
   Result = Struct.new(:created, :skipped, :errors, :warnings, keyword_init: true)
+
+  # A cada quantas linhas o progresso e salvo - por linha seria uma escrita a
+  # mais no banco por ticket, demais para dezenas de milhares de linhas.
+  PROGRESS_CHECKPOINT = 50
 
   STATUS_ALIASES = {
     'aberto' => 'open', 'open' => 'open',
@@ -55,17 +64,24 @@ class Tickets::ImportService
     'desenvolvimento' => 'desenvolvimento'
   }.freeze
 
-  pattr_initialize [:account!, :csv_content!]
+  pattr_initialize [:account!, :csv_content!, :ticket_import!]
 
   def perform
-    rows = parse_csv
+    parsed_rows = parse_csv
     # Nenhuma coluna reconhecida - o cabecalho nao bate com o esperado. Sem
     # esta checagem, cada linha falhava por conta propria ("Time e
     # obrigatorio" repetido em toda linha) sem dizer a causa real.
-    if rows.present? && rows.all?(&:blank?)
+    if parsed_rows.present? && parsed_rows.all?(&:blank?)
       message = 'Nenhuma coluna reconhecida - confira se o cabeçalho da planilha bate com o modelo baixado.'
       return Result.new(created: 0, skipped: 0, errors: [{ row: 0, message: message }], warnings: [])
     end
+
+    # O Excel costuma deixar centenas de milhares de linhas vazias no fim do
+    # CSV (o "intervalo usado" da planilha cresce mesmo sem conteudo real) -
+    # sem filtrar isso, uma planilha com poucas dezenas de milhares de
+    # tickets de verdade aparecia como se tivesse mais de 1 milhao de linhas.
+    rows = parsed_rows.reject { |row| row.values.all?(&:blank?) }
+    ticket_import.update!(total_rows: rows.size)
 
     entries = []
     row_errors = []
@@ -80,6 +96,7 @@ class Tickets::ImportService
       rescue StandardError => e
         row_errors << { row: line_number, message: e.message }
       end
+      checkpoint_progress!(index + 1, rows.size)
     end
 
     link_parents!(entries)
@@ -88,6 +105,12 @@ class Tickets::ImportService
   end
 
   private
+
+  def checkpoint_progress!(count, total)
+    return unless (count % PROGRESS_CHECKPOINT).zero? || count == total
+
+    ticket_import.update_column(:processed_rows, count) # rubocop:disable Rails/SkipsModelValidations
+  end
 
   def parse_csv
     first_line = csv_content.to_s.lines.first.to_s
@@ -137,10 +160,48 @@ class Tickets::ImportService
     [ticket, row['ticket_pai'].to_s.strip.presence, warnings]
   end
 
+  # --- Caches: uma consulta por Mesa/lista, nao uma por linha da planilha ---
+
+  def teams_by_name
+    @teams_by_name ||= account.teams.each_with_object({}) { |t, h| h[t.name.to_s.strip.downcase] = t }
+  end
+
+  def ticket_columns_by_team(team)
+    @ticket_columns_by_team ||= {}
+    @ticket_columns_by_team[team.id] ||=
+      team.ticket_columns.each_with_object({}) { |c, h| h[c.name.to_s.strip.downcase] = c }
+  end
+
+  # Mutavel de proposito: uma Categoria criada por uma linha precisa ser
+  # reaproveitada pelas linhas seguintes da mesma Mesa, sem bater no banco de
+  # novo (e sem tentar criar a mesma Categoria duas vezes).
+  def ticket_categories_by_team(team)
+    @ticket_categories_by_team ||= {}
+    @ticket_categories_by_team[team.id] ||=
+      team.ticket_categories.each_with_object({}) { |c, h| h[c.name.to_s.strip.downcase] = c }
+  end
+
+  def companies_by_name
+    @companies_by_name ||=
+      Company.where(account_id: account.id).each_with_object({}) { |c, h| h[c.name.to_s.strip.downcase] = c }
+  end
+
+  def contacts_by_name
+    @contacts_by_name ||= account.contacts.each_with_object({}) { |c, h| h[c.name.to_s.strip.downcase] = c }
+  end
+
+  # Inclui as Areas e os Itens de cada Catalogo - a busca por Area/Item vira
+  # busca em array (`find`), sem consulta nenhuma por linha.
+  def service_catalogs_by_name
+    @service_catalogs_by_name ||= ServiceCatalog.where(account_id: account.id)
+                                                 .includes(service_catalog_areas: :service_catalog_items)
+                                                 .each_with_object({}) { |c, h| h[c.name.to_s.strip.downcase] = c }
+  end
+
   def find_team!(name)
     raise 'Time é obrigatório' if name.blank?
 
-    team = account.teams.where('LOWER(name) = ?', name.to_s.strip.downcase).first
+    team = teams_by_name[name.to_s.strip.downcase]
     raise "Time \"#{name}\" não encontrado" if team.blank?
 
     team
@@ -149,27 +210,31 @@ class Tickets::ImportService
   def find_ticket_column!(team, name)
     raise 'Estágio é obrigatório' if name.blank?
 
-    column = team.ticket_columns.where('LOWER(name) = ?', name.to_s.strip.downcase).first
+    column = ticket_columns_by_team(team)[name.to_s.strip.downcase]
     raise "Estágio \"#{name}\" não encontrado na Mesa \"#{team.name}\"" if column.blank?
 
     column
   end
 
+  DEFAULT_CATEGORY_NAME = 'Importado'.freeze
+
   # Categoria e obrigatoria pro Ticket (TicketOpening), mas e uma lista
   # simples por Mesa - diferente de Mesa/Estagio, criar uma que ainda nao
   # existe e seguro em vez de derrubar a linha inteira por causa de uma
-  # categoria com nome levemente diferente do que ja esta cadastrado.
+  # categoria com nome levemente diferente do que ja esta cadastrado. Uma
+  # linha sem Categoria (comum em exportacoes reais) cai numa categoria
+  # generica em vez de ser descartada por causa so desse campo.
   def find_or_create_category!(team, name)
-    raise 'Categoria é obrigatória' if name.blank?
-
-    team.ticket_categories.where('LOWER(name) = ?', name.to_s.strip.downcase).first ||
-      team.ticket_categories.create!(name: name.to_s.strip)
+    key = name.to_s.strip.downcase.presence || DEFAULT_CATEGORY_NAME.downcase
+    resolved_name = name.to_s.strip.presence || DEFAULT_CATEGORY_NAME
+    cache = ticket_categories_by_team(team)
+    cache[key] ||= team.ticket_categories.create!(name: resolved_name)
   end
 
   def find_company(name, warnings)
     return nil if name.blank?
 
-    company = Company.where(account_id: account.id).where('LOWER(name) = ?', name.to_s.strip.downcase).first
+    company = companies_by_name[name.to_s.strip.downcase]
     warnings << "Cliente \"#{name}\" não encontrado - ticket criado sem empresa vinculada" if company.blank?
     company
   end
@@ -177,7 +242,7 @@ class Tickets::ImportService
   def find_contact(name, company, warnings)
     return nil if name.blank?
 
-    contact = account.contacts.where('LOWER(name) = ?', name.to_s.strip.downcase).first
+    contact = contacts_by_name[name.to_s.strip.downcase]
     if contact.blank?
       warnings << "Contato \"#{name}\" não encontrado - ticket criado sem solicitante vinculado"
       return nil
@@ -192,9 +257,9 @@ class Tickets::ImportService
   def find_service_catalog_item(catalog_name, area_name, item_name, warnings)
     return nil if catalog_name.blank? && area_name.blank? && item_name.blank?
 
-    catalog = ServiceCatalog.where(account_id: account.id).where('LOWER(name) = ?', catalog_name.to_s.strip.downcase).first
-    area = catalog&.service_catalog_areas&.where('LOWER(name) = ?', area_name.to_s.strip.downcase)&.first
-    item = area&.service_catalog_items&.where('LOWER(name) = ?', item_name.to_s.strip.downcase)&.first
+    catalog = service_catalogs_by_name[catalog_name.to_s.strip.downcase]
+    area = catalog&.service_catalog_areas&.find { |a| a.name.to_s.strip.downcase == area_name.to_s.strip.downcase }
+    item = area&.service_catalog_items&.find { |i| i.name.to_s.strip.downcase == item_name.to_s.strip.downcase }
 
     if item.blank?
       path = [catalog_name, area_name, item_name].compact_blank.join(' > ')
@@ -219,14 +284,15 @@ class Tickets::ImportService
     'open'
   end
 
-  # Prioridade pro formato brasileiro (DD/MM/AAAA[ HH:MM]) - `Time.zone.parse`
+  # Prioridade pro formato brasileiro (DD/MM/AAAA[, HH:MM]) - `Time.zone.parse`
   # sozinho assume mes/dia americano numa data ambigua (ex: "05/03/2024"
-  # virava 3 de maio em vez de 5 de marco).
+  # virava 3 de maio em vez de 5 de marco). A virgula antes da hora e opcional
+  # porque foi assim que o sistema de origem (Movidesk) exportou as datas.
   def parse_date(value)
     text = value.to_s.strip
     return nil if text.blank?
 
-    if (match = text.match(%r{\A(\d{1,2})/(\d{1,2})/(\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?\z}))
+    if (match = text.match(%r{\A(\d{1,2})/(\d{1,2})/(\d{2,4})(?:,?\s*(\d{1,2}):(\d{2})(?::(\d{2}))?)?\z}))
       day, month, year, hour, min, sec = match.captures
       year = "20#{year}" if year.length == 2
       return Time.zone.local(year.to_i, month.to_i, day.to_i, hour.to_i, min.to_i, sec.to_i)

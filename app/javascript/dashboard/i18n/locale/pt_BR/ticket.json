@@ -744,14 +744,16 @@
         },
         "DOWNLOAD_TEMPLATE": "Baixar modelo de exemplo",
         "FILE_LABEL": "Arquivo CSV",
-        "FILE_HINT": "Arquivos muito grandes (milhares de linhas) podem precisar ser divididos em partes menores.",
+        "FILE_HINT": "A importação roda em segundo plano - planilhas com dezenas de milhares de linhas funcionam normalmente, só demoram mais. Linhas totalmente vazias (comuns em CSVs salvos pelo Excel) são ignoradas automaticamente.",
         "SUBMIT": "Importar",
         "API": {
-          "SUCCESS": "Importação concluída: {count} ticket(s) criado(s).",
-          "ERROR": "Não foi possível importar o arquivo."
+          "ERROR": "Não foi possível enviar o arquivo."
         },
         "RESULT": {
           "TITLE": "Resultado da importação",
+          "PROCESSING": "Processando...",
+          "PROCESSING_WITH_TOTAL": "Processando... {processed} de {total} linhas",
+          "FAILED": "A importação falhou: {message}",
           "CREATED": "{count} ticket(s) criado(s)",
           "SKIPPED": "{count} linha(s) com erro",
           "ERRORS_TITLE": "Erros",

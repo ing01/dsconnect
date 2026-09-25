@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
@@ -54,14 +54,52 @@ const TEMPLATE_EXAMPLE_ROW = [
   'PROJ-123',
 ];
 
+// A cada quanto tempo a tela busca o progresso de uma importacao rodando em
+// segundo plano - rapido o suficiente pra parecer ao vivo, sem virar uma
+// enxurrada de requisicoes numa planilha que demora dezenas de minutos.
+const POLL_INTERVAL_MS = 2500;
+
 const selectedFile = ref(null);
 const isSubmitting = ref(false);
-const result = ref(null);
+const ticketImport = ref(null);
 const fileInput = ref(null);
+let pollTimer = null;
+
+const isProcessing = computed(
+  () =>
+    ticketImport.value &&
+    ['pending', 'processing'].includes(ticketImport.value.status)
+);
+const progressPercent = computed(() => {
+  const total = ticketImport.value?.total_rows;
+  if (!total) return 0;
+  return Math.min(
+    100,
+    Math.round(((ticketImport.value.processed_rows || 0) / total) * 100)
+  );
+});
+
+const stopPolling = () => {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = null;
+};
+
+const pollStatus = async id => {
+  try {
+    const { data } = await TicketImportsAPI.show(id);
+    ticketImport.value = data;
+    if (!['pending', 'processing'].includes(data.status)) {
+      stopPolling();
+    }
+  } catch (error) {
+    // Uma falha pontual de rede nao para o acompanhamento - a proxima
+    // tentativa do intervalo tenta de novo sozinha.
+  }
+};
 
 const onFileChange = event => {
   selectedFile.value = event.target.files[0] || null;
-  result.value = null;
+  ticketImport.value = null;
 };
 
 const downloadTemplate = () => {
@@ -94,13 +132,12 @@ const submit = async () => {
   if (!selectedFile.value) return;
 
   isSubmitting.value = true;
-  result.value = null;
+  stopPolling();
+  ticketImport.value = null;
   try {
     const { data } = await TicketImportsAPI.import(selectedFile.value);
-    result.value = data;
-    useAlert(
-      t('TICKET.SETTINGS.IMPORT.API.SUCCESS', { count: data.created })
-    );
+    ticketImport.value = data;
+    pollTimer = setInterval(() => pollStatus(data.id), POLL_INTERVAL_MS);
   } catch (error) {
     useAlert(
       parseAPIErrorResponse(error) || t('TICKET.SETTINGS.IMPORT.API.ERROR')
@@ -111,6 +148,8 @@ const submit = async () => {
     if (fileInput.value) fileInput.value.value = '';
   }
 };
+
+onBeforeUnmount(stopPolling);
 </script>
 
 <template>
@@ -155,6 +194,7 @@ const submit = async () => {
               type="file"
               accept=".csv"
               class="mb-0"
+              :disabled="isProcessing"
               @change="onFileChange"
             />
             <p class="mb-0 text-xs text-n-slate-11">
@@ -167,7 +207,7 @@ const submit = async () => {
               type="button"
               blue
               :label="t('TICKET.SETTINGS.IMPORT.SUBMIT')"
-              :disabled="!selectedFile"
+              :disabled="!selectedFile || isProcessing"
               :is-loading="isSubmitting"
               @click="submit"
             />
@@ -175,53 +215,94 @@ const submit = async () => {
         </div>
 
         <div
-          v-if="result"
+          v-if="ticketImport"
           class="flex flex-col w-full gap-4 p-5 outline-1 outline outline-n-container rounded-xl bg-n-solid-2"
         >
           <h3 class="text-heading-2 text-n-slate-12">
             {{ t('TICKET.SETTINGS.IMPORT.RESULT.TITLE') }}
           </h3>
-          <div class="flex gap-4">
-            <span class="text-sm text-n-teal-11">
-              {{ t('TICKET.SETTINGS.IMPORT.RESULT.CREATED', { count: result.created }) }}
-            </span>
-            <span
-              v-if="result.skipped"
-              class="text-sm text-n-ruby-11"
+
+          <div v-if="isProcessing" class="flex flex-col gap-2">
+            <p class="mb-0 text-sm text-n-slate-11">
+              {{
+                ticketImport.total_rows
+                  ? t('TICKET.SETTINGS.IMPORT.RESULT.PROCESSING_WITH_TOTAL', {
+                      processed: ticketImport.processed_rows || 0,
+                      total: ticketImport.total_rows,
+                    })
+                  : t('TICKET.SETTINGS.IMPORT.RESULT.PROCESSING')
+              }}
+            </p>
+            <div
+              v-if="ticketImport.total_rows"
+              class="w-full h-2 overflow-hidden rounded-full bg-n-slate-4"
             >
-              {{ t('TICKET.SETTINGS.IMPORT.RESULT.SKIPPED', { count: result.skipped }) }}
-            </span>
+              <div
+                class="h-full transition-all rounded-full bg-n-brand"
+                :style="{ width: `${progressPercent}%` }"
+              />
+            </div>
           </div>
 
-          <div v-if="result.errors?.length" class="flex flex-col gap-2">
-            <h4 class="text-sm font-medium text-n-ruby-11">
-              {{ t('TICKET.SETTINGS.IMPORT.RESULT.ERRORS_TITLE') }}
-            </h4>
-            <ul class="flex flex-col gap-1 pl-4 m-0 list-disc">
-              <li
-                v-for="(error, index) in result.errors"
-                :key="index"
-                class="text-sm text-n-slate-11"
-              >
-                {{ formatRowMessage(error) }}
-              </li>
-            </ul>
-          </div>
+          <p
+            v-else-if="ticketImport.status === 'failed'"
+            class="mb-0 text-sm text-n-ruby-11"
+          >
+            {{
+              t('TICKET.SETTINGS.IMPORT.RESULT.FAILED', {
+                message: ticketImport.failure_message,
+              })
+            }}
+          </p>
 
-          <div v-if="result.warnings?.length" class="flex flex-col gap-2">
-            <h4 class="text-sm font-medium text-n-amber-11">
-              {{ t('TICKET.SETTINGS.IMPORT.RESULT.WARNINGS_TITLE') }}
-            </h4>
-            <ul class="flex flex-col gap-1 pl-4 m-0 list-disc">
-              <li
-                v-for="(warning, index) in result.warnings"
-                :key="index"
-                class="text-sm text-n-slate-11"
-              >
-                {{ formatRowMessage(warning) }}
-              </li>
-            </ul>
-          </div>
+          <template v-else>
+            <div class="flex gap-4">
+              <span class="text-sm text-n-teal-11">
+                {{
+                  t('TICKET.SETTINGS.IMPORT.RESULT.CREATED', {
+                    count: ticketImport.created_count,
+                  })
+                }}
+              </span>
+              <span v-if="ticketImport.skipped_count" class="text-sm text-n-ruby-11">
+                {{
+                  t('TICKET.SETTINGS.IMPORT.RESULT.SKIPPED', {
+                    count: ticketImport.skipped_count,
+                  })
+                }}
+              </span>
+            </div>
+
+            <div v-if="ticketImport.row_errors?.length" class="flex flex-col gap-2">
+              <h4 class="text-sm font-medium text-n-ruby-11">
+                {{ t('TICKET.SETTINGS.IMPORT.RESULT.ERRORS_TITLE') }}
+              </h4>
+              <ul class="flex flex-col gap-1 pl-4 m-0 list-disc">
+                <li
+                  v-for="(error, index) in ticketImport.row_errors"
+                  :key="index"
+                  class="text-sm text-n-slate-11"
+                >
+                  {{ formatRowMessage(error) }}
+                </li>
+              </ul>
+            </div>
+
+            <div v-if="ticketImport.row_warnings?.length" class="flex flex-col gap-2">
+              <h4 class="text-sm font-medium text-n-amber-11">
+                {{ t('TICKET.SETTINGS.IMPORT.RESULT.WARNINGS_TITLE') }}
+              </h4>
+              <ul class="flex flex-col gap-1 pl-4 m-0 list-disc">
+                <li
+                  v-for="(warning, index) in ticketImport.row_warnings"
+                  :key="index"
+                  class="text-sm text-n-slate-11"
+                >
+                  {{ formatRowMessage(warning) }}
+                </li>
+              </ul>
+            </div>
+          </template>
         </div>
       </div>
     </template>

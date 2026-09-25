@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_26_090000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_26_110000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -2141,6 +2141,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_090000) do
     t.index ["user_id"], name: "index_ticket_followers_on_user_id"
   end
 
+  create_table "ticket_imports", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "total_rows"
+    t.integer "processed_rows", default: 0, null: false
+    t.integer "created_count", default: 0, null: false
+    t.integer "skipped_count", default: 0, null: false
+    t.jsonb "row_errors", default: [], null: false
+    t.jsonb "row_warnings", default: [], null: false
+    t.text "failure_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_ticket_imports_on_account_id"
+  end
+
   create_table "ticket_sla_events", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "ticket_id", null: false
@@ -2435,6 +2450,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_26_090000) do
   add_foreign_key "ticket_followers", "accounts"
   add_foreign_key "ticket_followers", "tickets"
   add_foreign_key "ticket_followers", "users"
+  add_foreign_key "ticket_imports", "accounts"
   add_foreign_key "ticket_sla_extensions", "accounts"
   add_foreign_key "ticket_sla_extensions", "tickets"
   add_foreign_key "ticket_sla_extensions", "users"

@@ -471,8 +471,10 @@ Rails.application.routes.draw do
 
           # Importacao de tickets de outro sistema, via CSV - Configuracoes >
           # Tickets > Importar. Nao aninhado em `tickets`: importa um lote,
-          # nao mexe num ticket especifico.
-          resources :ticket_imports, only: [:create]
+          # nao mexe num ticket especifico. `show` e consultado
+          # periodicamente pra acompanhar o progresso (roda em segundo
+          # plano - ver Tickets::ImportJob).
+          resources :ticket_imports, only: [:create, :show]
 
           resources :projects do
             member do
