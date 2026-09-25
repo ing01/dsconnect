@@ -31,6 +31,7 @@ const TEMPLATE_HEADERS = [
   'Criado em',
   'Categoria',
   'Data',
+  'Desenvolvimento',
 ];
 const TEMPLATE_EXAMPLE_ROW = [
   '1001',
@@ -50,6 +51,7 @@ const TEMPLATE_EXAMPLE_ROW = [
   '05/03/2024 09:30',
   'Erro',
   '',
+  'PROJ-123',
 ];
 
 const selectedFile = ref(null);

@@ -390,7 +390,8 @@
       },
       "DEVELOPMENT": {
         "TITLE": "Development",
-        "EMPTY": "No development item linked."
+        "EMPTY": "No development item linked.",
+        "JIRA_KEY_IMPORTED": "Imported Jira key:"
       },
       "TAB_HISTORY": "History",
       "RELATIONSHIPS": {

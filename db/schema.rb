@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_180000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_26_090000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -2242,6 +2242,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_180000) do
     t.bigint "assignee_3_id"
     t.bigint "assignee_4_id"
     t.bigint "assignee_5_id"
+    t.string "jira_key"
     t.index ["account_id", "blocked_at"], name: "index_tickets_on_account_and_blocked", where: "(blocked_at IS NOT NULL)"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id"], name: "index_tickets_on_account_id"

@@ -57,6 +57,7 @@ json.blocked_by do
     json.nil!
   end
 end
+json.jira_key resource.jira_key
 json.parent_id resource.parent_id
 json.merged_into_id resource.merged_into_id
 json.created_at resource.created_at.to_i

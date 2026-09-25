@@ -8,7 +8,9 @@ require 'csv'
 # Cabecalho esperado (nomes exatos, sem acento tambem funciona - ver
 # HEADER_ALIASES): Numero, Cliente, Titulo, Descricao, Status, Estagio,
 # Contato, Time, Prioridade, Catalogo de Servicos, Area do Catalogo de
-# Servicos, Item, Ticket pai, Criado por, Criado em, Categoria, Data.
+# Servicos, Item, Ticket pai, Criado por, Criado em, Categoria, Data,
+# Desenvolvimento (chave do Jira - aparece na aba "Desenvolvimento" do
+# ticket).
 #
 # Duas passadas: a primeira cria os tickets (sem "Ticket pai" ainda), a
 # segunda liga o "Ticket pai" usando o "Numero" original que cada ticket
@@ -49,7 +51,8 @@ class Tickets::ImportService
     'criado por' => 'criado_por',
     'criado em' => 'criado_em',
     'categoria' => 'categoria',
-    'data' => 'data'
+    'data' => 'data',
+    'desenvolvimento' => 'desenvolvimento'
   }.freeze
 
   pattr_initialize [:account!, :csv_content!]
@@ -123,6 +126,7 @@ class Tickets::ImportService
       company: company, contact: contact,
       created_at: parse_date(row['criado_em']) || Time.current,
       scheduled_at: parse_date(row['data']),
+      jira_key: row['desenvolvimento'].to_s.strip.presence,
       custom_attributes: { 'imported_ticket_number' => row['numero'].to_s.strip.presence }.compact
     )
     ticket.save!
