@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'flow-dedup-ticket-and-queue-fallback',
+    date: '25 de setembro de 2026',
+    isoDate: '2026-09-25',
+    type: 'feature',
+    title: 'Ticket automático não duplica mais, e fluxo sem saída vai pra fila',
+    description:
+      'Antes de criar um ticket, a triagem (WhatsApp e Widget) agora confere se aquele contato/empresa já tem um aberto na mesma Mesa e reaproveita, em vez de duplicar. Também corrigido: quando o fluxo não sabe o que fazer (empresa bloqueada, CNPJ não encontrado, erro inesperado), a conversa agora sempre cai numa fila para um atendente pegar, em vez de ficar parada sem aparecer em lugar nenhum. Precisa clicar em "Recriar o fluxo" para automações já configuradas receberem a mudança do ticket.',
+  },
+  {
     id: 'queue-requeue-priority',
     date: '24 de setembro de 2026',
     isoDate: '2026-09-24',
