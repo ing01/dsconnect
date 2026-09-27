@@ -110,6 +110,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :avatar,
       :legal_name,
       :cnpj,
+      :codigo,
       :ie,
       :im,
       :address_zip_code,

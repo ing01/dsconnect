@@ -462,6 +462,7 @@
       "CONVERSATIONS": "Conversations",
       "MESSAGES": "Messages",
       "CLIENTES": "Customers",
+      "COMPANY_PRIORITY": "Code/Tax ID/Priority",
       "SERVICE_CATALOG": "Service Catalog"
     },
     "SPREADSHEETS": {
@@ -479,6 +480,10 @@
       "SERVICE_CATALOG": {
         "TITLE": "Import Service Catalog",
         "DESCRIPTION": "Creates the Catalog > Area > Item tree used to classify tickets."
+      },
+      "COMPANY_PRIORITY": {
+        "TITLE": "Import Code/Tax ID/Priority",
+        "DESCRIPTION": "Updates existing companies with a reference Code, Tax ID and Priority (Low/Medium/High), matching by Code or Tax ID. Does not create new companies."
       }
     },
     "DRAWER": {

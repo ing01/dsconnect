@@ -24,6 +24,7 @@ const companiesStore = useCompaniesStore();
 const FISCAL_FIELDS = [
   'legalName',
   'cnpj',
+  'codigo',
   'ie',
   'im',
   'addressZipCode',
@@ -56,6 +57,7 @@ const form = reactive({
   description: '',
   legalName: '',
   cnpj: '',
+  codigo: '',
   ie: '',
   im: '',
   addressZipCode: '',
@@ -331,6 +333,12 @@ watch(
           <Input
             v-model="form.legalName"
             :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.LEGAL_NAME')"
+            :disabled="isUpdating"
+            custom-input-class="h-8 !pt-1 !pb-1"
+          />
+          <Input
+            v-model="form.codigo"
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.CODIGO')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
