@@ -1059,6 +1059,12 @@
         "CATEGORY_KEEP": "Keep the one the client chose",
         "CONFIRM": "Route"
       }
+    },
+    "SIDEBAR_SEARCH": {
+      "LABEL": "Search a ticket by number",
+      "PLACEHOLDER": "Ticket no.",
+      "NOT_FOUND": "No ticket with number {number}.",
+      "ERROR": "The ticket could not be searched. Try again."
     }
   }
 }

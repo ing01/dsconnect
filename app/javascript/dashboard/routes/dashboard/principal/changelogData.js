@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'sidebar-ticket-search',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Busca do menu lateral abre o ticket pelo número',
+    description:
+      'O campo de busca do menu lateral ("Nº do ticket") virou busca de ticket: digite o número e aperte Enter que ele abre direto, sem passar por tela de resultados. Aceita com ou sem "#". Com o menu recolhido, o ícone de lupa abre o campo ao lado. Atenção: ele deixou de levar para a busca geral de conversas, contatos e artigos.',
+  },
+  {
     id: 'companies-priority-filter',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',

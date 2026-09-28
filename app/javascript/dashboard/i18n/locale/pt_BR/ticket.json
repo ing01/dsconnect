@@ -1059,6 +1059,12 @@
         "CATEGORY_KEEP": "Manter a que o cliente informou",
         "CONFIRM": "Encaminhar"
       }
+    },
+    "SIDEBAR_SEARCH": {
+      "LABEL": "Buscar ticket pelo número",
+      "PLACEHOLDER": "Nº do ticket",
+      "NOT_FOUND": "Nenhum ticket com o número {number}.",
+      "ERROR": "Não foi possível buscar o ticket. Tente novamente."
     }
   }
 }
