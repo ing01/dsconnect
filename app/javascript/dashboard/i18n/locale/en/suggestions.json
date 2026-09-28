@@ -25,6 +25,13 @@
       "LABEL": "Assignee",
       "NONE": "No assignee"
     },
+    "ATTACHMENTS": {
+      "ADD": "Attach media",
+      "REMOVE": "Remove",
+      "LABEL": "Attachments",
+      "INVALID_TYPE": "{name} is not a supported image, gif or video",
+      "TOO_LARGE": "{name} is over the 20 MB limit"
+    },
     "DETAIL": {
       "CLOSE": "Close",
       "SUBMITTED_BY": "Submitted by {name} on {date}",

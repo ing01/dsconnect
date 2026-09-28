@@ -7,4 +7,11 @@ json.user_id resource.user_id
 json.user_name resource.user&.name
 json.assignee_id resource.assignee_id
 json.assignee_name resource.assignee&.name
+json.priority_id resource.priority_id
+json.priority_name resource.priority&.name
+json.category_id resource.category_id
+json.category_name resource.category&.name
+json.time_spent_hours resource.time_spent_hours
+json.completed_at resource.completed_at
+json.attachments resource.attachments_payload
 json.created_at resource.created_at

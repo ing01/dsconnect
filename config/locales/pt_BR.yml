@@ -223,6 +223,10 @@ pt_BR:
     project:
       tickets_pending: Este projeto não pode ser finalizado enquanto ainda houver tickets em aberto.
       cannot_cancel_finalized: Um projeto finalizado não pode ser cancelado.
+    suggestion:
+      too_many_attachments: não pode ter mais de %{count} anexos
+      attachment_too_large: é maior que o limite de %{size} MB
+      invalid_attachment_type: precisa ser uma imagem, gif ou vídeo
     suggestion_column:
       has_suggestions:
         one: Esta coluna possui 1 sugestão. Mova a sugestão para outra coluna antes de excluir.

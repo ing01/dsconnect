@@ -58,6 +58,8 @@ import ticketColumns from './modules/ticketColumns';
 import tickets from './modules/tickets';
 import suggestions from './modules/suggestions';
 import suggestionColumns from './modules/suggestionColumns';
+import suggestionPriorities from './modules/suggestionPriorities';
+import suggestionCategories from './modules/suggestionCategories';
 import projects from './modules/projects';
 import projectModules from './modules/projectModules';
 import projectTaskTemplates from './modules/projectTaskTemplates';
@@ -141,6 +143,8 @@ export default createStore({
     tickets,
     suggestions,
     suggestionColumns,
+    suggestionPriorities,
+    suggestionCategories,
     projects,
     projectModules,
     projectTaskTemplates,

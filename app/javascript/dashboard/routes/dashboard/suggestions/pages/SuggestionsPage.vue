@@ -31,6 +31,8 @@ const isCreating = ref(false);
 
 const loadBoard = () => {
   store.dispatch('suggestionColumns/get');
+  store.dispatch('suggestionPriorities/get');
+  store.dispatch('suggestionCategories/get');
   store.dispatch('suggestions/get');
 };
 
@@ -40,10 +42,26 @@ const openSuggestion = suggestion => detailDialog.value?.open(suggestion);
 
 const openCreateDialog = () => createDialog.value?.open();
 
-const createSuggestion = async ({ title, description, assigneeId }) => {
+const createSuggestion = async ({
+  title,
+  description,
+  assigneeId,
+  priorityId,
+  categoryId,
+  timeSpentHours,
+  files,
+}) => {
   isCreating.value = true;
   try {
-    await store.dispatch('suggestions/create', { title, description, assigneeId });
+    await store.dispatch('suggestions/create', {
+      title,
+      description,
+      assigneeId,
+      priorityId,
+      categoryId,
+      timeSpentHours,
+      files,
+    });
     createDialog.value?.close();
     useAlert(t('SUGGESTIONS.CREATE.SUCCESS_MESSAGE'));
   } catch (error) {
@@ -76,9 +94,11 @@ const deleteSuggestion = async suggestion => {
   }
 };
 
-const updateAssignee = async ({ id, assigneeId }) => {
+// Um campo gerenciavel por vez (responsavel, prioridade, categoria, tempo
+// gasto) - o dialogo de detalhe manda so o que mudou.
+const updateSuggestion = async patch => {
   try {
-    await store.dispatch('suggestions/updateAssignee', { id, assigneeId });
+    await store.dispatch('suggestions/update', patch);
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE'));
     loadBoard();
@@ -137,7 +157,7 @@ const goToColumnSettings = () => {
       ref="detailDialog"
       :can-manage="canManage"
       @delete="deleteSuggestion"
-      @update-assignee="updateAssignee"
+      @update="updateSuggestion"
     />
     <SuggestionCreateDialog
       v-if="canManage"

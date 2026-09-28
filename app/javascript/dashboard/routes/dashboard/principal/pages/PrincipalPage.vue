@@ -20,10 +20,10 @@ const isSubmittingSuggestion = ref(false);
 
 const openSuggestionDialog = () => suggestionDialog.value?.open();
 
-const submitSuggestion = async ({ title, description }) => {
+const submitSuggestion = async ({ title, description, files }) => {
   isSubmittingSuggestion.value = true;
   try {
-    await store.dispatch('suggestions/create', { title, description });
+    await store.dispatch('suggestions/create', { title, description, files });
     suggestionDialog.value?.close();
     useAlert(t('PRINCIPAL.SUGGESTIONS.SUCCESS_MESSAGE'));
   } catch (error) {

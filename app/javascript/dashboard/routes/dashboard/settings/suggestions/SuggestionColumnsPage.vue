@@ -7,6 +7,7 @@ import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 import AddSuggestionColumn from './AddSuggestionColumn.vue';
 import EditSuggestionColumn from './EditSuggestionColumn.vue';
+import SuggestionSimpleListSection from './SuggestionSimpleListSection.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -137,6 +138,15 @@ onBeforeMount(() => {
               <BaseTableCell>
                 <span class="text-body-main text-n-slate-11">
                   {{ column.suggestions_count }}
+                </span>
+              </BaseTableCell>
+
+              <BaseTableCell>
+                <span
+                  v-if="column.completed"
+                  class="px-2 py-0.5 rounded-full text-xs font-medium bg-n-teal-9 text-white"
+                >
+                  {{ t('SUGGESTIONS.SETTINGS.FORM.COMPLETED.BADGE') }}
                 </span>
               </BaseTableCell>
 

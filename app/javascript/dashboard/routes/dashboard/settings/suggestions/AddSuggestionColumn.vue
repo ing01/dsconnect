@@ -13,6 +13,7 @@ const { t } = useI18n();
 const store = useStore();
 
 const name = ref('');
+const completed = ref(false);
 const isSubmitting = ref(false);
 
 const isInvalid = computed(() => !name.value.trim());
@@ -21,7 +22,10 @@ const submit = async () => {
   if (isInvalid.value) return;
   isSubmitting.value = true;
   try {
-    await store.dispatch('suggestionColumns/create', { name: name.value.trim() });
+    await store.dispatch('suggestionColumns/create', {
+      name: name.value.trim(),
+      completed: completed.value,
+    });
     useAlert(t('SUGGESTIONS.SETTINGS.API.CREATE_SUCCESS'));
     emit('close');
   } catch (error) {
@@ -41,6 +45,12 @@ const submit = async () => {
         :label="t('SUGGESTIONS.SETTINGS.FORM.NAME.LABEL')"
         :placeholder="t('SUGGESTIONS.SETTINGS.FORM.NAME.PLACEHOLDER')"
       />
+      <label class="flex items-center gap-2">
+        <input v-model="completed" type="checkbox" class="mb-0" />
+        <span class="text-sm text-n-slate-12">
+          {{ t('SUGGESTIONS.SETTINGS.FORM.COMPLETED.LABEL') }}
+        </span>
+      </label>
       <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
         <NextButton
           faded

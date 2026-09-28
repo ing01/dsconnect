@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
+import SuggestionFileInput from '../../suggestions/components/SuggestionFileInput.vue';
 
 defineProps({
   isLoading: { type: Boolean, default: false },
@@ -15,16 +16,22 @@ const { t } = useI18n();
 const dialogRef = ref(null);
 const title = ref('');
 const description = ref('');
+const files = ref([]);
 
 const open = () => {
   title.value = '';
   description.value = '';
+  files.value = [];
   dialogRef.value?.open();
 };
 
 const handleConfirm = () => {
   if (!title.value.trim()) return;
-  emit('submit', { title: title.value.trim(), description: description.value.trim() });
+  emit('submit', {
+    title: title.value.trim(),
+    description: description.value.trim(),
+    files: [...files.value],
+  });
 };
 
 defineExpose({ open, close: () => dialogRef.value?.close() });
@@ -59,6 +66,7 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           :placeholder="t('PRINCIPAL.SUGGESTIONS.FORM.DESCRIPTION_FIELD.PLACEHOLDER')"
         />
       </label>
+      <SuggestionFileInput v-model="files" />
     </div>
   </Dialog>
 </template>

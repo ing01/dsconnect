@@ -29,13 +29,33 @@ export const actions = {
       commit(types.SET_SUGGESTIONS_UI_FLAG, { isFetching: false });
     }
   },
-  // `assigneeId` so tem efeito quando quem envia administra o quadro - o
-  // backend ignora o campo silenciosamente pra qualquer outro agente.
-  create: async ({ commit }, { title, description, assigneeId }) => {
+  // Os campos de triagem (`assigneeId`/`priorityId`/`categoryId`/
+  // `timeSpentHours`) so tem efeito quando quem envia administra o quadro -
+  // o backend ignora eles silenciosamente pra qualquer outro agente.
+  create: async (
+    { commit },
+    {
+      title,
+      description,
+      assigneeId,
+      priorityId,
+      categoryId,
+      timeSpentHours,
+      files = [],
+    }
+  ) => {
     commit(types.SET_SUGGESTIONS_UI_FLAG, { isCreating: true });
     try {
       const response = await SuggestionsAPI.create({
-        suggestion: { title, description, assignee_id: assigneeId },
+        suggestion: {
+          title,
+          description,
+          assignee_id: assigneeId,
+          priority_id: priorityId,
+          category_id: categoryId,
+          time_spent_hours: timeSpentHours,
+        },
+        files,
       });
       commit(types.UPSERT_SUGGESTION, response.data);
       return response.data;
@@ -43,10 +63,21 @@ export const actions = {
       commit(types.SET_SUGGESTIONS_UI_FLAG, { isCreating: false });
     }
   },
-  updateAssignee: async ({ commit }, { id, assigneeId }) => {
-    const response = await SuggestionsAPI.update(id, {
-      suggestion: { assignee_id: assigneeId },
-    });
+  // Qualquer campo gerenciavel passa por aqui - so o que vier definido
+  // (mesmo que `null`, pra limpar) e enviado.
+  update: async ({ commit }, { id, ...fields }) => {
+    const KEYS = {
+      assigneeId: 'assignee_id',
+      priorityId: 'priority_id',
+      categoryId: 'category_id',
+      timeSpentHours: 'time_spent_hours',
+    };
+    const suggestion = Object.entries(KEYS).reduce((acc, [camel, snake]) => {
+      if (camel in fields) acc[snake] = fields[camel];
+      return acc;
+    }, {});
+
+    const response = await SuggestionsAPI.update(id, { suggestion });
     commit(types.UPSERT_SUGGESTION, response.data);
     return response.data;
   },

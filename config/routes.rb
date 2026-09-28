@@ -511,6 +511,8 @@ Rails.application.routes.draw do
               patch :reorder
             end
           end
+          resources :suggestion_priorities, only: [:index, :create, :update, :destroy]
+          resources :suggestion_categories, only: [:index, :create, :update, :destroy]
 
           resources :projects do
             member do

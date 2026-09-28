@@ -33,6 +33,6 @@ class Api::V1::Accounts::SuggestionColumnsController < Api::V1::Accounts::BaseCo
   end
 
   def suggestion_column_params
-    params.require(:suggestion_column).permit(:name)
+    params.require(:suggestion_column).permit(:name, :completed)
   end
 end

@@ -7,6 +7,7 @@ import { frontendURL } from 'dashboard/helper/URLHelper';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import { useTicketDetail } from '../composables/useTicketDetail';
+import { useTicketWorkspace } from '../composables/useTicketWorkspace';
 import TicketDetailHeader from '../components/detail/TicketDetailHeader.vue';
 import TicketOverviewTab from '../components/detail/TicketOverviewTab.vue';
 import TicketCommunicationTab from '../components/detail/TicketCommunicationTab.vue';
@@ -37,6 +38,8 @@ const route = useRoute();
 const router = useRouter();
 
 const ticketId = computed(() => route.params.ticketId);
+
+const { closeTab } = useTicketWorkspace();
 
 const {
   ticket,
@@ -254,9 +257,14 @@ const submitUnblock = () => runAction(() => unblock(), unblockDialog);
 const submitCancel = reason => runAction(() => cancel(reason), cancelDialog);
 
 const submitDelete = deleteChildren =>
-  runAction(() => deleteTicket(deleteChildren), deleteDialog).then(
-    success => success && goBack()
-  );
+  runAction(() => deleteTicket(deleteChildren), deleteDialog).then(success => {
+    if (!success) return;
+    // A aba desse ticket na barra do workspace nao e' revalidada sozinha até a
+    // proxima vez que a pagina carrega (`useTicketWorkspace#restoreTab`) - sem
+    // isso, ela continuava aberta mostrando um ticket que ja nao existe mais.
+    closeTab(ticketId.value);
+    goBack();
+  });
 
 // Each of these edits one field in place, through the ticket's existing
 // `update` endpoint - there is no generic ticket form any more.

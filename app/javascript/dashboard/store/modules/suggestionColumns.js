@@ -28,12 +28,14 @@ export const actions = {
       commit(types.SET_SUGGESTION_COLUMNS_UI_FLAG, { isFetching: false });
     }
   },
-  create: async ({ dispatch }, { name }) => {
-    await SuggestionColumnsAPI.create({ suggestion_column: { name } });
+  create: async ({ dispatch }, { name, completed }) => {
+    await SuggestionColumnsAPI.create({ suggestion_column: { name, completed } });
     return dispatch('get');
   },
-  update: async ({ dispatch }, { id, name }) => {
-    await SuggestionColumnsAPI.update(id, { suggestion_column: { name } });
+  update: async ({ dispatch }, { id, name, completed }) => {
+    await SuggestionColumnsAPI.update(id, {
+      suggestion_column: { name, completed },
+    });
     return dispatch('get');
   },
   delete: async ({ dispatch }, id) => {

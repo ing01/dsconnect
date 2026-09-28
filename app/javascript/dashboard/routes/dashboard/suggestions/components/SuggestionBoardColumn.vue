@@ -35,14 +35,30 @@ const onChange = evt => {
 
 <template>
   <div
-    class="flex flex-col flex-shrink-0 w-72 rounded-xl bg-n-slate-2/60 border border-n-weak max-h-full"
+    class="flex items-center gap-2 px-3 py-2.5 rounded-t-xl"
+    :class="
+      column.completed
+        ? 'bg-green-600'
+        : 'border-b border-n-weak'
+    "
   >
-    <div class="flex items-center gap-2 px-3 py-2.5 border-b border-n-weak">
-      <span class="text-sm font-semibold text-n-slate-12 truncate">
+    <div
+      class="flex items-center gap-2 px-3 py-2.5 rounded-t-xl"
+      :class="column.completed ? 'bg-n-teal-9' : 'border-b border-n-weak'"
+    >
+      <span
+        class="text-sm font-semibold truncate"
+        :class="column.completed ? 'text-white' : 'text-n-slate-12'"
+      >
         {{ column.name }}
       </span>
       <span
-        class="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-n-slate-4 text-[11px] font-medium text-n-slate-11"
+        class="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-medium"
+        :class="
+            column.completed
+              ? 'bg-green-50 border-green-300'
+              : 'bg-n-slate-2/60 border-n-weak'
+          "
       >
         {{ count }}
       </span>

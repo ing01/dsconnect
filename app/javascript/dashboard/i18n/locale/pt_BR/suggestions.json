@@ -25,6 +25,13 @@
       "LABEL": "Responsável",
       "NONE": "Sem responsável"
     },
+    "ATTACHMENTS": {
+      "ADD": "Anexar mídia",
+      "REMOVE": "Remover",
+      "LABEL": "Anexos",
+      "INVALID_TYPE": "{name} não é uma imagem, gif ou vídeo suportado",
+      "TOO_LARGE": "{name} passa do limite de 20 MB"
+    },
     "DETAIL": {
       "CLOSE": "Fechar",
       "SUBMITTED_BY": "Enviado por {name} em {date}",

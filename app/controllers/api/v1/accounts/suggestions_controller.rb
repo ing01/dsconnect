@@ -1,9 +1,15 @@
 class Api::V1::Accounts::SuggestionsController < Api::V1::Accounts::BaseController
+  # So quem gerencia o quadro decide isso - mesma logica de `assignee_id`
+  # (ja existente): sao decisoes de triagem, nao um campo aberto pra quem so'
+  # esta enviando a sugestao.
+  MANAGEABLE_FIELDS = [:assignee_id, :priority_id, :category_id, :time_spent_hours].freeze
+
   before_action :fetch_suggestion, only: [:update, :move, :destroy]
   before_action :check_authorization
 
   def index
-    @suggestions = Current.account.suggestions.order(:position, :id)
+    @suggestions = Current.account.suggestions.with_attached_attachments
+                          .includes(:priority, :category).order(:position, :id)
   end
 
   # Qualquer agente/administrador pode enviar - cai direto na primeira coluna
@@ -15,13 +21,15 @@ class Api::V1::Accounts::SuggestionsController < Api::V1::Accounts::BaseControll
     @suggestion = Current.account.suggestions.new(
       suggestion_params.merge(user: Current.user, suggestion_column: first_column)
     )
+    @suggestion.attachments.attach(attachment_params) if attachment_params.present?
     @suggestion.save!
   end
 
-  # So o Responsavel (quem esta produzindo) e' editavel aqui por enquanto -
-  # titulo/descricao continuam fixos depois de enviados.
+  # So o que e' gerenciavel (Responsavel, Prioridade, Categoria, tempo gasto)
+  # e' editavel aqui por enquanto - titulo/descricao continuam fixos depois
+  # de enviados.
   def update
-    @suggestion.update!(suggestion_params.slice(:assignee_id))
+    @suggestion.update!(suggestion_params.slice(*MANAGEABLE_FIELDS))
   end
 
   def move
@@ -51,7 +59,14 @@ class Api::V1::Accounts::SuggestionsController < Api::V1::Accounts::BaseControll
 
   def suggestion_params
     permitted = [:title, :description]
-    permitted << :assignee_id if can_manage_suggestions?
+    permitted += MANAGEABLE_FIELDS if can_manage_suggestions?
     params.require(:suggestion).permit(*permitted)
+  end
+
+  # Fora de `suggestion_params` de proposito: `Suggestion` nao tem um setter
+  # `files=`, e' `attachments.attach` quem recebe isso - misturar os dois em
+  # `.new(suggestion_params.merge(...))` derrubaria com um NoMethodError.
+  def attachment_params
+    params.dig(:suggestion, :files)
   end
 end

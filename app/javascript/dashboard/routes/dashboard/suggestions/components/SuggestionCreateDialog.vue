@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
+import SuggestionFileInput from './SuggestionFileInput.vue';
 
 const props = defineProps({
   isLoading: { type: Boolean, default: false },
@@ -18,6 +19,10 @@ const dialogRef = ref(null);
 const title = ref('');
 const description = ref('');
 const assigneeId = ref('');
+const priorityId = ref('');
+const categoryId = ref('');
+const timeSpentHours = ref('');
+const files = ref([]);
 
 // So Administradores podem ser Responsavel - mesma regra validada no backend
 // (Suggestion#assignee_is_an_administrator).
@@ -26,13 +31,23 @@ const administrators = computed(() =>
     agent => agent.role === 'administrator'
   )
 );
+const priorities = computed(() => store.getters['suggestionPriorities/getItems']);
+const categories = computed(() => store.getters['suggestionCategories/getItems']);
 
-onMounted(() => store.dispatch('agents/get'));
+onMounted(() => {
+  store.dispatch('agents/get');
+  store.dispatch('suggestionPriorities/get');
+  store.dispatch('suggestionCategories/get');
+});
 
 const open = () => {
   title.value = '';
   description.value = '';
   assigneeId.value = '';
+  priorityId.value = '';
+  categoryId.value = '';
+  timeSpentHours.value = '';
+  files.value = [];
   dialogRef.value?.open();
 };
 
@@ -42,6 +57,10 @@ const handleConfirm = () => {
     title: title.value.trim(),
     description: description.value.trim(),
     assigneeId: assigneeId.value || null,
+    priorityId: priorityId.value || null,
+    categoryId: categoryId.value || null,
+    timeSpentHours: timeSpentHours.value || null,
+    files: [...files.value],
   });
 };
 
@@ -92,6 +111,47 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           </option>
         </select>
       </label>
+      <div class="grid grid-cols-2 gap-4">
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('SUGGESTIONS.PRIORITY.LABEL') }}
+          </span>
+          <select v-model="priorityId" class="mb-0">
+            <option value="">{{ t('SUGGESTIONS.PRIORITY.NONE') }}</option>
+            <option
+              v-for="priority in priorities"
+              :key="priority.id"
+              :value="priority.id"
+            >
+              {{ priority.name }}
+            </option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('SUGGESTIONS.CATEGORY.LABEL') }}
+          </span>
+          <select v-model="categoryId" class="mb-0">
+            <option value="">{{ t('SUGGESTIONS.CATEGORY.NONE') }}</option>
+            <option
+              v-for="category in categories"
+              :key="category.id"
+              :value="category.id"
+            >
+              {{ category.name }}
+            </option>
+          </select>
+        </label>
+      </div>
+      <NextInput
+        v-model="timeSpentHours"
+        type="number"
+        min="0"
+        step="0.5"
+        :label="t('SUGGESTIONS.TIME_SPENT.LABEL')"
+        :placeholder="t('SUGGESTIONS.TIME_SPENT.PLACEHOLDER')"
+      />
+      <SuggestionFileInput v-model="files" />
     </div>
   </Dialog>
 </template>

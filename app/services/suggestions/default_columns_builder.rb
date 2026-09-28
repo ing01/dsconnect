@@ -11,6 +11,8 @@ class Suggestions::DefaultColumnsBuilder
   def perform
     return if account.suggestion_columns.exists?
 
-    DEFAULT_COLUMN_NAMES.each { |name| account.suggestion_columns.create!(name: name) }
+    DEFAULT_COLUMN_NAMES.each do |name|
+      account.suggestion_columns.create!(name: name, completed: name == 'Concluído')
+    end
   end
 end

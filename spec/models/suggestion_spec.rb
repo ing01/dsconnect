@@ -78,6 +78,69 @@ RSpec.describe Suggestion do
     end
   end
 
+  describe 'attachments' do
+    let(:image) { fixture_file_upload(Rails.root.join('spec/assets/avatar.png'), 'image/png') }
+    let(:video) { fixture_file_upload(Rails.root.join('spec/assets/sample.mp4'), 'video/mp4') }
+    let(:pdf) { fixture_file_upload(Rails.root.join('spec/assets/sample.pdf'), 'application/pdf') }
+
+    it 'accepts an image' do
+      suggestion = build(:suggestion)
+      suggestion.attachments.attach(image)
+
+      expect(suggestion).to be_valid
+    end
+
+    it 'accepts a video' do
+      suggestion = build(:suggestion)
+      suggestion.attachments.attach(video)
+
+      expect(suggestion).to be_valid
+    end
+
+    it 'rejects a file that is not an image or video' do
+      suggestion = build(:suggestion)
+      suggestion.attachments.attach(pdf)
+
+      expect(suggestion).not_to be_valid
+      expect(suggestion.errors[:attachments]).to be_present
+    end
+
+    it 'rejects an attachment over the size limit' do
+      stub_const('Suggestion::MAXIMUM_ATTACHMENT_SIZE', 10.kilobytes)
+      suggestion = build(:suggestion)
+      suggestion.attachments.attach(image)
+
+      expect(suggestion).not_to be_valid
+      expect(suggestion.errors[:attachments]).to be_present
+    end
+
+    it 'rejects more attachments than the limit' do
+      stub_const('Suggestion::MAXIMUM_ATTACHMENTS', 1)
+      suggestion = build(:suggestion)
+      suggestion.attachments.attach([image, video])
+
+      expect(suggestion).not_to be_valid
+      expect(suggestion.errors[:attachments]).to be_present
+    end
+  end
+
+  describe '#attachments_payload' do
+    it 'describes each attached file for the frontend' do
+      suggestion = create(:suggestion)
+      suggestion.attachments.attach(image_fixture)
+
+      payload = suggestion.attachments_payload.first
+
+      expect(payload[:kind]).to eq('image')
+      expect(payload[:content_type]).to eq('image/png')
+      expect(payload[:url]).to be_present
+    end
+
+    def image_fixture
+      fixture_file_upload(Rails.root.join('spec/assets/avatar.png'), 'image/png')
+    end
+  end
+
   describe '#push_event_data' do
     it 'includes the submitter name' do
       user = create(:user, name: 'Maria')
