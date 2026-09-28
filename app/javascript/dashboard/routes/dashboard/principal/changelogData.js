@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'companies-priority-filter',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'feature',
+    title: 'Filtro por Prioridade e mais dados no card de Empresas',
+    description:
+      'Na tela de Empresas, novo botão "Filtrar por prioridade" no cabeçalho (Todas/Baixa/Média/Alta). O card de cada empresa na lista agora mostra também Código, Prioridade, Razão Social e CNPJ, além do nome/domínio/contatos que já apareciam.',
+  },
+  {
     id: 'company-cnpj-comparison-import',
     date: '27 de setembro de 2026',
     isoDate: '2026-09-27',
