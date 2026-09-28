@@ -37,7 +37,7 @@ const projectDueDate = ref('');
 
 const tasksConfig = ref([]);
 
-const teams = computed(() => store.getters['teams/getTeams'] || []);
+const teams = computed(() => store.getters['teams/getProjectTeams'] || []);
 const modules = computed(() => store.getters['projectModules/getModules'] || []);
 const teamMembers = computed(() => {
   if (!teamId.value) return [];

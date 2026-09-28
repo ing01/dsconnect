@@ -131,7 +131,9 @@ class Team < ApplicationRecord
       icon: icon,
       icon_color: icon_color,
       active: active,
-      manager_id: manager_id
+      manager_id: manager_id,
+      handles_conversations: handles_conversations,
+      handles_projects: handles_projects
     }
   end
 

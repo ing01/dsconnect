@@ -20,6 +20,26 @@ describe('#getters', () => {
     ).toEqual([teamsList[1]]);
   });
 
+  it('getMyTeams excludes a member team with handles_conversations: false', () => {
+    const nonConversationTeam = { ...teamsList[1], handles_conversations: false };
+    expect(
+      getters.getMyTeams(
+        {},
+        { getTeams: [nonConversationTeam, teamsList[2]] }
+      )
+    ).toEqual([]);
+  });
+
+  it('getProjectTeams excludes a team with handles_projects: false', () => {
+    const nonProjectTeam = { ...teamsList[1], handles_projects: false };
+    expect(
+      getters.getProjectTeams(
+        {},
+        { getTeams: [nonProjectTeam, teamsList[2]] }
+      )
+    ).toEqual([teamsList[2]]);
+  });
+
   it('getTeam', () => {
     const state = {
       records: teamsList,

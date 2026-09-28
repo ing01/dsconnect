@@ -30,7 +30,7 @@ const showCreateModal = ref(false);
 const showTutorial = ref(false);
 const selectedProjectId = ref(null);
 
-const teams = computed(() => store.getters['teams/getTeams'] || []);
+const teams = computed(() => store.getters['teams/getProjectTeams'] || []);
 const agents = computed(() => store.getters['agents/getAgents'] || []);
 const modules = computed(() => store.getters['projectModules/getModules'] || []);
 const projects = computed(() => store.getters['projects/getProjects'] || []);

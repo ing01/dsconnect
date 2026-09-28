@@ -33,7 +33,7 @@ const isLoading = ref(true);
 const project = computed(() => store.getters['projects/getSelectedProject']);
 const accountId = computed(() => store.getters['getCurrentAccountId']);
 const agents = computed(() => store.getters['agents/getAgents'] || []);
-const teams = computed(() => store.getters['teams/getTeams'] || []);
+const teams = computed(() => store.getters['teams/getProjectTeams'] || []);
 
 const agentOptions = computed(() =>
   agents.value.map(agent => ({ label: agent.name, value: agent.id }))

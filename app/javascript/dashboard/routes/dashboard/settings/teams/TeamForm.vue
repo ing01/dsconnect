@@ -54,6 +54,8 @@ export default {
       manager_id: managerId = null,
       assignee_levels_enabled: assigneeLevelsEnabled = false,
       assignee_levels_count: assigneeLevelsCount = 2,
+      handles_conversations: handlesConversations = true,
+      handles_projects: handlesProjects = true,
     } = formData;
 
     const state = reactive({
@@ -66,6 +68,8 @@ export default {
       iconColor,
       active,
       managerId,
+      handlesConversations,
+      handlesProjects,
     });
 
     const isIconPickerOpen = ref(false);
@@ -114,6 +118,8 @@ export default {
         manager_id: this.state.managerId || null,
         assignee_levels_enabled: this.state.assigneeLevelsEnabled,
         assignee_levels_count: Number(this.state.assigneeLevelsCount),
+        handles_conversations: this.state.handlesConversations,
+        handles_projects: this.state.handlesProjects,
       });
     },
   },
@@ -201,6 +207,25 @@ export default {
         <input v-model="state.active" type="checkbox" :value="true" />
         <label for="team_active">
           {{ $t('TEAMS_SETTINGS.FORM.ACTIVE.LABEL') }}
+        </label>
+      </div>
+      <!-- Nem toda Mesa conversa com cliente nem executa Projetos - desmarcar
+           tira a Mesa da lista de Times em Conversas/do filtro de Projetos,
+           sem apagar nada do que ela ja tem. -->
+      <div class="w-full flex items-center gap-2">
+        <input
+          v-model="state.handlesConversations"
+          type="checkbox"
+          :value="true"
+        />
+        <label for="handles_conversations">
+          {{ $t('TEAMS_SETTINGS.FORM.HANDLES_CONVERSATIONS.LABEL') }}
+        </label>
+      </div>
+      <div class="w-full flex items-center gap-2">
+        <input v-model="state.handlesProjects" type="checkbox" :value="true" />
+        <label for="handles_projects">
+          {{ $t('TEAMS_SETTINGS.FORM.HANDLES_PROJECTS.LABEL') }}
         </label>
       </div>
       <!-- Desligado, a Mesa segue com um responsavel so, como sempre foi. -->

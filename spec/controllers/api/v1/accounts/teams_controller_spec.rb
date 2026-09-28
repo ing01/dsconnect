@@ -127,6 +127,19 @@ RSpec.describe 'Teams API', type: :request do
         expect(response).to conform_schema(200)
         expect(team.reload.name).to eq('new-team')
       end
+
+      it 'updates handles_conversations and handles_projects' do
+        params = { handles_conversations: false, handles_projects: false }
+
+        put "/api/v1/accounts/#{account.id}/teams/#{team.id}",
+            params: params,
+            headers: administrator.create_new_auth_token,
+            as: :json
+
+        expect(response).to have_http_status(:success)
+        expect(team.reload.handles_conversations).to be(false)
+        expect(team.reload.handles_projects).to be(false)
+      end
     end
   end
 

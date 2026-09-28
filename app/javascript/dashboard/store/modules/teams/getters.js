@@ -17,11 +17,18 @@ export const getters = {
     );
     return team ? withCapitalizedName(team) : {};
   },
+  // The "Times" group in the Conversations sidebar - a team that never talks
+  // to customers (handles_conversations: false) has nothing to show there.
   getMyTeams($state, $getters) {
     return $getters.getTeams.filter(team => {
-      const { is_member: isMember } = team;
-      return isMember;
+      const { is_member: isMember, handles_conversations: handlesConversations } = team;
+      return isMember && handlesConversations !== false;
     });
+  },
+  // The Equipe filter on Projects and the Mesa picker on Novo Projeto - a team
+  // that doesn't run Projects (handles_projects: false) shouldn't be offered.
+  getProjectTeams($state, $getters) {
+    return $getters.getTeams.filter(team => team.handles_projects !== false);
   },
   getUIFlags($state) {
     return $state.uiFlags;
