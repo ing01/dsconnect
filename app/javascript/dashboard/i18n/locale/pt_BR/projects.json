@@ -53,7 +53,8 @@
       },
       "COMPANY": {
         "LABEL": "Cliente",
-        "NONE": "Sem cliente"
+        "NONE": "Sem cliente",
+        "SEARCH_PLACEHOLDER": "Buscar por nome ou código..."
       },
       "TEAM": {
         "LABEL": "Equipe de atendimento",

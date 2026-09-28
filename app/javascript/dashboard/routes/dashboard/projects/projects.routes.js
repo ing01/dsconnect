@@ -7,7 +7,7 @@ const projectsRoutes = {
       path: frontendURL('accounts/:accountId/projects'),
       name: 'projects_index',
       meta: {
-        permissions: ['administrator', 'agent', 'custom_role'],
+        permissions: ['administrator', 'agent', 'project_manage'],
       },
       component: ProjectsPage,
     },

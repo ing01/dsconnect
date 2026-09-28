@@ -6,7 +6,14 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'report_manage',
   'knowledge_base_manage',
   'client_credentials_manage',
+  'client_billing_manage',
+  'department_manage',
+  'queue_manage',
   'project_manage',
+  'ticket_manage',
+  'agenda_manage',
+  'company_manage',
+  'internal_chat_manage',
 ];
 
 export const CLIENT_CREDENTIALS_PERMISSIONS = 'client_credentials_manage';

@@ -41,7 +41,7 @@ describe('ticketsRoutes', () => {
       expect(router().resolve(path).meta.permissions).toEqual([
         'administrator',
         'agent',
-        'custom_role',
+        'ticket_manage',
       ]);
     });
   });

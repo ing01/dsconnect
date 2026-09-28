@@ -82,7 +82,7 @@ class Company < ApplicationRecord
 
   scope :ordered_by_name, -> { order(:name) }
   scope :search_by_name_or_domain, lambda { |query|
-    where('name ILIKE :search OR domain ILIKE :search', search: "%#{query.strip}%")
+    where('name ILIKE :search OR domain ILIKE :search OR codigo ILIKE :search', search: "%#{query.strip}%")
   }
 
   scope :order_on_contacts_count, lambda { |direction|

@@ -11,7 +11,7 @@ const internalChatRoutes = {
       path: frontendURL('accounts/:accountId/internal-chat'),
       name: 'internal_chat',
       meta: {
-        permissions: ['administrator', 'agent', 'custom_role'],
+        permissions: ['administrator', 'agent', 'internal_chat_manage'],
       },
       component: InternalChatPage,
     },

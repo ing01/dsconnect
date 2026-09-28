@@ -7,7 +7,7 @@ const implementationReportsRoutes = {
       path: frontendURL('accounts/:accountId/implementation-reports'),
       name: 'implementation_reports_index',
       meta: {
-        permissions: ['administrator', 'agent', 'custom_role'],
+        permissions: ['administrator', 'agent', 'project_manage'],
       },
       component: ImplementationReportsPage,
     },

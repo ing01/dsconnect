@@ -27,7 +27,11 @@
 # - 'client_billing_manage': Can view and manage the "Contrato e cobrança" (billing/contract) fields on companies.
 # - 'department_manage': Can create/edit/delete departments (Teams).
 # - 'queue_manage': Can create/edit/delete queues.
-# - 'project_manage': Can edit a project's name, client, team and dates after creation.
+# - 'project_manage': Can access the Projects board, the Painel de Implantação, and edit a project's name, client, team and dates after creation.
+# - 'ticket_manage': Can access Tickets and the ticket triage queue.
+# - 'agenda_manage': Can access the Agenda.
+# - 'company_manage': Can access Companies and Contracts.
+# - 'internal_chat_manage': Can access the Internal Chat.
 
 class CustomRole < ApplicationRecord
   belongs_to :account
@@ -49,6 +53,10 @@ class CustomRole < ApplicationRecord
     department_manage
     queue_manage
     project_manage
+    ticket_manage
+    agenda_manage
+    company_manage
+    internal_chat_manage
   ].freeze
 
   validates :name, presence: true
