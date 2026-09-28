@@ -73,10 +73,19 @@ const state = props.formState || {
   attachedFiles: [],
 };
 
+// AstereZap e' uma sessao de WhatsApp Web comum (QR code), sem o conceito de
+// template aprovado da Meta - so os outros providers (Cloud API/360dialog)
+// precisam do fluxo de template pra iniciar uma conversa nova.
+const isTemplateOnlyWhatsapp = computed(
+  () =>
+    props.targetInbox?.channelType === INBOX_TYPES.WHATSAPP &&
+    props.targetInbox?.provider !== 'astere_zap'
+);
+
 const inboxTypes = computed(() => ({
   isEmail: props.targetInbox?.channelType === INBOX_TYPES.EMAIL,
   isTwilio: props.targetInbox?.channelType === INBOX_TYPES.TWILIO,
-  isWhatsapp: props.targetInbox?.channelType === INBOX_TYPES.WHATSAPP,
+  isWhatsapp: isTemplateOnlyWhatsapp.value,
   isWebWidget: props.targetInbox?.channelType === INBOX_TYPES.WEB,
   isApi: props.targetInbox?.channelType === INBOX_TYPES.API,
   isEmailOrWebWidget:
