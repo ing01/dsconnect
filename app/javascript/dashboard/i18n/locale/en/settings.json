@@ -175,7 +175,11 @@
           "SLA_MISSED_NEXT_RESPONSE": "A conversation misses next response SLA",
           "SLA_MISSED_RESOLUTION": "A conversation misses resolution SLA"
         },
-        "BROWSER_PERMISSION": "Enable push notifications for your browser so you’re able to receive them"
+        "PUSH_PREFERENCE": "Receive push notifications",
+        "SAVE": "Save",
+        "BROWSER_PENDING": "You already enabled notifications in your profile. This browser still needs permission.",
+        "BROWSER_ENABLE": "Enable in this browser",
+        "BROWSER_READY": "This browser is allowed to receive notifications."
       },
       "API": {
         "UPDATE_SUCCESS": "Your notification preferences are updated successfully",

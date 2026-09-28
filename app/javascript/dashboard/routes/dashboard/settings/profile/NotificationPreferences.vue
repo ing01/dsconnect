@@ -3,27 +3,21 @@ import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import TableHeaderCell from 'dashboard/components/widgets/TableHeaderCell.vue';
 import CheckBox from 'v3/components/Form/CheckBox.vue';
-import {
-  hasPushPermissions,
-  requestPushPermissions,
-  verifyServiceWorkerExistence,
-} from 'dashboard/helper/pushHelper.js';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
-import ToggleSwitch from 'dashboard/components-next/switch/Switch.vue';
 import { NOTIFICATION_TYPES } from './constants';
+import PushNotificationSetting from './PushNotificationSetting.vue';
 
 export default {
   components: {
     TableHeaderCell,
-    ToggleSwitch,
     CheckBox,
+    PushNotificationSetting,
   },
   data() {
     return {
       selectedEmailFlags: [],
       selectedPushFlags: [],
       enableAudioAlerts: false,
-      hasEnabledPushPermissions: false,
       notificationTypes: NOTIFICATION_TYPES,
     };
   },
@@ -61,9 +55,6 @@ export default {
     },
   },
   mounted() {
-    if (hasPushPermissions()) {
-      this.getPushSubscription();
-    }
     this.$store.dispatch('userNotificationSettings/get');
   },
   methods: {
@@ -71,53 +62,6 @@ export default {
       const selectedFlags =
         type === 'email' ? this.selectedEmailFlags : this.selectedPushFlags;
       return selectedFlags.includes(`${type}_${flagType}`);
-    },
-    onRegistrationSuccess() {
-      this.hasEnabledPushPermissions = true;
-    },
-    onRequestPermissions(value) {
-      if (value) {
-        // Enable / re-enable push notifications
-        requestPushPermissions({
-          onSuccess: this.onRegistrationSuccess,
-        });
-      } else {
-        // Disable push notifications
-        this.disablePushPermissions();
-      }
-    },
-    disablePushPermissions() {
-      verifyServiceWorkerExistence(registration =>
-        registration.pushManager
-          .getSubscription()
-          .then(subscription => {
-            if (subscription) {
-              return subscription.unsubscribe();
-            }
-            return null;
-          })
-          .finally(() => {
-            this.hasEnabledPushPermissions = false;
-          })
-          .catch(() => {
-            // error
-          })
-      );
-    },
-    getPushSubscription() {
-      verifyServiceWorkerExistence(registration =>
-        registration.pushManager
-          .getSubscription()
-          .then(subscription => {
-            if (!subscription) {
-              this.hasEnabledPushPermissions = false;
-            } else {
-              this.hasEnabledPushPermissions = true;
-            }
-          })
-          // eslint-disable-next-line no-console
-          .catch(error => console.log(error))
-      );
     },
     async updateNotificationSettings() {
       try {
@@ -271,23 +215,8 @@ export default {
       </div>
     </div>
 
-    <div
-      class="flex items-center justify-between w-full gap-2 p-4 border border-solid border-n-weak rounded-xl"
-    >
-      <div class="flex flex-row items-center gap-2">
-        <fluent-icon
-          icon="alert"
-          class="flex-shrink-0 text-n-slate-12"
-          size="18"
-        />
-        <span class="text-body-main text-n-slate-12">
-          {{ $t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.BROWSER_PERMISSION') }}
-        </span>
-      </div>
-      <ToggleSwitch
-        v-model="hasEnabledPushPermissions"
-        @change="onRequestPermissions"
-      />
-    </div>
+    <!-- A preferencia de push mora aqui: e decisao do usuario, guardada nele e
+         valida em qualquer aparelho. Ver PushNotificationSetting.vue. -->
+    <PushNotificationSetting />
   </div>
 </template>

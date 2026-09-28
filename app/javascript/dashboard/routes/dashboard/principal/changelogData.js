@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'push-preference',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Notificação push agora acompanha você entre os dispositivos',
+    description:
+      'Em Perfil > Notificações, a opção de receber notificações push virou uma preferência sua, com botão de Salvar - antes ela valia só para o navegador em que foi ligada, e entrar de outro computador mostrava tudo desligado. Agora, ao entrar de um aparelho novo, a tela não pergunta de novo se você quer receber: ela apenas avisa que falta liberar a permissão naquele navegador, com um botão para isso.',
+  },
+  {
     id: 'sidebar-ticket-search',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',
