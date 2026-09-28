@@ -453,6 +453,10 @@ const menuItems = computed(() => {
             to: accountScopedRoute('team_conversations', { teamId: team.id }),
           })),
         },
+        /* Aba "Canais" ocultada a pedido - redundante com Times/Rotulos pro
+           fluxo de atendimento daqui. Codigo mantido comentado (mesmo padrao
+           do bloco Mentions/Participating/Unattended logo acima) caso volte
+           a fazer sentido.
         {
           name: 'Channels',
           label: t('SIDEBAR.CHANNELS'),
@@ -475,7 +479,7 @@ const menuItems = computed(() => {
                 badgeCount: leafProps.badgeCount,
               }),
           })),
-        },
+        }, */
         {
           name: 'Labels',
           label: t('SIDEBAR.LABELS'),
@@ -546,6 +550,13 @@ const menuItems = computed(() => {
       icon: 'i-lucide-bar-chart-3',
       to: accountScopedRoute('implementation_reports_index'),
       activeOn: ['implementation_reports_index'],
+    },
+    {
+      name: 'Suggestions',
+      label: t('SIDEBAR.SUGGESTIONS'),
+      icon: 'i-lucide-lightbulb',
+      to: accountScopedRoute('suggestions_index'),
+      activeOn: ['suggestions_index'],
     },
     {
       name: 'Agenda',
@@ -781,6 +792,13 @@ const menuItems = computed(() => {
           icon: 'i-lucide-list-tree',
           activeOn: ['settings_queues_list'],
           to: accountScopedRoute('settings_queues_list'),
+        },
+        {
+          name: 'Settings Suggestions',
+          label: t('SIDEBAR.SUGGESTIONS_SETTINGS'),
+          icon: 'i-lucide-lightbulb',
+          activeOn: ['suggestion_columns_list'],
+          to: accountScopedRoute('suggestion_columns_list'),
         },
         {
           name: 'Settings Tickets',

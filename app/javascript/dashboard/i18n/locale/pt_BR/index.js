@@ -58,6 +58,7 @@ import webhooks from './webhooks.json';
 import whatsappTemplates from './whatsappTemplates.json';
 import whatsappTemplateMgmt from './whatsappTemplateMgmt.json';
 import yearInReview from './yearInReview.json';
+import suggestions from './suggestions.json';
 
 export default {
   ...advancedFilters,
@@ -119,5 +120,6 @@ export default {
   ...whatsappTemplates,
   ...whatsappTemplateMgmt,
   ...yearInReview,
+  ...suggestions,
   ...contracts,
 };

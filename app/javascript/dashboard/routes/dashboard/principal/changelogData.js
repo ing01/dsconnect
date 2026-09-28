@@ -17,6 +17,96 @@ export const CHANGELOG_ENTRIES = [
       'Em Mesas que usam níveis de responsável, o formulário de novo chamado agora mostra um campo por nível (Responsável 1, Responsável 2, e assim por diante), cada um listando só quem está habilitado naquele nível. Dá para abrir indicando apenas o Nível 2, ou nenhum. Antes havia um campo só, que gravava sempre no Nível 1 - e numa Mesa sem ninguém cadastrado no Nível 1 a abertura ficava travada, com o erro "não está habilitado a atuar no nível 1 desta Mesa".',
   },
   {
+    id: 'conversations-new-conversation-button',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Botão "Nova conversa" na área de Conversas',
+    description:
+      'Igual já existia em Contatos, agora dá pra iniciar uma conversa nova direto pelo cabeçalho da lista de Conversas, sem precisar abrir o menu lateral.',
+  },
+  {
+    id: 'suggestions-board',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'feature',
+    title: 'Sugestões de melhoria: quadro Kanban novo',
+    description:
+      'Na tela Principal, o botão "Tem uma melhoria para sugerir? Fale conosco" abre um formulário simples (título + descrição). Cada sugestão vira um card no quadro "Sugestões" (menu lateral), com colunas configuráveis em Configurações > Sugestões. Qualquer agente ou administrador vê o quadro inteiro; só Administrador (ou quem tiver a permissão) move os cards entre colunas ou configura o quadro. Administradores recebem uma notificação a cada sugestão nova.',
+  },
+  {
+    id: 'team-handles-flags',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'feature',
+    title: 'Mesas podem sair de Conversas e/ou Projetos',
+    description:
+      'Em Configurações > Mesas, dois campos novos: "conversa com clientes" e "executa Projetos". Desmarcando, a Mesa some da aba Times em Conversas e/ou do filtro de Equipe em Projetos - por padrão os dois continuam marcados, então nenhuma Mesa muda de lugar sozinha.',
+  },
+  {
+    id: 'ticket-delete',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'feature',
+    title: 'Excluir ticket (Administrador)',
+    description:
+      'Novo item "Excluir ticket" no menu de ações do ticket, só para Administrador. Se o ticket tiver chamados filhos vinculados, pergunta se quer excluir tudo junto ou só manter os filhos, desvinculados.',
+  },
+  {
+    id: 'ticket-stage-automation',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'feature',
+    title: 'Ticket muda de estágio sozinho quando a conversa é atribuída',
+    description:
+      'Novo tipo de coluna "Em atendimento" em Configurações > Estágios (opcional): quando marcada, o ticket vinculado a uma conversa pula pra essa coluna automaticamente assim que alguém assume a conversa - pega da fila, se auto-atribui, ou é atribuído por um administrador.',
+  },
+  {
+    id: 'custom-roles-refinement',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'feature',
+    title: 'Funções Personalizadas mais detalhadas',
+    description:
+      'Painel de Implantação e Projetos agora têm permissões separadas - dá pra liberar uma Função pra ver um sem o outro. Configurações > Mesas e Filas passaram a respeitar as Funções Personalizadas também, não só Administrador.',
+  },
+  {
+    id: 'project-client-search',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Busca de Cliente em Projetos',
+    description:
+      'O campo Cliente, tanto ao criar um projeto quanto no card de detalhe, virou uma busca por nome ou código em vez de uma lista longa pra rolar. No card de detalhe o campo também ganhou uma linha própria, mais larga.',
+  },
+  {
+    id: 'whatsapp-asterezap-fix',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'WhatsApp: iniciar e responder conversa',
+    description:
+      'Corrigido: o WhatsApp conectado via AstereZap estava bloqueado pela regra de 24h da Meta (que não se aplica a esse tipo de conexão), e a tela de Nova Conversa só mostrava modelo, sem caixa de texto livre. Agora dá pra iniciar e responder conversas normalmente.',
+  },
+  {
+    id: 'queue-tab-assignment-fix',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: '"Em Fila" não mostra mais quem já foi atribuído',
+    description:
+      'Corrigido: uma conversa que já tinha atendente continuava aparecendo na aba "Em Fila" junto de "Minhas". Agora ela some da fila assim que é atribuída, sem perder o registro de qual fila ela veio.',
+  },
+  {
+    id: 'hide-channels-tab',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Aba "Canais" removida das Conversas',
+    description:
+      'A aba "Canais" (redundante com Times/Rótulos pro dia a dia de atendimento) saiu do menu lateral de Conversas.',
+  },
+  {
     id: 'client-session-expired',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',

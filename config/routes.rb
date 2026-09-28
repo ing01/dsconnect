@@ -500,6 +500,18 @@ Rails.application.routes.draw do
           # plano - ver Tickets::ImportJob).
           resources :ticket_imports, only: [:create, :show]
 
+          # Quadro de Sugestoes de melhoria - 1 por conta, nao aninhado em Team.
+          resources :suggestions, only: [:index, :create, :destroy] do
+            member do
+              patch :move
+            end
+          end
+          resources :suggestion_columns, only: [:index, :create, :update, :destroy] do
+            collection do
+              patch :reorder
+            end
+          end
+
           resources :projects do
             member do
               post :generate_tickets

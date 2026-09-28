@@ -75,8 +75,9 @@ export default {
     // Pendente/Finalizado are mandatory once assigned (TicketColumn#ensure_not_required_kind
     // blocks deleting them) - the type is fixed here so an admin cannot quietly
     // strip the Mesa of its only Pendente/Finalizado stage by editing it away.
+    // "Em atendimento" is optional (deletable), so it's left editable.
     isKindLocked() {
-      return (this.stage.kind || 'normal') !== 'normal';
+      return ['pending', 'completed'].includes(this.stage.kind || 'normal');
     },
     positionOptions() {
       return Array.from({ length: this.stageCount }, (_, index) => index);
@@ -195,6 +196,9 @@ export default {
           <option value="completed">
             {{ $t('TICKET.SETTINGS.FORM.KIND.COMPLETED') }}
           </option>
+          <option value="in_progress">
+            {{ $t('TICKET.SETTINGS.FORM.KIND.IN_PROGRESS') }}
+          </option>
         </select>
         <p class="text-sm text-n-slate-11">
           {{ $t('TICKET.SETTINGS.FORM.KIND.HINT') }}
@@ -224,6 +228,7 @@ export default {
           v-if="automationsEnabled"
           v-model="automationActions"
           :agents="agents"
+          :teams="teams"
         />
       </fieldset>
 

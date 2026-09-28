@@ -1,12 +1,37 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useGreeting } from 'dashboard/composables/useGreeting';
+import { useStore } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
+import NextButton from 'dashboard/components-next/button/Button.vue';
 import ChangelogEntryCard from '../components/ChangelogEntryCard.vue';
+import SuggestionFormDialog from '../components/SuggestionFormDialog.vue';
 import { getVisibleChangelogEntries } from '../changelogData';
 
+const { t } = useI18n();
+const store = useStore();
 const { greetingMessage, globalConfig } = useGreeting();
 
 const visibleChangelogEntries = computed(() => getVisibleChangelogEntries());
+
+const suggestionDialog = ref(null);
+const isSubmittingSuggestion = ref(false);
+
+const openSuggestionDialog = () => suggestionDialog.value?.open();
+
+const submitSuggestion = async ({ title, description }) => {
+  isSubmittingSuggestion.value = true;
+  try {
+    await store.dispatch('suggestions/create', { title, description });
+    suggestionDialog.value?.close();
+    useAlert(t('PRINCIPAL.SUGGESTIONS.SUCCESS_MESSAGE'));
+  } catch (error) {
+    useAlert(t('PRINCIPAL.SUGGESTIONS.ERROR_MESSAGE'));
+  } finally {
+    isSubmittingSuggestion.value = false;
+  }
+};
 </script>
 
 <template>
@@ -38,6 +63,24 @@ const visibleChangelogEntries = computed(() => getVisibleChangelogEntries());
       </div>
     </div>
 
+    <div
+      class="flex items-center justify-between gap-4 p-5 mt-8 rounded-2xl border border-n-weak bg-n-solid-1"
+    >
+      <div>
+        <h2 class="mb-1 text-base font-semibold text-n-slate-12">
+          {{ $t('PRINCIPAL.SUGGESTIONS.BANNER_TITLE') }}
+        </h2>
+        <p class="mb-0 text-sm text-n-slate-11">
+          {{ $t('PRINCIPAL.SUGGESTIONS.BANNER_SUBTITLE') }}
+        </p>
+      </div>
+      <NextButton
+        icon="i-lucide-lightbulb"
+        :label="$t('PRINCIPAL.SUGGESTIONS.BANNER_BUTTON')"
+        @click="openSuggestionDialog"
+      />
+    </div>
+
     <div class="mt-8">
       <h2 class="mb-1 text-lg font-semibold text-n-slate-12">
         {{ $t('PRINCIPAL.WHATS_NEW_TITLE') }}
@@ -53,5 +96,11 @@ const visibleChangelogEntries = computed(() => getVisibleChangelogEntries());
         />
       </div>
     </div>
+
+    <SuggestionFormDialog
+      ref="suggestionDialog"
+      :is-loading="isSubmittingSuggestion"
+      @submit="submitSuggestion"
+    />
   </div>
 </template>

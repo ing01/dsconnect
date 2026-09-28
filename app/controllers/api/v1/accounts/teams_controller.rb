@@ -36,7 +36,8 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
 
   def team_params
     params.require(:team).permit(:name, :description, :allow_auto_assign, :icon, :icon_color, :manager_id, :active,
-                                 :assignee_levels_enabled, :assignee_levels_count)
+                                 :assignee_levels_enabled, :assignee_levels_count,
+                                 :handles_conversations, :handles_projects)
   end
 
   # TeamPolicy#update? checks the team's manager, so authorization must run

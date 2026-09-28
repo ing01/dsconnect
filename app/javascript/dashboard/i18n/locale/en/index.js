@@ -57,6 +57,7 @@ import projects from './projects.json';
 import implementationReport from './implementationReport.json';
 import sessionLimit from './sessionLimit.json';
 import yearInReview from './yearInReview.json';
+import suggestions from './suggestions.json';
 
 export default {
   ...advancedFilters,
@@ -117,5 +118,6 @@ export default {
   ...implementationReport,
   ...sessionLimit,
   ...yearInReview,
+  ...suggestions,
   ...contracts,
 };

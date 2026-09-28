@@ -173,7 +173,11 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     render 'show'
   end
 
+  # Children are `dependent: :nullify` (Ticket#children, see TicketRelatable) -
+  # by default they survive, unlinked. `delete_children=true` destroys them
+  # first instead, so the parent's own destroy has nothing left to nullify.
   def destroy
+    @ticket.children.destroy_all if ActiveModel::Type::Boolean.new.cast(params[:delete_children])
     @ticket.destroy!
     head :ok
   end

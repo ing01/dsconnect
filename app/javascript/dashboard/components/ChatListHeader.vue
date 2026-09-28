@@ -7,6 +7,7 @@ import wootConstants from 'dashboard/constants/globals';
 import ConversationBasicFilter from './widgets/conversation/ConversationBasicFilter.vue';
 import SwitchLayout from 'dashboard/routes/dashboard/conversation/search/SwitchLayout.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 
 const props = defineProps({
   pageTitle: { type: String, required: true },
@@ -181,6 +182,15 @@ const toggleConversationLayout = () => {
         :is-on-expanded-layout="isOnExpandedLayout"
         @toggle="toggleConversationLayout"
       />
+      <ComposeConversation>
+        <template #trigger>
+          <NextButton
+            icon="i-lucide-pen-line"
+            size="xs"
+            :label="$t('CHAT_LIST.NEW_CONVERSATION_BUTTON')"
+          />
+        </template>
+      </ComposeConversation>
     </div>
   </div>
 </template>

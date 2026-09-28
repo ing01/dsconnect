@@ -485,7 +485,8 @@
           "NORMAL": "Normal",
           "PENDING": "Pendente",
           "COMPLETED": "Finalizado",
-          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto."
+          "IN_PROGRESS": "Em atendimento (automação)",
+          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto. \"Em atendimento\" é opcional: quando marcada, o ticket é movido pra essa coluna automaticamente assim que a conversa vinculada a ele é atribuída a alguém."
         },
         "HIDDEN": {
           "LABEL": "Ocultar este estágio do quadro Kanban",
@@ -500,17 +501,20 @@
           "REMOVE_ACTION": "Remover ação",
           "UNASSIGN": "Remover responsável",
           "NOTE_PLACEHOLDER": "Texto que vai aparecer no histórico do ticket...",
+          "STAGE_LABEL": "Estágio",
           "ACTION_TYPES": {
             "SET_PRIORITY": "Mudar a prioridade",
             "SET_STATUS": "Mudar o status",
             "SET_ASSIGNEE": "Mudar o responsável",
             "CLEAR_DUE_DATE": "Limpar a data de vencimento",
             "CLEAR_SCHEDULED_AT": "Limpar a data de agendamento",
-            "POST_NOTE": "Adicionar uma nota automática"
+            "POST_NOTE": "Adicionar uma nota automática",
+            "MOVE_PARENT_TO_COLUMN": "Mover o ticket pai para outro estágio"
           },
           "ACTION_HINTS": {
             "CLEAR_DUE_DATE": "A data de vencimento do ticket é apagada.",
-            "CLEAR_SCHEDULED_AT": "A data de agendamento do ticket é apagada."
+            "CLEAR_SCHEDULED_AT": "A data de agendamento do ticket é apagada.",
+            "MOVE_PARENT_TO_COLUMN": "Só roda se este ticket tiver um ticket pai vinculado. Escolha a Mesa e o Estágio para onde o pai deve ir."
           }
         },
         "RULES": {
@@ -815,6 +819,7 @@
       "CANCEL": "Cancelar ticket",
       "CLOSE": "Fechar ticket",
       "REOPEN": "Reabrir ticket",
+      "DELETE": "Excluir ticket",
       "CLOSE_DIALOG": {
         "TITLE": "Fechar ticket #{number}?",
         "DESCRIPTION": "O ticket será marcado como finalizado, com a data e o responsável pelo fechamento registrados.",
@@ -907,6 +912,21 @@
         "REASON_PLACEHOLDER": "Opcional",
         "BACK": "Voltar",
         "CONFIRM": "Cancelar ticket"
+      },
+      "DELETE_DIALOG": {
+        "TITLE": "Excluir ticket #{number}?",
+        "DESCRIPTION": "Esta ação não pode ser desfeita. O ticket, seu histórico e seus anexos serão apagados permanentemente.",
+        "CHILDREN_WARNING": "Este ticket tem {n} ticket filho vinculado. | Este ticket tem {n} tickets filhos vinculados.",
+        "KEEP_CHILDREN": {
+          "LABEL": "Manter os tickets filhos",
+          "DESCRIPTION": "Os tickets filhos continuam existindo, só deixam de estar vinculados a este."
+        },
+        "DELETE_CHILDREN": {
+          "LABEL": "Excluir os tickets filhos junto",
+          "DESCRIPTION": "Os tickets filhos também serão apagados permanentemente."
+        },
+        "BACK": "Voltar",
+        "CONFIRM": "Excluir ticket"
       },
       "TITLE_DIALOG": {
         "TITLE": "Editar título do ticket",

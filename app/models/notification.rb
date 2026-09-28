@@ -54,7 +54,9 @@ class Notification < ApplicationRecord
     # quem ja escolheu.
     internal_chat_message: 11,
     # Chamado aberto pelo cliente, esperando alguem aceitar na Triagem.
-    ticket_triage_pending: 12
+    ticket_triage_pending: 12,
+    # Sugestao de melhoria enviada por um usuario interno pela tela Principal.
+    suggestion_created: 13
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES
@@ -64,7 +66,7 @@ class Notification < ApplicationRecord
   after_destroy_commit :dispatch_destroy_event
   after_update_commit :dispatch_update_event
 
-  PRIMARY_ACTORS = %w[Conversation Project ChatMessage Ticket].freeze
+  PRIMARY_ACTORS = %w[Conversation Project ChatMessage Ticket Suggestion].freeze
 
   def push_event_data
     # Secondary actor could be nil for cases like system assigning conversation

@@ -10,10 +10,12 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'department_manage',
   'queue_manage',
   'project_manage',
+  'implementation_report_manage',
   'ticket_manage',
   'agenda_manage',
   'company_manage',
   'internal_chat_manage',
+  'suggestion_manage',
 ];
 
 export const CLIENT_CREDENTIALS_PERMISSIONS = 'client_credentials_manage';

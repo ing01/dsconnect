@@ -1,0 +1,61 @@
+{
+  "SUGGESTIONS": {
+    "HEADER": {
+      "TITLE": "Sugestões",
+      "SUBTITLE": "Quadro de sugestões de melhoria enviadas pela equipe.",
+      "CONFIGURE_COLUMNS": "Configurar colunas"
+    },
+    "DETAIL": {
+      "CLOSE": "Fechar",
+      "SUBMITTED_BY": "Enviado por {name} em {date}",
+      "NO_DESCRIPTION": "Sem descrição.",
+      "DELETE": "Excluir sugestão"
+    },
+    "API": {
+      "ERROR_MESSAGE": "Não foi possível concluir a ação.",
+      "DELETE_SUCCESS": "Sugestão excluída."
+    },
+    "SETTINGS": {
+      "HEADER": "Colunas do quadro de Sugestões",
+      "DESCRIPTION": "Defina as colunas do quadro Kanban de sugestões de melhoria (ex: Ideias, Em análise, Planejado, Em desenvolvimento, Concluído).",
+      "ADD_COLUMN": "Adicionar coluna",
+      "ADD_TITLE": "Adicionar coluna",
+      "EDIT_TITLE": "Editar coluna",
+      "CANCEL": "Cancelar",
+      "SUBMIT": "Adicionar",
+      "UPDATE": "Salvar",
+      "LOADING": "Carregando colunas...",
+      "EMPTY": "Nenhuma coluna cadastrada.",
+      "MOVE_UP": "Mover para cima",
+      "MOVE_DOWN": "Mover para baixo",
+      "EDIT": "Editar",
+      "DELETE": "Excluir",
+      "DELETE_BLOCKED_HINT": "Mova as sugestões para outra coluna antes de excluir.",
+      "FORM": {
+        "NAME": {
+          "LABEL": "Nome da coluna",
+          "PLACEHOLDER": "Ex: Em análise"
+        }
+      },
+      "TABLE": {
+        "NAME": "Nome",
+        "SUGGESTIONS": "Sugestões",
+        "ACTIONS": "Ações"
+      },
+      "API": {
+        "CREATE_SUCCESS": "Coluna criada.",
+        "UPDATE_SUCCESS": "Coluna atualizada.",
+        "DELETE_SUCCESS": "Coluna excluída.",
+        "DELETE_ERROR": "Não foi possível excluir a coluna.",
+        "REORDER_ERROR": "Não foi possível reordenar as colunas.",
+        "ERROR": "Não foi possível concluir a ação."
+      },
+      "DELETE_CONFIRM": {
+        "TITLE": "Confirmar exclusão",
+        "MESSAGE": "Você tem certeza que deseja excluir a coluna",
+        "CONFIRM": "Sim, excluir",
+        "CANCEL": "Não, manter"
+      }
+    }
+  }
+}

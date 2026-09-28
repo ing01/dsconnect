@@ -30,6 +30,7 @@ import TicketBlockDialog from '../components/detail/actions/TicketBlockDialog.vu
 import TicketUnblockDialog from '../components/detail/actions/TicketUnblockDialog.vue';
 import TicketCancelDialog from '../components/detail/actions/TicketCancelDialog.vue';
 import TicketCloseDialog from '../components/detail/actions/TicketCloseDialog.vue';
+import TicketDeleteDialog from '../components/detail/actions/TicketDeleteDialog.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -60,6 +61,9 @@ const {
   classify,
   block,
   unblock,
+  deleteTicket,
+  canDelete,
+  childrenCount,
   reload,
 } = useTicketDetail(ticketId);
 
@@ -83,6 +87,7 @@ const blockDialog = ref(null);
 const unblockDialog = ref(null);
 const cancelDialog = ref(null);
 const closeDialog = ref(null);
+const deleteDialog = ref(null);
 
 const isActing = ref(false);
 
@@ -179,6 +184,7 @@ const DIALOG_BY_ACTION = {
   unblock: () => unblockDialog,
   cancel: () => cancelDialog,
   close: () => closeDialog,
+  delete: () => deleteDialog,
 };
 
 const handleAction = action => {
@@ -247,6 +253,11 @@ const submitBlock = reason => runAction(() => block(reason), blockDialog);
 const submitUnblock = () => runAction(() => unblock(), unblockDialog);
 const submitCancel = reason => runAction(() => cancel(reason), cancelDialog);
 
+const submitDelete = deleteChildren =>
+  runAction(() => deleteTicket(deleteChildren), deleteDialog).then(
+    success => success && goBack()
+  );
+
 // Each of these edits one field in place, through the ticket's existing
 // `update` endpoint - there is no generic ticket form any more.
 const submitTitle = title =>
@@ -283,6 +294,7 @@ const submitContact = contactId =>
         :can-update="canUpdate"
         :can-add-sla-hours="canAddSlaHours"
         :current-user-id="currentUser.id"
+        :can-delete="canDelete"
         @back="goBack"
         @action="handleAction"
         @edit-title="handleAction('editTitle')"
@@ -425,6 +437,13 @@ const submitContact = contactId =>
         :ticket="ticket"
         :is-loading="isActing"
         @submit="submitCancel"
+      />
+      <TicketDeleteDialog
+        ref="deleteDialog"
+        :ticket="ticket"
+        :children-count="childrenCount"
+        :is-loading="isActing"
+        @submit="submitDelete"
       />
 
       <!-- Closing requires a classification and a message that reached the

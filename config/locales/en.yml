@@ -229,6 +229,10 @@ en:
     project:
       tickets_pending: This project cannot be finished while it still has open tickets.
       cannot_cancel_finalized: A finished project cannot be cancelled.
+    suggestion_column:
+      has_suggestions:
+        one: This column has 1 suggestion. Move it to another column before deleting.
+        other: This column has %{count} suggestions. Move them to another column before deleting.
     ticket_attachment:
       too_large: is larger than the %{size} MB limit
     ticket_column:
@@ -244,6 +248,7 @@ en:
       kind_taken:
         pending: This service desk already has a Pendente stage.
         completed: This service desk already has a Finalizado stage.
+        in_progress: This service desk already has an Em atendimento stage.
     ticket_export:
       empty: No tickets available to export.
       too_many: This search returns more than %{limit} tickets. Narrow the period or the filters before exporting.
@@ -474,6 +479,7 @@ en:
       project_contract_end_overdue: 'Contract end date is overdue for %{project_name}'
       project_support_end_overdue: 'Support end date is overdue for %{project_name}'
       ticket_triage_pending: 'New ticket from %{company_name} (#%{display_id}) waiting for triage'
+      suggestion_created: 'New improvement suggestion from %{user_name}'
     unknown_contact: 'Unnamed contact'
     attachment: 'Attachment'
     no_content: 'No content'

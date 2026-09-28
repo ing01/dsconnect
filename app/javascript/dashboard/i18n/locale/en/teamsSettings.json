@@ -125,6 +125,12 @@
       "ACTIVE": {
         "LABEL": "Active department"
       },
+      "HANDLES_CONVERSATIONS": {
+        "LABEL": "This team talks to customers (shows up in Conversations > Teams)"
+      },
+      "HANDLES_PROJECTS": {
+        "LABEL": "This team runs Projects (shows up in the Team filter in Projects)"
+      },
       "SUBMIT_CREATE": "Create team",
       "ASSIGNEE_LEVELS": {
         "LABEL": "Use assignee levels on tickets",

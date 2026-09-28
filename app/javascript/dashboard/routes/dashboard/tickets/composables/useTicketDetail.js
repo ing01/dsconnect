@@ -25,6 +25,13 @@ export function useTicketDetail(ticketId) {
   // so the SLA entry cannot be derived from `canUpdate`.
   const canAddSlaHours = computed(() => !!ticket.value?.can_add_sla_hours);
 
+  // TicketPolicy#destroy? is administrator-only.
+  const canDelete = computed(() => !!ticket.value?.can_destroy);
+
+  // Decides whether the delete confirmation offers a choice (delete the
+  // children too, or keep them unlinked) or is a plain confirm.
+  const childrenCount = computed(() => ticket.value?.children_count || 0);
+
   // Estagios of the ticket's own Mesa. Fetched through the lean columns index -
   // pulling the Kanban board just to populate a select costs the whole payload.
   const columns = computed(
@@ -191,6 +198,21 @@ export function useTicketDetail(ticketId) {
     }
   };
 
+  // Unlike the others, there is no updated ticket to show on failure or
+  // success - the caller navigates away once this resolves `true`.
+  const deleteTicket = async deleteChildren => {
+    try {
+      await store.dispatch('tickets/deleteTicket', {
+        id: ticketId.value,
+        deleteChildren,
+      });
+      return true;
+    } catch (error) {
+      useAlert(t('TICKET.API.ERROR_MESSAGE'));
+      return false;
+    }
+  };
+
   watch(
     ticketId,
     async () => {
@@ -205,6 +227,8 @@ export function useTicketDetail(ticketId) {
     isLoading,
     canUpdate,
     canAddSlaHours,
+    canDelete,
+    childrenCount,
     columns,
     categories,
     mesaAgents,
@@ -224,6 +248,7 @@ export function useTicketDetail(ticketId) {
     classify,
     block,
     unblock,
+    deleteTicket,
     reload: loadTicket,
   };
 }

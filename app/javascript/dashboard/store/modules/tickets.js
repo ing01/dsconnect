@@ -202,6 +202,14 @@ export const actions = {
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },
+  // No response payload to commit - update both stores locally right away
+  // instead of waiting on this tab's own `ticket.deleted` realtime echo
+  // (see actionCable.js#onTicketRealtimeDelete for the cross-tab case).
+  deleteTicket: async ({ dispatch }, { id, deleteChildren }) => {
+    await TicketsAPI.delete(id, { deleteChildren });
+    dispatch('removeFromRealtime', id);
+    dispatch('ticketColumns/removeRealtimeTicket', id, { root: true });
+  },
   assignTicketToMe: async ({ commit }, id) => {
     const response = await TicketsAPI.assignToMe(id);
     commit(types.SET_TICKET_ITEM, response.data);

@@ -3,6 +3,27 @@
     "WHATS_NEW_TITLE": "What's new",
     "WHATS_NEW_SUBTITLE": "What changed recently in the platform.",
     "BEFORE": "Before",
-    "AFTER": "After"
+    "AFTER": "After",
+    "SUGGESTIONS": {
+      "BANNER_TITLE": "Have an improvement to suggest?",
+      "BANNER_SUBTITLE": "Talk to us - your suggestion goes straight into the improvements board.",
+      "BANNER_BUTTON": "Talk to us",
+      "SUCCESS_MESSAGE": "Suggestion sent! Thank you.",
+      "ERROR_MESSAGE": "Could not send your suggestion. Please try again.",
+      "FORM": {
+        "TITLE": "Suggest an improvement",
+        "DESCRIPTION": "Tell us what you'd like to see improved or added in the system.",
+        "CANCEL": "Cancel",
+        "SUBMIT": "Send suggestion",
+        "TITLE_FIELD": {
+          "LABEL": "Title",
+          "PLACEHOLDER": "Summarize your idea in a few words"
+        },
+        "DESCRIPTION_FIELD": {
+          "LABEL": "Description (optional)",
+          "PLACEHOLDER": "Describe it in more detail, if you'd like"
+        }
+      }
+    }
   }
 }

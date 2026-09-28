@@ -1,8 +1,29 @@
 {
   "PRINCIPAL": {
     "WHATS_NEW_TITLE": "Novidades",
-    "WHATS_NEW_SUBTITLE": "O que mudou recentemente na plataforma.",
+    "WHATS_NEW_SUBTITLE": "Acompanhe as mudanças na plataforma e fique por dentro das novidades.",
     "BEFORE": "Antes",
-    "AFTER": "Depois"
+    "AFTER": "Depois",
+    "SUGGESTIONS": {
+      "BANNER_TITLE": "Tem uma melhoria para sugerir?",
+      "BANNER_SUBTITLE": "Fale conosco - sua sugestão entra direto no quadro de melhorias do sistema.",
+      "BANNER_BUTTON": "Fale conosco",
+      "SUCCESS_MESSAGE": "Sugestão enviada! Obrigado.",
+      "ERROR_MESSAGE": "Não foi possível enviar sua sugestão. Tente novamente.",
+      "FORM": {
+        "TITLE": "Sugerir uma melhoria",
+        "DESCRIPTION": "Conta pra gente o que você gostaria de ver melhorado ou adicionado no sistema.",
+        "CANCEL": "Cancelar",
+        "SUBMIT": "Enviar sugestão",
+        "TITLE_FIELD": {
+          "LABEL": "Título",
+          "PLACEHOLDER": "Resuma sua ideia em poucas palavras"
+        },
+        "DESCRIPTION_FIELD": {
+          "LABEL": "Descrição (opcional)",
+          "PLACEHOLDER": "Descreva com mais detalhes, se quiser"
+        }
+      }
+    }
   }
 }

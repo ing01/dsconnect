@@ -308,6 +308,32 @@ RSpec.describe 'Tickets API', type: :request do
       expect(response).to have_http_status(:unauthorized)
       expect(Ticket.exists?(ticket.id)).to be(true)
     end
+
+    it 'keeps child tickets, unlinked, by default' do
+      parent = create(:ticket, account: account, ticket_column: ticket_column)
+      child = create(:ticket, account: account, ticket_column: ticket_column, parent: parent)
+
+      delete "/api/v1/accounts/#{account.id}/tickets/#{parent.id}",
+             headers: administrator.create_new_auth_token,
+             as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(Ticket.exists?(child.id)).to be(true)
+      expect(child.reload.parent_id).to be_nil
+    end
+
+    it 'destroys child tickets too when delete_children is true' do
+      parent = create(:ticket, account: account, ticket_column: ticket_column)
+      child = create(:ticket, account: account, ticket_column: ticket_column, parent: parent)
+
+      delete "/api/v1/accounts/#{account.id}/tickets/#{parent.id}",
+             params: { delete_children: true },
+             headers: administrator.create_new_auth_token,
+             as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(Ticket.exists?(child.id)).to be(false)
+    end
   end
 
   describe 'POST .../tickets/ensure_default_mesa' do

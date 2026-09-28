@@ -33,7 +33,7 @@ const isLoading = ref(true);
 const project = computed(() => store.getters['projects/getSelectedProject']);
 const accountId = computed(() => store.getters['getCurrentAccountId']);
 const agents = computed(() => store.getters['agents/getAgents'] || []);
-const teams = computed(() => store.getters['teams/getTeams'] || []);
+const teams = computed(() => store.getters['teams/getProjectTeams'] || []);
 
 const agentOptions = computed(() =>
   agents.value.map(agent => ({ label: agent.name, value: agent.id }))
@@ -233,29 +233,32 @@ const currentStageColor = computed(() => {
         />
       </div>
 
-      <!-- Top info bar. Cliente/Equipe so viram <select> editavel para quem
-           administra projetos - mudar isso depois de criado afeta relatorios
-           e quem enxerga o projeto, entao fica restrito. Etapa continua
-           aberta a qualquer um, com mais largura (col-span-2) para o texto do
-           estagio nao cortar. -->
-      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
-          <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.COMPANY.LABEL') }}</span>
-          <ComboBox
-            v-if="canManageProject"
-            :model-value="editCompanyId"
-            :display-label="project.company_name"
-            :options="companyOptions"
-            :placeholder="t('PROJECTS.FORM.COMPANY.NONE')"
-            :search-placeholder="t('PROJECTS.FORM.COMPANY.SEARCH_PLACEHOLDER')"
-            use-api-results
-            class="[&>div>button]:h-7 [&>div>button]:!px-2 [&>div>button]:text-xs [&>div>button]:font-medium"
-            @open="handleCompanyOpen"
-            @search="handleCompanySearch"
-            @update:model-value="onCompanySelect"
-          />
-          <span v-else class="text-sm font-medium text-n-slate-12">{{ project.company_name || '—' }}</span>
-        </div>
+      <!-- Cliente: fora da grade de baixo, de proposito - o combobox de busca
+           precisa de largura pra a lista de resultados nao ficar espremida
+           num quinto de coluna. Fica logo abaixo do Nome, antes do resto. -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-n-slate-12">{{ t('PROJECTS.FORM.COMPANY.LABEL') }}</label>
+        <ComboBox
+          v-if="canManageProject"
+          :model-value="editCompanyId"
+          :display-label="project.company_name"
+          :options="companyOptions"
+          :placeholder="t('PROJECTS.FORM.COMPANY.NONE')"
+          :search-placeholder="t('PROJECTS.FORM.COMPANY.SEARCH_PLACEHOLDER')"
+          use-api-results
+          @open="handleCompanyOpen"
+          @search="handleCompanySearch"
+          @update:model-value="onCompanySelect"
+        />
+        <span v-else class="text-sm font-medium text-n-slate-12">{{ project.company_name || '—' }}</span>
+      </div>
+
+      <!-- Top info bar. Equipe so vira <select> editavel para quem administra
+           projetos - mudar isso depois de criado afeta relatorios e quem
+           enxerga o projeto, entao fica restrito. Etapa continua aberta a
+           qualquer um, com mais largura (col-span-2) para o texto do estagio
+           nao cortar. -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.TEAM.LABEL') }}</span>
           <select
