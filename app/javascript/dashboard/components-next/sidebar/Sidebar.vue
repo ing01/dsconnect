@@ -453,6 +453,10 @@ const menuItems = computed(() => {
             to: accountScopedRoute('team_conversations', { teamId: team.id }),
           })),
         },
+        /* Aba "Canais" ocultada a pedido - redundante com Times/Rotulos pro
+           fluxo de atendimento daqui. Codigo mantido comentado (mesmo padrao
+           do bloco Mentions/Participating/Unattended logo acima) caso volte
+           a fazer sentido.
         {
           name: 'Channels',
           label: t('SIDEBAR.CHANNELS'),
@@ -475,7 +479,7 @@ const menuItems = computed(() => {
                 badgeCount: leafProps.badgeCount,
               }),
           })),
-        },
+        }, */
         {
           name: 'Labels',
           label: t('SIDEBAR.LABELS'),
