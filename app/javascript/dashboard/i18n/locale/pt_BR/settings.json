@@ -175,7 +175,11 @@
           "SLA_MISSED_NEXT_RESPONSE": "Uma conversa perde o SLA da próxima resposta",
           "SLA_MISSED_RESOLUTION": "Uma conversa perde o SLA de resolução"
         },
-        "BROWSER_PERMISSION": "Ative notificações push em seu navegador para poder recebê-las"
+        "PUSH_PREFERENCE": "Receber notificações push",
+        "SAVE": "Salvar",
+        "BROWSER_PENDING": "Você já ativou as notificações no seu perfil. Falta liberar neste navegador.",
+        "BROWSER_ENABLE": "Ativar neste navegador",
+        "BROWSER_READY": "Este navegador está liberado para receber notificações."
       },
       "API": {
         "UPDATE_SUCCESS": "Suas preferências de notificação foram atualizadas com sucesso",
