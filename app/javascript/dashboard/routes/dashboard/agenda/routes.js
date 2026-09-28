@@ -2,7 +2,7 @@ import { frontendURL } from '../../../helper/URLHelper';
 import AgendaPage from './pages/AgendaPage.vue';
 
 const commonMeta = {
-  permissions: ['administrator', 'agent', 'custom_role'],
+  permissions: ['administrator', 'agent', 'agenda_manage'],
 };
 
 export const routes = [

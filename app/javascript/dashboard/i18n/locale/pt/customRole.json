@@ -38,7 +38,16 @@
       "CONVERSATION_PARTICIPATING_MANAGE": "Manage participating conversations and those assigned to them",
       "CONTACT_MANAGE": "Manage contacts",
       "REPORT_MANAGE": "Manage reports",
-      "KNOWLEDGE_BASE_MANAGE": "Manage knowledge base"
+      "KNOWLEDGE_BASE_MANAGE": "Manage knowledge base",
+      "CLIENT_CREDENTIALS_MANAGE": "View and manage sensitive client access credentials (database, AnyDesk, RDP)",
+      "CLIENT_BILLING_MANAGE": "View and manage the billing and contract fields on companies",
+      "DEPARTMENT_MANAGE": "Create, edit and delete service teams (departments)",
+      "QUEUE_MANAGE": "Create, edit and delete queues",
+      "PROJECT_MANAGE": "Access Projects and the Implementation Dashboard, and edit a project's name, client, team and dates",
+      "TICKET_MANAGE": "Access Tickets and the Triage queue",
+      "AGENDA_MANAGE": "Access the Agenda",
+      "COMPANY_MANAGE": "Access Companies and Contracts",
+      "INTERNAL_CHAT_MANAGE": "Access the Internal Chat"
     },
     "FORM": {
       "NAME": {

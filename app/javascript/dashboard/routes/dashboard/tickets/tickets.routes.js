@@ -6,7 +6,7 @@ import TicketDetailPage from './pages/TicketDetailPage.vue';
 import TicketTriagePage from './pages/TicketTriagePage.vue';
 
 const meta = {
-  permissions: ['administrator', 'agent', 'custom_role'],
+  permissions: ['administrator', 'agent', 'ticket_manage'],
 };
 
 // Both screens hang off one parent so the workspace tab bar is mounted once for
