@@ -14,10 +14,6 @@
     "SEARCH_MESSAGES": "Procurar mensagens em conversas",
     "VIEW_ORIGINAL": "View original",
     "VIEW_TRANSLATED": "View translated",
-    "EMPTY_STATE": {
-      "CMD_BAR": "para abrir o menu de comandos",
-      "KEYBOARD_SHORTCUTS": "para ver atalhos de teclado"
-    },
     "SEARCH": {
       "TITLE": "Procurar mensagens",
       "RESULT_TITLE": "Resultados da pesquisa",

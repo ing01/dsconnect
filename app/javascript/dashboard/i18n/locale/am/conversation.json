@@ -14,10 +14,6 @@
     "SEARCH_MESSAGES": "መልእክቶችን በውይይቶች ውስጥ ይፈልጉ",
     "VIEW_ORIGINAL": "View original",
     "VIEW_TRANSLATED": "View translated",
-    "EMPTY_STATE": {
-      "CMD_BAR": "to open command menu",
-      "KEYBOARD_SHORTCUTS": "to view keyboard shortcuts"
-    },
     "SEARCH": {
       "TITLE": "መልእክቶችን ይፈልጉ",
       "RESULT_TITLE": "Search Results",
