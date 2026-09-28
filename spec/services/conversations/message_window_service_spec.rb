@@ -625,4 +625,27 @@ RSpec.describe Conversations::MessageWindowService do
       expect(service.can_reply?).to be true
     end
   end
+
+  describe 'on AstereZap channels' do
+    let!(:whatsapp_channel) { create(:channel_whatsapp, provider: 'astere_zap', sync_templates: false, validate_provider_config: false) }
+    let!(:whatsapp_inbox) { create(:inbox, channel: whatsapp_channel, account: whatsapp_channel.account) }
+    let!(:conversation) { create(:conversation, inbox: whatsapp_inbox, account: whatsapp_channel.account) }
+
+    it 'has no messaging window - a brand new conversation with no incoming message can still be replied to' do
+      service = described_class.new(conversation)
+      expect(service.can_reply?).to be true
+    end
+
+    it 'stays repliable even long after the last incoming message (no Meta 24h rule on this provider)' do
+      create(
+        :message,
+        account: conversation.account,
+        inbox: whatsapp_inbox,
+        conversation: conversation,
+        created_at: 10.days.ago
+      )
+      service = described_class.new(conversation)
+      expect(service.can_reply?).to be true
+    end
+  end
 end
