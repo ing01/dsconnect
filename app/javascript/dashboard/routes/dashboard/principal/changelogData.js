@@ -8,6 +8,24 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'suggestions-fields-settings-labels',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Prioridade e Categoria das sugestões nas Configurações',
+    description:
+      'Os campos Prioridade, Categoria e Tempo gasto (horas) da sugestão já existiam, mas os rótulos apareciam na tela como código (por exemplo "SUGGESTIONS.PRIORITY.LABEL") e não havia onde cadastrar as listas. Agora Configurações > Sugestões traz, abaixo das colunas, as seções Prioridades e Categorias, onde o Administrador adiciona, renomeia e exclui os itens - excluir um item em uso apenas desmarca as sugestões, sem apagar nada.',
+  },
+  {
+    id: 'ticket-delete-closes-tab',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Excluir ticket fecha a aba junto com o card',
+    description:
+      'Ao excluir um chamado, a aba dele na barra de cima desaparece junto com o card. Antes ela continuava aberta apontando para um ticket que já não existia até recarregar a página. Vale também quando outra pessoa exclui o chamado, quando a exclusão acontece em outra aba do navegador e para os chamados filhos excluídos junto com o pai.',
+  },
+  {
     id: 'triage-sidebar-counter',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',

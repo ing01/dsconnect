@@ -5,6 +5,7 @@ import { BUS_EVENTS } from 'shared/constants/busEvents';
 import { emitter } from 'shared/helpers/mitt';
 import { useImpersonation } from 'dashboard/composables/useImpersonation';
 import { useCallsStore } from 'dashboard/stores/calls';
+import { useTicketWorkspace } from 'dashboard/routes/dashboard/tickets/composables/useTicketWorkspace';
 import {
   applyOutboundAnswer,
   armOutboundRecorder,
@@ -423,6 +424,14 @@ class ActionCableConnector extends BaseActionCableConnector {
 
     this.app.$store.dispatch('ticketColumns/removeRealtimeTicket', id);
     this.app.$store.dispatch('tickets/removeFromRealtime', id);
+    // A aba do workspace sai junto com o card. Fica AQUI, e nao so na tela de
+    // detalhe, porque este e o unico ponto por onde passam as exclusoes que a
+    // tela nao viu acontecer: a feita por outra pessoa, a feita noutra aba do
+    // navegador, e a dos chamados FILHOS apagados junto com o pai (cada um
+    // emite o seu proprio evento). Sem isto a aba continuava aberta apontando
+    // para um ticket que ja nao existe, ate a proxima vez que a pagina
+    // carregasse - e e' so ai que `restoreTab` a derrubava, pelo 404.
+    useTicketWorkspace().closeTab(id);
     // So o id chega, entao nao ha como saber se o apagado estava na fila. Se a
     // fila tem algo, reconta; se esta vazia, nada podia sair dela.
     this.refreshTriageCountIfRelevant(false);
