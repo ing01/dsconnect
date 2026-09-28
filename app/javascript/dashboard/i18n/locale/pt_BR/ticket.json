@@ -485,7 +485,8 @@
           "NORMAL": "Normal",
           "PENDING": "Pendente",
           "COMPLETED": "Finalizado",
-          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto."
+          "IN_PROGRESS": "Em atendimento (automação)",
+          "HINT": "Pendente e Finalizado são obrigatórios e únicos por Mesa. \"Pendente\" recebe os tickets gerados a partir de um Projeto. \"Em atendimento\" é opcional: quando marcada, o ticket é movido pra essa coluna automaticamente assim que a conversa vinculada a ele é atribuída a alguém."
         },
         "HIDDEN": {
           "LABEL": "Ocultar este estágio do quadro Kanban",

@@ -485,7 +485,8 @@
           "NORMAL": "Normal",
           "PENDING": "Pending",
           "COMPLETED": "Completed",
-          "HINT": "Pending and Completed are mandatory and unique per service desk. \"Pending\" receives tickets generated from a Project."
+          "IN_PROGRESS": "In progress (automation)",
+          "HINT": "Pending and Completed are mandatory and unique per service desk. \"Pending\" receives tickets generated from a Project. \"In progress\" is optional: when set, a ticket is moved into it automatically as soon as its linked conversation gets assigned to someone."
         },
         "HIDDEN": {
           "LABEL": "Hide this stage from the Kanban board",

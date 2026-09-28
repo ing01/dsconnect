@@ -19,7 +19,14 @@ class TicketColumn < ApplicationRecord
   # included (see TicketBoard.vue). `normal` is every other Estagio - a Mesa
   # can have as many of those as it wants, but at most one of each required
   # kind.
-  KINDS = %w[normal pending completed].freeze
+  #
+  # `in_progress` is optional (a Mesa doesn't need one) and, unlike
+  # pending/completed, never mandatory - it can be freely re-set back to
+  # `normal` or deleted. It marks the Estagio that TicketStageOnAssignmentListener
+  # moves a ticket into automatically once the Conversation linked to it gets
+  # assigned to someone.
+  KINDS = %w[normal pending completed in_progress].freeze
+  REQUIRED_KINDS = %w[pending completed].freeze
 
   # Acoes que "Automacao de Estagio" (Configuracoes > Estagios) pode rodar
   # sozinha quando um ticket ENTRA nesta coluna - ver TicketColumnAutomationListener
@@ -94,9 +101,10 @@ class TicketColumn < ApplicationRecord
 
   # Pendente/Finalizado are mandatory Estagios of a Mesa's Kanban - deleting
   # either would silently break Projects::CreateTicketsService (no `pending`
-  # target left) or leave tickets with no "done" slot to land in.
+  # target left) or leave tickets with no "done" slot to land in. `in_progress`
+  # is not in this list on purpose - it's an optional marker, not a required slot.
   def ensure_not_required_kind
-    return if kind == 'normal'
+    return unless REQUIRED_KINDS.include?(kind)
 
     errors.add(:base, I18n.t("errors.ticket_column.required_kind.#{kind}"))
     throw :abort

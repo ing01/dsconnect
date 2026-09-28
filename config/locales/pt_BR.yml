@@ -238,6 +238,7 @@ pt_BR:
       kind_taken:
         pending: Esta Mesa já possui um estágio "Pendente".
         completed: Esta Mesa já possui um estágio "Finalizado".
+        in_progress: Esta Mesa já possui um estágio "Em atendimento".
     ticket_export:
       empty: Nenhum ticket disponível para exportação.
       too_many: Esta busca retorna mais de %{limit} tickets. Restrinja o período ou os filtros antes de exportar.

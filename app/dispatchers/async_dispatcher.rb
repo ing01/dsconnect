@@ -21,6 +21,7 @@ class AsyncDispatcher < BaseDispatcher
       ReportingEventListener.instance,
       TicketColumnAutomationListener.instance,
       TicketSlaListener.instance,
+      TicketStageOnAssignmentListener.instance,
       WebhookListener.instance,
       WhatsappCsatSurveyListener.instance
     ]

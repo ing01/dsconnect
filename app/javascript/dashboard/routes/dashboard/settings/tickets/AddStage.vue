@@ -169,6 +169,9 @@ export default {
           <option value="completed">
             {{ $t('TICKET.SETTINGS.FORM.KIND.COMPLETED') }}
           </option>
+          <option value="in_progress">
+            {{ $t('TICKET.SETTINGS.FORM.KIND.IN_PROGRESS') }}
+          </option>
         </select>
         <p class="text-sm text-n-slate-11">
           {{ $t('TICKET.SETTINGS.FORM.KIND.HINT') }}

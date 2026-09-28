@@ -244,6 +244,7 @@ en:
       kind_taken:
         pending: This service desk already has a Pendente stage.
         completed: This service desk already has a Finalizado stage.
+        in_progress: This service desk already has an Em atendimento stage.
     ticket_export:
       empty: No tickets available to export.
       too_many: This search returns more than %{limit} tickets. Narrow the period or the filters before exporting.
