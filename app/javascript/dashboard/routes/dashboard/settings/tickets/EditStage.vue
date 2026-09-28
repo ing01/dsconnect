@@ -228,6 +228,7 @@ export default {
           v-if="automationsEnabled"
           v-model="automationActions"
           :agents="agents"
+          :teams="teams"
         />
       </fieldset>
 

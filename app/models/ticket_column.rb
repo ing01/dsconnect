@@ -34,7 +34,8 @@ class TicketColumn < ApplicationRecord
   # a lista). Cada item de `automation_actions` e um hash `{ "type" => ..., "value" => ... }`;
   # `value` fica de fora da validacao de formato aqui porque o que ele aceita
   # depende do `type` (ver Tickets::ColumnAutomationService).
-  AUTOMATION_ACTION_TYPES = %w[set_priority set_status set_assignee clear_due_date clear_scheduled_at post_note].freeze
+  AUTOMATION_ACTION_TYPES = %w[set_priority set_status set_assignee clear_due_date clear_scheduled_at post_note
+                               move_parent_to_column].freeze
 
   validates :name, presence: true
   validates :kind, inclusion: { in: KINDS }

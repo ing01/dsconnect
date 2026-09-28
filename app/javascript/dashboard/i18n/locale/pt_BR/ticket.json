@@ -501,17 +501,20 @@
           "REMOVE_ACTION": "Remover ação",
           "UNASSIGN": "Remover responsável",
           "NOTE_PLACEHOLDER": "Texto que vai aparecer no histórico do ticket...",
+          "STAGE_LABEL": "Estágio",
           "ACTION_TYPES": {
             "SET_PRIORITY": "Mudar a prioridade",
             "SET_STATUS": "Mudar o status",
             "SET_ASSIGNEE": "Mudar o responsável",
             "CLEAR_DUE_DATE": "Limpar a data de vencimento",
             "CLEAR_SCHEDULED_AT": "Limpar a data de agendamento",
-            "POST_NOTE": "Adicionar uma nota automática"
+            "POST_NOTE": "Adicionar uma nota automática",
+            "MOVE_PARENT_TO_COLUMN": "Mover o ticket pai para outro estágio"
           },
           "ACTION_HINTS": {
             "CLEAR_DUE_DATE": "A data de vencimento do ticket é apagada.",
-            "CLEAR_SCHEDULED_AT": "A data de agendamento do ticket é apagada."
+            "CLEAR_SCHEDULED_AT": "A data de agendamento do ticket é apagada.",
+            "MOVE_PARENT_TO_COLUMN": "Só roda se este ticket tiver um ticket pai vinculado. Escolha a Mesa e o Estágio para onde o pai deve ir."
           }
         },
         "RULES": {

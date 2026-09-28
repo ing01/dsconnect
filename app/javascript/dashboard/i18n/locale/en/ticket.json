@@ -501,17 +501,20 @@
           "REMOVE_ACTION": "Remove action",
           "UNASSIGN": "Remove assignee",
           "NOTE_PLACEHOLDER": "Text that will show up in the ticket's history...",
+          "STAGE_LABEL": "Stage",
           "ACTION_TYPES": {
             "SET_PRIORITY": "Change the priority",
             "SET_STATUS": "Change the status",
             "SET_ASSIGNEE": "Change the assignee",
             "CLEAR_DUE_DATE": "Clear the due date",
             "CLEAR_SCHEDULED_AT": "Clear the scheduled date",
-            "POST_NOTE": "Add an automated note"
+            "POST_NOTE": "Add an automated note",
+            "MOVE_PARENT_TO_COLUMN": "Move the parent ticket to another stage"
           },
           "ACTION_HINTS": {
             "CLEAR_DUE_DATE": "The ticket's due date is cleared.",
-            "CLEAR_SCHEDULED_AT": "The ticket's scheduled date is cleared."
+            "CLEAR_SCHEDULED_AT": "The ticket's scheduled date is cleared.",
+            "MOVE_PARENT_TO_COLUMN": "Only runs if this ticket has a linked parent ticket. Choose the Mesa and Stage the parent should move to."
           }
         },
         "RULES": {
