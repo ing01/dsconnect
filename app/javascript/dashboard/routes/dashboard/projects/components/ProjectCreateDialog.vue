@@ -3,11 +3,13 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
-import { useCompaniesStore } from 'dashboard/stores/companies';
+import { useDebounceFn } from '@vueuse/core';
+import CompanyAPI from 'dashboard/api/companies';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import { formatMesaName } from 'dashboard/helper/mesaName';
 import HelpButton from 'dashboard/components-next/help/HelpButton.vue';
 
@@ -22,13 +24,12 @@ const emit = defineEmits(['close', 'created', 'openAddModule']);
 
 const { t } = useI18n();
 const store = useStore();
-const companiesStore = useCompaniesStore();
 
 const step = ref(1);
 const isSubmitting = ref(false);
 
 const name = ref('');
-const companyId = ref(null);
+const companyId = ref('');
 const teamId = ref(props.initialTeamId);
 const projectModuleId = ref(null);
 const startDate = ref(new Date().toISOString().split('T')[0]);
@@ -50,12 +51,36 @@ const categories = computed(() => {
   return store.getters['ticketColumns/getCategories'](teamId.value) || [];
 });
 
-const companies = computed(() => companiesStore.getCompaniesList || []);
+const companyOptions = ref([]);
+
+const toCompanyOption = company => ({
+  label: company.name,
+  badge: company.codigo || undefined,
+  value: company.id,
+});
+
+const fetchCompanyOptions = async query => {
+  try {
+    const {
+      data: { payload },
+    } = query
+      ? await CompanyAPI.search(query)
+      : await CompanyAPI.get({ page: 1 });
+    companyOptions.value = (payload || []).map(toCompanyOption);
+  } catch {
+    companyOptions.value = [];
+  }
+};
+
+const handleCompanyOpen = () => fetchCompanyOptions('');
+const handleCompanySearch = useDebounceFn(
+  query => fetchCompanyOptions(query?.trim() || ''),
+  300
+);
 
 onMounted(async () => {
   store.dispatch('teams/get');
   store.dispatch('projectModules/get');
-  companiesStore.get({ page: 1 });
   if (teamId.value) {
     store.dispatch('teamMembers/get', { teamId: teamId.value });
     store.dispatch('ticketColumns/fetchCategories', teamId.value);
@@ -218,15 +243,15 @@ const submitProject = async () => {
           <label class="text-xs font-medium text-n-slate-12">
             {{ t('PROJECTS.FORM.COMPANY.LABEL') }}
           </label>
-          <select
+          <ComboBox
             v-model="companyId"
-            class="h-10 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
-          >
-            <option :value="null">{{ t('PROJECTS.FORM.COMPANY.NONE') }}</option>
-            <option v-for="comp in companies" :key="comp.id" :value="comp.id">
-              {{ comp.name }}
-            </option>
-          </select>
+            :options="companyOptions"
+            :placeholder="t('PROJECTS.FORM.COMPANY.NONE')"
+            :search-placeholder="t('PROJECTS.FORM.COMPANY.SEARCH_PLACEHOLDER')"
+            use-api-results
+            @open="handleCompanyOpen"
+            @search="handleCompanySearch"
+          />
         </div>
 
         <!-- Mesa de Servico -->
