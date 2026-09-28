@@ -55,7 +55,9 @@ const montar = () =>
   });
 
 const botao = (wrapper, label) =>
-  wrapper.findAll('button.acao').find(b => b.attributes('data-label') === label);
+  wrapper
+    .findAll('button.acao')
+    .find(b => b.attributes('data-label') === label);
 
 beforeEach(() => {
   // O jsdom nao tem Notification, e sem ela o componente nao desenha nada -
@@ -81,9 +83,9 @@ describe('PushNotificationSetting', () => {
 
     await wrapper.find('input.toggle').trigger('change');
 
-    expect(
-      botao(wrapper, 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.SAVE')
-    ).not.toBe(undefined);
+    expect(botao(wrapper, 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.SAVE')).not.toBe(
+      undefined
+    );
   });
 
   // O ponto central: a decisão vai para o usuário, não para o navegador.
