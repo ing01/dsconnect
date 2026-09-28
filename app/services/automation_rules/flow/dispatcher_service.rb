@@ -37,6 +37,10 @@ class AutomationRules::Flow::DispatcherService
       # SIM cai nas acoes classicas de proposito (design original): um contato
       # bloqueado nao entra no fluxo, mas a regra pode ainda querer marcar algo.
       return false unless AutomationRules::Flow::BlockGateService.new(conversation: conversation).allowed?
+      # Conversa comecada pelo agente ("Nova Conversa") - quem fala primeiro
+      # e' a empresa, entao a resposta do cliente e' so a continuacao de um
+      # atendimento humano, nao uma triagem nova pra rodar por cima.
+      return false if agent_initiated?(conversation)
       # Fora do horario de atendimento (Configuracao de Atendimento), a triagem
       # nem comeca - o cliente so recebe o aviso de offline e a conversa cai na
       # fila esperando o proximo horario. So vale pra COMECAR um fluxo: uma
@@ -64,6 +68,13 @@ class AutomationRules::Flow::DispatcherService
     # do atendente responderia a pergunta no lugar dela.
     def resume(message:)
       return false unless message.incoming?
+      # Mesma regra do `agent_initiated?` em `start`, aplicada a uma triagem
+      # que ja estava esperando resposta ANTES do agente puxar a conversa pra
+      # si por "Nova Conversa" (ex: numero com `lock_to_single_conversation`,
+      # onde a mesma Conversation e' reaproveitada) - sem isso, a resposta do
+      # cliente ainda destrancava a pergunta antiga do bot por cima do
+      # atendimento manual que acabou de comecar.
+      return false if agent_initiated?(message.conversation)
 
       runs = AutomationFlowRun.waiting.where(conversation_id: message.conversation_id)
       return false if runs.empty?
@@ -86,6 +97,12 @@ class AutomationRules::Flow::DispatcherService
     end
 
     private
+
+    # Marcado por `Api::V1::Accounts::ConversationsController#mark_as_agent_initiated`
+    # quando a conversa comeca pelo botao "Nova Conversa" do dashboard.
+    def agent_initiated?(conversation)
+      conversation.additional_attributes['agent_initiated'].present?
+    end
 
     def live_run(rule:, conversation:)
       AutomationFlowRun.live.find_by(automation_rule_id: rule.id, conversation_id: conversation.id)

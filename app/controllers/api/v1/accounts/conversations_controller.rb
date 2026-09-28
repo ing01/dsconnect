@@ -40,6 +40,7 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   def create
     ActiveRecord::Base.transaction do
       @conversation = ConversationBuilder.new(params: params, contact_inbox: @contact_inbox).perform
+      mark_as_agent_initiated(@conversation)
       Messages::MessageBuilder.new(Current.user, @conversation, params[:message]).perform if params[:message].present?
     end
   end
@@ -200,6 +201,19 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     return true if @conversation.queue_id.present? && @conversation.queue&.manual?
 
     @conversation.account.automation_rules.where(active: true).any?(&:flow?)
+  end
+
+  # Chegar aqui so acontece por acao direta de um agente logado (botao "Nova
+  # Conversa") - diferente de uma conversa que chega sozinha pelo canal
+  # (Whatsapp/Email/API publica), aqui quem fala primeiro e' a empresa. Nao
+  # faz sentido o fluxo de automacao (Configuracoes > Automacoes > Fluxo, ex:
+  # pedir CNPJ) interromper a resposta do cliente por cima do atendente que
+  # ja iniciou a conversa manualmente - ver `AutomationRules::Flow::DispatcherService`.
+  def mark_as_agent_initiated(conversation)
+    return if conversation.additional_attributes['agent_initiated'].present?
+
+    conversation.additional_attributes['agent_initiated'] = true
+    conversation.save!
   end
 
   def conversation

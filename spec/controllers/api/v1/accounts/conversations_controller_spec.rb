@@ -3,6 +3,25 @@ require 'rails_helper'
 RSpec.describe 'Conversations API', type: :request do
   let(:account) { create(:account) }
 
+  describe 'POST /api/v1/accounts/{account.id}/conversations' do
+    let(:agent) { create(:user, account: account, role: :agent) }
+    let!(:api_channel) { create(:channel_api, account: account) }
+    let!(:inbox) { create(:inbox, channel: api_channel, account: account) }
+    let(:contact) { create(:contact, account: account) }
+
+    before { create(:inbox_member, user: agent, inbox: inbox) }
+
+    it 'marks the conversation as agent initiated, so the automation flow skips it' do
+      post "/api/v1/accounts/#{account.id}/conversations",
+           params: { contact_id: contact.id, inbox_id: inbox.id },
+           headers: agent.create_new_auth_token,
+           as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(Conversation.last.additional_attributes['agent_initiated']).to be(true)
+    end
+  end
+
   describe 'GET /api/v1/accounts/{account.id}/conversations' do
     context 'when it is an unauthenticated user' do
       it 'returns unauthorized' do
