@@ -11,6 +11,7 @@ const props = defineProps({
   canUpdate: { type: Boolean, default: true },
   canAddSlaHours: { type: Boolean, default: false },
   currentUserId: { type: [Number, String], default: null },
+  canDelete: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['back', 'action', 'editTitle']);
@@ -82,6 +83,7 @@ const subject = computed(() =>
           :can-update="canUpdate"
           :can-add-sla-hours="canAddSlaHours"
           :current-user-id="currentUserId"
+          :can-delete="canDelete"
           @action="emit('action', $event)"
         />
       </div>

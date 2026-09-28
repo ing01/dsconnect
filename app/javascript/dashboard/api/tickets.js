@@ -7,6 +7,15 @@ class TicketsAPI extends ApiClient {
     super('tickets', { accountScoped: true });
   }
 
+  // Overrides ApiClient#delete: the parent's own delete confirm offers a
+  // choice when the ticket has children (destroy them too, or keep them
+  // unlinked - the default `nullify` behaviour if this is left out).
+  delete(id, { deleteChildren } = {}) {
+    return axios.delete(`${this.url}/${id}`, {
+      params: { delete_children: deleteChildren },
+    });
+  }
+
   getByConversation(conversationId) {
     return axios.get(this.url, {
       params: { conversation_id: conversationId },

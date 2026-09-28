@@ -816,6 +816,7 @@
       "CANCEL": "Cancel ticket",
       "CLOSE": "Close ticket",
       "REOPEN": "Reopen ticket",
+      "DELETE": "Delete ticket",
       "CLOSE_DIALOG": {
         "TITLE": "Close ticket #{number}?",
         "DESCRIPTION": "The ticket is marked as closed, recording the closing date and who closed it.",
@@ -908,6 +909,21 @@
         "REASON_PLACEHOLDER": "Optional",
         "BACK": "Back",
         "CONFIRM": "Cancel ticket"
+      },
+      "DELETE_DIALOG": {
+        "TITLE": "Delete ticket #{number}?",
+        "DESCRIPTION": "This cannot be undone. The ticket, its history and its attachments will be permanently deleted.",
+        "CHILDREN_WARNING": "This ticket has {n} linked child ticket. | This ticket has {n} linked child tickets.",
+        "KEEP_CHILDREN": {
+          "LABEL": "Keep the child tickets",
+          "DESCRIPTION": "The child tickets keep existing, just unlinked from this one."
+        },
+        "DELETE_CHILDREN": {
+          "LABEL": "Delete the child tickets too",
+          "DESCRIPTION": "The child tickets will also be permanently deleted."
+        },
+        "BACK": "Back",
+        "CONFIRM": "Delete ticket"
       },
       "TITLE_DIALOG": {
         "TITLE": "Edit ticket title",

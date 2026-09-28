@@ -816,6 +816,7 @@
       "CANCEL": "Cancelar ticket",
       "CLOSE": "Fechar ticket",
       "REOPEN": "Reabrir ticket",
+      "DELETE": "Excluir ticket",
       "CLOSE_DIALOG": {
         "TITLE": "Fechar ticket #{number}?",
         "DESCRIPTION": "O ticket será marcado como finalizado, com a data e o responsável pelo fechamento registrados.",
@@ -908,6 +909,21 @@
         "REASON_PLACEHOLDER": "Opcional",
         "BACK": "Voltar",
         "CONFIRM": "Cancelar ticket"
+      },
+      "DELETE_DIALOG": {
+        "TITLE": "Excluir ticket #{number}?",
+        "DESCRIPTION": "Esta ação não pode ser desfeita. O ticket, seu histórico e seus anexos serão apagados permanentemente.",
+        "CHILDREN_WARNING": "Este ticket tem {n} ticket filho vinculado. | Este ticket tem {n} tickets filhos vinculados.",
+        "KEEP_CHILDREN": {
+          "LABEL": "Manter os tickets filhos",
+          "DESCRIPTION": "Os tickets filhos continuam existindo, só deixam de estar vinculados a este."
+        },
+        "DELETE_CHILDREN": {
+          "LABEL": "Excluir os tickets filhos junto",
+          "DESCRIPTION": "Os tickets filhos também serão apagados permanentemente."
+        },
+        "BACK": "Voltar",
+        "CONFIRM": "Excluir ticket"
       },
       "TITLE_DIALOG": {
         "TITLE": "Editar título do ticket",
