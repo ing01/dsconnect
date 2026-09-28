@@ -15,6 +15,10 @@ class SuggestionPolicy < ApplicationPolicy
     true
   end
 
+  def update?
+    administrator? || suggestion_manager?
+  end
+
   def move?
     administrator? || suggestion_manager?
   end

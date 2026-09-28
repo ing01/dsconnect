@@ -501,7 +501,7 @@ Rails.application.routes.draw do
           resources :ticket_imports, only: [:create, :show]
 
           # Quadro de Sugestoes de melhoria - 1 por conta, nao aninhado em Team.
-          resources :suggestions, only: [:index, :create, :destroy] do
+          resources :suggestions, only: [:index, :create, :update, :destroy] do
             member do
               patch :move
             end

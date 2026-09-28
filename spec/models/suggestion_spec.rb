@@ -5,6 +5,7 @@ RSpec.describe Suggestion do
     it { is_expected.to belong_to(:account) }
     it { is_expected.to belong_to(:suggestion_column) }
     it { is_expected.to belong_to(:user) }
+    it { is_expected.to belong_to(:assignee).class_name('User').optional }
   end
 
   describe 'validations' do
@@ -16,6 +17,28 @@ RSpec.describe Suggestion do
 
       expect(suggestion).not_to be_valid
       expect(suggestion.errors[:suggestion_column]).to be_present
+    end
+
+    it 'accepts no assignee at all' do
+      suggestion = build(:suggestion, assignee: nil)
+      expect(suggestion).to be_valid
+    end
+
+    it 'accepts an administrator of the same account as assignee' do
+      column = create(:suggestion_column)
+      admin = create(:user, account: column.account, role: :administrator)
+      suggestion = build(:suggestion, suggestion_column: column, account: column.account, assignee: admin)
+
+      expect(suggestion).to be_valid
+    end
+
+    it 'rejects a plain agent as assignee' do
+      column = create(:suggestion_column)
+      agent = create(:user, account: column.account, role: :agent)
+      suggestion = build(:suggestion, suggestion_column: column, account: column.account, assignee: agent)
+
+      expect(suggestion).not_to be_valid
+      expect(suggestion.errors[:assignee]).to be_present
     end
   end
 

@@ -1,9 +1,29 @@
 {
   "SUGGESTIONS": {
     "HEADER": {
-      "TITLE": "Suggestions",
+      "TITLE": "Suggestions and Improvements",
       "SUBTITLE": "Board of improvement suggestions sent in by the team.",
-      "CONFIGURE_COLUMNS": "Configure columns"
+      "CONFIGURE_COLUMNS": "Configure columns",
+      "ADD_BUTTON": "Add"
+    },
+    "CREATE": {
+      "TITLE": "Add a suggestion or improvement",
+      "DESCRIPTION": "Use this to log something that's already being worked on, without going through the Home page form.",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Add",
+      "SUCCESS_MESSAGE": "Added to the board.",
+      "TITLE_FIELD": {
+        "LABEL": "Title",
+        "PLACEHOLDER": "Summarize it in a few words"
+      },
+      "DESCRIPTION_FIELD": {
+        "LABEL": "Description (optional)",
+        "PLACEHOLDER": "Describe it in more detail, if you'd like"
+      }
+    },
+    "ASSIGNEE": {
+      "LABEL": "Assignee",
+      "NONE": "No assignee"
     },
     "DETAIL": {
       "CLOSE": "Close",
@@ -16,7 +36,7 @@
       "DELETE_SUCCESS": "Suggestion deleted."
     },
     "SETTINGS": {
-      "HEADER": "Suggestions board columns",
+      "HEADER": "Suggestions and Improvements board columns",
       "DESCRIPTION": "Set up the columns of the improvement suggestions Kanban board (e.g. Ideas, Under review, Planned, In development, Done).",
       "ADD_COLUMN": "Add column",
       "ADD_TITLE": "Add column",

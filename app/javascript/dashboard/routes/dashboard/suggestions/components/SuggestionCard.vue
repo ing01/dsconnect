@@ -29,6 +29,17 @@ const dateLabel = computed(() =>
     >
       {{ suggestion.description }}
     </p>
+    <div
+      v-if="suggestion.assignee_name"
+      class="flex items-center gap-1 text-xs text-n-teal-11"
+    >
+      <span
+        class="flex size-5 flex-shrink-0 items-center justify-center rounded-full bg-n-teal-3 text-[10px] font-medium text-n-teal-11"
+      >
+        {{ suggestion.assignee_name.charAt(0).toUpperCase() }}
+      </span>
+      <span class="truncate">{{ suggestion.assignee_name }}</span>
+    </div>
     <div class="flex items-center justify-between gap-2">
       <div v-if="suggestion.user_name" class="flex items-center gap-1.5 min-w-0">
         <span

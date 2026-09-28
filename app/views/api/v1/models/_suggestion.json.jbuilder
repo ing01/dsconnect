@@ -5,4 +5,6 @@ json.position resource.position
 json.suggestion_column_id resource.suggestion_column_id
 json.user_id resource.user_id
 json.user_name resource.user&.name
+json.assignee_id resource.assignee_id
+json.assignee_name resource.assignee&.name
 json.created_at resource.created_at

@@ -10,6 +10,7 @@ import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import SuggestionBoard from '../components/SuggestionBoard.vue';
 import SuggestionDetailDialog from '../components/SuggestionDetailDialog.vue';
+import SuggestionCreateDialog from '../components/SuggestionCreateDialog.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -25,6 +26,8 @@ const suggestions = computed(() => store.getters['suggestions/getSuggestions']);
 const uiFlags = computed(() => store.getters['suggestions/getUIFlags']);
 
 const detailDialog = ref(null);
+const createDialog = ref(null);
+const isCreating = ref(false);
 
 const loadBoard = () => {
   store.dispatch('suggestionColumns/get');
@@ -34,6 +37,21 @@ const loadBoard = () => {
 onMounted(loadBoard);
 
 const openSuggestion = suggestion => detailDialog.value?.open(suggestion);
+
+const openCreateDialog = () => createDialog.value?.open();
+
+const createSuggestion = async ({ title, description, assigneeId }) => {
+  isCreating.value = true;
+  try {
+    await store.dispatch('suggestions/create', { title, description, assigneeId });
+    createDialog.value?.close();
+    useAlert(t('SUGGESTIONS.CREATE.SUCCESS_MESSAGE'));
+  } catch (error) {
+    useAlert(parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE'));
+  } finally {
+    isCreating.value = false;
+  }
+};
 
 const moveSuggestion = async ({ suggestionId, suggestionColumnId, position }) => {
   if (!canManage.value) return;
@@ -58,6 +76,15 @@ const deleteSuggestion = async suggestion => {
   }
 };
 
+const updateAssignee = async ({ id, assigneeId }) => {
+  try {
+    await store.dispatch('suggestions/updateAssignee', { id, assigneeId });
+  } catch (error) {
+    useAlert(parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE'));
+    loadBoard();
+  }
+};
+
 const goToColumnSettings = () => {
   router.push({ name: 'suggestion_columns_list' });
 };
@@ -74,15 +101,22 @@ const goToColumnSettings = () => {
           {{ t('SUGGESTIONS.HEADER.SUBTITLE') }}
         </p>
       </div>
-      <NextButton
-        v-if="canManage"
-        faded
-        slate
-        size="sm"
-        icon="i-lucide-settings"
-        :label="t('SUGGESTIONS.HEADER.CONFIGURE_COLUMNS')"
-        @click="goToColumnSettings"
-      />
+      <div v-if="canManage" class="flex items-center gap-2">
+        <NextButton
+          faded
+          slate
+          size="sm"
+          icon="i-lucide-settings"
+          :label="t('SUGGESTIONS.HEADER.CONFIGURE_COLUMNS')"
+          @click="goToColumnSettings"
+        />
+        <NextButton
+          size="sm"
+          icon="i-lucide-plus"
+          :label="t('SUGGESTIONS.HEADER.ADD_BUTTON')"
+          @click="openCreateDialog"
+        />
+      </div>
     </header>
 
     <main class="flex-1 flex flex-col min-h-0 min-w-0">
@@ -103,6 +137,13 @@ const goToColumnSettings = () => {
       ref="detailDialog"
       :can-manage="canManage"
       @delete="deleteSuggestion"
+      @update-assignee="updateAssignee"
+    />
+    <SuggestionCreateDialog
+      v-if="canManage"
+      ref="createDialog"
+      :is-loading="isCreating"
+      @submit="createSuggestion"
     />
   </div>
 </template>

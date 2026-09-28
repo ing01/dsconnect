@@ -29,17 +29,26 @@ export const actions = {
       commit(types.SET_SUGGESTIONS_UI_FLAG, { isFetching: false });
     }
   },
-  create: async ({ commit }, { title, description }) => {
+  // `assigneeId` so tem efeito quando quem envia administra o quadro - o
+  // backend ignora o campo silenciosamente pra qualquer outro agente.
+  create: async ({ commit }, { title, description, assigneeId }) => {
     commit(types.SET_SUGGESTIONS_UI_FLAG, { isCreating: true });
     try {
       const response = await SuggestionsAPI.create({
-        suggestion: { title, description },
+        suggestion: { title, description, assignee_id: assigneeId },
       });
       commit(types.UPSERT_SUGGESTION, response.data);
       return response.data;
     } finally {
       commit(types.SET_SUGGESTIONS_UI_FLAG, { isCreating: false });
     }
+  },
+  updateAssignee: async ({ commit }, { id, assigneeId }) => {
+    const response = await SuggestionsAPI.update(id, {
+      suggestion: { assignee_id: assigneeId },
+    });
+    commit(types.UPSERT_SUGGESTION, response.data);
+    return response.data;
   },
   move: async ({ commit }, { id, suggestionColumnId, position }) => {
     const response = await SuggestionsAPI.move(id, {

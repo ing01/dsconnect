@@ -1,9 +1,29 @@
 {
   "SUGGESTIONS": {
     "HEADER": {
-      "TITLE": "Sugestões",
+      "TITLE": "Sugestões e Melhorias",
       "SUBTITLE": "Quadro de sugestões de melhoria enviadas pela equipe.",
-      "CONFIGURE_COLUMNS": "Configurar colunas"
+      "CONFIGURE_COLUMNS": "Configurar colunas",
+      "ADD_BUTTON": "Incluir"
+    },
+    "CREATE": {
+      "TITLE": "Incluir sugestão ou melhoria",
+      "DESCRIPTION": "Use pra registrar algo que já está sendo produzido no sistema, sem precisar passar pelo formulário da tela Principal.",
+      "CANCEL": "Cancelar",
+      "SUBMIT": "Incluir",
+      "SUCCESS_MESSAGE": "Incluído no quadro.",
+      "TITLE_FIELD": {
+        "LABEL": "Título",
+        "PLACEHOLDER": "Resuma em poucas palavras"
+      },
+      "DESCRIPTION_FIELD": {
+        "LABEL": "Descrição (opcional)",
+        "PLACEHOLDER": "Descreva com mais detalhes, se quiser"
+      }
+    },
+    "ASSIGNEE": {
+      "LABEL": "Responsável",
+      "NONE": "Sem responsável"
     },
     "DETAIL": {
       "CLOSE": "Fechar",
@@ -16,7 +36,7 @@
       "DELETE_SUCCESS": "Sugestão excluída."
     },
     "SETTINGS": {
-      "HEADER": "Colunas do quadro de Sugestões",
+      "HEADER": "Colunas do quadro de Sugestões e Melhorias",
       "DESCRIPTION": "Defina as colunas do quadro Kanban de sugestões de melhoria (ex: Ideias, Em análise, Planejado, Em desenvolvimento, Concluído).",
       "ADD_COLUMN": "Adicionar coluna",
       "ADD_TITLE": "Adicionar coluna",

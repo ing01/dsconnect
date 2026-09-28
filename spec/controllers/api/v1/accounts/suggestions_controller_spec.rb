@@ -44,6 +44,71 @@ RSpec.describe 'Suggestions API', type: :request do
       expect(account.suggestion_columns.count).to eq(5)
       expect(Suggestion.last.suggestion_column).to eq(account.suggestion_columns.order(:position).first)
     end
+
+    it 'ignores assignee_id sent by a plain agent' do
+      post "/api/v1/accounts/#{account.id}/suggestions",
+           params: { suggestion: { title: 'Melhoria', assignee_id: administrator.id } },
+           headers: agent.create_new_auth_token,
+           as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(Suggestion.last.assignee_id).to be_nil
+    end
+
+    it 'lets an administrator set the assignee on creation' do
+      post "/api/v1/accounts/#{account.id}/suggestions",
+           params: { suggestion: { title: 'Melhoria', assignee_id: administrator.id } },
+           headers: administrator.create_new_auth_token,
+           as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(Suggestion.last.assignee).to eq(administrator)
+    end
+  end
+
+  describe 'PATCH /api/v1/accounts/{account.id}/suggestions/:id' do
+    it 'forbids a plain agent from setting the assignee' do
+      suggestion = create(:suggestion, suggestion_column: column, account: account)
+
+      patch "/api/v1/accounts/#{account.id}/suggestions/#{suggestion.id}",
+            params: { suggestion: { assignee_id: administrator.id } },
+            headers: agent.create_new_auth_token,
+            as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it 'lets an administrator set and clear the assignee' do
+      suggestion = create(:suggestion, suggestion_column: column, account: account)
+
+      patch "/api/v1/accounts/#{account.id}/suggestions/#{suggestion.id}",
+            params: { suggestion: { assignee_id: administrator.id } },
+            headers: administrator.create_new_auth_token,
+            as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(suggestion.reload.assignee).to eq(administrator)
+
+      patch "/api/v1/accounts/#{account.id}/suggestions/#{suggestion.id}",
+            params: { suggestion: { assignee_id: '' } },
+            headers: administrator.create_new_auth_token,
+            as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(suggestion.reload.assignee_id).to be_nil
+    end
+
+    it 'rejects a plain agent as assignee' do
+      suggestion = create(:suggestion, suggestion_column: column, account: account)
+
+      patch "/api/v1/accounts/#{account.id}/suggestions/#{suggestion.id}",
+            params: { suggestion: { assignee_id: agent.id } },
+            headers: administrator.create_new_auth_token,
+            as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(suggestion.reload.assignee_id).to be_nil
+    end
   end
 
   describe 'PATCH /api/v1/accounts/{account.id}/suggestions/:id/move' do
