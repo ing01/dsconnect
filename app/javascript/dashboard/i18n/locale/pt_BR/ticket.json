@@ -1059,6 +1059,12 @@
         "CATEGORY_KEEP": "Manter a que o cliente informou",
         "CONFIRM": "Encaminhar"
       }
+    },
+    "SIDEBAR_SEARCH": {
+      "LABEL": "Buscar chamado pelo número",
+      "PLACEHOLDER": "Nº do chamado",
+      "NOT_FOUND": "Nenhum chamado com o número {number}.",
+      "ERROR": "Não foi possível buscar o chamado. Tente novamente."
     }
   }
 }
