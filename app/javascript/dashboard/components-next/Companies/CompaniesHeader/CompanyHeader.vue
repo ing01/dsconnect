@@ -4,6 +4,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import CompanySortMenu from './components/CompanySortMenu.vue';
+import CompanyPriorityFilter from './components/CompanyPriorityFilter.vue';
 
 const { t } = useI18n();
 
@@ -13,9 +14,15 @@ defineProps({
   headerTitle: { type: String, required: true },
   activeSort: { type: String, default: 'last_activity_at' },
   activeOrdering: { type: String, default: '' },
+  activeClientLevel: { type: [String, Number], default: '' },
 });
 
-const emit = defineEmits(['search', 'update:sort', 'create']);
+const emit = defineEmits([
+  'search',
+  'update:sort',
+  'update:clientLevel',
+  'create',
+]);
 </script>
 
 <template>
@@ -47,6 +54,10 @@ const emit = defineEmits(['search', 'update:sort', 'create']);
           </Input>
         </div>
         <div class="flex items-center flex-shrink-0 gap-2">
+          <CompanyPriorityFilter
+            :active-client-level="activeClientLevel"
+            @update:client-level="emit('update:clientLevel', $event)"
+          />
           <CompanySortMenu
             :active-sort="activeSort"
             :active-ordering="activeOrdering"

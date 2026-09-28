@@ -127,12 +127,12 @@ export const useCompaniesStore = createStore({
         (this.contactSearchRequestToken || 0) + 1;
     },
 
-    async get({ page = 1, sort = 'name' } = {}) {
+    async get({ page = 1, sort = 'name', clientLevel = '' } = {}) {
       this.setUIFlag({ fetchingList: true });
       try {
         const {
           data: { payload, meta },
-        } = await CompanyAPI.get({ page, sort });
+        } = await CompanyAPI.get({ page, sort, clientLevel });
         this.records = camelizeCompany(payload);
         this.setMeta(meta);
         return this.records;
@@ -223,12 +223,12 @@ export const useCompaniesStore = createStore({
       }
     },
 
-    async search({ search, page = 1, sort = 'name' }) {
+    async search({ search, page = 1, sort = 'name', clientLevel = '' }) {
       this.setUIFlag({ fetchingList: true });
       try {
         const {
           data: { payload, meta },
-        } = await CompanyAPI.search(search, page, sort);
+        } = await CompanyAPI.search(search, page, sort, clientLevel);
         this.records = camelizeCompany(payload);
         this.setMeta(meta);
         return this.records;

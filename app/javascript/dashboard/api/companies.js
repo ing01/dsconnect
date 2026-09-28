@@ -14,13 +14,13 @@ class CompanyAPI extends ApiClient {
   }
 
   get(params = {}) {
-    const { page = 1, sort = 'name' } = params;
-    const requestURL = `${this.url}?${buildParams({ page, sort })}`;
+    const { page = 1, sort = 'name', clientLevel = '' } = params;
+    const requestURL = `${this.url}?${buildParams({ page, sort, client_level: clientLevel })}`;
     return axios.get(requestURL);
   }
 
-  search(query = '', page = 1, sort = 'name') {
-    const requestURL = `${this.url}/search?${buildParams({ q: query, page, sort })}`;
+  search(query = '', page = 1, sort = 'name', clientLevel = '') {
+    const requestURL = `${this.url}/search?${buildParams({ q: query, page, sort, client_level: clientLevel })}`;
     return axios.get(requestURL);
   }
 

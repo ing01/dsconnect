@@ -18,6 +18,12 @@
         "DESCENDING": "Decrescente"
       }
     },
+    "FILTER_BY_PRIORITY": {
+      "LABEL": "Filtrar por prioridade",
+      "OPTIONS": {
+        "ALL": "Todas as prioridades"
+      }
+    },
     "SEARCH_PLACEHOLDER": "Buscar empresas...",
     "LOADING": "Carregando empresas...",
     "UNNAMED": "Empresa sem nome",

@@ -18,6 +18,12 @@
         "DESCENDING": "Descending"
       }
     },
+    "FILTER_BY_PRIORITY": {
+      "LABEL": "Filter by priority",
+      "OPTIONS": {
+        "ALL": "All priorities"
+      }
+    },
     "SEARCH_PLACEHOLDER": "Search companies...",
     "LOADING": "Loading companies...",
     "UNNAMED": "Unnamed Company",
