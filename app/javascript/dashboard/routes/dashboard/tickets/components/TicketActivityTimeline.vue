@@ -51,8 +51,23 @@ const isLoading = computed(
 
 const chave = tipo => (tipo || '').toUpperCase();
 
-const titulo = activity => {
+// A comunicacao com o cliente produz a MESMA atividade tenha saido por e-mail
+// ou nao - o que muda e o `meta.notify_customer`. Sem esta distincao o Historico
+// diria "Comunicacao enviada" sobre algo que ninguem enviou.
+const REGISTRADA_SEM_EMAIL = {
+  CUSTOMER_COMMUNICATION_SENT: 'CUSTOMER_COMMUNICATION_REGISTERED',
+};
+
+const tipoEfetivo = activity => {
   const tipo = chave(activity.activity_type);
+  if (activity.meta?.notify_customer === false && REGISTRADA_SEM_EMAIL[tipo]) {
+    return REGISTRADA_SEM_EMAIL[tipo];
+  }
+  return tipo;
+};
+
+const titulo = activity => {
+  const tipo = tipoEfetivo(activity);
   if (te(`TICKET.ACTIVITY.TITLES.${tipo}`)) {
     return t(`TICKET.ACTIVITY.TITLES.${tipo}`);
   }

@@ -22,6 +22,7 @@ const FILTERED_UNREAD_COUNTS_REFRESH_RETRY_MS = 30000;
 const FILTERED_UNREAD_COUNTS_REFRESH_RETRY_JITTER_MS = 15000;
 const MENTION_UNREAD_COUNTS_REFETCH_DELAY_MS =
   UNREAD_COUNTS_REFETCH_THROTTLE_MS;
+const TRIAGE_COUNT_REFETCH_THROTTLE_MS = 5000;
 const getFilteredUnreadCountsRefreshRetryDelay = () =>
   FILTERED_UNREAD_COUNTS_REFRESH_RETRY_MS +
   Math.random() * FILTERED_UNREAD_COUNTS_REFRESH_RETRY_JITTER_MS;
@@ -36,6 +37,7 @@ class ActionCableConnector extends BaseActionCableConnector {
     this.mentionUnreadCountsFetchTimer = null;
     this.mentionUnreadCountsRetryTimer = null;
     this.filteredUnreadCountsRetryTimer = null;
+    this.triageCountFetchTimer = null;
     this.events = {
       'message.created': this.onMessageCreated,
       'message.updated': this.onMessageUpdated,
@@ -379,6 +381,38 @@ class ActionCableConnector extends BaseActionCableConnector {
 
     this.app.$store.dispatch('ticketColumns/applyRealtimeTicket', ticket);
     this.app.$store.dispatch('tickets/upsertFromRealtime', ticket);
+    this.refreshTriageCountIfRelevant(ticket.pending_triage === true);
+  };
+
+  // O contador da Triagem aparece no menu lateral de TODA tela, entao ele nao
+  // pode depender de alguem abrir a fila para ficar correto.
+  //
+  // Reconta no servidor em vez de somar e subtrair aqui: o evento diz como o
+  // chamado esta, nunca como ele estava, e um contador mantido por diferenca
+  // erra para sempre a partir do primeiro evento que se perder.
+  //
+  // `naFila` e o chamado que esta em triagem agora - acabou de chegar, ou foi
+  // tocado enquanto espera. Se ele nao esta na fila E o contador ja marca zero,
+  // nao ha o que mudar e nem perguntamos: evento de ticket e o mais comum do
+  // sistema, e recontar em cada um seria uma consulta por clique alheio.
+  refreshTriageCountIfRelevant = naFila => {
+    const contadorTemAlgo =
+      this.app.$store.getters['tickets/getTriageCount'] > 0;
+    if (!naFila && !contadorTemAlgo) return;
+
+    this.throttledFetchTriageCount();
+  };
+
+  // Uma consulta por janela, e sempre uma ULTIMA depois da rajada: um chamado
+  // aceito no fim de uma sequencia de eventos nao pode deixar o numero velho na
+  // tela.
+  throttledFetchTriageCount = () => {
+    if (this.triageCountFetchTimer) return;
+
+    this.triageCountFetchTimer = setTimeout(() => {
+      this.triageCountFetchTimer = null;
+      this.app.$store.dispatch('tickets/fetchTriageCount').catch(() => {});
+    }, TRIAGE_COUNT_REFETCH_THROTTLE_MS);
   };
 
   // O ticket foi apagado: sai do quadro e da lista. So o id chega, porque o
@@ -389,6 +423,9 @@ class ActionCableConnector extends BaseActionCableConnector {
 
     this.app.$store.dispatch('ticketColumns/removeRealtimeTicket', id);
     this.app.$store.dispatch('tickets/removeFromRealtime', id);
+    // So o id chega, entao nao ha como saber se o apagado estava na fila. Se a
+    // fila tem algo, reconta; se esta vazia, nada podia sair dela.
+    this.refreshTriageCountIfRelevant(false);
   };
 
   // Chat Interno. O mesmo tratamento serve para mensagem nova e para mensagem

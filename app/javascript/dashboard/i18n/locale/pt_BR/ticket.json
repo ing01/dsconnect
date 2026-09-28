@@ -200,7 +200,8 @@
         "TEAM_CHANGED": "Ticket alterado",
         "TITLE_CHANGED": "Ticket alterado",
         "TRANSFERRED": "Ticket transferido",
-        "UNBLOCKED": "Impedimento retirado"
+        "UNBLOCKED": "Impedimento retirado",
+        "CUSTOMER_COMMUNICATION_REGISTERED": "Comunicação registrada (sem e-mail)"
       },
       "FIELDS": {
         "AUTOMATION_NOTE": "Nota",
@@ -1040,9 +1041,13 @@
       "STATUS": {
         "SENT": "Enviada",
         "FAILED": "Falhou",
-        "PENDING": "Pendente"
+        "PENDING": "Pendente",
+        "SKIPPED": "Sem e-mail"
       },
-      "FROM_CUSTOMER": "Resposta de {name}"
+      "FROM_CUSTOMER": "Resposta de {name}",
+      "NOTIFY": "Enviar e-mail ao cliente",
+      "NOTIFY_HINT": "Desmarque para apenas registrar a mensagem no chamado. Ela continua visível para o cliente na Área do Cliente, mas nenhum e-mail é enviado.",
+      "REGISTER": "Registrar sem enviar"
     },
     "EXPORT": {
       "LABEL": "Exportar",

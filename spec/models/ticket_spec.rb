@@ -58,6 +58,16 @@ RSpec.describe Ticket do
       expect(data[:display_id]).to eq(ticket.display_id)
       expect(data[:status]).to eq('open')
     end
+
+    # O contador da Triagem no menu lateral se serve deste campo para saber se a
+    # fila mudou. Sem ele, o numero so ficaria correto ao recarregar a pagina.
+    it 'says whether the ticket is waiting in the triage queue' do
+      esperando = create(:ticket, pending_triage: true)
+      triado = create(:ticket)
+
+      expect(esperando.push_event_data[:pending_triage]).to be(true)
+      expect(triado.push_event_data[:pending_triage]).to be(false)
+    end
   end
 
   describe 'status enum' do

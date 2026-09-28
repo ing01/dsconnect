@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import Button from 'dashboard/components-next/button/Button.vue';
+import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
 import FullEditor from 'dashboard/components/widgets/WootWriter/FullEditor.vue';
@@ -17,6 +18,11 @@ const store = useStore();
 
 const body = ref('');
 const isSending = ref(false);
+// Enviar por e-mail e o caso comum, entao ja vem marcado. Desmarcado, a
+// mensagem e apenas REGISTRADA: ela continua aparecendo para o cliente na Area
+// do Cliente, e serve para quando a equipe ja falou com ele por telefone ou
+// WhatsApp e quer deixar isso no chamado.
+const notificarCliente = ref(true);
 
 // Messages that went TO the customer, kept apart from the internal thread.
 const communications = computed(
@@ -32,7 +38,14 @@ const email = computed(() => props.ticket.customer_email);
 
 const canSend = computed(() => !!email.value && !!body.value.trim());
 
-const STATUS_COLORS = { sent: 'teal', failed: 'ruby', pending: 'amber' };
+// `skipped` nao e falha nem pendencia - e a mensagem que ninguem mandou por
+// e-mail de proposito. Cinza justamente por isso: nada a corrigir.
+const STATUS_COLORS = {
+  sent: 'teal',
+  skipped: 'slate',
+  failed: 'ruby',
+  pending: 'amber',
+};
 
 const formatDate = timestamp =>
   timestamp ? new Date(timestamp * 1000).toLocaleString() : '—';
@@ -48,6 +61,7 @@ const send = async () => {
       ticketId: props.ticket.id,
       body: body.value,
       closing: false,
+      notifyCustomer: notificarCliente.value,
     });
     body.value = '';
   } catch (error) {
@@ -85,12 +99,31 @@ const send = async () => {
           :placeholder="t('TICKET.CLOSE.MESSAGE_PLACEHOLDER')"
         />
 
-        <div class="flex justify-end">
+        <!-- A escolha fica JUNTO do botao, e nao no topo do bloco: e a ultima
+             coisa decidida antes de enviar, e o rotulo do botao muda com ela. -->
+        <div class="flex flex-wrap items-center justify-between gap-3 min-w-0">
+          <label class="flex items-start gap-2 cursor-pointer min-w-0">
+            <Checkbox v-model="notificarCliente" class="mt-0.5 flex-shrink-0" />
+            <span class="flex flex-col gap-0.5 min-w-0">
+              <span class="text-sm text-n-slate-12">
+                {{ t('TICKET.COMMUNICATION.NOTIFY') }}
+              </span>
+              <span v-if="!notificarCliente" class="text-xs text-n-slate-10">
+                {{ t('TICKET.COMMUNICATION.NOTIFY_HINT') }}
+              </span>
+            </span>
+          </label>
+
           <Button
             size="sm"
+            class="flex-shrink-0"
             :is-loading="isSending"
             :disabled="!canSend"
-            :label="t('TICKET.COMMUNICATION.SEND')"
+            :label="
+              notificarCliente
+                ? t('TICKET.COMMUNICATION.SEND')
+                : t('TICKET.COMMUNICATION.REGISTER')
+            "
             @click="send"
           />
         </div>

@@ -8,6 +8,33 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'triage-sidebar-counter',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Contador de chamados na Triagem',
+    description:
+      'O item "Triagem" no menu lateral agora mostra quantos chamados estão esperando aceite, do mesmo jeito que a Caixa de entrada mostra as notificações não lidas. Dá para saber que chegou algo sem abrir a tela, e o número se atualiza sozinho quando um chamado entra na fila ou é encaminhado.',
+  },
+  {
+    id: 'customer-communication-email-flag',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Escolher se a comunicação vai por e-mail',
+    description:
+      'Na aba Comunicação e no modal de fechamento do ticket há uma opção nova: "Enviar e-mail ao cliente", marcada por padrão. Desmarcando, a mensagem é apenas registrada no chamado - ela continua aparecendo para o cliente na Área do Cliente e continua valendo para fechar o ticket, mas nenhum e-mail é enviado. Serve para quando a equipe já falou com o cliente por telefone ou WhatsApp e quer só deixar isso registrado. Na lista, essas mensagens aparecem marcadas como "Sem e-mail", e o Histórico do ticket diz "Comunicação registrada (sem e-mail)".',
+  },
+  {
+    id: 'ticket-close-no-file-prompt',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Encerrar chamado sem abrir a tela de enviar arquivo',
+    description:
+      'No modal de encerramento, clicar na área da mensagem abria a tela de escolher arquivo do computador. Era o campo da mensagem que estava ligado por engano ao envio de imagem do editor de artigos. Agora o clique só coloca o cursor no texto - anexo não faz parte do encerramento.',
+  },
+  {
     id: 'assignee-level-on-create',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',

@@ -1,5 +1,10 @@
 # Sends a message to the ticket's customer and records what actually happened.
 #
+# `notify_customer: false` registra a mensagem sem enviar e-mail nenhum. A
+# mensagem continua existindo para o cliente - ela aparece na Area do Cliente
+# como qualquer outra -, e serve para quando a equipe ja falou com ele por
+# telefone ou WhatsApp e quer registrar isso no chamado.
+#
 # Delivery is synchronous on purpose. Chatwoot's own outgoing e-mail path
 # (Email::SendOnEmailService) does the same, for the same reason: a background
 # job cannot tell the caller whether the message went out, and closing a ticket
@@ -12,15 +17,21 @@ class Tickets::CustomerCommunicationService
   # positive the closing rule must not have.
   class NotDelivered < StandardError; end
 
-  pattr_initialize [:ticket!, :user!, :body!, :closing!]
+  pattr_initialize [:ticket!, :user!, :body!, :closing!, :notify_customer]
 
   def perform
     communication = build_communication
-    deliver(communication)
+    notify_customer? ? deliver(communication) : register_only(communication)
     communication
   end
 
   private
+
+  # Ausente quer dizer enviar - e o que sempre aconteceu, e o que quem chama a
+  # API sem conhecer o campo espera. So um `false` explicito deixa de enviar.
+  def notify_customer?
+    notify_customer.nil? || notify_customer
+  end
 
   def contact
     @contact ||= ticket.requester_contact
@@ -33,8 +44,22 @@ class Tickets::CustomerCommunicationService
       # recognises the thread from the subject alone, and no agent has to type
       # it.
       to_email: ticket.customer_email, subject: ticket.display_subject, body: body,
-      closing: closing, status: 'pending'
+      closing: closing, status: 'pending', notify_customer: notify_customer?
     )
+  end
+
+  # Sem e-mail: a mensagem passa a existir do mesmo jeito - fica no chamado e
+  # aparece na Area do Cliente -, so nao sai pelo correio. Vale para o
+  # fechamento e cumpre o SLA de atendimento pelo mesmo motivo: o cliente TEM o
+  # que ler. O que nunca acontece aqui e uma entrega, e por isso o status e
+  # `skipped` e nao `sent`.
+  def register_only(communication)
+    communication.mark_skipped!
+    log_activity(communication)
+    fulfil_response_sla(communication)
+  rescue StandardError => e
+    communication.mark_failed!(e.message)
+    raise
   end
 
   # The record is written first and only marked `sent` once the delivery
@@ -80,7 +105,10 @@ class Tickets::CustomerCommunicationService
       account_id: ticket.account_id, user: user,
       activity_type: :customer_communication_sent,
       new_value: communication.to_email,
-      meta: { subject: communication.subject, closing: communication.closing }
+      # `notify_customer` distingue, no Historico, o que saiu por e-mail do que
+      # foi apenas registrado - as duas coisas produzem a mesma atividade.
+      meta: { subject: communication.subject, closing: communication.closing,
+              notify_customer: communication.notify_customer }
     )
   end
 end

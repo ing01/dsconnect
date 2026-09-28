@@ -124,15 +124,29 @@ class TicketsAPI extends ApiClient {
   // left, which is what the closing flow depends on.
   // No subject: the server titles every customer message with the ticket
   // header, the closing notice included.
-  sendCustomerCommunication(ticketId, { body, closing }) {
+  // `notifyCustomer` false registra a mensagem sem enviar e-mail: o cliente
+  // continua vendo o texto na Area do Cliente. Ausente quer dizer enviar - e o
+  // servidor entende do mesmo jeito.
+  sendCustomerCommunication(
+    ticketId,
+    { body, closing, notifyCustomer = true }
+  ) {
     return axios.post(`${this.url}/${ticketId}/customer_communications`, {
       body,
       closing,
+      notify_customer: notifyCustomer,
     });
   }
 
   // Impedimento: o ticket para de andar mas continua aberto, entao isto nao
   // pertence ao grupo de cancelar/fechar - ver TicketBlocking no servidor.
+  // Quantos chamados esperam na Triagem. So o numero: quem quer a fila usa o
+  // `get({ pending_triage: true })`, e o contador do menu lateral nao precisa
+  // carregar chamado nenhum para mostrar um numero.
+  triageCount() {
+    return axios.get(`${this.url}/triage_count`);
+  }
+
   // Triagem: aceita o chamado do cliente e o encaminha, numa acao so.
   approveTriage(id, { teamId, ticketColumnId, ticketCategoryId }) {
     return axios.patch(`${this.url}/${id}/approve_triage`, {

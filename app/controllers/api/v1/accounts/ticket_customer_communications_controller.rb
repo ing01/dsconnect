@@ -17,7 +17,7 @@ class Api::V1::Accounts::TicketCustomerCommunicationsController < Api::V1::Accou
 
     @communication = Tickets::CustomerCommunicationService.new(
       ticket: @ticket, user: Current.user, body: params[:body],
-      closing: closing_param
+      closing: closing_param, notify_customer: notify_customer_param
     ).perform
     render 'show', status: :created
   rescue StandardError => e
@@ -32,6 +32,15 @@ class Api::V1::Accounts::TicketCustomerCommunicationsController < Api::V1::Accou
   # campo, entao so quem chama a API direto batia nisso.
   def closing_param
     ActiveModel::Type::Boolean.new.cast(params[:closing]) || false
+  end
+
+  # Mesmo cuidado do `closing_param`, com o default invertido: ausente quer dizer
+  # ENVIAR. Quem chama a API sem conhecer o campo continua recebendo o
+  # comportamento de sempre; so um `false` explicito registra sem e-mail.
+  def notify_customer_param
+    return true unless params.key?(:notify_customer)
+
+    ActiveModel::Type::Boolean.new.cast(params[:notify_customer]) || false
   end
 
   def fetch_ticket
