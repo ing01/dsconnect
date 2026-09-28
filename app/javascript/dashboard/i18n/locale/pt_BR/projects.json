@@ -73,7 +73,8 @@
       },
       "IMPLEMENTER": {
         "LABEL": "Implantador",
-        "NONE": "Sem implantador"
+        "NONE": "Sem implantador",
+        "SEARCH_PLACEHOLDER": "Buscar por nome..."
       },
       "COMPLETION_TYPE": {
         "LABEL": "Tipo (o que foi finalizado)",

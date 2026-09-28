@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { usePolicy } from 'dashboard/composables/usePolicy';
-import { useCompaniesStore } from 'dashboard/stores/companies';
+import { useDebounceFn } from '@vueuse/core';
+import CompanyAPI from 'dashboard/api/companies';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { useRouter } from 'vue-router';
 import { frontendURL } from 'dashboard/helper/URLHelper';
@@ -12,6 +13,7 @@ import { formatMesaName } from 'dashboard/helper/mesaName';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
+import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 
 const props = defineProps({
   projectId: {
@@ -26,14 +28,43 @@ const { t } = useI18n();
 const store = useStore();
 const router = useRouter();
 const { checkPermissions } = usePolicy();
-const companiesStore = useCompaniesStore();
 
 const isLoading = ref(true);
 const project = computed(() => store.getters['projects/getSelectedProject']);
 const accountId = computed(() => store.getters['getCurrentAccountId']);
 const agents = computed(() => store.getters['agents/getAgents'] || []);
 const teams = computed(() => store.getters['teams/getTeams'] || []);
-const companies = computed(() => companiesStore.getCompaniesList || []);
+
+const agentOptions = computed(() =>
+  agents.value.map(agent => ({ label: agent.name, value: agent.id }))
+);
+
+const companyOptions = ref([]);
+
+const toCompanyOption = company => ({
+  label: company.name,
+  badge: company.codigo || undefined,
+  value: company.id,
+});
+
+const fetchCompanyOptions = async query => {
+  try {
+    const {
+      data: { payload },
+    } = query
+      ? await CompanyAPI.search(query)
+      : await CompanyAPI.get({ page: 1 });
+    companyOptions.value = (payload || []).map(toCompanyOption);
+  } catch {
+    companyOptions.value = [];
+  }
+};
+
+const handleCompanyOpen = () => fetchCompanyOptions('');
+const handleCompanySearch = useDebounceFn(
+  query => fetchCompanyOptions(query?.trim() || ''),
+  300
+);
 
 // Nome, cliente, equipe e datas so podem ser alterados depois de criado por
 // quem administra projetos - editar isso por engano muda de qual Empresa/Mesa
@@ -69,7 +100,6 @@ onMounted(async () => {
   store.dispatch('agents/get');
   if (canManageProject.value) {
     store.dispatch('teams/get');
-    companiesStore.get({ page: 1 });
   }
   try {
     await store.dispatch('projects/show', props.projectId);
@@ -122,8 +152,7 @@ const saveField = async data => {
   }
 };
 
-const onImplementerChange = event => {
-  const value = event.target.value;
+const onImplementerSelect = value => {
   saveField({ implementer_id: value || null });
 };
 
@@ -139,6 +168,10 @@ const saveName = () => {
   saveField({ name: trimmed });
 };
 const saveCompany = () => saveField({ company_id: editCompanyId.value || null });
+const onCompanySelect = value => {
+  editCompanyId.value = value || null;
+  saveCompany();
+};
 const saveTeam = () => saveField({ team_id: editTeamId.value });
 const saveStartDate = () => saveField({ start_date: editStartDate.value || null });
 const saveDueDate = () => saveField({ due_date: editDueDate.value || null });
@@ -208,15 +241,19 @@ const currentStageColor = computed(() => {
       <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.COMPANY.LABEL') }}</span>
-          <select
+          <ComboBox
             v-if="canManageProject"
-            v-model="editCompanyId"
-            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
-            @change="saveCompany"
-          >
-            <option :value="null">{{ t('PROJECTS.FORM.COMPANY.NONE') }}</option>
-            <option v-for="comp in companies" :key="comp.id" :value="comp.id">{{ comp.name }}</option>
-          </select>
+            :model-value="editCompanyId"
+            :display-label="project.company_name"
+            :options="companyOptions"
+            :placeholder="t('PROJECTS.FORM.COMPANY.NONE')"
+            :search-placeholder="t('PROJECTS.FORM.COMPANY.SEARCH_PLACEHOLDER')"
+            use-api-results
+            class="[&>div>button]:h-7 [&>div>button]:!px-2 [&>div>button]:text-xs [&>div>button]:font-medium"
+            @open="handleCompanyOpen"
+            @search="handleCompanySearch"
+            @update:model-value="onCompanySelect"
+          />
           <span v-else class="text-sm font-medium text-n-slate-12">{{ project.company_name || '—' }}</span>
         </div>
         <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
@@ -332,14 +369,15 @@ const currentStageColor = computed(() => {
       <div class="grid grid-cols-2 gap-3">
         <div class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak col-span-2">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.IMPLEMENTER.LABEL') }}</span>
-          <select
-            :value="project.implementer_id"
-            class="h-9 px-2 rounded border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
-            @change="onImplementerChange"
-          >
-            <option :value="null">{{ t('PROJECTS.FORM.IMPLEMENTER.NONE') }}</option>
-            <option v-for="agent in agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
-          </select>
+          <ComboBox
+            :model-value="project.implementer_id"
+            :display-label="project.implementer_name"
+            :options="agentOptions"
+            :placeholder="t('PROJECTS.FORM.IMPLEMENTER.NONE')"
+            :search-placeholder="t('PROJECTS.FORM.IMPLEMENTER.SEARCH_PLACEHOLDER')"
+            class="[&>div>button]:h-9 [&>div>button]:!px-2 [&>div>button]:text-sm [&>div>button]:font-medium"
+            @update:model-value="onImplementerSelect"
+          />
         </div>
         <div v-if="project.stage === 'finalizado'" class="p-3 rounded-xl bg-n-alpha-1 border border-n-weak">
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.FORM.COMPLETION_TYPE.LABEL') }}</span>
