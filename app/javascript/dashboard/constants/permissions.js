@@ -15,6 +15,7 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'agenda_manage',
   'company_manage',
   'internal_chat_manage',
+  'suggestion_manage',
 ];
 
 export const CLIENT_CREDENTIALS_PERMISSIONS = 'client_credentials_manage';

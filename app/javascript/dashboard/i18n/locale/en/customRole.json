@@ -48,7 +48,8 @@
       "TICKET_MANAGE": "Access Tickets and the Triage queue",
       "AGENDA_MANAGE": "Access the Agenda",
       "COMPANY_MANAGE": "Access Companies and Contracts",
-      "INTERNAL_CHAT_MANAGE": "Access the Internal Chat"
+      "INTERNAL_CHAT_MANAGE": "Access the Internal Chat",
+      "SUGGESTION_MANAGE": "Move suggestions between columns and configure the Suggestions board"
     },
     "FORM": {
       "NAME": {

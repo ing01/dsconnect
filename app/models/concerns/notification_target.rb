@@ -26,6 +26,8 @@ module NotificationTarget
       # Agrupado pela TELA, e nao pelo ticket: a triagem se lê de uma vez, e um
       # aviso por chamado empilharia a bandeja num dia movimentado.
       'ticket_triage'
+    when 'Suggestion'
+      "suggestion_#{primary_actor_id}"
     else
       "conversation_#{primary_actor_id}"
     end
@@ -49,6 +51,8 @@ module NotificationTarget
       # Leva a fila, e nao ao chamado: o que se faz com ele e aceitar e
       # encaminhar, e isso acontece na Triagem.
       "/app/accounts/#{account_id}/tickets/triage"
+    when 'Suggestion'
+      "/app/accounts/#{account_id}/suggestions"
     else
       app_account_conversation_path(account_id: account_id, id: conversation.display_id)
     end

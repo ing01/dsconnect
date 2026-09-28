@@ -552,6 +552,13 @@ const menuItems = computed(() => {
       activeOn: ['implementation_reports_index'],
     },
     {
+      name: 'Suggestions',
+      label: t('SIDEBAR.SUGGESTIONS'),
+      icon: 'i-lucide-lightbulb',
+      to: accountScopedRoute('suggestions_index'),
+      activeOn: ['suggestions_index'],
+    },
+    {
       name: 'Agenda',
       label: t('SIDEBAR.AGENDA'),
       icon: 'i-lucide-calendar-days',
@@ -785,6 +792,13 @@ const menuItems = computed(() => {
           icon: 'i-lucide-list-tree',
           activeOn: ['settings_queues_list'],
           to: accountScopedRoute('settings_queues_list'),
+        },
+        {
+          name: 'Settings Suggestions',
+          label: t('SIDEBAR.SUGGESTIONS_SETTINGS'),
+          icon: 'i-lucide-lightbulb',
+          activeOn: ['suggestion_columns_list'],
+          to: accountScopedRoute('suggestion_columns_list'),
         },
         {
           name: 'Settings Tickets',

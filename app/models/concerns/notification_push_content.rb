@@ -24,7 +24,8 @@ module NotificationPushContent
       'project_contract_end_overdue' => 'notifications.notification_title.project_contract_end_overdue',
       'project_support_end_overdue' => 'notifications.notification_title.project_support_end_overdue',
       'internal_chat_message' => 'notifications.notification_title.internal_chat_message',
-      'ticket_triage_pending' => 'notifications.notification_title.ticket_triage_pending'
+      'ticket_triage_pending' => 'notifications.notification_title.ticket_triage_pending',
+      'suggestion_created' => 'notifications.notification_title.suggestion_created'
     }
 
     i18n_key = notification_title_map[notification_type]
@@ -55,6 +56,8 @@ module NotificationPushContent
       { sender_name: primary_actor.user&.name.to_s }
     when 'ticket_triage_pending'
       { display_id: primary_actor.display_id, company_name: primary_actor.company&.name.to_s }
+    when 'suggestion_created'
+      { user_name: primary_actor.user&.name.to_s }
     else
       # A familia das conversas, mais os SLAs. Chave sobrando e ignorada pela
       # interpolacao, entao um ramo so responde por todas.
@@ -82,6 +85,8 @@ module NotificationPushContent
       message_body((conversation.messages.incoming.last || conversation.messages.outgoing.last))
     when 'internal_chat_message'
       internal_chat_preview
+    when 'suggestion_created'
+      primary_actor.title
     else
       ''
     end

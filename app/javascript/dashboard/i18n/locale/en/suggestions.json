@@ -1,0 +1,61 @@
+{
+  "SUGGESTIONS": {
+    "HEADER": {
+      "TITLE": "Suggestions",
+      "SUBTITLE": "Board of improvement suggestions sent in by the team.",
+      "CONFIGURE_COLUMNS": "Configure columns"
+    },
+    "DETAIL": {
+      "CLOSE": "Close",
+      "SUBMITTED_BY": "Submitted by {name} on {date}",
+      "NO_DESCRIPTION": "No description.",
+      "DELETE": "Delete suggestion"
+    },
+    "API": {
+      "ERROR_MESSAGE": "Could not complete the action.",
+      "DELETE_SUCCESS": "Suggestion deleted."
+    },
+    "SETTINGS": {
+      "HEADER": "Suggestions board columns",
+      "DESCRIPTION": "Set up the columns of the improvement suggestions Kanban board (e.g. Ideas, Under review, Planned, In development, Done).",
+      "ADD_COLUMN": "Add column",
+      "ADD_TITLE": "Add column",
+      "EDIT_TITLE": "Edit column",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Add",
+      "UPDATE": "Save",
+      "LOADING": "Loading columns...",
+      "EMPTY": "No columns yet.",
+      "MOVE_UP": "Move up",
+      "MOVE_DOWN": "Move down",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "DELETE_BLOCKED_HINT": "Move the suggestions to another column before deleting.",
+      "FORM": {
+        "NAME": {
+          "LABEL": "Column name",
+          "PLACEHOLDER": "e.g. Under review"
+        }
+      },
+      "TABLE": {
+        "NAME": "Name",
+        "SUGGESTIONS": "Suggestions",
+        "ACTIONS": "Actions"
+      },
+      "API": {
+        "CREATE_SUCCESS": "Column created.",
+        "UPDATE_SUCCESS": "Column updated.",
+        "DELETE_SUCCESS": "Column deleted.",
+        "DELETE_ERROR": "Could not delete the column.",
+        "REORDER_ERROR": "Could not reorder the columns.",
+        "ERROR": "Could not complete the action."
+      },
+      "DELETE_CONFIRM": {
+        "TITLE": "Confirm deletion",
+        "MESSAGE": "Are you sure you want to delete the column",
+        "CONFIRM": "Yes, delete",
+        "CANCEL": "No, keep"
+      }
+    }
+  }
+}

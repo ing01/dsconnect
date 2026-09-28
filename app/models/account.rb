@@ -200,6 +200,9 @@ class Account < ApplicationRecord
   has_many :ticket_time_entries, dependent: :destroy_async
   has_many :projects, dependent: :destroy_async
   has_many :project_modules, dependent: :destroy_async
+  # Quadro de Sugestoes de melhoria - 1 por conta, nao por Mesa.
+  has_many :suggestion_columns, dependent: :destroy_async
+  has_many :suggestions, dependent: :destroy_async
   has_many :project_task_templates, dependent: :destroy_async
   has_many :checklists, dependent: :destroy_async
   # Os relogios de SLA dos tickets da conta, que a varredura de vencimentos

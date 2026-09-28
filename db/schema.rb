@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_28_150000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_28_180000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1924,6 +1924,29 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_28_150000) do
     t.index ["account_id"], name: "index_sla_policies_on_account_id"
   end
 
+  create_table "suggestion_columns", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_suggestion_columns_on_account_id"
+  end
+
+  create_table "suggestions", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "suggestion_column_id", null: false
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_suggestions_on_account_id"
+    t.index ["suggestion_column_id"], name: "index_suggestions_on_suggestion_column_id"
+    t.index ["user_id"], name: "index_suggestions_on_user_id"
+  end
+
   create_table "system_modules", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.string "name", null: false
@@ -2460,6 +2483,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_28_150000) do
   add_foreign_key "service_catalog_areas", "service_catalogs"
   add_foreign_key "service_catalog_items", "service_catalog_areas"
   add_foreign_key "service_catalogs", "accounts"
+  add_foreign_key "suggestion_columns", "accounts"
+  add_foreign_key "suggestions", "accounts"
+  add_foreign_key "suggestions", "suggestion_columns"
+  add_foreign_key "suggestions", "users"
   add_foreign_key "system_modules", "accounts"
   add_foreign_key "teams", "users", column: "manager_id"
   add_foreign_key "ticket_attachments", "ticket_customer_communications"
