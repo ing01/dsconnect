@@ -973,7 +973,8 @@
         "ADD": "Attach files",
         "REMOVE": "Remove file"
       },
-      "ATTACHMENT_REQUIRED": "This category requires at least one file or image."
+      "ATTACHMENT_REQUIRED": "This category requires at least one file or image.",
+      "NO_AGENT_IN_LEVEL": "No agent enabled in this level"
     },
     "CATALOG": {
       "TITLE": "Service catalogue",

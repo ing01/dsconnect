@@ -973,7 +973,8 @@
         "ADD": "Anexar arquivos",
         "REMOVE": "Remover arquivo"
       },
-      "ATTACHMENT_REQUIRED": "Esta categoria exige pelo menos um arquivo ou imagem."
+      "ATTACHMENT_REQUIRED": "Esta categoria exige pelo menos um arquivo ou imagem.",
+      "NO_AGENT_IN_LEVEL": "Nenhum agente habilitado neste nível"
     },
     "CATALOG": {
       "TITLE": "Catálogo de Serviços",

@@ -20,6 +20,9 @@ vi.mock('dashboard/composables/store', async () => {
 
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
 
+// Por padrao nenhuma Mesa usa niveis; os testes que precisam ligam na hora.
+const TEAMS_BY_ID = {};
+
 const COLUMNS = {
   1: [
     { id: 10, name: 'A fazer' },
@@ -139,9 +142,13 @@ describe('TicketCreateForm', () => {
       { id: 1, name: 'Suporte' },
       { id: 2, name: 'Comercial' },
     ];
+    Object.keys(TEAMS_BY_ID).forEach(k => delete TEAMS_BY_ID[k]);
     getters['ticketColumns/getColumns'] = id => COLUMNS[id] || [];
     getters['ticketColumns/getCategories'] = id => CATEGORIES[id] || [];
     getters['teamMembers/getTeamMembers'] = id => MEMBERS[id] || [];
+    // A Mesa diz quantos niveis de responsavel usa. Sem niveis configurados o
+    // formulario mostra um campo de responsavel so, como sempre mostrou.
+    getters['teams/getTeam'] = id => TEAMS_BY_ID[id] || null;
   });
 
   describe('the context the caller already knows', () => {
@@ -291,6 +298,64 @@ describe('TicketCreateForm', () => {
       await wrapper.find('form').trigger('submit');
 
       expect(wrapper.emitted('submit')[0][0].ticket.assignee_id).toBeNull();
+    });
+
+    // Uma Mesa com niveis pode nao ter ninguem no Nivel 1 - e isso travava a
+    // abertura inteira, porque o unico campo de responsavel gravava sempre no
+    // Nivel 1 e o servidor recusava qualquer agente de outro nivel.
+    describe('Mesa com niveis de responsavel', () => {
+      beforeEach(() => {
+        TEAMS_BY_ID[1] = { id: 1, assignee_levels: [1, 2] };
+        MEMBERS[1] = [
+          { id: 50, name: 'Ana', levels: [2] },
+          { id: 51, name: 'Carla', levels: [1] },
+        ];
+      });
+
+      // Achar o campo pelo agente que ele oferece: os dois tem o mesmo rotulo
+      // aqui, porque o `t` do teste devolve a chave sem interpolar o nivel.
+      const campoQueOferece = (wrapper, id) =>
+        selects(wrapper).find(s => s.find(`[data-value="${id}"]`).exists());
+
+      const opcoesDe = campo =>
+        campo.findAll('[data-value]').map(o => o.attributes('data-value'));
+
+      it('offers one field per level, with only that level agents', async () => {
+        const wrapper = await mountForm({ teamId: 1 });
+
+        // Carla e do Nivel 1, Ana do Nivel 2 - e cada campo so oferece o seu.
+        expect(opcoesDe(campoQueOferece(wrapper, 51))).not.toContain('50');
+        expect(opcoesDe(campoQueOferece(wrapper, 50))).not.toContain('51');
+      });
+
+      // O pedido: abrir indicando SO o Nivel 2.
+      it('opens with a level 2 assignee alone', async () => {
+        const wrapper = await mountForm({ teamId: 1 });
+
+        // Preenchido pelo que cada campo OFERECE, e nao por posicao: com dois
+        // campos de responsavel os indices deslocam.
+        await setCompany(wrapper, 7);
+        await wrapper
+          .findComponent({ name: 'TicketContactSelect' })
+          .vm.$emit('update:modelValue', 3);
+        await campoQueOferece(wrapper, 100)
+          .find('[data-value="100"]')
+          .trigger('click');
+        await wrapper.find('input[type="text"]').setValue('Erro na NF');
+        await wrapper
+          .findComponent({ name: 'FullEditor' })
+          .vm.$emit('update:modelValue', 'detalhes');
+        await flushPromises();
+        await campoQueOferece(wrapper, 50)
+          .find('[data-value="50"]')
+          .trigger('click');
+
+        await wrapper.find('form').trigger('submit');
+
+        const enviado = wrapper.emitted('submit')[0][0].ticket;
+        expect(enviado.assignee_2_id).toBe(50);
+        expect(enviado.assignee_id).toBeNull();
+      });
     });
   });
 

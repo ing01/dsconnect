@@ -19,7 +19,9 @@ export function useTicketCreation(context) {
     ticketColumnId: null,
     ticketCategoryId: null,
     priority: 'medium',
-    assigneeId: null,
+    // Um responsavel por NIVEL, e nao um so. A Mesa decide quantos niveis
+    // existem; a chave e o numero do nivel, e `1` e o responsavel de sempre.
+    assignees: {},
     title: '',
     description: '',
     followerIds: [],
@@ -38,6 +40,19 @@ export function useTicketCreation(context) {
   const mesaMembers = computed(
     () => store.getters['teamMembers/getTeamMembers'](form.value.teamId) || []
   );
+
+  // Quais niveis esta Mesa usa. Vazio quando ela nao usa niveis - e ai a tela
+  // mostra um campo de responsavel so, como sempre mostrou.
+  const assigneeLevels = computed(
+    () =>
+      store.getters['teams/getTeam'](form.value.teamId)?.assignee_levels || []
+  );
+
+  // So quem esta habilitado NAQUELE nivel. Oferecer todo mundo era o que fazia
+  // um agente de Nivel 2 cair no campo do Nivel 1 e o servidor recusar - e numa
+  // Mesa sem ninguem no Nivel 1, nao havia escolha possivel.
+  const membersForLevel = level =>
+    mesaMembers.value.filter(member => (member.levels || []).includes(level));
 
   const loadMesaContext = teamId => {
     if (!teamId) return;
@@ -59,7 +74,9 @@ export function useTicketCreation(context) {
       ticketColumnId: source.ticketColumnId ?? null,
       ticketCategoryId: source.ticketCategoryId ?? null,
       priority: source.priority ?? 'medium',
-      assigneeId: source.assigneeId ?? null,
+      // Quem chama ainda entrega `assigneeId`: e o Nivel 1, que existe em
+      // qualquer Mesa, com ou sem niveis configurados.
+      assignees: source.assigneeId ? { 1: source.assigneeId } : {},
       title: source.title ?? '',
       description: source.description ?? '',
       followerIds: source.followerIds ?? [],
@@ -85,7 +102,9 @@ export function useTicketCreation(context) {
       if (previous == null || teamId === previous) return;
       form.value.ticketColumnId = null;
       form.value.ticketCategoryId = null;
-      form.value.assigneeId = null;
+      // Todos os niveis, e nao so o primeiro: quem respondia pela Mesa antiga
+      // nao responde pela nova, em nivel nenhum.
+      form.value.assignees = {};
       form.value.followerIds = [];
       // Applied here rather than left to the `columns` watcher below: when the
       // new Mesa's list is already cached both run in the same tick, and the
@@ -134,6 +153,18 @@ export function useTicketCreation(context) {
       (!requiresAttachment.value || files.value.length > 0)
   );
 
+  // Cada nivel na sua coluna. Niveis vazios vao como `null` de proposito: sem
+  // isso, limpar um responsavel no formulario nao chegaria ao servidor.
+  const assigneePayload = () => {
+    const niveis = assigneeLevels.value.length ? assigneeLevels.value : [1];
+
+    return niveis.reduce((acc, level) => {
+      const campo = level === 1 ? 'assignee_id' : `assignee_${level}_id`;
+      acc[campo] = form.value.assignees[level] || null;
+      return acc;
+    }, {});
+  };
+
   // Snake case, because this is what the tickets endpoint expects.
   const toPayload = () => ({
     title: form.value.title.trim(),
@@ -144,7 +175,9 @@ export function useTicketCreation(context) {
     team_id: form.value.teamId,
     ticket_column_id: form.value.ticketColumnId,
     ticket_category_id: form.value.ticketCategoryId,
-    assignee_id: form.value.assigneeId || null,
+    // `assignee_id` para o Nivel 1 e `assignee_N_id` para os demais - as
+    // colunas que o servidor ja aceita (vide TicketActionParams).
+    ...assigneePayload(),
     follower_ids: form.value.followerIds,
     parent_id: form.value.parentId || null,
   });
@@ -173,6 +206,8 @@ export function useTicketCreation(context) {
     columns,
     categories,
     mesaMembers,
+    assigneeLevels,
+    membersForLevel,
     requiresAttachment,
     isValid,
     toPayload,

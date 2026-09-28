@@ -38,6 +38,8 @@ const {
   columns,
   categories,
   mesaMembers,
+  assigneeLevels,
+  membersForLevel,
   requiresAttachment,
   isValid,
   toPayload,
@@ -54,6 +56,24 @@ const teamOptions = computed(() => toOptions(teams.value));
 const columnOptions = computed(() => toOptions(columns.value));
 const categoryOptions = computed(() => toOptions(categories.value));
 const memberOptions = computed(() => toOptions(mesaMembers.value));
+
+// Um campo de responsavel por nivel quando a Mesa usa niveis; um so quando
+// nao usa. Cada campo oferece apenas quem esta habilitado naquele nivel - e
+// por isso uma Mesa sem ninguem no Nivel 1 deixa de travar a abertura: basta
+// indicar o Nivel 2.
+const assigneeFields = computed(() => {
+  if (!assigneeLevels.value.length) {
+    return [
+      { level: 1, label: t('TICKET.CREATE.ASSIGNEE'), options: memberOptions.value },
+    ];
+  }
+
+  return assigneeLevels.value.map(level => ({
+    level,
+    label: t('TICKET.FORM.ASSIGNEE.LEVEL', { level }),
+    options: toOptions(membersForLevel(level)),
+  }));
+});
 const priorityOptions = computed(() =>
   PRIORITIES.map(value => ({
     value,
@@ -179,20 +199,31 @@ defineExpose({ resetForNext });
         />
       </label>
 
-      <!-- Only the Mesa's members: the Mesa owns who may be assigned, and the
-           backend refuses anyone else. -->
-      <label class="flex flex-col gap-1 min-w-0">
+      <!-- Um campo por nivel de responsavel. Cada um lista so quem a Mesa
+           habilitou naquele nivel: o servidor recusa qualquer outro, e
+           oferecer todo mundo era o que fazia o agente de Nivel 2 cair no
+           campo do Nivel 1. Nenhum e obrigatorio - da para abrir indicando
+           apenas o Nivel 2, ou nenhum. -->
+      <label
+        v-for="campo in assigneeFields"
+        :key="campo.level"
+        class="flex flex-col gap-1 min-w-0"
+      >
         <span class="text-sm font-medium text-n-slate-12">
-          {{ t('TICKET.CREATE.ASSIGNEE') }}
+          {{ campo.label }}
         </span>
         <TicketSelect
-          v-model="form.assigneeId"
-          :options="memberOptions"
-          :disabled="!mesaMembers.length"
+          v-model="form.assignees[campo.level]"
+          :options="campo.options"
+          :disabled="!campo.options.length"
           clearable
           :clear-label="t('TICKET.CREATE.UNASSIGNED')"
-          :placeholder="t('TICKET.CREATE.UNASSIGNED')"
-          :aria-label="t('TICKET.CREATE.ASSIGNEE')"
+          :placeholder="
+            campo.options.length
+              ? t('TICKET.CREATE.UNASSIGNED')
+              : t('TICKET.CREATE.NO_AGENT_IN_LEVEL')
+          "
+          :aria-label="campo.label"
         />
       </label>
 
