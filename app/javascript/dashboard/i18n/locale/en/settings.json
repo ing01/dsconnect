@@ -8,7 +8,7 @@
     "AVATAR_DELETE_FAILED": "There is an error while deleting avatar, please try again",
     "UPDATE_SUCCESS": "Your profile has been updated successfully",
     "PASSWORD_UPDATE_SUCCESS": "Your password has been changed successfully",
-    "AFTER_EMAIL_CHANGED": "Your profile has been updated successfully, please login again as your login credentials are changed",
+    "AFTER_EMAIL_CHANGED": "Profile updated. We sent a confirmation link to the new email address - your login email only changes once you click that link.",
     "FORM": {
       "PICTURE": "Profile Picture",
       "AVATAR": "Profile Image",

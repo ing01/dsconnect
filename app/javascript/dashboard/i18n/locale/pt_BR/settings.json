@@ -8,7 +8,7 @@
     "AVATAR_DELETE_FAILED": "Ocorreu um erro ao excluir o avatar. Tente novamente",
     "UPDATE_SUCCESS": "Seu perfil foi atualizado com sucesso",
     "PASSWORD_UPDATE_SUCCESS": "A sua senha foi alterada com sucesso",
-    "AFTER_EMAIL_CHANGED": "Seu perfil foi atualizado com sucesso. Faça login novamente, pois suas credenciais de login foram alteradas",
+    "AFTER_EMAIL_CHANGED": "Perfil atualizado. Enviamos um link de confirmação para o novo e-mail - seu e-mail de login só muda depois que você clicar nesse link.",
     "FORM": {
       "PICTURE": "Foto do perfil",
       "AVATAR": "Imagem de Perfil",

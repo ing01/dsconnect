@@ -4,7 +4,6 @@ import { useAlert } from 'dashboard/composables';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useFontSize } from 'dashboard/composables/useFontSize';
 import { useBranding } from 'shared/composables/useBranding';
-import { clearCookiesOnLogout } from 'dashboard/store/utils/api.js';
 import { copyTextToClipboard } from 'shared/helpers/clipboard';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { parseBoolean } from '@chatwoot/utils';
@@ -165,15 +164,17 @@ export default {
         avatar: this.avatarFile,
       };
 
-      const success = await this.dispatchUpdate(
+      // O e-mail nunca troca na hora: `:confirmable` do Devise (reconfirmable)
+      // so troca o e-mail de login depois que o link de confirmacao enviado
+      // pro endereco novo e clicado. Deslogar aqui e prematuro - a sessao
+      // atual continua valida com o e-mail ANTIGO, que nem mudou ainda.
+      await this.dispatchUpdate(
         updatePayload,
         hasEmailChanged
           ? this.$t('PROFILE_SETTINGS.AFTER_EMAIL_CHANGED')
           : this.$t('PROFILE_SETTINGS.UPDATE_SUCCESS'),
         this.$t('RESET_PASSWORD.API.ERROR_MESSAGE')
       );
-
-      if (hasEmailChanged && success) clearCookiesOnLogout();
     },
     async updateSignature(signature) {
       const payload = { message_signature: signature };
