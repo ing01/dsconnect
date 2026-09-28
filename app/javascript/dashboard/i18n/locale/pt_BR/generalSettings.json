@@ -123,11 +123,11 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "Você pode receber e-mails em seu domínio personalizado agora."
       }
     },
-    "UPDATE_CHATWOOT": "Uma atualização {latestChatwootVersion} para o DueSoft está disponível. Por favor, atualize sua instância.",
+    "UPDATE_CHATWOOT": "Uma atualização {latestChatwootVersion} para o Duesoft está disponível. Por favor, atualize sua instância.",
     "LEARN_MORE": "Saiba mais",
-    "PAYMENT_PENDING": "Seu pagamento está pendente. Por favor, atualize suas informações de pagamento para continuar usando o DueSoft",
-    "UPGRADE": "Atualize para continuar usando o DueSoft",
-    "LIMITS_UPGRADE": "Sua conta excedeu os limites de uso. Por favor, faça um upgrade do seu plano para continuar usando o DueSoft",
+    "PAYMENT_PENDING": "Seu pagamento está pendente. Por favor, atualize suas informações de pagamento para continuar usando o Duesoft",
+    "UPGRADE": "Atualize para continuar usando o Duesoft",
+    "LIMITS_UPGRADE": "Sua conta excedeu os limites de uso. Por favor, faça um upgrade do seu plano para continuar usando o Duesoft",
     "OPEN_BILLING": "Abrir faturamento"
   },
   "FORMS": {

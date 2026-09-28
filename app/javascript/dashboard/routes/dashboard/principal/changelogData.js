@@ -17,6 +17,15 @@ export const CHANGELOG_ENTRIES = [
       'Na tela de Empresas, novo botão "Filtrar por prioridade" no cabeçalho (Todas/Baixa/Média/Alta). O card de cada empresa na lista agora mostra também Código, Prioridade, Razão Social e CNPJ, além do nome/domínio/contatos que já apareciam.',
   },
   {
+    id: 'brand-duesoft',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Nome da marca padronizado como "Duesoft"',
+    description:
+      'O nome da marca aparecia com o S maiúsculo no meio, em telas, e-mails e textos de configuração. Agora é sempre "Duesoft", inclusive no rodapé dos e-mails ("Este e-mail foi enviado por Duesoft").',
+  },
+  {
     id: 'company-cnpj-comparison-import',
     date: '27 de setembro de 2026',
     isoDate: '2026-09-27',

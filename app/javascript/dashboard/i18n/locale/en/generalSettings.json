@@ -123,11 +123,11 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "You can receive emails in your custom domain now."
       }
     },
-    "UPDATE_CHATWOOT": "An update {latestChatwootVersion} for DueSoft is available. Please update your instance.",
+    "UPDATE_CHATWOOT": "An update {latestChatwootVersion} for Duesoft is available. Please update your instance.",
     "LEARN_MORE": "Learn more",
-    "PAYMENT_PENDING": "Your payment is pending. Please update your payment information to continue using DueSoft",
-    "UPGRADE": "Upgrade to continue using DueSoft",
-    "LIMITS_UPGRADE": "Your account has exceeded the usage limits, please upgrade your plan to continue using DueSoft",
+    "PAYMENT_PENDING": "Your payment is pending. Please update your payment information to continue using Duesoft",
+    "UPGRADE": "Upgrade to continue using Duesoft",
+    "LIMITS_UPGRADE": "Your account has exceeded the usage limits, please upgrade your plan to continue using Duesoft",
     "OPEN_BILLING": "Open billing"
   },
   "FORMS": {
