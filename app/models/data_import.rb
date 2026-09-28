@@ -36,8 +36,8 @@ class DataImport < ApplicationRecord
   ACTIVE_INTERCOM_IMPORT_RUN_ID_KEY = 'active_intercom_import_run_id'.freeze
   IMPORT_STALLED_AFTER = 15.minutes
   INTERCOM_STALLED_AFTER = IMPORT_STALLED_AFTER
-  LEGACY_DATA_TYPES = %w[contacts clientes service_catalog].freeze
-  UPLOAD_DATA_TYPES = %w[clientes service_catalog].freeze
+  LEGACY_DATA_TYPES = %w[contacts clientes company_priority company_cnpj_check service_catalog].freeze
+  UPLOAD_DATA_TYPES = %w[clientes company_priority company_cnpj_check service_catalog].freeze
   INTEGRATION_DATA_TYPES = %w[freshdesk intercom].freeze
   IMPORT_TYPES = %w[contacts conversations].freeze
 
@@ -74,6 +74,21 @@ class DataImport < ApplicationRecord
 
   def clientes_import?
     data_type == 'clientes' && source_provider.blank?
+  end
+
+  # Segunda opcao de importacao de Empresa - so Codigo/CNPJ/Prioridade,
+  # separada da importacao "Clientes" (que tambem traz nome, endereco e
+  # contatos). So ATUALIZA empresa ja existente (casa por Codigo ou CNPJ);
+  # a planilha nao tem "Nome", entao nao da pra criar uma empresa nova aqui.
+  def company_priority_import?
+    data_type == 'company_priority' && source_provider.blank?
+  end
+
+  # Nao grava nada - so compara os CNPJs da planilha contra as empresas ja
+  # cadastradas na conta e devolve, por linha, se ja existe ou nao (ver
+  # `CompanyCnpjCheckJob`).
+  def company_cnpj_check_import?
+    data_type == 'company_cnpj_check' && source_provider.blank?
   end
 
   def service_catalog_import?
@@ -144,6 +159,8 @@ class DataImport < ApplicationRecord
     # we wait for the file to be uploaded to the cloud
     return DataImportJob.set(wait: 1.minute).perform_later(self) if legacy_contacts_csv_import?
     return ClientesImportJob.set(wait: 1.minute).perform_later(self) if clientes_import?
+    return CompanyPriorityImportJob.set(wait: 1.minute).perform_later(self) if company_priority_import?
+    return CompanyCnpjCheckJob.set(wait: 1.minute).perform_later(self) if company_cnpj_check_import?
     return ServiceCatalogImportJob.set(wait: 1.minute).perform_later(self) if service_catalog_import?
   end
 

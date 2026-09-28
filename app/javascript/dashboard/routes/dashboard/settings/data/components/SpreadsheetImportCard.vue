@@ -13,6 +13,17 @@ const props = defineProps({
   description: { type: String, required: true },
   templateUrl: { type: String, required: true },
   templateFilename: { type: String, required: true },
+  // Permite trocar a CHAVE de i18n usada no resumo/contagem de erro - o
+  // texto genérico fala em "linhas importadas", o que não faz sentido pra um
+  // cartão que só compara e não grava nada, como o comparativo de CNPJ.
+  resultSummaryKey: {
+    type: String,
+    default: 'DATA_IMPORTS.SPREADSHEETS.RESULT_SUMMARY',
+  },
+  errorCountKey: {
+    type: String,
+    default: 'DATA_IMPORTS.SPREADSHEETS.ERROR_COUNT',
+  },
 });
 
 const { t } = useI18n();
@@ -149,7 +160,7 @@ onBeforeUnmount(() => stopPolling());
     >
       <p class="font-medium text-n-slate-12">
         {{
-          t('DATA_IMPORTS.SPREADSHEETS.RESULT_SUMMARY', {
+          t(resultSummaryKey, {
             processed: result.processed,
             total: result.total,
           })
@@ -162,7 +173,7 @@ onBeforeUnmount(() => stopPolling());
         @click="downloadErrors"
       >
         <Icon icon="i-lucide-triangle-alert" class="size-4" />
-        {{ t('DATA_IMPORTS.SPREADSHEETS.ERROR_COUNT', { count: result.errorCount }) }}
+        {{ t(errorCountKey, { count: result.errorCount }) }}
       </button>
     </div>
   </div>

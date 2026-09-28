@@ -272,9 +272,18 @@ watch(
       />
 
       <div class="flex flex-col gap-1">
-        <h3 class="text-base font-medium text-n-slate-12">
-          {{ displayName }}
-        </h3>
+        <div class="flex items-center gap-2">
+          <h3 class="text-base font-medium text-n-slate-12">
+            {{ displayName }}
+          </h3>
+          <span
+            v-if="company?.codigo"
+            v-tooltip="t('COMPANIES.DETAIL.PROFILE.FIELDS.CODIGO')"
+            class="px-1.5 py-0.5 rounded text-xs font-mono leading-none text-n-slate-11 bg-n-slate-3 select-all"
+          >
+            {{ company.codigo }}
+          </span>
+        </div>
         <span class="text-sm leading-6 text-n-slate-11">{{ summary }}</span>
         <p
           v-if="isUploadingAvatar || uiFlags.deletingAvatar"

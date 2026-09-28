@@ -37,6 +37,7 @@ class Company < ApplicationRecord
   validates :custom_attributes, jsonb_attributes_length: true
   validates :cnpj, uniqueness: { scope: :account_id }, if: -> { cnpj.present? }
   validate :validate_cnpj_checksum, if: -> { cnpj.present? }
+  validates :codigo, uniqueness: { scope: :account_id }, if: -> { codigo.present? }
   validates :billing_type, inclusion: { in: BILLING_TYPES }, allow_blank: true
   validates :billing_amount, :implementation_fee, numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
 
@@ -75,6 +76,7 @@ class Company < ApplicationRecord
   has_many :projects, dependent: :nullify
   before_validation :prepare_jsonb_attributes
   before_validation :normalize_cnpj
+  before_validation :normalize_codigo
   after_create_commit :fetch_favicon, if: -> { domain.present? }
   after_update_commit :enqueue_contact_company_name_sync, if: :saved_change_to_name?
 
@@ -159,6 +161,11 @@ class Company < ApplicationRecord
     self.cnpj = nil if cnpj.blank?
   end
 
+  def normalize_codigo
+    self.codigo = codigo.strip if codigo.present?
+    self.codigo = nil if codigo.blank?
+  end
+
   # So dispara no MOMENTO em que o vinculo com o contrato muda (selecionar ou
   # trocar) - depois disso `billing_type`/`billing_amount` viram colunas
   # normais, editaveis a mao (botao de "editar" no frontend) sem nunca mais
@@ -178,10 +185,17 @@ class Company < ApplicationRecord
     self.billing_amount = contract.computed_total_value
   end
 
-  # Prioridade e sempre derivada da mensalidade, nunca escolhida a mao - os
-  # limiares (a partir de qual valor cada faixa comeca) sao configurados por
-  # conta em Configuracoes > Tickets > Automacao.
+  # Prioridade e derivada da mensalidade quando ela existe - os limiares (a
+  # partir de qual valor cada faixa comeca) sao configurados por conta em
+  # Configuracoes > Tickets > Automacao. Sem mensalidade, NAO forca de volta
+  # pra 1: preserva o valor atual, porque a importacao de
+  # Codigo/CNPJ/Prioridade (`CompanyPriorityImportJob`) grava a prioridade
+  # informada na planilha como valor inicial, pra empresas que ainda nao tem
+  # mensalidade cadastrada no Chatwoot - assim que a mensalidade for
+  # configurada, o calculo automatico passa a valer e substitui esse valor.
   def compute_client_level
+    return if monthly_billing_amount.blank?
+
     self.client_level = self.class.tier_for(monthly_billing_amount, account)
   end
 

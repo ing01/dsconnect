@@ -84,14 +84,16 @@ class Tickets::ImportService
     ticket_import.update!(total_rows: rows.size)
 
     entries = []
+    created_count = 0
     row_errors = []
     row_warnings = []
 
     rows.each_with_index do |row, index|
       line_number = index + 2 # linha 1 e o cabecalho
       begin
-        ticket, parent_number, warnings = import_row(row)
+        ticket, parent_number, created, warnings = import_row(row)
         entries << { ticket: ticket, parent_number: parent_number }
+        created_count += 1 if created
         warnings.each { |message| row_warnings << { row: line_number, message: message } }
       rescue StandardError => e
         row_errors << { row: line_number, message: e.message }
@@ -101,7 +103,7 @@ class Tickets::ImportService
 
     link_parents!(entries)
 
-    Result.new(created: entries.size, skipped: row_errors.size, errors: row_errors, warnings: row_warnings)
+    Result.new(created: created_count, skipped: row_errors.size, errors: row_errors, warnings: row_warnings)
   end
 
   private
@@ -126,6 +128,17 @@ class Tickets::ImportService
 
   def import_row(row)
     warnings = []
+    original_number = row['numero'].to_s.strip.presence
+
+    # Reprocessar o mesmo arquivo (ex: depois de corrigir um erro) nao pode
+    # duplicar os tickets que ja entraram na vez anterior - identificados
+    # pelo "Numero" original, unico jeito de saber que e o mesmo ticket.
+    if original_number && existing_ticket_numbers.include?(original_number)
+      warnings << "Ticket com Número #{original_number} já importado anteriormente - linha ignorada, nenhum ticket novo criado"
+      existing = Ticket.where(account_id: account.id)
+                        .where("custom_attributes ->> 'imported_ticket_number' = ?", original_number).first
+      return [existing, row['ticket_pai'].to_s.strip.presence, false, warnings]
+    end
 
     team = find_team!(row['time'])
     ticket_column = find_ticket_column!(team, row['estagio'])
@@ -153,11 +166,30 @@ class Tickets::ImportService
       custom_attributes: { 'imported_ticket_number' => row['numero'].to_s.strip.presence }.compact
     )
     ticket.save!
+    existing_ticket_numbers << original_number if original_number
 
-    ticket.classify!(service_catalog_item, nil) if service_catalog_item.present?
+    # Um ticket importado ja pode nascer Fechado/Cancelado (e' historico), mas
+    # TicketFinalizable trava qualquer alteracao depois disso - inclusive a
+    # classificacao que a propria importacao acabou de resolver. Mesma
+    # excecao administrativa que Tickets::MergeService ja usa pra fechar e
+    # depois anotar o motivo no mesmo ticket.
+    ticket.as_administrative_change do
+      ticket.classify!(service_catalog_item, nil) if service_catalog_item.present?
+    end
     post_import_note!(ticket, row)
 
-    [ticket, row['ticket_pai'].to_s.strip.presence, warnings]
+    [ticket, row['ticket_pai'].to_s.strip.presence, true, warnings]
+  end
+
+  # Todo "Numero" ja gravado nesta conta antes deste lote comecar, mais os
+  # que este proprio lote ja criou ate agora - uma unica consulta, em vez de
+  # perguntar ao banco de novo a cada linha (o que so ficaria mais lento a
+  # cada ticket novo inserido).
+  def existing_ticket_numbers
+    @existing_ticket_numbers ||= Ticket.where(account_id: account.id)
+                                        .where("custom_attributes ->> 'imported_ticket_number' IS NOT NULL")
+                                        .pluck(Arel.sql("custom_attributes ->> 'imported_ticket_number'"))
+                                        .to_set
   end
 
   # --- Caches: uma consulta por Mesa/lista, nao uma por linha da planilha ---
@@ -325,7 +357,10 @@ class Tickets::ImportService
       parent = find_parent_by_original_number(parent_number, entries)
       next if parent.blank? || parent.id == entry[:ticket].id
 
-      entry[:ticket].update!(parent: parent)
+      # Mesma excecao administrativa de import_row: um "Ticket pai" so e
+      # ligado depois que ambos os tickets ja existem (segunda passada), e um
+      # dos dois pode ja ter nascido Fechado/Cancelado.
+      entry[:ticket].as_administrative_change { entry[:ticket].update!(parent: parent) }
     rescue StandardError => e
       ChatwootExceptionTracker.new(e, account: account).capture_exception
     end

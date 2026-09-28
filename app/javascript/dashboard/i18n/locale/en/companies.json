@@ -240,6 +240,7 @@
           "DOMAIN": "Domain",
           "LEGAL_NAME": "Legal name (Razão Social)",
           "CNPJ": "CNPJ",
+          "CODIGO": "Code",
           "IE": "State registration (IE)",
           "IM": "Municipal registration (IM)",
           "ADDRESS_ZIP_CODE": "ZIP code",

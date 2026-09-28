@@ -102,6 +102,9 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   # `client_level` (a Prioridade) nao entra aqui de proposito - e' sempre
   # recalculada pelo model a partir de `billing_amount` (ver
   # Company#compute_client_level), nunca definida manualmente pela request.
+  # `codigo` tambem fica de fora de proposito - so pode ser definido pela
+  # importacao de Codigo/CNPJ/Prioridade (`CompanyPriorityImportJob`), nunca
+  # editado a mao pelo cadastro normal da empresa (pedido da Ingrid).
   def company_params
     params.require(:company).permit(
       :name,

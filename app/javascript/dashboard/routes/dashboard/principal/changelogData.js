@@ -8,6 +8,24 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'company-cnpj-comparison-import',
+    date: '27 de setembro de 2026',
+    isoDate: '2026-09-27',
+    type: 'feature',
+    title: 'Comparativo de CNPJ na importação',
+    description:
+      'Nova opção "Comparar planilha de CNPJ" na aba Planilhas de Configurações > Dados: não altera nenhum cadastro, só compara os CNPJs de uma planilha com as empresas já cadastradas e mostra quantos já existem e quantos ainda faltam, com uma lista pra baixar dos que faltam.',
+  },
+  {
+    id: 'company-codigo-priority-import',
+    date: '27 de setembro de 2026',
+    isoDate: '2026-09-27',
+    type: 'feature',
+    title: 'Novo campo Código na Empresa + importação Código/CNPJ/Prioridade',
+    description:
+      'Empresas ganharam um campo "Código" (aparece pequeno, ao lado do nome, no topo do cadastro) - só é preenchido por importação, nunca editado à mão. Nova opção "Código/CNPJ/Prioridade" na aba Planilhas de Configurações > Dados: atualiza empresas já cadastradas casando por Código ou CNPJ, e preenche a Prioridade (Baixa/Média/Alta) como valor inicial para quem ainda não tem mensalidade configurada - assim que a mensalidade for definida, o cálculo automático passa a valer.',
+  },
+  {
     id: 'client-area',
     date: '25 de setembro de 2026',
     isoDate: '2026-09-25',

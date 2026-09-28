@@ -463,6 +463,8 @@
       "CONVERSATIONS": "Conversas",
       "MESSAGES": "Mensagens",
       "CLIENTES": "Clientes",
+      "COMPANY_PRIORITY": "Código/CNPJ/Prioridade",
+      "COMPANY_CNPJ_CHECK": "Comparativo de CNPJ",
       "SERVICE_CATALOG": "Catálogo de Serviços"
     },
     "SPREADSHEETS": {
@@ -480,6 +482,16 @@
       "SERVICE_CATALOG": {
         "TITLE": "Importar Catálogo de Serviços",
         "DESCRIPTION": "Cria a árvore Catálogo > Área > Item usada na classificação dos tickets."
+      },
+      "COMPANY_PRIORITY": {
+        "TITLE": "Importar Código/CNPJ/Prioridade",
+        "DESCRIPTION": "Atualiza empresas já cadastradas com o Código de referência, CNPJ e Prioridade (Baixa/Média/Alta), casando por Código ou CNPJ. Não cria empresas novas."
+      },
+      "COMPANY_CNPJ_CHECK": {
+        "TITLE": "Comparar planilha de CNPJ",
+        "DESCRIPTION": "Não altera nenhum cadastro. Compara os CNPJs da planilha com as empresas já cadastradas e mostra quantos já existem e quantos ainda não (baixe a lista dos que faltam).",
+        "RESULT_SUMMARY": "{processed} de {total} CNPJs já cadastrados no sistema",
+        "ERROR_COUNT": "{count} CNPJ ainda não cadastrado (baixar lista) | {count} CNPJs ainda não cadastrados (baixar lista)"
       }
     },
     "DRAWER": {

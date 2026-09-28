@@ -7,6 +7,7 @@ json.custom_attributes resource.custom_attributes
 json.avatar_url resource.avatar_url
 json.legal_name resource.legal_name
 json.cnpj resource.cnpj
+json.codigo resource.codigo
 json.ie resource.ie
 json.im resource.im
 json.address_zip_code resource.address_zip_code
