@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'assignee-level-on-create',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Abrir chamado indicando o responsável de qualquer nível',
+    description:
+      'Em Mesas que usam níveis de responsável, o formulário de novo chamado agora mostra um campo por nível (Responsável 1, Responsável 2, e assim por diante), cada um listando só quem está habilitado naquele nível. Dá para abrir indicando apenas o Nível 2, ou nenhum. Antes havia um campo só, que gravava sempre no Nível 1 - e numa Mesa sem ninguém cadastrado no Nível 1 a abertura ficava travada, com o erro "não está habilitado a atuar no nível 1 desta Mesa".',
+  },
+  {
     id: 'whatsapp-new-conversation-automation-skip',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',
