@@ -8,6 +8,42 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-new-conversation-automation-skip',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'WhatsApp: "Nova Conversa" não entra na triagem automática',
+    description:
+      'Quando você inicia uma conversa pelo botão "Nova Conversa", a resposta do cliente agora segue como conversa normal - o fluxo de triagem automática (perguntar CNPJ, etc.) não entra mais por cima de um atendimento que o próprio atendente já começou.',
+  },
+  {
+    id: 'suggestions-admin-create-assignee',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'feature',
+    title: 'Sugestões e Melhorias: incluir card e responsável',
+    description:
+      'O quadro (antes "Sugestões") passou a se chamar "Sugestões e Melhorias". Administrador agora tem um botão "Incluir" pra registrar direto no quadro algo que já está sendo produzido, e pode marcar um "Responsável" (sempre um Administrador) em cada card - visível pra todo mundo, editável só por quem gerencia o quadro.',
+  },
+  {
+    id: 'ticket-move-parent-automation',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'feature',
+    title: 'Automação: ticket pai muda de estágio junto com o filho',
+    description:
+      'Novo tipo de ação em Configurações > Estágios: quando um ticket entra num Estágio escolhido, o ticket pai dele (se tiver) pode mudar automaticamente pra um Estágio específico, até de outra Mesa. Dá pra configurar quantas regras desse tipo precisar, em pares de Mesas diferentes.',
+  },
+  {
+    id: 'conversation-list-width',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Lista de Conversas mais larga',
+    description:
+      'A coluna com a lista de conversas ficou mais larga, pra caber melhor o botão "Nova conversa" e os detalhes de cada conversa sem cortar o visual.',
+  },
+  {
     id: 'conversations-new-conversation-button',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',
