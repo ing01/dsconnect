@@ -13,12 +13,46 @@
  * requisição não há id de conta para trocar.
  */
 import axios from 'axios';
-import { getClientSession } from 'dashboard/helper/clientSession';
+import {
+  getClientSession,
+  clearClientSession,
+} from 'dashboard/helper/clientSession';
 
 const { apiHost = '' } = window.chatwootConfig || {};
 const cliente = axios.create({ baseURL: `${apiHost}/` });
 
 const BASE = '/api/v1/client';
+
+// Sessão morta não pode virar tela quebrada.
+//
+// O token do cookie deixa de valer em situações normais: a equipe desliga o
+// acesso, ou a própria pessoa redefine a senha - que derruba as sessões de
+// propósito. Sem isto, o cookie velho continuava sendo enviado, toda tela
+// respondia 401 e o app nunca mandava ninguém de volta ao login: a pessoa
+// ficava presa numa tela que não carregava.
+//
+// O login e a redefinição ficam de fora: ali o 401 é resposta esperada (senha
+// errada, link vencido) e tem mensagem própria na tela. Redirecionar comeria
+// esse aviso.
+const SEM_REDIRECIONAR = [`${BASE}/session`, `${BASE}/password`];
+
+cliente.interceptors.response.use(
+  resposta => resposta,
+  erro => {
+    const url = erro?.config?.url || '';
+    const ehSessaoExpirada =
+      erro?.response?.status === 401 &&
+      !SEM_REDIRECIONAR.some(rota => url.includes(rota));
+
+    if (ehSessaoExpirada) {
+      clearClientSession();
+      // Carga completa: a tela de login é servida pelo Rails, não é rota deste
+      // SPA - e sair tem de largar o estado que ficou em memória.
+      window.location.assign('/app/login');
+    }
+    return Promise.reject(erro);
+  }
+);
 
 const headers = () => {
   const token = getClientSession()?.token;

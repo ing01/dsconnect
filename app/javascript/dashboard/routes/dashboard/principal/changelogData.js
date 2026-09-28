@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-session-expired',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Área do Cliente: sessão vencida volta para o login',
+    description:
+      'Quando o acesso do cliente era desligado, ou ele redefinia a própria senha, a sessão antiga deixava de valer - mas as telas continuavam tentando usá-la e não carregavam, sem explicar o motivo. Agora, ao detectar que a sessão venceu, a Área do Cliente limpa o acesso e leva de volta à tela de login.',
+  },
+  {
     id: 'push-preference',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',

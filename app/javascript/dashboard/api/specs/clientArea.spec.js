@@ -10,12 +10,25 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const post = vi.fn(() => Promise.resolve({ data: {} }));
 const get = vi.fn(() => Promise.resolve({ data: {} }));
 const del = vi.fn(() => Promise.resolve({ data: {} }));
-const create = vi.fn(() => ({ post, get, delete: del }));
+// Guarda o tratador de erro que o modulo registra, para os testes de 401
+// abaixo poderem dispara-lo sem precisar de servidor.
+let aoFalhar;
+const use = vi.fn((_ok, erro) => {
+  aoFalhar = erro;
+});
+const create = vi.fn(() => ({
+  post,
+  get,
+  delete: del,
+  interceptors: { response: { use } },
+}));
 
 vi.mock('axios', () => ({ default: { create } }));
 
+const clearClientSession = vi.fn();
 vi.mock('dashboard/helper/clientSession', () => ({
   getClientSession: vi.fn(() => ({ token: 'token-do-cliente' })),
+  clearClientSession: (...a) => clearClientSession(...a),
 }));
 
 const carregar = async () => (await import('../clientArea')).default;
@@ -59,7 +72,8 @@ describe('clientArea API', () => {
   it('never puts an account id in the path', async () => {
     const api = await carregar();
     await api.board(7);
-    await api.teams();
+    await api.categories();
+    await api.notifications();
     await api.createTicket({ title: 'Chamado' });
 
     const caminhos = [
@@ -67,5 +81,56 @@ describe('clientArea API', () => {
       ...post.mock.calls.map(c => c[0]),
     ];
     expect(caminhos.every(caminho => !caminho.includes('accounts'))).toBe(true);
+  });
+
+  // Sessao morta nao pode virar tela quebrada: o token do cookie deixa de
+  // valer quando a equipe desliga o acesso, ou quando a propria pessoa
+  // redefine a senha - que derruba as sessoes de proposito.
+  describe('sessao expirada', () => {
+    const assign = vi.fn();
+
+    beforeEach(() => {
+      assign.mockClear();
+      clearClientSession.mockClear();
+      delete window.location;
+      window.location = { assign };
+    });
+
+    const dispararFalha = async (url, status) => {
+      await carregar();
+      await expect(
+        aoFalhar({ config: { url }, response: { status } })
+      ).rejects.toBeDefined();
+    };
+
+    it('drops the dead session and goes back to the login', async () => {
+      await dispararFalha('/api/v1/client/tickets', 401);
+
+      expect(clearClientSession).toHaveBeenCalled();
+      expect(assign).toHaveBeenCalledWith('/app/login');
+    });
+
+    // No login o 401 e a resposta esperada para senha errada, e tem mensagem
+    // propria na tela - redirecionar comeria o aviso.
+    it('leaves the login screen alone', async () => {
+      await dispararFalha('/api/v1/client/session', 401);
+
+      expect(clearClientSession).not.toHaveBeenCalled();
+      expect(assign).not.toHaveBeenCalled();
+    });
+
+    it('leaves the password reset screen alone', async () => {
+      await dispararFalha('/api/v1/client/password', 401);
+
+      expect(assign).not.toHaveBeenCalled();
+    });
+
+    // Outros erros nao derrubam ninguem: uma falha de rede nao e sessao morta.
+    it('does not log anyone out on a different failure', async () => {
+      await dispararFalha('/api/v1/client/tickets', 500);
+
+      expect(clearClientSession).not.toHaveBeenCalled();
+      expect(assign).not.toHaveBeenCalled();
+    });
   });
 });
