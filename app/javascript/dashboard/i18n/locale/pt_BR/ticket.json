@@ -1061,10 +1061,10 @@
       }
     },
     "SIDEBAR_SEARCH": {
-      "LABEL": "Buscar chamado pelo número",
-      "PLACEHOLDER": "Nº do chamado",
-      "NOT_FOUND": "Nenhum chamado com o número {number}.",
-      "ERROR": "Não foi possível buscar o chamado. Tente novamente."
+      "LABEL": "Buscar ticket pelo número",
+      "PLACEHOLDER": "Nº do ticket",
+      "NOT_FOUND": "Nenhum ticket com o número {number}.",
+      "ERROR": "Não foi possível buscar o ticket. Tente novamente."
     }
   }
 }
