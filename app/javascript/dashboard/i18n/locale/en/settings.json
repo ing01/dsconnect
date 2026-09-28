@@ -463,6 +463,7 @@
       "MESSAGES": "Messages",
       "CLIENTES": "Customers",
       "COMPANY_PRIORITY": "Code/Tax ID/Priority",
+      "COMPANY_CNPJ_CHECK": "Tax ID Comparison",
       "SERVICE_CATALOG": "Service Catalog"
     },
     "SPREADSHEETS": {
@@ -484,6 +485,12 @@
       "COMPANY_PRIORITY": {
         "TITLE": "Import Code/Tax ID/Priority",
         "DESCRIPTION": "Updates existing companies with a reference Code, Tax ID and Priority (Low/Medium/High), matching by Code or Tax ID. Does not create new companies."
+      },
+      "COMPANY_CNPJ_CHECK": {
+        "TITLE": "Compare Tax ID spreadsheet",
+        "DESCRIPTION": "Does not change any records. Compares the spreadsheet's Tax IDs against existing companies and shows how many already exist and how many don't (download the list of missing ones).",
+        "RESULT_SUMMARY": "{processed} of {total} Tax IDs already registered",
+        "ERROR_COUNT": "{count} Tax ID not registered yet (download list) | {count} Tax IDs not registered yet (download list)"
       }
     },
     "DRAWER": {

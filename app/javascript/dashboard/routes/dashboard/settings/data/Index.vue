@@ -80,6 +80,9 @@ const importTypeLabel = dataImport =>
       if (type === 'company_priority') {
         return t('DATA_IMPORTS.TYPES.COMPANY_PRIORITY');
       }
+      if (type === 'company_cnpj_check') {
+        return t('DATA_IMPORTS.TYPES.COMPANY_CNPJ_CHECK');
+      }
       if (type === 'service_catalog') {
         return t('DATA_IMPORTS.TYPES.SERVICE_CATALOG');
       }
@@ -276,6 +279,16 @@ onBeforeUnmount(() => {
           :description="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_PRIORITY.DESCRIPTION')"
           template-url="/downloads/codigo-cnpj-prioridade-modelo.xlsx"
           template-filename="codigo-cnpj-prioridade-modelo.xlsx"
+        />
+        <SpreadsheetImportCard
+          data-type="company_cnpj_check"
+          icon="i-lucide-git-compare"
+          :title="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.TITLE')"
+          :description="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.DESCRIPTION')"
+          template-url="/downloads/comparativo-cnpj-modelo.xlsx"
+          template-filename="comparativo-cnpj-modelo.xlsx"
+          result-summary-key="DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.RESULT_SUMMARY"
+          error-count-key="DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.ERROR_COUNT"
         />
       </div>
 
