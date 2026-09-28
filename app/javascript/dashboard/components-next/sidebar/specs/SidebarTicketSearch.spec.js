@@ -53,7 +53,9 @@ describe('SidebarTicketSearch', () => {
     await digitar(montar(), '42');
 
     expect(push).toHaveBeenCalledWith(expect.stringContaining('/tickets/901'));
-    expect(push).not.toHaveBeenCalledWith(expect.stringContaining('/tickets/42'));
+    expect(push).not.toHaveBeenCalledWith(
+      expect.stringContaining('/tickets/42')
+    );
   });
 
   // O mesmo número é escrito de várias formas; todas querem dizer o mesmo.
