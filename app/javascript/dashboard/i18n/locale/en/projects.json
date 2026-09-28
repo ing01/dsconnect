@@ -73,7 +73,8 @@
       },
       "IMPLEMENTER": {
         "LABEL": "Implementer",
-        "NONE": "No implementer"
+        "NONE": "No implementer",
+        "SEARCH_PLACEHOLDER": "Search by name..."
       },
       "COMPLETION_TYPE": {
         "LABEL": "Type (what was finished)",
