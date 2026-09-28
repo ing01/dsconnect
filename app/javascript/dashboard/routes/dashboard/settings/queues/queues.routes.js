@@ -13,7 +13,7 @@ export default {
           path: '',
           name: 'queues_wrapper',
           meta: {
-            permissions: ['administrator', 'agent', 'custom_role'],
+            permissions: ['administrator', 'agent', 'queue_manage'],
           },
           redirect: to => {
             return { name: 'settings_queues_list', params: to.params };
@@ -23,7 +23,7 @@ export default {
           path: 'list',
           name: 'settings_queues_list',
           meta: {
-            permissions: ['administrator', 'agent', 'custom_role'],
+            permissions: ['administrator', 'agent', 'queue_manage'],
           },
           component: Index,
         },

@@ -27,7 +27,8 @@
 # - 'client_billing_manage': Can view and manage the "Contrato e cobrança" (billing/contract) fields on companies.
 # - 'department_manage': Can create/edit/delete departments (Teams).
 # - 'queue_manage': Can create/edit/delete queues.
-# - 'project_manage': Can access the Projects board, the Painel de Implantação, and edit a project's name, client, team and dates after creation.
+# - 'project_manage': Can access the Projects board and edit a project's name, client, team and dates after creation.
+# - 'implementation_report_manage': Can access the Painel de Implantação (implementation reports dashboard).
 # - 'ticket_manage': Can access Tickets and the ticket triage queue.
 # - 'agenda_manage': Can access the Agenda.
 # - 'company_manage': Can access Companies and Contracts.
@@ -53,6 +54,7 @@ class CustomRole < ApplicationRecord
     department_manage
     queue_manage
     project_manage
+    implementation_report_manage
     ticket_manage
     agenda_manage
     company_manage
