@@ -21,10 +21,10 @@ namespace :duesoft do
       next
     end
 
-    account = DueSoft::AdminSetup.account_for(ENV.fetch('ADMIN_ACCOUNT_NAME', 'DueSoft'))
-    user = DueSoft::AdminSetup.user_for(email: email, password: password,
+    account = Duesoft::AdminSetup.account_for(ENV.fetch('ADMIN_ACCOUNT_NAME', 'Duesoft'))
+    user = Duesoft::AdminSetup.user_for(email: email, password: password,
                                         name: ENV.fetch('ADMIN_NAME', 'Administrador'))
-    DueSoft::AdminSetup.grant_administrator(user: user, account: account)
+    Duesoft::AdminSetup.grant_administrator(user: user, account: account)
 
     puts "conta   : ##{account.id} #{account.name}"
     puts "usuario : ##{user.id} #{user.email} (administrator)"
@@ -32,7 +32,7 @@ namespace :duesoft do
   end
 end
 
-module DueSoft
+module Duesoft
   # Kept out of the task body so each step is nameable and testable.
   module AdminSetup
     module_function

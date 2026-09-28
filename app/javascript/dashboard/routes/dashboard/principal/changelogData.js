@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'brand-duesoft',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Nome da marca padronizado como "Duesoft"',
+    description:
+      'O nome aparecia como "DueSoft" em telas, e-mails e configurações, com o S maiúsculo no meio. Agora é sempre "Duesoft", inclusive no rodapé dos e-mails ("Este e-mail foi enviado por Duesoft").',
+  },
+  {
     id: 'company-cnpj-comparison-import',
     date: '27 de setembro de 2026',
     isoDate: '2026-09-27',
