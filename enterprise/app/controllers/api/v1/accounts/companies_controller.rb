@@ -76,7 +76,19 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   private
 
   def resolved_companies
-    @resolved_companies ||= Current.account.companies.includes(:system_modules, :company_category)
+    @resolved_companies ||= filter_by_client_level(
+      Current.account.companies.includes(:system_modules, :company_category)
+    )
+  end
+
+  # Filtro por Prioridade (client_level) na tela de Empresas - 1 Baixa, 2
+  # Media, 3 Alta (ver Company#compute_client_level). Composto com a busca
+  # por nome/dominio: entra antes de `search_by_name_or_domain` em `search`,
+  # ja que os dois passam por este mesmo metodo memoizado.
+  def filter_by_client_level(companies)
+    return companies if params[:client_level].blank?
+
+    companies.where(client_level: params[:client_level])
   end
 
   def set_current_page

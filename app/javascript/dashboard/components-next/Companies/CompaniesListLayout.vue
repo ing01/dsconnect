@@ -9,12 +9,14 @@ defineProps({
   totalItems: { type: Number, default: 100 },
   activeSort: { type: String, default: 'name' },
   activeOrdering: { type: String, default: '' },
+  activeClientLevel: { type: [String, Number], default: '' },
   showPaginationFooter: { type: Boolean, default: true },
 });
 
 const emit = defineEmits([
   'update:currentPage',
   'update:sort',
+  'update:clientLevel',
   'search',
   'create',
 ]);
@@ -34,8 +36,10 @@ const updateCurrentPage = page => {
         :header-title="headerTitle"
         :active-sort="activeSort"
         :active-ordering="activeOrdering"
+        :active-client-level="activeClientLevel"
         @search="emit('search', $event)"
         @update:sort="emit('update:sort', $event)"
+        @update:client-level="emit('update:clientLevel', $event)"
         @create="emit('create')"
       />
       <main class="flex-1 px-6 overflow-y-auto">
