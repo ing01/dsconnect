@@ -4,6 +4,11 @@ class Api::V1::Accounts::SuggestionsController < Api::V1::Accounts::BaseControll
   # esta enviando a sugestao.
   MANAGEABLE_FIELDS = [:assignee_id, :priority_id, :category_id, :time_spent_hours].freeze
 
+  # Titulo/descricao sao o texto que a pessoa que enviou escreveu - so'
+  # Administrador (nao qualquer um com `suggestion_manage`) pode corrigi-los
+  # depois de enviado.
+  ADMIN_ONLY_FIELDS = [:title, :description].freeze
+
   before_action :fetch_suggestion, only: [:update, :move, :destroy]
   before_action :check_authorization
 
@@ -25,11 +30,12 @@ class Api::V1::Accounts::SuggestionsController < Api::V1::Accounts::BaseControll
     @suggestion.save!
   end
 
-  # So o que e' gerenciavel (Responsavel, Prioridade, Categoria, tempo gasto)
-  # e' editavel aqui por enquanto - titulo/descricao continuam fixos depois
-  # de enviados.
+  # Responsavel/Prioridade/Categoria/tempo gasto: quem gerencia o quadro.
+  # Titulo/descricao: so' Administrador.
   def update
-    @suggestion.update!(suggestion_params.slice(*MANAGEABLE_FIELDS))
+    fields = MANAGEABLE_FIELDS.dup
+    fields += ADMIN_ONLY_FIELDS if Current.account_user&.administrator?
+    @suggestion.update!(suggestion_params.slice(*fields))
   end
 
   def move

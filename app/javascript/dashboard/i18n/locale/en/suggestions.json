@@ -49,6 +49,15 @@
     "CARD": {
       "COMPLETED_ON": "Completed on {date}"
     },
+    "FILTERS": {
+      "ALL": "All",
+      "PRIORITY": "Priority",
+      "CATEGORY": "Category",
+      "ASSIGNEE": "Assignee",
+      "DATE_FROM": "From",
+      "DATE_TO": "To",
+      "CLEAR": "Clear filters"
+    },
     "DETAIL": {
       "CLOSE": "Close",
       "SUBMITTED_BY": "Submitted by {name} on {date}",

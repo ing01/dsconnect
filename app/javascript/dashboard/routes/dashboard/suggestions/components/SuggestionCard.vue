@@ -62,21 +62,21 @@ const completedLabel = computed(() =>
     class="drag-handle flex flex-col gap-2 rounded-xl border p-3 cursor-pointer hover:shadow-sm transition-shadow"
     :class="
       suggestion.completed_at
-        ? 'bg-n-teal-4 border-n-teal-7 hover:border-n-teal-8'
+        ? 'bg-n-teal-9 border-n-teal-10 hover:border-n-teal-11'
         : 'bg-n-solid-1 border-n-weak hover:border-n-slate-6'
     "
     @click="$emit('click', suggestion)"
   >
     <p
       class="text-sm font-medium line-clamp-2 mb-0"
-      :class="suggestion.completed_at ? 'text-n-teal-12' : 'text-n-slate-12'"
+      :class="suggestion.completed_at ? 'text-white' : 'text-n-slate-12'"
     >
       {{ suggestion.title }}
     </p>
     <p
       v-if="suggestion.description"
       class="text-xs line-clamp-3 mb-0"
-      :class="suggestion.completed_at ? 'text-n-teal-11' : 'text-n-slate-11'"
+      :class="suggestion.completed_at ? 'text-white/80' : 'text-n-slate-11'"
     >
       {{ suggestion.description }}
     </p>
@@ -100,11 +100,15 @@ const completedLabel = computed(() =>
     <div
       v-if="suggestion.assignee_name"
       class="flex items-center gap-1 text-xs font-medium"
-      :class="assigneeColor.text"
+      :class="suggestion.completed_at ? 'text-white' : assigneeColor.text"
     >
       <span
         class="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
-        :class="[assigneeColor.bg, assigneeColor.text]"
+        :class="
+          suggestion.completed_at
+            ? 'bg-white/20 text-white'
+            : [assigneeColor.bg, assigneeColor.text]
+        "
       >
         {{ suggestion.assignee_name.charAt(0).toUpperCase() }}
       </span>
@@ -116,11 +120,19 @@ const completedLabel = computed(() =>
         class="flex items-center gap-1.5 min-w-0"
       >
         <span
-          class="flex size-5 flex-shrink-0 items-center justify-center rounded-full bg-n-slate-4 text-[10px] font-medium text-n-slate-12"
+          class="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-medium"
+          :class="
+            suggestion.completed_at
+              ? 'bg-white/20 text-white'
+              : 'bg-n-slate-4 text-n-slate-12'
+          "
         >
           {{ suggestion.user_name.charAt(0).toUpperCase() }}
         </span>
-        <span class="text-xs text-n-slate-11 truncate">
+        <span
+          class="text-xs truncate"
+          :class="suggestion.completed_at ? 'text-white/80' : 'text-n-slate-11'"
+        >
           {{ suggestion.user_name }}
         </span>
       </div>
@@ -128,7 +140,8 @@ const completedLabel = computed(() =>
       <div class="flex items-center flex-shrink-0 gap-2">
         <span
           v-if="suggestion.time_spent_hours"
-          class="flex items-center gap-0.5 text-xs text-n-slate-10"
+          class="flex items-center gap-0.5 text-xs"
+          :class="suggestion.completed_at ? 'text-white/80' : 'text-n-slate-10'"
         >
           <Icon icon="i-lucide-clock" class="size-3" />
           {{
@@ -139,7 +152,8 @@ const completedLabel = computed(() =>
         </span>
         <span
           v-if="suggestion.attachments?.length"
-          class="flex items-center gap-0.5 text-xs text-n-slate-10"
+          class="flex items-center gap-0.5 text-xs"
+          :class="suggestion.completed_at ? 'text-white/80' : 'text-n-slate-10'"
         >
           <Icon icon="i-lucide-paperclip" class="size-3" />
           {{ suggestion.attachments.length }}
@@ -148,7 +162,7 @@ const completedLabel = computed(() =>
           class="text-xs flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full"
           :class="
             suggestion.completed_at
-              ? 'bg-n-teal-9 text-white font-semibold'
+              ? 'bg-white/20 text-white font-semibold'
               : 'text-n-slate-10'
           "
         >

@@ -11,6 +11,7 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import SuggestionBoard from '../components/SuggestionBoard.vue';
 import SuggestionDetailDialog from '../components/SuggestionDetailDialog.vue';
 import SuggestionCreateDialog from '../components/SuggestionCreateDialog.vue';
+import { suggestionMatchesFilters } from '../helpers/suggestionFilters';
 
 const { t } = useI18n();
 const store = useStore();
@@ -20,10 +21,55 @@ const { checkPermissions } = usePolicy();
 const canManage = computed(() =>
   checkPermissions(['administrator', 'suggestion_manage'])
 );
+// Titulo/descricao originais so' Administrador corrige - `suggestion_manage`
+// sozinho nao basta (mesma regra do backend).
+const isAdmin = computed(() => checkPermissions(['administrator']));
 
 const columns = computed(() => store.getters['suggestionColumns/getColumns']);
 const suggestions = computed(() => store.getters['suggestions/getSuggestions']);
 const uiFlags = computed(() => store.getters['suggestions/getUIFlags']);
+
+const priorities = computed(
+  () => store.getters['suggestionPriorities/getItems']
+);
+const categories = computed(
+  () => store.getters['suggestionCategories/getItems']
+);
+// So' Administradores podem ser Responsavel - mesma lista usada no dialogo
+// de detalhe, aqui pra popular o filtro.
+const administrators = computed(() =>
+  (store.getters['agents/getAgents'] || []).filter(
+    agent => agent.role === 'administrator'
+  )
+);
+
+const filters = ref({
+  priorityId: '',
+  categoryId: '',
+  assigneeId: '',
+  dateFrom: '',
+  dateTo: '',
+});
+
+const hasActiveFilters = computed(() =>
+  Object.values(filters.value).some(value => value)
+);
+
+const filteredSuggestions = computed(() =>
+  suggestions.value.filter(suggestion =>
+    suggestionMatchesFilters(suggestion, filters.value)
+  )
+);
+
+const clearFilters = () => {
+  filters.value = {
+    priorityId: '',
+    categoryId: '',
+    assigneeId: '',
+    dateFrom: '',
+    dateTo: '',
+  };
+};
 
 const detailDialog = ref(null);
 const createDialog = ref(null);
@@ -33,6 +79,7 @@ const loadBoard = () => {
   store.dispatch('suggestionColumns/get');
   store.dispatch('suggestionPriorities/get');
   store.dispatch('suggestionCategories/get');
+  store.dispatch('agents/get');
   store.dispatch('suggestions/get');
 };
 
@@ -139,6 +186,80 @@ const goToColumnSettings = () => {
       </div>
     </header>
 
+    <div class="flex flex-wrap items-end gap-2 flex-shrink-0">
+      <label class="flex flex-col gap-1 min-w-[140px]">
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('SUGGESTIONS.FILTERS.PRIORITY') }}
+        </span>
+        <select v-model="filters.priorityId" class="mb-0">
+          <option value="">{{ t('SUGGESTIONS.FILTERS.ALL') }}</option>
+          <option
+            v-for="priority in priorities"
+            :key="priority.id"
+            :value="String(priority.id)"
+          >
+            {{ priority.name }}
+          </option>
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-1 min-w-[140px]">
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('SUGGESTIONS.FILTERS.CATEGORY') }}
+        </span>
+        <select v-model="filters.categoryId" class="mb-0">
+          <option value="">{{ t('SUGGESTIONS.FILTERS.ALL') }}</option>
+          <option
+            v-for="category in categories"
+            :key="category.id"
+            :value="String(category.id)"
+          >
+            {{ category.name }}
+          </option>
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-1 min-w-[140px]">
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('SUGGESTIONS.FILTERS.ASSIGNEE') }}
+        </span>
+        <select v-model="filters.assigneeId" class="mb-0">
+          <option value="">{{ t('SUGGESTIONS.FILTERS.ALL') }}</option>
+          <option
+            v-for="admin in administrators"
+            :key="admin.id"
+            :value="String(admin.id)"
+          >
+            {{ admin.name }}
+          </option>
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-1">
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('SUGGESTIONS.FILTERS.DATE_FROM') }}
+        </span>
+        <input v-model="filters.dateFrom" type="date" class="mb-0" />
+      </label>
+
+      <label class="flex flex-col gap-1">
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('SUGGESTIONS.FILTERS.DATE_TO') }}
+        </span>
+        <input v-model="filters.dateTo" type="date" class="mb-0" />
+      </label>
+
+      <NextButton
+        v-if="hasActiveFilters"
+        faded
+        slate
+        size="sm"
+        icon="i-lucide-x"
+        :label="t('SUGGESTIONS.FILTERS.CLEAR')"
+        @click="clearFilters"
+      />
+    </div>
+
     <main class="flex-1 flex flex-col min-h-0 min-w-0">
       <div v-if="uiFlags.isFetching && !columns.length" class="flex items-center justify-center flex-1">
         <Spinner size="lg" />
@@ -146,7 +267,7 @@ const goToColumnSettings = () => {
       <SuggestionBoard
         v-else
         :columns="columns"
-        :suggestions="suggestions"
+        :suggestions="filteredSuggestions"
         :read-only="!canManage"
         @open-suggestion="openSuggestion"
         @move-suggestion="moveSuggestion"
@@ -156,6 +277,7 @@ const goToColumnSettings = () => {
     <SuggestionDetailDialog
       ref="detailDialog"
       :can-manage="canManage"
+      :is-admin="isAdmin"
       @delete="deleteSuggestion"
       @update="updateSuggestion"
     />

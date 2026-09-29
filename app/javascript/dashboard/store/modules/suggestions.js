@@ -64,13 +64,17 @@ export const actions = {
     }
   },
   // Qualquer campo gerenciavel passa por aqui - so o que vier definido
-  // (mesmo que `null`, pra limpar) e enviado.
+  // (mesmo que `null`, pra limpar) e enviado. `title`/`description` so' tem
+  // efeito quando quem envia e' Administrador - o backend ignora pra
+  // qualquer outro agente.
   update: async ({ commit }, { id, ...fields }) => {
     const KEYS = {
       assigneeId: 'assignee_id',
       priorityId: 'priority_id',
       categoryId: 'category_id',
       timeSpentHours: 'time_spent_hours',
+      title: 'title',
+      description: 'description',
     };
     const suggestion = Object.entries(KEYS).reduce((acc, [camel, snake]) => {
       if (camel in fields) acc[snake] = fields[camel];

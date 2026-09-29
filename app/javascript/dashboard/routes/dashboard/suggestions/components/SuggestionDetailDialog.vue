@@ -10,6 +10,10 @@ import Label from 'dashboard/components-next/label/Label.vue';
 
 const props = defineProps({
   canManage: { type: Boolean, default: false },
+  // So' Administrador (nao qualquer um com `suggestion_manage`) pode corrigir
+  // o titulo/descricao originais - mesma regra do backend
+  // (SuggestionsController::ADMIN_ONLY_FIELDS).
+  isAdmin: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['delete', 'update']);
@@ -88,6 +92,21 @@ const handleTimeSpentChange = event => {
   emit('update', { id: suggestion.value.id, timeSpentHours });
 };
 
+const handleTitleChange = event => {
+  const title = event.target.value.trim();
+  // Titulo vazio nao e' um valor valido - mantem o antigo em vez de mandar
+  // uma string vazia pro backend (que rejeitaria a validacao de presenca).
+  if (!title) return;
+  suggestion.value = { ...suggestion.value, title };
+  emit('update', { id: suggestion.value.id, title });
+};
+
+const handleDescriptionChange = event => {
+  const description = event.target.value;
+  suggestion.value = { ...suggestion.value, description };
+  emit('update', { id: suggestion.value.id, description });
+};
+
 defineExpose({ open, close });
 </script>
 
@@ -100,6 +119,18 @@ defineExpose({ open, close });
     :cancel-button-label="t('SUGGESTIONS.DETAIL.CLOSE')"
   >
     <div v-if="suggestion" class="flex flex-col gap-3">
+      <label v-if="isAdmin" class="flex flex-col gap-1 min-w-0">
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('SUGGESTIONS.CREATE.TITLE_FIELD.LABEL') }}
+        </span>
+        <input
+          type="text"
+          class="mb-0"
+          :value="suggestion.title"
+          @change="handleTitleChange"
+        />
+      </label>
+
       <p class="text-xs text-n-slate-11 mb-0">
         {{
           t('SUGGESTIONS.DETAIL.SUBMITTED_BY', {
@@ -108,7 +139,18 @@ defineExpose({ open, close });
           })
         }}
       </p>
-      <p class="text-sm text-n-slate-12 whitespace-pre-wrap mb-0">
+      <label v-if="isAdmin" class="flex flex-col gap-1 min-w-0">
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('SUGGESTIONS.CREATE.DESCRIPTION_FIELD.LABEL') }}
+        </span>
+        <textarea
+          rows="3"
+          class="mb-0"
+          :value="suggestion.description"
+          @change="handleDescriptionChange"
+        />
+      </label>
+      <p v-else class="text-sm text-n-slate-12 whitespace-pre-wrap mb-0">
         {{ suggestion.description || t('SUGGESTIONS.DETAIL.NO_DESCRIPTION') }}
       </p>
 

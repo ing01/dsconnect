@@ -49,6 +49,15 @@
     "CARD": {
       "COMPLETED_ON": "Concluída em {date}"
     },
+    "FILTERS": {
+      "ALL": "Todas",
+      "PRIORITY": "Prioridade",
+      "CATEGORY": "Categoria",
+      "ASSIGNEE": "Responsável",
+      "DATE_FROM": "De",
+      "DATE_TO": "Até",
+      "CLEAR": "Limpar filtros"
+    },
     "DETAIL": {
       "CLOSE": "Fechar",
       "SUBMITTED_BY": "Enviado por {name} em {date}",
