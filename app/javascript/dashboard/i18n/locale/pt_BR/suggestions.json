@@ -99,7 +99,8 @@
     "TIME_SPENT": {
       "LABEL": "Tempo gasto (horas)",
       "NONE": "Sem tempo registrado",
-      "PLACEHOLDER": "Ex: 2.5"
+      "PLACEHOLDER": "Ex: 2.5",
+      "HOURS": "{count}h"
     },
     "CARD": {
       "COMPLETED_ON": "Concluída em {date}"

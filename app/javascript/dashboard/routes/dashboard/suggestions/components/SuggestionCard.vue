@@ -4,19 +4,25 @@ import { useI18n } from 'vue-i18n';
 import { format, parseISO } from 'date-fns';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
+const props = defineProps({
+  suggestion: { type: Object, required: true },
+});
+
+defineEmits(['click']);
+
 // Paleta fixa. O hash do nome garante que o MESMO responsavel sempre
 // caia na MESMA cor, e nomes diferentes tendem a cair em cores diferentes.
 const ASSIGNEE_COLORS = [
-  { bg: 'bg-n-violet-3',  text: 'text-n-violet-11'  },
-  { bg: 'bg-n-blue-3',    text: 'text-n-blue-11'    },
-  { bg: 'bg-n-teal-3',    text: 'text-n-teal-11'    },
-  { bg: 'bg-n-green-3',   text: 'text-n-green-11'   },
-  { bg: 'bg-n-amber-3',   text: 'text-n-amber-11'   },
-  { bg: 'bg-n-orange-3',  text: 'text-n-orange-11'  },
-  { bg: 'bg-n-pink-3',    text: 'text-n-pink-11'    },
-  { bg: 'bg-n-ruby-3',    text: 'text-n-ruby-11'    },
-  { bg: 'bg-n-indigo-3',  text: 'text-n-indigo-11'  },
-  { bg: 'bg-n-purple-3',  text: 'text-n-purple-11'  },
+  { bg: 'bg-n-violet-3', text: 'text-n-violet-11' },
+  { bg: 'bg-n-blue-3', text: 'text-n-blue-11' },
+  { bg: 'bg-n-teal-3', text: 'text-n-teal-11' },
+  { bg: 'bg-n-green-3', text: 'text-n-green-11' },
+  { bg: 'bg-n-amber-3', text: 'text-n-amber-11' },
+  { bg: 'bg-n-orange-3', text: 'text-n-orange-11' },
+  { bg: 'bg-n-pink-3', text: 'text-n-pink-11' },
+  { bg: 'bg-n-ruby-3', text: 'text-n-ruby-11' },
+  { bg: 'bg-n-indigo-3', text: 'text-n-indigo-11' },
+  { bg: 'bg-n-purple-3', text: 'text-n-purple-11' },
 ];
 
 const assigneeColor = computed(() => {
@@ -32,12 +38,6 @@ const assigneeColor = computed(() => {
 
   return ASSIGNEE_COLORS[Math.abs(hash) % ASSIGNEE_COLORS.length];
 });
-
-const props = defineProps({
-  suggestion: { type: Object, required: true },
-});
-
-defineEmits(['click']);
 
 const { t } = useI18n();
 
@@ -88,20 +88,23 @@ const completedLabel = computed(() =>
       </span>
     </div>
     <div
-        v-if="suggestion.assignee_name"
-        class="flex items-center gap-1 text-xs font-medium"
-        :class="assigneeColor.text"
+      v-if="suggestion.assignee_name"
+      class="flex items-center gap-1 text-xs font-medium"
+      :class="assigneeColor.text"
+    >
+      <span
+        class="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
+        :class="[assigneeColor.bg, assigneeColor.text]"
       >
-        <span
-          class="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
-          :class="[assigneeColor.bg, assigneeColor.text]"
-        >
-          {{ suggestion.assignee_name.charAt(0).toUpperCase() }}
-        </span>
-        <span class="truncate">{{ suggestion.assignee_name }}</span>
-      </div>
+        {{ suggestion.assignee_name.charAt(0).toUpperCase() }}
+      </span>
+      <span class="truncate">{{ suggestion.assignee_name }}</span>
+    </div>
     <div class="flex items-center justify-between gap-2">
-      <div v-if="suggestion.user_name" class="flex items-center gap-1.5 min-w-0">
+      <div
+        v-if="suggestion.user_name"
+        class="flex items-center gap-1.5 min-w-0"
+      >
         <span
           class="flex size-5 flex-shrink-0 items-center justify-center rounded-full bg-n-slate-4 text-[10px] font-medium text-n-slate-12"
         >
@@ -118,7 +121,11 @@ const completedLabel = computed(() =>
           class="flex items-center gap-0.5 text-xs text-n-slate-10"
         >
           <Icon icon="i-lucide-clock" class="size-3" />
-          {{ suggestion.time_spent_hours }}h
+          {{
+            t('SUGGESTIONS.TIME_SPENT.HOURS', {
+              count: suggestion.time_spent_hours,
+            })
+          }}
         </span>
         <span
           v-if="suggestion.attachments?.length"
@@ -131,7 +138,7 @@ const completedLabel = computed(() =>
           class="text-xs flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full"
           :class="
             suggestion.completed_at
-              ? 'bg-green-100 text-green-700 font-semibold'
+              ? 'bg-n-teal-3 text-n-teal-11 font-semibold'
               : 'text-n-slate-10'
           "
         >

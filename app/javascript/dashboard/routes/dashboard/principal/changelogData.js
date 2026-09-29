@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'suggestions-board-column-layout',
+    date: '28 de setembro de 2026',
+    isoDate: '2026-09-28',
+    type: 'improvement',
+    title: 'Quadro de Sugestões desalinhado',
+    description:
+      'As colunas do quadro de Sugestões estavam montadas na horizontal: o nome da coluna ficava ao lado dos cards, em vez de acima deles, e as colunas se comprimiam umas contra as outras. Agora cada coluna tem largura fixa, o título em cima e os cards embaixo, no mesmo formato do Kanban de Tickets. A etiqueta de concluído também voltou a ficar legível no tema escuro.',
+  },
+  {
     id: 'suggestions-fields-settings-labels',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',
