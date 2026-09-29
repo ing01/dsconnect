@@ -55,6 +55,32 @@ class InternalChatAPI extends ApiClient {
       { emoji }
     );
   }
+
+  deleteChannel(channelId) {
+    return axios.delete(`${this.url}/${channelId}`);
+  }
+
+  addMember(channelId, userId) {
+    return axios.post(`${this.url}/${channelId}/add_member`, {
+      user_id: userId,
+    });
+  }
+
+  removeMember(channelId, userId) {
+    return axios.delete(`${this.url}/${channelId}/remove_member`, {
+      data: { user_id: userId },
+    });
+  }
+
+  getPinnedMessages(channelId) {
+    return axios.get(`${this.url}/${channelId}/messages/pinned`);
+  }
+
+  togglePin(channelId, messageId) {
+    return axios.post(
+      `${this.url}/${channelId}/messages/${messageId}/toggle_pin`
+    );
+  }
 }
 
 export default new InternalChatAPI();

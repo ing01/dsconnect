@@ -1,22 +1,55 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { OnClickOutside } from '@vueuse/components';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 import { presenceDotClass, presenceLabelKey } from '../helpers/presence';
 
 const props = defineProps({
   room: { type: Object, default: null },
   peer: { type: Object, default: null },
+  pinnedCount: { type: Number, default: 0 },
 });
 
-const emit = defineEmits(['back', 'search']);
+const emit = defineEmits([
+  'back',
+  'search',
+  'manageMembers',
+  'deleteChannel',
+  'togglePinned',
+]);
 
 const { t } = useI18n();
 
 const isChannel = computed(() => !!props.room?.name);
 const searchOpen = ref(false);
 const searchQuery = ref('');
+const isMoreMenuOpen = ref(false);
+
+const moreMenuItems = computed(() => [
+  {
+    label: t('INTERNAL_CHAT.HEADER.PINNED_MESSAGES', {
+      count: props.pinnedCount,
+    }),
+    value: 'pinned',
+    action: 'pinned',
+    icon: 'i-lucide-pin',
+  },
+  {
+    label: t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL'),
+    value: 'delete',
+    action: 'delete',
+    icon: 'i-lucide-trash-2',
+  },
+]);
+
+const handleMoreAction = ({ action }) => {
+  isMoreMenuOpen.value = false;
+  if (action === 'pinned') emit('togglePinned');
+  if (action === 'delete') emit('deleteChannel');
+};
 
 const onSearch = () => emit('search', searchQuery.value);
 
@@ -89,16 +122,30 @@ const toggleSearch = () => {
           type="button"
           class="p-1.5 rounded text-n-slate-11 hover:bg-n-alpha-2"
           :title="t('INTERNAL_CHAT.HEADER.MEMBERS_TITLE')"
+          @click="emit('manageMembers')"
         >
           <Icon icon="i-lucide-users" class="size-4" />
         </button>
-        <button
-          type="button"
-          class="p-1.5 rounded text-n-slate-11 hover:bg-n-alpha-2"
-          :title="t('INTERNAL_CHAT.HEADER.MORE')"
+        <OnClickOutside
+          v-if="isChannel"
+          class="relative"
+          @trigger="isMoreMenuOpen = false"
         >
-          <Icon icon="i-lucide-more-horizontal" class="size-4" />
-        </button>
+          <button
+            type="button"
+            class="p-1.5 rounded text-n-slate-11 hover:bg-n-alpha-2"
+            :title="t('INTERNAL_CHAT.HEADER.MORE')"
+            @click="isMoreMenuOpen = !isMoreMenuOpen"
+          >
+            <Icon icon="i-lucide-more-horizontal" class="size-4" />
+          </button>
+          <DropdownMenu
+            v-if="isMoreMenuOpen"
+            :menu-items="moreMenuItems"
+            class="mt-1 top-full end-0 w-56"
+            @action="handleMoreAction"
+          />
+        </OnClickOutside>
       </div>
     </div>
 

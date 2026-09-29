@@ -18,6 +18,11 @@
 
 <p>
   <%= t('.regards') %><br />
+  <%# Nome do atendente sempre aparece aqui - independente de ele ter
+      configurado uma assinatura customizada (abaixo, opcional). %>
+  <% if @agent_name.present? %>
+    <%= @agent_name %><br />
+  <% end %>
   <%= t('.company_name') %>
 </p>
 

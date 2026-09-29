@@ -1,0 +1,18 @@
+json.array! @rows do |row|
+  json.id row[:id]
+  json.display_id row[:display_id]
+  json.title row[:title]
+  json.company_id row[:company_id]
+  json.company_name row[:company_name]
+  json.service_catalog_id row[:service_catalog_id]
+  json.service_catalog_name row[:service_catalog_name]
+  json.team_id row[:team_id]
+  json.team_name row[:team_name]
+  json.assignee_id row[:assignee_id]
+  json.assignee_name row[:assignee_name]
+  json.ticket_category_id row[:ticket_category_id]
+  json.category_name row[:category_name]
+  json.status row[:status]
+  json.created_at row[:created_at]
+  json.closed_at row[:closed_at]
+end

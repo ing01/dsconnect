@@ -1,12 +1,14 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { OnClickOutside } from '@vueuse/components';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
+import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 import FullEditor from 'dashboard/components/widgets/WootWriter/FullEditor.vue';
 
 const props = defineProps({
@@ -37,6 +39,32 @@ const email = computed(() => props.ticket.customer_email);
 // (`ticket.display_subject`), e ele continua indo no cabecalho do e-mail.
 
 const canSend = computed(() => !!email.value && !!body.value.trim());
+
+// Modelos de mensagem: os mesmos Respostas Prontas usados no composer padrao
+// do Chatwoot (Configuracoes > Respostas Prontas) - o FullEditor deste
+// composer nao tem o menu "/" deles (e' o editor de artigos, outro
+// schema/plugins), entao aqui entram por um botao dedicado em vez disso.
+const isTemplateMenuOpen = ref(false);
+const cannedResponses = computed(() => store.getters.getCannedResponses || []);
+const templateMenuItems = computed(() =>
+  cannedResponses.value.map(response => ({
+    label: `/${response.short_code}`,
+    description: response.content,
+    value: response.id,
+    action: 'insert',
+    content: response.content,
+  }))
+);
+
+const insertTemplate = item => {
+  isTemplateMenuOpen.value = false;
+  const separator = body.value.trim() ? '\n\n' : '';
+  body.value = `${body.value}${separator}${item.content}`;
+};
+
+onMounted(() => {
+  store.dispatch('getCannedResponse');
+});
 
 // `skipped` nao e falha nem pendencia - e a mensagem que ninguem mandou por
 // e-mail de proposito. Cinza justamente por isso: nada a corrigir.
@@ -92,6 +120,39 @@ const send = async () => {
           {{ t('TICKET.CLOSE.TO') }}:
           <span class="text-n-slate-12">{{ email }}</span>
         </p>
+
+        <OnClickOutside
+          class="relative w-fit"
+          @trigger="isTemplateMenuOpen = false"
+        >
+          <Button
+            faded
+            slate
+            size="sm"
+            type="button"
+            icon="i-lucide-message-square-text"
+            :label="t('TICKET.COMMUNICATION.TEMPLATES.BUTTON')"
+            @click="isTemplateMenuOpen = !isTemplateMenuOpen"
+          />
+          <DropdownMenu
+            v-if="isTemplateMenuOpen"
+            show-search
+            :menu-items="templateMenuItems"
+            :search-placeholder="t('TICKET.COMMUNICATION.TEMPLATES.SEARCH')"
+            empty-state-message="TICKET.COMMUNICATION.TEMPLATES.EMPTY"
+            class="mt-1 top-full w-80 max-h-72"
+            @action="insertTemplate"
+          >
+            <template #label="{ item }">
+              <span class="flex flex-col min-w-0 text-left">
+                <span class="text-sm truncate font-420">{{ item.label }}</span>
+                <span class="text-xs truncate text-n-slate-10">
+                  {{ item.description }}
+                </span>
+              </span>
+            </template>
+          </DropdownMenu>
+        </OnClickOutside>
 
         <FullEditor
           v-model="body"

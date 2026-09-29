@@ -151,7 +151,7 @@ export default {
   computed: {
     ...mapGetters({
       currentChat: 'getSelectedChat',
-      messageSignature: 'getMessageSignature',
+      rawMessageSignature: 'getMessageSignature',
       currentUser: 'getCurrentUser',
       lastEmail: 'getLastEmailInSelectedChat',
       globalConfig: 'globalConfig/get',
@@ -164,6 +164,12 @@ export default {
         this.accountId,
         FEATURE_FLAGS.MACROS
       );
+    },
+    // O nome do atendente e essencial nas conversas - se a pessoa nao escreveu
+    // uma assinatura propria, o nome dela mesma entra como identificacao
+    // minima em vez de nada ser anexado.
+    messageSignature() {
+      return this.rawMessageSignature || this.currentUser?.name || '';
     },
     currentContact() {
       const senderId = this.currentChat?.meta?.sender?.id;

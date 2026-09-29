@@ -111,7 +111,11 @@ const fetchSignatureFlagFromUISettings = (channelType, uiSettings) => {
   if (!channelType) return false;
 
   const slugifiedChannel = slugifyChannel(channelType);
-  return uiSettings.value[`${slugifiedChannel}_signature_enabled`];
+  const value = uiSettings.value[`${slugifiedChannel}_signature_enabled`];
+  // O nome do atendente e essencial nas conversas - ninguem configurou ainda
+  // quer dizer "ligado", nao "desligado". So um `false` explicito (a pessoa
+  // desmarcou de proposito) desativa.
+  return value === undefined ? true : value;
 };
 
 const fetchQuotedReplyFlagFromUISettings = (channelType, uiSettings) => {

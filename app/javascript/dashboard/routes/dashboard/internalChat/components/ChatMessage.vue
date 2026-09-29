@@ -19,12 +19,13 @@ const props = defineProps({
   repliedAuthor: { type: Object, default: null },
 });
 
-const emit = defineEmits(['reply', 'react', 'openImage', 'openTicket']);
+const emit = defineEmits(['reply', 'react', 'openImage', 'openTicket', 'pin']);
 
 const { t } = useI18n();
 
 const time = computed(() => shortTime(props.message.createdAt));
 const reactions = computed(() => props.message.reactions || []);
+const isPinned = computed(() => !!props.message.pinnedAt);
 
 const hasReacted = reaction => reaction.userIds.includes(props.currentUserId);
 </script>
@@ -57,6 +58,13 @@ const hasReacted = reaction => reaction.userIds.includes(props.currentUserId);
           {{ author?.name }}
         </span>
         <span class="text-xs tabular-nums text-n-slate-10">{{ time }}</span>
+        <span
+          v-if="isPinned"
+          class="flex items-center gap-0.5 text-xs text-n-amber-11"
+        >
+          <Icon icon="i-lucide-pin" class="size-3" />
+          {{ t('INTERNAL_CHAT.MESSAGE.PINNED') }}
+        </span>
       </div>
 
       <MessageBody
@@ -115,6 +123,19 @@ const hasReacted = reaction => reaction.userIds.includes(props.currentUserId);
         @click="emit('reply', message)"
       >
         <Icon icon="i-lucide-reply" class="size-3.5" />
+      </button>
+      <button
+        type="button"
+        class="p-1 rounded hover:bg-n-alpha-2"
+        :class="isPinned ? 'text-n-amber-11' : 'text-n-slate-11'"
+        :title="
+          t(
+            isPinned ? 'INTERNAL_CHAT.MESSAGE.UNPIN' : 'INTERNAL_CHAT.MESSAGE.PIN'
+          )
+        "
+        @click="emit('pin', message.id)"
+      >
+        <Icon icon="i-lucide-pin" class="size-3.5" />
       </button>
     </div>
   </div>

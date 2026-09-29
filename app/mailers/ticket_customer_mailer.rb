@@ -33,6 +33,10 @@ class TicketCustomerMailer < ApplicationMailer
     @ticket = communication.ticket
     @contact = communication.contact
     @company = @ticket.company
+    # O nome do atendente aparece sempre - a assinatura customizada
+    # (`message_signature`) e' um extra opcional por cima disso, nao um
+    # substituto: sem ela, o cliente ainda precisa saber quem atendeu.
+    @agent_name = communication.user&.name
     # Only when the sender actually has one; a blank signature must not leave an
     # empty block at the end of the message.
     @signature = communication.user&.message_signature.presence

@@ -25,6 +25,10 @@ export const state = {
   // Qual sala está aberta. O store precisa saber para decidir se uma mensagem
   // que chega pelo tempo real conta como não lida.
   activeRoomId: null,
+  // Buscadas a parte, por sala, porque nem sempre estao dentro da janela de
+  // mensagens ja carregada (fixar uma antiga nao a traz de volta pro historico
+  // recente).
+  pinnedMessages: {},
   uiFlags: {
     isFetchingRooms: false,
     isFetchingMessages: false,
@@ -48,6 +52,8 @@ export const getters = {
     _state.rooms.reduce((total, room) => total + (room.unread || 0), 0),
 
   getRoomById: _state => id => _state.rooms.find(room => room.id === id),
+
+  getPinnedMessages: _state => roomId => _state.pinnedMessages[roomId] || [],
 };
 
 /**
@@ -227,6 +233,40 @@ export const actions = {
     commit(types.ADD_INTERNAL_CHAT_ROOM, response.data);
     return response.data;
   },
+
+  deleteChannel: async ({ commit }, roomId) => {
+    await InternalChatAPI.deleteChannel(roomId);
+    commit(types.REMOVE_INTERNAL_CHAT_ROOM, roomId);
+  },
+
+  addMember: async ({ commit }, { roomId, userId }) => {
+    const response = await InternalChatAPI.addMember(roomId, userId);
+    commit(types.ADD_INTERNAL_CHAT_ROOM, response.data);
+    return response.data;
+  },
+
+  removeMember: async ({ commit }, { roomId, userId }) => {
+    const response = await InternalChatAPI.removeMember(roomId, userId);
+    commit(types.ADD_INTERNAL_CHAT_ROOM, response.data);
+    return response.data;
+  },
+
+  fetchPinnedMessages: async ({ commit }, roomId) => {
+    const response = await InternalChatAPI.getPinnedMessages(roomId);
+    commit(types.SET_INTERNAL_CHAT_PINNED_MESSAGES, {
+      roomId,
+      messages: response.data.payload,
+    });
+  },
+
+  togglePin: async ({ commit, dispatch }, { roomId, messageId }) => {
+    const response = await InternalChatAPI.togglePin(roomId, messageId);
+    commit(types.UPDATE_INTERNAL_CHAT_MESSAGE, {
+      roomId,
+      message: response.data,
+    });
+    dispatch('fetchPinnedMessages', roomId);
+  },
 };
 
 const findRoom = (_state, roomId) =>
@@ -292,6 +332,14 @@ export const mutations = {
   [types.SET_INTERNAL_CHAT_UNREAD](_state, { roomId, unread }) {
     const room = findRoom(_state, roomId);
     if (room) room.unread = unread;
+  },
+
+  [types.REMOVE_INTERNAL_CHAT_ROOM](_state, roomId) {
+    _state.rooms = _state.rooms.filter(room => room.id !== roomId);
+  },
+
+  [types.SET_INTERNAL_CHAT_PINNED_MESSAGES](_state, { roomId, messages }) {
+    _state.pinnedMessages = { ..._state.pinnedMessages, [roomId]: messages };
   },
 };
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_29_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_29_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -886,6 +886,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_100000) do
     t.text "content", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "pinned_at"
     t.index ["account_id"], name: "index_chat_messages_on_account_id"
     t.index ["chat_channel_id", "created_at"], name: "index_chat_messages_on_chat_channel_id_and_created_at"
     t.index ["reply_to_id"], name: "index_chat_messages_on_reply_to_id"

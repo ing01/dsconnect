@@ -14,7 +14,11 @@
       "SEARCH_PLACEHOLDER": "Search in this conversation",
       "MEMBERS": "{count} members",
       "MEMBERS_TITLE": "Members",
-      "MORE": "More"
+      "MORE": "More",
+      "PINNED_MESSAGES": "Pinned messages ({count})",
+      "DELETE_CHANNEL": "Delete channel",
+      "DELETE_CHANNEL_CONFIRM": "Delete this channel? This removes it for everyone and cannot be undone.",
+      "DELETE_CHANNEL_ERROR": "Could not delete the channel."
     },
     "PRESENCE": {
       "ONLINE": "Online",
@@ -23,7 +27,20 @@
     },
     "MESSAGE": {
       "REPLY": "Reply",
-      "REACT": "React"
+      "REACT": "React",
+      "PIN": "Pin message",
+      "UNPIN": "Unpin message",
+      "PINNED": "Pinned",
+      "NO_PINNED": "No pinned messages in this channel."
+    },
+    "MEMBERS": {
+      "TITLE": "Manage members",
+      "CLOSE": "Close",
+      "ADD": "Add member",
+      "ADD_PLACEHOLDER": "Choose someone to add...",
+      "CURRENT": "Members ({count})",
+      "REMOVE": "Remove from channel",
+      "ERROR": "Could not update the members."
     },
     "COMPOSER": {
       "PLACEHOLDER": "Type a message...",

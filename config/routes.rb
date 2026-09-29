@@ -79,6 +79,9 @@ Rails.application.routes.draw do
           end
           # Relatorio de apontamentos: horas por nivel e por pessoa. So leitura.
           resources :ticket_time_reports, only: [:index]
+          # Relatorio de tickets: uma linha por ticket, filtravel por cliente,
+          # status, responsavel, catalogo e periodo. So leitura.
+          resources :ticket_reports, only: [:index]
           resources :agents, only: [:index, :create, :update, :destroy] do
             post :bulk_create, on: :collection
             # Atalho administrativo: a redefinicao normal depende do e-mail de
@@ -435,18 +438,24 @@ Rails.application.routes.draw do
 
           # Chat Interno: conversa entre funcionarios, separada das
           # Conversations com clientes.
-          resources :chat_channels, only: [:index, :show, :create] do
+          resources :chat_channels, only: [:index, :show, :create, :destroy] do
             collection do
               post :direct
             end
             member do
               post :read
+              post :add_member
+              delete :remove_member
             end
             # O upload vai direto para o storage; a aplicacao so registra o blob.
             resources :direct_uploads, module: 'chat_channels', only: [:create]
             resources :messages, controller: 'chat_messages', only: [:index, :create] do
+              collection do
+                get :pinned
+              end
               member do
                 post :toggle_reaction
+                post :toggle_pin
               end
             end
           end

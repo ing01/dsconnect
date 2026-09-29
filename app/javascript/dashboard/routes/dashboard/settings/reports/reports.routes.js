@@ -19,6 +19,7 @@ import InboxReports from './InboxReports.vue';
 import LabelReports from './LabelReports.vue';
 import TeamReports from './TeamReports.vue';
 import TicketTimeReports from './TicketTimeReports.vue';
+import TicketReports from './TicketReports.vue';
 
 import CsatResponses from './CsatResponses.vue';
 import BotReports from './BotReports.vue';
@@ -62,6 +63,14 @@ const oldReportRoutes = [
     name: 'ticket_time_reports',
     meta,
     component: TicketTimeReports,
+  },
+  {
+    // Uma linha por ticket, filtravel por cliente, status, responsavel,
+    // catalogo e periodo de abertura/fechamento.
+    path: 'tickets',
+    name: 'ticket_reports',
+    meta,
+    component: TicketReports,
   },
 ];
 

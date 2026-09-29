@@ -47,8 +47,8 @@ const submit = () => {
   if (!isValid.value) return;
 
   emit('create', {
-    // O nome do canal segue a convenção de handle: minúsculo e sem espaço.
-    name: name.value.trim().toLowerCase().replace(/\s+/g, '-'),
+    // O nome aparece exatamente como digitado - so o espaco nas pontas some.
+    name: name.value.trim(),
     description: description.value.trim(),
     visibility: visibility.value,
     memberIds: [...new Set([props.currentUserId, ...memberIds.value])],

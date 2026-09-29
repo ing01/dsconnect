@@ -32,6 +32,12 @@ class ChatMessage < ApplicationRecord
   after_create_commit :touch_channel, :dispatch_created_event
 
   scope :chronological, -> { order(created_at: :asc, id: :asc) }
+  scope :pinned, -> { where.not(pinned_at: nil).order(pinned_at: :desc) }
+
+  # Fixar e desafixar sao o mesmo gesto: clicar de novo tira a fixacao.
+  def toggle_pin!
+    update!(pinned_at: pinned_at? ? nil : Time.zone.now)
+  end
 
   # O mesmo formato que a API devolve, para que a mensagem que chega pelo tempo
   # real e a que vem por HTTP sejam indistinguiveis na tela.
@@ -45,6 +51,7 @@ class ChatMessage < ApplicationRecord
       chatChannelId: chat_channel_id,
       body: content,
       createdAt: created_at.to_i,
+      pinnedAt: pinned_at&.to_i,
       replyTo: reply_to_id,
       reactions: reactions_payload.map { |item| { emoji: item[:emoji], userIds: item[:user_ids] } },
       # Sem isto a imagem apareceria para quem enviou e nao para quem recebe

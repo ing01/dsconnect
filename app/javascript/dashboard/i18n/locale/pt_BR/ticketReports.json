@@ -1,0 +1,33 @@
+{
+  "TICKET_REPORTS": {
+    "TITLE": "Relatório de tickets",
+    "DESC": "Uma linha por ticket, filtrável por cliente, status, responsável, catálogo e data de abertura/fechamento.",
+    "LOADING": "Carregando...",
+    "ERROR": "Não foi possível carregar o relatório.",
+    "EMPTY": "Nenhum ticket encontrado com esses filtros.",
+    "FILTERS": {
+      "COMPANY": "Cliente",
+      "STATUS": "Status",
+      "ASSIGNEE": "Responsável",
+      "CATALOG": "Catálogo",
+      "OPENED_FROM": "Aberto de",
+      "OPENED_TO": "Aberto até",
+      "CLOSED_FROM": "Fechado de",
+      "CLOSED_TO": "Fechado até",
+      "ALL": "Todos",
+      "APPLY": "Aplicar",
+      "CLEAR": "Limpar filtros"
+    },
+    "TABLE": {
+      "TICKET": "Ticket",
+      "COMPANY": "Cliente",
+      "CATALOG": "Catálogo",
+      "TEAM": "Mesa",
+      "ASSIGNEE": "Responsável",
+      "CATEGORY": "Categoria",
+      "STATUS": "Status",
+      "OPENED_AT": "Aberto em",
+      "CLOSED_AT": "Fechado em"
+    }
+  }
+}

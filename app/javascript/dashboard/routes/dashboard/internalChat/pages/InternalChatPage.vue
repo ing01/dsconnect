@@ -10,6 +10,7 @@ import {
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 
 import ChatSidebar from '../components/ChatSidebar.vue';
@@ -18,6 +19,7 @@ import ChatMessage from '../components/ChatMessage.vue';
 import ChatComposer from '../components/ChatComposer.vue';
 import NewConversationDialog from '../components/NewConversationDialog.vue';
 import CreateChannelDialog from '../components/CreateChannelDialog.vue';
+import ManageMembersDialog from '../components/ManageMembersDialog.vue';
 import ImageLightbox from '../components/ImageLightbox.vue';
 import { continuesBlock } from '../helpers/messageParser';
 
@@ -44,6 +46,8 @@ const scrollerRef = ref(null);
 
 const newConversationDialog = ref(null);
 const createChannelDialog = ref(null);
+const manageMembersDialog = ref(null);
+const showPinnedMessages = ref(false);
 
 const activeRoom = computed(() =>
   activeRoomId.value
@@ -76,6 +80,12 @@ const visibleMessages = computed(() => {
 
 const messageAt = id => activeRoom.value?.messages.find(item => item.id === id);
 
+const pinnedMessages = computed(() =>
+  activeRoomId.value
+    ? getters['internalChat/getPinnedMessages'].value(activeRoomId.value)
+    : []
+);
+
 const scrollToBottom = () => {
   nextTick(() => {
     const element = scrollerRef.value;
@@ -99,6 +109,8 @@ const openRoom = async roomId => {
   // primeira tela não carrega toda a conversa de todo mundo.
   await store.dispatch('internalChat/fetchMessages', roomId);
   store.dispatch('internalChat/markRead', roomId);
+  store.dispatch('internalChat/fetchPinnedMessages', roomId);
+  showPinnedMessages.value = false;
   scrollToBottom();
 };
 
@@ -135,6 +147,54 @@ const react = ({ messageId, emoji }) =>
     messageId,
     emoji,
   });
+
+const togglePin = messageId =>
+  store.dispatch('internalChat/togglePin', {
+    roomId: activeRoomId.value,
+    messageId,
+  });
+
+const deleteChannel = async () => {
+  const room = activeRoom.value;
+  if (!room) return;
+  // eslint-disable-next-line no-alert
+  if (!window.confirm(t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL_CONFIRM'))) return;
+
+  try {
+    await store.dispatch('internalChat/deleteChannel', room.id);
+    activeRoomId.value = '';
+    const next = directs.value[0]?.id || channels.value[0]?.id;
+    if (next) await openRoom(next);
+  } catch (error) {
+    useAlert(t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL_ERROR'));
+  }
+};
+
+const openManageMembers = () => manageMembersDialog.value?.open(activeRoom.value);
+
+const addMember = async userId => {
+  try {
+    await store.dispatch('internalChat/addMember', {
+      roomId: activeRoomId.value,
+      userId,
+    });
+    manageMembersDialog.value?.open(activeRoom.value);
+  } catch (error) {
+    useAlert(t('INTERNAL_CHAT.MEMBERS.ERROR'));
+  }
+};
+
+const removeMember = async userId => {
+  try {
+    await store.dispatch('internalChat/removeMember', {
+      roomId: activeRoomId.value,
+      userId,
+    });
+    manageMembersDialog.value?.open(activeRoom.value);
+  } catch (error) {
+    useAlert(t('INTERNAL_CHAT.MEMBERS.ERROR'));
+  }
+};
 
 const startConversation = async userId => {
   const direct = await store.dispatch('internalChat/openDirect', userId);
@@ -195,9 +255,35 @@ const unreadDividerIndex = computed(() => {
         <ChatHeader
           :room="activeRoom"
           :peer="peer"
+          :pinned-count="pinnedMessages.length"
           @back="showConversationOnMobile = false"
           @search="value => (messageQuery = value)"
+          @manage-members="openManageMembers"
+          @delete-channel="deleteChannel"
+          @toggle-pinned="showPinnedMessages = !showPinnedMessages"
         />
+
+        <div
+          v-if="showPinnedMessages"
+          class="flex flex-col gap-1 px-4 py-2 border-b max-h-40 overflow-y-auto border-n-weak bg-n-amber-2"
+        >
+          <p
+            v-if="!pinnedMessages.length"
+            class="text-xs text-n-slate-10 mb-0"
+          >
+            {{ t('INTERNAL_CHAT.MESSAGE.NO_PINNED') }}
+          </p>
+          <div
+            v-for="pinned in pinnedMessages"
+            :key="pinned.id"
+            class="flex items-baseline gap-2 text-xs"
+          >
+            <span class="font-medium text-n-slate-12">
+              {{ userFor(pinned.userId)?.name }}
+            </span>
+            <span class="truncate text-n-slate-11">{{ pinned.body }}</span>
+          </div>
+        </div>
 
         <div ref="scrollerRef" class="flex flex-col py-2 overflow-y-auto grow">
           <template
@@ -231,6 +317,7 @@ const unreadDividerIndex = computed(() => {
               "
               @reply="value => (replyTo = value)"
               @react="react"
+              @pin="togglePin"
               @open-image="attachment => (lightboxAttachment = attachment)"
               @open-ticket="openTicket"
             />
@@ -284,6 +371,14 @@ const unreadDividerIndex = computed(() => {
       :users="users"
       :current-user-id="currentUserId"
       @create="createChannel"
+    />
+
+    <ManageMembersDialog
+      ref="manageMembersDialog"
+      :users="users"
+      :current-user-id="currentUserId"
+      @add="addMember"
+      @remove="removeMember"
     />
 
     <ImageLightbox

@@ -14,7 +14,11 @@
       "SEARCH_PLACEHOLDER": "Buscar nesta conversa",
       "MEMBERS": "{count} membros",
       "MEMBERS_TITLE": "Membros",
-      "MORE": "Mais"
+      "MORE": "Mais",
+      "PINNED_MESSAGES": "Mensagens fixadas ({count})",
+      "DELETE_CHANNEL": "Excluir canal",
+      "DELETE_CHANNEL_CONFIRM": "Excluir este canal? Isso remove para todo mundo e não pode ser desfeito.",
+      "DELETE_CHANNEL_ERROR": "Não foi possível excluir o canal."
     },
     "PRESENCE": {
       "ONLINE": "Online",
@@ -23,7 +27,20 @@
     },
     "MESSAGE": {
       "REPLY": "Responder",
-      "REACT": "Reagir"
+      "REACT": "Reagir",
+      "PIN": "Fixar mensagem",
+      "UNPIN": "Desafixar mensagem",
+      "PINNED": "Fixada",
+      "NO_PINNED": "Nenhuma mensagem fixada neste canal."
+    },
+    "MEMBERS": {
+      "TITLE": "Gerenciar membros",
+      "CLOSE": "Fechar",
+      "ADD": "Adicionar membro",
+      "ADD_PLACEHOLDER": "Escolha alguém para adicionar...",
+      "CURRENT": "Membros ({count})",
+      "REMOVE": "Remover do canal",
+      "ERROR": "Não foi possível atualizar os membros."
     },
     "COMPOSER": {
       "PLACEHOLDER": "Digite uma mensagem...",

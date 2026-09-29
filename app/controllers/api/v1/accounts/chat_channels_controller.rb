@@ -4,7 +4,7 @@
 # de que nao participa. Um canal publico so aparece depois que a pessoa entra
 # nele - descobrir canais e assunto de outra etapa.
 class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseController
-  before_action :fetch_channel, only: [:show, :read]
+  before_action :fetch_channel, only: [:show, :read, :destroy, :add_member, :remove_member]
   before_action :check_authorization
 
   def index
@@ -42,6 +42,28 @@ class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseControl
     head :ok
   end
 
+  def destroy
+    @chat_channel.destroy!
+    head :ok
+  end
+
+  def add_member
+    user_id = params[:user_id].to_i
+    unless Current.account.user_ids.include?(user_id)
+      return render json: { error: 'invalid user' }, status: :unprocessable_entity
+    end
+
+    @chat_channel.chat_channel_members.find_or_create_by!(user_id: user_id)
+    @chat_channel.reload
+    render 'show'
+  end
+
+  def remove_member
+    @chat_channel.chat_channel_members.where(user_id: params[:user_id]).destroy_all
+    @chat_channel.reload
+    render 'show'
+  end
+
   private
 
   def fetch_channel
@@ -50,6 +72,13 @@ class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseControl
     @chat_channel = ChatChannel.for_user(Current.user).find_by!(
       id: params[:id], account_id: Current.account.id
     )
+  end
+
+  # Nas acoes de colecao (index/create/direct) nao ha canal ainda para avaliar
+  # - a policy recebe a classe. Nas demais, e' o registro de verdade que decide
+  # quem pode gerenciar (excluir, adicionar/remover membro).
+  def check_authorization(model = nil)
+    super(model || @chat_channel || ChatChannel)
   end
 
   def membership(channel)

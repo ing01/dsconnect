@@ -1047,7 +1047,12 @@
       "FROM_CUSTOMER": "Reply from {name}",
       "NOTIFY": "Enviar e-mail ao cliente",
       "NOTIFY_HINT": "Desmarque para apenas registrar a mensagem no chamado. Ela continua visível para o cliente na Área do Cliente, mas nenhum e-mail é enviado.",
-      "REGISTER": "Registrar sem enviar"
+      "REGISTER": "Registrar sem enviar",
+      "TEMPLATES": {
+        "BUTTON": "Use a template",
+        "SEARCH": "Search templates...",
+        "EMPTY": "No templates found."
+      }
     },
     "EXPORT": {
       "LABEL": "Export",

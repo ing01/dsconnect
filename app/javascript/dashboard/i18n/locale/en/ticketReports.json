@@ -1,0 +1,33 @@
+{
+  "TICKET_REPORTS": {
+    "TITLE": "Ticket report",
+    "DESC": "One row per ticket, filterable by client, status, assignee, catalog and open/close date.",
+    "LOADING": "Loading...",
+    "ERROR": "Could not load the report.",
+    "EMPTY": "No tickets match these filters.",
+    "FILTERS": {
+      "COMPANY": "Client",
+      "STATUS": "Status",
+      "ASSIGNEE": "Assignee",
+      "CATALOG": "Catalog",
+      "OPENED_FROM": "Opened from",
+      "OPENED_TO": "Opened to",
+      "CLOSED_FROM": "Closed from",
+      "CLOSED_TO": "Closed to",
+      "ALL": "All",
+      "APPLY": "Apply",
+      "CLEAR": "Clear filters"
+    },
+    "TABLE": {
+      "TICKET": "Ticket",
+      "COMPANY": "Client",
+      "CATALOG": "Catalog",
+      "TEAM": "Service desk",
+      "ASSIGNEE": "Assignee",
+      "CATEGORY": "Category",
+      "STATUS": "Status",
+      "OPENED_AT": "Opened at",
+      "CLOSED_AT": "Closed at"
+    }
+  }
+}

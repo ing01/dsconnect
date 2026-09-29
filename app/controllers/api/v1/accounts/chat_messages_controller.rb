@@ -7,7 +7,15 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
 
   before_action :fetch_channel
   before_action :check_authorization
-  before_action :fetch_message, only: [:toggle_reaction]
+  before_action :fetch_message, only: [:toggle_reaction, :toggle_pin]
+
+  # As mensagens fixadas da sala, mais recente primeiro - sem paginacao: sao
+  # poucas por natureza (fixar exige uma acao deliberada por vez).
+  def pinned
+    @chat_messages = @chat_channel.chat_messages.pinned
+                                  .includes(:user, :chat_message_reactions, :reply_to)
+    render 'index'
+  end
 
   def index
     scope = @chat_channel.chat_messages.includes(:user, :chat_message_reactions, :reply_to)
@@ -51,6 +59,12 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
 
     @chat_message.reload
     # Quem esta com a sala aberta ve a reacao sem recarregar.
+    @chat_message.dispatch_updated_event
+    render 'show'
+  end
+
+  def toggle_pin
+    @chat_message.toggle_pin!
     @chat_message.dispatch_updated_event
     render 'show'
   end
