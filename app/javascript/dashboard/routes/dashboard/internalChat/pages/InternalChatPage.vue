@@ -46,7 +46,11 @@ const isAdministrator = computed(
   () => getters.getCurrentRole?.value === 'administrator'
 );
 
-const activeRoomId = ref('');
+// Sempre NUMERO, nunca texto. O id da sala vem de tres lugares - a barra
+// lateral, a criacao de canal/conversa e a query `?room=` da notificacao - e o
+// ultimo chega como texto. `getRoomById` compara com `===`, entao "7" nao
+// encontrava a sala 7: o clique na notificacao abria o Chat sem abrir a conversa.
+const activeRoomId = ref(null);
 // No celular a lista e a conversa não dividem a tela: uma substitui a outra.
 const showConversationOnMobile = ref(false);
 const messageQuery = ref('');
@@ -111,7 +115,10 @@ const scrollToBottom = () => {
   });
 };
 
-const openRoom = async roomId => {
+const openRoom = async entrada => {
+  const roomId = Number(entrada);
+  if (!Number.isFinite(roomId)) return;
+
   const room = getters['internalChat/getRoomById'].value(roomId);
   unreadFrom.value = room?.unread || 0;
 
@@ -142,6 +149,19 @@ onMounted(async () => {
     route.query.room || directs.value[0]?.id || channels.value[0]?.id;
   if (initial) await openRoom(initial);
 });
+
+// A notificacao pode chegar com a tela do Chat JA aberta. Nesse caso o router
+// so troca a query, o componente nao remonta e o `onMounted` acima nao roda de
+// novo - sem este observador, clicar no aviso nao levava a lugar nenhum.
+watch(
+  () => route.query.room,
+  room => {
+    if (!room) return;
+    if (Number(room) === activeRoomId.value) return;
+
+    openRoom(room);
+  }
+);
 
 watch(activeRoomId, () => {
   scrollToBottom();

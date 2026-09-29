@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-notification-opens-room',
+    date: '29 de setembro de 2026',
+    isoDate: '2026-09-29',
+    type: 'improvement',
+    title: 'Notificação do Chat abre a conversa certa',
+    description:
+      'Clicar na notificação do Chat Interno agora abre a conversa ou o canal de onde veio o aviso, e não apenas a tela do Chat. Vale também quando o Chat já está aberto em outra sala - antes, nesse caso, o clique não levava a lugar nenhum.',
+  },
+  {
     id: 'internal-chat-manage-channel',
     date: '29 de setembro de 2026',
     isoDate: '2026-09-29',

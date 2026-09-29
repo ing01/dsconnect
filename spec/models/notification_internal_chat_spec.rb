@@ -34,6 +34,26 @@ RSpec.describe Notification do
     end
   end
 
+  # Para onde o clique leva. O aviso tem de abrir A CONVERSA, e nao so a tela do
+  # Chat - e a sala viaja na query `room`, que e como a tela a escolhe.
+  describe 'o destino do clique' do
+    it 'points at the room the message belongs to' do
+      canal = create(:chat_channel, account: account, name: 'comunicados')
+      mensagem = create(:chat_message, chat_channel: canal, user: autor)
+
+      caminho = aviso_de(mensagem).push_target_path
+
+      expect(caminho).to eq("/app/accounts/#{account.id}/internal-chat?room=#{canal.id}")
+    end
+
+    it 'points at the conversation for a direct message' do
+      conversa = create(:chat_direct, account: account)
+      mensagem = create(:chat_message, chat_channel: conversa, user: autor)
+
+      expect(aviso_de(mensagem).push_target_path).to include("room=#{conversa.id}")
+    end
+  end
+
   describe 'o corpo' do
     it 'carries who wrote and a preview of what was written' do
       canal = create(:chat_channel, account: account, name: 'Comunicados')
