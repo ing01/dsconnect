@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-manage-channel',
+    date: '29 de setembro de 2026',
+    isoDate: '2026-09-29',
+    type: 'improvement',
+    title: 'Chat Interno: editar canal e ver os membros',
+    description:
+      'Três botões que não faziam nada agora funcionam. Os três pontos no cabeçalho do canal abrem a edição (nome, descrição, canal fixo e quem pode escrever), e o mesmo aparece com o botão direito sobre o canal na lista - só para Administrador. O botão de membros abre uma faixa lateral com quem está no canal, a disponibilidade de cada um e, num canal de aviso, a marca de quem pode escrever. E a confirmação de apagar mensagem virou um modal do próprio sistema, em vez do aviso do navegador.',
+  },
+  {
     id: 'internal-chat-announcement-channel',
     date: '29 de setembro de 2026',
     isoDate: '2026-09-29',

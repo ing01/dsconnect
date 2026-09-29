@@ -20,6 +20,9 @@ import ChatMessage from '../components/ChatMessage.vue';
 import ChatComposer from '../components/ChatComposer.vue';
 import NewConversationDialog from '../components/NewConversationDialog.vue';
 import CreateChannelDialog from '../components/CreateChannelDialog.vue';
+import EditChannelDialog from '../components/EditChannelDialog.vue';
+import ChannelMembersPanel from '../components/ChannelMembersPanel.vue';
+import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import ImageLightbox from '../components/ImageLightbox.vue';
 import { continuesBlock } from '../helpers/messageParser';
 
@@ -51,6 +54,14 @@ const lightboxAttachment = ref(null);
 const scrollerRef = ref(null);
 
 const newConversationDialog = ref(null);
+const editChannelDialog = ref(null);
+const deleteDialog = ref(null);
+// A mensagem que espera confirmacao. Guardada aqui, e nao no dialogo, porque e
+// quem apaga - o dialogo so pergunta.
+const pendingDelete = ref(null);
+// O painel de membros e por sala: abrir um canal e voltar nao deve trazer de
+// volta o painel que a pessoa fechou noutro.
+const membersOpen = ref(false);
 const createChannelDialog = ref(null);
 
 const activeRoom = computed(() =>
@@ -121,7 +132,12 @@ onMounted(async () => {
   if (initial) await openRoom(initial);
 });
 
-watch(activeRoomId, () => scrollToBottom());
+watch(activeRoomId, () => {
+  scrollToBottom();
+  // O painel e de um canal: manter aberto ao trocar de sala mostraria os membros
+  // de uma sala olhando para outra.
+  membersOpen.value = false;
+});
 
 // Sair da tela não deixa uma sala marcada como aberta: dali em diante toda
 // mensagem que chegar deve contar como não lida.
@@ -137,11 +153,19 @@ const send = async payload => {
   scrollToBottom();
 };
 
-// Apagar nao tem volta, entao a tela pergunta antes. A recusa do servidor
-// continua valendo por cima disto.
-const remove = async message => {
-  const confirmado = window.confirm(t('INTERNAL_CHAT.MESSAGE.DELETE_CONFIRM'));
-  if (!confirmado) return;
+// Apagar nao tem volta, entao a tela pergunta antes - num dialogo do proprio
+// sistema, e nao no `confirm` do navegador, que ignora o tema e aparece colado no
+// topo da janela como um aviso de erro. A recusa do servidor continua valendo por
+// cima disto.
+const askDelete = message => {
+  pendingDelete.value = message;
+  deleteDialog.value?.open();
+};
+
+const confirmDelete = async () => {
+  const message = pendingDelete.value;
+  pendingDelete.value = null;
+  if (!message) return;
 
   try {
     await store.dispatch('internalChat/deleteMessage', {
@@ -151,6 +175,16 @@ const remove = async message => {
   } catch (error) {
     useAlert(
       error?.response?.data?.error || t('INTERNAL_CHAT.MESSAGE.DELETE_ERROR')
+    );
+  }
+};
+
+const saveChannel = async payload => {
+  try {
+    await store.dispatch('internalChat/updateChannel', payload);
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error || t('INTERNAL_CHAT.EDIT_CHANNEL.ERROR')
     );
   }
 };
@@ -207,9 +241,11 @@ const unreadDividerIndex = computed(() => {
         :channels="channels"
         :users="users"
         :active-room-id="activeRoomId"
+        :can-edit="isAdministrator"
         @select="openRoom"
         @new-conversation="newConversationDialog?.open()"
         @create-channel="createChannelDialog?.open()"
+        @edit-channel="channel => editChannelDialog?.open(channel)"
       />
     </div>
 
@@ -221,8 +257,12 @@ const unreadDividerIndex = computed(() => {
         <ChatHeader
           :room="activeRoom"
           :peer="peer"
+          :can-edit="isAdministrator"
+          :members-open="membersOpen"
           @back="showConversationOnMobile = false"
           @search="value => (messageQuery = value)"
+          @toggle-members="membersOpen = !membersOpen"
+          @edit="editChannelDialog?.open(activeRoom)"
         />
 
         <div ref="scrollerRef" class="flex flex-col py-2 overflow-y-auto grow">
@@ -258,7 +298,7 @@ const unreadDividerIndex = computed(() => {
               :can-delete-any="isAdministrator"
               @reply="value => (replyTo = value)"
               @react="react"
-              @delete="remove"
+              @delete="askDelete"
               @open-image="attachment => (lightboxAttachment = attachment)"
               @open-ticket="openTicket"
             />
@@ -309,6 +349,17 @@ const unreadDividerIndex = computed(() => {
       </p>
     </section>
 
+    <!-- Irmao da conversa, e nao sobreposto a ela: a lista de membros e para ser
+         consultada ENQUANTO se le o canal. Escondido no celular, onde nao cabem
+         duas colunas. -->
+    <ChannelMembersPanel
+      v-if="membersOpen && activeRoom && isChannel"
+      class="hidden lg:flex"
+      :room="activeRoom"
+      :users="users"
+      @close="membersOpen = false"
+    />
+
     <NewConversationDialog
       ref="newConversationDialog"
       :users="users"
@@ -321,6 +372,24 @@ const unreadDividerIndex = computed(() => {
       :users="users"
       :current-user-id="currentUserId"
       @create="createChannel"
+    />
+
+    <EditChannelDialog
+      ref="editChannelDialog"
+      :users="users"
+      @save="saveChannel"
+    />
+
+    <!-- `alert` porque a pergunta e sobre algo que nao tem volta: o dialogo se
+         apresenta como aviso, nao como formulario. -->
+    <Dialog
+      ref="deleteDialog"
+      type="alert"
+      width="sm"
+      :title="t('INTERNAL_CHAT.MESSAGE.DELETE_TITLE')"
+      :description="t('INTERNAL_CHAT.MESSAGE.DELETE_CONFIRM')"
+      :confirm-button-label="t('INTERNAL_CHAT.MESSAGE.DELETE')"
+      @confirm="confirmDelete"
     />
 
     <ImageLightbox

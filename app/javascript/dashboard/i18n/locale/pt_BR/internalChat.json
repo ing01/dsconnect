@@ -9,7 +9,8 @@
       "NO_MESSAGES": "Sem mensagens ainda",
       "PINNED": "Canal fixo",
       "READ_ONLY": "Somente leitura para você",
-      "ATTACHMENT_PREVIEW": "Enviou um anexo"
+      "ATTACHMENT_PREVIEW": "Enviou um anexo",
+      "EDIT_CHANNEL": "Editar canal"
     },
     "HEADER": {
       "BACK": "Voltar",
@@ -17,7 +18,8 @@
       "SEARCH_PLACEHOLDER": "Buscar nesta conversa",
       "MEMBERS": "{count} membros",
       "MEMBERS_TITLE": "Membros",
-      "MORE": "Mais"
+      "MORE": "Mais",
+      "EDIT_CHANNEL": "Editar canal"
     },
     "PRESENCE": {
       "ONLINE": "Online",
@@ -29,7 +31,8 @@
       "REACT": "Reagir",
       "DELETE": "Apagar",
       "DELETE_CONFIRM": "Apagar esta mensagem? Não há como desfazer.",
-      "DELETE_ERROR": "Não foi possível apagar a mensagem."
+      "DELETE_ERROR": "Não foi possível apagar a mensagem.",
+      "DELETE_TITLE": "Apagar mensagem"
     },
     "COMPOSER": {
       "PLACEHOLDER": "Digite uma mensagem...",
@@ -82,6 +85,19 @@
     "UNREAD_DIVIDER": "{count} mensagens não lidas",
     "ROOM_EMPTY": "Ainda não há mensagens aqui. Diga alguma coisa.",
     "SEARCH_EMPTY": "Nenhuma mensagem corresponde a esta busca.",
-    "NO_ROOM": "Escolha uma conversa ou um canal para começar."
+    "NO_ROOM": "Escolha uma conversa ou um canal para começar.",
+    "EDIT_CHANNEL": {
+      "TITLE": "Editar canal",
+      "DESCRIPTION": "Quem está no canal não muda por aqui — só o que ele é e quem pode escrever nele.",
+      "CONFIRM": "Salvar",
+      "ERROR": "Não foi possível salvar o canal."
+    },
+    "MEMBERS_PANEL": {
+      "TITLE": "Membros ({count})",
+      "CLOSE": "Fechar",
+      "EMPTY": "Nenhum membro neste canal.",
+      "CAN_POST": "Pode escrever neste canal",
+      "RESTRICTED_HINT": "Neste canal, só as pessoas marcadas escrevem. Administradores escrevem sempre."
+    }
   }
 }

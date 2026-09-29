@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { OnClickOutside } from '@vueuse/components';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { presenceDotClass, presenceLabelKey } from '../helpers/presence';
@@ -8,15 +9,29 @@ import { presenceDotClass, presenceLabelKey } from '../helpers/presence';
 const props = defineProps({
   room: { type: Object, default: null },
   peer: { type: Object, default: null },
+  // Editar o canal e decisao sobre o canal da empresa: so administrador. Quem
+  // decide isso e a tela de cima, que conhece o papel.
+  canEdit: { type: Boolean, default: false },
+  membersOpen: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['back', 'search']);
+const emit = defineEmits(['back', 'search', 'toggleMembers', 'edit']);
 
 const { t } = useI18n();
 
 const isChannel = computed(() => !!props.room?.name);
 const searchOpen = ref(false);
 const searchQuery = ref('');
+const menuOpen = ref(false);
+
+// O menu existe so quando ha o que colocar nele: sem acao disponivel, tres
+// pontos que abrem um vazio e pior do que tres pontos que nao existem.
+const hasMenu = computed(() => isChannel.value && props.canEdit);
+
+const editar = () => {
+  menuOpen.value = false;
+  emit('edit');
+};
 
 const onSearch = () => emit('search', searchQuery.value);
 
@@ -87,18 +102,42 @@ const toggleSearch = () => {
         <button
           v-if="isChannel"
           type="button"
-          class="p-1.5 rounded text-n-slate-11 hover:bg-n-alpha-2"
+          class="p-1.5 rounded hover:bg-n-alpha-2"
+          :class="
+            membersOpen ? 'text-n-slate-12 bg-n-alpha-2' : 'text-n-slate-11'
+          "
           :title="t('INTERNAL_CHAT.HEADER.MEMBERS_TITLE')"
+          :aria-pressed="membersOpen"
+          @click="emit('toggleMembers')"
         >
           <Icon icon="i-lucide-users" class="size-4" />
         </button>
-        <button
-          type="button"
-          class="p-1.5 rounded text-n-slate-11 hover:bg-n-alpha-2"
-          :title="t('INTERNAL_CHAT.HEADER.MORE')"
-        >
-          <Icon icon="i-lucide-more-horizontal" class="size-4" />
-        </button>
+
+        <OnClickOutside v-if="hasMenu" @trigger="menuOpen = false">
+          <div class="relative">
+            <button
+              type="button"
+              class="p-1.5 rounded text-n-slate-11 hover:bg-n-alpha-2"
+              :title="t('INTERNAL_CHAT.HEADER.MORE')"
+              @click="menuOpen = !menuOpen"
+            >
+              <Icon icon="i-lucide-more-horizontal" class="size-4" />
+            </button>
+            <div
+              v-if="menuOpen"
+              class="absolute z-20 py-1 mt-1 border rounded-lg shadow-md top-full end-0 min-w-44 border-n-weak bg-n-solid-1"
+            >
+              <button
+                type="button"
+                class="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-start text-n-slate-12 hover:bg-n-alpha-1"
+                @click="editar"
+              >
+                <Icon icon="i-lucide-settings-2" class="size-4" />
+                {{ t('INTERNAL_CHAT.HEADER.EDIT_CHANNEL') }}
+              </button>
+            </div>
+          </div>
+        </OnClickOutside>
       </div>
     </div>
 

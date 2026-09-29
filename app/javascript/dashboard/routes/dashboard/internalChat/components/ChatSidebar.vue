@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { OnClickOutside } from '@vueuse/components';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { shortTime } from '../helpers/messageParser';
@@ -11,13 +12,36 @@ const props = defineProps({
   channels: { type: Array, default: () => [] },
   users: { type: Array, default: () => [] },
   activeRoomId: { type: String, default: '' },
+  // Editar o canal e decisao sobre o canal da empresa: so administrador.
+  canEdit: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['select', 'newConversation', 'createChannel']);
+const emit = defineEmits([
+  'select',
+  'newConversation',
+  'createChannel',
+  'editChannel',
+]);
 
 const { t } = useI18n();
 
 const query = ref('');
+
+// O menu do botao direito. Guarda o canal e onde o cursor estava - o menu abre
+// ali, e nao num canto fixo da tela.
+const contextMenu = ref(null);
+
+const openContextMenu = (event, channel) => {
+  if (!props.canEdit) return;
+
+  contextMenu.value = { channel, x: event.clientX, y: event.clientY };
+};
+
+const editFromContextMenu = () => {
+  const channel = contextMenu.value?.channel;
+  contextMenu.value = null;
+  if (channel) emit('editChannel', channel);
+};
 
 const userFor = userId => props.users.find(user => user.id === userId);
 
@@ -178,6 +202,7 @@ const visibleChannels = computed(() =>
               : 'hover:bg-n-alpha-1'
           "
           @click="emit('select', channel.id)"
+          @contextmenu.prevent="openContextMenu($event, channel)"
         >
           <Icon
             v-if="channel.pinned"
@@ -213,5 +238,23 @@ const visibleChannels = computed(() =>
         </button>
       </section>
     </div>
+
+    <!-- Fixo, e nao absoluto: a barra lateral rola, e um menu ancorado nela
+         escaparia do lugar ao primeiro giro da roda. -->
+    <OnClickOutside v-if="contextMenu" @trigger="contextMenu = null">
+      <div
+        class="fixed z-30 py-1 border rounded-lg shadow-md min-w-44 border-n-weak bg-n-solid-1"
+        :style="{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }"
+      >
+        <button
+          type="button"
+          class="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-start text-n-slate-12 hover:bg-n-alpha-1"
+          @click="editFromContextMenu"
+        >
+          <Icon icon="i-lucide-settings-2" class="size-4" />
+          {{ t('INTERNAL_CHAT.SIDEBAR.EDIT_CHANNEL') }}
+        </button>
+      </div>
+    </OnClickOutside>
   </aside>
 </template>
