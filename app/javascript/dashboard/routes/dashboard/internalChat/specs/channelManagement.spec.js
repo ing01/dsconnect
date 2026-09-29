@@ -16,19 +16,30 @@ vi.mock('vue-router', () => ({
   useRoute: () => ({ params: { accountId: 1 }, query: {} }),
 }));
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
-vi.mock('dashboard/api/internalChat', () => ({
-  default: {
-    get: vi.fn(),
-    getMessages: vi.fn(),
-    sendMessage: vi.fn(),
-    markRead: vi.fn(),
-    toggleReaction: vi.fn(),
-    createChannel: vi.fn(),
-    updateChannel: vi.fn(),
-    deleteMessage: vi.fn(),
-    openDirect: vi.fn(),
-  },
-}));
+// Nenhuma chamada de rede nos testes. O cliente e um Proxy em vez de uma lista de
+// metodos escrita a mao: a lista envelhece, e um metodo novo no cliente real
+// derruba o teste com "is not a function" - foi o que aconteceu quando o Chat
+// ganhou mensagens fixadas, e eram 42 rejeicoes nao tratadas escondendo qualquer
+// erro de verdade. Cada metodo responde vazio por padrao; quem precisa de
+// resposta a define no exemplo.
+vi.mock('dashboard/api/internalChat', () => {
+  const metodos = new Map();
+  const cliente = new Proxy(
+    {},
+    {
+      get: (_alvo, nome) => {
+        if (!metodos.has(nome)) {
+          metodos.set(
+            nome,
+            vi.fn(() => Promise.resolve({ data: { payload: [] } }))
+          );
+        }
+        return metodos.get(nome);
+      },
+    }
+  );
+  return { default: cliente };
+});
 
 const AGENTS = [
   { id: 11, name: 'João Vitor', role: 'administrator', confirmed: true },
@@ -54,16 +65,13 @@ const MESSAGES = [
   { id: 102, userId: 12, body: 'de outra pessoa', createdAt: 2, reactions: [] },
 ];
 
-const freshState = () => ({
-  users: [],
-  rooms: [],
-  currentUserId: null,
-  uiFlags: {
-    isFetchingRooms: false,
-    isFetchingMessages: false,
-    isSending: false,
-  },
-});
+// O estado sai do PROPRIO modulo, clonado para cada exemplo ter o seu.
+//
+// Antes cada spec reescrevia a forma do estado a mao, e ela envelhecia sozinha:
+// bastou o modulo ganhar `pinnedMessages` para os getters lerem `undefined` e a
+// tela inteira falhar no render - o componente estava certo, os specs e que
+// descreviam um estado que ja nao existia.
+const freshState = () => structuredClone(internalChat.state);
 
 // O `Dialog` real depende de `<dialog>`, que o jsdom nao implementa; este duble
 // guarda se foi aberto, que e o que os exemplos perguntam.
@@ -80,7 +88,7 @@ const DialogStub = {
     },
   },
   template:
-    '<div v-if="aberto" class="dialogo" :data-titulo="title"><slot /><button class="confirmar" @click="$emit(\'confirm\')" /></div>',
+    '<div v-if="aberto" class="dialogo" :data-titulo="title"><slot /><button class="confirmar" @click="$emit(\'confirm\')" /><button class="fechar" @click="close" /></div>',
 };
 
 const montar = async ({ role = 'administrator' } = {}) => {
@@ -90,6 +98,7 @@ const montar = async ({ role = 'administrator' } = {}) => {
   });
   InternalChatAPI.markRead.mockResolvedValue({});
   InternalChatAPI.deleteMessage.mockResolvedValue({});
+  InternalChatAPI.deleteChannel.mockResolvedValue({});
   InternalChatAPI.updateChannel.mockResolvedValue({ data: CANAL });
 
   const store = createStore({
@@ -150,6 +159,43 @@ describe('apagar mensagem', () => {
     vi.unstubAllGlobals();
   });
 
+  // O pedido: confirmar apaga E FECHA. O `Dialog` emite `confirm` e nao se fecha
+  // sozinho, entao sem isto o modal ficava aberto e era preciso fecha-lo a mao.
+  it('closes itself once confirmed', async () => {
+    const { wrapper } = await montar();
+
+    await wrapper
+      .find('button[title="INTERNAL_CHAT.MESSAGE.DELETE"]')
+      .trigger('click');
+    expect(porTitulo(wrapper, 'INTERNAL_CHAT.MESSAGE.DELETE_TITLE')).not.toBe(
+      undefined
+    );
+
+    await porTitulo(wrapper, 'INTERNAL_CHAT.MESSAGE.DELETE_TITLE')
+      .find('button.confirmar')
+      .trigger('click');
+    await flushPromises();
+
+    expect(porTitulo(wrapper, 'INTERNAL_CHAT.MESSAGE.DELETE_TITLE')).toBe(
+      undefined
+    );
+  });
+
+  // Desistir tambem fecha, e sem apagar nada.
+  it('deletes nothing when the dialog is dismissed', async () => {
+    const { wrapper } = await montar();
+
+    await wrapper
+      .find('button[title="INTERNAL_CHAT.MESSAGE.DELETE"]')
+      .trigger('click');
+    await porTitulo(wrapper, 'INTERNAL_CHAT.MESSAGE.DELETE_TITLE')
+      .find('button.fechar')
+      .trigger('click');
+    await flushPromises();
+
+    expect(InternalChatAPI.deleteMessage).not.toHaveBeenCalled();
+  });
+
   // Abrir o dialogo nao apaga nada: so a confirmacao apaga.
   it('deletes nothing until the dialog is confirmed', async () => {
     const { wrapper } = await montar();
@@ -166,6 +212,50 @@ describe('apagar mensagem', () => {
     await flushPromises();
 
     expect(InternalChatAPI.deleteMessage).toHaveBeenCalledWith(7, 101);
+  });
+});
+
+describe('excluir o canal', () => {
+  const abrirMenu = wrapper =>
+    botaoComTitulo(wrapper, 'INTERNAL_CHAT.HEADER.MORE').trigger('click');
+
+  const itemDoMenu = (wrapper, rotulo) =>
+    wrapper.findAll('button').find(b => b.text() === rotulo);
+
+  // Mesmo pedido da mensagem: um dialogo do sistema, nao o aviso do navegador.
+  it('asks in a dialog, never through the browser confirm', async () => {
+    const confirm = vi.fn(() => true);
+    vi.stubGlobal('confirm', confirm);
+    const { wrapper } = await montar();
+
+    await abrirMenu(wrapper);
+    await itemDoMenu(wrapper, 'INTERNAL_CHAT.HEADER.DELETE_CHANNEL').trigger(
+      'click'
+    );
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(porTitulo(wrapper, 'INTERNAL_CHAT.HEADER.DELETE_CHANNEL')).not.toBe(
+      undefined
+    );
+    vi.unstubAllGlobals();
+  });
+
+  it('deletes and closes once confirmed', async () => {
+    const { wrapper } = await montar();
+
+    await abrirMenu(wrapper);
+    await itemDoMenu(wrapper, 'INTERNAL_CHAT.HEADER.DELETE_CHANNEL').trigger(
+      'click'
+    );
+    await porTitulo(wrapper, 'INTERNAL_CHAT.HEADER.DELETE_CHANNEL')
+      .find('button.confirmar')
+      .trigger('click');
+    await flushPromises();
+
+    expect(InternalChatAPI.deleteChannel).toHaveBeenCalledWith(7);
+    expect(porTitulo(wrapper, 'INTERNAL_CHAT.HEADER.DELETE_CHANNEL')).toBe(
+      undefined
+    );
   });
 });
 
@@ -201,14 +291,15 @@ describe('editar o canal', () => {
     );
   });
 
-  // Editar o canal e decisao sobre o canal da empresa: agente comum nao recebe
-  // nem o menu nem o atalho do botao direito.
-  it('offers neither to a plain agent', async () => {
+  // Editar o canal e decisao sobre o canal da empresa. O menu dos tres pontos
+  // existe para todos - "Mensagens fixadas" e de qualquer um -, mas a edicao nao
+  // aparece nele, e o botao direito nao abre nada.
+  it('offers no edit to a plain agent', async () => {
     const { wrapper } = await montar({ role: 'agent' });
 
-    expect(botaoComTitulo(wrapper, 'INTERNAL_CHAT.HEADER.MORE')).toBe(
-      undefined
-    );
+    await botaoComTitulo(wrapper, 'INTERNAL_CHAT.HEADER.MORE').trigger('click');
+
+    expect(wrapper.text()).not.toContain('INTERNAL_CHAT.HEADER.EDIT_CHANNEL');
 
     const item = wrapper
       .findAll('button')

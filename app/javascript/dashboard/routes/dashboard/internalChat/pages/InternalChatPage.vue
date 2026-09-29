@@ -46,7 +46,11 @@ const isAdministrator = computed(
   () => getters.getCurrentRole?.value === 'administrator'
 );
 
-const activeRoomId = ref('');
+// Sempre NUMERO, nunca texto. O id da sala vem de tres lugares - a barra
+// lateral, a criacao de canal/conversa e a query `?room=` da notificacao - e o
+// ultimo chega como texto. `getRoomById` compara com `===`, entao "7" nao
+// encontrava a sala 7: o clique na notificacao abria o Chat sem abrir a conversa.
+const activeRoomId = ref(null);
 // No celular a lista e a conversa não dividem a tela: uma substitui a outra.
 const showConversationOnMobile = ref(false);
 const messageQuery = ref('');
@@ -57,6 +61,7 @@ const scrollerRef = ref(null);
 const newConversationDialog = ref(null);
 const editChannelDialog = ref(null);
 const deleteDialog = ref(null);
+const deleteChannelDialog = ref(null);
 // A mensagem que espera confirmacao. Guardada aqui, e nao no dialogo, porque e
 // quem apaga - o dialogo so pergunta.
 const pendingDelete = ref(null);
@@ -111,7 +116,10 @@ const scrollToBottom = () => {
   });
 };
 
-const openRoom = async roomId => {
+const openRoom = async entrada => {
+  const roomId = Number(entrada);
+  if (!Number.isFinite(roomId)) return;
+
   const room = getters['internalChat/getRoomById'].value(roomId);
   unreadFrom.value = room?.unread || 0;
 
@@ -142,6 +150,19 @@ onMounted(async () => {
     route.query.room || directs.value[0]?.id || channels.value[0]?.id;
   if (initial) await openRoom(initial);
 });
+
+// A notificacao pode chegar com a tela do Chat JA aberta. Nesse caso o router
+// so troca a query, o componente nao remonta e o `onMounted` acima nao roda de
+// novo - sem este observador, clicar no aviso nao levava a lugar nenhum.
+watch(
+  () => route.query.room,
+  room => {
+    if (!room) return;
+    if (Number(room) === activeRoomId.value) return;
+
+    openRoom(room);
+  }
+);
 
 watch(activeRoomId, () => {
   scrollToBottom();
@@ -176,6 +197,11 @@ const askDelete = message => {
 const confirmDelete = async () => {
   const message = pendingDelete.value;
   pendingDelete.value = null;
+  // O `Dialog` emite `confirm` e nao se fecha sozinho - quem o usa fecha. E
+  // fecha ANTES de esperar a rede: quem confirmou ja decidiu, e o modal parado
+  // esperando a resposta passa a impressao de que o clique nao funcionou. Se a
+  // exclusao falhar, o aviso explica e a mensagem continua na lista.
+  deleteDialog.value?.close();
   if (!message) return;
 
   try {
@@ -213,11 +239,17 @@ const togglePin = messageId =>
     messageId,
   });
 
+const askDeleteChannel = () => {
+  if (!activeRoom.value) return;
+
+  deleteChannelDialog.value?.open();
+};
+
 const deleteChannel = async () => {
   const room = activeRoom.value;
+  // Fecha antes de esperar a rede, como o dialogo da mensagem.
+  deleteChannelDialog.value?.close();
   if (!room) return;
-  // eslint-disable-next-line no-alert
-  if (!window.confirm(t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL_CONFIRM'))) return;
 
   try {
     await store.dispatch('internalChat/deleteChannel', room.id);
@@ -229,7 +261,8 @@ const deleteChannel = async () => {
   }
 };
 
-const openManageMembers = () => manageMembersDialog.value?.open(activeRoom.value);
+const openManageMembers = () =>
+  manageMembersDialog.value?.open(activeRoom.value);
 
 const addMember = async userId => {
   try {
@@ -324,7 +357,7 @@ const unreadDividerIndex = computed(() => {
           @toggle-members="membersOpen = !membersOpen"
           @edit="editChannelDialog?.open(activeRoom)"
           @manage-members="openManageMembers"
-          @delete-channel="deleteChannel"
+          @delete-channel="askDeleteChannel"
           @toggle-pinned="showPinnedMessages = !showPinnedMessages"
         />
 
@@ -332,10 +365,7 @@ const unreadDividerIndex = computed(() => {
           v-if="showPinnedMessages"
           class="flex flex-col gap-1 px-4 py-2 border-b max-h-40 overflow-y-auto border-n-weak bg-n-amber-2"
         >
-          <p
-            v-if="!pinnedMessages.length"
-            class="text-xs text-n-slate-10 mb-0"
-          >
+          <p v-if="!pinnedMessages.length" class="text-xs text-n-slate-10 mb-0">
             {{ t('INTERNAL_CHAT.MESSAGE.NO_PINNED') }}
           </p>
           <div
@@ -484,6 +514,16 @@ const unreadDividerIndex = computed(() => {
       :description="t('INTERNAL_CHAT.MESSAGE.DELETE_CONFIRM')"
       :confirm-button-label="t('INTERNAL_CHAT.MESSAGE.DELETE')"
       @confirm="confirmDelete"
+    />
+
+    <Dialog
+      ref="deleteChannelDialog"
+      type="alert"
+      width="sm"
+      :title="t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL')"
+      :description="t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL_CONFIRM')"
+      :confirm-button-label="t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL')"
+      @confirm="deleteChannel"
     />
 
     <ImageLightbox

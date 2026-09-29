@@ -11,7 +11,7 @@ const props = defineProps({
   directs: { type: Array, default: () => [] },
   channels: { type: Array, default: () => [] },
   users: { type: Array, default: () => [] },
-  activeRoomId: { type: String, default: '' },
+  activeRoomId: { type: Number, default: null },
   // Editar o canal e decisao sobre o canal da empresa: so administrador.
   canEdit: { type: Boolean, default: false },
 });
