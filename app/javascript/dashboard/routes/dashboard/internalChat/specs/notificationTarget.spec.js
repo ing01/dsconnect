@@ -24,19 +24,30 @@ vi.mock('vue-router', () => ({
   useRoute: () => rota,
 }));
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
-vi.mock('dashboard/api/internalChat', () => ({
-  default: {
-    get: vi.fn(),
-    getMessages: vi.fn(),
-    sendMessage: vi.fn(),
-    markRead: vi.fn(),
-    toggleReaction: vi.fn(),
-    createChannel: vi.fn(),
-    updateChannel: vi.fn(),
-    deleteMessage: vi.fn(),
-    openDirect: vi.fn(),
-  },
-}));
+// Nenhuma chamada de rede nos testes. O cliente e um Proxy em vez de uma lista de
+// metodos escrita a mao: a lista envelhece, e um metodo novo no cliente real
+// derruba o teste com "is not a function" - foi o que aconteceu quando o Chat
+// ganhou mensagens fixadas, e eram 42 rejeicoes nao tratadas escondendo qualquer
+// erro de verdade. Cada metodo responde vazio por padrao; quem precisa de
+// resposta a define no exemplo.
+vi.mock('dashboard/api/internalChat', () => {
+  const metodos = new Map();
+  const cliente = new Proxy(
+    {},
+    {
+      get: (_alvo, nome) => {
+        if (!metodos.has(nome)) {
+          metodos.set(
+            nome,
+            vi.fn(() => Promise.resolve({ data: { payload: [] } }))
+          );
+        }
+        return metodos.get(nome);
+      },
+    }
+  );
+  return { default: cliente };
+});
 
 const AGENTS = [
   { id: 11, name: 'João Vitor', role: 'administrator', confirmed: true },
