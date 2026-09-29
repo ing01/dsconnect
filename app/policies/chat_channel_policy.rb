@@ -22,10 +22,18 @@ class ChatChannelPolicy < ApplicationPolicy
     true
   end
 
+  # Ajustar o canal (nome/descricao/fixar/moderadores) tem a regra de verdade
+  # no controller (`administrator?`) - aqui so' garante participacao, ja
+  # assegurada por `fetch_channel`/`visible_channels`.
+  def update?
+    true
+  end
+
   # Excluir o canal e mexer em quem participa dele e' coisa de quem o criou ou
   # de um Administrador - nao de qualquer membro. Uma conversa privada (`direct`)
   # nunca passa por aqui: nao tem essas acoes na tela, e o controller sempre
-  # busca via `for_user`, entao so' chegaria um `record` de canal mesmo.
+  # busca via `for_user`/`visible_to_admin`, entao so' chegaria um `record` de
+  # canal mesmo.
   def destroy?
     channel_manager?
   end

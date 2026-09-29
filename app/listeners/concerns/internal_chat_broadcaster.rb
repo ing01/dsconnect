@@ -19,6 +19,18 @@ module InternalChatBroadcaster
     broadcast_chat_message(event, INTERNAL_CHAT_MESSAGE_UPDATED)
   end
 
+  # Mensagem apagada. So o id e a sala viajam: o registro ja nao existe do outro
+  # lado, e a tela so precisa saber o que tirar da lista.
+  def internal_chat_message_deleted(event)
+    message = event.data[:chat_message]
+    channel = message.chat_channel
+
+    broadcast(message.account, channel.members.pluck(:pubsub_token), INTERNAL_CHAT_MESSAGE_DELETED, {
+                channel_id: channel.id,
+                message_id: message.id
+              })
+  end
+
   private
 
   # Apenas quem participa da sala recebe.

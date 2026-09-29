@@ -7,7 +7,7 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
 
   before_action :fetch_channel
   before_action :check_authorization
-  before_action :fetch_message, only: [:toggle_reaction, :toggle_pin]
+  before_action :fetch_message, only: [:toggle_reaction, :toggle_pin, :destroy]
 
   # As mensagens fixadas da sala, mais recente primeiro - sem paginacao: sao
   # poucas por natureza (fixar exige uma acao deliberada por vez).
@@ -31,6 +31,13 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
   end
 
   def create
+    # Num canal de aviso todos leem e so quem foi autorizado escreve. A recusa
+    # vem daqui, e nao so da tela: a tela esconder o campo e conveniencia, nunca
+    # a regra.
+    unless @chat_channel.postable_by?(Current.user, administrator: administrator?)
+      return render json: { error: I18n.t('errors.chat_message.not_allowed_to_post') }, status: :forbidden
+    end
+
     @chat_message = @chat_channel.chat_messages.new(
       user: Current.user,
       content: params[:content],
@@ -69,7 +76,26 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
     render 'show'
   end
 
+  # Apagar uma mensagem. O autor apaga a propria; o administrador apaga qualquer
+  # uma, porque e quem responde pelo que fica no Chat da empresa.
+  #
+  # Apaga de verdade, em vez de marcar como apagada: o pedido e tirar a mensagem
+  # do Chat, e um rastro "mensagem apagada" continuaria mostrando que algo foi
+  # dito. As RESPOSTAS a ela sobrevivem, so perdem a citacao (ChatMessage#replies).
+  def destroy
+    unless @chat_message.deletable_by?(Current.user, administrator: administrator?)
+      return render json: { error: I18n.t('errors.chat_message.not_allowed_to_delete') }, status: :forbidden
+    end
+
+    @chat_message.destroy!
+    head :ok
+  end
+
   private
+
+  def administrator?
+    Current.account_user&.administrator?
+  end
 
   # Aceita um ou varios, e ignora entrada vazia para o cliente nao precisar
   # decidir entre mandar lista vazia ou nao mandar nada.
@@ -77,8 +103,11 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
     @attachment_blobs ||= Array(params[:attachments]).compact_blank
   end
 
+  # Mesmo escopo da listagem de salas: o administrador alcanca todos os canais da
+  # conta, e as conversas seguem sendo de quem participa.
   def fetch_channel
-    @chat_channel = ChatChannel.for_user(Current.user).find_by!(
+    escopo = administrator? ? ChatChannel.visible_to_admin(Current.user) : ChatChannel.for_user(Current.user)
+    @chat_channel = escopo.find_by!(
       id: params[:chat_channel_id], account_id: Current.account.id
     )
   end

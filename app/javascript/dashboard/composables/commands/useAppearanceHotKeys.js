@@ -6,9 +6,12 @@ import {
   ICON_DARK_MODE,
   ICON_SYSTEM_MODE,
 } from 'dashboard/helper/commandbar/icons';
-import { LocalStorage } from 'shared/helpers/localStorage';
-import { LOCAL_STORAGE_KEYS } from 'dashboard/constants/localStorage';
-import { setColorTheme } from 'dashboard/helper/themeHelper.js';
+import { useUISettings } from 'dashboard/composables/useUISettings';
+import {
+  applyColorScheme,
+  setUserColorScheme,
+  storeColorScheme,
+} from 'dashboard/helper/themeHelper.js';
 
 const getThemeOptions = t => [
   {
@@ -28,16 +31,26 @@ const getThemeOptions = t => [
   },
 ];
 
-const setAppearance = theme => {
-  LocalStorage.set(LOCAL_STORAGE_KEYS.COLOR_SCHEME, theme);
-  const isOSOnDarkMode = window.matchMedia(
-    '(prefers-color-scheme: dark)'
-  ).matches;
-  setColorTheme(isOSOnDarkMode);
-};
-
 export function useAppearanceHotKeys() {
   const { t } = useI18n();
+  const { updateUISettings } = useUISettings();
+
+  // A escolha vai para os DOIS lugares, e cada um serve a uma coisa:
+  //
+  //  - `ui_settings`, no usuario, e o que viaja entre aparelhos - e o que faz o
+  //    celular abrir no mesmo tema do computador;
+  //  - `localStorage`, neste navegador, e o que a tela de LOGIN tem para ler:
+  //    ali ainda nao existe usuario de quem herdar preferencia.
+  //
+  // A tela muda antes de o servidor responder: o tema e resposta a um clique, e
+  // esperar a rede para pintar deixaria o clique sem efeito visivel.
+  const setAppearance = async theme => {
+    setUserColorScheme(theme);
+    storeColorScheme(theme);
+    applyColorScheme();
+
+    await updateUISettings({ color_scheme: theme });
+  };
 
   const themeOptions = computed(() => getThemeOptions(t));
 

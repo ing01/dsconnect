@@ -11,11 +11,18 @@ const props = defineProps({
   room: { type: Object, default: null },
   peer: { type: Object, default: null },
   pinnedCount: { type: Number, default: 0 },
+  // Editar o canal, excluir e mexer em membro por membro sao decisoes sobre o
+  // canal da empresa: so administrador. Quem decide isso e a tela de cima, que
+  // conhece o papel.
+  canEdit: { type: Boolean, default: false },
+  membersOpen: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
   'back',
   'search',
+  'toggleMembers',
+  'edit',
   'manageMembers',
   'deleteChannel',
   'togglePinned',
@@ -28,26 +35,55 @@ const searchOpen = ref(false);
 const searchQuery = ref('');
 const isMoreMenuOpen = ref(false);
 
-const moreMenuItems = computed(() => [
-  {
-    label: t('INTERNAL_CHAT.HEADER.PINNED_MESSAGES', {
-      count: props.pinnedCount,
-    }),
-    value: 'pinned',
-    action: 'pinned',
-    icon: 'i-lucide-pin',
-  },
-  {
-    label: t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL'),
-    value: 'delete',
-    action: 'delete',
-    icon: 'i-lucide-trash-2',
-  },
-]);
+// "Mensagens fixadas" e' de qualquer um; editar, gerenciar membro por membro e
+// excluir sao decisao sobre o canal da empresa - so administrador. Sem
+// nenhuma acao disponivel (canal sem `canEdit`), o menu nem existe: tres
+// pontos que abrem um vazio e pior do que tres pontos que nao existem.
+const moreMenuItems = computed(() => {
+  const items = [
+    {
+      label: t('INTERNAL_CHAT.HEADER.PINNED_MESSAGES', {
+        count: props.pinnedCount,
+      }),
+      value: 'pinned',
+      action: 'pinned',
+      icon: 'i-lucide-pin',
+    },
+  ];
+
+  if (props.canEdit) {
+    items.push(
+      {
+        label: t('INTERNAL_CHAT.HEADER.EDIT_CHANNEL'),
+        value: 'edit',
+        action: 'edit',
+        icon: 'i-lucide-settings-2',
+      },
+      {
+        label: t('INTERNAL_CHAT.MEMBERS.TITLE'),
+        value: 'manageMembers',
+        action: 'manageMembers',
+        icon: 'i-lucide-user-cog',
+      },
+      {
+        label: t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL'),
+        value: 'delete',
+        action: 'delete',
+        icon: 'i-lucide-trash-2',
+      }
+    );
+  }
+
+  return items;
+});
+
+const hasMenu = computed(() => isChannel.value && moreMenuItems.value.length > 0);
 
 const handleMoreAction = ({ action }) => {
   isMoreMenuOpen.value = false;
   if (action === 'pinned') emit('togglePinned');
+  if (action === 'edit') emit('edit');
+  if (action === 'manageMembers') emit('manageMembers');
   if (action === 'delete') emit('deleteChannel');
 };
 
@@ -120,14 +156,19 @@ const toggleSearch = () => {
         <button
           v-if="isChannel"
           type="button"
-          class="p-1.5 rounded text-n-slate-11 hover:bg-n-alpha-2"
+          class="p-1.5 rounded hover:bg-n-alpha-2"
+          :class="
+            membersOpen ? 'text-n-slate-12 bg-n-alpha-2' : 'text-n-slate-11'
+          "
           :title="t('INTERNAL_CHAT.HEADER.MEMBERS_TITLE')"
-          @click="emit('manageMembers')"
+          :aria-pressed="membersOpen"
+          @click="emit('toggleMembers')"
         >
           <Icon icon="i-lucide-users" class="size-4" />
         </button>
+
         <OnClickOutside
-          v-if="isChannel"
+          v-if="hasMenu"
           class="relative"
           @trigger="isMoreMenuOpen = false"
         >

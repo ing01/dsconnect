@@ -1,5 +1,10 @@
 <script>
 import SnackbarContainer from './components/SnackBar/Container.vue';
+import {
+  isOSOnDarkMode,
+  preferredColorScheme,
+  setColorTheme,
+} from 'dashboard/helper/themeHelper';
 
 export default {
   components: { SnackbarContainer },
@@ -12,26 +17,23 @@ export default {
     this.setLocale(window.chatwootConfig.selectedLocale);
   },
   methods: {
+    // Antes esta tela olhava SO o sistema operacional, e ignorava a escolha de
+    // quem usa: quem tinha escolhido escuro chegava ao login claro, porque o
+    // aparelho estava no claro. Agora ela usa a mesma resolucao do painel -
+    // escolha gravada neste navegador primeiro, sistema operacional so no
+    // `auto`. O usuario nao existe aqui, entao `localStorage` e tudo o que ha.
     setColorTheme() {
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        this.theme = 'dark';
-        document.documentElement.classList.add('dark');
-      } else {
-        this.theme = 'light';
-        document.documentElement.classList.remove('dark');
-      }
+      this.theme = setColorTheme(isOSOnDarkMode()) ? 'dark' : 'light';
     },
     listenToThemeChanges() {
       const mql = window.matchMedia('(prefers-color-scheme: dark)');
 
-      mql.onchange = e => {
-        if (e.matches) {
-          this.theme = 'dark';
-          document.documentElement.classList.add('dark');
-        } else {
-          this.theme = 'light';
-          document.documentElement.classList.remove('dark');
-        }
+      // Mudanca no sistema operacional so vale quando a escolha e `auto`. Quem
+      // pediu escuro nao quer que o amanhecer do celular acenda a tela.
+      mql.onchange = event => {
+        if (preferredColorScheme() !== 'auto') return;
+
+        this.theme = setColorTheme(event.matches) ? 'dark' : 'light';
       };
     },
     setLocale(locale) {

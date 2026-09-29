@@ -212,16 +212,47 @@ export const actions = {
     });
   },
 
+  // Apagar sai da tela de quem apagou na hora; nas outras, pelo tempo real
+  // (`applyRealtimeDeletion`). A remocao local nao espera o eco do proprio
+  // navegador, que pode nem chegar se a pessoa trocar de tela.
+  deleteMessage: async ({ commit }, { roomId, messageId }) => {
+    await InternalChatAPI.deleteMessage(roomId, messageId);
+    commit(types.REMOVE_INTERNAL_CHAT_MESSAGE, { roomId, messageId });
+  },
+
+  applyRealtimeDeletion: ({ commit }, { channelId, messageId }) =>
+    commit(types.REMOVE_INTERNAL_CHAT_MESSAGE, {
+      roomId: channelId,
+      messageId,
+    }),
+
   createChannel: async (
     { commit },
-    { name, description, visibility, memberIds }
+    {
+      name,
+      description,
+      visibility,
+      memberIds,
+      pinned,
+      postingPolicy,
+      moderatorIds,
+    }
   ) => {
     const response = await InternalChatAPI.createChannel({
       name,
       description,
       visibility,
       memberIds,
+      pinned,
+      postingPolicy,
+      moderatorIds,
     });
+    commit(types.ADD_INTERNAL_CHAT_ROOM, response.data);
+    return response.data;
+  },
+
+  updateChannel: async ({ commit }, { roomId, ...fields }) => {
+    const response = await InternalChatAPI.updateChannel(roomId, fields);
     commit(types.ADD_INTERNAL_CHAT_ROOM, response.data);
     return response.data;
   },
@@ -327,6 +358,17 @@ export const mutations = {
     if (index === undefined || index === -1) return;
 
     room.messages.splice(index, 1, message);
+  },
+
+  [types.REMOVE_INTERNAL_CHAT_MESSAGE](_state, { roomId, messageId }) {
+    const room = findRoom(_state, roomId);
+    if (!room) return;
+
+    room.messages = room.messages.filter(item => item.id !== messageId);
+    // A previa da barra lateral aponta para a mensagem apagada: sem limpar, a
+    // lista continuaria mostrando um texto que ja nao existe. O proximo
+    // carregamento da lista traz a previa correta.
+    if (room.lastMessage?.id === messageId) room.lastMessage = null;
   },
 
   [types.SET_INTERNAL_CHAT_UNREAD](_state, { roomId, unread }) {

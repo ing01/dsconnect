@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_29_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_29_120001) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -843,6 +843,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_120000) do
     t.datetime "last_read_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "can_post", default: false, null: false
     t.index ["account_id"], name: "index_chat_channel_members_on_account_id"
     t.index ["chat_channel_id", "user_id"], name: "index_chat_channel_members_on_chat_channel_id_and_user_id", unique: true
     t.index ["user_id", "chat_channel_id"], name: "index_chat_channel_members_on_user_id_and_chat_channel_id"
@@ -859,6 +860,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_120000) do
     t.datetime "last_message_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "pinned", default: false, null: false
+    t.integer "posting_policy", default: 0, null: false
     t.index ["account_id", "last_message_at"], name: "index_chat_channels_on_account_id_and_last_message_at"
     t.index ["account_id", "name"], name: "index_chat_channels_on_account_id_and_name", unique: true, where: "(name IS NOT NULL)"
     t.index ["account_id"], name: "index_chat_channels_on_account_id"

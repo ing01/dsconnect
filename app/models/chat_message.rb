@@ -11,6 +11,11 @@ class ChatMessage < ApplicationRecord
   belongs_to :reply_to, class_name: 'ChatMessage', optional: true
 
   has_many :chat_message_reactions, dependent: :destroy
+  # Quem respondeu a esta mensagem. `nullify` porque apagar a original nao apaga
+  # a resposta: ela continua fazendo sentido sozinha, so perde a citacao. Sem
+  # isto o `reply_to_id` apontaria para uma linha que nao existe mais.
+  has_many :replies, class_name: 'ChatMessage', foreign_key: :reply_to_id,
+                     dependent: :nullify, inverse_of: :reply_to
 
   # A imagem faz parte da mensagem: chega junto, sai junto, e o autor dela e o
   # autor da mensagem. Por isso vai direto no Active Storage, e nao num model de
@@ -30,6 +35,8 @@ class ChatMessage < ApplicationRecord
   # A sala guarda a data da ultima mensagem para poder ser ordenada sem varrer
   # a tabela de mensagens.
   after_create_commit :touch_channel, :dispatch_created_event
+  # Quem esta com a sala aberta ve a mensagem sair, sem recarregar.
+  after_destroy_commit :dispatch_deleted_event
 
   scope :chronological, -> { order(created_at: :asc, id: :asc) }
   scope :pinned, -> { where.not(pinned_at: nil).order(pinned_at: :desc) }
@@ -64,6 +71,13 @@ class ChatMessage < ApplicationRecord
   # a tela substitui a mensagem inteira.
   def dispatch_updated_event
     dispatch_event(INTERNAL_CHAT_MESSAGE_UPDATED)
+  end
+
+  # Quem pode apagar: o autor e o administrador. Autor porque foi ele que
+  # escreveu; administrador porque e quem responde pelo que fica no Chat da
+  # empresa. `administrator` vem de fora - papel e da conta, nao da mensagem.
+  def deletable_by?(user, administrator: false)
+    administrator || (user_id.present? && user_id == user.id)
   end
 
   # O que a tela precisa para desenhar cada anexo. `thumb` so existe para
@@ -129,6 +143,10 @@ class ChatMessage < ApplicationRecord
 
   def dispatch_created_event
     dispatch_event(INTERNAL_CHAT_MESSAGE_CREATED)
+  end
+
+  def dispatch_deleted_event
+    dispatch_event(INTERNAL_CHAT_MESSAGE_DELETED)
   end
 
   def dispatch_event(name)

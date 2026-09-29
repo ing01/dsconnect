@@ -6,7 +6,11 @@
       "CHANNELS": "Canais",
       "NEW_CONVERSATION": "Nova conversa",
       "CREATE_CHANNEL": "Criar canal",
-      "NO_MESSAGES": "Sem mensagens ainda"
+      "NO_MESSAGES": "Sem mensagens ainda",
+      "PINNED": "Canal fixo",
+      "READ_ONLY": "Somente leitura para você",
+      "ATTACHMENT_PREVIEW": "Enviou um anexo",
+      "EDIT_CHANNEL": "Editar canal"
     },
     "HEADER": {
       "BACK": "Voltar",
@@ -18,7 +22,8 @@
       "PINNED_MESSAGES": "Mensagens fixadas ({count})",
       "DELETE_CHANNEL": "Excluir canal",
       "DELETE_CHANNEL_CONFIRM": "Excluir este canal? Isso remove para todo mundo e não pode ser desfeito.",
-      "DELETE_CHANNEL_ERROR": "Não foi possível excluir o canal."
+      "DELETE_CHANNEL_ERROR": "Não foi possível excluir o canal.",
+      "EDIT_CHANNEL": "Editar canal"
     },
     "PRESENCE": {
       "ONLINE": "Online",
@@ -31,7 +36,11 @@
       "PIN": "Fixar mensagem",
       "UNPIN": "Desafixar mensagem",
       "PINNED": "Fixada",
-      "NO_PINNED": "Nenhuma mensagem fixada neste canal."
+      "NO_PINNED": "Nenhuma mensagem fixada neste canal.",
+      "DELETE": "Apagar",
+      "DELETE_CONFIRM": "Apagar esta mensagem? Não há como desfazer.",
+      "DELETE_ERROR": "Não foi possível apagar a mensagem.",
+      "DELETE_TITLE": "Apagar mensagem"
     },
     "MEMBERS": {
       "TITLE": "Gerenciar membros",
@@ -59,7 +68,8 @@
       "UPLOADING": "Enviando arquivos…",
       "UPLOAD_FAILED": "Não foi possível enviar {name}.",
       "FILE_TOO_LARGE": "{name} passa do limite de {size} MB.",
-      "TOO_MANY_FILES": "No máximo {count} arquivos por mensagem."
+      "TOO_MANY_FILES": "No máximo {count} arquivos por mensagem.",
+      "READ_ONLY": "Somente as pessoas autorizadas podem escrever neste canal."
     },
     "NEW_CONVERSATION": {
       "TITLE": "Nova conversa",
@@ -76,7 +86,15 @@
       "PUBLIC": "Público",
       "PRIVATE": "Privado",
       "MEMBERS": "Membros",
-      "CONFIRM": "Criar"
+      "CONFIRM": "Criar",
+      "PINNED": "Canal fixo",
+      "PINNED_HINT": "Fica no topo da lista, acima dos outros canais.",
+      "WHO_CAN_POST": "Quem pode escrever",
+      "POST_EVERYONE": "Todos os participantes",
+      "POST_MODERATORS": "Somente as pessoas autorizadas",
+      "AUTHORIZED": "Pessoas autorizadas a escrever",
+      "AUTHORIZED_HINT": "Administradores escrevem sempre, sem precisar ser marcados aqui.",
+      "AUTHORIZED_EMPTY": "Escolha os participantes acima para poder autorizá-los."
     },
     "IMAGE": {
       "CLOSE": "Fechar"
@@ -84,6 +102,19 @@
     "UNREAD_DIVIDER": "{count} mensagens não lidas",
     "ROOM_EMPTY": "Ainda não há mensagens aqui. Diga alguma coisa.",
     "SEARCH_EMPTY": "Nenhuma mensagem corresponde a esta busca.",
-    "NO_ROOM": "Escolha uma conversa ou um canal para começar."
+    "NO_ROOM": "Escolha uma conversa ou um canal para começar.",
+    "EDIT_CHANNEL": {
+      "TITLE": "Editar canal",
+      "DESCRIPTION": "Quem está no canal não muda por aqui — só o que ele é e quem pode escrever nele.",
+      "CONFIRM": "Salvar",
+      "ERROR": "Não foi possível salvar o canal."
+    },
+    "MEMBERS_PANEL": {
+      "TITLE": "Membros ({count})",
+      "CLOSE": "Fechar",
+      "EMPTY": "Nenhum membro neste canal.",
+      "CAN_POST": "Pode escrever neste canal",
+      "RESTRICTED_HINT": "Neste canal, só as pessoas marcadas escrevem. Administradores escrevem sempre."
+    }
   }
 }

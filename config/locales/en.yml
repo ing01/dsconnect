@@ -224,6 +224,8 @@ en:
     validations:
       presence: must not be blank
     chat_message:
+      not_allowed_to_post: Somente as pessoas autorizadas podem escrever neste canal.
+      not_allowed_to_delete: Você pode apagar apenas as suas próprias mensagens.
       too_large: is larger than the %{size} MB limit
       too_many: cannot exceed %{count} files per message
     project:
@@ -473,6 +475,7 @@ en:
         Sent: %{content}
     notification_title:
       internal_chat_message: 'Internal chat'
+      internal_chat_channel_message: '%{channel_name} - %{sender_name}'
       conversation_creation: '%{contact_name} started conversation (#%{display_id}) in %{inbox_name}'
       conversation_assignment: "%{contact_name}'s conversation (#%{display_id}) has been assigned to you"
       assigned_conversation_new_message: 'New message from %{contact_name} (#%{display_id})'

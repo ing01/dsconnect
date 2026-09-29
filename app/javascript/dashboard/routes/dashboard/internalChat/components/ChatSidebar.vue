@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { OnClickOutside } from '@vueuse/components';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { shortTime } from '../helpers/messageParser';
@@ -11,17 +12,61 @@ const props = defineProps({
   channels: { type: Array, default: () => [] },
   users: { type: Array, default: () => [] },
   activeRoomId: { type: String, default: '' },
+  // Editar o canal e decisao sobre o canal da empresa: so administrador.
+  canEdit: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['select', 'newConversation', 'createChannel']);
+const emit = defineEmits([
+  'select',
+  'newConversation',
+  'createChannel',
+  'editChannel',
+]);
 
 const { t } = useI18n();
 
 const query = ref('');
 
+// O menu do botao direito. Guarda o canal e onde o cursor estava - o menu abre
+// ali, e nao num canto fixo da tela.
+const contextMenu = ref(null);
+
+const openContextMenu = (event, channel) => {
+  if (!props.canEdit) return;
+
+  contextMenu.value = { channel, x: event.clientX, y: event.clientY };
+};
+
+const editFromContextMenu = () => {
+  const channel = contextMenu.value?.channel;
+  contextMenu.value = null;
+  if (channel) emit('editChannel', channel);
+};
+
 const userFor = userId => props.users.find(user => user.id === userId);
 
-const lastMessage = room => room.messages[room.messages.length - 1] || null;
+// A previa da lista.
+//
+// `room.messages` so existe depois que a sala foi ABERTA - as mensagens sao
+// buscadas ali, nao junto da lista. Lendo apenas dele, toda sala ainda nao aberta
+// dizia "Sem mensagens ainda" mesmo estando cheia. `room.lastMessage` vem do
+// servidor com a lista, e e a previa correta; o que ja esta carregado tem
+// precedencia porque inclui o que acabou de chegar pelo tempo real.
+const lastMessage = room =>
+  room.messages[room.messages.length - 1] || room.lastMessage || null;
+
+// Mensagem so com anexo nao tem texto, e uma linha vazia na lista nao diz nada.
+const preview = room => {
+  const message = lastMessage(room);
+  if (!message) return t('INTERNAL_CHAT.SIDEBAR.NO_MESSAGES');
+
+  const body = (message.body || '').trim();
+  if (body) return body;
+
+  return message.hasAttachments || message.attachments?.length
+    ? t('INTERNAL_CHAT.SIDEBAR.ATTACHMENT_PREVIEW')
+    : t('INTERNAL_CHAT.SIDEBAR.NO_MESSAGES');
+};
 
 // Conversas privadas e canais ficam em listas separadas de propósito: são
 // coisas diferentes, e misturá-las é o que torna a barra lateral confusa.
@@ -115,10 +160,7 @@ const visibleChannels = computed(() =>
               </span>
             </span>
             <span class="text-xs truncate text-n-slate-10">
-              {{
-                lastMessage(direct)?.body ||
-                t('INTERNAL_CHAT.SIDEBAR.NO_MESSAGES')
-              }}
+              {{ preview(direct) }}
             </span>
           </span>
 
@@ -160,8 +202,23 @@ const visibleChannels = computed(() =>
               : 'hover:bg-n-alpha-1'
           "
           @click="emit('select', channel.id)"
+          @contextmenu.prevent="openContextMenu($event, channel)"
         >
-          <span class="flex-shrink-0 text-sm text-n-slate-10">#</span>
+          <Icon
+            v-if="channel.pinned"
+            icon="i-lucide-pin"
+            class="flex-shrink-0 size-3.5 text-n-slate-10"
+            :title="t('INTERNAL_CHAT.SIDEBAR.PINNED')"
+          />
+          <span v-else class="flex-shrink-0 text-sm text-n-slate-10">#</span>
+          <!-- Canal em que esta pessoa nao escreve: um cadeado explica por que o
+               campo de mensagem aparece desabilitado quando ela entrar. -->
+          <Icon
+            v-if="channel.canPost === false"
+            icon="i-lucide-lock"
+            class="flex-shrink-0 size-3.5 text-n-slate-10"
+            :title="t('INTERNAL_CHAT.SIDEBAR.READ_ONLY')"
+          />
           <span
             class="text-sm truncate grow"
             :class="
@@ -181,5 +238,23 @@ const visibleChannels = computed(() =>
         </button>
       </section>
     </div>
+
+    <!-- Fixo, e nao absoluto: a barra lateral rola, e um menu ancorado nela
+         escaparia do lugar ao primeiro giro da roda. -->
+    <OnClickOutside v-if="contextMenu" @trigger="contextMenu = null">
+      <div
+        class="fixed z-30 py-1 border rounded-lg shadow-md min-w-44 border-n-weak bg-n-solid-1"
+        :style="{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }"
+      >
+        <button
+          type="button"
+          class="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-start text-n-slate-12 hover:bg-n-alpha-1"
+          @click="editFromContextMenu"
+        >
+          <Icon icon="i-lucide-settings-2" class="size-4" />
+          {{ t('INTERNAL_CHAT.SIDEBAR.EDIT_CHANNEL') }}
+        </button>
+      </div>
+    </OnClickOutside>
   </aside>
 </template>

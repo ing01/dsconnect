@@ -78,6 +78,7 @@ module Events::Types
   # funcionarios nunca vai para quem nao participa dela.
   INTERNAL_CHAT_MESSAGE_CREATED = 'internal_chat.message.created'
   INTERNAL_CHAT_MESSAGE_UPDATED = 'internal_chat.message.updated'
+  INTERNAL_CHAT_MESSAGE_DELETED = 'internal_chat.message.deleted'
 
   # copilot events
   COPILOT_MESSAGE_CREATED = 'copilot.message.created'

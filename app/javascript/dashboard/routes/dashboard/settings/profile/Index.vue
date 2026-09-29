@@ -16,6 +16,7 @@ import ChangePassword from './ChangePassword.vue';
 import NotificationPreferences from './NotificationPreferences.vue';
 import AudioNotifications from './AudioNotifications.vue';
 import SectionLayout from '../account/components/SectionLayout.vue';
+import AppearanceSetting from './AppearanceSetting.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import AccessToken from './AccessToken.vue';
 import MfaSettingsCard from './MfaSettingsCard.vue';
@@ -43,6 +44,7 @@ export default {
     AccessToken,
     MfaSettingsCard,
     ActiveSessions,
+    AppearanceSetting,
     BaseSettingsHeader,
   },
   setup() {
@@ -358,6 +360,15 @@ export default {
         <NotificationPreferences />
       </SectionLayout>
     </Policy>
+    <!-- Fica junto das outras preferencias pessoais, e nao so no atalho de
+         teclado: num celular nao ha Ctrl+K. -->
+    <SectionLayout
+      with-border
+      :title="$t('PROFILE_SETTINGS.FORM.APPEARANCE.TITLE')"
+      :description="$t('PROFILE_SETTINGS.FORM.APPEARANCE.NOTE')"
+    >
+      <AppearanceSetting />
+    </SectionLayout>
     <SectionLayout
       with-border
       :title="$t('PROFILE_SETTINGS.FORM.ACCESS_TOKEN.TITLE')"

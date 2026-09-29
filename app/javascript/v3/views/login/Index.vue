@@ -355,18 +355,9 @@ export default {
     <!-- Coluna do formulario -->
     <section class="login__panel">
       <div class="login__panel-inner">
+        <!-- Sem logo aqui: a marca ja aparece na faixa acima (no celular) e no
+             painel da esquerda (no desktop). -->
         <header class="login__header">
-          <img
-            :src="globalConfig.logo"
-            :alt="globalConfig.installationName"
-            class="login__logo dark:hidden"
-          />
-          <img
-            v-if="globalConfig.logoDark"
-            :src="globalConfig.logoDark"
-            :alt="globalConfig.installationName"
-            class="hidden login__logo dark:block"
-          />
           <h1 class="login__title">
             {{ replaceInstallationName($t('LOGIN.TITLE')) }}
           </h1>
@@ -488,7 +479,12 @@ export default {
   --brand-deep: #0b4f78;
 
   display: grid;
+  /* No celular a marca e uma faixa em cima e o formulario embaixo; no desktop
+     viram duas colunas (ver a consulta de 1024px). Antes a faixa simplesmente
+     nao existia no celular: a tela abria branca, com a logo pequena e nada da
+     identidade que o computador mostra. */
   grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--white);
@@ -503,7 +499,6 @@ export default {
 
 .login__brand {
   position: relative;
-  display: none;
   overflow: hidden;
   background: var(--ink);
   isolation: isolate;
@@ -518,7 +513,7 @@ export default {
   top: 50%;
   left: 50%;
   width: auto;
-  height: 150%;
+  height: 260%;
   max-width: none;
   opacity: 0.09;
   filter: saturate(1.6) blur(1px);
@@ -553,11 +548,12 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  height: 100%;
-  padding: 4rem;
+  padding: 2.25rem 1.5rem 2rem;
   max-width: 34rem;
   margin-inline: auto;
+  text-align: center;
 }
 
 /* A logo ganha profundidade por camadas: um halo que pulsa, um anel que gira
@@ -568,8 +564,7 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: flex-start;
-  margin-bottom: 3.5rem;
+  margin-bottom: 1.25rem;
   isolation: isolate;
 }
 
@@ -602,7 +597,7 @@ export default {
   position: relative;
   z-index: 1;
   width: auto;
-  height: clamp(9.5rem, 16vw, 17rem);
+  height: clamp(4.5rem, 20vw, 7rem);
   /* A propria marca fica mais viva, em vez de depender de um fundo atras dela:
      um pouco mais de saturacao e brilho no traco, uma sombra escura curta que a
      descola do painel, e um halo azul largo que a faz existir no escuro. */
@@ -615,7 +610,7 @@ export default {
 
 .login__tagline {
   margin: 0;
-  font-size: clamp(1.75rem, 2.4vw, 2.5rem);
+  font-size: clamp(1.15rem, 5vw, 1.5rem);
   font-weight: 600;
   line-height: 1.2;
   text-wrap: balance;
@@ -624,6 +619,7 @@ export default {
 }
 
 .login__subtitle {
+  display: none;
   margin: 1rem 0 0;
   max-width: 28rem;
   font-size: 1rem;
@@ -653,26 +649,6 @@ export default {
 .login__header {
   text-align: center;
   margin-bottom: 2rem;
-}
-
-.login__logo {
-  width: auto;
-  height: 5rem;
-  filter: drop-shadow(0 6px 18px rgb(18 123 186 / 35%));
-  margin-inline: auto;
-  margin-bottom: 1.5rem;
-}
-
-/* No desktop a marca ja aparece no painel esquerdo; repetir a logo aqui seria
-   redundante. */
-@media (min-width: 1024px) {
-  .login__logo {
-    display: none;
-  }
-
-  .login .login__logo.dark\:block {
-    display: none;
-  }
 }
 
 .login__title {
@@ -820,9 +796,34 @@ export default {
 @media (min-width: 1024px) {
   .login {
     grid-template-columns: 1.05fr 1fr;
+    grid-template-rows: 1fr;
   }
 
-  .login__brand {
+  .login__watermark {
+    height: 150%;
+  }
+
+  .login__brand-content {
+    align-items: flex-start;
+    height: 100%;
+    padding: 4rem;
+    text-align: start;
+  }
+
+  .login__mark {
+    align-self: flex-start;
+    margin-bottom: 3.5rem;
+  }
+
+  .login__brand-mark {
+    height: clamp(9.5rem, 16vw, 17rem);
+  }
+
+  .login__tagline {
+    font-size: clamp(1.75rem, 2.4vw, 2.5rem);
+  }
+
+  .login__subtitle {
     display: block;
   }
 

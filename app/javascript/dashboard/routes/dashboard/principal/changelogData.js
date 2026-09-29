@@ -8,6 +8,61 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-manage-channel',
+    date: '29 de setembro de 2026',
+    isoDate: '2026-09-29',
+    type: 'improvement',
+    title: 'Chat Interno: editar canal e ver os membros',
+    description:
+      'Três botões que não faziam nada agora funcionam. Os três pontos no cabeçalho do canal abrem a edição (nome, descrição, canal fixo e quem pode escrever), e o mesmo aparece com o botão direito sobre o canal na lista - só para Administrador. O botão de membros abre uma faixa lateral com quem está no canal, a disponibilidade de cada um e, num canal de aviso, a marca de quem pode escrever. E a confirmação de apagar mensagem virou um modal do próprio sistema, em vez do aviso do navegador.',
+  },
+  {
+    id: 'internal-chat-announcement-channel',
+    date: '29 de setembro de 2026',
+    isoDate: '2026-09-29',
+    type: 'feature',
+    title: 'Chat Interno: canal fixo e canal de aviso',
+    description:
+      'Ao criar um canal há duas opções novas. "Canal fixo" deixa o canal no topo da lista, acima dos outros - é onde fica o que todos precisam ver. E "Quem pode escrever" permite marcar "somente as pessoas autorizadas": todos leem, mas apenas quem foi autorizado escreve. Administradores escrevem sempre, sem precisar ser marcados. Quem não pode escrever vê o motivo no lugar do campo de mensagem, e o canal aparece com um cadeado na lista.',
+  },
+  {
+    id: 'internal-chat-admin-and-delete',
+    date: '29 de setembro de 2026',
+    isoDate: '2026-09-29',
+    type: 'feature',
+    title:
+      'Chat Interno: administrador vê todos os canais, e dá para apagar mensagem',
+    description:
+      'Administradores agora veem todos os canais da conta, inclusive os que não criaram e os em que não entraram - canal é da empresa. Conversa entre duas pessoas continua sendo só de quem participa, para qualquer papel. Também é possível apagar mensagem: cada um apaga as suas, e o Administrador apaga qualquer uma. A mensagem sai na hora da tela de todos que estão com a sala aberta; respostas a ela continuam lá, só perdem a citação.',
+  },
+  {
+    id: 'internal-chat-preview-and-notification',
+    date: '29 de setembro de 2026',
+    isoDate: '2026-09-29',
+    type: 'improvement',
+    title: 'Chat Interno: prévia na lista e nome do canal na notificação',
+    description:
+      'Duas correções. A lista de conversas dizia "Sem mensagens ainda" em salas que tinham mensagens - ela só conseguia ler o histórico depois de a sala ser aberta, e agora a última mensagem vem junto da lista. E a notificação de mensagem de canal passou a se apresentar como "Canal - Pessoa" em vez de apenas "Chat interno", que era igual para tudo e não dizia de onde vinha.',
+  },
+  {
+    id: 'theme-travels-between-devices',
+    date: '29 de setembro de 2026',
+    isoDate: '2026-09-29',
+    type: 'improvement',
+    title: 'O tema escolhido vale no celular também',
+    description:
+      'O tema (claro/escuro) agora fica gravado na sua conta e não mais só naquele navegador: quem escolhe escuro no computador abre o sistema no celular já no escuro. A tela de login passou a respeitar a mesma escolha - antes ela seguia só o aparelho e abria clara num celular no modo claro. E há um lugar novo para escolher: Perfil > Aparência, com "Claro", "Escuro" e "Seguir o aparelho" - antes só dava pelo atalho Ctrl+K, que num celular não existe.',
+  },
+  {
+    id: 'login-brand-on-mobile',
+    date: '29 de setembro de 2026',
+    isoDate: '2026-09-29',
+    type: 'design',
+    title: 'Tela de login com a identidade também no celular',
+    description:
+      'No celular a tela de login abria branca, só com a logo pequena, sem nada do painel de marca que aparece no computador. Agora a marca vem numa faixa no topo, com o mesmo fundo escuro, a mesma logo animada e a mesma frase - o formulário fica abaixo dela. No computador nada muda.',
+  },
+  {
     id: 'suggestions-board-column-layout',
     date: '28 de setembro de 2026',
     isoDate: '2026-09-28',
