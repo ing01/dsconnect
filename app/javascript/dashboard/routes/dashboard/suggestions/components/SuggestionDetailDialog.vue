@@ -6,6 +6,7 @@ import { useStore } from 'dashboard/composables/store';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import Label from 'dashboard/components-next/label/Label.vue';
 
 const props = defineProps({
   canManage: { type: Boolean, default: false },
@@ -187,8 +188,15 @@ defineExpose({ open, close });
               {{ priority.name }}
             </option>
           </select>
+          <Label
+            v-else-if="suggestion.priority_name"
+            compact
+            class="w-fit"
+            :label="suggestion.priority_name"
+            :color="suggestion.priority_color || 'slate'"
+          />
           <span v-else class="text-sm text-n-slate-12">
-            {{ suggestion.priority_name || t('SUGGESTIONS.PRIORITY.NONE') }}
+            {{ t('SUGGESTIONS.PRIORITY.NONE') }}
           </span>
         </label>
 
@@ -211,8 +219,15 @@ defineExpose({ open, close });
               {{ category.name }}
             </option>
           </select>
+          <Label
+            v-else-if="suggestion.category_name"
+            compact
+            class="w-fit"
+            :label="suggestion.category_name"
+            :color="suggestion.category_color || 'slate'"
+          />
           <span v-else class="text-sm text-n-slate-12">
-            {{ suggestion.category_name || t('SUGGESTIONS.CATEGORY.NONE') }}
+            {{ t('SUGGESTIONS.CATEGORY.NONE') }}
           </span>
         </label>
       </div>

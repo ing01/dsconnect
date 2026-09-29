@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { format, parseISO } from 'date-fns';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import Label from 'dashboard/components-next/label/Label.vue';
 
 // Paleta fixa. O hash do nome garante que o MESMO responsavel sempre
 // caia na MESMA cor, e nomes diferentes tendem a cair em cores diferentes.
@@ -58,15 +59,24 @@ const completedLabel = computed(() =>
 
 <template>
   <div
-    class="drag-handle flex flex-col gap-2 rounded-xl border border-n-weak bg-n-solid-1 p-3 cursor-pointer hover:border-n-slate-6 hover:shadow-sm transition-shadow"
+    class="drag-handle flex flex-col gap-2 rounded-xl border p-3 cursor-pointer hover:shadow-sm transition-shadow"
+    :class="
+      suggestion.completed_at
+        ? 'bg-n-teal-4 border-n-teal-7 hover:border-n-teal-8'
+        : 'bg-n-solid-1 border-n-weak hover:border-n-slate-6'
+    "
     @click="$emit('click', suggestion)"
   >
-    <p class="text-sm font-medium text-n-slate-12 line-clamp-2 mb-0">
+    <p
+      class="text-sm font-medium line-clamp-2 mb-0"
+      :class="suggestion.completed_at ? 'text-n-teal-12' : 'text-n-slate-12'"
+    >
       {{ suggestion.title }}
     </p>
     <p
       v-if="suggestion.description"
-      class="text-xs text-n-slate-11 line-clamp-3 mb-0"
+      class="text-xs line-clamp-3 mb-0"
+      :class="suggestion.completed_at ? 'text-n-teal-11' : 'text-n-slate-11'"
     >
       {{ suggestion.description }}
     </p>
@@ -74,18 +84,18 @@ const completedLabel = computed(() =>
       v-if="suggestion.priority_name || suggestion.category_name"
       class="flex flex-wrap gap-1"
     >
-      <span
+      <Label
         v-if="suggestion.priority_name"
-        class="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-n-amber-3 text-n-amber-11"
-      >
-        {{ suggestion.priority_name }}
-      </span>
-      <span
+        compact
+        :label="suggestion.priority_name"
+        :color="suggestion.priority_color || 'slate'"
+      />
+      <Label
         v-if="suggestion.category_name"
-        class="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-n-slate-3 text-n-slate-11"
-      >
-        {{ suggestion.category_name }}
-      </span>
+        compact
+        :label="suggestion.category_name"
+        :color="suggestion.category_color || 'slate'"
+      />
     </div>
     <div
         v-if="suggestion.assignee_name"
@@ -131,7 +141,7 @@ const completedLabel = computed(() =>
           class="text-xs flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full"
           :class="
             suggestion.completed_at
-              ? 'bg-green-100 text-green-700 font-semibold'
+              ? 'bg-n-teal-9 text-white font-semibold'
               : 'text-n-slate-10'
           "
         >

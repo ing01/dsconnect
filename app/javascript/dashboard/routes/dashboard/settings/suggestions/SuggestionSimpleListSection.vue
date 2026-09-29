@@ -11,11 +11,25 @@ import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import Button from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
+import Label from 'dashboard/components-next/label/Label.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
+import { LABEL_COLORS } from '../../tickets/helpers/ticketLabels';
 import {
   BaseTable,
   BaseTableRow,
   BaseTableCell,
 } from 'dashboard/components-next/table';
+
+// Tom cheio (9), diferente do tom fraco que `Label.vue` usa no badge - aqui
+// e' um seletor de cor, precisa parecer uma cor de verdade, nao um badge.
+const SWATCH_CLASSES = {
+  slate: 'bg-n-slate-9',
+  amber: 'bg-n-amber-9',
+  teal: 'bg-n-teal-9',
+  ruby: 'bg-n-ruby-9',
+  blue: 'bg-n-blue-9',
+  iris: 'bg-n-iris-9',
+};
 
 const props = defineProps({
   storeModule: { type: String, required: true },
@@ -36,6 +50,7 @@ const uiFlags = computed(
 const showAddPopup = ref(false);
 const editing = ref(null);
 const name = ref('');
+const color = ref(LABEL_COLORS[0]);
 const isSubmitting = ref(false);
 const showDeleteConfirmationPopup = ref(false);
 const selected = ref(null);
@@ -46,11 +61,13 @@ const deleteMessage = computed(() => ` ${selected.value?.name}?`);
 const openAddPopup = () => {
   editing.value = null;
   name.value = '';
+  color.value = LABEL_COLORS[0];
   showAddPopup.value = true;
 };
 const openEditPopup = item => {
   editing.value = item;
   name.value = item.name;
+  color.value = item.color || LABEL_COLORS[0];
   showAddPopup.value = true;
 };
 const closeFormPopup = () => {
@@ -65,11 +82,13 @@ const submitForm = async () => {
       await store.dispatch(`${props.storeModule}/update`, {
         id: editing.value.id,
         name: name.value.trim(),
+        color: color.value,
       });
       useAlert(tt('API.UPDATE_SUCCESS'));
     } else {
       await store.dispatch(`${props.storeModule}/create`, {
         name: name.value.trim(),
+        color: color.value,
       });
       useAlert(tt('API.CREATE_SUCCESS'));
     }
@@ -119,12 +138,17 @@ onBeforeMount(() => store.dispatch(`${props.storeModule}/get`));
       {{ tt('EMPTY') }}
     </p>
 
-    <BaseTable v-else :headers="[tt('TABLE.NAME'), tt('TABLE.ACTIONS')]" :items="items">
+    <BaseTable
+      v-else
+      :headers="[tt('TABLE.NAME'), tt('TABLE.ACTIONS')]"
+      :items="items"
+      :no-data-message="tt('EMPTY')"
+    >
       <template #row="{ items: rows }">
         <BaseTableRow v-for="item in rows" :key="item.id" :item="item">
           <template #default>
             <BaseTableCell>
-              <span class="text-body-main text-n-slate-12">{{ item.name }}</span>
+              <Label :label="item.name" :color="item.color || 'slate'" compact />
             </BaseTableCell>
             <BaseTableCell align="end">
               <div class="flex justify-end flex-shrink-0 gap-3">
@@ -161,6 +185,31 @@ onBeforeMount(() => store.dispatch(`${props.storeModule}/get`));
             :label="tt('FORM.NAME.LABEL')"
             :placeholder="tt('FORM.NAME.PLACEHOLDER')"
           />
+          <div class="flex flex-col gap-1.5">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ tt('FORM.COLOR.LABEL') }}
+            </span>
+            <div class="flex gap-2">
+              <button
+                v-for="option in LABEL_COLORS"
+                :key="option"
+                type="button"
+                class="flex items-center justify-center rounded-full size-7 outline outline-2 outline-offset-2"
+                :class="[
+                  SWATCH_CLASSES[option],
+                  color === option ? 'outline-n-slate-9' : 'outline-transparent',
+                ]"
+                :aria-label="option"
+                @click="color = option"
+              >
+                <Icon
+                  v-if="color === option"
+                  icon="i-lucide-check"
+                  class="text-white size-3.5"
+                />
+              </button>
+            </div>
+          </div>
           <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
             <Button
               faded

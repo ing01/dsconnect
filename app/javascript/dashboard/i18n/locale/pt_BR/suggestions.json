@@ -32,6 +32,22 @@
       "INVALID_TYPE": "{name} não é uma imagem, gif ou vídeo suportado",
       "TOO_LARGE": "{name} passa do limite de 20 MB"
     },
+    "PRIORITY": {
+      "LABEL": "Prioridade",
+      "NONE": "Sem prioridade"
+    },
+    "CATEGORY": {
+      "LABEL": "Categoria",
+      "NONE": "Sem categoria"
+    },
+    "TIME_SPENT": {
+      "LABEL": "Tempo gasto (horas)",
+      "PLACEHOLDER": "Ex: 2.5",
+      "NONE": "Não informado"
+    },
+    "CARD": {
+      "COMPLETED_ON": "Concluído em {date}"
+    },
     "DETAIL": {
       "CLOSE": "Fechar",
       "SUBMITTED_BY": "Enviado por {name} em {date}",
@@ -62,11 +78,16 @@
         "NAME": {
           "LABEL": "Nome da coluna",
           "PLACEHOLDER": "Ex: Em análise"
+        },
+        "COMPLETED": {
+          "LABEL": "Marcar como coluna de conclusão",
+          "BADGE": "Conclusão"
         }
       },
       "TABLE": {
         "NAME": "Nome",
         "SUGGESTIONS": "Sugestões",
+        "COMPLETED": "Conclusão",
         "ACTIONS": "Ações"
       },
       "API": {
@@ -80,6 +101,82 @@
       "DELETE_CONFIRM": {
         "TITLE": "Confirmar exclusão",
         "MESSAGE": "Você tem certeza que deseja excluir a coluna",
+        "CONFIRM": "Sim, excluir",
+        "CANCEL": "Não, manter"
+      }
+    },
+    "PRIORITIES_SETTINGS": {
+      "HEADER": "Prioridades",
+      "DESCRIPTION": "Defina as prioridades que os agentes podem escolher numa sugestão (ex: Baixa, Média, Alta).",
+      "ADD": "Adicionar prioridade",
+      "ADD_TITLE": "Adicionar prioridade",
+      "EDIT_TITLE": "Editar prioridade",
+      "CANCEL": "Cancelar",
+      "SUBMIT": "Adicionar",
+      "UPDATE": "Salvar",
+      "EMPTY": "Nenhuma prioridade cadastrada.",
+      "EDIT": "Editar",
+      "DELETE": "Excluir",
+      "FORM": {
+        "NAME": {
+          "LABEL": "Nome da prioridade",
+          "PLACEHOLDER": "Ex: Alta"
+        },
+        "COLOR": {
+          "LABEL": "Cor"
+        }
+      },
+      "TABLE": {
+        "NAME": "Nome",
+        "ACTIONS": "Ações"
+      },
+      "API": {
+        "CREATE_SUCCESS": "Prioridade criada.",
+        "UPDATE_SUCCESS": "Prioridade atualizada.",
+        "DELETE_SUCCESS": "Prioridade excluída.",
+        "ERROR": "Não foi possível concluir a ação."
+      },
+      "DELETE_CONFIRM": {
+        "TITLE": "Confirmar exclusão",
+        "MESSAGE": "Você tem certeza que deseja excluir a prioridade",
+        "CONFIRM": "Sim, excluir",
+        "CANCEL": "Não, manter"
+      }
+    },
+    "CATEGORIES_SETTINGS": {
+      "HEADER": "Categorias",
+      "DESCRIPTION": "Defina as categorias que os agentes podem escolher numa sugestão (ex: Bug, Nova funcionalidade, Melhoria).",
+      "ADD": "Adicionar categoria",
+      "ADD_TITLE": "Adicionar categoria",
+      "EDIT_TITLE": "Editar categoria",
+      "CANCEL": "Cancelar",
+      "SUBMIT": "Adicionar",
+      "UPDATE": "Salvar",
+      "EMPTY": "Nenhuma categoria cadastrada.",
+      "EDIT": "Editar",
+      "DELETE": "Excluir",
+      "FORM": {
+        "NAME": {
+          "LABEL": "Nome da categoria",
+          "PLACEHOLDER": "Ex: Bug"
+        },
+        "COLOR": {
+          "LABEL": "Cor"
+        }
+      },
+      "TABLE": {
+        "NAME": "Nome",
+        "ACTIONS": "Ações"
+      },
+      "API": {
+        "CREATE_SUCCESS": "Categoria criada.",
+        "UPDATE_SUCCESS": "Categoria atualizada.",
+        "DELETE_SUCCESS": "Categoria excluída.",
+        "ERROR": "Não foi possível concluir a ação."
+      },
+      "DELETE_CONFIRM": {
+        "TITLE": "Confirmar exclusão",
+        "MESSAGE": "Você tem certeza que deseja excluir a categoria",
         "CONFIRM": "Sim, excluir",
         "CANCEL": "Não, manter"
       }

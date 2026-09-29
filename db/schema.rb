@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_28_230000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_29_100000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1930,6 +1930,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_28_230000) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color", default: "slate", null: false
     t.index ["account_id"], name: "index_suggestion_categories_on_account_id"
   end
 
@@ -1949,6 +1950,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_28_230000) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color", default: "slate", null: false
     t.index ["account_id"], name: "index_suggestion_priorities_on_account_id"
   end
 

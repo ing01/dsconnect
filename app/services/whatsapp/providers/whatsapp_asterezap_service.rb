@@ -60,12 +60,14 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
   end
 
   def send_text_message(phone_number, message)
-    simulate_typing(phone_number, message.outgoing_content)
+    body_text = outgoing_content_with_agent_name(message)
+
+    simulate_typing(phone_number, body_text)
 
     response = HTTParty.post(
       "#{instance_path}/send-text",
       headers: api_headers,
-      body: { phone: phone_number, message: message.outgoing_content }.to_json
+      body: { phone: phone_number, message: body_text }.to_json
     )
 
     process_response(response, message)
@@ -78,7 +80,9 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
     simulate_typing(phone_number, message.outgoing_content)
 
     body = { phone: phone_number, type.to_sym => attachment.download_url }
-    body['caption'] = message.outgoing_content if type != 'audio' && message.outgoing_content.present?
+    if type != 'audio' && message.outgoing_content.present?
+      body['caption'] = outgoing_content_with_agent_name(message)
+    end
     body['fileName'] = attachment.file.filename.to_s if type == 'document'
 
     response = HTTParty.post(
@@ -133,6 +137,30 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
       handle_error(response, message)
       nil
     end
+  end
+
+  # Prefixa o nome do atendente humano na mensagem que sai pro cliente.
+  # Nao prefixa quando:
+  #   - nao tem sender (mensagem de sistema, importacao, etc.)
+  #   - o sender nao e um agente humano (bot, autoatendimento)
+  #   - o nome ja esta no inicio (evita "*Joao:* *Joao:* oi")
+  # Assim nao quebra automacoes nem respostas automaticas.
+  def outgoing_content_with_agent_name(message)
+    content = message.outgoing_content.to_s
+    agent_name = agent_name_for(message)
+
+    return content if agent_name.blank?
+    return content if content.start_with?("*#{agent_name}:*")
+
+    "*#{agent_name}:*\n#{content}"
+  end
+
+  def agent_name_for(message)
+    sender = message.sender
+    return nil unless sender.is_a?(User)
+    return nil if sender.bot? # opcional: nao prefixa bots
+
+    sender.name.presence
   end
 
   # Corpo de erro varia por status: 400 traz {statusCode, message: [...], error},

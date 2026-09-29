@@ -26,6 +26,6 @@ class Api::V1::Accounts::SuggestionPrioritiesController < Api::V1::Accounts::Bas
   end
 
   def suggestion_priority_params
-    params.require(:suggestion_priority).permit(:name)
+    params.require(:suggestion_priority).permit(:name, :color)
   end
 end

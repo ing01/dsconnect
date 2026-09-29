@@ -33,6 +33,7 @@ const columns = computed(() => getters['suggestionColumns/getColumns'].value);
 const tableHeaders = computed(() => [
   t('SUGGESTIONS.SETTINGS.TABLE.NAME'),
   t('SUGGESTIONS.SETTINGS.TABLE.SUGGESTIONS'),
+  t('SUGGESTIONS.SETTINGS.TABLE.COMPLETED'),
   t('SUGGESTIONS.SETTINGS.TABLE.ACTIONS'),
 ]);
 
@@ -194,6 +195,15 @@ onBeforeMount(() => {
           </BaseTableRow>
         </template>
       </BaseTable>
+
+      <SuggestionSimpleListSection
+        store-module="suggestionPriorities"
+        i18n-prefix="SUGGESTIONS.PRIORITIES_SETTINGS"
+      />
+      <SuggestionSimpleListSection
+        store-module="suggestionCategories"
+        i18n-prefix="SUGGESTIONS.CATEGORIES_SETTINGS"
+      />
     </template>
 
     <woot-modal v-model:show="showAddPopup" :on-close="hideAddPopup">

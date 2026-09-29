@@ -32,6 +32,22 @@
       "INVALID_TYPE": "{name} is not a supported image, gif or video",
       "TOO_LARGE": "{name} is over the 20 MB limit"
     },
+    "PRIORITY": {
+      "LABEL": "Priority",
+      "NONE": "No priority"
+    },
+    "CATEGORY": {
+      "LABEL": "Category",
+      "NONE": "No category"
+    },
+    "TIME_SPENT": {
+      "LABEL": "Time spent (hours)",
+      "PLACEHOLDER": "e.g. 2.5",
+      "NONE": "Not informed"
+    },
+    "CARD": {
+      "COMPLETED_ON": "Completed on {date}"
+    },
     "DETAIL": {
       "CLOSE": "Close",
       "SUBMITTED_BY": "Submitted by {name} on {date}",
@@ -62,11 +78,16 @@
         "NAME": {
           "LABEL": "Column name",
           "PLACEHOLDER": "e.g. Under review"
+        },
+        "COMPLETED": {
+          "LABEL": "Mark as the completion column",
+          "BADGE": "Completion"
         }
       },
       "TABLE": {
         "NAME": "Name",
         "SUGGESTIONS": "Suggestions",
+        "COMPLETED": "Completion",
         "ACTIONS": "Actions"
       },
       "API": {
@@ -80,6 +101,82 @@
       "DELETE_CONFIRM": {
         "TITLE": "Confirm deletion",
         "MESSAGE": "Are you sure you want to delete the column",
+        "CONFIRM": "Yes, delete",
+        "CANCEL": "No, keep"
+      }
+    },
+    "PRIORITIES_SETTINGS": {
+      "HEADER": "Priorities",
+      "DESCRIPTION": "Set up the priorities agents can pick on a suggestion (e.g. Low, Medium, High).",
+      "ADD": "Add priority",
+      "ADD_TITLE": "Add priority",
+      "EDIT_TITLE": "Edit priority",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Add",
+      "UPDATE": "Save",
+      "EMPTY": "No priorities yet.",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "FORM": {
+        "NAME": {
+          "LABEL": "Priority name",
+          "PLACEHOLDER": "e.g. High"
+        },
+        "COLOR": {
+          "LABEL": "Color"
+        }
+      },
+      "TABLE": {
+        "NAME": "Name",
+        "ACTIONS": "Actions"
+      },
+      "API": {
+        "CREATE_SUCCESS": "Priority created.",
+        "UPDATE_SUCCESS": "Priority updated.",
+        "DELETE_SUCCESS": "Priority deleted.",
+        "ERROR": "Could not complete the action."
+      },
+      "DELETE_CONFIRM": {
+        "TITLE": "Confirm deletion",
+        "MESSAGE": "Are you sure you want to delete the priority",
+        "CONFIRM": "Yes, delete",
+        "CANCEL": "No, keep"
+      }
+    },
+    "CATEGORIES_SETTINGS": {
+      "HEADER": "Categories",
+      "DESCRIPTION": "Set up the categories agents can pick on a suggestion (e.g. Bug, New feature, Improvement).",
+      "ADD": "Add category",
+      "ADD_TITLE": "Add category",
+      "EDIT_TITLE": "Edit category",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Add",
+      "UPDATE": "Save",
+      "EMPTY": "No categories yet.",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "FORM": {
+        "NAME": {
+          "LABEL": "Category name",
+          "PLACEHOLDER": "e.g. Bug"
+        },
+        "COLOR": {
+          "LABEL": "Color"
+        }
+      },
+      "TABLE": {
+        "NAME": "Name",
+        "ACTIONS": "Actions"
+      },
+      "API": {
+        "CREATE_SUCCESS": "Category created.",
+        "UPDATE_SUCCESS": "Category updated.",
+        "DELETE_SUCCESS": "Category deleted.",
+        "ERROR": "Could not complete the action."
+      },
+      "DELETE_CONFIRM": {
+        "TITLE": "Confirm deletion",
+        "MESSAGE": "Are you sure you want to delete the category",
         "CONFIRM": "Yes, delete",
         "CANCEL": "No, keep"
       }

@@ -10,6 +10,12 @@ RSpec.describe SuggestionColumn do
     it { is_expected.to validate_presence_of(:name) }
   end
 
+  describe 'completed flag' do
+    it 'defaults to false' do
+      expect(create(:suggestion_column).completed?).to be(false)
+    end
+  end
+
   describe 'default position' do
     it 'assigns the next position within the account when not set' do
       account = create(:account)

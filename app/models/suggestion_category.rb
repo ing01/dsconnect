@@ -8,6 +8,7 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  account_id :bigint           not null
+#  color      :string           default("slate"), not null
 #
 # Indexes
 #
@@ -20,7 +21,13 @@ class SuggestionCategory < ApplicationRecord
   belongs_to :account
   has_many :suggestions, foreign_key: :category_id, dependent: :nullify, inverse_of: :category
 
+  # As mesmas 6 cores de `components-next/label/Label.vue` /
+  # `ticketLabels.js` - o mesmo badge usado em Tickets, nao uma paleta
+  # propria so pra Sugestoes.
+  COLORS = %w[slate amber teal ruby blue iris].freeze
+
   validates :name, presence: true
+  validates :color, inclusion: { in: COLORS }
 
   before_validation :set_default_position, on: :create
 

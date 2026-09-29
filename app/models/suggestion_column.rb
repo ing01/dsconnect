@@ -8,6 +8,7 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  account_id :bigint           not null
+#  completed  :boolean          default(false), not null
 #
 # Indexes
 #

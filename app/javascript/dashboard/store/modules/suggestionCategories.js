@@ -28,12 +28,16 @@ export const actions = {
       commit(types.SET_SUGGESTION_CATEGORIES_UI_FLAG, { isFetching: false });
     }
   },
-  create: async ({ dispatch }, { name }) => {
-    await SuggestionCategoriesAPI.create({ suggestion_category: { name } });
+  create: async ({ dispatch }, { name, color }) => {
+    await SuggestionCategoriesAPI.create({
+      suggestion_category: { name, color },
+    });
     return dispatch('get');
   },
-  update: async ({ dispatch }, { id, name }) => {
-    await SuggestionCategoriesAPI.update(id, { suggestion_category: { name } });
+  update: async ({ dispatch }, { id, name, color }) => {
+    await SuggestionCategoriesAPI.update(id, {
+      suggestion_category: { name, color },
+    });
     return dispatch('get');
   },
   delete: async ({ dispatch }, id) => {

@@ -28,12 +28,16 @@ export const actions = {
       commit(types.SET_SUGGESTION_PRIORITIES_UI_FLAG, { isFetching: false });
     }
   },
-  create: async ({ dispatch }, { name }) => {
-    await SuggestionPrioritiesAPI.create({ suggestion_priority: { name } });
+  create: async ({ dispatch }, { name, color }) => {
+    await SuggestionPrioritiesAPI.create({
+      suggestion_priority: { name, color },
+    });
     return dispatch('get');
   },
-  update: async ({ dispatch }, { id, name }) => {
-    await SuggestionPrioritiesAPI.update(id, { suggestion_priority: { name } });
+  update: async ({ dispatch }, { id, name, color }) => {
+    await SuggestionPrioritiesAPI.update(id, {
+      suggestion_priority: { name, color },
+    });
     return dispatch('get');
   },
   delete: async ({ dispatch }, id) => {

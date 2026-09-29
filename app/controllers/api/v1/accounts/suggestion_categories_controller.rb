@@ -26,6 +26,6 @@ class Api::V1::Accounts::SuggestionCategoriesController < Api::V1::Accounts::Bas
   end
 
   def suggestion_category_params
-    params.require(:suggestion_category).permit(:name)
+    params.require(:suggestion_category).permit(:name, :color)
   end
 end

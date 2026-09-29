@@ -9,8 +9,10 @@ json.assignee_id resource.assignee_id
 json.assignee_name resource.assignee&.name
 json.priority_id resource.priority_id
 json.priority_name resource.priority&.name
+json.priority_color resource.priority&.color
 json.category_id resource.category_id
 json.category_name resource.category&.name
+json.category_color resource.category&.color
 json.time_spent_hours resource.time_spent_hours
 json.completed_at resource.completed_at
 json.attachments resource.attachments_payload

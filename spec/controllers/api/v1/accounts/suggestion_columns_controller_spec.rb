@@ -40,6 +40,16 @@ RSpec.describe 'Suggestion Columns API', type: :request do
       expect(response).to have_http_status(:success)
       expect(response.parsed_body['name']).to eq('Nova coluna')
     end
+
+    it 'lets an administrator mark the column as the completion column' do
+      post "/api/v1/accounts/#{account.id}/suggestion_columns",
+           params: { suggestion_column: { name: 'Concluído', completed: true } },
+           headers: administrator.create_new_auth_token,
+           as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['completed']).to be(true)
+    end
   end
 
   describe 'DELETE /api/v1/accounts/{account.id}/suggestion_columns/:id' do

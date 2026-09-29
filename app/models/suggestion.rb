@@ -12,11 +12,17 @@
 #  assignee_id          :bigint
 #  suggestion_column_id :bigint           not null
 #  user_id              :bigint           not null
+#  priority_id          :bigint
+#  category_id          :bigint
+#  time_spent_hours     :decimal(6, 1)
+#  completed_at         :datetime
 #
 # Indexes
 #
 #  index_suggestions_on_account_id            (account_id)
 #  index_suggestions_on_assignee_id           (assignee_id)
+#  index_suggestions_on_category_id           (category_id)
+#  index_suggestions_on_priority_id           (priority_id)
 #  index_suggestions_on_suggestion_column_id  (suggestion_column_id)
 #  index_suggestions_on_user_id               (user_id)
 #
