@@ -89,17 +89,13 @@ const MESSAGES = [
   },
 ];
 
-// O módulo declara `state` como objeto, então cada teste recebe o seu.
-const freshState = () => ({
-  users: [],
-  rooms: [],
-  currentUserId: null,
-  uiFlags: {
-    isFetchingRooms: false,
-    isFetchingMessages: false,
-    isSending: false,
-  },
-});
+// O estado sai do PROPRIO modulo, clonado para cada exemplo ter o seu.
+//
+// Antes cada spec reescrevia a forma do estado a mao, e ela envelhecia sozinha:
+// bastou o modulo ganhar `pinnedMessages` para os getters lerem `undefined` e a
+// tela inteira falhar no render - o componente estava certo, os specs e que
+// descreviam um estado que ja nao existia.
+const freshState = () => structuredClone(internalChat.state);
 
 const mountPage = async () => {
   holder.push = vi.fn();

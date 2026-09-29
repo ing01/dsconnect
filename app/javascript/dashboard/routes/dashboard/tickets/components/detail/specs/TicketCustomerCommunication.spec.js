@@ -9,8 +9,13 @@ const dispatch = vi.fn(() => Promise.resolve());
 
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
+// `getters` faz parte do contrato: o composer le as Respostas Prontas por ali.
+// Sem isso o `computed` que as monta estoura ao ser avaliado.
 vi.mock('dashboard/composables/store', () => ({
-  useStore: () => ({ dispatch: (...a) => dispatch(...a) }),
+  useStore: () => ({
+    dispatch: (...a) => dispatch(...a),
+    getters: { getCannedResponses: [] },
+  }),
 }));
 
 const ticket = (overrides = {}) => ({
@@ -55,9 +60,18 @@ const montar = (props = {}) =>
     },
   });
 
+const botaoDeEnvio = wrapper =>
+  wrapper
+    .findAll('button.acao')
+    .find(b =>
+      ['TICKET.COMMUNICATION.SEND', 'TICKET.COMMUNICATION.REGISTER'].includes(
+        b.attributes('data-label')
+      )
+    );
+
 const enviar = async wrapper => {
   await wrapper.find('textarea.corpo').setValue('<p>Falei com voce</p>');
-  await wrapper.find('button.acao').trigger('click');
+  await botaoDeEnvio(wrapper).trigger('click');
   await flushPromises();
 };
 
@@ -66,8 +80,7 @@ const mensagem = () =>
     ([acao]) => acao === 'tickets/sendCustomerCommunication'
   )?.[1];
 
-const rotuloDoBotao = wrapper =>
-  wrapper.find('button.acao').attributes('data-label');
+const rotuloDoBotao = wrapper => botaoDeEnvio(wrapper).attributes('data-label');
 
 beforeEach(() => dispatch.mockClear());
 

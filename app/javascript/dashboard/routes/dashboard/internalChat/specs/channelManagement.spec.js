@@ -54,16 +54,13 @@ const MESSAGES = [
   { id: 102, userId: 12, body: 'de outra pessoa', createdAt: 2, reactions: [] },
 ];
 
-const freshState = () => ({
-  users: [],
-  rooms: [],
-  currentUserId: null,
-  uiFlags: {
-    isFetchingRooms: false,
-    isFetchingMessages: false,
-    isSending: false,
-  },
-});
+// O estado sai do PROPRIO modulo, clonado para cada exemplo ter o seu.
+//
+// Antes cada spec reescrevia a forma do estado a mao, e ela envelhecia sozinha:
+// bastou o modulo ganhar `pinnedMessages` para os getters lerem `undefined` e a
+// tela inteira falhar no render - o componente estava certo, os specs e que
+// descreviam um estado que ja nao existia.
+const freshState = () => structuredClone(internalChat.state);
 
 // O `Dialog` real depende de `<dialog>`, que o jsdom nao implementa; este duble
 // guarda se foi aberto, que e o que os exemplos perguntam.
@@ -201,14 +198,15 @@ describe('editar o canal', () => {
     );
   });
 
-  // Editar o canal e decisao sobre o canal da empresa: agente comum nao recebe
-  // nem o menu nem o atalho do botao direito.
-  it('offers neither to a plain agent', async () => {
+  // Editar o canal e decisao sobre o canal da empresa. O menu dos tres pontos
+  // existe para todos - "Mensagens fixadas" e de qualquer um -, mas a edicao nao
+  // aparece nele, e o botao direito nao abre nada.
+  it('offers no edit to a plain agent', async () => {
     const { wrapper } = await montar({ role: 'agent' });
 
-    expect(botaoComTitulo(wrapper, 'INTERNAL_CHAT.HEADER.MORE')).toBe(
-      undefined
-    );
+    await botaoComTitulo(wrapper, 'INTERNAL_CHAT.HEADER.MORE').trigger('click');
+
+    expect(wrapper.text()).not.toContain('INTERNAL_CHAT.HEADER.EDIT_CHANNEL');
 
     const item = wrapper
       .findAll('button')
