@@ -37,6 +37,7 @@
       "PARTICIPATING_CONVERSATION_NEW_MESSAGE": "New message",
       "ASSIGNED_CONVERSATION_NEW_MESSAGE": "New message",
       "INTERNAL_CHAT_MESSAGE": "Internal chat",
+      "SUGGESTION_CREATED": "New suggestion",
       "SNOOZED_UNTIL": "Snoozed for {time}",
       "SNOOZED_ENDS": "Snooze ended"
     },

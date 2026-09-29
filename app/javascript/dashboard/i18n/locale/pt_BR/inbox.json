@@ -37,6 +37,7 @@
       "PARTICIPATING_CONVERSATION_NEW_MESSAGE": "Nova Mensagem",
       "ASSIGNED_CONVERSATION_NEW_MESSAGE": "Nova Mensagem",
       "INTERNAL_CHAT_MESSAGE": "Chat interno",
+      "SUGGESTION_CREATED": "Nova sugestão",
       "SNOOZED_UNTIL": "Adiado para {time}",
       "SNOOZED_ENDS": "Adiamento encerrado"
     },

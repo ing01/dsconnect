@@ -173,7 +173,8 @@
           "INTERNAL_CHAT_MESSAGE": "Uma nova mensagem no Chat Interno",
           "SLA_MISSED_FIRST_RESPONSE": "Uma conversa perde o SLA de primeira resposta",
           "SLA_MISSED_NEXT_RESPONSE": "Uma conversa perde o SLA da próxima resposta",
-          "SLA_MISSED_RESOLUTION": "Uma conversa perde o SLA de resolução"
+          "SLA_MISSED_RESOLUTION": "Uma conversa perde o SLA de resolução",
+          "SUGGESTION_CREATED": "Uma nova sugestão é enviada"
         },
         "PUSH_PREFERENCE": "Receber notificações push",
         "SAVE": "Salvar",

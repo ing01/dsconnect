@@ -38,6 +38,10 @@ export const NOTIFICATION_TYPES = [
     label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.SLA_MISSED_RESOLUTION',
     value: 'sla_missed_resolution',
   },
+  {
+    label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.SUGGESTION_CREATED',
+    value: 'suggestion_created',
+  },
 ];
 
 export const EVENT_TYPES = {
