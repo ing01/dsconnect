@@ -68,6 +68,9 @@ const carregar = async () => {
       per_page: 50,
     });
     fila.value = data.payload || [];
+    // O contador do menu lateral e a fila desta tela sao o mesmo numero. Quem
+    // acabou de ver a lista nao deve ver um contador que a contradiz.
+    store.dispatch('tickets/fetchTriageCount');
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('TICKET.API.ERROR_MESSAGE'));
   } finally {

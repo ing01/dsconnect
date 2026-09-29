@@ -64,6 +64,9 @@ module TicketBroadcastable
       # invisible to the Kanban's Empresa search until the next board refetch.
       company_id: company_id, contact_id: contact_id,
       ticket_category_id: ticket_category_id,
+      # Vai junto para o contador da Triagem no menu lateral saber que a fila
+      # mudou sem ter de perguntar ao servidor a cada evento de ticket.
+      pending_triage: pending_triage,
       project_id: project_id,
       due_date: due_date&.iso8601, scheduled_at: scheduled_at&.iso8601,
       next_project_stage: next_project_stage,

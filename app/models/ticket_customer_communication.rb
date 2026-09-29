@@ -10,7 +10,12 @@ class TicketCustomerCommunication < ApplicationRecord
   belongs_to :ticket
   belongs_to :contact, optional: true
 
-  STATUSES = %w[pending sent failed].freeze
+  # `skipped` e a mensagem registrada SEM e-mail: quando o agente desmarca
+  # "enviar e-mail ao cliente", nada e entregue pelo correio, mas o texto
+  # continua no chamado e aparece na Area do Cliente. Um status proprio em vez de
+  # `sent` porque `sent` significa "o servidor de e-mail aceitou" - dizer isso de
+  # algo que nunca foi enviado tiraria do status a unica coisa que ele afirma.
+  STATUSES = %w[pending sent skipped failed].freeze
   # `outbound` e o que a equipe envia ao cliente; `inbound` e a resposta dele,
   # escrita na Area do Cliente. A mesma conversa, lida dos dois lados.
   DIRECTIONS = %w[outbound inbound].freeze
@@ -30,11 +35,16 @@ class TicketCustomerCommunication < ApplicationRecord
   has_many :ticket_attachments, dependent: :nullify
 
   scope :sent, -> { where(status: 'sent') }
+  scope :skipped, -> { where(status: 'skipped') }
+  # A mensagem existe para o cliente: entregue por e-mail ou registrada sem
+  # envio. E o que conta como "a equipe se comunicou".
+  scope :registered, -> { where(status: %w[sent skipped]) }
   scope :outbound, -> { where(direction: 'outbound') }
   scope :inbound, -> { where(direction: 'inbound') }
-  # What satisfies the closing requirement: a closing message that actually went
-  # out. A pending or failed one does not count.
-  scope :closing_sent, -> { sent.where(closing: true) }
+  # What satisfies the closing requirement: a closing message that reached the
+  # customer - by e-mail, or registered without one. A pending or failed one does
+  # not count.
+  scope :closing_registered, -> { registered.where(closing: true) }
 
   def outbound?
     direction == 'outbound'
@@ -51,6 +61,13 @@ class TicketCustomerCommunication < ApplicationRecord
 
   def mark_sent!
     update!(status: 'sent', sent_at: Time.zone.now, error_message: nil)
+  end
+
+  # Registrada sem e-mail. `sent_at` e gravado porque e a hora em que a mensagem
+  # passou a existir para o cliente - e disso que as telas se servem para ordenar
+  # e datar a conversa.
+  def mark_skipped!
+    update!(status: 'skipped', sent_at: Time.zone.now, error_message: nil)
   end
 
   def mark_failed!(message)

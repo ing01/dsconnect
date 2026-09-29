@@ -9,6 +9,10 @@ import TicketsAPI from '../../api/tickets';
 export const state = {
   records: [],
   listMeta: { count: 0, currentPage: 1 },
+  // Quantos chamados esperam na Triagem. Fica fora de `records` de proposito: o
+  // menu lateral mostra este numero em toda tela do sistema, e carregar a fila
+  // inteira para contar o tamanho dela seria pagar a lista para ler um numero.
+  triageCount: 0,
   comments: {},
   activities: {},
   attachments: {},
@@ -35,6 +39,9 @@ export const getters = {
   getListMeta(_state) {
     return _state.listMeta;
   },
+  getTriageCount(_state) {
+    return _state.triageCount;
+  },
   getTicket: _state => id => {
     return _state.records.find(record => record.id === Number(id));
   },
@@ -60,6 +67,13 @@ export const actions = {
     } finally {
       commit(types.SET_TICKETS_UI_FLAG, { isFetchingList: false });
     }
+  },
+  // Sem `uiFlags`: o contador do menu lateral nao tem estado de carregamento -
+  // ele mostra o numero que tem, ou nada, e uma falha de rede deixa o anterior
+  // no lugar em vez de piscar um zero que ninguem conferiu.
+  fetchTriageCount: async ({ commit }) => {
+    const response = await TicketsAPI.triageCount();
+    commit(types.SET_TICKET_TRIAGE_COUNT, response.data?.count);
   },
   fetchTicket: async ({ commit }, id) => {
     commit(types.SET_TICKETS_UI_FLAG, { isFetchingItem: true });
@@ -349,6 +363,9 @@ export const mutations = {
     } else {
       _state.records.splice(index, 1, { ..._state.records[index], ...ticket });
     }
+  },
+  [types.SET_TICKET_TRIAGE_COUNT](_state, count) {
+    _state.triageCount = Number(count) || 0;
   },
   [types.SET_TICKET_ATTACHMENTS](_state, { ticketId, attachments }) {
     _state.attachments = { ..._state.attachments, [ticketId]: attachments };

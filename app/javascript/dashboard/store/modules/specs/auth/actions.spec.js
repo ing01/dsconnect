@@ -13,7 +13,36 @@ vi.spyOn(Cookies, 'get');
 const commit = vi.fn();
 const dispatch = vi.fn();
 global.axios = axios;
-vi.mock('axios');
+// O axios e mockado a mao, e nao pelo automock, por causa de UMA chamada:
+// este arquivo importa as rotas, que arrastam a Area do Cliente, e a API dela
+// cria a PROPRIA instancia de axios (`axios.create`) e registra um interceptador
+// nela ao ser carregada. O automock devolve `undefined` em `create()`, e a suite
+// inteira morria no import, antes do primeiro teste.
+// A instancia nasce DENTRO da fabrica: `vi.mock` e alcado para cima dos imports,
+// e uma const declarada aqui fora ainda nao existe quando a fabrica roda.
+vi.mock('axios', () => {
+  const instanciaDeCliente = {
+    interceptors: { request: { use: vi.fn() }, response: { use: vi.fn() } },
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+  };
+
+  return {
+    default: {
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn(),
+      create: vi.fn(() => instanciaDeCliente),
+      defaults: { headers: { common: {} } },
+      interceptors: { request: { use: vi.fn() }, response: { use: vi.fn() } },
+    },
+  };
+});
 
 describe('#actions', () => {
   describe('#validityCheck', () => {

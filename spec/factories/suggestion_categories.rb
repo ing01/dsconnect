@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :suggestion_category do
-    sequence(:name) { |n| "Category #{n}" }
+    sequence(:name) { |n| "Categoria #{n}" }
     account
   end
 end

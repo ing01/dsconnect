@@ -2191,6 +2191,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "direction", default: "outbound", null: false
+    t.boolean "notify_customer", default: true, null: false
     t.index ["account_id"], name: "index_ticket_customer_communications_on_account_id"
     t.index ["contact_id"], name: "index_ticket_customer_communications_on_contact_id"
     t.index ["ticket_id", "closing", "status"], name: "index_ticket_customer_comms_on_ticket_closing_status"

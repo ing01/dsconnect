@@ -27,8 +27,12 @@ const administrators = computed(() =>
     agent => agent.role === 'administrator'
   )
 );
-const priorities = computed(() => store.getters['suggestionPriorities/getItems']);
-const categories = computed(() => store.getters['suggestionCategories/getItems']);
+const priorities = computed(
+  () => store.getters['suggestionPriorities/getItems']
+);
+const categories = computed(
+  () => store.getters['suggestionCategories/getItems']
+);
 
 onMounted(() => {
   store.dispatch('agents/get');
@@ -135,11 +139,7 @@ defineExpose({ open, close });
               :alt="attachment.name"
               class="object-cover w-full h-full"
             />
-            <Icon
-              v-else
-              icon="i-lucide-video"
-              class="size-5 text-n-slate-10"
-            />
+            <Icon v-else icon="i-lucide-video" class="size-5 text-n-slate-10" />
           </a>
         </div>
       </div>
@@ -247,11 +247,20 @@ defineExpose({ open, close });
           @change="handleTimeSpentChange"
         />
         <span v-else class="text-sm text-n-slate-12">
-          {{ suggestion.time_spent_hours ? `${suggestion.time_spent_hours}h` : t('SUGGESTIONS.TIME_SPENT.NONE') }}
+          {{
+            suggestion.time_spent_hours
+              ? t('SUGGESTIONS.TIME_SPENT.HOURS', {
+                  count: suggestion.time_spent_hours,
+                })
+              : t('SUGGESTIONS.TIME_SPENT.NONE')
+          }}
         </span>
       </label>
 
-      <div v-if="props.canManage" class="flex justify-end pt-2 border-t border-n-weak">
+      <div
+        v-if="props.canManage"
+        class="flex justify-end pt-2 border-t border-n-weak"
+      >
         <Button
           ruby
           faded

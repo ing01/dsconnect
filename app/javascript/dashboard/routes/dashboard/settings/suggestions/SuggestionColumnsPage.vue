@@ -196,14 +196,20 @@ onBeforeMount(() => {
         </template>
       </BaseTable>
 
-      <SuggestionSimpleListSection
-        store-module="suggestionPriorities"
-        i18n-prefix="SUGGESTIONS.PRIORITIES_SETTINGS"
-      />
-      <SuggestionSimpleListSection
-        store-module="suggestionCategories"
-        i18n-prefix="SUGGESTIONS.CATEGORIES_SETTINGS"
-      />
+      <!-- Prioridade e Categoria moram na MESMA tela das colunas: as tres sao a
+           configuracao do quadro de Sugestoes, e separar em rotas diferentes
+           faria o administrador procurar em tres lugares o que ele ajusta de uma
+           vez. Cada secao cuida do proprio carregamento. -->
+      <div class="flex flex-col gap-8 mt-8 min-w-0">
+        <SuggestionSimpleListSection
+          store-module="suggestionPriorities"
+          i18n-prefix="SUGGESTIONS.PRIORITY_SETTINGS"
+        />
+        <SuggestionSimpleListSection
+          store-module="suggestionCategories"
+          i18n-prefix="SUGGESTIONS.CATEGORY_SETTINGS"
+        />
+      </div>
     </template>
 
     <woot-modal v-model:show="showAddPopup" :on-close="hideAddPopup">

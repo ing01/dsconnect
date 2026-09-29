@@ -1,5 +1,6 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
 import ActionCableConnector from '../actionCable';
+import { useTicketWorkspace } from 'dashboard/routes/dashboard/tickets/composables/useTicketWorkspace';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 vi.mock('shared/helpers/mitt', () => ({
@@ -376,5 +377,74 @@ describe('ActionCableConnector - Copilot Tests', () => {
       vi.advanceTimersByTime(4000);
       expect(mockDispatch).toHaveBeenCalledTimes(2);
     });
+  });
+});
+
+// A aba do workspace tem de sair junto com o card. Este e o unico ponto por
+// onde passam as exclusoes que a tela nao viu acontecer - a feita por outra
+// pessoa, a feita noutra aba do navegador, e a dos chamados FILHOS apagados
+// junto com o pai.
+describe('ActionCableConnector - exclusao de ticket', () => {
+  let actionCable;
+  let workspace;
+
+  const excluir = id =>
+    actionCable.onReceived({
+      event: 'ticket.deleted',
+      data: { ticket: { id }, ticket_id: id, account_id: 1 },
+    });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    const store = {
+      dispatch: vi.fn(),
+      getters: {
+        getCurrentAccountId: 1,
+        // Fila vazia: sem isto o contador da Triagem pediria uma reconta.
+        'tickets/getTriageCount': 0,
+        'accounts/isFeatureEnabledonAccount': vi.fn(() => true),
+      },
+    };
+    actionCable = ActionCableConnector.init(store, 'test-token');
+
+    workspace = useTicketWorkspace();
+    // O estado do workspace e de modulo, entao cada exemplo deixa a barra como
+    // a encontrou.
+    workspace.tabs.value.slice().forEach(tab => workspace.closeTab(tab.id));
+  });
+
+  afterEach(() => {
+    actionCable.disconnect?.();
+  });
+
+  it('closes the workspace tab of the deleted ticket', () => {
+    workspace.openTab({ id: 9, display_id: 9, title: 'Erro na emissao' });
+    expect(workspace.tabs.value.map(tab => tab.id)).toEqual([9]);
+
+    excluir(9);
+
+    expect(workspace.tabs.value).toEqual([]);
+  });
+
+  // O pai e os filhos sao exclusoes separadas, cada uma com o seu evento. Se
+  // so o pai fechasse, a aba do filho ficaria apontando para o nada.
+  it('closes a child tab too, on its own event', () => {
+    workspace.openTab({ id: 1, display_id: 1, title: 'Pai' });
+    workspace.openTab({ id: 2, display_id: 2, title: 'Filho' });
+
+    excluir(1);
+    excluir(2);
+
+    expect(workspace.tabs.value).toEqual([]);
+  });
+
+  // Ticket que ninguem tinha aberto nao pode mexer na barra de quem esta
+  // trabalhando noutro.
+  it('leaves the other tabs alone', () => {
+    workspace.openTab({ id: 4, display_id: 4, title: 'Aberto' });
+
+    excluir(77);
+
+    expect(workspace.tabs.value.map(tab => tab.id)).toEqual([4]);
   });
 });

@@ -13,6 +13,12 @@ class TicketPolicy < ApplicationPolicy
     index?
   end
 
+  # Ler o tamanho da fila da Triagem e ler a lista: a tela esta aberta a qualquer
+  # agente, e o contador nao conta nada que ela ja nao mostre.
+  def triage_count?
+    index?
+  end
+
   def show?
     true
   end

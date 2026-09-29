@@ -126,4 +126,63 @@ RSpec.describe 'Ticket triage', type: :request do
       expect(outra_coluna.reload.operational_tickets).to include(em_triagem.reload)
     end
   end
+
+  # O contador do menu lateral. Existe para a pessoa saber que tem chamado
+  # esperando SEM abrir a tela, entao ele responde so o numero.
+  describe 'o contador' do
+    def contar(user: administrator)
+      get "/api/v1/accounts/#{account.id}/tickets/triage_count",
+          headers: user.create_new_auth_token, as: :json
+    end
+
+    it 'counts what is waiting' do
+      em_triagem
+      contar
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['count']).to eq(1)
+    end
+
+    # O que o contador NAO conta: o que ja foi triado. Sem isto ele marcaria
+    # todo ticket da conta e nunca chegaria a zero.
+    it 'ignores tickets already triaged' do
+      create(:ticket, account: account, team: team, ticket_column: column,
+                      ticket_category: categoria, title: 'Ja triado')
+      contar
+
+      expect(response.parsed_body['count']).to eq(0)
+    end
+
+    it 'zeroes out once the queue is approved' do
+      em_triagem
+      aprovar(em_triagem, { team_id: team.id, ticket_column_id: column.id })
+      contar
+
+      expect(response.parsed_body['count']).to eq(0)
+    end
+
+    # A fila nao e de ninguem em particular - a tela esta aberta a qualquer
+    # agente, e o contador segue a mesma regra.
+    it 'answers an agent too' do
+      em_triagem
+      contar(user: create(:user, account: account, role: :agent))
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['count']).to eq(1)
+    end
+
+    # Conta desta conta, e nao do mundo: uma fila alheia no numero seria vazar
+    # existencia de chamado de outro cliente.
+    it 'does not count another account queue' do
+      em_triagem
+      outra_conta = create(:account)
+      outra_equipe = create(:team, account: outra_conta)
+      create(:ticket, account: outra_conta, team: outra_equipe,
+                      ticket_column: create(:ticket_column, team: outra_equipe),
+                      pending_triage: true)
+      contar
+
+      expect(response.parsed_body['count']).to eq(1)
+    end
+  end
 end

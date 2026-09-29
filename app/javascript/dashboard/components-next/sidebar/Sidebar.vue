@@ -248,6 +248,7 @@ onMounted(() => {
   store.dispatch('labels/get');
   store.dispatch('inboxes/get');
   store.dispatch('notifications/unReadCount');
+  store.dispatch('tickets/fetchTriageCount');
   store.dispatch('teams/get');
   store.dispatch('queues/get');
   store.dispatch('attributes/get');
@@ -536,6 +537,12 @@ const menuItems = computed(() => {
       icon: 'i-lucide-inbox',
       to: accountScopedRoute('tickets_triage'),
       activeOn: ['tickets_triage'],
+      // O numero aqui existe para a pessoa saber que tem chamado esperando SEM
+      // abrir a tela - a fila nao se anuncia sozinha, e quem nao entra nela nao
+      // descobre que ela cresceu.
+      getterKeys: {
+        count: 'tickets/getTriageCount',
+      },
     },
     {
       name: 'Projects',

@@ -43,7 +43,8 @@
     "TIME_SPENT": {
       "LABEL": "Time spent (hours)",
       "PLACEHOLDER": "e.g. 2.5",
-      "NONE": "Not informed"
+      "NONE": "Not informed",
+      "HOURS": "{count}h"
     },
     "CARD": {
       "COMPLETED_ON": "Completed on {date}"
@@ -105,9 +106,9 @@
         "CANCEL": "No, keep"
       }
     },
-    "PRIORITIES_SETTINGS": {
+    "PRIORITY_SETTINGS": {
       "HEADER": "Priorities",
-      "DESCRIPTION": "Set up the priorities agents can pick on a suggestion (e.g. Low, Medium, High).",
+      "DESCRIPTION": "Set up the priorities agents can pick on a suggestion (e.g. Low, Medium, High). Deleting one that's in use just clears it from those suggestions - it doesn't delete them.",
       "ADD": "Add priority",
       "ADD_TITLE": "Add priority",
       "EDIT_TITLE": "Edit priority",
@@ -143,9 +144,9 @@
         "CANCEL": "No, keep"
       }
     },
-    "CATEGORIES_SETTINGS": {
+    "CATEGORY_SETTINGS": {
       "HEADER": "Categories",
-      "DESCRIPTION": "Set up the categories agents can pick on a suggestion (e.g. Bug, New feature, Improvement).",
+      "DESCRIPTION": "Set up the categories agents can pick on a suggestion (e.g. Bug, New feature, Improvement). Deleting one that's in use just clears it from those suggestions - it doesn't delete them.",
       "ADD": "Add category",
       "ADD_TITLE": "Add category",
       "EDIT_TITLE": "Edit category",

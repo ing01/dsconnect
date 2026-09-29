@@ -23,6 +23,19 @@ module TicketTriageActions
     render json: { error: e.message }, status: :unprocessable_entity
   end
 
+  # Quantos chamados esperam na fila, sem trazer nenhum deles.
+  #
+  # Alimenta o contador do menu lateral, que existe para a pessoa saber que tem
+  # algo a triar SEM abrir a tela - e por isso precisa ser barato: um COUNT sobre
+  # o indice parcial `index_tickets_on_account_and_pending_triage`, no lugar de
+  # listar os tickets so para contar o tamanho da lista.
+  #
+  # Da conta inteira, como a propria tela: a fila nao e de ninguem em
+  # particular, e quem tria pode ser qualquer agente.
+  def triage_count
+    render json: { count: Current.account.tickets.pending_triage.count }
+  end
+
   private
 
   def triage_params

@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import FullEditor from 'dashboard/components/widgets/WootWriter/FullEditor.vue';
@@ -24,6 +25,11 @@ const catalogId = ref(null);
 const areaId = ref(null);
 const itemId = ref(null);
 const body = ref('');
+// Mesma escolha da aba Comunicacao: desmarcado, a mensagem de encerramento e
+// REGISTRADA sem e-mail. Ela continua valendo para fechar o ticket - o cliente
+// ve o texto na Area do Cliente -, e serve para quando a equipe ja avisou por
+// telefone ou WhatsApp.
+const notificarCliente = ref(true);
 
 const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
 
@@ -64,6 +70,7 @@ const open = () => {
   areaId.value = null;
   itemId.value = null;
   body.value = '';
+  notificarCliente.value = true;
   store.dispatch('serviceCatalogs/fetch');
   dialogRef.value?.open();
 };
@@ -90,6 +97,7 @@ const submit = async () => {
         ticketId: props.ticket.id,
         body: body.value,
         closing: true,
+        notifyCustomer: notificarCliente.value,
       });
     }
 
@@ -161,10 +169,7 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
       <!-- Checklist: informational only. The server is the authority (a linked
            Apontamento bypasses this), so this section just points the agent at
            where to fix it instead of re-deriving the rule client-side. -->
-      <section
-        v-if="needsChecklist"
-        class="flex flex-col gap-2 min-w-0"
-      >
+      <section v-if="needsChecklist" class="flex flex-col gap-2 min-w-0">
         <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
           <Icon
             icon="i-lucide-circle-alert"
@@ -208,17 +213,28 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
         </p>
 
         <template v-else>
-          <p class="text-sm text-n-slate-11">
-            {{ t('TICKET.CLOSE.TO') }}:
-            <span class="text-n-slate-12">{{ ticket.customer_email }}</span>
-          </p>
+          <!-- Destinatario e assunto so existem se houver e-mail. Sem envio nao
+               ha para quem nem com que titulo, e mostra-los seria descrever uma
+               mensagem que nao vai sair. -->
+          <template v-if="notificarCliente">
+            <p class="text-sm text-n-slate-11">
+              {{ t('TICKET.CLOSE.TO') }}:
+              <span class="text-n-slate-12">{{ ticket.customer_email }}</span>
+            </p>
 
-          <p class="text-sm truncate text-n-slate-11" :title="subject">
-            {{ t('TICKET.CLOSE.SUBJECT') }}:
-            <span class="text-n-slate-12">{{ subject }}</span>
-          </p>
+            <p class="text-sm truncate text-n-slate-11" :title="subject">
+              {{ t('TICKET.CLOSE.SUBJECT') }}:
+              <span class="text-n-slate-12">{{ subject }}</span>
+            </p>
+          </template>
 
-          <label class="flex flex-col gap-1 min-w-0">
+          <!-- Uma `div`, e nao um `label`: o `FullEditor` carrega dentro dele um
+               `<input type="file" hidden>` (o envio de imagem do editor de
+               artigos). Envolto num `label`, qualquer clique na area da
+               mensagem ativava esse input e abria a tela de enviar arquivo do
+               sistema - ninguem pediu anexo aqui. O editor nao e um campo
+               nativo, entao o `label` tambem nao dava foco a nada. -->
+          <div class="flex flex-col gap-1 min-w-0">
             <span class="text-sm font-medium text-n-slate-12">
               {{ t('TICKET.CLOSE.MESSAGE')
               }}<span class="text-n-ruby-11">*</span>
@@ -228,6 +244,20 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
               class="min-w-0 [&_.ProseMirror]:min-h-[10rem]"
               :placeholder="t('TICKET.CLOSE.MESSAGE_PLACEHOLDER')"
             />
+          </div>
+
+          <!-- Fora da `div` do campo de proposito: e uma decisao sobre o envio,
+               nao parte do texto. -->
+          <label class="flex items-start gap-2 cursor-pointer min-w-0">
+            <Checkbox v-model="notificarCliente" class="mt-0.5 flex-shrink-0" />
+            <span class="flex flex-col gap-0.5 min-w-0">
+              <span class="text-sm text-n-slate-12">
+                {{ t('TICKET.COMMUNICATION.NOTIFY') }}
+              </span>
+              <span v-if="!notificarCliente" class="text-xs text-n-slate-10">
+                {{ t('TICKET.COMMUNICATION.NOTIFY_HINT') }}
+              </span>
+            </span>
           </label>
         </template>
       </section>

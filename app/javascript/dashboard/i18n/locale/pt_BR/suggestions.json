@@ -43,10 +43,11 @@
     "TIME_SPENT": {
       "LABEL": "Tempo gasto (horas)",
       "PLACEHOLDER": "Ex: 2.5",
-      "NONE": "Não informado"
+      "NONE": "Não informado",
+      "HOURS": "{count}h"
     },
     "CARD": {
-      "COMPLETED_ON": "Concluído em {date}"
+      "COMPLETED_ON": "Concluída em {date}"
     },
     "DETAIL": {
       "CLOSE": "Fechar",
@@ -105,9 +106,9 @@
         "CANCEL": "Não, manter"
       }
     },
-    "PRIORITIES_SETTINGS": {
+    "PRIORITY_SETTINGS": {
       "HEADER": "Prioridades",
-      "DESCRIPTION": "Defina as prioridades que os agentes podem escolher numa sugestão (ex: Baixa, Média, Alta).",
+      "DESCRIPTION": "Defina as prioridades que os agentes podem escolher numa sugestão (ex: Baixa, Média, Alta). Excluir uma que está em uso apenas desmarca as sugestões, sem apagá-las.",
       "ADD": "Adicionar prioridade",
       "ADD_TITLE": "Adicionar prioridade",
       "EDIT_TITLE": "Editar prioridade",
@@ -143,9 +144,9 @@
         "CANCEL": "Não, manter"
       }
     },
-    "CATEGORIES_SETTINGS": {
+    "CATEGORY_SETTINGS": {
       "HEADER": "Categorias",
-      "DESCRIPTION": "Defina as categorias que os agentes podem escolher numa sugestão (ex: Bug, Nova funcionalidade, Melhoria).",
+      "DESCRIPTION": "Defina as categorias que os agentes podem escolher numa sugestão (ex: Bug, Nova funcionalidade, Melhoria). Excluir uma que está em uso apenas desmarca as sugestões, sem apagá-las.",
       "ADD": "Adicionar categoria",
       "ADD_TITLE": "Adicionar categoria",
       "EDIT_TITLE": "Editar categoria",

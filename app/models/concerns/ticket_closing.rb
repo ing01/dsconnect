@@ -54,8 +54,12 @@ module TicketClosing
     service_catalog_item_id.present?
   end
 
+  # Vale a comunicacao que CHEGOU ao cliente - por e-mail, ou registrada sem
+  # e-mail quando a equipe ja falou com ele por outro meio. Nos dois casos o
+  # texto esta no chamado e visivel na Area do Cliente; o que nao vale e a
+  # tentativa que falhou.
   def closing_communication_sent?
-    ticket_customer_communications.closing_sent.exists?
+    ticket_customer_communications.closing_registered.exists?
   end
 
   # The address the closing message would go to. Nil is itself a blocker: a

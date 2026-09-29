@@ -455,6 +455,8 @@ Rails.application.routes.draw do
             collection do
               # Exportacao da Busca detalhada, nos mesmos filtros do index.
               get :export
+              # O contador da Triagem no menu lateral - so o numero, sem os tickets.
+              get :triage_count
               post :ensure_default_mesa
             end
             member do
