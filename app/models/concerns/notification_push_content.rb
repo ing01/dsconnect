@@ -28,10 +28,22 @@ module NotificationPushContent
       'suggestion_created' => 'notifications.notification_title.suggestion_created'
     }
 
-    i18n_key = notification_title_map[notification_type]
+    i18n_key = internal_chat_title_key || notification_title_map[notification_type]
     return '' unless i18n_key
 
     in_account_locale { I18n.t(i18n_key, **title_interpolations) }
+  end
+
+  # Mensagem de CANAL se anuncia pelo canal: "Comunicados - Ana" diz de onde vem
+  # e quem escreveu, enquanto "Chat interno" era igual para tudo e nao distinguia
+  # um canal de outro na bandeja. Conversa entre duas pessoas nao tem canal para
+  # nomear e segue com o titulo generico - ali o nome de quem escreveu ja abre o
+  # corpo do aviso.
+  def internal_chat_title_key
+    return unless notification_type == 'internal_chat_message'
+    return unless primary_actor&.chat_channel&.channel?
+
+    'notifications.notification_title.internal_chat_channel_message'
   end
 
   # O idioma vem da conta, sempre. `I18n.locale` e por thread e o Sidekiq
@@ -53,7 +65,7 @@ module NotificationPushContent
     when 'project_contract_end_overdue', 'project_support_end_overdue'
       { project_name: primary_actor.name }
     when 'internal_chat_message'
-      { sender_name: primary_actor.user&.name.to_s }
+      internal_chat_interpolations
     when 'ticket_triage_pending'
       { display_id: primary_actor.display_id, company_name: primary_actor.company&.name.to_s }
     when 'suggestion_created'
@@ -63,6 +75,13 @@ module NotificationPushContent
       # interpolacao, entao um ramo so responde por todas.
       { display_id: primary_actor.display_id, contact_name: requester_name }
     end
+  end
+
+  # Duas chaves: quem escreveu e onde. O canal so existe quando a sala e um canal;
+  # numa conversa entre duas pessoas ele fica vazio, e o titulo generico nem o usa.
+  def internal_chat_interpolations
+    { sender_name: primary_actor.user&.name.to_s,
+      channel_name: primary_actor.chat_channel&.name.to_s }
   end
 
   # Quem abriu a conversa. E o nome que o agente reconhece na notificacao:

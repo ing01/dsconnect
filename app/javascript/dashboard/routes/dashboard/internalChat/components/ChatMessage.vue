@@ -17,9 +17,18 @@ const props = defineProps({
   grouped: { type: Boolean, default: false },
   repliedMessage: { type: Object, default: null },
   repliedAuthor: { type: Object, default: null },
+  // Administrador apaga qualquer mensagem, porque responde pelo que fica no Chat
+  // da empresa. Quem decide isso e a tela de cima, que conhece o papel.
+  canDeleteAny: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['reply', 'react', 'openImage', 'openTicket']);
+const emit = defineEmits([
+  'reply',
+  'react',
+  'openImage',
+  'openTicket',
+  'delete',
+]);
 
 const { t } = useI18n();
 
@@ -27,6 +36,13 @@ const time = computed(() => shortTime(props.message.createdAt));
 const reactions = computed(() => props.message.reactions || []);
 
 const hasReacted = reaction => reaction.userIds.includes(props.currentUserId);
+
+// O autor apaga a propria mensagem; o administrador apaga qualquer uma. A regra
+// de verdade esta no servidor - isto so evita oferecer um botao que seria
+// recusado.
+const canDelete = computed(
+  () => props.canDeleteAny || props.message.userId === props.currentUserId
+);
 </script>
 
 <template>
@@ -115,6 +131,15 @@ const hasReacted = reaction => reaction.userIds.includes(props.currentUserId);
         @click="emit('reply', message)"
       >
         <Icon icon="i-lucide-reply" class="size-3.5" />
+      </button>
+      <button
+        v-if="canDelete"
+        type="button"
+        class="p-1 rounded hover:bg-n-alpha-2 text-n-slate-11 hover:text-n-ruby-11"
+        :title="t('INTERNAL_CHAT.MESSAGE.DELETE')"
+        @click="emit('delete', message)"
+      >
+        <Icon icon="i-lucide-trash-2" class="size-3.5" />
       </button>
     </div>
   </div>

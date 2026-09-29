@@ -10,7 +10,9 @@ import {
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
 import { frontendURL } from 'dashboard/helper/URLHelper';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 import ChatSidebar from '../components/ChatSidebar.vue';
 import ChatHeader from '../components/ChatHeader.vue';
@@ -32,6 +34,12 @@ const directs = computed(() => getters['internalChat/getDirects'].value);
 const channels = computed(() => getters['internalChat/getChannels'].value);
 const currentUserId = computed(
   () => getters['internalChat/getCurrentUserId'].value
+);
+// Administrador apaga qualquer mensagem, porque responde pelo que fica no Chat da
+// empresa. A regra de verdade esta no servidor; isto so decide o que a tela
+// oferece.
+const isAdministrator = computed(
+  () => getters.getCurrentRole?.value === 'administrator'
 );
 
 const activeRoomId = ref('');
@@ -127,6 +135,24 @@ const send = async payload => {
   replyTo.value = null;
   unreadFrom.value = 0;
   scrollToBottom();
+};
+
+// Apagar nao tem volta, entao a tela pergunta antes. A recusa do servidor
+// continua valendo por cima disto.
+const remove = async message => {
+  const confirmado = window.confirm(t('INTERNAL_CHAT.MESSAGE.DELETE_CONFIRM'));
+  if (!confirmado) return;
+
+  try {
+    await store.dispatch('internalChat/deleteMessage', {
+      roomId: activeRoomId.value,
+      messageId: message.id,
+    });
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error || t('INTERNAL_CHAT.MESSAGE.DELETE_ERROR')
+    );
+  }
 };
 
 const react = ({ messageId, emoji }) =>
@@ -229,8 +255,10 @@ const unreadDividerIndex = computed(() => {
                   ? userFor(messageAt(message.replyTo)?.userId)
                   : null
               "
+              :can-delete-any="isAdministrator"
               @reply="value => (replyTo = value)"
               @react="react"
+              @delete="remove"
               @open-image="attachment => (lightboxAttachment = attachment)"
               @open-ticket="openTicket"
             />
@@ -248,7 +276,16 @@ const unreadDividerIndex = computed(() => {
           </p>
         </div>
 
+        <p
+          v-if="activeRoom.canPost === false"
+          class="flex items-center gap-2 px-4 py-3 m-0 text-sm border-t text-n-slate-11 border-n-weak"
+        >
+          <Icon icon="i-lucide-lock" class="flex-shrink-0 size-4" />
+          {{ t('INTERNAL_CHAT.COMPOSER.READ_ONLY') }}
+        </p>
+
         <ChatComposer
+          v-else
           :channel-id="activeRoomId"
           :users="users"
           :reply-to="replyTo"

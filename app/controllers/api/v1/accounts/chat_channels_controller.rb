@@ -1,17 +1,20 @@
 # As salas do Chat Interno da pessoa logada.
 #
-# Sempre no escopo do usuario da sessao: ninguem lista, le ou escreve numa sala
-# de que nao participa. Um canal publico so aparece depois que a pessoa entra
-# nele - descobrir canais e assunto de outra etapa.
+# O escopo e o da sessao: ninguem lista, le ou escreve numa sala de que nao
+# participa. A excecao e o ADMINISTRADOR, que ve todos os CANAIS da conta -
+# canal e da empresa, e quem administra responde por ele. Conversa entre duas
+# pessoas continua so de quem participa, para qualquer papel.
 class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseController
-  before_action :fetch_channel, only: [:show, :read]
+  before_action :fetch_channel, only: [:show, :read, :update]
   before_action :check_authorization
 
   def index
-    @chat_channels = ChatChannel.for_user(Current.user)
-                                .where(account_id: Current.account.id)
-                                .includes(:members, :chat_channel_members)
-                                .ordered
+    @chat_channels = visible_channels
+                     .where(account_id: Current.account.id)
+                     .includes(:members, :chat_channel_members)
+                     .ordered
+                     .to_a
+    preload_previews(@chat_channels)
   end
 
   def show; end
@@ -19,6 +22,19 @@ class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseControl
   def create
     @chat_channel = ChatChannel.create!(channel_params.merge(account: Current.account))
     add_members(@chat_channel, member_ids)
+    apply_moderators(@chat_channel)
+    render 'show'
+  end
+
+  # Ajustar o canal depois de criado: tornar fixo, mudar quem pode escrever,
+  # renomear. So administrador - sao decisoes sobre o canal da empresa, nao sobre
+  # a participacao de cada um nele.
+  def update
+    return head :forbidden unless administrator?
+    return head :forbidden unless @chat_channel.channel?
+
+    @chat_channel.update!(channel_update_params)
+    apply_moderators(@chat_channel) if params.key?(:moderator_ids)
     render 'show'
   end
 
@@ -44,12 +60,43 @@ class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseControl
 
   private
 
+  # A autorizacao de fato: uma sala fora deste escopo simplesmente nao existe
+  # para quem pede.
+  def visible_channels
+    administrator? ? ChatChannel.visible_to_admin(Current.user) : ChatChannel.for_user(Current.user)
+  end
+
+  def administrator?
+    Current.account_user&.administrator?
+  end
+
   def fetch_channel
-    # `for_user` e a autorizacao de fato: uma sala de que a pessoa nao participa
-    # simplesmente nao existe para ela.
-    @chat_channel = ChatChannel.for_user(Current.user).find_by!(
+    @chat_channel = visible_channels.find_by!(
       id: params[:id], account_id: Current.account.id
     )
+  end
+
+  # A previa e o nao lido de todas as salas em duas consultas - a alternativa
+  # seria duas por sala, e esta lista abre a cada visita ao Chat.
+  def preload_previews(channels)
+    ids = channels.map(&:id)
+    ultimas = ChatChannel.last_messages_for(ids)
+    nao_lidas = ChatChannel.unread_counts_for(Current.user, ids)
+
+    channels.each do |channel|
+      channel.last_message = ultimas[channel.id]
+      channel.unread_count_for_current = nao_lidas[channel.id]
+    end
+  end
+
+  # Quem pode escrever num canal de aviso. O administrador escreve sempre, sem
+  # precisar de marca; esta lista e para os demais.
+  def apply_moderators(channel)
+    autorizados = Array(params[:moderator_ids]).map(&:to_i)
+    channel.chat_channel_members.each do |member|
+      member.update!(can_post: autorizados.include?(member.user_id))
+    end
+    channel.reload
   end
 
   def membership(channel)
@@ -68,9 +115,17 @@ class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseControl
     Array(params[:member_ids]).map(&:to_i) & Current.account.user_ids
   end
 
+  CHANNEL_FIELDS = [:name, :description, :visibility, :pinned, :posting_policy].freeze
+
   def channel_params
-    params.permit(:name, :description, :visibility)
-          .slice(:name, :description, :visibility)
+    params.permit(*CHANNEL_FIELDS)
+          .slice(*CHANNEL_FIELDS)
           .merge(kind: :channel, created_by: Current.user)
+  end
+
+  # Sem `kind` nem `created_by`: quem criou o canal e o que ele e nao mudam
+  # depois.
+  def channel_update_params
+    params.permit(*CHANNEL_FIELDS).slice(*CHANNEL_FIELDS)
   end
 end

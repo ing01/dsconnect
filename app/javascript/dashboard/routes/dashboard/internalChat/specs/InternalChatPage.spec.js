@@ -114,6 +114,8 @@ const mountPage = async () => {
     modules: { internalChat: { ...internalChat, state: freshState() } },
     getters: {
       getCurrentUser: () => AGENTS[0],
+      // A tela le o papel para decidir se oferece apagar mensagem alheia.
+      getCurrentRole: () => 'agent',
       'agents/getVerifiedAgents': () => AGENTS,
     },
     actions: { 'agents/get': () => Promise.resolve() },
@@ -279,8 +281,7 @@ describe('InternalChatPage', () => {
     const attach = wrapper
       .findAll('button')
       .find(
-        button =>
-          button.attributes('title') === 'INTERNAL_CHAT.COMPOSER.ATTACH'
+        button => button.attributes('title') === 'INTERNAL_CHAT.COMPOSER.ATTACH'
       );
 
     expect(attach).toBeDefined();

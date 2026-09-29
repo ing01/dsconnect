@@ -243,6 +243,13 @@
         "LABEL": "Confirme a nova senha",
         "ERROR": "A confirmação da senha é diferente. Favor digitar novamente",
         "PLACEHOLDER": "Por favor, digite sua nova senha "
+      },
+      "APPEARANCE": {
+        "TITLE": "Aparência",
+        "NOTE": "O tema do sistema. A escolha vale para você em qualquer aparelho onde entrar - inclusive no celular e na tela de login.",
+        "LIGHT": "Claro",
+        "DARK": "Escuro",
+        "AUTO": "Seguir o aparelho"
       }
     }
   },

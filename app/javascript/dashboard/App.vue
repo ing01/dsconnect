@@ -14,7 +14,12 @@ import { useRouter } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
 import WootSnackbarBox from './components/SnackbarContainer.vue';
 import InAppNotifications from './components/InAppNotifications.vue';
-import { setColorTheme } from './helper/themeHelper';
+import {
+  applyColorScheme,
+  setColorTheme,
+  setUserColorScheme,
+  storeColorScheme,
+} from './helper/themeHelper';
 import { isOnOnboardingView } from 'v3/helpers/RouteHelper';
 import { useAccount } from 'dashboard/composables/useAccount';
 import { useFontSize } from 'dashboard/composables/useFontSize';
@@ -81,6 +86,22 @@ export default {
         if (this.currentAccountId) {
           this.initializeAccount();
         }
+      },
+    },
+    // As preferencias chegam DEPOIS do primeiro render, junto do usuario. O tema
+    // nasce do que este navegador guardou e e corrigido aqui - e o que faz a
+    // escolha feita no computador valer tambem no celular, onde o `localStorage`
+    // nunca esteve.
+    'uiSettings.color_scheme': {
+      immediate: true,
+      handler(scheme) {
+        if (!scheme) return;
+
+        setUserColorScheme(scheme);
+        // Guardado tambem neste navegador para a proxima tela de LOGIN daqui: ela
+        // acontece antes de existir usuario de quem herdar a preferencia.
+        storeColorScheme(scheme);
+        applyColorScheme();
       },
     },
   },

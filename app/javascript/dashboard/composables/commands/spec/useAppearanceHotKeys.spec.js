@@ -1,12 +1,21 @@
 import { useAppearanceHotKeys } from '../useAppearanceHotKeys';
 import { useI18n } from 'vue-i18n';
-import { LocalStorage } from 'shared/helpers/localStorage';
-import { LOCAL_STORAGE_KEYS } from 'dashboard/constants/localStorage';
-import { setColorTheme } from 'dashboard/helper/themeHelper.js';
+import {
+  applyColorScheme,
+  setUserColorScheme,
+  storeColorScheme,
+} from 'dashboard/helper/themeHelper.js';
+
+// A escolha de tema passou a ser gravada tambem NO USUARIO, para viajar entre
+// aparelhos: quem escolhia escuro no computador abria o sistema no celular e via
+// claro, porque `localStorage` e de um navegador so.
+const updateUISettings = vi.fn(() => Promise.resolve());
 
 vi.mock('vue-i18n');
-vi.mock('shared/helpers/localStorage');
 vi.mock('dashboard/helper/themeHelper.js');
+vi.mock('dashboard/composables/useUISettings', () => ({
+  useUISettings: () => ({ updateUISettings }),
+}));
 
 describe('useAppearanceHotKeys', () => {
   beforeEach(() => {
@@ -15,6 +24,7 @@ describe('useAppearanceHotKeys', () => {
     });
 
     window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+    updateUISettings.mockClear();
   });
 
   it('should return goToAppearanceHotKeys computed property', () => {
@@ -57,11 +67,28 @@ describe('useAppearanceHotKeys', () => {
 
     lightThemeOption.handler();
 
-    expect(LocalStorage.set).toHaveBeenCalledWith(
-      LOCAL_STORAGE_KEYS.COLOR_SCHEME,
-      'light'
-    );
-    expect(setColorTheme).toHaveBeenCalledWith(false);
+    expect(storeColorScheme).toHaveBeenCalledWith('light');
+    expect(setUserColorScheme).toHaveBeenCalledWith('light');
+    expect(applyColorScheme).toHaveBeenCalled();
+  });
+
+  // O que faz o celular abrir no mesmo tema do computador.
+  it('saves the choice on the user, so it travels between devices', () => {
+    const { goToAppearanceHotKeys } = useAppearanceHotKeys();
+
+    goToAppearanceHotKeys.value.find(option => option.id === 'dark').handler();
+
+    expect(updateUISettings).toHaveBeenCalledWith({ color_scheme: 'dark' });
+  });
+
+  // E o `localStorage` continua sendo gravado porque a tela de LOGIN nao tem
+  // usuario de quem herdar preferencia - ele e tudo o que ela tem para ler.
+  it('keeps it in this browser as well, for the login screen', () => {
+    const { goToAppearanceHotKeys } = useAppearanceHotKeys();
+
+    goToAppearanceHotKeys.value.find(option => option.id === 'dark').handler();
+
+    expect(storeColorScheme).toHaveBeenCalledWith('dark');
   });
 
   it('should handle system dark mode preference', () => {
@@ -74,10 +101,8 @@ describe('useAppearanceHotKeys', () => {
 
     autoThemeOption.handler();
 
-    expect(LocalStorage.set).toHaveBeenCalledWith(
-      LOCAL_STORAGE_KEYS.COLOR_SCHEME,
-      'auto'
-    );
-    expect(setColorTheme).toHaveBeenCalledWith(true);
+    expect(storeColorScheme).toHaveBeenCalledWith('auto');
+    expect(updateUISettings).toHaveBeenCalledWith({ color_scheme: 'auto' });
+    expect(applyColorScheme).toHaveBeenCalled();
   });
 });

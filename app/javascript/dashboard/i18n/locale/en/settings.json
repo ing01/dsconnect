@@ -243,6 +243,13 @@
         "LABEL": "Confirm new password",
         "ERROR": "Confirm password should match the password",
         "PLACEHOLDER": "Please re-enter your new password"
+      },
+      "APPEARANCE": {
+        "TITLE": "Aparência",
+        "NOTE": "O tema do sistema. A escolha vale para você em qualquer aparelho onde entrar - inclusive no celular e na tela de login.",
+        "LIGHT": "Claro",
+        "DARK": "Escuro",
+        "AUTO": "Seguir o aparelho"
       }
     }
   },

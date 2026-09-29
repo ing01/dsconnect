@@ -218,6 +218,8 @@ pt_BR:
     validations:
       presence: não pode ficar em branco
     chat_message:
+      not_allowed_to_post: Somente as pessoas autorizadas podem escrever neste canal.
+      not_allowed_to_delete: Você pode apagar apenas as suas próprias mensagens.
       too_large: é maior que o limite de %{size} MB
       too_many: não pode passar de %{count} arquivos por mensagem
     project:
@@ -466,6 +468,7 @@ pt_BR:
         Enviou: %{content}
     notification_title:
       internal_chat_message: 'Chat interno'
+      internal_chat_channel_message: '%{channel_name} - %{sender_name}'
       conversation_creation: '%{contact_name} abriu a conversa (#%{display_id}) em %{inbox_name}'
       conversation_assignment: 'A conversa de %{contact_name} (#%{display_id}) foi atribuída a você'
       assigned_conversation_new_message: 'Nova mensagem de %{contact_name} (#%{display_id})'

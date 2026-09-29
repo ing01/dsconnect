@@ -9,12 +9,37 @@ class InternalChatAPI extends ApiClient {
     super('chat_channels', { accountScoped: true });
   }
 
-  createChannel({ name, description, visibility, memberIds }) {
+  createChannel({
+    name,
+    description,
+    visibility,
+    memberIds,
+    pinned,
+    postingPolicy,
+    moderatorIds,
+  }) {
     return axios.post(this.url, {
       name,
       description,
       visibility,
       member_ids: memberIds,
+      pinned,
+      posting_policy: postingPolicy,
+      moderator_ids: moderatorIds,
+    });
+  }
+
+  // Ajustar o canal depois de criado: fixar, restringir quem escreve, renomear.
+  updateChannel(
+    channelId,
+    { name, description, pinned, postingPolicy, moderatorIds }
+  ) {
+    return axios.patch(`${this.url}/${channelId}`, {
+      name,
+      description,
+      pinned,
+      posting_policy: postingPolicy,
+      moderator_ids: moderatorIds,
     });
   }
 
@@ -43,6 +68,10 @@ class InternalChatAPI extends ApiClient {
   // arquivo direto ao storage.
   directUploadUrl(channelId) {
     return `${this.url}/${channelId}/direct_uploads`;
+  }
+
+  deleteMessage(channelId, messageId) {
+    return axios.delete(`${this.url}/${channelId}/messages/${messageId}`);
   }
 
   markRead(channelId) {

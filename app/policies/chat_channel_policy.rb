@@ -21,4 +21,15 @@ class ChatChannelPolicy < ApplicationPolicy
   def read?
     true
   end
+
+  # As regras de verdade das duas estao no controller, porque dependem da sala e
+  # da mensagem: quem pode escrever num canal de aviso, e quem pode apagar o que.
+  # Aqui so nao se barra ninguem por papel.
+  def update?
+    true
+  end
+
+  def destroy?
+    true
+  end
 end

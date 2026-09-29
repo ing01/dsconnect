@@ -79,6 +79,7 @@ class ActionCableConnector extends BaseActionCableConnector {
       'ticket.deleted': this.onTicketRealtimeDelete,
       'internal_chat.message.created': this.onInternalChatMessage,
       'internal_chat.message.updated': this.onInternalChatMessage,
+      'internal_chat.message.deleted': this.onInternalChatMessageDeleted,
     };
   }
 
@@ -447,6 +448,18 @@ class ActionCableConnector extends BaseActionCableConnector {
     this.app.$store.dispatch('internalChat/applyRealtimeMessage', {
       channelId,
       message,
+    });
+  };
+
+  // Mensagem apagada. So o id chega, porque o registro ja nao existe do outro
+  // lado - a tela so precisa saber o que tirar da lista.
+  onInternalChatMessageDeleted = data => {
+    const { channel_id: channelId, message_id: messageId } = data;
+    if (!channelId || !messageId) return;
+
+    this.app.$store.dispatch('internalChat/applyRealtimeDeletion', {
+      channelId,
+      messageId,
     });
   };
 

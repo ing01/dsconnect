@@ -6,7 +6,10 @@
       "CHANNELS": "Canais",
       "NEW_CONVERSATION": "Nova conversa",
       "CREATE_CHANNEL": "Criar canal",
-      "NO_MESSAGES": "Sem mensagens ainda"
+      "NO_MESSAGES": "Sem mensagens ainda",
+      "PINNED": "Canal fixo",
+      "READ_ONLY": "Somente leitura para você",
+      "ATTACHMENT_PREVIEW": "Enviou um anexo"
     },
     "HEADER": {
       "BACK": "Voltar",
@@ -23,7 +26,10 @@
     },
     "MESSAGE": {
       "REPLY": "Responder",
-      "REACT": "Reagir"
+      "REACT": "Reagir",
+      "DELETE": "Apagar",
+      "DELETE_CONFIRM": "Apagar esta mensagem? Não há como desfazer.",
+      "DELETE_ERROR": "Não foi possível apagar a mensagem."
     },
     "COMPOSER": {
       "PLACEHOLDER": "Digite uma mensagem...",
@@ -42,7 +48,8 @@
       "UPLOADING": "Enviando arquivos…",
       "UPLOAD_FAILED": "Não foi possível enviar {name}.",
       "FILE_TOO_LARGE": "{name} passa do limite de {size} MB.",
-      "TOO_MANY_FILES": "No máximo {count} arquivos por mensagem."
+      "TOO_MANY_FILES": "No máximo {count} arquivos por mensagem.",
+      "READ_ONLY": "Somente as pessoas autorizadas podem escrever neste canal."
     },
     "NEW_CONVERSATION": {
       "TITLE": "Nova conversa",
@@ -59,7 +66,15 @@
       "PUBLIC": "Público",
       "PRIVATE": "Privado",
       "MEMBERS": "Membros",
-      "CONFIRM": "Criar"
+      "CONFIRM": "Criar",
+      "PINNED": "Canal fixo",
+      "PINNED_HINT": "Fica no topo da lista, acima dos outros canais.",
+      "WHO_CAN_POST": "Quem pode escrever",
+      "POST_EVERYONE": "Todos os participantes",
+      "POST_MODERATORS": "Somente as pessoas autorizadas",
+      "AUTHORIZED": "Pessoas autorizadas a escrever",
+      "AUTHORIZED_HINT": "Administradores escrevem sempre, sem precisar ser marcados aqui.",
+      "AUTHORIZED_EMPTY": "Escolha os participantes acima para poder autorizá-los."
     },
     "IMAGE": {
       "CLOSE": "Fechar"

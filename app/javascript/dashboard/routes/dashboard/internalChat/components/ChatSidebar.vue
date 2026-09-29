@@ -21,7 +21,28 @@ const query = ref('');
 
 const userFor = userId => props.users.find(user => user.id === userId);
 
-const lastMessage = room => room.messages[room.messages.length - 1] || null;
+// A previa da lista.
+//
+// `room.messages` so existe depois que a sala foi ABERTA - as mensagens sao
+// buscadas ali, nao junto da lista. Lendo apenas dele, toda sala ainda nao aberta
+// dizia "Sem mensagens ainda" mesmo estando cheia. `room.lastMessage` vem do
+// servidor com a lista, e e a previa correta; o que ja esta carregado tem
+// precedencia porque inclui o que acabou de chegar pelo tempo real.
+const lastMessage = room =>
+  room.messages[room.messages.length - 1] || room.lastMessage || null;
+
+// Mensagem so com anexo nao tem texto, e uma linha vazia na lista nao diz nada.
+const preview = room => {
+  const message = lastMessage(room);
+  if (!message) return t('INTERNAL_CHAT.SIDEBAR.NO_MESSAGES');
+
+  const body = (message.body || '').trim();
+  if (body) return body;
+
+  return message.hasAttachments || message.attachments?.length
+    ? t('INTERNAL_CHAT.SIDEBAR.ATTACHMENT_PREVIEW')
+    : t('INTERNAL_CHAT.SIDEBAR.NO_MESSAGES');
+};
 
 // Conversas privadas e canais ficam em listas separadas de propósito: são
 // coisas diferentes, e misturá-las é o que torna a barra lateral confusa.
@@ -115,10 +136,7 @@ const visibleChannels = computed(() =>
               </span>
             </span>
             <span class="text-xs truncate text-n-slate-10">
-              {{
-                lastMessage(direct)?.body ||
-                t('INTERNAL_CHAT.SIDEBAR.NO_MESSAGES')
-              }}
+              {{ preview(direct) }}
             </span>
           </span>
 
@@ -161,7 +179,21 @@ const visibleChannels = computed(() =>
           "
           @click="emit('select', channel.id)"
         >
-          <span class="flex-shrink-0 text-sm text-n-slate-10">#</span>
+          <Icon
+            v-if="channel.pinned"
+            icon="i-lucide-pin"
+            class="flex-shrink-0 size-3.5 text-n-slate-10"
+            :title="t('INTERNAL_CHAT.SIDEBAR.PINNED')"
+          />
+          <span v-else class="flex-shrink-0 text-sm text-n-slate-10">#</span>
+          <!-- Canal em que esta pessoa nao escreve: um cadeado explica por que o
+               campo de mensagem aparece desabilitado quando ela entrar. -->
+          <Icon
+            v-if="channel.canPost === false"
+            icon="i-lucide-lock"
+            class="flex-shrink-0 size-3.5 text-n-slate-10"
+            :title="t('INTERNAL_CHAT.SIDEBAR.READ_ONLY')"
+          />
           <span
             class="text-sm truncate grow"
             :class="
