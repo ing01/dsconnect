@@ -170,11 +170,19 @@ class AutomationRules::Flow::DispatcherService
     # logado. Com MAIS de uma Empresa, fica de fora de proposito: a escolha
     # ali e' real, e quem decide isso e' a etapa `list_companies`/`find_company`
     # do proprio fluxo.
+    # `client_company_ids` (e nao `contact.companies`) de proposito: aquela
+    # junta o FK antigo (`company_id`) com a associacao nova
+    # (`company_contacts`), porque um contato de antes dessa segunda tabela
+    # existir tem so o FK - e `contact.companies` sozinho devolveria uma
+    # lista VAZIA para ele, fazendo esta funcao nunca identificar ninguem
+    # criado antes da mudanca (o caso comum de quem ja tinha cadastro).
     def seed_known_company(run, contact)
-      empresas = contact.companies.to_a
-      return unless empresas.one?
+      empresa_ids = contact.client_company_ids
+      return unless empresa_ids.one?
 
-      empresa = empresas.first
+      empresa = Company.find_by(id: empresa_ids.first, account_id: contact.account_id)
+      return if empresa.blank?
+
       run.write_variable('empresa.id', empresa.id)
       run.write_variable('empresa.nome', empresa.name)
       run.write_variable('empresa.cnpj', empresa.cnpj)
