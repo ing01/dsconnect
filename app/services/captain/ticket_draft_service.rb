@@ -29,6 +29,14 @@ class Captain::TicketDraftService < Captain::BaseTaskService
 
   private
 
+  # Sem isto, so a chave global do servidor (InstallationConfig, so por SSH)
+  # valeria - a chave configurada pela propria conta em Configuracoes >
+  # Integracoes > OpenAI (tela comum, sem precisar de acesso ao servidor)
+  # ficaria cadastrada e mesmo assim nunca seria usada de verdade.
+  def use_account_openai_hook?
+    true
+  end
+
   def event_name
     'ticket_draft'
   end
