@@ -77,7 +77,9 @@ const moreMenuItems = computed(() => {
   return items;
 });
 
-const hasMenu = computed(() => isChannel.value && moreMenuItems.value.length > 0);
+const hasMenu = computed(
+  () => isChannel.value && moreMenuItems.value.length > 0
+);
 
 const handleMoreAction = ({ action }) => {
   isMoreMenuOpen.value = false;
@@ -129,7 +131,7 @@ const toggleSearch = () => {
       </template>
 
       <template v-else>
-        <Avatar :name="peer?.name || '?'" :size="32" />
+        <Avatar :name="peer?.name || '?'" :src="peer?.thumbnail" :size="32" />
         <div class="flex flex-col min-w-0 grow">
           <span class="text-sm font-semibold truncate text-n-slate-12">
             {{ peer?.name }}

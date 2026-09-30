@@ -58,7 +58,7 @@ defineExpose({ open });
           class="flex items-center gap-2.5 px-2 py-2 rounded text-start hover:bg-n-alpha-2"
           @click="choose(user)"
         >
-          <Avatar :name="user.name" :size="28" />
+          <Avatar :name="user.name" :src="user.thumbnail" :size="28" />
           <span class="flex flex-col min-w-0">
             <span class="text-sm truncate text-n-slate-12">{{
               user.name

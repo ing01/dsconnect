@@ -140,7 +140,11 @@ const visibleChannels = computed(() =>
           @click="emit('select', direct.id)"
         >
           <span class="relative flex-shrink-0">
-            <Avatar :name="userFor(direct.userId)?.name || '?'" :size="28" />
+            <Avatar
+              :name="userFor(direct.userId)?.name || '?'"
+              :src="userFor(direct.userId)?.thumbnail"
+              :size="28"
+            />
             <span
               class="absolute bottom-0 size-2.5 rounded-full border-2 border-n-solid-1 end-0"
               :class="presenceDotClass(userFor(direct.userId)?.status)"

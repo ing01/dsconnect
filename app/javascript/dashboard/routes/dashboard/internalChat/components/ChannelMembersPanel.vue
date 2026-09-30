@@ -74,7 +74,7 @@ const podeEscrever = user => (props.room.moderatorIds || []).includes(user.id);
         class="flex items-center gap-2.5 px-2 py-1.5 rounded-md min-w-0"
       >
         <span class="relative flex-shrink-0">
-          <Avatar :name="user.name || '?'" :size="28" />
+          <Avatar :name="user.name || '?'" :src="user.thumbnail" :size="28" />
           <span
             class="absolute bottom-0 size-2.5 rounded-full border-2 border-n-solid-1 end-0"
             :class="presenceDotClass(user.status)"

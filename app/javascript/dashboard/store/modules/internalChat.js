@@ -67,7 +67,7 @@ const toDirectoryUser = agent => ({
   role: agent.role,
   // A disponibilidade já existe no produto; o Chat só a apresenta.
   status: agent.availability_status || 'offline',
-  thumbnail: agent.thumbnail,
+  thumbnail: agent.thumbnail || agent.avatar_url,
 });
 
 /**

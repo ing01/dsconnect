@@ -55,7 +55,12 @@ const canDelete = computed(
     <!-- A calha do avatar fica reservada mesmo quando agrupado, para que o
          texto de todas as linhas do bloco fique alinhado. -->
     <div class="flex-shrink-0 w-8">
-      <Avatar v-if="!grouped" :name="author?.name || '?'" :size="32" />
+      <Avatar
+        v-if="!grouped"
+        :name="author?.name || '?'"
+        :src="author?.thumbnail"
+        :size="32"
+      />
     </div>
 
     <div class="flex flex-col min-w-0 grow">
@@ -147,7 +152,9 @@ const canDelete = computed(
         :class="isPinned ? 'text-n-amber-11' : 'text-n-slate-11'"
         :title="
           t(
-            isPinned ? 'INTERNAL_CHAT.MESSAGE.UNPIN' : 'INTERNAL_CHAT.MESSAGE.PIN'
+            isPinned
+              ? 'INTERNAL_CHAT.MESSAGE.UNPIN'
+              : 'INTERNAL_CHAT.MESSAGE.PIN'
           )
         "
         @click="emit('pin', message.id)"

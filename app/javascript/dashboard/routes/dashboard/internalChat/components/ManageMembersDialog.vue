@@ -80,7 +80,7 @@ defineExpose({ open, close });
             class="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-n-alpha-1"
           >
             <div class="flex items-center min-w-0 gap-2">
-              <Avatar :name="user.name" :size="24" />
+              <Avatar :name="user.name" :src="user.thumbnail" :size="24" />
               <span class="text-sm truncate text-n-slate-12">
                 {{ user.name }}
               </span>

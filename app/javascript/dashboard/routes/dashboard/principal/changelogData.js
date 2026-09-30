@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-agent-photos',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'improvement',
+    title: 'Fotos dos agentes no Chat Interno',
+    description:
+      'O Chat Interno passou a mostrar a foto de perfil de cada agente - nas mensagens, na lista lateral de conversas, no topo da conversa, no painel de membros do canal e nas telas de nova conversa e de gerenciar membros. Antes aparecia sempre a inicial do nome, mesmo para quem tinha foto cadastrada. Quem não tem foto continua com a inicial colorida.',
+  },
+  {
     id: 'ticket-complexity',
     date: '30 de setembro de 2026',
     isoDate: '2026-09-30',
