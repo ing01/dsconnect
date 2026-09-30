@@ -3,6 +3,7 @@ import { frontendURL } from '../../../../helper/URLHelper';
 import SettingsWrapper from '../SettingsWrapper.vue';
 import StagesPage from './StagesPage.vue';
 import CategoriesPage from './CategoriesPage.vue';
+import ComplexityPage from './ComplexityPage.vue';
 import CatalogPage from './CatalogPage.vue';
 import PrioritiesPage from './PrioritiesPage.vue';
 import AutomationPage from './AutomationPage.vue';
@@ -51,6 +52,14 @@ export default {
             permissions: ['administrator'],
           },
           component: CategoriesPage,
+        },
+        {
+          path: 'complexity',
+          name: 'ticket_complexity_list',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: ComplexityPage,
         },
         {
           path: 'catalog',

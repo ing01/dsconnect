@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-complexity',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Complexidade do ticket',
+    description:
+      'Novo campo Complexidade no ticket, disponível na abertura e na edição, com os níveis Baixo, Médio e Alto criados automaticamente. Em Configurações > Tickets > Complexidade dá para criar, renomear, ativar/desativar e excluir níveis (as ações da tabela são ícones: lápis para editar, olho para ativar/desativar e lixeira para excluir), e marcar numa matriz quais Mesas oferecem cada um - a Mesa de Suporte pode ter os três e a Comercial só o Baixo, por exemplo. O formulário mostra apenas os níveis da Mesa do ticket, e ao trocar de Mesa um nível que a nova não oferece é limpado. Um ticket não pode ser encerrado sem complexidade definida (a recusa vem do servidor, não só da tela). A Busca detalhada ganhou filtro por uma ou mais complexidades e uma coluna ordenável na listagem.',
+  },
+  {
     id: 'internal-chat-delete-dialog-closes',
     date: '29 de setembro de 2026',
     isoDate: '2026-09-29',

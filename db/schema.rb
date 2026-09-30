@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_29_120001) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_29_160000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -2167,6 +2167,28 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_120001) do
     t.index ["user_id"], name: "index_ticket_comments_on_user_id"
   end
 
+  create_table "ticket_complexities", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.boolean "active", default: true, null: false
+    t.decimal "weight", precision: 8, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_ticket_complexities_on_account_id_and_name", unique: true
+    t.index ["account_id", "position"], name: "index_ticket_complexities_on_account_id_and_position"
+    t.index ["account_id"], name: "index_ticket_complexities_on_account_id"
+  end
+
+  create_table "ticket_complexity_teams", force: :cascade do |t|
+    t.bigint "ticket_complexity_id", null: false
+    t.bigint "team_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["team_id"], name: "index_ticket_complexity_teams_on_team_id"
+    t.index ["ticket_complexity_id", "team_id"], name: "index_ticket_complexity_teams_unique", unique: true
+  end
+
   create_table "ticket_conversations", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "ticket_id", null: false
@@ -2337,6 +2359,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_120001) do
     t.datetime "triaged_at"
     t.bigint "triaged_by_id"
     t.string "jira_key"
+    t.bigint "ticket_complexity_id"
     t.index ["account_id", "blocked_at"], name: "index_tickets_on_account_and_blocked", where: "(blocked_at IS NOT NULL)"
     t.index ["account_id", "display_id"], name: "index_tickets_on_account_id_and_display_id", unique: true
     t.index ["account_id", "pending_triage"], name: "index_tickets_on_account_and_pending_triage", where: "pending_triage"
@@ -2359,6 +2382,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_120001) do
     t.index ["ticket_category_id"], name: "index_tickets_on_ticket_category_id"
     t.index ["ticket_column_id", "position"], name: "index_tickets_on_ticket_column_id_and_position"
     t.index ["ticket_column_id"], name: "index_tickets_on_ticket_column_id"
+    t.index ["ticket_complexity_id"], name: "index_tickets_on_ticket_complexity_id"
     t.index ["triaged_by_id"], name: "index_tickets_on_triaged_by_id", where: "(triaged_by_id IS NOT NULL)"
   end
 
@@ -2534,6 +2558,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_120001) do
   add_foreign_key "ticket_checklist_items", "tickets"
   add_foreign_key "ticket_checklist_items", "users", column: "completed_by_id"
   add_foreign_key "ticket_columns", "teams"
+  add_foreign_key "ticket_complexities", "accounts"
+  add_foreign_key "ticket_complexity_teams", "teams"
+  add_foreign_key "ticket_complexity_teams", "ticket_complexities"
   add_foreign_key "ticket_customer_communications", "accounts"
   add_foreign_key "ticket_customer_communications", "contacts", on_delete: :nullify
   add_foreign_key "ticket_customer_communications", "tickets"
@@ -2554,6 +2581,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_29_120001) do
   add_foreign_key "tickets", "projects"
   add_foreign_key "tickets", "service_catalog_items", on_delete: :restrict
   add_foreign_key "tickets", "ticket_categories", on_delete: :nullify
+  add_foreign_key "tickets", "ticket_complexities", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "merged_into_id", on_delete: :nullify
   add_foreign_key "tickets", "tickets", column: "parent_id", on_delete: :nullify
   add_foreign_key "tickets", "users", column: "assignee_2_id"

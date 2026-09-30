@@ -44,6 +44,15 @@ export function useTicketDetail(ticketId) {
       store.getters['ticketColumns/getCategories'](ticket.value?.team_id) || []
   );
 
+  // Os niveis de Complexidade que a Mesa DESTE ticket oferece. Mesma regra das
+  // Categorias e dos Estagios: a lista e da conta, e a Mesa recorta.
+  const complexities = computed(
+    () =>
+      store.getters['ticketComplexities/getComplexitiesForTeam']?.(
+        ticket.value?.team_id
+      ) || []
+  );
+
   // Se a Mesa deste ticket usa niveis de responsavel. Vem da Mesa, e nao do
   // ticket: e configuracao dela, e muda para todos os tickets de uma vez.
   const usesAssigneeLevels = computed(
@@ -75,6 +84,8 @@ export function useTicketDetail(ticketId) {
     store.dispatch('teamMembers/get', { teamId });
     store.dispatch('ticketColumns/fetchColumns', teamId);
     store.dispatch('ticketColumns/fetchCategories', teamId);
+    // Lista da conta: uma leitura serve a qualquer Mesa.
+    store.dispatch('ticketComplexities/fetch');
   };
 
   // Every mutation funnels through here: push the fresh payload into the Kanban
@@ -231,6 +242,7 @@ export function useTicketDetail(ticketId) {
     childrenCount,
     columns,
     categories,
+    complexities,
     mesaAgents,
     usesAssigneeLevels,
     assigneeLevels,

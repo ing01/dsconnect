@@ -48,6 +48,7 @@ const {
   canAddSlaHours,
   columns,
   categories,
+  complexities,
   mesaAgents,
   usesAssigneeLevels,
   assigneeLevels,
@@ -323,6 +324,7 @@ const submitContact = contactId =>
         :ticket="ticket"
         :columns="columns"
         :categories="categories"
+        :complexities="complexities"
         :agents="mesaAgents"
         :uses-assignee-levels="usesAssigneeLevels"
         :assignee-levels="assigneeLevels"

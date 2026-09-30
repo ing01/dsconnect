@@ -19,7 +19,8 @@ module Tickets::SearchOrdering
     'contact' => { column: 'contacts.name', join: :contact },
     'team' => { column: 'teams.name', join: :team },
     'ticket_column' => { column: 'ticket_columns.name', join: :ticket_column },
-    'assignee' => { column: 'users.name', join: :assignee }
+    'assignee' => { column: 'users.name', join: :assignee },
+    'ticket_complexity' => { column: 'ticket_complexities.name', join: :ticket_complexity }
   }.freeze
 
   DEFAULT_COLUMN = 'tickets.created_at'.freeze

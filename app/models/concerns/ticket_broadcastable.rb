@@ -11,7 +11,11 @@ module TicketBroadcastable
   include Events::Types
 
   def push_event_data
-    core_event_data.merge(display_event_data).merge(lifecycle_event_data).merge(relation_event_data)
+    core_event_data
+      .merge(classification_event_data)
+      .merge(display_event_data)
+      .merge(lifecycle_event_data)
+      .merge(relation_event_data)
   end
 
   private
@@ -63,14 +67,23 @@ module TicketBroadcastable
       # Carried here too, otherwise a ticket arriving over the wire would be
       # invisible to the Kanban's Empresa search until the next board refetch.
       company_id: company_id, contact_id: contact_id,
-      ticket_category_id: ticket_category_id,
-      # Vai junto para o contador da Triagem no menu lateral saber que a fila
-      # mudou sem ter de perguntar ao servidor a cada evento de ticket.
-      pending_triage: pending_triage,
       project_id: project_id,
       due_date: due_date&.iso8601, scheduled_at: scheduled_at&.iso8601,
       next_project_stage: next_project_stage,
       created_at: created_at.to_i, updated_at: updated_at.to_i
+    }
+  end
+
+  # Como o ticket foi classificado, e onde ele esta na fila. Num bloco proprio, e
+  # nao dentro de `core_event_data`: aquele metodo ja estava no limite de
+  # complexidade que o projeto mantem, e o campo da Complexidade o ultrapassou.
+  def classification_event_data
+    {
+      ticket_category_id: ticket_category_id,
+      ticket_complexity_id: ticket_complexity_id,
+      # Vai junto para o contador da Triagem no menu lateral saber que a fila
+      # mudou sem ter de perguntar ao servidor a cada evento de ticket.
+      pending_triage: pending_triage
     }
   end
 
@@ -83,7 +96,8 @@ module TicketBroadcastable
   NAME_SOURCES = {
     company_name: :company, assignee_name: :assignee, team_name: :team,
     ticket_column_name: :ticket_column, requester_name: :requester_contact,
-    ticket_category_name: :ticket_category, project_name: :project
+    ticket_category_name: :ticket_category, ticket_complexity_name: :ticket_complexity,
+    project_name: :project
   }.freeze
 
   def display_event_data

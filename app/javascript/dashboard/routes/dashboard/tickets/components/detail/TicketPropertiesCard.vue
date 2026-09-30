@@ -13,6 +13,9 @@ const props = defineProps({
   columns: { type: Array, default: () => [] },
   // Categories of this ticket's own Mesa, the same rule the stages follow.
   categories: { type: Array, default: () => [] },
+  // So os niveis de Complexidade que a Mesa DESTE ticket oferece - a pagina
+  // recorta, do mesmo jeito que faz com as Categorias.
+  complexities: { type: Array, default: () => [] },
   agents: { type: Array, default: () => [] },
   // Quando a Mesa usa niveis, o responsavel vira Responsavel 1 e aparece um
   // campo por nivel seguinte. Sem isso a tela fica exatamente como sempre foi.
@@ -64,6 +67,13 @@ const statusOptions = computed(() =>
 
 const columnOptions = computed(() =>
   props.columns.map(column => ({ value: column.id, label: column.name }))
+);
+
+const complexityOptions = computed(() =>
+  props.complexities.map(complexity => ({
+    value: complexity.id,
+    label: complexity.name,
+  }))
 );
 
 const categoryOptions = computed(() =>
@@ -151,6 +161,13 @@ const onColumn = value => emit('moveToColumn', Number(value));
 // a Categoria that belongs to another Mesa.
 const onCategory = value =>
   emit('updateProperty', { ticket_category_id: value ? Number(value) : null });
+
+// O servidor tambem recusa um nivel que a Mesa nao oferece, e e ele que decide:
+// a lista filtrada aqui e conveniencia.
+const onComplexity = value =>
+  emit('updateProperty', {
+    ticket_complexity_id: value ? Number(value) : null,
+  });
 
 const onAssignee = value =>
   emit('updateProperty', { assignee_id: value ? Number(value) : null });
@@ -248,6 +265,25 @@ const onScheduledAt = value =>
         :placeholder="t('TICKET.DETAIL.PROPERTIES.NO_CATEGORY')"
         :aria-label="t('TICKET.CREATE.CATEGORY')"
         @update:model-value="onCategory"
+      />
+    </TicketPropertyRow>
+
+    <!-- Complexidade. Nao e exigida para o ticket existir; e exigida para ele ser
+         ENCERRADO, e o modal de fechamento diz isso quando falta. -->
+    <TicketPropertyRow :label="t('TICKET.COMPLEXITY.LABEL')">
+      <TicketSelect
+        :model-value="ticket.ticket_complexity_id || null"
+        :options="complexityOptions"
+        :disabled="!canUpdate || !complexities.length"
+        clearable
+        :clear-label="t('TICKET.COMPLEXITY.NONE')"
+        :placeholder="
+          complexities.length
+            ? t('TICKET.COMPLEXITY.NONE')
+            : t('TICKET.COMPLEXITY.EMPTY_FOR_MESA')
+        "
+        :aria-label="t('TICKET.COMPLEXITY.LABEL')"
+        @update:model-value="onComplexity"
       />
     </TicketPropertyRow>
 

@@ -49,6 +49,9 @@ const emptySelection = () => ({
   ticketColumnIds: [],
   priority: [],
   categoryIds: [],
+  // Nao e zerada na troca de Mesa: a lista de Complexidade e da conta, e nao da
+  // Mesa como os Estagios e as Categorias.
+  complexityIds: [],
 });
 
 const draft = reactive({
@@ -136,6 +139,15 @@ const priorityOptions = computed(() =>
   }))
 );
 
+// Todos os niveis, inclusive os desativados: a busca olha o PASSADO, e um ticket
+// antigo pode carregar um nivel que ninguem usa mais - esconde-lo tornaria esse
+// ticket impossivel de encontrar.
+const complexityOptions = computed(() =>
+  (store.getters['ticketComplexities/getComplexities'] || []).map(
+    complexity => ({ value: complexity.id, label: complexity.name })
+  )
+);
+
 const teamOptions = computed(() =>
   props.teams.map(team => ({ value: team.id, label: team.name }))
 );
@@ -202,6 +214,9 @@ const clearFilters = () => {
 
 onMounted(() => {
   store.dispatch('agents/get');
+  // A lista de Complexidade e da conta: uma leitura serve ao filtro inteiro, sem
+  // depender da Mesa escolhida.
+  store.dispatch('ticketComplexities/fetch');
   searchCompanies();
   searchContacts();
   search();
@@ -372,6 +387,20 @@ onMounted(() => {
             :options="categoryOptions"
             :placeholder="t('TICKET.SEARCH.ALL_CATEGORIES')"
             :aria-label="t('TICKET.CREATE.CATEGORY')"
+          />
+        </label>
+
+        <!-- Sem depender da Mesa: a lista e da conta. -->
+        <label class="flex flex-col gap-1 col-span-2">
+          <span class="text-xs text-n-slate-11">
+            {{ t('TICKET.COMPLEXITY.LABEL') }}
+          </span>
+          <TicketSelect
+            v-model="draft.complexityIds"
+            multiple
+            :options="complexityOptions"
+            :placeholder="t('TICKET.SEARCH.ALL_COMPLEXITIES')"
+            :aria-label="t('TICKET.COMPLEXITY.LABEL')"
           />
         </label>
       </div>

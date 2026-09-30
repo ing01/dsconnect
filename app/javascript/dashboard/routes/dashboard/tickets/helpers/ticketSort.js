@@ -10,6 +10,9 @@ export const TICKET_SORT_FIELDS = [
   'priority',
   'created_at',
   'status',
+  // A Complexidade tem nome livre (o admin cadastra), entao ordena pelo texto -
+  // nao ha hierarquia de dominio como em prioridade e status.
+  'ticket_complexity_name',
 ];
 
 // Priority and status are Rails enums serialized as their string key, so they

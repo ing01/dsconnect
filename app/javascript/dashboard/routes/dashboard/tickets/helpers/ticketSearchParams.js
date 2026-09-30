@@ -24,6 +24,9 @@ export const toSearchParams = (filters = {}) => ({
   contact_id: list(filters.contactIds),
   priority: list(filters.priority),
   ticket_category_id: list(filters.categoryIds),
+  // Uma ou varias: a Complexidade e da conta, entao nao depende da Mesa
+  // escolhida no filtro - diferente da Categoria.
+  ticket_complexity_id: list(filters.complexityIds),
   display_id: filters.displayId || undefined,
   title: filters.title || undefined,
   created_after: filters.createdAfter || undefined,

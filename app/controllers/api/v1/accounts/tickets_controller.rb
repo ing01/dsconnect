@@ -202,7 +202,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   # activities and attachments - without these preloads it fires a query per
   # association per record.
   DETAIL_INCLUDES = [
-    :team, :ticket_column, :ticket_category, :company, :contact,
+    :team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact,
     *AssigneeLeveled.assignee_associations,
     { ticket_attachments: [{ file_attachment: :blob }, :user] },
     { ticket_activities: :user },

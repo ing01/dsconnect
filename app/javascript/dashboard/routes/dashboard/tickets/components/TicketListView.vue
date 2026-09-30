@@ -76,6 +76,7 @@ const COLUMNS = [
   { key: 'team', label: 'MESA' },
   { key: 'ticket_column', label: 'ESTAGIO' },
   { key: 'assignee', label: 'ASSIGNEE' },
+  { key: 'ticket_complexity', label: 'COMPLEXITY' },
 ];
 
 // Com `groups` a ordenacao acontece aqui, e nao no servidor - entao so valem as
@@ -88,6 +89,7 @@ const SORT_FIELD_BY_COLUMN = {
   company: 'company_name',
   status: 'status',
   assignee: 'assignee_name',
+  ticket_complexity: 'ticket_complexity_name',
 };
 
 const sortBy = ref('');
@@ -388,6 +390,9 @@ onMounted(() => {
               </td>
               <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
                 {{ linha.ticket.assignee_name || '—' }}
+              </td>
+              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
+                {{ linha.ticket.ticket_complexity_name || '—' }}
               </td>
             </tr>
           </template>

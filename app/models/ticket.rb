@@ -27,6 +27,10 @@ class Ticket < ApplicationRecord
   belongs_to :team
   belongs_to :project, optional: true
   belongs_to :project_task_template, optional: true
+  # A Complexidade. Opcional no registro de proposito: todo ticket que ja existe
+  # continua valido sem ela, e a exigencia aparece apenas no fechamento - ver
+  # TicketClosing#missing_close_requirements.
+  belongs_to :ticket_complexity, optional: true
 
   has_many :ticket_conversations, dependent: :destroy, inverse_of: :ticket
   has_many :conversations, through: :ticket_conversations

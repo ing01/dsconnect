@@ -37,6 +37,7 @@ const {
   teams,
   columns,
   categories,
+  complexities,
   mesaMembers,
   assigneeLevels,
   membersForLevel,
@@ -55,6 +56,7 @@ const toOptions = records =>
 const teamOptions = computed(() => toOptions(teams.value));
 const columnOptions = computed(() => toOptions(columns.value));
 const categoryOptions = computed(() => toOptions(categories.value));
+const complexityOptions = computed(() => toOptions(complexities.value));
 const memberOptions = computed(() => toOptions(mesaMembers.value));
 
 // Um campo de responsavel por nivel quando a Mesa usa niveis; um so quando
@@ -64,7 +66,11 @@ const memberOptions = computed(() => toOptions(mesaMembers.value));
 const assigneeFields = computed(() => {
   if (!assigneeLevels.value.length) {
     return [
-      { level: 1, label: t('TICKET.CREATE.ASSIGNEE'), options: memberOptions.value },
+      {
+        level: 1,
+        label: t('TICKET.CREATE.ASSIGNEE'),
+        options: memberOptions.value,
+      },
     ];
   }
 
@@ -245,6 +251,26 @@ defineExpose({ resetForNext });
         <span v-if="invalid('ticketCategoryId')" class="text-xs text-n-ruby-11">
           {{ t('TICKET.CREATE.REQUIRED') }}
         </span>
+      </label>
+
+      <!-- Complexidade. Sem asterisco: nao e exigida para ABRIR - a exigencia
+           aparece no encerramento, e o modal de fechar diz isso. So os niveis que
+           esta Mesa oferece aparecem aqui. -->
+      <label class="flex flex-col gap-1 min-w-0">
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ t('TICKET.COMPLEXITY.LABEL') }}
+        </span>
+        <TicketSelect
+          v-model="form.ticketComplexityId"
+          :options="complexityOptions"
+          :disabled="!complexities.length"
+          :placeholder="
+            complexities.length
+              ? t('TICKET.COMPLEXITY.PLACEHOLDER')
+              : t('TICKET.COMPLEXITY.EMPTY_FOR_MESA')
+          "
+          :aria-label="t('TICKET.COMPLEXITY.LABEL')"
+        />
       </label>
     </div>
 

@@ -114,7 +114,8 @@
         "ASSIGNEE": "Atendente",
         "MESA": "Mesa",
         "ESTAGIO": "Estágio",
-        "CREATED_AT": "Data"
+        "CREATED_AT": "Data",
+        "COMPLEXITY": "Complexidade"
       }
     },
     "SEARCH": {
@@ -134,7 +135,8 @@
       "ALL_ESTAGIOS": "Todos os estágios",
       "SUBMIT": "Buscar",
       "QUICK_PLACEHOLDER": "Buscar ticket, número ou atendente",
-      "ALL_CATEGORIES": "Todas as categorias"
+      "ALL_CATEGORIES": "Todas as categorias",
+      "ALL_COMPLEXITIES": "Todas as complexidades"
     },
     "ACTIVITY": {
       "EMPTY": "Nenhuma atividade registrada ainda",
@@ -773,6 +775,34 @@
           "WARNINGS_TITLE": "Avisos",
           "ROW_MESSAGE": "Linha {row}: {message}"
         }
+      },
+      "COMPLEXITY": {
+        "TITLE": "Complexidade",
+        "DESCRIPTION": "Os níveis de complexidade do ticket e quais Mesas oferecem cada um. Marque a célula para disponibilizar o nível naquela Mesa.",
+        "ADD": "Nova complexidade",
+        "EDIT": "Editar",
+        "DELETE": "Excluir",
+        "DELETE_CONFIRM": "Excluir \"{name}\"? Os tickets que a usam ficam sem complexidade e passam a exigir uma nova para serem encerrados.",
+        "ACTIVATE": "Ativar",
+        "DEACTIVATE": "Desativar",
+        "INACTIVE": "Desativada",
+        "AVAILABLE": "Disponível nesta Mesa",
+        "UNAVAILABLE": "Não disponível nesta Mesa",
+        "EMPTY": "Nenhuma complexidade cadastrada.",
+        "TABLE": {
+          "NAME": "Complexidade",
+          "ACTIONS": "Ações"
+        },
+        "FORM": {
+          "NAME": "Nome",
+          "NAME_PLACEHOLDER": "Ex: Crítico",
+          "CREATE": "Adicionar",
+          "SAVE": "Salvar",
+          "CANCEL": "Cancelar"
+        },
+        "API": {
+          "ERROR": "Não foi possível salvar a complexidade."
+        }
       }
     },
     "MESA_SELECTOR": {
@@ -1027,7 +1057,9 @@
       "TO": "Para",
       "SUBJECT": "Assunto",
       "MESSAGE": "Mensagem",
-      "MESSAGE_PLACEHOLDER": "Escreva a mensagem que será enviada ao cliente"
+      "MESSAGE_PLACEHOLDER": "Escreva a mensagem que será enviada ao cliente",
+      "MISSING_COMPLEXITY": "Defina a complexidade do ticket antes de encerrá-lo.",
+      "STEP_COMPLEXITY": "Complexidade"
     },
     "COMMUNICATION": {
       "TAB": {
@@ -1096,6 +1128,13 @@
       "PLACEHOLDER": "Nº do ticket",
       "NOT_FOUND": "Nenhum ticket com o número {number}.",
       "ERROR": "Não foi possível buscar o ticket. Tente novamente."
+    },
+    "COMPLEXITY": {
+      "LABEL": "Complexidade",
+      "PLACEHOLDER": "Selecione a complexidade",
+      "NONE": "Sem complexidade",
+      "EMPTY_FOR_MESA": "Esta Mesa não tem complexidades habilitadas.",
+      "CLEARED_BY_MESA": "A Mesa mudou e a complexidade anterior não é oferecida por ela. Escolha uma nova."
     }
   }
 }

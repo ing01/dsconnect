@@ -46,7 +46,7 @@ const mountCard = (props = {}) =>
             disabled: { type: Boolean, default: false },
           },
           emits: ['update:modelValue'],
-          template: `<div class="ticket-select" :data-disabled="String(disabled)">
+          template: `<div class="ticket-select" :data-disabled="String(disabled)" :data-label="$attrs['aria-label']">
             <button
               v-if="clearable"
               data-value=""
@@ -64,22 +64,45 @@ const mountCard = (props = {}) =>
     },
   });
 
-// [0] priority, [1] status, [2] stage, [3] category, [4] assignee
 const selects = wrapper => wrapper.findAll('.ticket-select');
 
-// Escolher uma opcao pelo valor, dentro de um dos campos.
-const choose = async (wrapper, index, value) => {
-  const field = selects(wrapper)[index];
-  await field.find(`[data-value="${value}"]`).trigger('click');
+// Os rotulos dos campos, que e como os exemplos os localizam.
+const CAMPO = {
+  prioridade: 'TICKET.FORM.PRIORITY.LABEL',
+  status: 'TICKET.DETAIL.PROPERTIES.STATUS',
+  estagio: 'TICKET.DETAIL.PROPERTIES.STAGE',
+  categoria: 'TICKET.CREATE.CATEGORY',
+  complexidade: 'TICKET.COMPLEXITY.LABEL',
+  responsavel: 'TICKET.FORM.ASSIGNEE.LABEL',
 };
 
-const isDisabled = (wrapper, index) =>
-  selects(wrapper)[index].attributes('data-disabled') === 'true';
+// Os campos de nivel compartilham o mesmo rotulo - a interpolacao se perde sem
+// mensagens carregadas -, entao eles sao alcancados pela ordem DENTRO do grupo,
+// que e exatamente o que os exemplos de nivel descrevem.
+const nivel = (wrapper, level) =>
+  selects(wrapper).filter(
+    field => field.attributes('data-label') === 'TICKET.FORM.ASSIGNEE.LEVEL'
+  )[level - 1];
+
+// O campo pelo seu rotulo. Por posicao, qualquer linha nova no card deslocava
+// todos os indices e quebrava exemplos que nada tinham a ver com a mudanca.
+const selectBy = (wrapper, label) =>
+  selects(wrapper).find(field => field.attributes('data-label') === label);
+
+// Escolher uma opcao pelo valor, dentro de um dos campos.
+const choose = async (wrapper, label, value) => {
+  await selectBy(wrapper, label)
+    .find(`[data-value="${value}"]`)
+    .trigger('click');
+};
+
+const isDisabled = (wrapper, label) =>
+  selectBy(wrapper, label).attributes('data-disabled') === 'true';
 
 // As opcoes visiveis de um campo, ignorando a entrada que esvazia.
-const optionsOf = (wrapper, index) =>
-  selects(wrapper)
-    [index].findAll('button')
+const optionsOf = (wrapper, label) =>
+  selectBy(wrapper, label)
+    .findAll('button')
     .filter(button => button.attributes('data-value') !== '')
     .map(button => button.text());
 
@@ -89,18 +112,21 @@ describe('TicketPropertiesCard', () => {
   });
 
   it('lists only the stages of this ticket Mesa', () => {
-    expect(optionsOf(mountCard(), 2)).toEqual(['A fazer', 'Em andamento']);
+    expect(optionsOf(mountCard(), CAMPO.estagio)).toEqual([
+      'A fazer',
+      'Em andamento',
+    ]);
   });
 
   // `optionsOf` ja descarta a entrada que esvazia o campo.
   it('lists only the members of the Mesa as assignees', () => {
-    expect(optionsOf(mountCard(), 4)).toEqual(['Ana', 'Bruno']);
+    expect(optionsOf(mountCard(), CAMPO.responsavel)).toEqual(['Ana', 'Bruno']);
   });
 
   describe('persisting', () => {
     it('sends priority through updateProperty', async () => {
       const wrapper = mountCard();
-      await choose(wrapper, 0, 'urgent');
+      await choose(wrapper, CAMPO.prioridade, 'urgent');
 
       expect(wrapper.emitted('updateProperty')).toEqual([
         [{ priority: 'urgent' }],
@@ -111,7 +137,7 @@ describe('TicketPropertiesCard', () => {
     // what write resolved_at/closed_at and the activity.
     it('routes status through changeStatus, never updateProperty', async () => {
       const wrapper = mountCard();
-      await choose(wrapper, 1, 'resolved');
+      await choose(wrapper, CAMPO.status, 'resolved');
 
       expect(wrapper.emitted('changeStatus')).toEqual([['resolved']]);
       expect(wrapper.emitted('updateProperty')).toBeUndefined();
@@ -120,7 +146,7 @@ describe('TicketPropertiesCard', () => {
     // `update` strips ticket_column_id; only `move` keeps team_id in lockstep.
     it('routes stage through moveToColumn, never updateProperty', async () => {
       const wrapper = mountCard();
-      await choose(wrapper, 2, '4');
+      await choose(wrapper, CAMPO.estagio, '4');
 
       expect(wrapper.emitted('moveToColumn')).toEqual([[4]]);
       expect(wrapper.emitted('updateProperty')).toBeUndefined();
@@ -128,8 +154,8 @@ describe('TicketPropertiesCard', () => {
 
     it('sends the assignee as a number, and null to unassign', async () => {
       const wrapper = mountCard();
-      await choose(wrapper, 4, '10');
-      await choose(wrapper, 4, '');
+      await choose(wrapper, CAMPO.responsavel, '10');
+      await choose(wrapper, CAMPO.responsavel, '');
 
       expect(wrapper.emitted('updateProperty')).toEqual([
         [{ assignee_id: 10 }],
@@ -142,13 +168,16 @@ describe('TicketPropertiesCard', () => {
   // from the Catalogo de Servicos, which classifies the attendance.
   describe('the Categoria', () => {
     it('lists only the categories of this ticket Mesa', () => {
-      expect(optionsOf(mountCard(), 3)).toEqual(['Erro', 'Dúvida']);
+      expect(optionsOf(mountCard(), CAMPO.categoria)).toEqual([
+        'Erro',
+        'Dúvida',
+      ]);
     });
 
     it('persists straight away, as a number', async () => {
       const wrapper = mountCard();
 
-      await choose(wrapper, 3, '21');
+      await choose(wrapper, CAMPO.categoria, '21');
 
       expect(wrapper.emitted('updateProperty')).toEqual([
         [{ ticket_category_id: 21 }],
@@ -167,7 +196,7 @@ describe('TicketPropertiesCard', () => {
     it('is disabled until the categories have loaded', () => {
       const wrapper = mountCard({ categories: [] });
 
-      expect(isDisabled(wrapper, 3)).toBe(true);
+      expect(isDisabled(wrapper, CAMPO.categoria)).toBe(true);
     });
   });
 
@@ -215,7 +244,7 @@ describe('TicketPropertiesCard', () => {
   it('disables the stage select until the stages have loaded', () => {
     const wrapper = mountCard({ columns: [] });
 
-    expect(isDisabled(wrapper, 2)).toBe(true);
+    expect(isDisabled(wrapper, CAMPO.estagio)).toBe(true);
   });
 
   // Quantos niveis a Mesa usa e configuracao, e a tela desenha um campo por
@@ -235,14 +264,15 @@ describe('TicketPropertiesCard', () => {
       });
 
     it('shows one assignee field per level of the desk', () => {
-      // [0] prioridade, [1] status, [2] estagio, [3] categoria, depois um por nivel
-      expect(selects(comNiveis([1, 2])).length).toBe(6);
-      expect(selects(comNiveis([1, 2, 3])).length).toBe(7);
+      // Prioridade, status, estagio, categoria e complexidade, depois um por nivel.
+      const fixos = 5;
+      expect(selects(comNiveis([1, 2])).length).toBe(fixos + 2);
+      expect(selects(comNiveis([1, 2, 3])).length).toBe(fixos + 3);
     });
 
     it('offers only the agents enabled for that level', () => {
       const wrapper = comNiveis([1, 2, 3]);
-      const nivel3 = selects(wrapper)[6];
+      const nivel3 = nivel(wrapper, 3);
 
       expect(nivel3.findAll('[data-value]').map(node => node.text())).toContain(
         'Carla'
@@ -255,7 +285,7 @@ describe('TicketPropertiesCard', () => {
     it('saves the third level into its own field, not on top of the second', async () => {
       const wrapper = comNiveis([1, 2, 3]);
 
-      await choose(wrapper, 6, 11);
+      await nivel(wrapper, 3).find('[data-value="11"]').trigger('click');
 
       expect(wrapper.emitted('updateProperty')[0][0]).toEqual({
         assignee_3_id: 11,
@@ -263,7 +293,10 @@ describe('TicketPropertiesCard', () => {
     });
 
     it('keeps the single assignee field on a desk without levels', () => {
-      expect(selects(mountCard()).length).toBe(5);
+      const wrapper = mountCard();
+
+      expect(nivel(wrapper, 1)).toBe(undefined);
+      expect(selectBy(wrapper, CAMPO.responsavel)).not.toBe(undefined);
     });
   });
 });

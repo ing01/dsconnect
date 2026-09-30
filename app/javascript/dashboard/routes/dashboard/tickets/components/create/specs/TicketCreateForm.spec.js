@@ -37,6 +37,14 @@ const CATEGORIES = {
   ],
   2: [{ id: 200, name: 'Proposta' }],
 };
+const COMPLEXITIES = {
+  1: [
+    { id: 300, name: 'Baixo', active: true, team_ids: [1, 2] },
+    { id: 301, name: 'Alto', active: true, team_ids: [1] },
+  ],
+  2: [{ id: 300, name: 'Baixo', active: true, team_ids: [1, 2] }],
+};
+
 const MEMBERS = {
   1: [{ id: 50, name: 'Ana' }],
   2: [{ id: 60, name: 'Bruno' }],
@@ -57,6 +65,7 @@ const ticketSelectStub = {
     class="ticket-select"
     :data-model="modelValue === null ? '' : String(modelValue)"
     :data-disabled="String(disabled)"
+    :data-label="$attrs['aria-label']"
   >
     <button
       v-if="clearable"
@@ -110,21 +119,44 @@ const mountForm = async (context = {}) => {
   return wrapper;
 };
 
-// [0] Mesa, [1] Estagio, [2] Prioridade, [3] Responsavel, [4] Categoria
 const selects = wrapper => wrapper.findAll('.ticket-select');
 
+// Os rotulos dos campos. Por posicao, um campo novo no formulario deslocava todos
+// os indices e quebrava exemplos que nada tinham a ver com a mudanca.
+const CAMPO = {
+  mesa: 'TICKET.SETTINGS.MESA_LABEL',
+  estagio: 'TICKET.DETAIL.PROPERTIES.STAGE',
+  prioridade: 'TICKET.FORM.PRIORITY.LABEL',
+  categoria: 'TICKET.CREATE.CATEGORY',
+  complexidade: 'TICKET.COMPLEXITY.LABEL',
+};
+
+// Os campos de responsavel usam `campo.label`, que e o rotulo do nivel - eles sao
+// alcancados pela ordem DENTRO do grupo, que e o que os exemplos descrevem.
+const responsaveis = wrapper =>
+  selects(wrapper).filter(field => {
+    const label = field.attributes('data-label') || '';
+    return (
+      label === 'TICKET.CREATE.ASSIGNEE' ||
+      label === 'TICKET.FORM.ASSIGNEE.LEVEL'
+    );
+  });
+
+const selectBy = (wrapper, label) =>
+  selects(wrapper).find(field => field.attributes('data-label') === label);
+
 // O valor atual de um campo, como o stub o expoe.
-const valueOf = (wrapper, index) =>
-  selects(wrapper)[index].attributes('data-model');
+const valueOf = (wrapper, label) =>
+  selectBy(wrapper, label).attributes('data-model');
 
 // Escolher uma opcao pelo valor.
-const choose = async (wrapper, index, value) =>
-  selects(wrapper)[index].find(`[data-value="${value}"]`).trigger('click');
+const choose = async (wrapper, label, value) =>
+  selectBy(wrapper, label).find(`[data-value="${value}"]`).trigger('click');
 
 // As opcoes visiveis, sem a entrada que esvazia.
-const optionsOf = (wrapper, index) =>
-  selects(wrapper)
-    [index].findAll('button')
+const optionsOf = (wrapper, label) =>
+  selectBy(wrapper, label)
+    .findAll('button')
     .filter(button => button.attributes('data-value') !== '')
     .map(button => button.text());
 
@@ -145,6 +177,9 @@ describe('TicketCreateForm', () => {
     Object.keys(TEAMS_BY_ID).forEach(k => delete TEAMS_BY_ID[k]);
     getters['ticketColumns/getColumns'] = id => COLUMNS[id] || [];
     getters['ticketColumns/getCategories'] = id => CATEGORIES[id] || [];
+    // A lista de Complexidade e da conta; o getter recorta pela Mesa.
+    getters['ticketComplexities/getComplexitiesForTeam'] = id =>
+      COMPLEXITIES[id] || [];
     getters['teamMembers/getTeamMembers'] = id => MEMBERS[id] || [];
     // A Mesa diz quantos niveis de responsavel usa. Sem niveis configurados o
     // formulario mostra um campo de responsavel so, como sempre mostrou.
@@ -156,8 +191,8 @@ describe('TicketCreateForm', () => {
     it('pre-fills the Mesa and the Estagio', async () => {
       const wrapper = await mountForm({ teamId: 1, ticketColumnId: 11 });
 
-      expect(valueOf(wrapper, 0)).toBe('1');
-      expect(valueOf(wrapper, 1)).toBe('11');
+      expect(valueOf(wrapper, CAMPO.mesa)).toBe('1');
+      expect(valueOf(wrapper, CAMPO.estagio)).toBe('11');
     });
 
     it('loads that Mesa lists without being asked again', async () => {
@@ -192,51 +227,64 @@ describe('TicketCreateForm', () => {
     it('lists only that Mesa Estagios and Categorias', async () => {
       const wrapper = await mountForm({ teamId: 1 });
 
-      expect(optionsOf(wrapper, 1)).toEqual(['A fazer', 'Em andamento']);
-      expect(optionsOf(wrapper, 4)).toEqual(['Erro', 'Duvida']);
+      expect(optionsOf(wrapper, CAMPO.estagio)).toEqual([
+        'A fazer',
+        'Em andamento',
+      ]);
+      expect(optionsOf(wrapper, CAMPO.categoria)).toEqual(['Erro', 'Duvida']);
     });
 
     it('lists only that Mesa members as Responsavel', async () => {
       const wrapper = await mountForm({ teamId: 1 });
 
-      expect(optionsOf(wrapper, 3)).toEqual(['Ana']);
+      expect(
+        responsaveis(wrapper)[0]
+          .findAll('button')
+          .filter(b => b.attributes('data-value') !== '')
+          .map(b => b.text())
+      ).toEqual(['Ana']);
     });
 
     it('reloads everything when the Mesa changes', async () => {
       const wrapper = await mountForm({ teamId: 1 });
       dispatch.mockClear();
 
-      await choose(wrapper, 0, '2');
+      await choose(wrapper, CAMPO.mesa, '2');
       await flushPromises();
 
       expect(dispatch).toHaveBeenCalledWith('ticketColumns/fetchCategories', 2);
-      expect(optionsOf(wrapper, 4)).toEqual(['Proposta']);
-      expect(optionsOf(wrapper, 3)).toEqual(['Bruno']);
+      expect(optionsOf(wrapper, CAMPO.categoria)).toEqual(['Proposta']);
+      expect(
+        responsaveis(wrapper)[0]
+          .findAll('button')
+          .filter(b => b.attributes('data-value') !== '')
+          .map(b => b.text())
+      ).toEqual(['Bruno']);
     });
 
     // Keeping them would submit a Categoria and a Responsavel from the previous
     // Mesa, which the backend refuses anyway.
     it('drops the Categoria and the Responsavel that belonged to the old Mesa', async () => {
       const wrapper = await mountForm({ teamId: 1 });
-      await choose(wrapper, 4, '100');
-      await choose(wrapper, 3, '50');
+      await choose(wrapper, CAMPO.categoria, '100');
+      await responsaveis(wrapper)[0].find(`[data-value='50']`).trigger('click');
 
-      await choose(wrapper, 0, '2');
+      await choose(wrapper, CAMPO.mesa, '2');
       await flushPromises();
 
       // Index 0 is the disabled placeholder, which is where a cleared select
       // lands - its rendered value is the placeholder text, not ''.
-      expect(valueOf(wrapper, 4)).toBe('');
-      expect(valueOf(wrapper, 3)).toBe('');
+      expect(valueOf(wrapper, CAMPO.categoria)).toBe('');
+      expect(responsaveis(wrapper)[0].attributes('data-model')).toBe('');
     });
 
     it('defaults to the first Estagio of the new Mesa', async () => {
       const wrapper = await mountForm({ teamId: 1 });
 
-      await choose(wrapper, 0, '2');
+      await choose(wrapper, CAMPO.mesa, '2');
       await flushPromises();
 
-      expect(valueOf(wrapper, 1)).toBe('20');
+      expect(valueOf(wrapper, CAMPO.estagio)).toBe('20');
     });
   });
 
@@ -256,7 +304,7 @@ describe('TicketCreateForm', () => {
       await wrapper
         .findComponent({ name: 'TicketContactSelect' })
         .vm.$emit('update:modelValue', 3);
-      await choose(wrapper, 4, '100');
+      await choose(wrapper, CAMPO.categoria, '100');
       await wrapper.find('input[type="text"]').setValue('Erro na NF');
       await wrapper
         .findComponent({ name: 'FullEditor' })
@@ -400,7 +448,7 @@ describe('TicketCreateForm', () => {
       await wrapper
         .findComponent({ name: 'TicketContactSelect' })
         .vm.$emit('update:modelValue', 3);
-      await choose(wrapper, 4, '100');
+      await choose(wrapper, CAMPO.categoria, '100');
       await wrapper.find('input[type="text"]').setValue('Erro na NF');
       await wrapper
         .findComponent({ name: 'FullEditor' })
@@ -421,8 +469,86 @@ describe('TicketCreateForm', () => {
       payload.onCreated();
       await flushPromises();
       expect(wrapper.find('input[type="text"]').element.value).toBe('');
-      expect(valueOf(wrapper, 4)).toBe('');
-      expect(valueOf(wrapper, 0)).toBe('1');
+      expect(valueOf(wrapper, CAMPO.categoria)).toBe('');
+      expect(valueOf(wrapper, CAMPO.mesa)).toBe('1');
+    });
+  });
+
+  // A Complexidade segue a Mesa como a Categoria e o Estagio: a lista e da conta,
+  // e cada Mesa oferece um subconjunto dela.
+  describe('a Complexidade', () => {
+    it('lists only what this Mesa offers', async () => {
+      const wrapper = await mountForm({ teamId: 1 });
+
+      expect(optionsOf(wrapper, CAMPO.complexidade)).toEqual(['Baixo', 'Alto']);
+    });
+
+    it('lists less on a Mesa with fewer levels', async () => {
+      const wrapper = await mountForm({ teamId: 2 });
+
+      expect(optionsOf(wrapper, CAMPO.complexidade)).toEqual(['Baixo']);
+    });
+
+    // O caso do pedido: a Mesa muda e o nivel escolhido nao existe na nova.
+    // Deixa-lo ali faria o servidor recusar a abertura por um campo que a tela
+    // ja nao lista.
+    it('clears a level the new Mesa does not offer', async () => {
+      const wrapper = await mountForm({ teamId: 1 });
+      await choose(wrapper, CAMPO.complexidade, '301');
+      expect(valueOf(wrapper, CAMPO.complexidade)).toBe('301');
+
+      await choose(wrapper, CAMPO.mesa, '2');
+      await flushPromises();
+
+      expect(valueOf(wrapper, CAMPO.complexidade)).toBe('');
+    });
+
+    // Preenche o minimo que o formulario exige e devolve o que ele emitiu.
+    const enviar = async wrapper => {
+      await setCompany(wrapper, 7);
+      await wrapper
+        .findComponent({ name: 'TicketContactSelect' })
+        .vm.$emit('update:modelValue', 3);
+      await choose(wrapper, CAMPO.categoria, '100');
+      await wrapper.find('input[type="text"]').setValue('Erro na NF');
+      await wrapper
+        .findComponent({ name: 'FullEditor' })
+        .vm.$emit('update:modelValue', 'detalhes');
+      await flushPromises();
+
+      await wrapper.find('form').trigger('submit');
+      await flushPromises();
+
+      return wrapper.emitted('submit')?.[0]?.[0]?.ticket;
+    };
+
+    it('goes to the server on the ticket payload', async () => {
+      const wrapper = await mountForm({ teamId: 1 });
+      await choose(wrapper, CAMPO.complexidade, '301');
+
+      expect(await enviar(wrapper)).toMatchObject({
+        ticket_complexity_id: 301,
+      });
+    });
+
+    // Nao e exigida para ABRIR: a exigencia e no fechamento.
+    it('does not block opening a ticket without it', async () => {
+      const wrapper = await mountForm({ teamId: 1 });
+
+      expect(await enviar(wrapper)).toMatchObject({
+        ticket_complexity_id: null,
+      });
+    });
+
+    // Mesa sem nivel nenhum habilitado: o campo aparece desabilitado, e nao como
+    // uma lista vazia sem explicacao.
+    it('disables the field on a Mesa with no level enabled', async () => {
+      getters['ticketComplexities/getComplexitiesForTeam'] = () => [];
+      const wrapper = await mountForm({ teamId: 1 });
+
+      expect(
+        selectBy(wrapper, CAMPO.complexidade).attributes('data-disabled')
+      ).toBe('true');
     });
   });
 });

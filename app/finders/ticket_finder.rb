@@ -12,6 +12,7 @@ class TicketFinder
     status: :status,
     priority: :priority,
     ticket_category_id: :ticket_category_id,
+    ticket_complexity_id: :ticket_complexity_id,
     display_id: :display_id
   }.freeze
 

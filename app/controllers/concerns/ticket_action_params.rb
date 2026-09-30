@@ -40,7 +40,7 @@ module TicketActionParams
 
     params.require(:ticket).permit(
       :title, :description, :priority, :company_id, :contact_id,
-      :team_id, :ticket_column_id, :ticket_category_id, *ASSIGNEE_PARAMS
+      :team_id, :ticket_column_id, :ticket_category_id, :ticket_complexity_id, *ASSIGNEE_PARAMS
     ).to_h.symbolize_keys
   end
 
@@ -57,6 +57,7 @@ module TicketActionParams
   def ticket_params
     params.require(:ticket).permit(:title, :description, :priority, :team_id,
                                    :ticket_column_id, :company_id, :contact_id, :ticket_category_id,
+                                   :ticket_complexity_id,
                                    :parent_id, :project_id, :due_date, :scheduled_at, :next_project_stage,
                                    *ASSIGNEE_PARAMS, follower_ids: [])
   end

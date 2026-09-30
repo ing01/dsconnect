@@ -846,6 +846,12 @@ const menuItems = computed(() => {
               to: accountScopedRoute('ticket_categories_list'),
             },
             {
+              name: 'Settings Ticket Complexity',
+              label: t('SIDEBAR.TICKET_COMPLEXITY'),
+              activeOn: ['ticket_complexity_list'],
+              to: accountScopedRoute('ticket_complexity_list'),
+            },
+            {
               name: 'Settings Ticket Automation',
               label: t('SIDEBAR.TICKET_AUTOMATION'),
               activeOn: ['ticket_automation_settings'],
@@ -1137,7 +1143,7 @@ const menuItems = computed(() => {
           showTreeLine: true,
           asMenuItem: true,
           children: [
-           /* {
+            /* {
               name: 'Live chat',
               label: t('SIDEBAR.LIVE_CHAT'),
               to: accountScopedRoute('campaigns_livechat_index'),

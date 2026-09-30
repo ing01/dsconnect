@@ -547,6 +547,9 @@ Rails.application.routes.draw do
             end
           end
 
+          # Os niveis de Complexidade do ticket. Lista da CONTA, como o catalogo -
+          # quais Mesas oferecem cada nivel vai no proprio registro.
+          resources :ticket_complexities, only: [:index, :create, :update, :destroy]
           resources :service_catalogs do
             resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do
               resources :items, controller: 'service_catalog_items', only: [:create, :update, :destroy]

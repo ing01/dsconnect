@@ -26,6 +26,9 @@ export function useTicketCreation(context) {
     description: '',
     followerIds: [],
     parentId: null,
+    // A Complexidade. Opcional ao abrir - a exigencia e no fechamento -, e
+    // filtrada pela Mesa.
+    ticketComplexityId: null,
   });
 
   const files = ref([]);
@@ -36,6 +39,15 @@ export function useTicketCreation(context) {
   );
   const categories = computed(
     () => store.getters['ticketColumns/getCategories'](form.value.teamId) || []
+  );
+  // So os niveis que ESTA Mesa oferece. A regra de disponibilidade e do servidor;
+  // o getter apenas recorta a mesma lista, em vez de manter uma segunda versao
+  // dela.
+  const complexities = computed(
+    () =>
+      store.getters['ticketComplexities/getComplexitiesForTeam']?.(
+        form.value.teamId
+      ) || []
   );
   const mesaMembers = computed(
     () => store.getters['teamMembers/getTeamMembers'](form.value.teamId) || []
@@ -58,6 +70,9 @@ export function useTicketCreation(context) {
     if (!teamId) return;
     store.dispatch('ticketColumns/fetchColumns', teamId);
     store.dispatch('ticketColumns/fetchCategories', teamId);
+    // A lista e da conta, entao uma leitura serve a todas as Mesas: o `fetch`
+    // so acontece uma vez por visita.
+    store.dispatch('ticketComplexities/fetch');
     store.dispatch('teamMembers/get', { teamId });
   };
 
@@ -73,6 +88,7 @@ export function useTicketCreation(context) {
       teamId: source.teamId ?? null,
       ticketColumnId: source.ticketColumnId ?? null,
       ticketCategoryId: source.ticketCategoryId ?? null,
+      ticketComplexityId: source.ticketComplexityId ?? null,
       priority: source.priority ?? 'medium',
       // Quem chama ainda entrega `assigneeId`: e o Nivel 1, que existe em
       // qualquer Mesa, com ou sem niveis configurados.
@@ -102,6 +118,10 @@ export function useTicketCreation(context) {
       if (previous == null || teamId === previous) return;
       form.value.ticketColumnId = null;
       form.value.ticketCategoryId = null;
+      // A Complexidade tambem: a Mesa nova pode nao oferecer o nivel escolhido, e
+      // deixa-lo ali faria o servidor recusar a abertura com um campo que a tela
+      // ja nao lista.
+      form.value.ticketComplexityId = null;
       // Todos os niveis, e nao so o primeiro: quem respondia pela Mesa antiga
       // nao responde pela nova, em nivel nenhum.
       form.value.assignees = {};
@@ -175,6 +195,8 @@ export function useTicketCreation(context) {
     team_id: form.value.teamId,
     ticket_column_id: form.value.ticketColumnId,
     ticket_category_id: form.value.ticketCategoryId,
+    // Vazio vira `null`, e nao string vazia: a coluna e uma chave estrangeira.
+    ticket_complexity_id: form.value.ticketComplexityId || null,
     // `assignee_id` para o Nivel 1 e `assignee_N_id` para os demais - as
     // colunas que o servidor ja aceita (vide TicketActionParams).
     ...assigneePayload(),
@@ -205,6 +227,7 @@ export function useTicketCreation(context) {
     teams,
     columns,
     categories,
+    complexities,
     mesaMembers,
     assigneeLevels,
     membersForLevel,

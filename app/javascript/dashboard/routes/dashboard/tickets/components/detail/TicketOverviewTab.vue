@@ -16,6 +16,7 @@ defineProps({
   usesAssigneeLevels: { type: Boolean, default: false },
   assigneeLevels: { type: Array, default: () => [] },
   categories: { type: Array, default: () => [] },
+  complexities: { type: Array, default: () => [] },
   canUpdate: { type: Boolean, default: true },
   isSavingDescription: { type: Boolean, default: false },
 });
@@ -99,6 +100,7 @@ defineEmits([
           :ticket="ticket"
           :columns="columns"
           :categories="categories"
+          :complexities="complexities"
           :agents="agents"
           :uses-assignee-levels="usesAssigneeLevels"
           :assignee-levels="assigneeLevels"

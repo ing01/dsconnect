@@ -457,7 +457,8 @@
     "PROJECT_TASKS": "Tasks",
     "CHECKLISTS": "Checklists",
     "INTERNAL_CHAT": "Internal chat",
-    "TICKET_TRIAGE": "Triage"
+    "TICKET_TRIAGE": "Triage",
+    "TICKET_COMPLEXITY": "Complexidade"
   },
   "DATA_IMPORTS": {
     "HEADER": "Data",
