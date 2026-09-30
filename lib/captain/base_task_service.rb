@@ -109,8 +109,14 @@ class Captain::BaseTaskService
     chat
   end
 
+  # So conta como "registrado" se o modelo existir especificamente sob o
+  # provider openai - varios ids de modelo (ex.: "openai/gpt-oss-20b") tambem
+  # aparecem no catalogo do ruby_llm sob outros providers agregadores (ex.:
+  # openrouter), e sem esta checagem especifica o ruby_llm inferia o provider
+  # errado e exigia credencial de um servico (ex. OpenRouter) que nunca
+  # configuramos.
   def model_registered?(model)
-    RubyLLM.models.find(model)
+    RubyLLM.models.find(model, :openai)
     true
   rescue RubyLLM::ModelNotFoundError
     false
