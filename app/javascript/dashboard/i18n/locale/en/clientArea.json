@@ -131,6 +131,7 @@
       "SEND_ERROR": "Could not send the message.",
       "ATTACHMENT": "Attachment",
       "RECORD": "Record audio",
+      "RECORDING": "Recording... {duration}",
       "STOP_RECORDING": "Stop ({duration})",
       "RECORDED": "Audio recorded.",
       "RECORD_AGAIN": "Record again",

@@ -309,15 +309,35 @@ onBeforeUnmount(desconectar);
       </div>
 
       <div class="flex flex-col flex-shrink-0 gap-2 pt-2 border-t border-n-weak">
-        <AudioRecorder
+        <div
           v-if="isRecordingAudio"
-          ref="audioRecorderRef"
-          :audio-record-format="AUDIO_FORMATS.OGG"
-          class="border rounded-lg border-n-weak"
-          @recorder-progress-changed="onRecordProgressChanged"
-          @finish-record="onFinishRecorder"
-          @record-error="onRecordError"
-        />
+          class="flex flex-col gap-1 p-2 border rounded-lg border-n-weak"
+        >
+          <!-- A prova de que esta gravando de verdade: um ponto piscando +
+               o tempo, sempre visivel - a onda do wavesurfer sozinha e' sutil
+               demais (barras finas e escuras) para quem esta so de olho no
+               botao, e sem isso a gravacao PARECE travada mesmo funcionando. -->
+          <div class="flex items-center gap-2 text-xs text-n-ruby-11">
+            <span class="relative flex size-2.5">
+              <span
+                class="absolute inline-flex w-full h-full rounded-full opacity-75 bg-n-ruby-9 animate-ping"
+              />
+              <span
+                class="relative inline-flex rounded-full size-2.5 bg-n-ruby-9"
+              />
+            </span>
+            <span class="font-medium">
+              {{ t('CLIENT_AREA.CHAT.RECORDING', { duration: recordingAudioDurationText }) }}
+            </span>
+          </div>
+          <AudioRecorder
+            ref="audioRecorderRef"
+            :audio-record-format="AUDIO_FORMATS.OGG"
+            @recorder-progress-changed="onRecordProgressChanged"
+            @finish-record="onFinishRecorder"
+            @record-error="onRecordError"
+          />
+        </div>
 
         <div v-if="recordedAudioFile" class="flex items-center gap-2 text-xs text-n-slate-11">
           <Icon icon="i-lucide-mic" class="size-3.5" />

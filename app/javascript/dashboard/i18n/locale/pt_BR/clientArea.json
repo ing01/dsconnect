@@ -131,6 +131,7 @@
       "SEND_ERROR": "Não foi possível enviar a mensagem.",
       "ATTACHMENT": "Anexo",
       "RECORD": "Gravar áudio",
+      "RECORDING": "Gravando... {duration}",
       "STOP_RECORDING": "Parar ({duration})",
       "RECORDED": "Áudio gravado.",
       "RECORD_AGAIN": "Gravar de novo",
