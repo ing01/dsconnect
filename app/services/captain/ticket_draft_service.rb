@@ -21,7 +21,7 @@ class Captain::TicketDraftService < Captain::BaseTaskService
   pattr_initialize [:account!, :categories!, :text!]
 
   def perform
-    response = make_api_call(messages: messages, model: GPT_MODEL, schema: SCHEMA)
+    response = make_api_call(messages: messages, model: configured_chat_model, schema: SCHEMA)
     return response if response[:error]
 
     parse(response[:message])

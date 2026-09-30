@@ -189,11 +189,15 @@
   type: secret
 - name: CAPTAIN_OPEN_AI_MODEL
   display_title: 'OpenAI Model'
-  description: 'The OpenAI model configured for use in Captain AI. Default: gpt-4.1-mini'
+  description: 'The chat model used by Captain AI, including AI ticket drafting. Default: gpt-4.1-mini. For Groq, use one of their chat model ids (e.g. llama-3.3-70b-versatile).'
   locked: false
 - name: CAPTAIN_OPEN_AI_ENDPOINT
   display_title: 'OpenAI API Endpoint (optional)'
-  description: 'The OpenAI endpoint configured for use in Captain AI. Default: https://api.openai.com/'
+  description: 'The OpenAI-compatible endpoint used by Captain AI. Default: https://api.openai.com/. For Groq, use https://api.groq.com/openai'
+  locked: false
+- name: CAPTAIN_TRANSCRIPTION_MODEL
+  display_title: 'Audio Transcription Model (optional)'
+  description: 'The transcription model used for AI ticket drafting from audio. Default: whisper-1. For Groq, use one of their Whisper model ids (e.g. whisper-large-v3).'
   locked: false
 - name: CAPTAIN_EMBEDDING_MODEL
   display_title: 'Embedding Model (optional)'

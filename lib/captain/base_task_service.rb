@@ -56,6 +56,13 @@ class Captain::BaseTaskService
     response.merge(follow_up_context: build_follow_up_context(messages, response))
   end
 
+  # Modelo padrao configurado em Super Admin > Configuracoes > Captain
+  # (CAPTAIN_OPEN_AI_MODEL) - permite trocar de provider (ex.: Groq) sem
+  # precisar mexer em codigo.
+  def configured_chat_model
+    Llm::Config.chat_model
+  end
+
   def resolved_model(model:, feature:)
     return model if feature.blank?
 
@@ -83,7 +90,13 @@ class Captain::BaseTaskService
   end
 
   def build_chat(context, model:, messages:, schema: nil, tools: [])
-    chat = context.chat(model: model)
+    chat = if model_registered?(model)
+             context.chat(model: model)
+           else
+             # Modelo customizado (ex.: Groq) nao cadastrado em config/llm_models.json -
+             # sem isto o ruby_llm rejeita o nome antes mesmo de tentar a chamada.
+             context.chat(model: model, provider: :openai, assume_model_exists: true)
+           end
     system_msg = messages.find { |m| m[:role] == 'system' }
     chat.with_instructions(system_msg[:content]) if system_msg
     chat.with_schema(schema) if schema
@@ -94,6 +107,13 @@ class Captain::BaseTaskService
     end
 
     chat
+  end
+
+  def model_registered?(model)
+    RubyLLM.models.find(model)
+    true
+  rescue RubyLLM::ModelNotFoundError
+    false
   end
 
   def add_messages_if_needed(chat, conversation_messages)
