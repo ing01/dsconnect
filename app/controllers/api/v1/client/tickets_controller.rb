@@ -89,7 +89,7 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
 
     TicketCategory.client_visible
                   .joins(:team)
-                  .where(teams: { account_id: Current.account.id, active: true })
+                  .where(teams: { account_id: Current.account.id, active: true, visible_in_portal: true })
                   .find_by(id: params[:ticket_category_id])
   end
 
@@ -97,7 +97,7 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   # chamado para a area que precisa, e o Kanban dele so mostra Mesa onde ele
   # tenha ticket.
   def client_teams
-    Current.account.teams.active.order(:name)
+    Current.account.teams.active.visible_in_portal.order(:name)
   end
 
   def pick_team

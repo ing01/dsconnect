@@ -11,6 +11,7 @@
 import ClientLayout from './ClientLayout.vue';
 import ClientTicketsPage from './pages/ClientTicketsPage.vue';
 import ClientTicketDetailPage from './pages/ClientTicketDetailPage.vue';
+import ClientChatPage from './pages/ClientChatPage.vue';
 import ClientNotificationsPage from './pages/ClientNotificationsPage.vue';
 import ClientPasswordEditPage from './pages/ClientPasswordEditPage.vue';
 
@@ -45,6 +46,11 @@ export default {
           path: 'tickets/:ticketId',
           name: 'client_ticket_detail',
           component: ClientTicketDetailPage,
+        },
+        {
+          path: 'chat',
+          name: 'client_chat',
+          component: ClientChatPage,
         },
         {
           path: 'notifications',

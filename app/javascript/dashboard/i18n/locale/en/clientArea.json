@@ -47,7 +47,20 @@
       },
       "CATEGORY_PLACEHOLDER": "Choose the kind of problem",
       "CATEGORY_SEARCH": "Search category",
-      "TRIAGE_NOTE": "The team will review the ticket and route it to the right area."
+      "TRIAGE_NOTE": "The team will review the ticket and route it to the right area.",
+      "AI": {
+        "TOGGLE": "Open with AI",
+        "HINT": "Type or record what's happening - AI will draft the category, subject and description below for you to review before opening the ticket.",
+        "TEXT_PLACEHOLDER": "Describe the problem in your own words...",
+        "RECORD": "Record audio",
+        "STOP_RECORDING": "Stop ({duration})",
+        "RECORDED": "Audio recorded.",
+        "RECORD_AGAIN": "Record again",
+        "RECORD_ERROR": "Could not record audio.",
+        "GENERATE": "Generate draft",
+        "DRAFT_READY": "Draft generated - review it below before confirming.",
+        "ERROR": "Could not generate the draft. Please fill the form manually."
+      }
     },
     "DETAIL": {
       "BACK": "Back",
@@ -90,10 +103,20 @@
     },
     "MENU": {
       "TICKETS": "Tickets",
+      "CHAT": "Chat",
       "NOTIFICATIONS": "Notifications",
       "COLLAPSE": "Collapse menu",
       "EXPAND": "Expand menu",
       "TOGGLE": "Menu"
+    },
+    "CHAT": {
+      "TITLE": "Chat",
+      "DESCRIPTION": "Talk directly to the team.",
+      "EMPTY": "Send a message to start talking to the team.",
+      "PLACEHOLDER": "Write your message...",
+      "TEAM": "Team",
+      "ERROR": "Could not open the chat.",
+      "SEND_ERROR": "Could not send the message."
     },
     "NOTIFICATIONS": {
       "TITLE": "Notifications",

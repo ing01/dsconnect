@@ -33,6 +33,14 @@ const props = defineProps({
   // So no modo `groups`: e a chave de onde fica guardado o que esta recolhido.
   accountId: { type: [Number, String], default: null },
   teamId: { type: [Number, String], default: null },
+  // A Area do Cliente troca a ultima coluna: em vez de Complexidade, ela mostra
+  // o Prazo (due_date) - o Kanban/lista interna dos atendentes continua vendo
+  // Complexidade, entao o default preserva o comportamento de sempre.
+  complexityColumn: {
+    type: String,
+    default: 'complexity',
+    validator: value => ['complexity', 'due_date'].includes(value),
+  },
 });
 
 // Quem abre o ticket muda com a origem: no painel e a rota interna; com
@@ -66,7 +74,15 @@ const uiFlags = computed(() => store.getters['tickets/getUIFlags']);
 // Cada cabecalho e a chave que o servidor entende (Tickets::SearchOrdering).
 // A ordenacao vai para o servidor porque a lista e paginada la: ordenar so as
 // linhas carregadas mostraria o menor valor DESTA pagina, e nao do resultado.
-const COLUMNS = [
+// A ultima coluna muda de identidade conforme `complexityColumn` - o `key`
+// precisa mudar junto (nao so o `label`), senao a celula abaixo nao saberia
+// qual das duas mostrar.
+const LAST_COLUMN = {
+  complexity: { key: 'ticket_complexity', label: 'COMPLEXITY' },
+  due_date: { key: 'ticket_due_date', label: 'DUE_DATE' },
+};
+
+const COLUMNS = computed(() => [
   { key: 'display_id', label: 'ID' },
   { key: 'created_at', label: 'CREATED_AT' },
   { key: 'title', label: 'TITLE' },
@@ -76,8 +92,8 @@ const COLUMNS = [
   { key: 'team', label: 'MESA' },
   { key: 'ticket_column', label: 'ESTAGIO' },
   { key: 'assignee', label: 'ASSIGNEE' },
-  { key: 'ticket_complexity', label: 'COMPLEXITY' },
-];
+  LAST_COLUMN[props.complexityColumn],
+]);
 
 // Com `groups` a ordenacao acontece aqui, e nao no servidor - entao so valem as
 // colunas que `sortTickets` sabe comparar. As demais viram texto simples: um
@@ -90,7 +106,14 @@ const SORT_FIELD_BY_COLUMN = {
   status: 'status',
   assignee: 'assignee_name',
   ticket_complexity: 'ticket_complexity_name',
+  ticket_due_date: 'due_date',
 };
+
+// Mesmo formato usado na coluna de abertura (created_at) - so unix -> data
+// local. `due_date` e opcional (Estagio pode nao exigir prazo), entao fica
+// travessao quando ausente, igual as outras colunas sem valor.
+const formatDueDate = dueDate =>
+  dueDate ? new Date(dueDate * 1000).toLocaleDateString() : '—';
 
 const sortBy = ref('');
 const sortOrder = ref('asc');
@@ -392,7 +415,11 @@ onMounted(() => {
                 {{ linha.ticket.assignee_name || '—' }}
               </td>
               <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-                {{ linha.ticket.ticket_complexity_name || '—' }}
+                {{
+                  props.complexityColumn === 'due_date'
+                    ? formatDueDate(linha.ticket.due_date)
+                    : linha.ticket.ticket_complexity_name || '—'
+                }}
               </td>
             </tr>
           </template>

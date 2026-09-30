@@ -23,8 +23,11 @@ import ClientAreaAPI from 'dashboard/api/clientArea';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 import TicketSelect from 'dashboard/routes/dashboard/tickets/components/TicketSelect.vue';
 import TicketFileInput from 'dashboard/routes/dashboard/tickets/components/create/TicketFileInput.vue';
+import AudioRecorder from 'dashboard/components/widgets/WootWriter/AudioRecorder.vue';
+import { AUDIO_FORMATS } from 'shared/constants/messages';
 
 const props = defineProps({
   categories: { type: Array, default: () => [] },
@@ -41,6 +44,18 @@ const files = ref([]);
 // erro antes de ela ter a chance de preencher é rabugice.
 const erros = ref({});
 const form = ref({ categoryId: null, title: '', description: '' });
+
+// Abertura de ticket por IA: RASCUNHO, nunca abertura direta - o cliente
+// sempre revisa categoria/titulo/descricao (preenchidos abaixo, nos mesmos
+// campos do formulario normal) antes de confirmar pelo fluxo de sempre.
+const aiEnabled = ref(false);
+const showAiPanel = ref(false);
+const aiText = ref('');
+const isRecordingAudio = ref(false);
+const recordedAudioFile = ref(null);
+const recordingAudioDurationText = ref('00:00');
+const isGeneratingDraft = ref(false);
+const audioRecorderRef = ref(null);
 
 const categoryOptions = computed(() =>
   props.categories.map(c => ({ value: c.id, label: c.name }))
@@ -100,7 +115,85 @@ const open = () => {
   files.value = [];
   erros.value = {};
   form.value = { categoryId: null, title: '', description: '' };
+  resetAiPanel();
   dialogRef.value?.open();
+  // So pergunta se ha credencial configurada depois que o dialogo abre - nao
+  // ha pressa, e falhar essa checagem nao pode atrasar a abertura da tela.
+  ClientAreaAPI.aiDraftEnabled()
+    .then(({ data }) => {
+      aiEnabled.value = Boolean(data?.enabled);
+    })
+    .catch(() => {
+      aiEnabled.value = false;
+    });
+};
+
+const resetAiPanel = () => {
+  showAiPanel.value = false;
+  aiText.value = '';
+  isRecordingAudio.value = false;
+  recordedAudioFile.value = null;
+  recordingAudioDurationText.value = '00:00';
+};
+
+const toggleAiPanel = () => {
+  showAiPanel.value = !showAiPanel.value;
+  if (!showAiPanel.value) resetAiPanel();
+};
+
+const toggleAudioRecorder = () => {
+  isRecordingAudio.value = !isRecordingAudio.value;
+  if (!isRecordingAudio.value) {
+    recordedAudioFile.value = null;
+  }
+};
+
+const onRecordProgressChanged = duration => {
+  recordingAudioDurationText.value = duration;
+};
+
+const onFinishRecorder = file => {
+  recordedAudioFile.value = file?.file || null;
+};
+
+const onRecordError = () => {
+  isRecordingAudio.value = false;
+  recordedAudioFile.value = null;
+  useAlert(t('CLIENT_AREA.NEW_TICKET.AI.RECORD_ERROR'));
+};
+
+const stopRecording = () => {
+  audioRecorderRef.value?.stopRecording();
+};
+
+const podeGerarRascunho = computed(
+  () => Boolean(aiText.value.trim()) || Boolean(recordedAudioFile.value)
+);
+
+const gerarRascunho = async () => {
+  if (!podeGerarRascunho.value || isGeneratingDraft.value) return;
+
+  isGeneratingDraft.value = true;
+  try {
+    const { data } = await ClientAreaAPI.generateTicketDraft({
+      text: aiText.value.trim(),
+      audio: recordedAudioFile.value,
+    });
+    form.value = {
+      categoryId: data.ticket_category_id || null,
+      title: data.title || '',
+      description: data.description || '',
+    };
+    erros.value = {};
+    resetAiPanel();
+    useAlert(t('CLIENT_AREA.NEW_TICKET.AI.DRAFT_READY'));
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error || t('CLIENT_AREA.NEW_TICKET.AI.ERROR')
+    );
+  } finally {
+    isGeneratingDraft.value = false;
+  }
 };
 
 const submit = async () => {
@@ -167,6 +260,99 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
     @confirm="submit"
   >
     <div class="flex flex-col w-full gap-4 min-w-0">
+      <div v-if="aiEnabled" class="flex flex-col w-full gap-2 min-w-0">
+        <Button
+          type="button"
+          faded
+          size="sm"
+          icon="i-lucide-sparkles"
+          class="w-fit"
+          :label="t('CLIENT_AREA.NEW_TICKET.AI.TOGGLE')"
+          @click="toggleAiPanel"
+        />
+
+        <div
+          v-if="showAiPanel"
+          class="flex flex-col w-full gap-3 p-3 border rounded-lg min-w-0 border-n-weak bg-n-alpha-1"
+        >
+          <p class="m-0 text-xs text-n-slate-11">
+            {{ t('CLIENT_AREA.NEW_TICKET.AI.HINT') }}
+          </p>
+
+          <TextArea
+            v-model="aiText"
+            :placeholder="t('CLIENT_AREA.NEW_TICKET.AI.TEXT_PLACEHOLDER')"
+            :disabled="isRecordingAudio || Boolean(recordedAudioFile)"
+            min-height="5rem"
+            max-height="10rem"
+            resize
+            class="w-full"
+          />
+
+          <div class="flex flex-col w-full gap-2 min-w-0">
+            <AudioRecorder
+              v-if="isRecordingAudio"
+              ref="audioRecorderRef"
+              :audio-record-format="AUDIO_FORMATS.MP3"
+              class="border rounded-lg border-n-weak"
+              @recorder-progress-changed="onRecordProgressChanged"
+              @finish-record="onFinishRecorder"
+              @record-error="onRecordError"
+            />
+
+            <div class="flex items-center gap-2">
+              <Button
+                v-if="!isRecordingAudio && !recordedAudioFile"
+                type="button"
+                faded
+                slate
+                size="sm"
+                icon="i-lucide-mic"
+                :label="t('CLIENT_AREA.NEW_TICKET.AI.RECORD')"
+                @click="toggleAudioRecorder"
+              />
+              <Button
+                v-if="isRecordingAudio"
+                type="button"
+                ruby
+                size="sm"
+                icon="i-lucide-square"
+                :label="
+                  t('CLIENT_AREA.NEW_TICKET.AI.STOP_RECORDING', {
+                    duration: recordingAudioDurationText,
+                  })
+                "
+                @click="stopRecording"
+              />
+              <span
+                v-if="recordedAudioFile && !isRecordingAudio"
+                class="flex items-center gap-1.5 text-xs text-n-slate-11"
+              >
+                <span class="i-lucide-circle-check size-3.5 text-n-teal-11" />
+                {{ t('CLIENT_AREA.NEW_TICKET.AI.RECORDED') }}
+                <button
+                  type="button"
+                  class="underline"
+                  @click="recordedAudioFile = null"
+                >
+                  {{ t('CLIENT_AREA.NEW_TICKET.AI.RECORD_AGAIN') }}
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            size="sm"
+            class="w-fit"
+            :is-loading="isGeneratingDraft"
+            :disabled="!podeGerarRascunho"
+            :label="t('CLIENT_AREA.NEW_TICKET.AI.GENERATE')"
+            @click="gerarRascunho"
+          />
+        </div>
+      </div>
+
       <label
         class="flex flex-col w-full gap-1 min-w-0 sm:max-w-[calc(50%-0.5rem)]"
       >

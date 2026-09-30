@@ -69,6 +69,7 @@ class Team < ApplicationRecord
   end
 
   scope :active, -> { where(active: true) }
+  scope :visible_in_portal, -> { where(visible_in_portal: true) }
 
   # Adds multiple members to the team
   # @param user_ids [Array<Integer>] Array of user IDs to add as members
@@ -133,7 +134,8 @@ class Team < ApplicationRecord
       active: active,
       manager_id: manager_id,
       handles_conversations: handles_conversations,
-      handles_projects: handles_projects
+      handles_projects: handles_projects,
+      visible_in_portal: visible_in_portal
     }
   end
 

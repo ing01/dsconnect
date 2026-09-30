@@ -115,7 +115,8 @@
         "MESA": "Mesa",
         "ESTAGIO": "Estágio",
         "CREATED_AT": "Data",
-        "COMPLEXITY": "Complexidade"
+        "COMPLEXITY": "Complexidade",
+        "DUE_DATE": "Prazo"
       }
     },
     "SEARCH": {

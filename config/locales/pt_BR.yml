@@ -584,6 +584,9 @@ pt_BR:
   client_area:
     communication:
       empty: Escreva uma mensagem antes de enviar.
+    chat:
+      empty: Escreva uma mensagem antes de enviar.
+      not_started: Abra a aba do chat antes de enviar uma mensagem.
     unauthorized: Sessão inválida ou acesso à Área do Cliente desativado.
     invalid_credentials: E-mail ou senha inválidos.
     password:

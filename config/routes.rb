@@ -51,7 +51,18 @@ Rails.application.routes.draw do
           # A resposta do cliente entra na conversa do ticket.
           resources :communications, only: [:create]
         end
+        # O chat com a equipe: um item proprio do menu, sem relacao com ticket
+        # nenhum - uma Conversation de verdade, visivel na tela de Conversas
+        # dos atendentes.
+        resource :chat, only: [:show], controller: 'chats' do
+          resources :messages, only: [:create], controller: 'chat_messages'
+        end
         resources :teams, only: [:index]
+        # Rascunho de ticket por IA (texto livre ou audio transcrito) - so
+        # devolve categoria/titulo/descricao sugeridos, nunca cria o ticket.
+        resources :ticket_drafts, only: [:create] do
+          get :enabled, on: :collection
+        end
         resources :notifications, only: [:index]
         # A lista plana de Categorias do formulario de abertura.
         resources :categories, only: [:index]

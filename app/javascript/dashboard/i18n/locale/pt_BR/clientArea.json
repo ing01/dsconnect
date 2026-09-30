@@ -47,7 +47,20 @@
       },
       "CATEGORY_PLACEHOLDER": "Escolha o tipo do problema",
       "CATEGORY_SEARCH": "Buscar categoria",
-      "TRIAGE_NOTE": "A equipe vai analisar o chamado e encaminhá-lo à área responsável."
+      "TRIAGE_NOTE": "A equipe vai analisar o chamado e encaminhá-lo à área responsável.",
+      "AI": {
+        "TOGGLE": "Abrir com IA",
+        "HINT": "Digite ou grave um áudio contando o que está acontecendo - a IA preenche categoria, assunto e descrição abaixo para você revisar antes de abrir o chamado.",
+        "TEXT_PLACEHOLDER": "Descreva o problema com suas palavras...",
+        "RECORD": "Gravar áudio",
+        "STOP_RECORDING": "Parar ({duration})",
+        "RECORDED": "Áudio gravado.",
+        "RECORD_AGAIN": "Gravar de novo",
+        "RECORD_ERROR": "Não foi possível gravar o áudio.",
+        "GENERATE": "Gerar rascunho",
+        "DRAFT_READY": "Rascunho gerado - revise abaixo antes de confirmar.",
+        "ERROR": "Não foi possível gerar o rascunho. Preencha manualmente."
+      }
     },
     "DETAIL": {
       "BACK": "Voltar",
@@ -90,10 +103,20 @@
     },
     "MENU": {
       "TICKETS": "Tickets",
+      "CHAT": "Chat",
       "NOTIFICATIONS": "Notificações",
       "COLLAPSE": "Recolher menu",
       "EXPAND": "Expandir menu",
       "TOGGLE": "Menu"
+    },
+    "CHAT": {
+      "TITLE": "Chat",
+      "DESCRIPTION": "Fale diretamente com a equipe.",
+      "EMPTY": "Mande uma mensagem para começar a falar com a equipe.",
+      "PLACEHOLDER": "Escreva sua mensagem...",
+      "TEAM": "Equipe",
+      "ERROR": "Não foi possível abrir o chat.",
+      "SEND_ERROR": "Não foi possível enviar a mensagem."
     },
     "NOTIFICATIONS": {
       "TITLE": "Notificações",

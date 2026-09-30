@@ -56,6 +56,7 @@ export default {
       assignee_levels_count: assigneeLevelsCount = 2,
       handles_conversations: handlesConversations = true,
       handles_projects: handlesProjects = true,
+      visible_in_portal: visibleInPortal = false,
     } = formData;
 
     const state = reactive({
@@ -70,6 +71,7 @@ export default {
       managerId,
       handlesConversations,
       handlesProjects,
+      visibleInPortal,
     });
 
     const isIconPickerOpen = ref(false);
@@ -120,6 +122,7 @@ export default {
         assignee_levels_count: Number(this.state.assigneeLevelsCount),
         handles_conversations: this.state.handlesConversations,
         handles_projects: this.state.handlesProjects,
+        visible_in_portal: this.state.visibleInPortal,
       });
     },
   },
@@ -226,6 +229,18 @@ export default {
         <input v-model="state.handlesProjects" type="checkbox" :value="true" />
         <label for="handles_projects">
           {{ $t('TEAMS_SETTINGS.FORM.HANDLES_PROJECTS.LABEL') }}
+        </label>
+      </div>
+      <!-- Desmarcado por padrao: a Mesa so aparece no Portal do Cliente depois
+           de alguem marcar isso de proposito. -->
+      <div class="w-full flex items-center gap-2">
+        <input
+          v-model="state.visibleInPortal"
+          type="checkbox"
+          :value="true"
+        />
+        <label for="visible_in_portal">
+          {{ $t('TEAMS_SETTINGS.FORM.VISIBLE_IN_PORTAL.LABEL') }}
         </label>
       </div>
       <!-- Desligado, a Mesa segue com um responsavel so, como sempre foi. -->

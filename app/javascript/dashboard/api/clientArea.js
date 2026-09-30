@@ -131,4 +131,38 @@ export default {
 
     return cliente.post(`${BASE}/tickets`, form, { headers: headers() });
   },
+
+  // Se ha credencial de IA configurada na conta - so entao a opcao "Abrir com
+  // IA" aparece no formulario.
+  aiDraftEnabled() {
+    return cliente.get(`${BASE}/ticket_drafts/enabled`, { headers: headers() });
+  },
+
+  // Texto livre OU audio gravado vira um rascunho (categoria/titulo/descricao)
+  // para o cliente revisar - nunca cria o ticket sozinho.
+  generateTicketDraft({ text, audio }) {
+    const form = new FormData();
+    if (audio) {
+      form.append('audio', audio);
+    } else {
+      form.append('text', text);
+    }
+
+    return cliente.post(`${BASE}/ticket_drafts`, form, { headers: headers() });
+  },
+
+  // O chat com a equipe: cria a conversa na primeira vez (ou devolve a que ja
+  // existe) junto do historico e do token de tempo real. Sem relacao com
+  // ticket - e uma conversa so por cliente, como um canal de atendimento.
+  chat() {
+    return cliente.get(`${BASE}/chat`, { headers: headers() });
+  },
+
+  sendChatMessage(content) {
+    return cliente.post(
+      `${BASE}/chat/messages`,
+      { content },
+      { headers: headers() }
+    );
+  },
 };

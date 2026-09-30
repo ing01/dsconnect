@@ -262,6 +262,7 @@ onMounted(() => carregar());
       :account-id="accountId"
       :team-id="selectedTeamId"
       :loading="isLoading"
+      complexity-column="due_date"
       @open-ticket="abrirTicket"
     />
 

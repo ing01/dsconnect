@@ -12,6 +12,6 @@ class Api::V1::Client::CategoriesController < Api::V1::Client::BaseController
   def index
     @categories = TicketCategory.client_visible
                                 .joins(:team)
-                                .where(teams: { account_id: Current.account.id, active: true })
+                                .where(teams: { account_id: Current.account.id, active: true, visible_in_portal: true })
   end
 end

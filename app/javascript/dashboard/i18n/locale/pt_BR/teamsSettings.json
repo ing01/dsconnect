@@ -131,6 +131,9 @@
       "HANDLES_PROJECTS": {
         "LABEL": "Esta Mesa executa Projetos (aparece no filtro de Equipe em Projetos)"
       },
+      "VISIBLE_IN_PORTAL": {
+        "LABEL": "Aparece no Portal do Cliente (o cliente pode abrir ticket para esta Mesa)"
+      },
       "SUBMIT_CREATE": "Criar novo time",
       "ASSIGNEE_LEVELS": {
         "LABEL": "Utilizar níveis de responsáveis no ticket",

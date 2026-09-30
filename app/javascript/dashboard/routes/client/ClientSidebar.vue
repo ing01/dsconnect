@@ -48,6 +48,13 @@ const itens = computed(() => [
     activeOn: ['client_tickets', 'client_ticket_detail'],
   },
   {
+    name: 'client_chat',
+    label: t('CLIENT_AREA.MENU.CHAT'),
+    icon: 'i-lucide-message-circle',
+    to: { name: 'client_chat' },
+    activeOn: ['client_chat'],
+  },
+  {
     name: 'client_notifications',
     label: t('CLIENT_AREA.MENU.NOTIFICATIONS'),
     icon: 'i-lucide-bell',

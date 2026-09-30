@@ -131,6 +131,9 @@
       "HANDLES_PROJECTS": {
         "LABEL": "This team runs Projects (shows up in the Team filter in Projects)"
       },
+      "VISIBLE_IN_PORTAL": {
+        "LABEL": "Show this team in the Client Portal (customers can open tickets for it)"
+      },
       "SUBMIT_CREATE": "Create team",
       "ASSIGNEE_LEVELS": {
         "LABEL": "Use assignee levels on tickets",
