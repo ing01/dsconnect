@@ -16,17 +16,37 @@ module Inboxes
 
     pattr_initialize [:account!]
 
+    # So para leitura: nao cria nada. Uma tela que so LISTA novidades (as
+    # Notificacoes do Portal) nao pode ter o efeito colateral de criar a caixa
+    # "Portal do Cliente" so por ter sido aberta - sem ninguem nunca ter usado
+    # o chat, nao ha conversa nenhuma para achar de qualquer jeito.
+    def self.find_existing(account)
+      account.api_channels.to_a.find { |channel| channel.additional_attributes[MARKER_KEY] == true }&.inbox
+    end
+
     def perform
       existing = find_channel&.inbox
-      return existing if existing
+      return ensure_settings!(existing) if existing
 
       account.with_lock do
         channel = find_channel
-        channel ? channel.inbox || create_inbox!(channel) : create_inbox_with_channel!
+        inbox = channel ? channel.inbox || create_inbox!(channel) : create_inbox_with_channel!
+        ensure_settings!(inbox)
       end
     end
 
     private
+
+    # Reforca as duas configuracoes em toda chamada, nao so na criacao - uma
+    # caixa criada por uma versao anterior deste servico (antes de existir
+    # historico de conversas/CSAT) precisa alcancar o mesmo estado sem
+    # depender de ninguem editar isso manualmente em Configuracoes.
+    def ensure_settings!(inbox)
+      return inbox if inbox.lock_to_single_conversation == false && inbox.csat_survey_enabled == true
+
+      inbox.update!(lock_to_single_conversation: false, csat_survey_enabled: true)
+      inbox
+    end
 
     def find_channel
       account.api_channels.to_a.find { |channel| channel.additional_attributes[MARKER_KEY] == true }
@@ -38,7 +58,16 @@ module Inboxes
     end
 
     def create_inbox!(channel)
-      account.inboxes.create!(channel: channel, name: 'Portal do Cliente')
+      account.inboxes.create!(
+        channel: channel,
+        name: 'Portal do Cliente',
+        # Uma conversa RESOLVIDA nao deve continuar recebendo mensagem por
+        # cima - e' o gatilho que separa uma sessao de chat da proxima
+        # (historico de conversas) e o mesmo gatilho que dispara a pesquisa
+        # de satisfacao ao resolver.
+        lock_to_single_conversation: false,
+        csat_survey_enabled: true
+      )
     end
   end
 end

@@ -2,6 +2,15 @@
   "CLIENT_AREA": {
     "TITLE": "Client Area",
     "LOGOUT": "Sign out",
+    "PRINCIPAL": {
+      "GREETING_MORNING": "Good morning, {name}!",
+      "GREETING_AFTERNOON": "Good afternoon, {name}!",
+      "GREETING_EVENING": "Good evening, {name}!",
+      "DESCRIPTION": "Check back here for updates on the Portal.",
+      "WHATS_NEW_TITLE": "What's new in the Portal",
+      "WHATS_NEW_SUBTITLE": "What changed here recently.",
+      "WHATS_NEW_EMPTY": "No recent news."
+    },
     "BOARD": {
       "TEAM": "Mesa",
       "COUNT": "{count} ticket(s)",
@@ -13,6 +22,8 @@
       "SEARCH": "Search by number or title",
       "ALL_STATUSES": "All statuses",
       "ALL_PRIORITIES": "All priorities",
+      "ALL_COMPANIES": "All companies",
+      "COMPANY_FILTER": "Company",
       "CLEAR_FILTERS": "Clear filters",
       "SHOW_COMPLETED": "Show finished",
       "STATUS": "Status",
@@ -102,6 +113,7 @@
       "PENDING_TRIAGE": "Waiting for triage"
     },
     "MENU": {
+      "PRINCIPAL": "Home",
       "TICKETS": "Tickets",
       "CHAT": "Chat",
       "NOTIFICATIONS": "Notifications",
@@ -116,7 +128,31 @@
       "PLACEHOLDER": "Write your message...",
       "TEAM": "Team",
       "ERROR": "Could not open the chat.",
-      "SEND_ERROR": "Could not send the message."
+      "SEND_ERROR": "Could not send the message.",
+      "ATTACHMENT": "Attachment",
+      "RECORD": "Record audio",
+      "STOP_RECORDING": "Stop ({duration})",
+      "RECORDED": "Audio recorded.",
+      "RECORD_AGAIN": "Record again",
+      "RECORD_ERROR": "Could not record audio.",
+      "ENABLE_PUSH": "Enable notifications",
+      "PUSH_DENIED": "Could not enable browser notifications.",
+      "HISTORY_LINK": "View past conversations",
+      "CSAT": {
+        "TITLE": "How would you rate this conversation?",
+        "FEEDBACK_PLACEHOLDER": "Anything else you'd like to add? (optional)",
+        "SEND": "Send rating",
+        "THANKS": "Thanks for your feedback!",
+        "ERROR": "Could not send your rating."
+      }
+    },
+    "CHAT_HISTORY": {
+      "TITLE": "Past conversations",
+      "DESCRIPTION": "Chat sessions already closed with the team.",
+      "EMPTY": "No closed conversations yet.",
+      "ERROR": "Could not load the history.",
+      "BACK": "Back to chat",
+      "RESOLVED_AT": "Closed on {date}"
     },
     "NOTIFICATIONS": {
       "TITLE": "Notifications",

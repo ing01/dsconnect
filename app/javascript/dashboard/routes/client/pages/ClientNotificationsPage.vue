@@ -32,6 +32,10 @@ const dataHora = segundos =>
   segundos ? new Date(segundos * 1000).toLocaleString() : '';
 
 const abrir = item => {
+  if (item.type === 'chat') {
+    router.push({ name: 'client_chat' });
+    return;
+  }
   router.push({
     name: 'client_ticket_detail',
     params: { ticketId: item.ticket_id },
@@ -83,12 +87,21 @@ onMounted(async () => {
           @click="abrir(item)"
         >
           <div class="flex flex-wrap items-center w-full gap-2 min-w-0">
-            <span class="text-xs font-medium text-n-slate-10">
-              #{{ item.ticket_display_id }}
+            <span
+              v-if="item.type === 'chat'"
+              class="flex items-center gap-1 text-sm font-medium text-n-slate-12"
+            >
+              <Icon icon="i-lucide-message-circle" class="size-3.5" />
+              {{ t('CLIENT_AREA.MENU.CHAT') }}
             </span>
-            <span class="flex-1 text-sm font-medium truncate text-n-slate-12">
-              {{ item.ticket_title }}
-            </span>
+            <template v-else>
+              <span class="text-xs font-medium text-n-slate-10">
+                #{{ item.ticket_display_id }}
+              </span>
+              <span class="flex-1 text-sm font-medium truncate text-n-slate-12">
+                {{ item.ticket_title }}
+              </span>
+            </template>
             <Label
               v-if="item.closing"
               :label="t('CLIENT_AREA.DETAIL.CLOSING_NOTICE')"

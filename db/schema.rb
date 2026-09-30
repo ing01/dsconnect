@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_30_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_30_160000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -903,6 +903,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_30_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_checklists_on_account_id"
+  end
+
+  create_table "client_push_subscriptions", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "contact_id", null: false
+    t.jsonb "subscription_attributes", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_client_push_subscriptions_on_account_id"
+    t.index ["contact_id"], name: "index_client_push_subscriptions_on_contact_id"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -2253,6 +2263,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_30_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_ticket_imports_on_account_id"
+  end
+
+  create_table "ticket_routing_rules", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.integer "client_level", null: false
+    t.bigint "team_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "client_level"], name: "index_ticket_routing_rules_on_account_id_and_client_level", unique: true
+    t.index ["account_id"], name: "index_ticket_routing_rules_on_account_id"
   end
 
   create_table "ticket_sla_events", force: :cascade do |t|

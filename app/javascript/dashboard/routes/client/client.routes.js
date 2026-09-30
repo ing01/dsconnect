@@ -9,9 +9,12 @@
  * de cliente - e não sessão de usuário interno.
  */
 import ClientLayout from './ClientLayout.vue';
+import ClientPrincipalPage from './pages/ClientPrincipalPage.vue';
 import ClientTicketsPage from './pages/ClientTicketsPage.vue';
 import ClientTicketDetailPage from './pages/ClientTicketDetailPage.vue';
 import ClientChatPage from './pages/ClientChatPage.vue';
+import ClientChatHistoryPage from './pages/ClientChatHistoryPage.vue';
+import ClientChatHistoryDetailPage from './pages/ClientChatHistoryDetailPage.vue';
 import ClientNotificationsPage from './pages/ClientNotificationsPage.vue';
 import ClientPasswordEditPage from './pages/ClientPasswordEditPage.vue';
 
@@ -33,9 +36,12 @@ export default {
       component: ClientLayout,
       children: [
         {
+          // O "Principal" do cliente: novidades do PRODUTO, mesmo esquema do
+          // Principal dos atendentes - e nao mais um redirecionamento direto
+          // para os tickets.
           path: '',
           name: 'client_home',
-          redirect: '/app/client/tickets',
+          component: ClientPrincipalPage,
         },
         {
           path: 'tickets',
@@ -51,6 +57,16 @@ export default {
           path: 'chat',
           name: 'client_chat',
           component: ClientChatPage,
+        },
+        {
+          path: 'chat/history',
+          name: 'client_chat_history',
+          component: ClientChatHistoryPage,
+        },
+        {
+          path: 'chat/history/:conversationId',
+          name: 'client_chat_history_detail',
+          component: ClientChatHistoryDetailPage,
         },
         {
           path: 'notifications',

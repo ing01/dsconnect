@@ -1,0 +1,13 @@
+<p><%= t('.greeting', name: @contact.name) %></p>
+
+<p><%= t('.intro') %></p>
+
+<% url = frontend_url('client/chat') %>
+
+<p>
+  <a href="<%= url %>"><%= t('.action') %></a>
+</p>
+
+<p><%= t('.fallback') %><br /><%= url %></p>
+
+<p><%= t('.regards') %></p>

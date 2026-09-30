@@ -1,0 +1,77 @@
+// Novidades do Portal do Cliente - SOMENTE o que muda a experiência de quem
+// usa o Portal (nunca novidades internas da equipe, que já têm a própria
+// lista em dashboard/routes/dashboard/principal/changelogData.js).
+//
+// Mesmo esquema daquela lista: um array fixo, mantido por código (sem tela de
+// administração) - peça para adicionar uma novidade quando quiser publicar
+// algo novo. `isoDate` dirige o "some depois de 5 dias" de
+// `getVisibleChangelogEntries`; `date` é só o rótulo em pt-BR mostrado no
+// card, então os dois precisam ficar em sincronia.
+export const PRINCIPAL_ENTRIES = [
+  {
+    id: 'client-chat-history',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Histórico de conversas do Chat',
+    description:
+      'Quando a equipe encerra uma conversa do Chat, ela some da tela e uma nova começa na próxima mensagem - sem ficar tudo misturado num fio só. As conversas encerradas ficam guardadas em "Ver conversas anteriores", dentro do Chat.',
+  },
+  {
+    id: 'client-chat-csat',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Avalie o atendimento pelo Chat',
+    description:
+      'Ao encerrar uma conversa do Chat, chega um pedido para avaliar o atendimento direto ali, sem precisar de outro canal.',
+  },
+  {
+    id: 'client-chat-notifications',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Avisos do Chat mesmo fora do Portal',
+    description:
+      'Ative as notificações do navegador (botão no topo do Chat) para ser avisado quando a equipe iniciar uma conversa nova, mesmo com o Portal fechado.',
+  },
+  {
+    id: 'client-chat',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Chat com a equipe',
+    description:
+      'Novo item "Chat" no menu: uma conversa direta com a equipe, com texto, áudio gravado e anexos - sem precisar abrir um ticket para isso.',
+  },
+  {
+    id: 'client-ticket-ai',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Abrir chamado com IA',
+    description:
+      'Ao abrir um novo chamado, a opção "Abrir com IA" deixa você gravar um áudio ou escrever livremente - a IA preenche categoria, assunto e descrição para você revisar antes de confirmar.',
+  },
+  {
+    id: 'client-ticket-due-date',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'design',
+    title: 'Coluna "Prazo" na lista de chamados',
+    description:
+      'A lista de chamados passou a mostrar o prazo de cada um, no lugar da complexidade - informação que só interessa à equipe internamente.',
+  },
+];
+
+const VISIBLE_DAYS = 5;
+
+export const getVisiblePrincipalEntries = (
+  entries = PRINCIPAL_ENTRIES,
+  referenceDate = new Date()
+) =>
+  entries.filter(entry => {
+    const cutoff = new Date(`${entry.isoDate}T00:00:00`);
+    cutoff.setDate(cutoff.getDate() + VISIBLE_DAYS);
+    return referenceDate < cutoff;
+  });

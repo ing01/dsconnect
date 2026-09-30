@@ -78,11 +78,15 @@ export default {
     });
   },
 
-  // O Kanban: Mesas, Estágios e os tickets que este contato pode ver.
-  board(teamId) {
+  // O Kanban: Mesas, Empresas, Estágios e os tickets que este contato pode
+  // ver. `companyId` só estreita quando o contato tem mais de uma Empresa.
+  board(teamId, companyId) {
     return cliente.get(`${BASE}/tickets`, {
       headers: headers(),
-      params: teamId ? { team_id: teamId } : {},
+      params: {
+        ...(teamId ? { team_id: teamId } : {}),
+        ...(companyId ? { company_id: companyId } : {}),
+      },
     });
   },
 
@@ -158,11 +162,47 @@ export default {
     return cliente.get(`${BASE}/chat`, { headers: headers() });
   },
 
-  sendChatMessage(content) {
+  // Texto, audio gravado e/ou anexos - tudo na MESMA mensagem, por isso
+  // sempre multipart aqui (nunca sabe de antemao se so vem texto).
+  sendChatMessage({ content = '', attachments = [], audio = null } = {}) {
+    const form = new FormData();
+    if (content) form.append('content', content);
+    attachments.forEach(file => form.append('attachments[]', file));
+    if (audio) {
+      form.append('attachments[]', audio);
+      form.append('is_voice_message', 'true');
+    }
+
+    return cliente.post(`${BASE}/chat/messages`, form, {
+      headers: headers(),
+    });
+  },
+
+  // A inscricao de push (VAPID) do navegador do cliente - mesmo formato que o
+  // painel interno ja manda, so que autenticado como Contato.
+  registerPushSubscription(subscriptionAttributes) {
     return cliente.post(
-      `${BASE}/chat/messages`,
-      { content },
+      `${BASE}/push_subscription`,
+      { subscription_attributes: subscriptionAttributes },
       { headers: headers() }
     );
+  },
+
+  // A resposta da pesquisa de satisfacao mandada ao encerrar o chat.
+  submitChatCsat(messageId, { rating, feedbackMessage }) {
+    return cliente.patch(
+      `${BASE}/chat/messages/${messageId}`,
+      { rating, feedback_message: feedbackMessage },
+      { headers: headers() }
+    );
+  },
+
+  // As sessoes de chat ja encerradas - a de agora fica em `chat()`.
+  chatHistory() {
+    return cliente.get(`${BASE}/chat_history`, { headers: headers() });
+  },
+
+  chatHistoryConversation(id) {
+    return cliente.get(`${BASE}/chat_history/${id}`, { headers: headers() });
   },
 };

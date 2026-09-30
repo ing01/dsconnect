@@ -8,6 +8,51 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-portal-routing',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Roteamento automático do ticket do Portal, por prioridade da Empresa',
+    description:
+      'Ticket aberto pelo Portal do Cliente deixou de passar pela fila de Triagem manual - ele já cai na Mesa certa sozinho. Em Configurações > Tickets > Roteamento do Portal, dá para definir uma Mesa fixa por nível de prioridade da Empresa (Baixa/Média/Alta), que vale por cima da Categoria escolhida pelo cliente quando configurada. A Triagem manual continua existindo normalmente para os demais canais.',
+  },
+  {
+    id: 'client-portal-company-filter',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Filtro de Empresa no Portal do Cliente',
+    description:
+      'Contato vinculado a mais de uma Empresa agora pode filtrar a lista/Kanban de tickets do Portal por uma Empresa específica, no cabeçalho da tela.',
+  },
+  {
+    id: 'conversation-ai-ticket-draft',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: '"Abrir ticket automaticamente" na conversa',
+    description:
+      'No painel de tickets vinculados de uma conversa, novo botão "Abrir ticket automaticamente (IA)": a IA lê a conversa inteira e sugere Mesa, Categoria, título e descrição - o mesmo formulário de sempre já abre preenchido, e o atendente revisa e confirma antes de criar. Útil principalmente quando o próprio atendente inicia a conversa (ex: chat do Portal do Cliente), caso em que a automação de triagem não entra sozinha.',
+  },
+  {
+    id: 'client-portal-chat-full',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Chat do Portal do Cliente: histórico, avaliação e avisos',
+    description:
+      'O Chat do Portal do Cliente (item "Chat" no menu) evoluiu bastante: dá para gravar áudio e anexar arquivos na conversa; ao encerrar o atendimento, o cliente recebe um pedido de avaliação (nota de 1 a 5) direto no chat; conversas encerradas ficam guardadas em "Ver conversas anteriores", sem misturar com a atual; e o cliente pode ativar notificações do navegador para ser avisado quando a equipe chamar, mesmo com o Portal fechado (aviso por push e por e-mail na primeira mensagem de cada atendimento). O envio de mensagem no chat também ficou instantâneo (aparece na hora, sem esperar o servidor confirmar). Também é possível, pelo painel interno, iniciar uma conversa com o cliente pelo Chat do Portal (o mesmo "Nova Conversa" de sempre, escolhendo o canal "Portal do Cliente").',
+  },
+  {
+    id: 'client-portal-principal-page',
+    date: '30 de setembro de 2026',
+    isoDate: '2026-09-30',
+    type: 'feature',
+    title: 'Nova página "Principal" no Portal do Cliente',
+    description:
+      'O Portal do Cliente ganhou sua própria página inicial (mesmo esquema desta tela), com novidades do PORTAL especificamente - separada das novidades internas da equipe.',
+  },
+  {
     id: 'internal-chat-agent-photos',
     date: '30 de setembro de 2026',
     isoDate: '2026-09-30',

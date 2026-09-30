@@ -55,8 +55,11 @@ Rails.application.routes.draw do
         # nenhum - uma Conversation de verdade, visivel na tela de Conversas
         # dos atendentes.
         resource :chat, only: [:show], controller: 'chats' do
-          resources :messages, only: [:create], controller: 'chat_messages'
+          resources :messages, only: [:create, :update], controller: 'chat_messages'
         end
+        # O historico: sessoes de chat ja resolvidas, so leitura.
+        resources :chat_history, only: [:index, :show]
+        resource :push_subscription, only: [:create], controller: 'push_subscriptions'
         resources :teams, only: [:index]
         # Rascunho de ticket por IA (texto livre ou audio transcrito) - so
         # devolve categoria/titulo/descricao sugeridos, nunca cria o ticket.
@@ -224,6 +227,9 @@ Rails.application.routes.draw do
               resource :participants, only: [:show, :create, :update, :destroy]
               resource :direct_uploads, only: [:create]
               resource :draft_messages, only: [:show, :update, :destroy]
+              # "Abrir ticket automaticamente": a IA le a conversa e sugere
+              # Mesa/Categoria/titulo/descricao - o atendente ainda confirma.
+              resource :ticket_draft, only: [:create]
             end
             member do
               post :mute
@@ -442,6 +448,14 @@ Rails.application.routes.draw do
           # Configuracao de Atendimento: dias/horarios em que a triagem
           # automatica pode comecar - conta inteira, nao por Inbox/Mesa.
           resources :attendance_windows, only: [:index] do
+            collection do
+              post :bulk_update
+            end
+          end
+
+          # Roteamento automatico do ticket do Portal do Cliente, por nivel
+          # de prioridade da Empresa (Baixa/Media/Alta) - uma Mesa por nivel.
+          resources :ticket_routing_rules, only: [:index] do
             collection do
               post :bulk_update
             end

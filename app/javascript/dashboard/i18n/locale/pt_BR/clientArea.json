@@ -2,6 +2,15 @@
   "CLIENT_AREA": {
     "TITLE": "Área do Cliente",
     "LOGOUT": "Sair",
+    "PRINCIPAL": {
+      "GREETING_MORNING": "Bom dia, {name}!",
+      "GREETING_AFTERNOON": "Boa tarde, {name}!",
+      "GREETING_EVENING": "Boa noite, {name}!",
+      "DESCRIPTION": "Fique de olho aqui para saber quando tiver alguma novidade no Portal.",
+      "WHATS_NEW_TITLE": "Novidades do Portal",
+      "WHATS_NEW_SUBTITLE": "O que mudou por aqui recentemente.",
+      "WHATS_NEW_EMPTY": "Nenhuma novidade recente."
+    },
     "BOARD": {
       "TEAM": "Mesa de serviço",
       "COUNT": "{count} chamado(s)",
@@ -13,6 +22,8 @@
       "SEARCH": "Buscar por número ou título",
       "ALL_STATUSES": "Todos os status",
       "ALL_PRIORITIES": "Todas as prioridades",
+      "ALL_COMPANIES": "Todas as empresas",
+      "COMPANY_FILTER": "Empresa",
       "CLEAR_FILTERS": "Limpar filtros",
       "SHOW_COMPLETED": "Mostrar finalizados",
       "STATUS": "Status",
@@ -102,6 +113,7 @@
       "PENDING_TRIAGE": "Aguardando análise"
     },
     "MENU": {
+      "PRINCIPAL": "Principal",
       "TICKETS": "Tickets",
       "CHAT": "Chat",
       "NOTIFICATIONS": "Notificações",
@@ -116,7 +128,31 @@
       "PLACEHOLDER": "Escreva sua mensagem...",
       "TEAM": "Equipe",
       "ERROR": "Não foi possível abrir o chat.",
-      "SEND_ERROR": "Não foi possível enviar a mensagem."
+      "SEND_ERROR": "Não foi possível enviar a mensagem.",
+      "ATTACHMENT": "Anexo",
+      "RECORD": "Gravar áudio",
+      "STOP_RECORDING": "Parar ({duration})",
+      "RECORDED": "Áudio gravado.",
+      "RECORD_AGAIN": "Gravar de novo",
+      "RECORD_ERROR": "Não foi possível gravar o áudio.",
+      "ENABLE_PUSH": "Ativar notificações",
+      "PUSH_DENIED": "Não foi possível ativar as notificações do navegador.",
+      "HISTORY_LINK": "Ver conversas anteriores",
+      "CSAT": {
+        "TITLE": "Como você avalia este atendimento?",
+        "FEEDBACK_PLACEHOLDER": "Quer contar mais alguma coisa? (opcional)",
+        "SEND": "Enviar avaliação",
+        "THANKS": "Obrigado pela avaliação!",
+        "ERROR": "Não foi possível enviar sua avaliação."
+      }
+    },
+    "CHAT_HISTORY": {
+      "TITLE": "Conversas anteriores",
+      "DESCRIPTION": "Sessões de chat já encerradas com a equipe.",
+      "EMPTY": "Nenhuma conversa encerrada ainda.",
+      "ERROR": "Não foi possível carregar o histórico.",
+      "BACK": "Voltar ao chat",
+      "RESOLVED_AT": "Encerrada em {date}"
     },
     "NOTIFICATIONS": {
       "TITLE": "Notificações",

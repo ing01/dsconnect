@@ -146,6 +146,12 @@ class ConversationApi extends ApiClient {
   delete(conversationId) {
     return axios.delete(`${this.url}/${conversationId}`);
   }
+
+  // "Abrir ticket automaticamente": a IA le a conversa e devolve um rascunho
+  // (Mesa/Categoria/titulo/descricao) - nunca cria o ticket sozinha.
+  createTicketDraft(conversationId) {
+    return axios.post(`${this.url}/${conversationId}/ticket_draft`);
+  }
 }
 
 export default new ConversationApi();

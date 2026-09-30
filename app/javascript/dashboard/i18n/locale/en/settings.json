@@ -451,6 +451,7 @@
     "TICKET_PRIORITIES": "Priorities & SLA",
     "TICKET_AUTOMATION": "WhatsApp Automation",
     "TICKET_ATTENDANCE_SCHEDULE": "Attendance Schedule",
+    "TICKET_ROUTING": "Portal Routing",
     "TICKET_IMPORT": "Import",
     "PROJECT_SETTINGS": "Projects",
     "PROJECT_MODULES": "Modules",

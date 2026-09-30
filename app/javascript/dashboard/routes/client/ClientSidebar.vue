@@ -39,6 +39,13 @@ provideSidebarContext({});
 
 const itens = computed(() => [
   {
+    name: 'client_home',
+    label: t('CLIENT_AREA.MENU.PRINCIPAL'),
+    icon: 'i-lucide-home',
+    to: { name: 'client_home' },
+    activeOn: ['client_home'],
+  },
+  {
     name: 'client_tickets',
     label: t('CLIENT_AREA.MENU.TICKETS'),
     icon: 'i-lucide-ticket',
@@ -52,7 +59,7 @@ const itens = computed(() => [
     label: t('CLIENT_AREA.MENU.CHAT'),
     icon: 'i-lucide-message-circle',
     to: { name: 'client_chat' },
-    activeOn: ['client_chat'],
+    activeOn: ['client_chat', 'client_chat_history', 'client_chat_history_detail'],
   },
   {
     name: 'client_notifications',

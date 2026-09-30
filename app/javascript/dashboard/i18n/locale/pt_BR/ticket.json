@@ -420,9 +420,13 @@
       "COLUMN_LABEL": "Estágio",
       "ADD_MENU": {
         "CREATEKEEPOPEN": "Abrir ticket e manter chat em andamento",
+        "CREATEAIKEEPOPEN": "Abrir ticket automaticamente (IA)",
         "LINKKEEPOPEN": "Adicionar a ticket existente",
         "CREATEANDRESOLVE": "Finalizar e abrir ticket",
         "LINKANDRESOLVE": "Finalizar e adicionar a ticket existente"
+      },
+      "AI_DRAFT": {
+        "ERROR": "Não foi possível gerar o rascunho a partir da conversa."
       },
       "LINK_COMPANY_SCOPE": "Mostrando apenas tickets em aberto de {company}.",
       "LINK_NEEDS_COMPANY": "O contato desta conversa não está vinculado a nenhuma empresa, então não há tickets para vincular.",
@@ -749,6 +753,23 @@
           "SUCCESS": "Configuração de atendimento atualizada.",
           "ERROR": "Não foi possível atualizar a configuração de atendimento.",
           "LOAD_ERROR": "Não foi possível carregar os horários já configurados."
+        }
+      },
+      "CLIENT_PORTAL_ROUTING": {
+        "TITLE": "Roteamento do Portal do Cliente",
+        "DESCRIPTION": "Um ticket aberto pelo Portal do Cliente já cai direto na Mesa da Categoria escolhida, sem passar por Triagem manual. Aqui dá para definir uma Mesa fixa por nível de prioridade da Empresa - ela vale por cima da Categoria escolhida, quando configurada.",
+        "LEVELS": {
+          "1": "Prioridade Baixa",
+          "2": "Prioridade Média",
+          "3": "Prioridade Alta"
+        },
+        "ROW_HELP": "Ticket de Empresa deste nível cai direto nesta Mesa, não importa a Categoria escolhida.",
+        "NO_RULE": "Sem regra - usa a Mesa da Categoria escolhida",
+        "SAVE": "Salvar roteamento",
+        "API": {
+          "SUCCESS": "Roteamento do Portal atualizado.",
+          "ERROR": "Não foi possível atualizar o roteamento do Portal.",
+          "LOAD_ERROR": "Não foi possível carregar o roteamento já configurado."
         }
       },
       "IMPORT": {

@@ -16,6 +16,13 @@ json.teams @teams do |team|
   json.name team.name
 end
 
+# As Empresas do proprio contato - o filtro so aparece na tela quando ha mais
+# de uma (ver `ClientTicketsPage.vue`).
+json.companies @companies do |company|
+  json.id company.id
+  json.name company.name
+end
+
 json.ticket_columns @columns do |column|
   json.id column.id
   json.name column.name

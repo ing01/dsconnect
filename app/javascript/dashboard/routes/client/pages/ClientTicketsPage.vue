@@ -45,9 +45,10 @@ const { t } = useI18n();
 const router = useRouter();
 
 const isLoading = ref(true);
-const board = ref({ teams: [], ticket_columns: [], id: null });
+const board = ref({ teams: [], companies: [], ticket_columns: [], id: null });
 const categorias = ref([]);
 const selectedTeamId = ref(null);
+const selectedCompanyId = ref(null);
 const quickSearch = ref('');
 const sort = ref(null);
 const novoTicketDialog = ref(null);
@@ -58,6 +59,10 @@ const visao = ref(getTicketsView());
 const contact = computed(() => getClientSession()?.contact || {});
 const accountId = computed(() => contact.value.account_id);
 const teams = computed(() => board.value.teams || []);
+// So faz sentido mostrar o filtro quando ha o que filtrar - um contato com
+// uma unica Empresa ja ve so os tickets dela, sem escolha nenhuma.
+const companies = computed(() => board.value.companies || []);
+const showCompanyFilter = computed(() => companies.value.length > 1);
 
 // A busca rápida, aplicada sobre o quadro já carregado - o mesmo caminho do
 // Kanban interno. Não há filtro por responsável: quem atende é assunto da
@@ -109,7 +114,7 @@ const trocarVisao = escolhida => {
 const carregar = async (teamId = null) => {
   isLoading.value = true;
   try {
-    const { data } = await ClientAreaAPI.board(teamId);
+    const { data } = await ClientAreaAPI.board(teamId, selectedCompanyId.value);
     board.value = data;
     selectedTeamId.value = data.id;
     sort.value = readSortPreference(accountId.value, data.id);
@@ -123,6 +128,15 @@ const carregar = async (teamId = null) => {
 const selectTeam = teamId => {
   selectedTeamId.value = Number(teamId);
   carregar(Number(teamId));
+};
+
+const selectCompany = event => {
+  const valor = event.target.value;
+  selectedCompanyId.value = valor ? Number(valor) : null;
+  // Sem Mesa fixa: a Mesa "mais recente" pode mudar quando o filtro de
+  // Empresa muda (o ticket mais recente de OUTRA empresa pode ser de outra
+  // Mesa), do mesmo jeito que a carga inicial decide sozinha.
+  carregar();
 };
 
 const updateSort = novaOrdem => {
@@ -173,6 +187,23 @@ onMounted(() => carregar());
           :selected-team-id="selectedTeamId"
           @select="selectTeam"
         />
+
+        <select
+          v-if="showCompanyFilter"
+          :value="selectedCompanyId ?? ''"
+          class="flex-shrink-0 h-8 px-2 text-sm border rounded-lg border-n-weak bg-n-solid-1 text-n-slate-12 max-w-48"
+          :aria-label="t('CLIENT_AREA.BOARD.COMPANY_FILTER')"
+          @change="selectCompany"
+        >
+          <option value="">{{ t('CLIENT_AREA.BOARD.ALL_COMPANIES') }}</option>
+          <option
+            v-for="empresa in companies"
+            :key="empresa.id"
+            :value="empresa.id"
+          >
+            {{ empresa.name }}
+          </option>
+        </select>
 
         <!-- Lista ou Kanban. Os dois botões juntos, como um seletor: são duas
              formas de ler o MESMO conjunto, e não duas telas. -->

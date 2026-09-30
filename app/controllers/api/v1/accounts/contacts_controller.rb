@@ -81,6 +81,14 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def contactable_inboxes
+    # A caixa "Portal do Cliente" nasce so quando alguem usa o chat pela
+    # primeira vez - sem isto, um atendente que quer PUXAR conversa com um
+    # cliente que nunca abriu o chat nao veria a opcao aqui, porque a caixa
+    # simplesmente ainda nao existiria. So para quem TEM acesso ao Portal: o
+    # atendente nao deve ver uma opcao de canal que o contato nao consegue
+    # abrir do lado dele.
+    ::Inboxes::EnsureClientPortalInboxService.new(account: Current.account).perform if @contact.client_access?
+
     @all_contactable_inboxes = Contacts::ContactableInboxesService.new(contact: @contact).get
     @contactable_inboxes = @all_contactable_inboxes.select { |contactable_inbox| policy(contactable_inbox[:inbox]).show? }
   end

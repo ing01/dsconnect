@@ -20,15 +20,16 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   def index
     @teams = client_teams
     @team = pick_team
+    @companies = client_companies
     @columns = @team ? @team.ticket_columns.order(:position, :id) : TicketColumn.none
     # `operational`: resolvido, fechado e cancelado saem do quadro, como no
     # Kanban interno. Os includes sao os que o cartao le - sem eles o quadro
     # dispara uma consulta por ticket.
-    @tickets_by_column = visible_tickets.operational
-                                        .where(ticket_column_id: @columns.select(:id))
-                                        .includes(*BOARD_INCLUDES)
-                                        .order(:position, :id)
-                                        .group_by(&:ticket_column_id)
+    @tickets_by_column = tickets_scoped_by_company.operational
+                                                   .where(ticket_column_id: @columns.select(:id))
+                                                   .includes(*BOARD_INCLUDES)
+                                                   .order(:position, :id)
+                                                   .group_by(&:ticket_column_id)
   end
 
   def show; end
@@ -100,12 +101,28 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     Current.account.teams.active.visible_in_portal.order(:name)
   end
 
+  # As Empresas do proprio contato - so aparecem para quem tem mais de uma (o
+  # filtro do quadro so faz sentido quando ha o que filtrar).
+  def client_companies
+    Company.where(account_id: Current.account.id, id: current_contact.client_company_ids).order(:name)
+  end
+
+  # `visible_tickets` ja e' a fronteira; isto so ESTREITA para a Empresa
+  # escolhida no seletor - nunca para uma fora de `client_company_ids`, que
+  # `client_companies` garante de saida.
+  def tickets_scoped_by_company
+    return visible_tickets if params[:company_id].blank?
+
+    empresa = client_companies.find_by(id: params[:company_id])
+    empresa ? visible_tickets.where(company_id: empresa.id) : visible_tickets
+  end
+
   def pick_team
     return client_teams.find_by(id: params[:team_id]) if params[:team_id].present?
 
     # Sem escolha explicita, a Mesa do ticket mais recente dele - e onde ele
     # estava olhando da ultima vez, sem precisar escolher nada.
-    ultima = visible_tickets.order(created_at: :desc).first&.team
+    ultima = tickets_scoped_by_company.order(created_at: :desc).first&.team
     ultima || client_teams.first
   end
 
@@ -128,22 +145,44 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
 
   # O que o cliente escolheu, mais o que ele nao escolhe: Mesa de entrada,
   # Estagio, prioridade, Empresa e solicitante saem daqui, nunca dos parametros.
+  #
+  # A triagem manual (fila de Triagem) e' coisa de canal onde ninguem sabe
+  # ainda quem e' o cliente (e-mail, por exemplo) - aqui o contato ja esta
+  # AUTENTICADO como aquela Empresa, entao o Portal sempre roteia sozinho:
+  # pela regra de prioridade da Empresa quando existir (`routing_rule_for`,
+  # abaixo), senao pela Mesa da Categoria escolhida, como ja funcionava.
   def build_ticket(categoria)
-    team = categoria&.team || client_teams.first
+    empresa = company_for_new_ticket
+    regra = routing_rule_for(empresa)
+    team = regra&.team || categoria&.team || client_teams.first
+    # A regra de prioridade decide a MESA, nao a Categoria - uma Categoria de
+    # outra Mesa nao pode sobreviver a troca (validacao
+    # `ticket_category_belongs_to_team`), entao a entrada padrao da Mesa da
+    # regra assume o lugar da escolha do cliente.
+    categoria = nil if regra.present? && categoria&.team_id != team&.id
+
     ticket = Current.account.tickets.new(permitted_ticket_params)
     ticket.team = team
     ticket.ticket_column = entry_column(team)
     ticket.ticket_category = categoria || default_category(team)
     # Prioridade e obrigatoria no ticket, e deixou de ser escolha do cliente:
-    # quem atende define na triagem. "Media" e o ponto de partida neutro.
+    # quem atende define depois. "Media" e o ponto de partida neutro.
     ticket.priority = 'medium'
-    ticket.company_id = company_for_new_ticket
+    ticket.company_id = empresa
     ticket.contact_id = current_contact.id
     ticket.origin = 'client_area'
-    # A triagem e a porta: o chamado nao entra no Kanban da equipe sem alguem
-    # aceita-lo e dizer para onde vai.
-    ticket.pending_triage = true
+    # Sem fila de Triagem: o Portal ja roteia para a Mesa certa sozinho.
+    ticket.pending_triage = false
     ticket
+  end
+
+  def routing_rule_for(company_id)
+    return if company_id.blank?
+
+    company = Company.find_by(id: company_id, account_id: Current.account.id)
+    return if company.blank?
+
+    Current.account.ticket_routing_rules.find_by(client_level: company.client_level)
   end
 
   # Os arquivos enviados junto do formulario. Multipart, porque o cliente manda

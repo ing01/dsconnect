@@ -143,6 +143,14 @@ pt_BR:
       expires_in: Este link vale por %{hours} horas.
       ignore: Se não foi você quem pediu, ignore esta mensagem - sua senha atual continua valendo.
       regards: Atenciosamente, Duesoft Sistemas
+  client_chat_mailer:
+    new_message:
+      subject: Nova mensagem no chat do Portal do Cliente
+      greeting: "Olá %{name},"
+      intro: A equipe mandou uma mensagem para você no chat do Portal do Cliente.
+      action: Abrir o chat
+      fallback: 'Se o botão acima não funcionar, copie e cole este endereço no navegador:'
+      regards: Atenciosamente, Duesoft Sistemas
   ticket_customer_mailer:
     customer_message:
       greeting: "Olá %{contact}, da empresa %{company}."
@@ -587,6 +595,8 @@ pt_BR:
     chat:
       empty: Escreva uma mensagem antes de enviar.
       not_started: Abra a aba do chat antes de enviar uma mensagem.
+      push_title: Nova mensagem da equipe
+      push_body_fallback: Você recebeu uma nova mensagem no chat.
     unauthorized: Sessão inválida ou acesso à Área do Cliente desativado.
     invalid_credentials: E-mail ou senha inválidos.
     password:

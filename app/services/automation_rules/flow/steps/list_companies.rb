@@ -1,6 +1,11 @@
-# Quando o contato tem uma ou mais Empresas vinculadas, apresenta a(s)
-# opcao(oes) e espera a confirmacao/escolha do cliente - por numero, pelo
-# nome digitado, ou uma resposta afirmativa quando ha so uma empresa.
+# Identifica a Empresa do contato automaticamente, e so pergunta quando ha
+# ambiguidade de verdade.
+#
+# Um contato com UMA UNICA Empresa vinculada (o caso comum do Portal do
+# Cliente, onde quem escreve ja esta autenticado) e' identificado na hora, sem
+# nenhuma pergunta - perguntar "e' essa empresa mesmo?" para quem so tem uma
+# opcao e' atrito sem propósito. So quando ha MAIS de uma Empresa vinculada e'
+# que a escolha e' de verdade e o cliente precisa dizer qual.
 #
 # Um contato sem nenhuma Empresa vinculada (cliente novo pelo WhatsApp, por
 # exemplo) nao tem o que listar - segue pelo ramo `no_companies`, que o admin
@@ -13,13 +18,15 @@
 # loop pedindo a mesma escolha para sempre.
 #
 # Executada duas vezes, como a `Ask`: sem mensagem, pergunta e espera; com
-# mensagem, tenta casar a resposta.
+# mensagem, tenta casar a resposta. Com UMA empresa so, nem chega a "esperar":
+# resolve e segue no mesmo passo.
 class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps::Base
   MAX_ATTEMPTS = 2
   NEGATIVE_ANSWER = /\A\s*(n[aã]o\b|nenhuma?\b|outra\s+empresa)/i
 
   def perform
     return branch_no_companies if companies.empty?
+    return auto_select_only_company if companies.one?
 
     return ask_choice if message.blank?
 
@@ -27,6 +34,12 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
   end
 
   private
+
+  def auto_select_only_company
+    company = companies.first
+    remember(company)
+    continue(result: { company_id: company.id, auto_selected: true })
+  end
 
   def branch_no_companies
     target = step.dig('branches', 'no_companies')
@@ -52,16 +65,12 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
     wait(step['id'], result: { asked: companies.map(&:name) })
   end
 
+  # So chega aqui com mais de uma Empresa: com uma so, `perform` resolve antes
+  # de haver mensagem para montar.
   def list_message
     return rendered(:content) if rendered(:content).present?
 
-    companies.one? ? single_company_message : multiple_companies_message
-  end
-
-  def single_company_message
-    company = companies.first
-    "Pronto! Vi aqui que seu contato está na empresa #{company.name} (CNPJ #{company.cnpj}). " \
-      'Gostaria de falar sobre essa empresa? Responda "sim" ou informe o CNPJ de outra empresa.'
+    multiple_companies_message
   end
 
   def multiple_companies_message
@@ -86,7 +95,7 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
   end
 
   def match(answer)
-    by_index(answer) || by_cnpj(answer) || by_name(answer) || by_affirmation(answer)
+    by_index(answer) || by_cnpj(answer) || by_name(answer)
   end
 
   def by_index(answer)
@@ -98,9 +107,6 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
     companies[index - 1]
   end
 
-  # Quando so ha uma empresa apresentada, e natural o cliente "confirmar"
-  # repetindo o proprio CNPJ que acabou de ver na mensagem, em vez de
-  # responder "sim" - sem isso, essa resposta correta cai num retry inutil.
   def by_cnpj(answer)
     digits = answer.gsub(/\D/, '')
     return nil if digits.blank?
@@ -113,15 +119,6 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
 
     companies.find { |company| company.name.casecmp?(answer) } ||
       companies.find { |company| company.name.downcase.include?(answer.downcase) }
-  end
-
-  # "sim"/"pode ser"/etc so faz sentido quando havia uma unica empresa
-  # apresentada - com mais de uma nao ha o que confirmar sem dizer qual.
-  def by_affirmation(answer)
-    return nil unless companies.one?
-    return nil unless answer.match?(/\A\s*(sim|pode ser|isso|correto|exato)\b/i)
-
-    companies.first
   end
 
   def remember(company)

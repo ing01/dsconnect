@@ -420,9 +420,13 @@
       "COLUMN_LABEL": "Stage",
       "ADD_MENU": {
         "CREATEKEEPOPEN": "Open ticket and keep the chat going",
+        "CREATEAIKEEPOPEN": "Open ticket automatically (AI)",
         "LINKKEEPOPEN": "Add to an existing ticket",
         "CREATEANDRESOLVE": "Resolve and open ticket",
         "LINKANDRESOLVE": "Resolve and add to an existing ticket"
+      },
+      "AI_DRAFT": {
+        "ERROR": "Could not generate a draft from the conversation."
       },
       "LINK_COMPANY_SCOPE": "Showing only open tickets from {company}.",
       "LINK_NEEDS_COMPANY": "This conversation’s contact is not linked to any company, so there are no tickets to link.",
@@ -749,6 +753,23 @@
           "SUCCESS": "Attendance schedule updated.",
           "ERROR": "Could not update the attendance schedule.",
           "LOAD_ERROR": "Could not load the periods already configured."
+        }
+      },
+      "CLIENT_PORTAL_ROUTING": {
+        "TITLE": "Client Portal Routing",
+        "DESCRIPTION": "A ticket opened through the Client Portal already lands on the Mesa of the chosen Category, without manual Triage. Here you can set a fixed Mesa per company priority level - it overrides the chosen Category's Mesa when configured.",
+        "LEVELS": {
+          "1": "Low priority",
+          "2": "Medium priority",
+          "3": "High priority"
+        },
+        "ROW_HELP": "A ticket from a company at this level lands directly on this Mesa, regardless of the chosen Category.",
+        "NO_RULE": "No rule - use the chosen Category's Mesa",
+        "SAVE": "Save routing",
+        "API": {
+          "SUCCESS": "Portal routing updated.",
+          "ERROR": "Could not update the Portal routing.",
+          "LOAD_ERROR": "Could not load the routing already configured."
         }
       },
       "IMPORT": {

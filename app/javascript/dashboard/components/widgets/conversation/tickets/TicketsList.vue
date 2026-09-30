@@ -7,6 +7,7 @@ import { useAlert } from 'dashboard/composables';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import wootConstants from 'dashboard/constants/globals';
 import TicketsAPI from 'dashboard/api/tickets';
+import ConversationAPI from 'dashboard/api/inbox/conversation';
 import TicketCreateDialog from 'dashboard/routes/dashboard/tickets/components/create/TicketCreateDialog.vue';
 import LinkExistingTicket from './LinkExistingTicket.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -51,6 +52,11 @@ const shouldShowLinkModal = ref(false);
 // Set when the chosen flow ends by closing the conversation. The conversation is
 // only resolved AFTER the ticket exists and is linked, never before.
 const resolveAfterwards = ref(false);
+// Filled by "Abrir ticket automaticamente" before the create modal opens - the
+// same form the manual flow uses, just pre-filled from what the AI read out
+// of the conversation. Empty otherwise, so the manual flow is untouched.
+const aiDraft = ref(null);
+const isDraftingTicket = ref(false);
 
 const hasTickets = computed(() => tickets.value.length > 0);
 const linkedTicketIds = computed(() => tickets.value.map(ticket => ticket.id));
@@ -71,6 +77,7 @@ const creationContext = computed(() => ({
   companyName: companyName.value,
   contactId: companyId.value ? contact.value.id : null,
   contactName: contact.value.name || '',
+  ...(aiDraft.value || {}),
 }));
 
 // The four flows are two choices crossed: create a ticket or link an existing
@@ -79,6 +86,7 @@ const creationContext = computed(() => ({
 // destructive, because resolving a conversation is routine.
 const ADD_ACTIONS = [
   { value: 'createKeepOpen', flow: 'create', resolve: false, icon: 'i-lucide-plus' },
+  { value: 'createAiKeepOpen', flow: 'createAi', resolve: false, icon: 'i-lucide-sparkles' },
   { value: 'linkKeepOpen', flow: 'link', resolve: false, icon: 'i-lucide-link' },
   { value: 'createAndResolve', flow: 'create', resolve: true, icon: 'i-lucide-circle-check' },
   { value: 'linkAndResolve', flow: 'link', resolve: true, icon: 'i-lucide-circle-check' },
@@ -124,8 +132,44 @@ const unlinkTicket = async ticketId => {
   }
 };
 
+// A IA le a conversa inteira e devolve so um rascunho - o atendente ainda
+// revisa no MESMO formulario da criacao manual antes de confirmar. Por isso
+// so preenche `aiDraft` e abre o mesmo modal, em vez de criar o ticket aqui.
+const draftTicketWithAi = async () => {
+  isDraftingTicket.value = true;
+  try {
+    const { data } = await ConversationAPI.createTicketDraft(
+      props.conversationId
+    );
+    aiDraft.value = {
+      teamId: data.team_id || null,
+      ticketCategoryId: data.ticket_category_id || null,
+      title: data.title || '',
+      description: data.description || '',
+    };
+    shouldShowCreateModal.value = true;
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error
+        ? t('TICKET.CONVERSATION_PANEL.AI_DRAFT.ERROR')
+        : t('TICKET.API.ERROR_MESSAGE')
+    );
+  } finally {
+    isDraftingTicket.value = false;
+    // So agora, e nao no clique: fechar antes faria o botao (e o spinner de
+    // "gerando") sumir com o painel, sem a pessoa ver que algo aconteceu.
+    emit('close');
+  }
+};
+
 const chooseAction = action => {
   resolveAfterwards.value = action.resolve;
+
+  if (action.flow === 'createAi') {
+    draftTicketWithAi();
+    return;
+  }
+
   shouldShowCreateModal.value = action.flow === 'create';
   shouldShowLinkModal.value = action.flow === 'link';
   emit('close');
@@ -135,6 +179,7 @@ const closeModals = () => {
   shouldShowCreateModal.value = false;
   shouldShowLinkModal.value = false;
   resolveAfterwards.value = false;
+  aiDraft.value = null;
   loadTickets();
 };
 
@@ -266,10 +311,16 @@ onMounted(loadTickets);
             :key="action.value"
             type="button"
             :data-action="action.value"
-            class="flex items-center gap-2 px-2 py-2 text-left rounded-lg text-n-slate-12 hover:bg-n-alpha-2"
+            :disabled="action.flow === 'createAi' && isDraftingTicket"
+            class="flex items-center gap-2 px-2 py-2 text-left rounded-lg text-n-slate-12 hover:bg-n-alpha-2 disabled:opacity-60"
             @click="chooseAction(action)"
           >
+            <Spinner
+              v-if="action.flow === 'createAi' && isDraftingTicket"
+              class="flex-shrink-0 size-4"
+            />
             <Icon
+              v-else
               :icon="action.icon"
               class="flex-shrink-0 size-4 text-n-slate-11"
             />
