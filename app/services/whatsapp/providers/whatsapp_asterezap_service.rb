@@ -139,12 +139,15 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
     end
   end
 
-  # Prefixa o nome do atendente humano na mensagem que sai pro cliente.
+  # Prefixa o nome de quem enviou na mensagem que sai pro cliente.
   # Nao prefixa quando:
-  #   - nao tem sender (mensagem de sistema, importacao, etc.)
-  #   - o sender nao e um agente humano (bot, autoatendimento)
+  #   - nao tem sender (mensagem de automacao/regra, que grava sender_id nil -
+  #     `AgentBot` tambem cai aqui, nunca e' `is_a?(User)`)
   #   - o nome ja esta no inicio (evita "*Joao:* *Joao:* oi")
-  # Assim nao quebra automacoes nem respostas automaticas.
+  # `SuperAdmin` herda de `User` via STI e por isso E' prefixado aqui, de
+  # proposito: quando alguem responde autenticado como super admin (ex:
+  # suporte tecnico ajudando na conta), continua sendo uma pessoa de
+  # verdade escrevendo, nao uma automacao.
   def outgoing_content_with_agent_name(message)
     content = message.outgoing_content.to_s
     agent_name = agent_name_for(message)
@@ -158,7 +161,6 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
   def agent_name_for(message)
     sender = message.sender
     return nil unless sender.is_a?(User)
-    return nil if sender.bot? # opcional: nao prefixa bots
 
     sender.name.presence
   end
