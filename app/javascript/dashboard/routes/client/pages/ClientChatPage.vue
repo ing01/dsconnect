@@ -312,7 +312,7 @@ onBeforeUnmount(desconectar);
         <AudioRecorder
           v-if="isRecordingAudio"
           ref="audioRecorderRef"
-          :audio-record-format="AUDIO_FORMATS.MP3"
+          :audio-record-format="AUDIO_FORMATS.OGG"
           class="border rounded-lg border-n-weak"
           @recorder-progress-changed="onRecordProgressChanged"
           @finish-record="onFinishRecorder"

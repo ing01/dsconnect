@@ -158,6 +158,27 @@ class AutomationRules::Flow::DispatcherService
       run.write_variable('contato.id', contact.id)
       run.write_variable('contato.nome', contact.name)
       run.write_variable('contato.email', contact.email)
+      seed_known_company(run, contact)
+    end
+
+    # Quando o contato ja tem UMA UNICA Empresa vinculada (o caso do Portal do
+    # Cliente, autenticado - ao contrario do WhatsApp, que so descobre a
+    # Empresa perguntando o CNPJ), a variavel `empresa.*` ja sai pronta antes
+    # do fluxo comecar. Uma etapa `condition` checando `empresa.id` (`e'
+    # presente`) logo no inicio do fluxo pode entao pular direto para depois
+    # da identificacao, sem perguntar CNPJ de novo para quem ja esta
+    # logado. Com MAIS de uma Empresa, fica de fora de proposito: a escolha
+    # ali e' real, e quem decide isso e' a etapa `list_companies`/`find_company`
+    # do proprio fluxo.
+    def seed_known_company(run, contact)
+      empresas = contact.companies.to_a
+      return unless empresas.one?
+
+      empresa = empresas.first
+      run.write_variable('empresa.id', empresa.id)
+      run.write_variable('empresa.nome', empresa.name)
+      run.write_variable('empresa.cnpj', empresa.cnpj)
+      run.write_variable('empresa.nivel', empresa.client_level)
     end
 
     # `{{conta.telefone_suporte}}` fica disponivel pra qualquer mensagem do
