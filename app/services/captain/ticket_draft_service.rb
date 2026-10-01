@@ -8,6 +8,9 @@
 # Mesas visiveis no Portal para este cliente) - o cliente nunca escolhe Mesa
 # na tela normal de abertura, e a IA nao devia exigir isso so porque existe.
 class Captain::TicketDraftService < Captain::BaseTaskService
+  # `additionalProperties: false` e' exigido pela Groq (JSON Schema estrito)
+  # para qualquer objeto do schema - a OpenAI aceita sem isso, mas a Groq
+  # rejeita a chamada inteira ("invalid JSON schema for response_format").
   SCHEMA = {
     type: 'object',
     properties: {
@@ -15,7 +18,8 @@ class Captain::TicketDraftService < Captain::BaseTaskService
       title: { type: 'string' },
       description: { type: 'string' }
     },
-    required: %w[ticket_category_id title description]
+    required: %w[ticket_category_id title description],
+    additionalProperties: false
   }.freeze
 
   pattr_initialize [:account!, :categories!, :text!]
