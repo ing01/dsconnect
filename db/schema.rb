@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_02_150000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_02_160000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1272,6 +1272,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_02_150000) do
     t.string "representative_city"
     t.string "representative_state"
     t.string "representative_zip_code"
+    t.jsonb "extra_representatives", default: [], null: false
     t.index ["account_id"], name: "index_crm_clients_on_account_id"
   end
 

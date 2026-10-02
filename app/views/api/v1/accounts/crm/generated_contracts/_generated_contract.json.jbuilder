@@ -6,4 +6,6 @@ json.client_name generated_contract.client&.name
 json.crm_sale_id generated_contract.crm_sale_id
 json.pdf_url generated_contract.pdf_url
 json.pdf_name generated_contract.pdf_name
+json.docx_url generated_contract.docx_url
+json.docx_name generated_contract.docx_name
 json.created_at generated_contract.created_at.to_i

@@ -26,6 +26,8 @@ class Crm::Contracts::GenerationService
 
       pdf_path = convert_to_pdf(filled_path, dir)
 
+      base_filename = "#{@template.name.parameterize}-#{@client.name.parameterize}"
+
       contract = Crm::GeneratedContract.new(
         account_id: @template.account_id,
         template: @template,
@@ -35,8 +37,13 @@ class Crm::Contracts::GenerationService
       )
       contract.pdf.attach(
         io: File.open(pdf_path),
-        filename: "#{@template.name.parameterize}-#{@client.name.parameterize}.pdf",
+        filename: "#{base_filename}.pdf",
         content_type: 'application/pdf'
+      )
+      contract.docx.attach(
+        io: File.open(filled_path),
+        filename: "#{base_filename}.docx",
+        content_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       )
       contract.save!
       contract

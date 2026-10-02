@@ -40,6 +40,16 @@
         "REPRESENTATIVE_ZIP_CODE": "CEP do representante"
       },
       "CONTRACT_DATA_SECTION": "Dados para contrato (preenche uma vez, reaproveita em todos os modelos)",
+      "EXTRA_REPRESENTATIVES": {
+        "TITLE": "Representantes extras (quando houver mais de um)",
+        "HINT": "So para consulta - o contrato gerado automaticamente entra so com o representante principal acima; os demais voce acrescenta a mao no Word (o modelo gerado agora tambem fica disponivel em .docx, alem do PDF).",
+        "ADD": "+ Representante",
+        "NAME": "Nome",
+        "CPF": "CPF",
+        "BIRTH_DATE": "Nascimento",
+        "PHONE": "Telefone",
+        "ADDRESS": "Endereco completo"
+      },
       "FORM": {
         "SAVE": "Salvar",
         "CANCEL": "Cancelar"
@@ -141,6 +151,7 @@
         "CLIENT": "Cliente",
         "SALE": "Venda (opcional)",
         "FIELDS_HINT": "Deixe em branco o que o cadastro do cliente ja souber responder - so preencha o que for especifico deste contrato.",
+        "EXTRA_REPRESENTATIVES_HINT": "Este cliente tem {count} representante(s) extra cadastrado(s) - o PDF/Word gerado entra so com o representante principal; acrescente os demais a mao no Word.",
         "SUBMIT": "Gerar PDF"
       },
       "LIST": {
@@ -148,7 +159,8 @@
         "EMPTY": "Nenhum contrato gerado ainda.",
         "TEMPLATE": "Modelo",
         "CLIENT": "Cliente",
-        "DOWNLOAD": "Baixar PDF"
+        "DOWNLOAD": "Baixar PDF",
+        "DOWNLOAD_WORD": "Baixar Word"
       }
     }
   }

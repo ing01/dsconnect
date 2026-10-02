@@ -40,6 +40,16 @@
         "REPRESENTATIVE_ZIP_CODE": "Representative zip code"
       },
       "CONTRACT_DATA_SECTION": "Contract data (fill once, reused across every template)",
+      "EXTRA_REPRESENTATIVES": {
+        "TITLE": "Extra representatives (when there's more than one)",
+        "HINT": "Reference only - the auto-generated contract only includes the main representative above; add the others by hand in Word (the generated contract is now also available as .docx, besides the PDF).",
+        "ADD": "+ Representative",
+        "NAME": "Name",
+        "CPF": "Tax ID",
+        "BIRTH_DATE": "Birth date",
+        "PHONE": "Phone",
+        "ADDRESS": "Full address"
+      },
       "FORM": {
         "SAVE": "Save",
         "CANCEL": "Cancel"
@@ -141,6 +151,7 @@
         "CLIENT": "Client",
         "SALE": "Sale (optional)",
         "FIELDS_HINT": "Leave blank anything the client registry already knows - only fill in what's specific to this contract.",
+        "EXTRA_REPRESENTATIVES_HINT": "This client has {count} extra representative(s) registered - the generated PDF/Word only includes the main representative; add the others by hand in Word.",
         "SUBMIT": "Generate PDF"
       },
       "LIST": {
@@ -148,7 +159,8 @@
         "EMPTY": "No contract generated yet.",
         "TEMPLATE": "Template",
         "CLIENT": "Client",
-        "DOWNLOAD": "Download PDF"
+        "DOWNLOAD": "Download PDF",
+        "DOWNLOAD_WORD": "Download Word"
       }
     }
   }

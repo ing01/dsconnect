@@ -48,9 +48,24 @@ const emptyForm = () => ({
   representative_city: '',
   representative_state: '',
   representative_zip_code: '',
+  extra_representatives: [],
 });
 const form = ref(emptyForm());
 const showContractData = ref(false);
+
+const addExtraRepresentative = () => {
+  form.value.extra_representatives.push({
+    name: '',
+    cpf: '',
+    birth_date: '',
+    phone: '',
+    address: '',
+  });
+};
+
+const removeExtraRepresentative = index => {
+  form.value.extra_representatives.splice(index, 1);
+};
 
 const fetchClients = async () => {
   isLoading.value = true;
@@ -197,6 +212,35 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
           size="sm"
         />
+      </div>
+
+      <div v-if="showContractData" class="flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-n-slate-11">{{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.TITLE') }}</span>
+          <button class="text-xs text-n-brand" @click="addExtraRepresentative">
+            {{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.ADD') }}
+          </button>
+        </div>
+        <p class="text-[11px] text-n-slate-11">{{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.HINT') }}</p>
+        <div
+          v-for="(representative, index) in form.extra_representatives"
+          :key="index"
+          class="grid grid-cols-[2fr_1fr_1fr_1fr_2fr_auto] gap-2 items-end"
+        >
+          <Input v-model="representative.name" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.NAME')" size="sm" />
+          <Input v-model="representative.cpf" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.CPF')" size="sm" />
+          <Input
+            v-model="representative.birth_date"
+            type="date"
+            :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.BIRTH_DATE')"
+            size="sm"
+          />
+          <Input v-model="representative.phone" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.PHONE')" size="sm" />
+          <Input v-model="representative.address" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.ADDRESS')" size="sm" />
+          <button class="mb-1 text-n-ruby-9" @click="removeExtraRepresentative(index)">
+            <i class="i-lucide-trash-2 size-4" />
+          </button>
+        </div>
       </div>
 
       <div class="flex gap-2 justify-end">

@@ -46,7 +46,8 @@ class Api::V1::Accounts::Crm::ClientsController < Api::V1::Accounts::BaseControl
       :address_neighborhood, :city, :state, :zip_code,
       :representative_name, :representative_cpf, :representative_birth_date, :representative_phone,
       :representative_address_street, :representative_address_number, :representative_address_complement,
-      :representative_neighborhood, :representative_city, :representative_state, :representative_zip_code
+      :representative_neighborhood, :representative_city, :representative_state, :representative_zip_code,
+      extra_representatives: [:name, :cpf, :birth_date, :phone, :address]
     )
   end
 end

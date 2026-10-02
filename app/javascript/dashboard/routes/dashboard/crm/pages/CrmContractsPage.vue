@@ -46,6 +46,11 @@ const clientSales = computed(() =>
   sales.value.filter(sale => sale.crm_client_id === Number(selectedClientId.value))
 );
 
+const selectedClientExtraRepresentatives = computed(() => {
+  const client = clients.value.find(c => c.id === Number(selectedClientId.value));
+  return client?.extra_representatives || [];
+});
+
 const fetchAll = async () => {
   isLoading.value = true;
   try {
@@ -210,6 +215,10 @@ onMounted(fetchAll);
         </div>
       </div>
 
+      <p v-if="selectedClientExtraRepresentatives.length" class="mb-3 text-xs text-n-amber-11">
+        {{ t('CRM.CONTRACTS.GENERATE.EXTRA_REPRESENTATIVES_HINT', { count: selectedClientExtraRepresentatives.length }) }}
+      </p>
+
       <div v-if="selectedTemplate" class="mb-4">
         <p class="mb-2 text-xs text-n-slate-11">{{ t('CRM.CONTRACTS.GENERATE.FIELDS_HINT') }}</p>
         <div class="grid grid-cols-3 gap-3">
@@ -242,6 +251,7 @@ onMounted(fetchAll);
             <th class="py-2">{{ t('CRM.CONTRACTS.LIST.TEMPLATE') }}</th>
             <th class="py-2">{{ t('CRM.CONTRACTS.LIST.CLIENT') }}</th>
             <th class="py-2">{{ t('CRM.CONTRACTS.LIST.DOWNLOAD') }}</th>
+            <th class="py-2">{{ t('CRM.CONTRACTS.LIST.DOWNLOAD_WORD') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -251,6 +261,11 @@ onMounted(fetchAll);
             <td class="py-2">
               <a :href="contract.pdf_url" target="_blank" rel="noopener" class="text-n-brand">
                 {{ t('CRM.CONTRACTS.LIST.DOWNLOAD') }}
+              </a>
+            </td>
+            <td class="py-2">
+              <a v-if="contract.docx_url" :href="contract.docx_url" target="_blank" rel="noopener" class="text-n-brand">
+                {{ t('CRM.CONTRACTS.LIST.DOWNLOAD_WORD') }}
               </a>
             </td>
           </tr>

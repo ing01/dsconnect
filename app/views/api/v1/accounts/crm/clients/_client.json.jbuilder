@@ -25,4 +25,5 @@ json.representative_neighborhood client.representative_neighborhood
 json.representative_city client.representative_city
 json.representative_state client.representative_state
 json.representative_zip_code client.representative_zip_code
+json.extra_representatives client.extra_representatives
 json.created_at client.created_at.to_i
