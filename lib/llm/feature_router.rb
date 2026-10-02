@@ -36,9 +36,18 @@ module Llm::FeatureRouter
       return model if Llm::Models.valid_model_for?(feature_key, model)
     end
 
-    def installation_model_override(feature_key)
-      return unless feature_key == 'conversation_completion'
-      return unless ChatwootApp.self_hosted_enterprise?
+    # CAPTAIN_OPEN_AI_MODEL (Super Admin > Configuracoes > Captain) e' a
+    # troca de provider de toda a instalacao (ex.: Groq) - antes so' valia
+    # para a feature 'conversation_completion' e so' em instalacao Enterprise
+    # self-hosted, entao' as demais features Captain (editor/rewrite, reply
+    # suggestion, resumo, FAQ, etc.) continuavam resolvendo pro modelo OpenAI
+    # padrao mesmo com a chave/endpoint ja' apontando pra outro provider -
+    # resultando em erro (modelo inexistente no provider configurado). So'
+    # continua restrito no Chatwoot Cloud (SaaS multi-tenant de verdade),
+    # onde uma config de servidor nao deveria valer por cima da escolha de
+    # cada conta paga.
+    def installation_model_override(_feature_key)
+      return if ChatwootApp.chatwoot_cloud?
 
       InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence
     end

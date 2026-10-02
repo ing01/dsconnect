@@ -24,6 +24,8 @@ class Captain::RewriteService < Captain::BaseTaskService
   end
 
   def improve
+    return { error: 'Conversation not found' } if conversation.blank?
+
     template = prompt_from_file('improve')
 
     system_prompt = render_liquid_template(template, {
