@@ -7,6 +7,7 @@
  * segunda linguagem visual só faria parecer remendo.
  */
 import { computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import ClientAreaAPI from 'dashboard/api/clientArea';
 import { useAlert } from 'dashboard/composables';
@@ -26,6 +27,14 @@ import ClientSidebar from './ClientSidebar.vue';
 const { t } = useI18n({ useScope: 'global' });
 
 const contact = computed(() => getClientSession()?.contact || {});
+
+// Some nas telas do proprio chat (ativo ou historico) - abrir um atalho para
+// a tela em que a pessoa ja esta seria inutil, so ocupando espaco por cima
+// do conteudo.
+const route = useRoute();
+const showChatShortcut = computed(
+  () => !['client_chat', 'client_chat_history', 'client_chat_history_detail'].includes(route.name)
+);
 
 // Duas coisas diferentes: no desktop a barra RECOLHE (vira um trilho de
 // ícones); no celular ela ABRE e FECHA como gaveta.
@@ -145,6 +154,19 @@ const instalarApp = async () => {
       <main class="flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden">
         <router-view />
       </main>
+
+      <!-- Flutua sobre o conteudo em qualquer tela do Portal, para a pessoa
+           nao precisar abrir o menu lateral toda vez que quiser falar com a
+           equipe. -->
+      <router-link
+        v-if="showChatShortcut"
+        :to="{ name: 'client_chat' }"
+        class="fixed z-20 flex items-center justify-center text-white rounded-full shadow-lg bottom-6 right-6 size-14 bg-n-brand hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+        :aria-label="t('CLIENT_AREA.CHAT.FLOATING_BUTTON')"
+        :title="t('CLIENT_AREA.CHAT.FLOATING_BUTTON')"
+      >
+        <Icon icon="i-lucide-message-circle" class="size-6" />
+      </router-link>
     </div>
   </div>
 </template>

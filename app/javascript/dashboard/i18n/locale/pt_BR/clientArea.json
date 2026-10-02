@@ -132,6 +132,7 @@
       "TOGGLE": "Menu"
     },
     "CHAT": {
+      "FLOATING_BUTTON": "Falar com a equipe",
       "TITLE": "Chat",
       "DESCRIPTION": "Fale diretamente com a equipe.",
       "EMPTY": "Mande uma mensagem para começar a falar com a equipe.",
