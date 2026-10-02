@@ -6,12 +6,17 @@
  * mesmo Button): para o cliente é outro sistema, mas é o mesmo produto, e uma
  * segunda linguagem visual só faria parecer remendo.
  */
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import ClientAreaAPI from 'dashboard/api/clientArea';
 import { useAlert } from 'dashboard/composables';
 import { useAppInstallPrompt } from 'dashboard/composables/useAppInstallPrompt';
+import {
+  clientPushPermission,
+  ensureClientPushSubscribed,
+  requestClientPushPermission,
+} from 'dashboard/helper/clientPushHelper';
 import {
   getClientSession,
   clearClientSession,
@@ -33,7 +38,12 @@ const contact = computed(() => getClientSession()?.contact || {});
 // do conteudo.
 const route = useRoute();
 const showChatShortcut = computed(
-  () => !['client_chat', 'client_chat_history', 'client_chat_history_detail'].includes(route.name)
+  () =>
+    ![
+      'client_chat',
+      'client_chat_history',
+      'client_chat_history_detail',
+    ].includes(route.name)
 );
 
 // Duas coisas diferentes: no desktop a barra RECOLHE (vira um trilho de
@@ -71,15 +81,38 @@ const sair = async () => {
   window.location.assign('/app/login');
 };
 
-const { isIosSafari, isInstallable, instalarApp: instalarAppBase } =
-  useAppInstallPrompt();
+const {
+  isIosSafari,
+  isInstallable,
+  instalarApp: instalarAppBase,
+} = useAppInstallPrompt();
 
 const instalarApp = async () => {
   const installed = await instalarAppBase();
-  if (!installed && isIosSafari) {
-    useAlert(t('CLIENT_AREA.INSTALL_APP_IOS_HINT'));
+  if (!installed) {
+    if (isIosSafari) useAlert(t('CLIENT_AREA.INSTALL_APP_IOS_HINT'));
+    return;
+  }
+
+  // Quem acabou de instalar é quem mais claramente quer ser avisado -
+  // pergunta a notificação no mesmo instante, em vez de esperar a pessoa achar
+  // o botão na tela de chat. Só pede quando ainda não houve resposta
+  // ('default'): se já foi negada, perguntar de novo só incomoda, e se já foi
+  // concedida por outro caminho, `ensureClientPushSubscribed` (abaixo) já
+  // resolve.
+  if (clientPushPermission() === 'default') {
+    await requestClientPushPermission();
   }
 };
+
+// A inscrição de push pode já estar concedida sem que o SERVIDOR saiba - o
+// Android pergunta sozinho ao instalar o app, e também dá para ligar direto
+// nas Configurações do aparelho. Garantida aqui, no enquadramento de toda a
+// Área do Cliente, e não só na tela de chat: é o que cobre quem acabou de
+// instalar e ainda nem abriu aquela tela.
+onMounted(() => {
+  ensureClientPushSubscribed();
+});
 </script>
 
 <template>
@@ -101,7 +134,10 @@ const instalarApp = async () => {
         <h1 class="m-0 text-base font-medium truncate text-n-slate-12">
           {{ t('CLIENT_AREA.TITLE') }}
         </h1>
-        <p v-if="contact.company_name" class="m-0 text-xs truncate text-n-slate-11">
+        <p
+          v-if="contact.company_name"
+          class="m-0 text-xs truncate text-n-slate-11"
+        >
           {{ contact.company_name }}
         </p>
       </div>

@@ -40,6 +40,36 @@ export const clientPushSupported = () =>
 export const clientPushPermission = () =>
   clientPushSupported() ? Notification.permission : 'unsupported';
 
+// Garante a inscricao quando a permissao JA esta concedida, sem pedir nada -
+// `subscribe()` nao exige gesto do usuario quando a permissao ja foi dada,
+// so `requestPermission()` exige.
+//
+// Existe porque a permissao pode ter sido concedida por um caminho que nunca
+// passou pelo nosso botao: o Android pergunta sozinho ao instalar o app como
+// PWA, e tambem da para ligar a notificacao direto nas Configuracoes do
+// aparelho. Nos dois casos `Notification.permission` vira 'granted' sem que
+// `registerSubscription` seja chamado - e sem ele nao existe
+// `ClientPushSubscription` nenhuma no servidor para onde mandar o aviso. A
+// pessoa achava que tinha ativado e nunca recebia nada.
+//
+// Chamado no boot da Area do Cliente (`ClientLayout.vue`), nao so na tela de
+// chat: e o que cobre quem acabou de instalar e nunca abriu aquela tela.
+// Idempotente dos dois lados - o navegador devolve a MESMA inscricao se ja
+// existir, e o servidor so acha-ou-cria pelo endpoint
+// (`PushSubscriptionsController#create`) -, entao chamar de novo a cada boot
+// nao duplica nada.
+export const ensureClientPushSubscribed = () => {
+  if (!clientPushSupported()) return Promise.resolve(false);
+  if (Notification.permission !== 'granted') return Promise.resolve(false);
+
+  return registerSubscription()
+    .then(() => true)
+    .catch(error => {
+      console.error('Client push subscription failed:', error);
+      return false;
+    });
+};
+
 // So chamado a partir de um clique - pedir permissao sem gesto do usuario e'
 // ignorado (ou pior, queima a unica chance) na maioria dos navegadores.
 export const requestClientPushPermission = () => {

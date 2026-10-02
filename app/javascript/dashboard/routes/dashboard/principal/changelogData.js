@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-push-subscription-after-install',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'fix',
+    title: 'Notificação do Portal não chegava para quem já tinha permitido',
+    description:
+      'Quem instalava o Portal do Cliente como app e permitia as notificações direto pelo Android ou pelas Configurações do aparelho, sem passar pelo botão da tela de chat, nunca chegava a receber nada - a permissão ficava concedida no navegador, mas o servidor nunca sabia o endereço para onde mandar o aviso. Agora a Area do Cliente confere isso ao abrir, em qualquer tela, e completa a inscrição sozinha quando a permissão já está concedida. Instalar o app pelo botão do cabeçalho também passou a perguntar a notificação na hora, em vez de esperar a pessoa achar o botão do chat.',
+  },
+  {
     id: 'client-chat-notification-polish',
     date: '2 de outubro de 2026',
     isoDate: '2026-10-02',
