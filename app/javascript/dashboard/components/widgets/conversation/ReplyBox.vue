@@ -260,9 +260,8 @@ export default {
         this.currentChat?.meta?.assignee_type === 'AgentBot'
       );
     },
-    // Conversa resolvida fica bloqueada para mensagem publica ate' reabrir -
-    // nota privada continua liberada (e' so' registro interno, nao incomoda o
-    // cliente nem reabre nada sozinha).
+    // Conversa resolvida fica bloqueada ate' reabrir - TUDO, inclusive nota
+    // privada (pedido explicito: nao enviar nada em nenhuma hipotese).
     isConversationResolved() {
       return this.currentChat?.status === wootConstants.STATUS_TYPE.RESOLVED;
     },
@@ -274,7 +273,7 @@ export default {
     },
     messagePlaceHolder() {
       if (this.isEditorDisabled) {
-        if (this.isConversationResolved && !this.isOnPrivateNote) {
+        if (this.isConversationResolved) {
           return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_RESOLVED');
         }
         if (this.isAssignedToAnotherAgent) {
@@ -515,7 +514,7 @@ export default {
       return !this.showAudioRecorderEditor && !this.copilot.isActive.value;
     },
     isEditorDisabled() {
-      if (this.isConversationResolved && !this.isOnPrivateNote) return true;
+      if (this.isConversationResolved) return true;
       if (this.isAssignedToAnotherAgent && !this.isOnPrivateNote) return true;
 
       return (

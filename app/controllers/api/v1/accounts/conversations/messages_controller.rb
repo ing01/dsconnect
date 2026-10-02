@@ -90,13 +90,13 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
     message.translations.present? && message.translations[permitted_params[:target_language]].present?
   end
 
-  # Conversa resolvida nao aceita mensagem PUBLICA ate' reabrir - nota privada
-  # continua liberada (e' so' registro interno). Mesma restricao de
-  # `Current.user.blank?` da checagem de atribuicao: automacao/API/bot nao
-  # passam por aqui como "Current.user", entao ficam de fora de proposito.
+  # Conversa resolvida nao aceita NENHUMA mensagem ate' reabrir - nem publica
+  # nem nota privada (pedido explicito: nao enviar nada em nenhuma hipotese).
+  # Mesma restricao de `Current.user.blank?` da checagem de atribuicao:
+  # automacao/API/bot nao passam por aqui como "Current.user", entao ficam de
+  # fora de proposito.
   def ensure_conversation_not_resolved
     return if Current.user.blank?
-    return if reply_private?
     return unless @conversation.resolved?
 
     render json: { error: I18n.t('errors.conversation.must_reopen_to_reply') }, status: :forbidden
