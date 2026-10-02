@@ -60,6 +60,10 @@ class TicketsAPI extends ApiClient {
     return axios.patch(`${this.url}/${id}/close`);
   }
 
+  summarizeConversation(id, signal) {
+    return axios.post(`${this.url}/${id}/summarize_conversation`, {}, { signal });
+  }
+
   getComments(ticketId) {
     return axios.get(`${this.url}/${ticketId}/comments`);
   }

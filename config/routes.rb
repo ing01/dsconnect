@@ -517,6 +517,7 @@ Rails.application.routes.draw do
               post :merge
               post :duplicate
               post :add_sla_hours
+              post :summarize_conversation
             end
             resources :ticket_conversations, only: [:create, :destroy]
             resources :comments, controller: 'ticket_comments', only: [:index, :create, :destroy]

@@ -14,7 +14,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   # rubocop:disable Rails/LexicallyScopedActionFilter
   before_action :fetch_ticket, only: [:show, :update, :destroy, :move, :resolve, :reopen, :close, :cancel, :classify,
                                       :transfer, :create_child, :set_parent, :merge, :duplicate, :assign_to_me,
-                                      :add_sla_hours, :block, :unblock, :approve_triage]
+                                      :add_sla_hours, :block, :unblock, :approve_triage, :summarize_conversation]
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :check_authorization
 
@@ -171,6 +171,19 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     )
     fetch_ticket
     render 'show'
+  end
+
+  # So' le a(s) Conversation(s) vinculada(s) e devolve um texto pronto - quem
+  # chama decide se usa como descricao (nao salva nada aqui, igual ao
+  # "Resumir Conversa" do chat do atendente).
+  def summarize_conversation
+    result = Captain::TicketSummaryService.new(account: Current.account, ticket: @ticket).perform
+
+    if result[:error]
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    else
+      render json: { message: result[:message] }
+    end
   end
 
   # Children are `dependent: :nullify` (Ticket#children, see TicketRelatable) -
