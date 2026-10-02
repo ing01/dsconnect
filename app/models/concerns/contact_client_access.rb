@@ -101,6 +101,21 @@ module ContactClientAccess
     sees_company? ? escopo : escopo.where(contact_id: id)
   end
 
+  # As manifestacoes de SAC que este contato pode ver.
+  #
+  # Mesma fronteira dos tickets, pela mesma razao - e de proposito que a
+  # permissao reaproveitada e `client_tickets_visibility`: quem foi autorizado a
+  # ver os chamados da empresa toda ve tambem as manifestacoes dela, e quem so ve
+  # os proprios chamados so ve as proprias manifestacoes. Um segundo campo de
+  # permissao sobre a mesma pergunta daria duas respostas para administrar.
+  def visible_manifestations
+    empresas = client_company_ids
+    return Manifestation.none if empresas.empty?
+
+    escopo = account.manifestations.where(company_id: empresas)
+    sees_company? ? escopo : escopo.where(contact_id: id)
+  end
+
   # O token de sessao. E o mesmo AccessToken que o resto do sistema usa, so que
   # com o contato como dono - nao ha tabela de sessao de cliente.
   def client_access_token

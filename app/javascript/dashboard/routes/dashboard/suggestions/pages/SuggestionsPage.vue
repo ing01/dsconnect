@@ -112,13 +112,19 @@ const createSuggestion = async ({
     createDialog.value?.close();
     useAlert(t('SUGGESTIONS.CREATE.SUCCESS_MESSAGE'));
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE'));
+    useAlert(
+      parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE')
+    );
   } finally {
     isCreating.value = false;
   }
 };
 
-const moveSuggestion = async ({ suggestionId, suggestionColumnId, position }) => {
+const moveSuggestion = async ({
+  suggestionId,
+  suggestionColumnId,
+  position,
+}) => {
   if (!canManage.value) return;
   try {
     await store.dispatch('suggestions/move', {
@@ -127,7 +133,9 @@ const moveSuggestion = async ({ suggestionId, suggestionColumnId, position }) =>
       position,
     });
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE'));
+    useAlert(
+      parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE')
+    );
     loadBoard();
   }
 };
@@ -137,7 +145,9 @@ const deleteSuggestion = async suggestion => {
     await store.dispatch('suggestions/delete', suggestion.id);
     useAlert(t('SUGGESTIONS.API.DELETE_SUCCESS'));
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE'));
+    useAlert(
+      parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE')
+    );
   }
 };
 
@@ -147,7 +157,9 @@ const updateSuggestion = async patch => {
   try {
     await store.dispatch('suggestions/update', patch);
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE'));
+    useAlert(
+      parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE')
+    );
     loadBoard();
   }
 };
@@ -155,10 +167,19 @@ const updateSuggestion = async patch => {
 const goToColumnSettings = () => {
   router.push({ name: 'suggestion_columns_list' });
 };
+
+// O SAC: as manifestacoes que os CLIENTES mandam pelo Portal. Fica aqui, e nao
+// num item proprio do menu, porque sao os dois canais de sugestao do produto -
+// este quadro recebe o que vem da equipe, e aquela tela o que vem de fora.
+const goToManifestations = () => {
+  router.push({ name: 'manifestations_index' });
+};
 </script>
 
 <template>
-  <div class="flex flex-col w-full h-full min-h-0 min-w-0 p-4 gap-4 bg-n-surface-1">
+  <div
+    class="flex flex-col w-full h-full min-h-0 min-w-0 p-4 gap-4 bg-n-surface-1"
+  >
     <header class="flex items-center justify-between flex-shrink-0">
       <div>
         <h1 class="text-xl font-semibold text-n-slate-12">
@@ -168,21 +189,31 @@ const goToColumnSettings = () => {
           {{ t('SUGGESTIONS.HEADER.SUBTITLE') }}
         </p>
       </div>
-      <div v-if="canManage" class="flex items-center gap-2">
+      <div class="flex items-center gap-2">
         <NextButton
           faded
           slate
           size="sm"
-          icon="i-lucide-settings"
-          :label="t('SUGGESTIONS.HEADER.CONFIGURE_COLUMNS')"
-          @click="goToColumnSettings"
+          icon="i-lucide-megaphone"
+          :label="t('SUGGESTIONS.HEADER.VIEW_SAC')"
+          @click="goToManifestations"
         />
-        <NextButton
-          size="sm"
-          icon="i-lucide-plus"
-          :label="t('SUGGESTIONS.HEADER.ADD_BUTTON')"
-          @click="openCreateDialog"
-        />
+        <template v-if="canManage">
+          <NextButton
+            faded
+            slate
+            size="sm"
+            icon="i-lucide-settings"
+            :label="t('SUGGESTIONS.HEADER.CONFIGURE_COLUMNS')"
+            @click="goToColumnSettings"
+          />
+          <NextButton
+            size="sm"
+            icon="i-lucide-plus"
+            :label="t('SUGGESTIONS.HEADER.ADD_BUTTON')"
+            @click="openCreateDialog"
+          />
+        </template>
       </div>
     </header>
 
@@ -261,7 +292,10 @@ const goToColumnSettings = () => {
     </div>
 
     <main class="flex-1 flex flex-col min-h-0 min-w-0">
-      <div v-if="uiFlags.isFetching && !columns.length" class="flex items-center justify-center flex-1">
+      <div
+        v-if="uiFlags.isFetching && !columns.length"
+        class="flex items-center justify-center flex-1"
+      >
         <Spinner size="lg" />
       </div>
       <SuggestionBoard

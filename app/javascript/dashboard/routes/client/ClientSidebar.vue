@@ -55,11 +55,25 @@ const itens = computed(() => [
     activeOn: ['client_tickets', 'client_ticket_detail'],
   },
   {
+    name: 'client_manifestations',
+    label: t('CLIENT_AREA.MENU.SAC'),
+    icon: 'i-lucide-megaphone',
+    to: { name: 'client_manifestations' },
+    // O detalhe continua sendo "SAC e Sugestoes", pela mesma razao do detalhe
+    // do chamado: sair do item ativo faria o menu perder a referencia de onde
+    // se esta.
+    activeOn: ['client_manifestations', 'client_manifestation_detail'],
+  },
+  {
     name: 'client_chat',
     label: t('CLIENT_AREA.MENU.CHAT'),
     icon: 'i-lucide-message-circle',
     to: { name: 'client_chat' },
-    activeOn: ['client_chat', 'client_chat_history', 'client_chat_history_detail'],
+    activeOn: [
+      'client_chat',
+      'client_chat_history',
+      'client_chat_history_detail',
+    ],
   },
   {
     name: 'client_notifications',
@@ -127,7 +141,9 @@ const larguraDesktop = computed(() =>
       >
         <Icon
           :icon="
-            isCollapsed ? 'i-lucide-panel-left-open' : 'i-lucide-panel-left-close'
+            isCollapsed
+              ? 'i-lucide-panel-left-open'
+              : 'i-lucide-panel-left-close'
           "
           class="size-5 flex-shrink-0"
         />

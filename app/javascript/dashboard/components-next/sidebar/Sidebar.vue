@@ -559,11 +559,21 @@ const menuItems = computed(() => {
       activeOn: ['implementation_reports_index'],
     },
     {
+      // Um item para os dois canais de sugestao: o quadro INTERNO da equipe e o
+      // SAC dos CLIENTES, que se alcanca por um botao dentro da pagina. Dois
+      // itens de menu com nomes parecidos faziam a equipe abrir o errado.
+      //
+      // Por isso o item continua ativo nas rotas do SAC: sair do item ativo ao
+      // entrar la faria o menu perder a referencia de onde se esta.
       name: 'Suggestions',
       label: t('SIDEBAR.SUGGESTIONS'),
       icon: 'i-lucide-lightbulb',
       to: accountScopedRoute('suggestions_index'),
-      activeOn: ['suggestions_index'],
+      activeOn: [
+        'suggestions_index',
+        'manifestations_index',
+        'manifestation_detail',
+      ],
     },
     {
       // Aparece para administrador ou quem tem `commercial_manage` - o

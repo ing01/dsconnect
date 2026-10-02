@@ -117,6 +117,7 @@
     "MENU": {
       "PRINCIPAL": "Home",
       "TICKETS": "Tickets",
+      "SAC": "Customer feedback",
       "CHAT": "Chat",
       "NOTIFICATIONS": "Notifications",
       "COLLAPSE": "Collapse menu",
