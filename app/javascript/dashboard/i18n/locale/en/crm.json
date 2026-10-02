@@ -133,6 +133,14 @@
       "HEADER": "Contracts",
       "DESCRIPTION": "Upload templates (.docx with [[like-this]] markers) and generate the filled-in PDF for a client.",
       "ERROR": "Could not load the contracts.",
+      "TOKEN_HELP": {
+        "BUTTON": "What does each field mean?",
+        "CLOSE": "Close",
+        "TITLE": "Fields used in contract templates",
+        "DESCRIPTION": "Reference for whoever edits a .docx template or creates a new one - every [[token]] found in the file becomes a field in the generation form. Fields with a warning were reused by Ingrid for more than one piece of information in the same template (the same value shows up in both places in the contract).",
+        "TOKEN": "Template marker",
+        "MEANING": "What it means"
+      },
       "UPLOAD_ERROR": "Could not upload the template.",
       "DELETE_TEMPLATE_CONFIRM": "Delete this contract template?",
       "DELETE_TEMPLATE_ERROR": "Could not delete the template.",

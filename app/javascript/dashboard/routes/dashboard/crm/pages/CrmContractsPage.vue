@@ -18,8 +18,14 @@ import CrmSalesAPI from 'dashboard/api/crmSales';
 import ReportHeader from '../../settings/reports/components/ReportHeader.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
+import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
+import { CRM_CONTRACT_TOKEN_HELP } from '../crmContractTokenHelp';
 
 const { t } = useI18n();
+
+const tokenHelpDialogRef = ref(null);
+const tokenHelpEntries = Object.entries(CRM_CONTRACT_TOKEN_HELP);
+const openTokenHelp = () => tokenHelpDialogRef.value?.open();
 
 const templates = ref([]);
 const clients = ref([]);
@@ -138,8 +144,43 @@ onMounted(fetchAll);
 
 <template>
   <div class="flex-1 overflow-auto p-4">
-    <ReportHeader :header-title="t('CRM.CONTRACTS.HEADER')" />
+    <div class="flex items-center justify-between gap-3">
+      <ReportHeader :header-title="t('CRM.CONTRACTS.HEADER')" />
+      <Button
+        faded
+        slate
+        size="sm"
+        icon="i-lucide-circle-help"
+        :label="t('CRM.CONTRACTS.TOKEN_HELP.BUTTON')"
+        @click="openTokenHelp"
+      />
+    </div>
     <p class="mb-4 text-sm text-n-slate-11">{{ t('CRM.CONTRACTS.DESCRIPTION') }}</p>
+
+    <Dialog
+      ref="tokenHelpDialogRef"
+      width="2xl"
+      overflow-y-auto
+      :show-confirm-button="false"
+      :cancel-button-label="t('CRM.CONTRACTS.TOKEN_HELP.CLOSE')"
+      :title="t('CRM.CONTRACTS.TOKEN_HELP.TITLE')"
+      :description="t('CRM.CONTRACTS.TOKEN_HELP.DESCRIPTION')"
+    >
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="text-left text-n-slate-11 border-b border-n-weak">
+            <th class="py-2 pr-3">{{ t('CRM.CONTRACTS.TOKEN_HELP.TOKEN') }}</th>
+            <th class="py-2">{{ t('CRM.CONTRACTS.TOKEN_HELP.MEANING') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="[token, meaning] in tokenHelpEntries" :key="token" class="border-b border-n-weak align-top">
+            <td class="py-2 pr-3 font-mono whitespace-nowrap text-n-slate-12">[[{{ token }}]]</td>
+            <td class="py-2 text-n-slate-11">{{ meaning }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </Dialog>
 
     <div class="p-4 mb-6 rounded-xl border border-n-weak bg-n-solid-2">
       <h3 class="mb-3 text-sm font-medium text-n-slate-12">{{ t('CRM.CONTRACTS.TEMPLATES.TITLE') }}</h3>

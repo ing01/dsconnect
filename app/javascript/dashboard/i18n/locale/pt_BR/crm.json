@@ -133,6 +133,14 @@
       "HEADER": "Contratos",
       "DESCRIPTION": "Suba os modelos (.docx com marcadores [[assim]]) e gere o PDF preenchido para um cliente.",
       "ERROR": "Nao foi possivel carregar os contratos.",
+      "TOKEN_HELP": {
+        "BUTTON": "O que significa cada campo?",
+        "CLOSE": "Fechar",
+        "TITLE": "Campos usados nos modelos de contrato",
+        "DESCRIPTION": "Referencia para quem for editar um modelo .docx ou criar um novo - cada [[token]] encontrado no arquivo vira um campo no formulario de geracao. Campos com aviso foram reaproveitados pela Ingrid para mais de uma informacao no mesmo modelo (o mesmo valor aparece nos dois lugares no contrato).",
+        "TOKEN": "Marcador no modelo",
+        "MEANING": "O que representa"
+      },
       "UPLOAD_ERROR": "Nao foi possivel subir o modelo.",
       "DELETE_TEMPLATE_CONFIRM": "Excluir este modelo de contrato?",
       "DELETE_TEMPLATE_ERROR": "Nao foi possivel excluir o modelo.",
