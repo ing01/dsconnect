@@ -233,6 +233,7 @@ en:
       presence: must not be blank
     conversation:
       must_be_assigned_to_reply: This conversation is assigned to another agent. Assign it to yourself to reply.
+      must_reopen_to_reply: This conversation is resolved. Reopen it to reply.
     chat_message:
       not_allowed_to_post: Somente as pessoas autorizadas podem escrever neste canal.
       not_allowed_to_delete: Você pode apagar apenas as suas próprias mensagens.
@@ -695,6 +696,8 @@ en:
     upgrade: 'Upgrade your plan to enable Captain AI'
     disabled: 'Captain AI is disabled for this account.'
     api_key_missing: 'Captain AI API key is not configured.'
+    ticket_summary:
+      no_conversation: 'This ticket has no linked conversation to summarize.'
     copilot:
       using_tool: 'Using tool %{function_name}'
       completed_tool_call: 'Completed %{function_name} tool call'
@@ -832,6 +835,9 @@ en:
   automation:
     system_name: 'Automation System'
   crm:
+    dashboard:
+      unassigned_seller: 'No seller'
+      no_channel: 'Not informed'
     no_message: 'No messages in conversation'
     attachment: '[Attachment: %{type}]'
     no_content: '[No content]'

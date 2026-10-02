@@ -260,6 +260,11 @@ export default {
         this.currentChat?.meta?.assignee_type === 'AgentBot'
       );
     },
+    // Conversa resolvida fica bloqueada ate' reabrir - TUDO, inclusive nota
+    // privada (pedido explicito: nao enviar nada em nenhuma hipotese).
+    isConversationResolved() {
+      return this.currentChat?.status === wootConstants.STATUS_TYPE.RESOLVED;
+    },
     inboxId() {
       return this.currentChat.inbox_id;
     },
@@ -268,6 +273,9 @@ export default {
     },
     messagePlaceHolder() {
       if (this.isEditorDisabled) {
+        if (this.isConversationResolved) {
+          return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_RESOLVED');
+        }
         if (this.isAssignedToAnotherAgent) {
           return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_ASSIGNED', {
             name: this.assignedAgent?.name,
@@ -506,6 +514,7 @@ export default {
       return !this.showAudioRecorderEditor && !this.copilot.isActive.value;
     },
     isEditorDisabled() {
+      if (this.isConversationResolved) return true;
       if (this.isAssignedToAnotherAgent && !this.isOnPrivateNote) return true;
 
       return (

@@ -227,6 +227,7 @@ pt_BR:
       presence: não pode ficar em branco
     conversation:
       must_be_assigned_to_reply: Esta conversa está atribuída a outro atendente. Atribua a você mesmo para responder.
+      must_reopen_to_reply: Esta conversa está resolvida. Reabra-a para responder.
     chat_message:
       not_allowed_to_post: Somente as pessoas autorizadas podem escrever neste canal.
       not_allowed_to_delete: Você pode apagar apenas as suas próprias mensagens.
@@ -688,6 +689,8 @@ pt_BR:
     upgrade: 'Atualize seu plano para habilitar o Capitão IA'
     disabled: 'O Capitão IA está desativado para esta conta.'
     api_key_missing: 'A chave de API do Capitão IA não está configurada.'
+    ticket_summary:
+      no_conversation: 'Este ticket não tem conversa vinculada para resumir.'
     copilot:
       using_tool: 'Usando a ferramenta %{function_name}'
       completed_tool_call: 'Uso da ferramenta %{function_name} concluída'
@@ -823,6 +826,9 @@ pt_BR:
   automation:
     system_name: 'Sistema de Automação'
   crm:
+    dashboard:
+      unassigned_seller: 'Sem vendedor'
+      no_channel: 'Não informado'
     no_message: 'Nenhuma mensagem na conversa'
     attachment: '[Anexo: %{type}]'
     no_content: '[Sem conteúdo]'

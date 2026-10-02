@@ -393,6 +393,8 @@
     "IMPLEMENTATION_REPORTS": "Implementation Reports",
     "CRM_CLIENTS": "Commercial Clients",
     "CRM_SALES": "Sales",
+    "CRM_DASHBOARD": "Commercial Dashboard",
+    "CRM_CONTRACTS": "Contracts",
     "SUGGESTIONS": "Suggestions and Improvements",
     "SUGGESTIONS_SETTINGS": "Suggestions and Improvements",
     "PRINCIPAL": "Home",

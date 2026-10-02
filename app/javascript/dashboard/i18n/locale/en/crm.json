@@ -17,7 +17,38 @@
         "CONTACT_NAME": "Contact name",
         "PHONE": "Phone",
         "EMAIL": "Email",
-        "NOTES": "Notes"
+        "NOTES": "Notes",
+        "TRADE_NAME": "Trade name",
+        "STATE_REGISTRATION": "State registration",
+        "ADDRESS_STREET": "Address",
+        "ADDRESS_NUMBER": "Number",
+        "ADDRESS_COMPLEMENT": "Complement",
+        "ADDRESS_NEIGHBORHOOD": "Neighborhood",
+        "CITY": "City",
+        "STATE": "State",
+        "ZIP_CODE": "Zip code",
+        "REPRESENTATIVE_NAME": "Representative name",
+        "REPRESENTATIVE_CPF": "Representative Tax ID",
+        "REPRESENTATIVE_BIRTH_DATE": "Representative birth date",
+        "REPRESENTATIVE_PHONE": "Representative phone",
+        "REPRESENTATIVE_ADDRESS_STREET": "Representative address",
+        "REPRESENTATIVE_ADDRESS_NUMBER": "Representative address number",
+        "REPRESENTATIVE_ADDRESS_COMPLEMENT": "Representative address complement",
+        "REPRESENTATIVE_NEIGHBORHOOD": "Representative neighborhood",
+        "REPRESENTATIVE_CITY": "Representative city",
+        "REPRESENTATIVE_STATE": "Representative state",
+        "REPRESENTATIVE_ZIP_CODE": "Representative zip code"
+      },
+      "CONTRACT_DATA_SECTION": "Contract data (fill once, reused across every template)",
+      "EXTRA_REPRESENTATIVES": {
+        "TITLE": "Extra representatives (when there's more than one)",
+        "HINT": "Reference only - the auto-generated contract only includes the main representative above; add the others by hand in Word (the generated contract is now also available as .docx, besides the PDF).",
+        "ADD": "+ Representative",
+        "NAME": "Name",
+        "CPF": "Tax ID",
+        "BIRTH_DATE": "Birth date",
+        "PHONE": "Phone",
+        "ADDRESS": "Full address"
       },
       "FORM": {
         "SAVE": "Save",
@@ -72,6 +103,72 @@
       "TOTALS": {
         "IMPLEMENTATION": "Total implementation",
         "MONTHLY": "Total monthly"
+      }
+    },
+    "DASHBOARD": {
+      "HEADER": "Commercial Dashboard",
+      "DESCRIPTION": "Same view as the old standalone commercial panel: totals, trend and seller/product/channel ranking.",
+      "PERIOD": "Period",
+      "ALL_PERIODS": "All periods",
+      "ERROR": "Could not load the dashboard.",
+      "EMPTY": "No data for this period.",
+      "KPIS": {
+        "IMPLEMENTATION": "Total implementation",
+        "MONTHLY": "Total monthly",
+        "SALES_COUNT": "Sales",
+        "UNIQUE_CLIENTS": "Unique clients",
+        "AVG_TICKET": "Average ticket (implementation)"
+      },
+      "TREND": {
+        "TITLE": "Monthly trend (implementation / monthly)"
+      },
+      "RANKING": {
+        "SELLERS": "Seller ranking",
+        "PRODUCTS": "Product ranking",
+        "CHANNELS": "Channel ranking",
+        "CLIENTS_SUFFIX": "clients"
+      }
+    },
+    "CONTRACTS": {
+      "HEADER": "Contracts",
+      "DESCRIPTION": "Upload templates (.docx with [[like-this]] markers) and generate the filled-in PDF for a client.",
+      "ERROR": "Could not load the contracts.",
+      "TOKEN_HELP": {
+        "BUTTON": "What does each field mean?",
+        "CLOSE": "Close",
+        "TITLE": "Fields used in contract templates",
+        "DESCRIPTION": "Reference for whoever edits a .docx template or creates a new one - every [[token]] found in the file becomes a field in the generation form. Fields with a warning were reused by Ingrid for more than one piece of information in the same template (the same value shows up in both places in the contract).",
+        "TOKEN": "Template marker",
+        "MEANING": "What it means"
+      },
+      "UPLOAD_ERROR": "Could not upload the template.",
+      "DELETE_TEMPLATE_CONFIRM": "Delete this contract template?",
+      "DELETE_TEMPLATE_ERROR": "Could not delete the template.",
+      "GENERATE_ERROR": "Could not generate the contract.",
+      "TEMPLATES": {
+        "TITLE": "Contract templates",
+        "NAME": "Template name",
+        "UPLOAD": "Upload template",
+        "TOKENS": "Fields found",
+        "ACTIONS": "Actions",
+        "EMPTY": "No template uploaded yet."
+      },
+      "GENERATE": {
+        "TITLE": "Generate contract",
+        "TEMPLATE": "Template",
+        "CLIENT": "Client",
+        "SALE": "Sale (optional)",
+        "FIELDS_HINT": "Leave blank anything the client registry already knows - only fill in what's specific to this contract.",
+        "EXTRA_REPRESENTATIVES_HINT": "This client has {count} extra representative(s) registered - the generated PDF/Word only includes the main representative; add the others by hand in Word.",
+        "SUBMIT": "Generate PDF"
+      },
+      "LIST": {
+        "TITLE": "Generated contracts",
+        "EMPTY": "No contract generated yet.",
+        "TEMPLATE": "Template",
+        "CLIENT": "Client",
+        "DOWNLOAD": "Download PDF",
+        "DOWNLOAD_WORD": "Download Word"
       }
     }
   }

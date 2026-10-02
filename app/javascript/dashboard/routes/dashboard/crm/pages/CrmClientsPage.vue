@@ -28,8 +28,44 @@ const emptyForm = () => ({
   phone: '',
   email: '',
   notes: '',
+  trade_name: '',
+  state_registration: '',
+  address_street: '',
+  address_number: '',
+  address_complement: '',
+  address_neighborhood: '',
+  city: '',
+  state: '',
+  zip_code: '',
+  representative_name: '',
+  representative_cpf: '',
+  representative_birth_date: '',
+  representative_phone: '',
+  representative_address_street: '',
+  representative_address_number: '',
+  representative_address_complement: '',
+  representative_neighborhood: '',
+  representative_city: '',
+  representative_state: '',
+  representative_zip_code: '',
+  extra_representatives: [],
 });
 const form = ref(emptyForm());
+const showContractData = ref(false);
+
+const addExtraRepresentative = () => {
+  form.value.extra_representatives.push({
+    name: '',
+    cpf: '',
+    birth_date: '',
+    phone: '',
+    address: '',
+  });
+};
+
+const removeExtraRepresentative = index => {
+  form.value.extra_representatives.splice(index, 1);
+};
 
 const fetchClients = async () => {
   isLoading.value = true;
@@ -52,12 +88,8 @@ const openNew = () => {
 const openEdit = client => {
   editingId.value = client.id;
   form.value = {
-    name: client.name,
-    cnpj: client.cnpj,
-    contact_name: client.contact_name,
-    phone: client.phone,
-    email: client.email,
-    notes: client.notes,
+    ...emptyForm(),
+    ...client,
   };
   isFormOpen.value = true;
 };
@@ -126,6 +158,91 @@ onMounted(fetchClients);
         rows="2"
         class="w-full p-2 text-sm rounded-lg border border-n-weak bg-n-solid-1 text-n-slate-12"
       />
+
+      <button
+        class="self-start text-xs text-n-brand"
+        @click="showContractData = !showContractData"
+      >
+        {{ t('CRM.CLIENTS.CONTRACT_DATA_SECTION') }} {{ showContractData ? '▲' : '▼' }}
+      </button>
+
+      <div v-if="showContractData" class="grid grid-cols-3 gap-3">
+        <Input v-model="form.trade_name" :label="t('CRM.CLIENTS.FIELDS.TRADE_NAME')" size="sm" />
+        <Input v-model="form.state_registration" :label="t('CRM.CLIENTS.FIELDS.STATE_REGISTRATION')" size="sm" />
+        <Input v-model="form.address_street" :label="t('CRM.CLIENTS.FIELDS.ADDRESS_STREET')" size="sm" />
+        <Input v-model="form.address_number" :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')" size="sm" />
+        <Input v-model="form.address_complement" :label="t('CRM.CLIENTS.FIELDS.ADDRESS_COMPLEMENT')" size="sm" />
+        <Input v-model="form.address_neighborhood" :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NEIGHBORHOOD')" size="sm" />
+        <Input v-model="form.city" :label="t('CRM.CLIENTS.FIELDS.CITY')" size="sm" />
+        <Input v-model="form.state" :label="t('CRM.CLIENTS.FIELDS.STATE')" size="sm" />
+        <Input v-model="form.zip_code" :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')" size="sm" />
+        <Input v-model="form.representative_name" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NAME')" size="sm" />
+        <Input v-model="form.representative_cpf" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CPF')" size="sm" />
+        <Input
+          v-model="form.representative_birth_date"
+          type="date"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
+          size="sm"
+        />
+        <Input v-model="form.representative_phone" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')" size="sm" />
+        <Input
+          v-model="form.representative_address_street"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
+          size="sm"
+        />
+        <Input
+          v-model="form.representative_address_number"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
+          size="sm"
+        />
+        <Input
+          v-model="form.representative_address_complement"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_COMPLEMENT')"
+          size="sm"
+        />
+        <Input
+          v-model="form.representative_neighborhood"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
+          size="sm"
+        />
+        <Input v-model="form.representative_city" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')" size="sm" />
+        <Input v-model="form.representative_state" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE')" size="sm" />
+        <Input
+          v-model="form.representative_zip_code"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
+          size="sm"
+        />
+      </div>
+
+      <div v-if="showContractData" class="flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-n-slate-11">{{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.TITLE') }}</span>
+          <button class="text-xs text-n-brand" @click="addExtraRepresentative">
+            {{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.ADD') }}
+          </button>
+        </div>
+        <p class="text-[11px] text-n-slate-11">{{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.HINT') }}</p>
+        <div
+          v-for="(representative, index) in form.extra_representatives"
+          :key="index"
+          class="grid grid-cols-[2fr_1fr_1fr_1fr_2fr_auto] gap-2 items-end"
+        >
+          <Input v-model="representative.name" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.NAME')" size="sm" />
+          <Input v-model="representative.cpf" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.CPF')" size="sm" />
+          <Input
+            v-model="representative.birth_date"
+            type="date"
+            :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.BIRTH_DATE')"
+            size="sm"
+          />
+          <Input v-model="representative.phone" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.PHONE')" size="sm" />
+          <Input v-model="representative.address" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.ADDRESS')" size="sm" />
+          <button class="mb-1 text-n-ruby-9" @click="removeExtraRepresentative(index)">
+            <i class="i-lucide-trash-2 size-4" />
+          </button>
+        </div>
+      </div>
+
       <div class="flex gap-2 justify-end">
         <Button variant="faded" color="slate" :label="t('CRM.CLIENTS.FORM.CANCEL')" @click="closeForm" />
         <Button :label="t('CRM.CLIENTS.FORM.SAVE')" :is-loading="isSaving" @click="save" />

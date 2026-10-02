@@ -207,6 +207,8 @@ class Account < ApplicationRecord
   # Painel de CRM Comercial - cadastro proprio, independente de `companies`.
   has_many :crm_clients, class_name: 'Crm::Client', dependent: :destroy_async
   has_many :crm_sales, class_name: 'Crm::Sale', dependent: :destroy_async
+  has_many :crm_contract_templates, class_name: 'Crm::ContractTemplate', dependent: :destroy_async
+  has_many :crm_generated_contracts, class_name: 'Crm::GeneratedContract', dependent: :destroy_async
   has_many :project_modules, dependent: :destroy_async
   # Quadro de Sugestoes de melhoria - 1 por conta, nao por Mesa.
   has_many :suggestion_categories, dependent: :destroy_async

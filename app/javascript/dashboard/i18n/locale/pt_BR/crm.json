@@ -17,7 +17,38 @@
         "CONTACT_NAME": "Nome do contato",
         "PHONE": "Telefone",
         "EMAIL": "E-mail",
-        "NOTES": "Observacoes"
+        "NOTES": "Observacoes",
+        "TRADE_NAME": "Nome fantasia",
+        "STATE_REGISTRATION": "Inscricao estadual",
+        "ADDRESS_STREET": "Endereco",
+        "ADDRESS_NUMBER": "Numero",
+        "ADDRESS_COMPLEMENT": "Complemento",
+        "ADDRESS_NEIGHBORHOOD": "Bairro",
+        "CITY": "Cidade",
+        "STATE": "UF",
+        "ZIP_CODE": "CEP",
+        "REPRESENTATIVE_NAME": "Nome do representante",
+        "REPRESENTATIVE_CPF": "CPF do representante",
+        "REPRESENTATIVE_BIRTH_DATE": "Data de nascimento do representante",
+        "REPRESENTATIVE_PHONE": "Telefone do representante",
+        "REPRESENTATIVE_ADDRESS_STREET": "Endereco do representante",
+        "REPRESENTATIVE_ADDRESS_NUMBER": "Numero do endereco do representante",
+        "REPRESENTATIVE_ADDRESS_COMPLEMENT": "Complemento do endereco do representante",
+        "REPRESENTATIVE_NEIGHBORHOOD": "Bairro do representante",
+        "REPRESENTATIVE_CITY": "Cidade do representante",
+        "REPRESENTATIVE_STATE": "UF do representante",
+        "REPRESENTATIVE_ZIP_CODE": "CEP do representante"
+      },
+      "CONTRACT_DATA_SECTION": "Dados para contrato (preenche uma vez, reaproveita em todos os modelos)",
+      "EXTRA_REPRESENTATIVES": {
+        "TITLE": "Representantes extras (quando houver mais de um)",
+        "HINT": "So para consulta - o contrato gerado automaticamente entra so com o representante principal acima; os demais voce acrescenta a mao no Word (o modelo gerado agora tambem fica disponivel em .docx, alem do PDF).",
+        "ADD": "+ Representante",
+        "NAME": "Nome",
+        "CPF": "CPF",
+        "BIRTH_DATE": "Nascimento",
+        "PHONE": "Telefone",
+        "ADDRESS": "Endereco completo"
       },
       "FORM": {
         "SAVE": "Salvar",
@@ -72,6 +103,72 @@
       "TOTALS": {
         "IMPLEMENTATION": "Total implantacao",
         "MONTHLY": "Total mensalidade"
+      }
+    },
+    "DASHBOARD": {
+      "HEADER": "Indicadores Comercial",
+      "DESCRIPTION": "Mesma visao do painel comercial antigo: totais, tendencia e ranking de vendedor, produto e canal.",
+      "PERIOD": "Periodo",
+      "ALL_PERIODS": "Todos os periodos",
+      "ERROR": "Nao foi possivel carregar os indicadores.",
+      "EMPTY": "Sem dados para este periodo.",
+      "KPIS": {
+        "IMPLEMENTATION": "Total implantacao",
+        "MONTHLY": "Total mensalidade",
+        "SALES_COUNT": "Vendas",
+        "UNIQUE_CLIENTS": "Clientes unicos",
+        "AVG_TICKET": "Ticket medio (implantacao)"
+      },
+      "TREND": {
+        "TITLE": "Tendencia mensal (implantacao / mensalidade)"
+      },
+      "RANKING": {
+        "SELLERS": "Ranking de vendedores",
+        "PRODUCTS": "Ranking de produtos",
+        "CHANNELS": "Ranking de canais",
+        "CLIENTS_SUFFIX": "clientes"
+      }
+    },
+    "CONTRACTS": {
+      "HEADER": "Contratos",
+      "DESCRIPTION": "Suba os modelos (.docx com marcadores [[assim]]) e gere o PDF preenchido para um cliente.",
+      "ERROR": "Nao foi possivel carregar os contratos.",
+      "TOKEN_HELP": {
+        "BUTTON": "O que significa cada campo?",
+        "CLOSE": "Fechar",
+        "TITLE": "Campos usados nos modelos de contrato",
+        "DESCRIPTION": "Referencia para quem for editar um modelo .docx ou criar um novo - cada [[token]] encontrado no arquivo vira um campo no formulario de geracao. Campos com aviso foram reaproveitados pela Ingrid para mais de uma informacao no mesmo modelo (o mesmo valor aparece nos dois lugares no contrato).",
+        "TOKEN": "Marcador no modelo",
+        "MEANING": "O que representa"
+      },
+      "UPLOAD_ERROR": "Nao foi possivel subir o modelo.",
+      "DELETE_TEMPLATE_CONFIRM": "Excluir este modelo de contrato?",
+      "DELETE_TEMPLATE_ERROR": "Nao foi possivel excluir o modelo.",
+      "GENERATE_ERROR": "Nao foi possivel gerar o contrato.",
+      "TEMPLATES": {
+        "TITLE": "Modelos de contrato",
+        "NAME": "Nome do modelo",
+        "UPLOAD": "Enviar modelo",
+        "TOKENS": "Campos encontrados",
+        "ACTIONS": "Acoes",
+        "EMPTY": "Nenhum modelo enviado ainda."
+      },
+      "GENERATE": {
+        "TITLE": "Gerar contrato",
+        "TEMPLATE": "Modelo",
+        "CLIENT": "Cliente",
+        "SALE": "Venda (opcional)",
+        "FIELDS_HINT": "Deixe em branco o que o cadastro do cliente ja souber responder - so preencha o que for especifico deste contrato.",
+        "EXTRA_REPRESENTATIVES_HINT": "Este cliente tem {count} representante(s) extra cadastrado(s) - o PDF/Word gerado entra so com o representante principal; acrescente os demais a mao no Word.",
+        "SUBMIT": "Gerar PDF"
+      },
+      "LIST": {
+        "TITLE": "Contratos gerados",
+        "EMPTY": "Nenhum contrato gerado ainda.",
+        "TEMPLATE": "Modelo",
+        "CLIENT": "Cliente",
+        "DOWNLOAD": "Baixar PDF",
+        "DOWNLOAD_WORD": "Baixar Word"
       }
     }
   }

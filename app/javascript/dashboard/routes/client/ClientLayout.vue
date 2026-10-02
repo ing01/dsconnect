@@ -6,10 +6,12 @@
  * mesmo Button): para o cliente é outro sistema, mas é o mesmo produto, e uma
  * segunda linguagem visual só faria parecer remendo.
  */
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import ClientAreaAPI from 'dashboard/api/clientArea';
 import { useAlert } from 'dashboard/composables';
+import { useAppInstallPrompt } from 'dashboard/composables/useAppInstallPrompt';
 import {
   getClientSession,
   clearClientSession,
@@ -25,6 +27,14 @@ import ClientSidebar from './ClientSidebar.vue';
 const { t } = useI18n({ useScope: 'global' });
 
 const contact = computed(() => getClientSession()?.contact || {});
+
+// Some nas telas do proprio chat (ativo ou historico) - abrir um atalho para
+// a tela em que a pessoa ja esta seria inutil, so ocupando espaco por cima
+// do conteudo.
+const route = useRoute();
+const showChatShortcut = computed(
+  () => !['client_chat', 'client_chat_history', 'client_chat_history_detail'].includes(route.name)
+);
 
 // Duas coisas diferentes: no desktop a barra RECOLHE (vira um trilho de
 // ícones); no celular ela ABRE e FECHA como gaveta.
@@ -61,56 +71,15 @@ const sair = async () => {
   window.location.assign('/app/login');
 };
 
-// O navegador so' dispara `beforeinstallprompt` quando a pagina passa nos
-// criterios de instalabilidade (manifest + service worker) - ate' la' o botao
-// fica escondido, e nao' some depois de instalado (`appinstalled`) ou quando
-// ja' esta' rodando como app (`display-mode: standalone`).
-const installPromptEvent = ref(null);
-
-// Safari no iPhone/iPad NUNCA dispara `beforeinstallprompt` (nao tem esse
-// mecanismo) - so' instala via Compartilhar > Adicionar a Tela de Inicio,
-// manualmente. Mostra o botao mesmo assim, com instrucao em vez de prompt.
-const isIosSafari = /iphone|ipad|ipod/i.test(window.navigator.userAgent) &&
-  !window.navigator.standalone;
-
-const isStandaloneAlready = window.matchMedia('(display-mode: standalone)').matches ||
-  window.navigator.standalone === true;
-
-const isInstallable = computed(
-  () => !isStandaloneAlready && (Boolean(installPromptEvent.value) || isIosSafari)
-);
-
-const onBeforeInstallPrompt = event => {
-  event.preventDefault();
-  installPromptEvent.value = event;
-};
-
-const onAppInstalled = () => {
-  installPromptEvent.value = null;
-};
+const { isIosSafari, isInstallable, instalarApp: instalarAppBase } =
+  useAppInstallPrompt();
 
 const instalarApp = async () => {
-  if (installPromptEvent.value) {
-    installPromptEvent.value.prompt();
-    await installPromptEvent.value.userChoice;
-    installPromptEvent.value = null;
-    return;
-  }
-
-  if (isIosSafari) {
+  const installed = await instalarAppBase();
+  if (!installed && isIosSafari) {
     useAlert(t('CLIENT_AREA.INSTALL_APP_IOS_HINT'));
   }
 };
-
-onMounted(() => {
-  window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
-  window.addEventListener('appinstalled', onAppInstalled);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
-  window.removeEventListener('appinstalled', onAppInstalled);
-});
 </script>
 
 <template>
@@ -185,6 +154,19 @@ onBeforeUnmount(() => {
       <main class="flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden">
         <router-view />
       </main>
+
+      <!-- Flutua sobre o conteudo em qualquer tela do Portal, para a pessoa
+           nao precisar abrir o menu lateral toda vez que quiser falar com a
+           equipe. -->
+      <router-link
+        v-if="showChatShortcut"
+        :to="{ name: 'client_chat' }"
+        class="fixed z-20 flex items-center justify-center text-white rounded-full shadow-lg bottom-6 right-6 size-14 bg-n-brand hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+        :aria-label="t('CLIENT_AREA.CHAT.FLOATING_BUTTON')"
+        :title="t('CLIENT_AREA.CHAT.FLOATING_BUTTON')"
+      >
+        <Icon icon="i-lucide-message-circle" class="size-6" />
+      </router-link>
     </div>
   </div>
 </template>

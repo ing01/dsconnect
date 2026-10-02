@@ -1,7 +1,6 @@
-# Ao contrario da maioria das policies deste app, aqui NAO ha bypass para
-# administrador - dado comercial e' restrito a quem a Ingrid atribuir
-# explicitamente o papel/permissao `commercial_manage` (custom_role), mesmo
-# que a pessoa seja administradora da conta por outro motivo.
+# Administrador da conta tem acesso automatico; qualquer outro usuario
+# precisa da permissao `commercial_manage` (custom_role) atribuida
+# explicitamente pela Ingrid.
 class Crm::ClientPolicy < ApplicationPolicy
   def index?
     can_manage_commercial?
@@ -26,6 +25,8 @@ class Crm::ClientPolicy < ApplicationPolicy
   private
 
   def can_manage_commercial?
-    account_user&.custom_role&.permissions&.include?('commercial_manage') || false
+    account_user&.administrator? ||
+      account_user&.custom_role&.permissions&.include?('commercial_manage') ||
+      false
   end
 end

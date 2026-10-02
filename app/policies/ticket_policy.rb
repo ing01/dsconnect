@@ -23,6 +23,12 @@ class TicketPolicy < ApplicationPolicy
     true
   end
 
+  # Resumir a conversa pra descricao e' leitura (gera um texto, nao MUDA nada
+  # no ticket) - mesma regra de quem pode ver.
+  def summarize_conversation?
+    show?
+  end
+
   def create?
     true
   end

@@ -576,8 +576,8 @@ const menuItems = computed(() => {
       ],
     },
     {
-      // So aparece para quem tem `commercial_manage` - o proprio
-      // `to` ja resolve essa permissao (ver provider.js/usePolicy).
+      // Aparece para administrador ou quem tem `commercial_manage` - o
+      // proprio `to` ja resolve essa permissao (ver provider.js/usePolicy).
       name: 'CrmClients',
       label: t('SIDEBAR.CRM_CLIENTS'),
       icon: 'i-lucide-briefcase-business',
@@ -590,6 +590,20 @@ const menuItems = computed(() => {
       icon: 'i-lucide-handshake',
       to: accountScopedRoute('crm_sales_index'),
       activeOn: ['crm_sales_index'],
+    },
+    {
+      name: 'CrmDashboard',
+      label: t('SIDEBAR.CRM_DASHBOARD'),
+      icon: 'i-lucide-bar-chart-3',
+      to: accountScopedRoute('crm_dashboard_index'),
+      activeOn: ['crm_dashboard_index'],
+    },
+    {
+      name: 'CrmContracts',
+      label: t('SIDEBAR.CRM_CONTRACTS'),
+      icon: 'i-lucide-file-signature',
+      to: accountScopedRoute('crm_contracts_index'),
+      activeOn: ['crm_contracts_index'],
     },
     {
       name: 'Agenda',

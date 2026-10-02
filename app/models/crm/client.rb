@@ -7,6 +7,7 @@ class Crm::Client < ApplicationRecord
 
   belongs_to :account
   has_many :sales, class_name: 'Crm::Sale', foreign_key: 'crm_client_id', dependent: :destroy, inverse_of: :client
+  has_many :generated_contracts, class_name: 'Crm::GeneratedContract', foreign_key: 'crm_client_id', dependent: :destroy, inverse_of: :client
 
   validates :name, presence: true
 end

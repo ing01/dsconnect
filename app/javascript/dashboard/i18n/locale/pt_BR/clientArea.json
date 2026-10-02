@@ -4,6 +4,13 @@
     "LOGOUT": "Sair",
     "INSTALL_APP": "Instalar app",
     "INSTALL_APP_IOS_HINT": "Toque em Compartilhar e depois em \"Adicionar à Tela de Início\" para instalar.",
+    "INSTALL_PAGE": {
+      "TITLE": "Instalar o Portal do Cliente",
+      "DESCRIPTION": "Toque no botão abaixo para instalar o app no seu celular ou computador. Depois é só abrir pelo ícone e entrar com o seu acesso.",
+      "ALREADY_INSTALLED": "Este app já está instalado neste aparelho.",
+      "NOT_READY_YET": "A instalação ainda está carregando - aguarde alguns segundos e atualize a página. No iPhone/iPad, use Compartilhar > Adicionar à Tela de Início.",
+      "GO_TO_LOGIN": "Já tenho o app, ir para o login"
+    },
     "PRINCIPAL": {
       "GREETING_MORNING": "Bom dia, {name}!",
       "GREETING_AFTERNOON": "Boa tarde, {name}!",
@@ -125,6 +132,7 @@
       "TOGGLE": "Menu"
     },
     "CHAT": {
+      "FLOATING_BUTTON": "Falar com a equipe",
       "TITLE": "Chat",
       "DESCRIPTION": "Fale diretamente com a equipe.",
       "EMPTY": "Mande uma mensagem para começar a falar com a equipe.",

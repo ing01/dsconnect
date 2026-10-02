@@ -2,8 +2,10 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import MessageFormatter from 'shared/helpers/MessageFormatter';
+import { useAlert } from 'dashboard/composables';
 import Button from 'dashboard/components-next/button/Button.vue';
 import FullEditor from 'dashboard/components/widgets/WootWriter/FullEditor.vue';
+import TicketsAPI from 'dashboard/api/tickets';
 import { TICKET_DESCRIPTION_TEMPLATE } from '../../helpers/descriptionTemplate';
 
 const props = defineProps({
@@ -38,9 +40,17 @@ const { t } = useI18n();
 
 const isEditing = ref(false);
 const draft = ref('');
+const isSummarizing = ref(false);
 
 const hasDescription = computed(() =>
   Boolean(props.ticket.description?.trim())
+);
+
+// So' oferece o resumo por IA quando ha' pelo menos uma Conversation
+// vinculada ao Ticket (ver TicketConversation) - sem isso o backend so'
+// devolveria um erro de "nada para resumir".
+const hasLinkedConversation = computed(
+  () => (props.ticket.conversations || []).length > 0
 );
 
 const renderedDescription = computed(
@@ -59,6 +69,25 @@ const cancel = () => {
 
 const save = () => {
   emit('save', draft.value);
+};
+
+const summarizeConversation = async () => {
+  isSummarizing.value = true;
+  try {
+    const { data } = await TicketsAPI.summarizeConversation(props.ticket.id);
+    if (!data.message) {
+      useAlert(t('TICKET.DETAIL.DESCRIPTION.SUMMARIZE_EMPTY'));
+      return;
+    }
+    startEditing(data.message);
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error ||
+        t('TICKET.DETAIL.DESCRIPTION.SUMMARIZE_ERROR')
+    );
+  } finally {
+    isSummarizing.value = false;
+  }
 };
 
 // Leaving edit mode is driven by the parent: it flips `isSaving` back once the
@@ -80,6 +109,16 @@ watch(
         {{ t('TICKET.DETAIL.DESCRIPTION.TITLE') }}
       </h2>
       <div v-if="!isEditing && canUpdate" class="flex items-center gap-2">
+        <Button
+          v-if="hasLinkedConversation"
+          variant="ghost"
+          color="slate"
+          size="xs"
+          icon="i-fluent-text-bullet-list-square-sparkle-32-regular"
+          :is-loading="isSummarizing"
+          :label="t('TICKET.DETAIL.DESCRIPTION.SUMMARIZE')"
+          @click="summarizeConversation"
+        />
         <Button
           v-if="!hasDescription"
           variant="ghost"
@@ -109,6 +148,17 @@ watch(
         class="min-w-0"
       />
       <div class="flex justify-end gap-2">
+        <Button
+          v-if="hasLinkedConversation"
+          variant="faded"
+          color="slate"
+          size="sm"
+          icon="i-fluent-text-bullet-list-square-sparkle-32-regular"
+          :is-loading="isSummarizing"
+          :label="t('TICKET.DETAIL.DESCRIPTION.SUMMARIZE')"
+          class="mr-auto"
+          @click="summarizeConversation"
+        />
         <Button
           variant="faded"
           color="slate"

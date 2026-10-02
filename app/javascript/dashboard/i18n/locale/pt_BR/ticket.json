@@ -297,7 +297,10 @@
         "SAVE": "Salvar",
         "CANCEL": "Cancelar",
         "USE_TEMPLATE": "Usar template",
-        "PLACEHOLDER": "Descreva o ticket..."
+        "PLACEHOLDER": "Descreva o ticket...",
+        "SUMMARIZE": "Resumir conversa",
+        "SUMMARIZE_EMPTY": "A IA não retornou nenhum resumo. Tente novamente.",
+        "SUMMARIZE_ERROR": "Não foi possível resumir a conversa."
       },
       "ATTACHMENTS": {
         "TITLE": "Arquivos",

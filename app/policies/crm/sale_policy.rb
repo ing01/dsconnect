@@ -1,5 +1,5 @@
-# Mesma regra de acesso de Crm::ClientPolicy - ver o comentario la' para o
-# porque de nao haver bypass de administrador aqui.
+# Mesma regra de acesso de Crm::ClientPolicy (administrador tem acesso
+# automatico; demais usuarios precisam de `commercial_manage`).
 class Crm::SalePolicy < ApplicationPolicy
   def index?
     can_manage_commercial?
@@ -24,6 +24,8 @@ class Crm::SalePolicy < ApplicationPolicy
   private
 
   def can_manage_commercial?
-    account_user&.custom_role&.permissions&.include?('commercial_manage') || false
+    account_user&.administrator? ||
+      account_user&.custom_role&.permissions&.include?('commercial_manage') ||
+      false
   end
 end

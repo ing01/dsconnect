@@ -4,6 +4,13 @@
     "LOGOUT": "Sign out",
     "INSTALL_APP": "Install app",
     "INSTALL_APP_IOS_HINT": "Tap Share, then \"Add to Home Screen\" to install.",
+    "INSTALL_PAGE": {
+      "TITLE": "Install the Client Portal",
+      "DESCRIPTION": "Tap the button below to install the app on your phone or computer. Afterwards, just open it from the icon and sign in.",
+      "ALREADY_INSTALLED": "This app is already installed on this device.",
+      "NOT_READY_YET": "Install is still loading - wait a few seconds and refresh the page. On iPhone/iPad, use Share > Add to Home Screen.",
+      "GO_TO_LOGIN": "I already have the app, go to login"
+    },
     "PRINCIPAL": {
       "GREETING_MORNING": "Good morning, {name}!",
       "GREETING_AFTERNOON": "Good afternoon, {name}!",
@@ -125,6 +132,7 @@
       "TOGGLE": "Menu"
     },
     "CHAT": {
+      "FLOATING_BUTTON": "Talk to the team",
       "TITLE": "Chat",
       "DESCRIPTION": "Talk directly to the team.",
       "EMPTY": "Send a message to start talking to the team.",
