@@ -36,12 +36,19 @@ const montar = (props = {}) =>
 const barra = wrapper => wrapper.find('aside');
 const itens = wrapper => wrapper.findAll('.item');
 
+// O item pelo RÓTULO, e não por posição: um item novo no meio do menu não pode
+// quebrar um teste que fala de outro item.
+const item = (wrapper, rotulo) => itens(wrapper).find(i => i.text() === rotulo);
+
 describe('ClientSidebar', () => {
-  it('shows only Tickets and Notificações, in that order', () => {
-    const rotulos = itens(montar()).map(item => item.text());
+  it('lists the menu in order', () => {
+    const rotulos = itens(montar()).map(i => i.text());
 
     expect(rotulos).toEqual([
+      'CLIENT_AREA.MENU.PRINCIPAL',
       'CLIENT_AREA.MENU.TICKETS',
+      'CLIENT_AREA.MENU.SAC',
+      'CLIENT_AREA.MENU.CHAT',
       'CLIENT_AREA.MENU.NOTIFICATIONS',
     ]);
   });
@@ -52,7 +59,21 @@ describe('ClientSidebar', () => {
     route.name = 'client_ticket_detail';
     const wrapper = montar();
 
-    expect(itens(wrapper)[0].attributes('data-active')).toBe('true');
+    expect(
+      item(wrapper, 'CLIENT_AREA.MENU.TICKETS').attributes('data-active')
+    ).toBe('true');
+    route.name = 'client_tickets';
+  });
+
+  // O mesmo vale para o SAC: o detalhe de uma manifestação continua sendo
+  // "SAC e Sugestões".
+  it('keeps SAC active on the manifestation detail', () => {
+    route.name = 'client_manifestation_detail';
+    const wrapper = montar();
+
+    expect(
+      item(wrapper, 'CLIENT_AREA.MENU.SAC').attributes('data-active')
+    ).toBe('true');
     route.name = 'client_tickets';
   });
 

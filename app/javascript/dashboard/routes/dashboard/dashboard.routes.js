@@ -18,6 +18,7 @@ import projectsRoutes from './projects/projects.routes';
 import implementationReportsRoutes from './implementation_reports/implementation_reports.routes';
 import principalRoutes from './principal/principal.routes';
 import suggestionsRoutes from './suggestions/suggestions.routes';
+import manifestationsRoutes from './manifestations/manifestations.routes';
 import AppContainer from './Dashboard.vue';
 import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
@@ -49,6 +50,7 @@ export default {
         ...implementationReportsRoutes.routes,
         ...principalRoutes.routes,
         ...suggestionsRoutes.routes,
+        ...manifestationsRoutes.routes,
       ],
     },
     {

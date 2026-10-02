@@ -68,6 +68,9 @@ class Company < ApplicationRecord
   # Tickets point at the Empresa directly. `nullify` rather than `destroy`:
   # removing a company must never take support history with it.
   has_many :tickets, dependent: :nullify
+  # Same reasoning as tickets: deleting an Empresa must not erase the SAC
+  # history it produced.
+  has_many :manifestations, dependent: :nullify
   has_many :company_credentials, dependent: :destroy
   has_many :company_system_modules, dependent: :destroy
   has_many :system_modules, through: :company_system_modules

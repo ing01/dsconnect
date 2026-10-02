@@ -56,6 +56,7 @@ import serviceCatalogs from './modules/serviceCatalogs';
 import internalChat from './modules/internalChat';
 import ticketColumns from './modules/ticketColumns';
 import ticketComplexities from './modules/ticketComplexities';
+import manifestations from './modules/manifestations';
 import tickets from './modules/tickets';
 import suggestions from './modules/suggestions';
 import suggestionColumns from './modules/suggestionColumns';
@@ -142,6 +143,7 @@ export default createStore({
     internalChat,
     ticketColumns,
     ticketComplexities,
+    manifestations,
     tickets,
     suggestions,
     suggestionColumns,

@@ -1,0 +1,148 @@
+{
+  "MANIFESTATION": {
+    "TITLE": "Customer feedback",
+    "DESCRIPTION": "Suggestions, complaints, compliments and improvement requests sent by customers.",
+    "KINDS": {
+      "suggestion": "Suggestion",
+      "complaint": "Complaint",
+      "compliment": "Compliment",
+      "improvement": "Improvement request",
+      "other": "Other"
+    },
+    "SUBJECT_AREAS": {
+      "erp": "ERP",
+      "support": "Support",
+      "agent": "Agent",
+      "implementation": "Implementation",
+      "portal": "Client Portal",
+      "commercial": "Sales",
+      "other": "Other"
+    },
+    "STATUSES": {
+      "received": "Received",
+      "under_review": "Under review",
+      "in_progress": "In progress",
+      "awaiting_customer": "Awaiting customer",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "FIELDS": {
+      "KIND": "Type",
+      "SUBJECT_AREA": "Subject",
+      "TITLE": "Title",
+      "TITLE_PLACEHOLDER": "Sum it up in one line",
+      "DESCRIPTION": "Details",
+      "DESCRIPTION_PLACEHOLDER": "Tell us what happened, with as much detail as you can",
+      "ATTACHMENTS": "Attachments",
+      "ATTACHMENTS_HINT": "Optional. Images or documents that help explain.",
+      "COMPANY": "Company",
+      "CONTACT": "Requester",
+      "ASSIGNEE": "Internal owner",
+      "STATUS": "Status",
+      "CREATED_AT": "Registered on",
+      "REQUIRED": "Required"
+    },
+    "LIST": {
+      "COLUMNS": {
+        "REFERENCE": "Number",
+        "TITLE": "Title",
+        "KIND": "Type",
+        "SUBJECT_AREA": "Subject",
+        "STATUS": "Status",
+        "COMPANY": "Company",
+        "CONTACT": "Requester",
+        "ASSIGNEE": "Owner",
+        "CREATED_AT": "Registered on"
+      },
+      "EMPTY": "No records yet.",
+      "EMPTY_FILTERED": "No records for these filters.",
+      "LOADING": "Loading...",
+      "COUNT_TOTAL": "Total",
+      "COUNT_PENDING": "Pending",
+      "COUNT_UNTOUCHED": "New",
+      "NEW_BADGE": "New"
+    },
+    "FILTERS": {
+      "TITLE": "Filters",
+      "ALL_KINDS": "All types",
+      "ALL_SUBJECTS": "All subjects",
+      "ALL_STATUSES": "All statuses",
+      "ALL_COMPANIES": "All companies",
+      "ALL_ASSIGNEES": "All owners",
+      "FROM": "From",
+      "TO": "To",
+      "SEARCH": "Search by number, title or details",
+      "PENDING_ONLY": "Pending only",
+      "CLEAR": "Clear filters"
+    },
+    "DETAIL": {
+      "BACK": "Back",
+      "HISTORY": "History",
+      "MESSAGES": "Messages",
+      "NO_MESSAGES": "No messages yet.",
+      "NO_HISTORY": "No activity yet.",
+      "ATTACHMENTS": "Attachments",
+      "NO_ATTACHMENTS": "No attachments.",
+      "PUBLIC_REPLY": "Reply to customer",
+      "INTERNAL_NOTE": "Internal note",
+      "INTERNAL_NOTE_HINT": "Customers never see internal notes.",
+      "BY_TEAM": "Team",
+      "BY_CLIENT": "Customer",
+      "UNASSIGNED": "Unassigned",
+      "LOADING": "Loading...",
+      "NOT_FOUND": "Record not found."
+    },
+    "REPLY": {
+      "PLACEHOLDER": "Write the reply the customer will read",
+      "NOTE_PLACEHOLDER": "Write a note only the team can see",
+      "SEND": "Send reply",
+      "SAVE_NOTE": "Save note",
+      "AWAITING_CUSTOMER": "Mark as awaiting customer",
+      "SENT": "Reply sent.",
+      "NOTE_SAVED": "Note saved.",
+      "FINISHED": "This record is closed and no longer accepts messages."
+    },
+    "ACTIVITY": {
+      "created": "registered the record",
+      "status_changed": "changed the status",
+      "assignee_changed": "changed the owner",
+      "replied": "replied to the customer",
+      "internal_note_added": "added an internal note",
+      "converted_to_ticket": "converted it into a ticket",
+      "client_replied": "replied",
+      "FROM_TO": "from {from} to {to}",
+      "TO": "to {to}"
+    },
+    "CONVERT": {
+      "ACTION": "Convert to ticket",
+      "TITLE": "Convert to ticket",
+      "DESCRIPTION": "A ticket will be created with the company, requester, details and attachments of this record. The record stays, linked to the ticket.",
+      "TEAM": "Receiving Mesa",
+      "CATEGORY": "Category",
+      "CONFIRM": "Convert",
+      "CANCEL": "Cancel",
+      "DONE": "Ticket #{number} created.",
+      "ALREADY": "Already converted into ticket #{number}.",
+      "OPEN_TICKET": "Open ticket #{number}"
+    },
+    "STATUS_CHANGE": {
+      "LABEL": "Change status",
+      "DONE": "Status changed."
+    },
+    "ASSIGN": {
+      "LABEL": "Owner",
+      "DONE": "Owner changed."
+    },
+    "NEW": {
+      "ACTION": "New record",
+      "TITLE": "New record",
+      "SUBMIT": "Register",
+      "CANCEL": "Cancel",
+      "DONE": "Record {reference} registered.",
+      "INTRO": "Tell us what we can improve. Company and requester are filled in automatically."
+    },
+    "API": {
+      "ERROR": "Could not complete. Please try again."
+    }
+  }
+}

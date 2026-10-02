@@ -67,6 +67,12 @@ Rails.application.routes.draw do
           get :enabled, on: :collection
         end
         resources :notifications, only: [:index]
+        # O SAC: sugestoes, reclamacoes, elogios e pedidos de melhoria. Sem
+        # `update` nem `destroy` - depois de registrada, o que o cliente faz e
+        # acompanhar e responder.
+        resources :manifestations, only: [:index, :show, :create] do
+          resources :messages, only: [:create], controller: 'manifestation_messages'
+        end
         # A lista plana de Categorias do formulario de abertura.
         resources :categories, only: [:index]
         # A redefinicao de senha. Sem sessao de proposito - quem esqueceu a
@@ -575,6 +581,13 @@ Rails.application.routes.draw do
           # Os niveis de Complexidade do ticket. Lista da CONTA, como o catalogo -
           # quais Mesas oferecem cada nivel vai no proprio registro.
           resources :ticket_complexities, only: [:index, :create, :update, :destroy]
+          # O SAC do lado da equipe. `convert` cria o ticket pelo mecanismo
+          # existente e guarda o vinculo - uma acao propria porque nao e uma
+          # alteracao da manifestacao, e sim a criacao de outro registro.
+          resources :manifestations do
+            post :convert, on: :member
+            resources :messages, only: [:create], controller: 'manifestation_messages'
+          end
           resources :service_catalogs do
             resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do
               resources :items, controller: 'service_catalog_items', only: [:create, :update, :destroy]

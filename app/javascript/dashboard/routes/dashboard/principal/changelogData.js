@@ -8,11 +8,21 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'sac-manifestations',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'SAC e Sugestões no Portal do Cliente',
+    description:
+      'O cliente ganhou um canal próprio no Portal para registrar sugestões, reclamações, elogios e pedidos de melhoria sobre o ERP, o atendimento, os atendentes, a implantação e o comercial. Ele escolhe o tipo e o assunto, descreve o caso, anexa arquivos se quiser, e acompanha o andamento pelo número (SAC-1, SAC-2...) com o histórico de cada movimentação e as respostas da equipe. Empresa e solicitante são preenchidos sozinhos e ele não consegue alterá-los. Do lado de dentro, em "SAC e Sugestões", a equipe vê tudo com filtros por empresa, tipo, assunto, status, responsável e período, com contadores de pendentes e de novas; dá para mudar o status, assumir o caso, responder ao cliente e deixar anotações internas - que o cliente nunca vê. Quando o caso precisa de atendimento de verdade, "Converter em Ticket" abre um chamado pelo fluxo normal preservando empresa, solicitante, descrição e anexos, e a manifestação fica vinculada a ele sem risco de duplicar.',
+  },
+  {
     id: 'client-portal-routing',
     date: '30 de setembro de 2026',
     isoDate: '2026-09-30',
     type: 'feature',
-    title: 'Roteamento automático do ticket do Portal, por prioridade da Empresa',
+    title:
+      'Roteamento automático do ticket do Portal, por prioridade da Empresa',
     description:
       'Ticket aberto pelo Portal do Cliente deixou de passar pela fila de Triagem manual - ele já cai na Mesa certa sozinho. Em Configurações > Tickets > Roteamento do Portal, dá para definir uma Mesa fixa por nível de prioridade da Empresa (Baixa/Média/Alta), que vale por cima da Categoria escolhida pelo cliente quando configurada. A Triagem manual continua existindo normalmente para os demais canais.',
   },

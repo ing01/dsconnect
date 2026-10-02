@@ -609,6 +609,31 @@ en:
     password:
       updated: Password changed. Sign in with the new one.
       invalid_token: This reset link is no longer valid. Ask for a new one on the login screen.
+  manifestations:
+    kinds:
+      suggestion: Suggestion
+      complaint: Complaint
+      compliment: Compliment
+      improvement: Improvement request
+      other: Other
+    subject_areas:
+      erp: ERP
+      support: Support
+      agent: Agent
+      implementation: Implementation
+      portal: Client Portal
+      commercial: Sales
+      other: Other
+    message:
+      empty: Write a message before sending.
+      finished: This record is closed and no longer accepts messages.
+      author_required: must have an author
+    attachment:
+      too_large: 'is larger than the %{limit} MB limit'
+    convert:
+      already_done: This record was already converted into a ticket.
+      no_team: No active Mesa available to receive the ticket.
+      description_header: 'Opened from record %{reference} (%{kind} - %{subject}).'
   contacts:
     client_access:
       email_required: is required for Client Area access

@@ -197,6 +197,46 @@ export default {
     );
   },
 
+  // O SAC: as manifestacoes deste cliente, ja recortadas por empresa e pela
+  // permissao do contato no servidor.
+  manifestations() {
+    return cliente.get(`${BASE}/manifestations`, { headers: headers() });
+  },
+
+  manifestation(id) {
+    return cliente.get(`${BASE}/manifestations/${id}`, { headers: headers() });
+  },
+
+  // Multipart quando ha arquivo, pela mesma razao da abertura de ticket: o
+  // anexo vai na MESMA requisicao, e por isso na mesma transacao do servidor.
+  createManifestation(manifestation, files = []) {
+    if (!files.length) {
+      return cliente.post(`${BASE}/manifestations`, manifestation, {
+        headers: headers(),
+      });
+    }
+
+    const form = new FormData();
+    Object.entries(manifestation).forEach(([chave, valor]) => {
+      if (valor !== null && valor !== undefined) form.append(chave, valor);
+    });
+    files.forEach(file => form.append('attachments[]', file));
+
+    return cliente.post(`${BASE}/manifestations`, form, { headers: headers() });
+  },
+
+  // A resposta do cliente dentro da manifestacao. Sempre publica - quem fixa
+  // isso e o servidor, nao este parametro.
+  replyToManifestation(id, body, files = []) {
+    const form = new FormData();
+    form.append('body', body);
+    files.forEach(file => form.append('attachments[]', file));
+
+    return cliente.post(`${BASE}/manifestations/${id}/messages`, form, {
+      headers: headers(),
+    });
+  },
+
   // As sessoes de chat ja encerradas - a de agora fica em `chat()`.
   chatHistory() {
     return cliente.get(`${BASE}/chat_history`, { headers: headers() });

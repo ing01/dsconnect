@@ -16,6 +16,8 @@ import ClientChatPage from './pages/ClientChatPage.vue';
 import ClientChatHistoryPage from './pages/ClientChatHistoryPage.vue';
 import ClientChatHistoryDetailPage from './pages/ClientChatHistoryDetailPage.vue';
 import ClientNotificationsPage from './pages/ClientNotificationsPage.vue';
+import ClientManifestationsPage from './pages/ClientManifestationsPage.vue';
+import ClientManifestationDetailPage from './pages/ClientManifestationDetailPage.vue';
 import ClientPasswordEditPage from './pages/ClientPasswordEditPage.vue';
 
 // A definicao de nova senha roda SEM sessao - e o token do e-mail que autoriza.
@@ -67,6 +69,17 @@ export default {
           path: 'chat/history/:conversationId',
           name: 'client_chat_history_detail',
           component: ClientChatHistoryDetailPage,
+        },
+        {
+          // O SAC: sugestoes, reclamacoes, elogios e pedidos de melhoria.
+          path: 'sac',
+          name: 'client_manifestations',
+          component: ClientManifestationsPage,
+        },
+        {
+          path: 'sac/:manifestationId',
+          name: 'client_manifestation_detail',
+          component: ClientManifestationDetailPage,
         },
         {
           path: 'notifications',

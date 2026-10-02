@@ -602,6 +602,31 @@ pt_BR:
     password:
       updated: Senha alterada. Entre com a nova senha.
       invalid_token: Este link de redefinição não é mais válido. Peça um novo na tela de login.
+  manifestations:
+    kinds:
+      suggestion: Sugestão
+      complaint: Reclamação
+      compliment: Elogio
+      improvement: Solicitação de melhoria
+      other: Outro
+    subject_areas:
+      erp: ERP
+      support: Atendimento/Suporte
+      agent: Atendente
+      implementation: Implantação
+      portal: Portal do Cliente
+      commercial: Comercial
+      other: Outros
+    message:
+      empty: Escreva uma mensagem antes de enviar.
+      finished: Esta manifestação foi encerrada e não recebe mais mensagens.
+      author_required: precisa ter um autor
+    attachment:
+      too_large: 'é maior que o limite de %{limit} MB'
+    convert:
+      already_done: Esta manifestação já foi convertida em ticket.
+      no_team: Nenhuma Mesa ativa para receber o ticket.
+      description_header: 'Aberto a partir da manifestação %{reference} (%{kind} - %{subject}).'
   contacts:
     client_access:
       email_required: é obrigatório para o acesso à Área do Cliente

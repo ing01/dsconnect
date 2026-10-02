@@ -210,6 +210,8 @@ class Account < ApplicationRecord
   has_many :suggestion_columns, dependent: :destroy_async
   has_many :suggestion_priorities, dependent: :destroy_async
   has_many :suggestions, dependent: :destroy_async
+  # O SAC do Portal do Cliente.
+  has_many :manifestations, dependent: :destroy_async
   has_many :project_task_templates, dependent: :destroy_async
   has_many :checklists, dependent: :destroy_async
   # Os relogios de SLA dos tickets da conta, que a varredura de vencimentos

@@ -566,6 +566,15 @@ const menuItems = computed(() => {
       activeOn: ['suggestions_index'],
     },
     {
+      // O SAC: o que chega dos CLIENTES pelo Portal. Vizinho de Sugestoes, que
+      // e o quadro interno da equipe - sao canais diferentes.
+      name: 'Manifestations',
+      label: t('SIDEBAR.MANIFESTATIONS'),
+      icon: 'i-lucide-megaphone',
+      to: accountScopedRoute('manifestations_index'),
+      activeOn: ['manifestations_index', 'manifestation_detail'],
+    },
+    {
       name: 'Agenda',
       label: t('SIDEBAR.AGENDA'),
       icon: 'i-lucide-calendar-days',

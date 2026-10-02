@@ -1,0 +1,148 @@
+{
+  "MANIFESTATION": {
+    "TITLE": "SAC e Sugestões",
+    "DESCRIPTION": "Sugestões, reclamações, elogios e pedidos de melhoria enviados pelos clientes.",
+    "KINDS": {
+      "suggestion": "Sugestão",
+      "complaint": "Reclamação",
+      "compliment": "Elogio",
+      "improvement": "Solicitação de melhoria",
+      "other": "Outro"
+    },
+    "SUBJECT_AREAS": {
+      "erp": "ERP",
+      "support": "Atendimento/Suporte",
+      "agent": "Atendente",
+      "implementation": "Implantação",
+      "portal": "Portal do Cliente",
+      "commercial": "Comercial",
+      "other": "Outros"
+    },
+    "STATUSES": {
+      "received": "Recebida",
+      "under_review": "Em análise",
+      "in_progress": "Em andamento",
+      "awaiting_customer": "Aguardando retorno do cliente",
+      "completed": "Concluída",
+      "cancelled": "Cancelada"
+    },
+    "FIELDS": {
+      "KIND": "Tipo",
+      "SUBJECT_AREA": "Assunto",
+      "TITLE": "Título",
+      "TITLE_PLACEHOLDER": "Resuma em uma linha",
+      "DESCRIPTION": "Descrição detalhada",
+      "DESCRIPTION_PLACEHOLDER": "Conte o que aconteceu, com o máximo de detalhes que puder",
+      "ATTACHMENTS": "Anexos",
+      "ATTACHMENTS_HINT": "Opcional. Imagens ou documentos que ajudem a entender.",
+      "COMPANY": "Empresa",
+      "CONTACT": "Solicitante",
+      "ASSIGNEE": "Responsável interno",
+      "STATUS": "Status",
+      "CREATED_AT": "Registrada em",
+      "REQUIRED": "Obrigatório"
+    },
+    "LIST": {
+      "COLUMNS": {
+        "REFERENCE": "Número",
+        "TITLE": "Título",
+        "KIND": "Tipo",
+        "SUBJECT_AREA": "Assunto",
+        "STATUS": "Status",
+        "COMPANY": "Empresa",
+        "CONTACT": "Solicitante",
+        "ASSIGNEE": "Responsável",
+        "CREATED_AT": "Registrada em"
+      },
+      "EMPTY": "Nenhuma manifestação registrada.",
+      "EMPTY_FILTERED": "Nenhuma manifestação para estes filtros.",
+      "LOADING": "Carregando manifestações...",
+      "COUNT_TOTAL": "Total",
+      "COUNT_PENDING": "Pendentes",
+      "COUNT_UNTOUCHED": "Novas",
+      "NEW_BADGE": "Nova"
+    },
+    "FILTERS": {
+      "TITLE": "Filtros",
+      "ALL_KINDS": "Todos os tipos",
+      "ALL_SUBJECTS": "Todos os assuntos",
+      "ALL_STATUSES": "Todos os status",
+      "ALL_COMPANIES": "Todas as empresas",
+      "ALL_ASSIGNEES": "Todos os responsáveis",
+      "FROM": "De",
+      "TO": "Até",
+      "SEARCH": "Buscar por número, título ou descrição",
+      "PENDING_ONLY": "Só pendentes",
+      "CLEAR": "Limpar filtros"
+    },
+    "DETAIL": {
+      "BACK": "Voltar",
+      "HISTORY": "Histórico de movimentações",
+      "MESSAGES": "Mensagens",
+      "NO_MESSAGES": "Nenhuma mensagem ainda.",
+      "NO_HISTORY": "Nenhuma movimentação ainda.",
+      "ATTACHMENTS": "Anexos",
+      "NO_ATTACHMENTS": "Nenhum anexo.",
+      "PUBLIC_REPLY": "Resposta ao cliente",
+      "INTERNAL_NOTE": "Anotação interna",
+      "INTERNAL_NOTE_HINT": "O cliente nunca vê as anotações internas.",
+      "BY_TEAM": "Equipe",
+      "BY_CLIENT": "Cliente",
+      "UNASSIGNED": "Sem responsável",
+      "LOADING": "Carregando manifestação...",
+      "NOT_FOUND": "Manifestação não encontrada."
+    },
+    "REPLY": {
+      "PLACEHOLDER": "Escreva a resposta que o cliente vai ler",
+      "NOTE_PLACEHOLDER": "Escreva uma anotação que só a equipe vê",
+      "SEND": "Enviar resposta",
+      "SAVE_NOTE": "Salvar anotação",
+      "AWAITING_CUSTOMER": "Marcar como aguardando retorno do cliente",
+      "SENT": "Resposta enviada.",
+      "NOTE_SAVED": "Anotação registrada.",
+      "FINISHED": "Esta manifestação foi encerrada e não recebe mais mensagens."
+    },
+    "ACTIVITY": {
+      "created": "registrou a manifestação",
+      "status_changed": "alterou o status",
+      "assignee_changed": "alterou o responsável",
+      "replied": "respondeu ao cliente",
+      "internal_note_added": "adicionou uma anotação interna",
+      "converted_to_ticket": "converteu em ticket",
+      "client_replied": "respondeu",
+      "FROM_TO": "de {from} para {to}",
+      "TO": "para {to}"
+    },
+    "CONVERT": {
+      "ACTION": "Converter em Ticket",
+      "TITLE": "Converter em Ticket",
+      "DESCRIPTION": "Será criado um ticket com a empresa, o solicitante, a descrição e os anexos desta manifestação. A manifestação continua existindo, vinculada ao ticket.",
+      "TEAM": "Mesa que vai receber",
+      "CATEGORY": "Categoria",
+      "CONFIRM": "Converter",
+      "CANCEL": "Cancelar",
+      "DONE": "Ticket #{number} criado.",
+      "ALREADY": "Já convertida no ticket #{number}.",
+      "OPEN_TICKET": "Abrir o ticket #{number}"
+    },
+    "STATUS_CHANGE": {
+      "LABEL": "Alterar status",
+      "DONE": "Status alterado."
+    },
+    "ASSIGN": {
+      "LABEL": "Responsável",
+      "DONE": "Responsável alterado."
+    },
+    "NEW": {
+      "ACTION": "Nova manifestação",
+      "TITLE": "Nova manifestação",
+      "SUBMIT": "Registrar",
+      "CANCEL": "Cancelar",
+      "DONE": "Manifestação {reference} registrada.",
+      "INTRO": "Conte o que podemos melhorar. A empresa e o solicitante são preenchidos automaticamente."
+    },
+    "API": {
+      "ERROR": "Não foi possível concluir. Tente novamente."
+    }
+  }
+}
