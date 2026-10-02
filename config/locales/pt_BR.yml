@@ -600,6 +600,7 @@ pt_BR:
       not_started: Abra a aba do chat antes de enviar uma mensagem.
       push_title: Nova mensagem da equipe
       push_body_fallback: Você recebeu uma nova mensagem no chat.
+      push_action_open: Abrir conversa
     unauthorized: Sessão inválida ou acesso à Área do Cliente desativado.
     invalid_credentials: E-mail ou senha inválidos.
     password:

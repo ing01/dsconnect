@@ -607,6 +607,7 @@ en:
       not_started: Open the chat tab before sending a message.
       push_title: New message from the team
       push_body_fallback: You received a new chat message.
+      push_action_open: Open conversation
     unauthorized: Invalid session or Client Area access is disabled.
     invalid_credentials: Invalid e-mail or password.
     password:

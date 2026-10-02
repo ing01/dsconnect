@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-chat-notification-polish',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'improvement',
+    title: 'Aviso do chat do Portal: logo, botão e nada de aviso repetido',
+    description:
+      'A notificação que o cliente recebe do chat do Portal passou a levar a logo do sistema e um botão "Abrir conversa", que leva direto à conversa - e que também empurra para o menu de reticências o botão de inscrição que o navegador colocava sozinho. Ela também deixou de aparecer quando a pessoa JÁ está com aquela tela aberta na frente: avisa quando ela está em outra página do Portal, ou fora do site/aplicativo. E o aviso voltou a sair em português - vinha em inglês porque é montado em segundo plano, onde nada definia o idioma. Vale para os atendentes também: a conversa que está na tela não gera mais aviso dela mesma.',
+  },
+  {
     id: 'conversation-copilot-removed',
     date: '2 de outubro de 2026',
     isoDate: '2026-10-02',

@@ -97,6 +97,40 @@ describe ClientPortalChatListener do
       disparar(mensagem_da_equipe(conteudo: 'Segunda'))
     end
 
+    # A logo do sistema no aviso - o mesmo arquivo que o Portal usa como icone do
+    # app instalado, para a pessoa reconhecer de onde veio.
+    it 'carries the system logo and the status-bar badge' do
+      allow(WebPush).to receive(:payload_send) do |args|
+        corpo = JSON.parse(args[:message])
+        expect(corpo['icon']).to eq('/android-icon-192x192.png')
+        expect(corpo['badge']).to eq('/favicon-badge-96x96.png')
+      end
+
+      disparar(mensagem_da_equipe)
+    end
+
+    # O botao "Abrir conversa". Declarar acao propria tambem empurra para o menu
+    # de reticencias o botao de inscricao/configuracoes que o navegador poe
+    # sozinho quando a notificacao nao tem nenhuma.
+    # O aviso sai em PORTUGUES mesmo rodando num job de segundo plano, onde nada
+    # definiu o idioma e sobraria o `I18n.default_locale` (`en`) da instalacao.
+    it 'speaks Portuguese even outside a request' do
+      allow(WebPush).to receive(:payload_send) do |args|
+        expect(JSON.parse(args[:message])['title']).to eq('Nova mensagem da equipe')
+      end
+
+      I18n.with_locale(:en) { disparar(mensagem_da_equipe) }
+    end
+
+    it 'offers an action to open the conversation, with a translated label' do
+      allow(WebPush).to receive(:payload_send) do |args|
+        acoes = JSON.parse(args[:message])['actions']
+        expect(acoes).to eq([{ 'action' => 'open', 'title' => 'Abrir conversa' }])
+      end
+
+      disparar(mensagem_da_equipe)
+    end
+
     # Mensagem so com anexo nao tem texto; o aviso precisa dizer alguma coisa.
     it 'falls back to a generic body when the message has no text' do
       allow(WebPush).to receive(:payload_send) do |args|

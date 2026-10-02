@@ -29,10 +29,34 @@ const dismiss = tag => {
   notifications.value = notifications.value.filter(item => item.tag !== tag);
 };
 
+// Ja esta olhando exatamente esta tela: avisar seria contar algo que a pessoa
+// acabou de ver chegar. Vale para o chat do Portal (o cliente aberto na
+// conversa) e para o atendente com a conversa na frente.
+//
+// Compara so o CAMINHO, nao a URL inteira: a mesma tela pode estar aberta com
+// outro hash ou com parametro de rastreio, e uma igualdade exata voltaria a
+// mostrar o aviso. A mesma regra que o `notificationclick` do service worker
+// usa para nao abrir uma segunda janela.
+const alreadyOnScreen = url => {
+  if (!url) return false;
+
+  try {
+    return (
+      new URL(url, window.location.origin).pathname === window.location.pathname
+    );
+  } catch (error) {
+    return false;
+  }
+};
+
 const push = notification => {
   const { title, body, tag, url, id } = notification;
 
   if (!title || !tag) {
+    return;
+  }
+
+  if (alreadyOnScreen(url)) {
     return;
   }
 
@@ -155,11 +179,24 @@ onBeforeUnmount(() => {
           >
             {{ t('IN_APP_NOTIFICATION.OPEN') }}
           </button>
+          <!-- So quando ha uma Notification no servidor para marcar. O aviso do
+               chat do Portal nao tem `id`: ali o botao apenas fechava o cartao,
+               com um rotulo que prometia mais do que fazia. -->
           <button
+            v-if="notification.id"
             class="px-3 py-1 text-sm font-medium rounded-md cursor-pointer text-n-slate-11 hover:text-n-slate-12 hover:bg-n-alpha-2"
             @click="markAsRead(notification)"
           >
             {{ t('IN_APP_NOTIFICATION.MARK_AS_READ') }}
+          </button>
+          <!-- Sem o botao acima, ainda e preciso poder dispensar o cartao: ele
+               fica na tela ate a pessoa agir. -->
+          <button
+            v-else
+            class="px-3 py-1 text-sm font-medium rounded-md cursor-pointer text-n-slate-11 hover:text-n-slate-12 hover:bg-n-alpha-2"
+            @click="dismiss(notification.tag)"
+          >
+            {{ t('IN_APP_NOTIFICATION.DISMISS') }}
           </button>
         </div>
       </div>

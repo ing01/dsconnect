@@ -27,6 +27,13 @@ const focusedWindowClients = () =>
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', event => event.waitUntil(clients.claim()));
 
+// O servidor manda um CAMINHO, sem host, e quem sabe o host certo e o navegador:
+// resolvemos contra a origem deste service worker, que e sempre o endereco pelo
+// qual a pessoa entrou. Assim o clique nao depende do FRONTEND_URL do servidor,
+// que envelhece a cada troca de endereco. URL absoluta antiga continua valendo -
+// o segundo argumento do `URL` so entra em acao quando o primeiro e relativo.
+const absoluteUrl = url => new URL(url, self.location.origin).href;
+
 self.addEventListener('push', event => {
   const notification = event.data && event.data.json();
 
@@ -48,6 +55,19 @@ self.addEventListener('push', event => {
       return self.registration.showNotification(notification.title, {
         body: notification.body,
         tag: notification.tag,
+        // A logo do sistema. O servidor manda o CAMINHO; resolvemos contra a
+        // origem deste worker, pela mesma razao do clique (ver `absoluteUrl`).
+        ...(notification.icon ? { icon: absoluteUrl(notification.icon) } : {}),
+        ...(notification.badge
+          ? { badge: absoluteUrl(notification.badge) }
+          : {}),
+        // Os botoes do aviso, com o rotulo ja traduzido pelo servidor - aqui nao
+        // ha acesso as traducoes.
+        //
+        // Declarar botao proprio tambem tira da frente o botao de
+        // configuracoes/inscricao que o navegador poe sozinho quando a
+        // notificacao nao tem nenhum: ele vai para o menu de reticencias.
+        ...(notification.actions ? { actions: notification.actions } : {}),
         data: {
           url: notification.url,
         },
@@ -56,13 +76,9 @@ self.addEventListener('push', event => {
   );
 });
 
-// O servidor manda um CAMINHO, sem host, e quem sabe o host certo e o navegador:
-// resolvemos contra a origem deste service worker, que e sempre o endereco pelo
-// qual a pessoa entrou. Assim o clique nao depende do FRONTEND_URL do servidor,
-// que envelhece a cada troca de endereco. URL absoluta antiga continua valendo -
-// o segundo argumento do `URL` so entra em acao quando o primeiro e relativo.
-const absoluteUrl = url => new URL(url, self.location.origin).href;
-
+// Serve tanto para o clique no CORPO do aviso quanto no botao: a unica acao
+// declarada ("open") significa abrir a conversa, que e o mesmo que o corpo faz.
+// Um botao com outro significado teria de ser separado aqui por `event.action`.
 self.addEventListener('notificationclick', event => {
   const notification = event.notification;
   const url = absoluteUrl(notification.data.url);
