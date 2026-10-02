@@ -106,3 +106,41 @@ export const setTicketsView = valor => {
     // Nao poder lembrar a preferencia nao pode derrubar a tela.
   }
 };
+
+/**
+ * Se o contato ja viu o tutorial guiado do Portal (primeiro acesso).
+ *
+ * Guardado por CONTATO (nao so' por navegador) dentro de uma unica chave -
+ * um objeto `{ [contactId]: true }` - porque o mesmo navegador/dispositivo
+ * pode ser usado por mais de um contato (ex.: computador compartilhado da
+ * empresa cliente), e cada um deve ver o tutorial na sua propria primeira
+ * vez, independente do que outro contato ja viu ali.
+ */
+const CHAVE_TUTORIAL = 'cw_client_tutorial_seen';
+
+const lerVistos = () => {
+  try {
+    const bruto = window.localStorage.getItem(CHAVE_TUTORIAL);
+    const vistos = bruto ? JSON.parse(bruto) : {};
+    return vistos && typeof vistos === 'object' ? vistos : {};
+  } catch {
+    return {};
+  }
+};
+
+export const hasSeenTutorial = contactId => {
+  if (!contactId) return true;
+  return Boolean(lerVistos()[contactId]);
+};
+
+export const setTutorialSeen = contactId => {
+  if (!contactId) return;
+  try {
+    const vistos = lerVistos();
+    vistos[contactId] = true;
+    window.localStorage.setItem(CHAVE_TUTORIAL, JSON.stringify(vistos));
+  } catch {
+    // Nao poder lembrar a preferencia nao pode derrubar a tela - so' significa
+    // que o tutorial pode aparecer de novo no proximo acesso.
+  }
+};
