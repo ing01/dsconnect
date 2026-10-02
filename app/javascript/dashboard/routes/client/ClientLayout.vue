@@ -21,6 +21,7 @@ import {
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ClientSidebar from './ClientSidebar.vue';
+import ClientTour from './components/ClientTour.vue';
 
 // O idioma é definido no boot (vide `entrypoints/dashboard.js`), antes de
 // qualquer tela montar.
@@ -80,6 +81,12 @@ const instalarApp = async () => {
     useAlert(t('CLIENT_AREA.INSTALL_APP_IOS_HINT'));
   }
 };
+
+// O tutorial guiado controla a gaveta do celular sozinho enquanto roda (abre
+// antes de apontar pra um item do menu, fecha nos passos que nao sao dele) -
+// ver `ClientTour.vue`.
+const clientTourRef = ref(null);
+const abrirTutorial = () => clientTourRef.value?.start();
 </script>
 
 <template>
@@ -111,14 +118,23 @@ const instalarApp = async () => {
           {{ contact.name }}
         </span>
         <Button
-          v-if="isInstallable"
           faded
           slate
           size="sm"
-          icon="i-lucide-download"
-          :label="t('CLIENT_AREA.INSTALL_APP')"
-          @click="instalarApp"
+          icon="i-lucide-graduation-cap"
+          :label="t('CLIENT_AREA.TOUR.OPEN_BUTTON')"
+          @click="abrirTutorial"
         />
+        <span v-if="isInstallable" class="contents" data-tour-step="install-app">
+          <Button
+            faded
+            slate
+            size="sm"
+            icon="i-lucide-download"
+            :label="t('CLIENT_AREA.INSTALL_APP')"
+            @click="instalarApp"
+          />
+        </span>
         <Button
           faded
           slate
@@ -161,6 +177,7 @@ const instalarApp = async () => {
       <router-link
         v-if="showChatShortcut"
         :to="{ name: 'client_chat' }"
+        data-tour-step="floating-chat"
         class="fixed z-20 flex items-center justify-center text-white rounded-full shadow-lg bottom-6 right-6 size-14 bg-n-brand hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
         :aria-label="t('CLIENT_AREA.CHAT.FLOATING_BUTTON')"
         :title="t('CLIENT_AREA.CHAT.FLOATING_BUTTON')"
@@ -168,5 +185,10 @@ const instalarApp = async () => {
         <Icon icon="i-lucide-message-circle" class="size-6" />
       </router-link>
     </div>
+
+    <ClientTour
+      ref="clientTourRef"
+      @sidebar-needed="isMobileOpen = $event"
+    />
   </div>
 </template>

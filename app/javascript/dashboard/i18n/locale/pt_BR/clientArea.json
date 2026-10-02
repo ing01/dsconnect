@@ -11,6 +11,49 @@
       "NOT_READY_YET": "A instalação ainda está carregando - aguarde alguns segundos e atualize a página. No iPhone/iPad, use Compartilhar > Adicionar à Tela de Início.",
       "GO_TO_LOGIN": "Já tenho o app, ir para o login"
     },
+    "TOUR": {
+      "OPEN_BUTTON": "Tutorial",
+      "SKIP": "Pular tutorial",
+      "BACK": "Voltar",
+      "NEXT": "Próximo",
+      "FINISH": "Concluir",
+      "WELCOME": {
+        "TITLE": "Bem-vindo ao Portal do Cliente!",
+        "DESCRIPTION": "Vamos te mostrar rapidinho onde encontrar cada coisa por aqui. Leva menos de um minuto."
+      },
+      "HOME": {
+        "TITLE": "Principal",
+        "DESCRIPTION": "Aqui ficam as novidades do Portal - sempre que mudar algo por aqui, você fica sabendo nesta tela."
+      },
+      "TICKETS": {
+        "TITLE": "Chamados",
+        "DESCRIPTION": "Aqui você abre um chamado novo e acompanha o andamento de todos os seus chamados."
+      },
+      "SAC": {
+        "TITLE": "SAC e Sugestões",
+        "DESCRIPTION": "Aqui você registra sugestões, reclamações, elogios ou pedidos de melhoria, e acompanha a resposta da equipe."
+      },
+      "CHAT": {
+        "TITLE": "Chat",
+        "DESCRIPTION": "Aqui você fala diretamente com a equipe, em tempo real - com texto, áudio ou anexo."
+      },
+      "NOTIFICATIONS": {
+        "TITLE": "Notificações",
+        "DESCRIPTION": "Aqui você vê os avisos sobre os seus chamados e mensagens."
+      },
+      "FLOATING_CHAT": {
+        "TITLE": "Atalho do Chat",
+        "DESCRIPTION": "Esse botão flutuante aparece em qualquer tela e já leva direto pro Chat, sem precisar abrir o menu."
+      },
+      "INSTALL_APP": {
+        "TITLE": "Instalar como app",
+        "DESCRIPTION": "Esse botão instala o Portal no seu celular ou computador, com ícone próprio, como um aplicativo de verdade."
+      },
+      "END": {
+        "TITLE": "Pronto!",
+        "DESCRIPTION": "Você já conhece o Portal. Pode rever esse tutorial quando quiser, clicando em \"Tutorial\" no topo da tela."
+      }
+    },
     "PRINCIPAL": {
       "GREETING_MORNING": "Bom dia, {name}!",
       "GREETING_AFTERNOON": "Boa tarde, {name}!",

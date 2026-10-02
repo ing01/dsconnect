@@ -11,6 +11,49 @@
       "NOT_READY_YET": "Install is still loading - wait a few seconds and refresh the page. On iPhone/iPad, use Share > Add to Home Screen.",
       "GO_TO_LOGIN": "I already have the app, go to login"
     },
+    "TOUR": {
+      "OPEN_BUTTON": "Tutorial",
+      "SKIP": "Skip tutorial",
+      "BACK": "Back",
+      "NEXT": "Next",
+      "FINISH": "Finish",
+      "WELCOME": {
+        "TITLE": "Welcome to the Client Portal!",
+        "DESCRIPTION": "Let's quickly show you where to find everything here. It takes less than a minute."
+      },
+      "HOME": {
+        "TITLE": "Home",
+        "DESCRIPTION": "Portal news shows up here - whenever something changes around here, you'll know on this screen."
+      },
+      "TICKETS": {
+        "TITLE": "Tickets",
+        "DESCRIPTION": "Here you open a new ticket and track the progress of all your tickets."
+      },
+      "SAC": {
+        "TITLE": "Feedback",
+        "DESCRIPTION": "Here you register suggestions, complaints, praise or improvement requests, and track the team's reply."
+      },
+      "CHAT": {
+        "TITLE": "Chat",
+        "DESCRIPTION": "Here you talk directly to the team, in real time - with text, audio or attachments."
+      },
+      "NOTIFICATIONS": {
+        "TITLE": "Notifications",
+        "DESCRIPTION": "Here you see alerts about your tickets and messages."
+      },
+      "FLOATING_CHAT": {
+        "TITLE": "Chat shortcut",
+        "DESCRIPTION": "This floating button shows up on any screen and takes you straight to the Chat, no need to open the menu."
+      },
+      "INSTALL_APP": {
+        "TITLE": "Install as an app",
+        "DESCRIPTION": "This button installs the Portal on your phone or computer, with its own icon, like a real app."
+      },
+      "END": {
+        "TITLE": "All set!",
+        "DESCRIPTION": "You already know your way around the Portal. You can replay this tutorial anytime by clicking \"Tutorial\" at the top of the screen."
+      }
+    },
     "PRINCIPAL": {
       "GREETING_MORNING": "Good morning, {name}!",
       "GREETING_AFTERNOON": "Good afternoon, {name}!",
