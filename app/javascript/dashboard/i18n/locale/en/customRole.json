@@ -49,7 +49,8 @@
       "AGENDA_MANAGE": "Access the Agenda",
       "COMPANY_MANAGE": "Access Companies and Contracts",
       "INTERNAL_CHAT_MANAGE": "Access the Internal Chat",
-      "SUGGESTION_MANAGE": "Move suggestions between columns and configure the Suggestions board"
+      "SUGGESTION_MANAGE": "Move suggestions between columns and configure the Suggestions board",
+      "COMMERCIAL_MANAGE": "Access the Painel Comercial (CRM) - clients, sales and contracts"
     },
     "FORM": {
       "NAME": {

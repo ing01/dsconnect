@@ -2,6 +2,8 @@
   "CLIENT_AREA": {
     "TITLE": "Client Area",
     "LOGOUT": "Sign out",
+    "INSTALL_APP": "Install app",
+    "INSTALL_APP_IOS_HINT": "Tap Share, then \"Add to Home Screen\" to install.",
     "PRINCIPAL": {
       "GREETING_MORNING": "Good morning, {name}!",
       "GREETING_AFTERNOON": "Good afternoon, {name}!",

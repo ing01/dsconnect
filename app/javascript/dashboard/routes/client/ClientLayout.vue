@@ -6,9 +6,10 @@
  * mesmo Button): para o cliente é outro sistema, mas é o mesmo produto, e uma
  * segunda linguagem visual só faria parecer remendo.
  */
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ClientAreaAPI from 'dashboard/api/clientArea';
+import { useAlert } from 'dashboard/composables';
 import {
   getClientSession,
   clearClientSession,
@@ -59,6 +60,57 @@ const sair = async () => {
   // memória, e só o recarregamento garante isso.
   window.location.assign('/app/login');
 };
+
+// O navegador so' dispara `beforeinstallprompt` quando a pagina passa nos
+// criterios de instalabilidade (manifest + service worker) - ate' la' o botao
+// fica escondido, e nao' some depois de instalado (`appinstalled`) ou quando
+// ja' esta' rodando como app (`display-mode: standalone`).
+const installPromptEvent = ref(null);
+
+// Safari no iPhone/iPad NUNCA dispara `beforeinstallprompt` (nao tem esse
+// mecanismo) - so' instala via Compartilhar > Adicionar a Tela de Inicio,
+// manualmente. Mostra o botao mesmo assim, com instrucao em vez de prompt.
+const isIosSafari = /iphone|ipad|ipod/i.test(window.navigator.userAgent) &&
+  !window.navigator.standalone;
+
+const isStandaloneAlready = window.matchMedia('(display-mode: standalone)').matches ||
+  window.navigator.standalone === true;
+
+const isInstallable = computed(
+  () => !isStandaloneAlready && (Boolean(installPromptEvent.value) || isIosSafari)
+);
+
+const onBeforeInstallPrompt = event => {
+  event.preventDefault();
+  installPromptEvent.value = event;
+};
+
+const onAppInstalled = () => {
+  installPromptEvent.value = null;
+};
+
+const instalarApp = async () => {
+  if (installPromptEvent.value) {
+    installPromptEvent.value.prompt();
+    await installPromptEvent.value.userChoice;
+    installPromptEvent.value = null;
+    return;
+  }
+
+  if (isIosSafari) {
+    useAlert(t('CLIENT_AREA.INSTALL_APP_IOS_HINT'));
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+  window.addEventListener('appinstalled', onAppInstalled);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+  window.removeEventListener('appinstalled', onAppInstalled);
+});
 </script>
 
 <template>
@@ -89,6 +141,15 @@ const sair = async () => {
         <span class="hidden text-sm sm:inline text-n-slate-11">
           {{ contact.name }}
         </span>
+        <Button
+          v-if="isInstallable"
+          faded
+          slate
+          size="sm"
+          icon="i-lucide-download"
+          :label="t('CLIENT_AREA.INSTALL_APP')"
+          @click="instalarApp"
+        />
         <Button
           faded
           slate

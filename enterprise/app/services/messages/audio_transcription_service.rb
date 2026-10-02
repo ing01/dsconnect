@@ -7,26 +7,33 @@ class Messages::AudioTranscriptionService
     @account = message&.account
   end
 
+  # Antes exigia `captain_integration` (licenca Enterprise) + creditos de
+  # resposta via `Llm::SpeechToTextService` - nesta instalacao self-hosted,
+  # isso deixava a transcricao morta mesmo com uma chave OpenAI/Groq
+  # configurada. Reaproveita o mesmo `Captain::AudioTranscriptionService` sem
+  # licenca/creditos ja usado na abertura de ticket por IA do Portal.
   def perform
     return { error: 'Message not found' } if message.blank?
-    return { error: 'Transcription limit exceeded' } unless Llm::SpeechToTextService.available_for?(account)
-    return { error: 'Audio too large for transcription' } if Llm::SpeechToTextService.too_large?(attachment.file&.blob)
 
-    transcriptions = transcribe_audio
+    blob = attachment.file&.blob
+    return { error: 'No audio file attached' } if blob.blank?
+
+    transcriptions = transcribe_audio(blob)
     Rails.logger.info "Audio transcription successful: #{transcriptions}"
     { success: true, transcriptions: transcriptions }
-  rescue Faraday::UnauthorizedError
-    Rails.logger.warn('Skipping audio transcription: OpenAI configuration is invalid or disabled (401 Unauthorized).')
-    { error: 'OpenAI configuration is invalid or disabled (401)' }
   end
 
   private
 
-  def transcribe_audio
+  def transcribe_audio(blob)
     transcribed_text = attachment.meta&.[]('transcribed_text') || ''
     return transcribed_text if transcribed_text.present?
 
-    transcribed_text = Llm::SpeechToTextService.new(blob: attachment.file.blob, account: account).perform
+    transcribed_text = blob.open do |file|
+      response = Captain::AudioTranscriptionService.new(account: account, file: file).perform
+      response[:error] ? '' : response[:text].to_s
+    end
+
     update_transcription(transcribed_text)
     transcribed_text
   end

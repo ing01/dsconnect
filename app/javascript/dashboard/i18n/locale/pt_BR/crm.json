@@ -1,0 +1,78 @@
+{
+  "CRM": {
+    "CLIENTS": {
+      "HEADER": "Clientes do Comercial",
+      "DESCRIPTION": "Cadastro proprio de clientes/leads do comercial - separado das Empresas ja clientes do Duedesk.",
+      "NEW": "Novo cliente",
+      "EDIT": "Editar cliente",
+      "SEARCH": "Buscar por nome, CNPJ ou contato",
+      "EMPTY": "Nenhum cliente cadastrado ainda.",
+      "ERROR": "Nao foi possivel carregar os clientes.",
+      "SAVE_ERROR": "Nao foi possivel salvar o cliente.",
+      "DELETE_CONFIRM": "Excluir este cliente? Isso tambem exclui as vendas vinculadas a ele.",
+      "DELETE_ERROR": "Nao foi possivel excluir o cliente.",
+      "FIELDS": {
+        "NAME": "Nome / Razao social",
+        "CNPJ": "CNPJ/CPF",
+        "CONTACT_NAME": "Nome do contato",
+        "PHONE": "Telefone",
+        "EMAIL": "E-mail",
+        "NOTES": "Observacoes"
+      },
+      "FORM": {
+        "SAVE": "Salvar",
+        "CANCEL": "Cancelar"
+      },
+      "TABLE": {
+        "NAME": "Cliente",
+        "CNPJ": "CNPJ/CPF",
+        "CONTACT": "Contato",
+        "PHONE": "Telefone",
+        "ACTIONS": "Acoes"
+      }
+    },
+    "SALES": {
+      "HEADER": "Vendas",
+      "DESCRIPTION": "Lancamentos de venda do comercial - implantacao e mensalidade, por cliente.",
+      "NEW": "Nova venda",
+      "EDIT": "Editar venda",
+      "EMPTY": "Nenhuma venda lancada ainda.",
+      "ERROR": "Nao foi possivel carregar as vendas.",
+      "SAVE_ERROR": "Nao foi possivel salvar a venda.",
+      "DELETE_CONFIRM": "Excluir esta venda?",
+      "DELETE_ERROR": "Nao foi possivel excluir a venda.",
+      "FIELDS": {
+        "CLIENT": "Cliente",
+        "SELLER": "Vendedor",
+        "COMPETENCIA": "Competencia (mes/ano)",
+        "PAYMENT_METHOD": "Forma de pagamento",
+        "INSTALLMENTS": "Parcelas",
+        "CHANNEL": "Canal de venda"
+      },
+      "ITEMS": {
+        "TITLE": "Itens da venda",
+        "ADD": "+ Produto",
+        "PRODUCT": "Produto",
+        "IMPLEMENTATION_VALUE": "Implantacao (R$)",
+        "MONTHLY_VALUE": "Mensalidade (R$)",
+        "REMOVE": "Remover"
+      },
+      "FORM": {
+        "SAVE": "Salvar",
+        "CANCEL": "Cancelar"
+      },
+      "TABLE": {
+        "COMPETENCIA": "Competencia",
+        "CLIENT": "Cliente",
+        "SELLER": "Vendedor",
+        "IMPLEMENTATION_VALUE": "Implantacao",
+        "MONTHLY_VALUE": "Mensalidade",
+        "ACTIONS": "Acoes"
+      },
+      "TOTALS": {
+        "IMPLEMENTATION": "Total implantacao",
+        "MONTHLY": "Total mensalidade"
+      }
+    }
+  }
+}

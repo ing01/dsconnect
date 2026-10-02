@@ -94,20 +94,31 @@ const assinar = pubsubToken => {
     { channel: 'RoomChannel', pubsub_token: pubsubToken },
     {
       received: ({ event, data }) => {
-        if (event !== 'message.created' || !data) return;
-        if (data.conversation_id !== conversationDisplayId.value) return;
-        // O cable manda o formato do painel (`sender_type`, `sender`,
-        // `attachments`); aqui o formato e' o do endpoint de historico -
-        // normaliza antes de empilhar.
-        adicionar({
-          id: data.id,
-          content: data.content,
-          content_type: data.content_type,
-          from_you: data.sender_type === 'Contact',
-          author_name: data.sender_type === 'User' ? data.sender?.name : null,
-          created_at: data.created_at,
-          attachments: data.attachments || [],
-        });
+        if (!data || data.conversation_id !== conversationDisplayId.value) {
+          return;
+        }
+
+        if (event === 'message.created') {
+          // O cable manda o formato do painel (`sender_type`, `sender`,
+          // `attachments`); aqui o formato e' o do endpoint de historico -
+          // normaliza antes de empilhar.
+          adicionar({
+            id: data.id,
+            content: data.content,
+            content_type: data.content_type,
+            from_you: data.sender_type === 'Contact',
+            author_name: data.sender_type === 'User' ? data.sender?.name : null,
+            created_at: data.created_at,
+            attachments: data.attachments || [],
+          });
+        } else if (event === 'message.updated') {
+          // So a transcricao de audio atualiza uma mensagem ja enviada - sem
+          // isto, o texto so apareceria depois de recarregar a pagina.
+          const existente = messages.value.find(
+            mensagem => mensagem.id === data.id
+          );
+          if (existente) existente.attachments = data.attachments || [];
+        }
       },
     }
   );

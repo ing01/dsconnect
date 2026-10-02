@@ -49,7 +49,8 @@
       "AGENDA_MANAGE": "Acessar a Agenda",
       "COMPANY_MANAGE": "Acessar Empresas e Contratos",
       "INTERNAL_CHAT_MANAGE": "Acessar o Chat Interno",
-      "SUGGESTION_MANAGE": "Mover sugestões entre colunas e configurar o quadro de Sugestões"
+      "SUGGESTION_MANAGE": "Mover sugestões entre colunas e configurar o quadro de Sugestões",
+      "COMMERCIAL_MANAGE": "Acessar o Painel Comercial (CRM) - clientes, vendas e contratos"
     },
     "FORM": {
       "NAME": {

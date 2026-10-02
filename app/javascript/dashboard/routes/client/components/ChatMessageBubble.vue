@@ -131,12 +131,15 @@ const enviarCsat = async () => {
 
     <div v-if="message.attachments?.length" class="flex flex-col gap-1.5">
       <template v-for="anexo in message.attachments" :key="anexo.id">
-        <audio
-          v-if="anexo.file_type === 'audio'"
-          :src="anexo.data_url"
-          controls
-          class="max-w-full h-9"
-        />
+        <template v-if="anexo.file_type === 'audio'">
+          <audio :src="anexo.data_url" controls class="max-w-full h-9" />
+          <p
+            v-if="anexo.transcribed_text"
+            class="m-0 text-xs italic break-words opacity-90"
+          >
+            {{ anexo.transcribed_text }}
+          </p>
+        </template>
         <img
           v-else-if="anexo.file_type === 'image'"
           :src="anexo.data_url"

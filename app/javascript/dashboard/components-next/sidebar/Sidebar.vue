@@ -575,6 +575,22 @@ const menuItems = computed(() => {
       activeOn: ['manifestations_index', 'manifestation_detail'],
     },
     {
+      // So aparece para quem tem `commercial_manage` - o proprio
+      // `to` ja resolve essa permissao (ver provider.js/usePolicy).
+      name: 'CrmClients',
+      label: t('SIDEBAR.CRM_CLIENTS'),
+      icon: 'i-lucide-briefcase-business',
+      to: accountScopedRoute('crm_clients_index'),
+      activeOn: ['crm_clients_index'],
+    },
+    {
+      name: 'CrmSales',
+      label: t('SIDEBAR.CRM_SALES'),
+      icon: 'i-lucide-handshake',
+      to: accountScopedRoute('crm_sales_index'),
+      activeOn: ['crm_sales_index'],
+    },
+    {
       name: 'Agenda',
       label: t('SIDEBAR.AGENDA'),
       icon: 'i-lucide-calendar-days',

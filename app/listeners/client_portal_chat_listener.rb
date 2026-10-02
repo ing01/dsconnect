@@ -1,22 +1,20 @@
-# Avisa o Contato quando a equipe FALA PRIMEIRO no chat do Portal - so na
-# PRIMEIRA mensagem de uma sessao (nova ou reaberta depois de resolvida), e
-# so quando a mensagem e' de fato do chat do Portal (o Inbox marcado por
+# Avisa o Contato quando a equipe fala no chat do Portal - so quando a
+# mensagem e' de fato do chat do Portal (o Inbox marcado por
 # `Inboxes::EnsureClientPortalInboxService`). Mensagens de qualquer outro
 # canal (WhatsApp, e-mail...) nao tem Contato nenhum esperando notificacao de
 # navegador, entao ficam de fora aqui.
 #
-# So a PRIMEIRA: um va-e-volta longo dentro da MESMA sessao nao manda push e
-# e-mail a cada resposta - o cliente ja esta olhando a tela (ou acabou de
-# ser avisado); o aviso existe pra quando a equipe chama do nada, nao pra
-# cada linha de uma conversa em andamento.
+# Push: TODA mensagem notifica (confirmado com a Ingrid - o cliente quer
+# saber sempre que chegou mensagem nova, nao so' na primeira da sessao).
+# E-mail: continua so' na PRIMEIRA mensagem de cada sessao - um e-mail por
+# linha de conversa seria spam; o push ja cobre o aviso em tempo real.
 class ClientPortalChatListener < BaseListener
   def message_created(event)
     message, = extract_message_and_account(event)
     return unless relevant?(message)
-    return unless first_outgoing_message?(message)
 
     Client::ChatPushNotificationService.new(message: message).perform
-    ClientChatMailer.new_message(message).deliver_later
+    ClientChatMailer.new_message(message).deliver_later if first_outgoing_message?(message)
   end
 
   private

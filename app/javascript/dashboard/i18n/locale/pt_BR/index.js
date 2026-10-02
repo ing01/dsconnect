@@ -61,6 +61,7 @@ import whatsappTemplates from './whatsappTemplates.json';
 import whatsappTemplateMgmt from './whatsappTemplateMgmt.json';
 import yearInReview from './yearInReview.json';
 import suggestions from './suggestions.json';
+import crm from './crm.json';
 
 export default {
   ...advancedFilters,
@@ -126,4 +127,5 @@ export default {
   ...yearInReview,
   ...suggestions,
   ...contracts,
+  ...crm,
 };

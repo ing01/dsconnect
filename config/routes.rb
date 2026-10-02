@@ -567,6 +567,13 @@ Rails.application.routes.draw do
           resources :project_task_templates
           resources :checklists
 
+          # Painel Comercial (CRM) - cadastro proprio, acesso restrito via
+          # `commercial_manage` (ver Crm::ClientPolicy/Crm::SalePolicy).
+          namespace :crm do
+            resources :clients
+            resources :sales
+          end
+
           resources :implementation_reports, only: [] do
             collection do
               get :hours_summary

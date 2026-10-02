@@ -60,6 +60,7 @@ import manifestation from './manifestation.json';
 import sessionLimit from './sessionLimit.json';
 import yearInReview from './yearInReview.json';
 import suggestions from './suggestions.json';
+import crm from './crm.json';
 
 export default {
   ...advancedFilters,
@@ -124,4 +125,5 @@ export default {
   ...yearInReview,
   ...suggestions,
   ...contracts,
+  ...crm,
 };
