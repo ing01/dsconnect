@@ -19,10 +19,17 @@ import ClientNotificationsPage from './pages/ClientNotificationsPage.vue';
 import ClientManifestationsPage from './pages/ClientManifestationsPage.vue';
 import ClientManifestationDetailPage from './pages/ClientManifestationDetailPage.vue';
 import ClientPasswordEditPage from './pages/ClientPasswordEditPage.vue';
+import ClientInstallPage from './pages/ClientInstallPage.vue';
 
-// A definicao de nova senha roda SEM sessao - e o token do e-mail que autoriza.
-// Fica listada aqui para a guarda em `routes/index.js` saber liberar so esta.
-export const CLIENT_PUBLIC_PATHS = ['/app/client/password/edit'];
+// A definicao de nova senha e o link de instalacao rodam SEM sessao - o
+// primeiro e o token do e-mail que autoriza, o segundo e de proposito (um
+// link pronto para mandar a alguem que ainda nem tem acesso, so para
+// instalar o app antes de entrar). Ficam listados aqui para a guarda em
+// `routes/index.js` saber liberar so estes.
+export const CLIENT_PUBLIC_PATHS = [
+  '/app/client/password/edit',
+  '/app/client/install',
+];
 
 export default {
   routes: [
@@ -32,6 +39,11 @@ export default {
       path: '/app/client/password/edit',
       name: 'client_password_edit',
       component: ClientPasswordEditPage,
+    },
+    {
+      path: '/app/client/install',
+      name: 'client_install',
+      component: ClientInstallPage,
     },
     {
       path: '/app/client',
