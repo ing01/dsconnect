@@ -9,6 +9,24 @@
 // card, então os dois precisam ficar em sincronia.
 export const PRINCIPAL_ENTRIES = [
   {
+    id: 'client-chat-floating-button',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'improvement',
+    title: 'Botão flutuante para abrir o Chat mais rápido',
+    description:
+      'Agora tem um botão fixo no canto da tela, em qualquer página do Portal, que já leva direto pro Chat com a equipe - sem precisar abrir o menu toda vez.',
+  },
+  {
+    id: 'client-sac',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'Novo canal de SAC e Sugestões',
+    description:
+      'Registre sugestões, reclamações, elogios e pedidos de melhoria sobre o ERP, o atendimento, os atendentes, a implantação ou o comercial. Escolha o tipo e o assunto, descreva o caso, anexe arquivos se quiser, e acompanhe o andamento pelo número (SAC-1, SAC-2...) com o histórico e as respostas da equipe.',
+  },
+  {
     id: 'client-install-app',
     date: '1 de outubro de 2026',
     isoDate: '2026-10-01',

@@ -8,6 +8,69 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'conversation-copilot-removed',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'improvement',
+    title: 'Copiloto (IA) removido das Conversas por enquanto',
+    description:
+      'O ícone/painel do Copiloto saiu da tela de Conversas - fica só o ícone de contato no mesmo lugar. Os demais recursos de IA (melhorar resposta, resumir conversa, etc.) continuam normalmente.',
+  },
+  {
+    id: 'conversation-resolved-lock',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'Conversa resolvida bloqueia resposta até reabrir',
+    description:
+      'Depois de marcada como resolvida, a conversa não aceita mais mensagem pública para o cliente - a caixa de digitação fica bloqueada com um aviso, até alguém reabrir a conversa. Nota privada continua liberada normalmente, e vale até para Administrador.',
+  },
+  {
+    id: 'ticket-ai-summarize-description',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'Resumir conversa por IA na descrição do ticket',
+    description:
+      'Na tela do ticket, o botão "Resumir conversa" (mesmo recurso de IA do chat do atendente) aparece ao lado de Editar/Usar template sempre que o ticket tem conversa vinculada. Ele junta todas as conversas ligadas ao ticket, gera um resumo e abre a descrição já preenchida para revisar e salvar - nunca salva sozinho.',
+  },
+  {
+    id: 'crm-dashboard',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'Painel Comercial ganhou tela de indicadores',
+    description:
+      'Novo item "Indicadores Comercial" no menu: os mesmos números do painel comercial antigo (implantação, mensalidade, vendas, clientes únicos, ticket médio), tendência mensal e ranking de vendedor, produto e canal, com filtro por período. Administrador vê automaticamente; os demais continuam precisando da permissão do Comercial.',
+  },
+  {
+    id: 'crm-contract-generation',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'Geração de contrato em PDF/Word no Painel Comercial',
+    description:
+      'Novo item "Contratos": suba um modelo (.docx com marcadores [[assim]]) e o sistema aprende sozinho quais campos ele tem. Ao gerar, os dados que o cadastro do cliente já souber (endereço, representante, etc.) entram automaticamente - só preenche o que for específico daquele contrato - e o resultado sai em PDF e também em Word, para acrescentar à mão um segundo representante quando houver mais de um. O botão "O que significa cada campo?" explica cada marcador para quem for mexer num modelo.',
+  },
+  {
+    id: 'client-portal-floating-chat-button',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'improvement',
+    title: 'Botão flutuante de Chat no Portal do Cliente',
+    description:
+      'O cliente agora tem um atalho fixo no canto da tela, em qualquer página do Portal, para abrir o Chat direto - sem precisar abrir o menu lateral toda vez.',
+  },
+  {
+    id: 'client-portal-install-link',
+    date: '1 de outubro de 2026',
+    isoDate: '2026-10-01',
+    type: 'feature',
+    title: 'Link pronto para instalar o Portal, sem precisar logar',
+    description:
+      '/app/client/install é uma página pública (não pede login) só com o botão de instalar o Portal como app - pronta para mandar por WhatsApp/e-mail a alguém que ainda nem tem acesso, para já instalar antes de entrar.',
+  },
+  {
     id: 'sac-inside-suggestions',
     date: '2 de outubro de 2026',
     isoDate: '2026-10-02',
