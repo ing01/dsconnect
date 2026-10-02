@@ -16,7 +16,10 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'company_manage',
   'internal_chat_manage',
   'suggestion_manage',
+  'commercial_manage',
 ];
+
+export const COMMERCIAL_PERMISSIONS = 'commercial_manage';
 
 export const CLIENT_CREDENTIALS_PERMISSIONS = 'client_credentials_manage';
 

@@ -204,6 +204,9 @@ class Account < ApplicationRecord
   # o relatorio somar horas sem passar por cada ticket.
   has_many :ticket_time_entries, dependent: :destroy_async
   has_many :projects, dependent: :destroy_async
+  # Painel de CRM Comercial - cadastro proprio, independente de `companies`.
+  has_many :crm_clients, class_name: 'Crm::Client', dependent: :destroy_async
+  has_many :crm_sales, class_name: 'Crm::Sale', dependent: :destroy_async
   has_many :project_modules, dependent: :destroy_async
   # Quadro de Sugestoes de melhoria - 1 por conta, nao por Mesa.
   has_many :suggestion_categories, dependent: :destroy_async

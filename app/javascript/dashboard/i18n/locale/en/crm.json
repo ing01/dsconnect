@@ -1,0 +1,78 @@
+{
+  "CRM": {
+    "CLIENTS": {
+      "HEADER": "Commercial Clients",
+      "DESCRIPTION": "Sales team's own client/lead registry - separate from Companies that are already Duedesk customers.",
+      "NEW": "New client",
+      "EDIT": "Edit client",
+      "SEARCH": "Search by name, CNPJ or contact",
+      "EMPTY": "No client registered yet.",
+      "ERROR": "Could not load the clients.",
+      "SAVE_ERROR": "Could not save the client.",
+      "DELETE_CONFIRM": "Delete this client? This also deletes the sales linked to it.",
+      "DELETE_ERROR": "Could not delete the client.",
+      "FIELDS": {
+        "NAME": "Name / Company name",
+        "CNPJ": "Tax ID",
+        "CONTACT_NAME": "Contact name",
+        "PHONE": "Phone",
+        "EMAIL": "Email",
+        "NOTES": "Notes"
+      },
+      "FORM": {
+        "SAVE": "Save",
+        "CANCEL": "Cancel"
+      },
+      "TABLE": {
+        "NAME": "Client",
+        "CNPJ": "Tax ID",
+        "CONTACT": "Contact",
+        "PHONE": "Phone",
+        "ACTIONS": "Actions"
+      }
+    },
+    "SALES": {
+      "HEADER": "Sales",
+      "DESCRIPTION": "Sales entries - implementation and monthly fee, per client.",
+      "NEW": "New sale",
+      "EDIT": "Edit sale",
+      "EMPTY": "No sale entered yet.",
+      "ERROR": "Could not load the sales.",
+      "SAVE_ERROR": "Could not save the sale.",
+      "DELETE_CONFIRM": "Delete this sale?",
+      "DELETE_ERROR": "Could not delete the sale.",
+      "FIELDS": {
+        "CLIENT": "Client",
+        "SELLER": "Seller",
+        "COMPETENCIA": "Period (month/year)",
+        "PAYMENT_METHOD": "Payment method",
+        "INSTALLMENTS": "Installments",
+        "CHANNEL": "Sales channel"
+      },
+      "ITEMS": {
+        "TITLE": "Sale items",
+        "ADD": "+ Product",
+        "PRODUCT": "Product",
+        "IMPLEMENTATION_VALUE": "Implementation ($)",
+        "MONTHLY_VALUE": "Monthly fee ($)",
+        "REMOVE": "Remove"
+      },
+      "FORM": {
+        "SAVE": "Save",
+        "CANCEL": "Cancel"
+      },
+      "TABLE": {
+        "COMPETENCIA": "Period",
+        "CLIENT": "Client",
+        "SELLER": "Seller",
+        "IMPLEMENTATION_VALUE": "Implementation",
+        "MONTHLY_VALUE": "Monthly fee",
+        "ACTIONS": "Actions"
+      },
+      "TOTALS": {
+        "IMPLEMENTATION": "Total implementation",
+        "MONTHLY": "Total monthly"
+      }
+    }
+  }
+}

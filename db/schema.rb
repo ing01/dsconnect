@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_30_160000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_02_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1093,6 +1093,46 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_30_160000) do
     t.string "description"
     t.index ["account_id"], name: "index_contracts_on_account_id"
     t.index ["responsible_contact_id"], name: "index_contracts_on_responsible_contact_id"
+  end
+
+  create_table "crm_clients", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.string "cnpj"
+    t.string "contact_name"
+    t.string "phone"
+    t.string "email"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_crm_clients_on_account_id"
+  end
+
+  create_table "crm_sale_items", force: :cascade do |t|
+    t.bigint "crm_sale_id", null: false
+    t.string "product", null: false
+    t.decimal "implementation_value", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "monthly_value", precision: 12, scale: 2, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["crm_sale_id"], name: "index_crm_sale_items_on_crm_sale_id"
+  end
+
+  create_table "crm_sales", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "crm_client_id", null: false
+    t.bigint "user_id"
+    t.date "competencia", null: false
+    t.string "payment_method"
+    t.integer "installments", default: 1, null: false
+    t.string "channel"
+    t.decimal "implementation_value", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "monthly_value", precision: 12, scale: 2, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_crm_sales_on_account_id"
+    t.index ["crm_client_id"], name: "index_crm_sales_on_crm_client_id"
+    t.index ["user_id"], name: "index_crm_sales_on_user_id"
   end
 
   create_table "conversation_flow_states", force: :cascade do |t|
