@@ -5,11 +5,15 @@
 # creditos de resposta que essa tela nem usa.
 class Captain::AudioTranscriptionService < Captain::BaseTaskService
   MODEL = 'whisper-1'.freeze
+  # Limite real da OpenAI (e compativel na Groq) para o endpoint de
+  # transcricao - 25 MB *decimais*, nao binarios (ver Llm::SpeechToTextService).
+  BYTE_LIMIT = 25_000_000
 
   pattr_initialize [:account!, :file!]
 
   def perform
     return { error: I18n.t('captain.api_key_missing'), error_code: 401 } unless api_key_configured?
+    return { error: 'audio_too_large' } if file.size.to_i > BYTE_LIMIT
 
     response = client.audio.transcribe(
       parameters: { model: transcription_model, file: file.to_io, temperature: 0.0 }
@@ -38,7 +42,7 @@ class Captain::AudioTranscriptionService < Captain::BaseTaskService
   end
 
   def event_name
-    'ticket_draft_audio_transcription'
+    'audio_transcription'
   end
 
   def client
