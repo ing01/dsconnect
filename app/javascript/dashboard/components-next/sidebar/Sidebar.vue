@@ -566,8 +566,8 @@ const menuItems = computed(() => {
       activeOn: ['suggestions_index'],
     },
     {
-      // So aparece para quem tem `commercial_manage` - o proprio
-      // `to` ja resolve essa permissao (ver provider.js/usePolicy).
+      // Aparece para administrador ou quem tem `commercial_manage` - o
+      // proprio `to` ja resolve essa permissao (ver provider.js/usePolicy).
       name: 'CrmClients',
       label: t('SIDEBAR.CRM_CLIENTS'),
       icon: 'i-lucide-briefcase-business',
