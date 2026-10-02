@@ -158,6 +158,7 @@ export default {
       isMetaMessageSendingDisabled: 'globalConfig/isMetaMessageSendingDisabled',
       accountId: 'getCurrentAccountId',
       isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
+      currentRole: 'getCurrentRole',
     }),
     isMacrosEnabled() {
       return this.isFeatureEnabledonAccount(
@@ -241,6 +242,18 @@ export default {
       );
       return !!stripped.trim();
     },
+    // So' quem a conversa esta atribuida (ou administrador) pode mandar
+    // mensagem publica pro cliente - nota privada continua liberada pra
+    // qualquer atendente (e' comunicacao interna, nao chega no cliente).
+    assignedAgent() {
+      return this.currentChat?.meta?.assignee;
+    },
+    isAssignedToAnotherAgent() {
+      if (this.currentRole === 'administrator') return false;
+      if (!this.assignedAgent) return false;
+
+      return this.assignedAgent.id !== this.currentUser.id;
+    },
     isBotOwnedPendingConversation() {
       return (
         this.currentChat?.status === wootConstants.STATUS_TYPE.PENDING &&
@@ -255,6 +268,11 @@ export default {
     },
     messagePlaceHolder() {
       if (this.isEditorDisabled) {
+        if (this.isAssignedToAnotherAgent) {
+          return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_ASSIGNED', {
+            name: this.assignedAgent?.name,
+          });
+        }
         if (this.isAWhatsAppChannel) {
           return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_WHATSAPP');
         }
@@ -488,6 +506,8 @@ export default {
       return !this.showAudioRecorderEditor && !this.copilot.isActive.value;
     },
     isEditorDisabled() {
+      if (this.isAssignedToAnotherAgent && !this.isOnPrivateNote) return true;
+
       return (
         (this.isAWhatsAppChannel || this.isAPIInbox) &&
         !this.isOnPrivateNote &&

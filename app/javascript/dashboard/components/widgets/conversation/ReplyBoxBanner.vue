@@ -47,13 +47,20 @@ const hasMessage = computed(() => props.message !== '');
 const isUserTyping = computed(() => hasMessage.value && !props.isOnPrivateNote);
 const isUnassigned = computed(() => !assignedAgent.value);
 const isAssignedToOtherAgent = computed(
-  () => assignedAgent.value?.id !== currentUser.value?.id
+  () => !!assignedAgent.value && assignedAgent.value?.id !== currentUser.value?.id
 );
 
+// Quando a conversa e' de outro atendente, o editor fica bloqueado de
+// verdade (ver `ReplyBox#isEditorDisabled`) - sem digitar nada, `isUserTyping`
+// nunca ficaria true, e o banner (com o botao "Atribuir a mim" que destrava)
+// nunca apareceria. Por isso esse caso mostra o banner sempre, nao so' ao
+// digitar; unassigned continua so' avisando depois que a pessoa comeca a
+// escrever (nao bloqueia o envio, so' lembra de atribuir).
 const showSelfAssignBanner = computed(() => {
-  return (
-    isUserTyping.value && (isUnassigned.value || isAssignedToOtherAgent.value)
-  );
+  if (props.isOnPrivateNote) return false;
+  if (isAssignedToOtherAgent.value) return true;
+
+  return isUserTyping.value && isUnassigned.value;
 });
 
 const isPendingConversation = computed(

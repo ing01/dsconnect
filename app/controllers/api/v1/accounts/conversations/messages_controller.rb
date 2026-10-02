@@ -1,5 +1,6 @@
 class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::Conversations::BaseController
   before_action :ensure_api_inbox, only: :update
+  before_action :ensure_reply_assignment, only: :create
 
   def index
     @messages = message_finder.perform
@@ -86,6 +87,27 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
 
   def already_translated_content_available?
     message.translations.present? && message.translations[permitted_params[:target_language]].present?
+  end
+
+  # So' quem a conversa esta atribuida (ou administrador) pode mandar
+  # mensagem PUBLICA pro cliente - nota privada e' interna entre atendentes,
+  # continua liberada pra qualquer um. So' vale para um agente de verdade
+  # mandando pela tela (Current.user) - automacao/API/bot nao passam por
+  # aqui como "Current.user", entao ficam de fora de proposito.
+  def ensure_reply_assignment
+    return if Current.user.blank?
+    return if reply_private?
+    return if Current.account_user&.administrator?
+
+    if @conversation.assignee_id.blank?
+      @conversation.update!(assignee_id: Current.user.id)
+    elsif @conversation.assignee_id != Current.user.id
+      render json: { error: I18n.t('errors.conversation.must_be_assigned_to_reply') }, status: :forbidden
+    end
+  end
+
+  def reply_private?
+    ActiveModel::Type::Boolean.new.cast(params[:private])
   end
 
   # API inbox check
