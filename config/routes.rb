@@ -572,6 +572,9 @@ Rails.application.routes.draw do
           namespace :crm do
             resources :clients
             resources :sales
+            resources :contract_templates, only: [:index, :create, :destroy]
+            resources :generated_contracts, only: [:index, :create]
+            resource :dashboard, only: [:show]
           end
 
           resources :implementation_reports, only: [] do

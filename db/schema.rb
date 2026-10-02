@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_02_130000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_02_150000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1252,7 +1252,49 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_02_130000) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "trade_name"
+    t.string "state_registration"
+    t.string "address_street"
+    t.string "address_number"
+    t.string "address_complement"
+    t.string "address_neighborhood"
+    t.string "city"
+    t.string "state"
+    t.string "zip_code"
+    t.string "representative_name"
+    t.string "representative_cpf"
+    t.date "representative_birth_date"
+    t.string "representative_phone"
+    t.string "representative_address_street"
+    t.string "representative_address_number"
+    t.string "representative_address_complement"
+    t.string "representative_neighborhood"
+    t.string "representative_city"
+    t.string "representative_state"
+    t.string "representative_zip_code"
     t.index ["account_id"], name: "index_crm_clients_on_account_id"
+  end
+
+  create_table "crm_contract_templates", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.jsonb "tokens", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_crm_contract_templates_on_account_id"
+  end
+
+  create_table "crm_generated_contracts", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "crm_contract_template_id", null: false
+    t.bigint "crm_client_id", null: false
+    t.bigint "crm_sale_id"
+    t.jsonb "data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_crm_generated_contracts_on_account_id"
+    t.index ["crm_client_id"], name: "index_crm_generated_contracts_on_crm_client_id"
+    t.index ["crm_contract_template_id"], name: "index_crm_generated_contracts_on_crm_contract_template_id"
   end
 
   create_table "crm_sale_items", force: :cascade do |t|

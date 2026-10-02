@@ -832,6 +832,9 @@ en:
   automation:
     system_name: 'Automation System'
   crm:
+    dashboard:
+      unassigned_seller: 'No seller'
+      no_channel: 'Not informed'
     no_message: 'No messages in conversation'
     attachment: '[Attachment: %{type}]'
     no_content: '[No content]'

@@ -592,6 +592,20 @@ const menuItems = computed(() => {
       activeOn: ['crm_sales_index'],
     },
     {
+      name: 'CrmDashboard',
+      label: t('SIDEBAR.CRM_DASHBOARD'),
+      icon: 'i-lucide-bar-chart-3',
+      to: accountScopedRoute('crm_dashboard_index'),
+      activeOn: ['crm_dashboard_index'],
+    },
+    {
+      name: 'CrmContracts',
+      label: t('SIDEBAR.CRM_CONTRACTS'),
+      icon: 'i-lucide-file-signature',
+      to: accountScopedRoute('crm_contracts_index'),
+      activeOn: ['crm_contracts_index'],
+    },
+    {
       name: 'Agenda',
       label: t('SIDEBAR.AGENDA'),
       icon: 'i-lucide-calendar-days',
