@@ -1,6 +1,7 @@
 {
   "MANIFESTATION": {
     "TITLE": "SAC e Sugestões",
+    "BACK_TO_SUGGESTIONS": "Sugestões e Melhorias",
     "DESCRIPTION": "Sugestões, reclamações, elogios e pedidos de melhoria enviados pelos clientes.",
     "KINDS": {
       "suggestion": "Sugestão",

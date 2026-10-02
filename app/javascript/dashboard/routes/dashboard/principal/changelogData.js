@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'sac-inside-suggestions',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'improvement',
+    title: 'SAC dos clientes agora fica dentro de Sugestões e Melhorias',
+    description:
+      'Os dois canais de sugestão pararam de brigar por espaço no menu. "SAC e Sugestões" deixou de ser um item separado e passou a ser alcançado por um botão "SAC dos clientes" no topo da tela de Sugestões e Melhorias - o quadro continua recebendo o que vem da equipe, e o botão leva ao que vem dos clientes pelo Portal. Qualquer atendente vê o botão; incluir sugestão e configurar colunas seguem restritos a quem já podia. O item do menu fica destacado também enquanto se navega pelo SAC, e a tela do SAC ganhou um caminho de volta para o quadro.',
+  },
+  {
     id: 'sac-manifestations',
     date: '2 de outubro de 2026',
     isoDate: '2026-10-02',

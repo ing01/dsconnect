@@ -1,6 +1,7 @@
 {
   "MANIFESTATION": {
     "TITLE": "Customer feedback",
+    "BACK_TO_SUGGESTIONS": "Suggestions and Improvements",
     "DESCRIPTION": "Suggestions, complaints, compliments and improvement requests sent by customers.",
     "KINDS": {
       "suggestion": "Suggestion",

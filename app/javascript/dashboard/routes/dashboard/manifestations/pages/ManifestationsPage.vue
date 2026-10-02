@@ -123,6 +123,16 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col h-full gap-4 p-4 overflow-hidden min-w-0 sm:p-6">
+    <Button
+      variant="link"
+      color="slate"
+      size="sm"
+      icon="i-lucide-arrow-left"
+      :label="t('MANIFESTATION.BACK_TO_SUGGESTIONS')"
+      class="self-start flex-shrink-0"
+      @click="router.push({ name: 'suggestions_index' })"
+    />
+
     <div class="flex flex-wrap items-start justify-between flex-shrink-0 gap-3">
       <div class="min-w-0">
         <h1 class="m-0 text-xl font-medium text-n-slate-12">
