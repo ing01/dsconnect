@@ -21,6 +21,7 @@ import {
   setTutorialSeen,
 } from 'dashboard/helper/clientSession';
 import Button from 'dashboard/components-next/button/Button.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 const emit = defineEmits(['sidebar-needed']);
 
@@ -304,9 +305,20 @@ defineExpose({ start });
           <h3 class="m-0 text-sm font-semibold text-n-slate-12">
             {{ currentStep?.title }}
           </h3>
-          <span class="flex-shrink-0 text-xs text-n-slate-10">
-            {{ stepIndex + 1 }}/{{ steps.length }}
-          </span>
+          <div class="flex items-center flex-shrink-0 gap-2">
+            <span class="text-xs text-n-slate-10">
+              {{ stepIndex + 1 }}/{{ steps.length }}
+            </span>
+            <button
+              type="button"
+              class="flex items-center justify-center rounded-full size-6 text-n-slate-10 hover:bg-n-alpha-2 hover:text-n-slate-12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+              :aria-label="t('CLIENT_AREA.TOUR.SKIP')"
+              :title="t('CLIENT_AREA.TOUR.SKIP')"
+              @click="skip"
+            >
+              <Icon icon="i-lucide-x" class="size-4" />
+            </button>
+          </div>
         </div>
         <p class="m-0 text-sm text-n-slate-11">
           {{ currentStep?.description }}
@@ -314,7 +326,7 @@ defineExpose({ start });
         <div class="flex items-center justify-between gap-2 mt-1">
           <button
             type="button"
-            class="text-xs text-n-slate-10 hover:text-n-slate-12"
+            class="text-xs underline text-n-slate-10 hover:text-n-slate-12"
             @click="skip"
           >
             {{ t('CLIENT_AREA.TOUR.SKIP') }}
