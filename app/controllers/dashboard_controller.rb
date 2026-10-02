@@ -32,6 +32,7 @@ class DashboardController < ActionController::Base
   before_action :set_application_pack
   before_action :set_global_config
   before_action :set_dashboard_scripts
+  before_action :set_client_area
   around_action :switch_locale
   before_action :ensure_installation_onboarding, only: [:index]
   before_action :render_hc_if_custom_domain, only: [:index]
@@ -101,6 +102,13 @@ class DashboardController < ActionController::Base
     methods << 'google_oauth' if GlobalConfigService.load('ENABLE_GOOGLE_OAUTH_LOGIN', 'true').to_s != 'false'
     methods << 'saml' if ChatwootHub.pricing_plan != 'community' && GlobalConfigService.load('ENABLE_SAML_SSO_LOGIN', 'true').to_s != 'false'
     methods
+  end
+
+  # A Area do Cliente roda no MESMO SPA/layout do painel interno (view
+  # routes/client/*) - so o manifest/titulo de instalacao PWA precisam ser
+  # diferentes para quem instala a partir de /app/client (ver vueapp.html.erb).
+  def set_client_area
+    @client_area = request.path.start_with?('/app/client')
   end
 
   def set_application_pack

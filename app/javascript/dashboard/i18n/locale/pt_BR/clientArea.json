@@ -2,6 +2,8 @@
   "CLIENT_AREA": {
     "TITLE": "Área do Cliente",
     "LOGOUT": "Sair",
+    "INSTALL_APP": "Instalar app",
+    "INSTALL_APP_IOS_HINT": "Toque em Compartilhar e depois em \"Adicionar à Tela de Início\" para instalar.",
     "PRINCIPAL": {
       "GREETING_MORNING": "Bom dia, {name}!",
       "GREETING_AFTERNOON": "Boa tarde, {name}!",
