@@ -225,6 +225,8 @@ pt_BR:
         invalid: is not a valid email address
     validations:
       presence: não pode ficar em branco
+    conversation:
+      must_be_assigned_to_reply: Esta conversa está atribuída a outro atendente. Atribua a você mesmo para responder.
     chat_message:
       not_allowed_to_post: Somente as pessoas autorizadas podem escrever neste canal.
       not_allowed_to_delete: Você pode apagar apenas as suas próprias mensagens.

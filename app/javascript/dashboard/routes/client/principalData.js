@@ -9,6 +9,33 @@
 // card, então os dois precisam ficar em sincronia.
 export const PRINCIPAL_ENTRIES = [
   {
+    id: 'client-install-app',
+    date: '1 de outubro de 2026',
+    isoDate: '2026-10-01',
+    type: 'feature',
+    title: 'Instale o Portal como app no seu celular ou computador',
+    description:
+      'Agora dá pra instalar o Portal como um aplicativo de verdade, com ícone próprio - procure o botão "Instalar app" no topo da tela. No iPhone/iPad, use Compartilhar > Adicionar à Tela de Início.',
+  },
+  {
+    id: 'client-chat-transcription',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'Áudio do Chat vira texto automaticamente',
+    description:
+      'Mensagens de áudio no Chat agora mostram o texto transcrito logo abaixo do player, tanto as que você grava quanto as da equipe.',
+  },
+  {
+    id: 'client-chat-push-every-message',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'improvement',
+    title: 'Aviso do Chat chega em toda mensagem',
+    description:
+      'Quem ativou as notificações do Chat agora é avisado a cada mensagem nova da equipe, não só na primeira do atendimento.',
+  },
+  {
     id: 'client-chat-history',
     date: '30 de setembro de 2026',
     isoDate: '2026-09-30',

@@ -17,6 +17,42 @@ export const CHANGELOG_ENTRIES = [
       'O cliente ganhou um canal próprio no Portal para registrar sugestões, reclamações, elogios e pedidos de melhoria sobre o ERP, o atendimento, os atendentes, a implantação e o comercial. Ele escolhe o tipo e o assunto, descreve o caso, anexa arquivos se quiser, e acompanha o andamento pelo número (SAC-1, SAC-2...) com o histórico de cada movimentação e as respostas da equipe. Empresa e solicitante são preenchidos sozinhos e ele não consegue alterá-los. Do lado de dentro, em "SAC e Sugestões", a equipe vê tudo com filtros por empresa, tipo, assunto, status, responsável e período, com contadores de pendentes e de novas; dá para mudar o status, assumir o caso, responder ao cliente e deixar anotações internas - que o cliente nunca vê. Quando o caso precisa de atendimento de verdade, "Converter em Ticket" abre um chamado pelo fluxo normal preservando empresa, solicitante, descrição e anexos, e a manifestação fica vinculada a ele sem risco de duplicar.',
   },
   {
+    id: 'conversation-assignment-lock',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'Só quem está atribuído responde a conversa',
+    description:
+      'Quando uma conversa já tem um responsável, só essa pessoa (ou Administrador) consegue mandar mensagem pro cliente - tentar responder mostra um aviso com o botão "Atribuir a mim". Conversa sem ninguém atribuído atribui sozinha a quem responder primeiro. Nota privada continua liberada pra qualquer atendente, não é afetada.',
+  },
+  {
+    id: 'client-chat-push-every-message',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'improvement',
+    title: 'Push do Chat do Portal avisa em toda mensagem',
+    description:
+      'Quem ativou as notificações do Chat do Portal (cliente) agora é avisado no celular/navegador a cada mensagem da equipe, não só na primeira de cada atendimento.',
+  },
+  {
+    id: 'conversation-audio-transcription',
+    date: '2 de outubro de 2026',
+    isoDate: '2026-10-02',
+    type: 'feature',
+    title: 'Transcrição automática de áudio nas conversas',
+    description:
+      'Áudio recebido em qualquer canal (WhatsApp, Chat do Portal, etc.) agora é transcrito automaticamente - o texto aparece abaixo do player, poupando de precisar ouvir pra saber o que foi dito. Roda sozinho, em segundo plano, assim que o áudio chega.',
+  },
+  {
+    id: 'client-portal-install-app',
+    date: '1 de outubro de 2026',
+    isoDate: '2026-10-01',
+    type: 'feature',
+    title: 'Cliente pode instalar o Portal como app',
+    description:
+      'O Portal do Cliente agora pode ser instalado como um aplicativo, com ícone próprio na tela inicial do celular ou na área de trabalho - um botão "Instalar app" aparece no cabeçalho do Portal quando o navegador permite.',
+  },
+  {
     id: 'client-portal-routing',
     date: '30 de setembro de 2026',
     isoDate: '2026-09-30',
