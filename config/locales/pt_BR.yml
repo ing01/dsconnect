@@ -631,6 +631,11 @@ pt_BR:
       already_done: Esta manifestação já foi convertida em ticket.
       no_team: Nenhuma Mesa ativa para receber o ticket.
       description_header: 'Aberto a partir da manifestação %{reference} (%{kind} - %{subject}).'
+  monthly_satisfaction_survey:
+    already_answered: Você já respondeu a avaliação deste mês.
+    missing_questions: 'Faltam respostas: %{questions}'
+    unknown_question: Uma das respostas enviadas não corresponde a nenhuma pergunta do questionário.
+    invalid_rating: Cada resposta precisa ser uma nota entre 1 e 5.
   contacts:
     client_access:
       email_required: é obrigatório para o acesso à Área do Cliente

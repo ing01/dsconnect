@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-monthly-satisfaction-survey',
+    date: '5 de outubro de 2026',
+    isoDate: '2026-10-05',
+    type: 'feature',
+    title: 'Avaliação Mensal de satisfação no Portal do Cliente',
+    description:
+      'Novo questionário mensal e rápido no Portal: dez perguntas numa escala de 1 a 5 sobre o ERP, o suporte e a experiência geral com a Duesoft, mais um campo opcional para sugestões. Abre sozinho uma vez por mês (dá para adiar ou responder depois pelo botão "Avaliação Mensal" no cabeçalho) e nunca mais de uma vez no mesmo mês por contato - a regra é garantida no servidor, não só na tela. Cada contato só vê e responde a própria avaliação; a equipe interna já consegue consultar as respostas (empresa, contato, mês e notas) por uma rota de leitura, com média geral e por pergunta já calculadas - a tela de acompanhamento para a equipe fica para uma próxima etapa.',
+  },
+  {
     id: 'ticket-create-assignee-without-levels-fix',
     date: '5 de outubro de 2026',
     isoDate: '2026-10-05',

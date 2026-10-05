@@ -144,3 +144,39 @@ export const setTutorialSeen = contactId => {
     // que o tutorial pode aparecer de novo no proximo acesso.
   }
 };
+
+/**
+ * Se o contato "adiou" a Avaliacao Mensal nesta sessao do navegador.
+ *
+ * De proposito em `sessionStorage`, nao em `localStorage`: isto NUNCA e' a
+ * fonte da verdade sobre "ja respondeu" (isso e' sempre o servidor, via
+ * `getMonthlySurveyStatus`) - serve so' para nao insistir em abrir o modal de
+ * novo a cada troca de tela dentro da MESMA sessao, depois que a pessoa
+ * clicou em adiar. Fechar a aba e voltar depois faz o modal aparecer de novo,
+ * o que e' o comportamento desejado. Guardado por contato+mes, porque um novo
+ * mes de referencia e' uma pergunta nova.
+ */
+const CHAVE_SURVEY_ADIADA = 'cw_client_monthly_survey_dismissed';
+
+export const hasDismissedMonthlySurvey = (contactId, referenceMonth) => {
+  try {
+    return (
+      window.sessionStorage.getItem(CHAVE_SURVEY_ADIADA) ===
+      `${contactId}:${referenceMonth}`
+    );
+  } catch {
+    return false;
+  }
+};
+
+export const setMonthlySurveyDismissed = (contactId, referenceMonth) => {
+  try {
+    window.sessionStorage.setItem(
+      CHAVE_SURVEY_ADIADA,
+      `${contactId}:${referenceMonth}`
+    );
+  } catch {
+    // Nao poder lembrar nao pode derrubar a tela - so' significa que o modal
+    // pode insistir de novo na proxima troca de tela.
+  }
+};

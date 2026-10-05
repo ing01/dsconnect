@@ -60,6 +60,9 @@ class Contact < ApplicationRecord
   has_many :contact_inboxes, dependent: :destroy_async
   has_many :client_push_subscriptions, dependent: :destroy_async
   has_many :csat_survey_responses, dependent: :destroy_async
+  # A avaliacao mensal do Portal. Sempre do proprio contato - diferente da
+  # Manifestacao (SAC), nao ha "ver a da empresa toda" aqui.
+  has_many :monthly_satisfaction_surveys, dependent: :nullify
   has_many :inboxes, through: :contact_inboxes
   has_many :messages, as: :sender, dependent: :destroy_async
   has_many :notes, dependent: :destroy_async

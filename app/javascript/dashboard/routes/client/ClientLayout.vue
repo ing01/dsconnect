@@ -22,11 +22,13 @@ import {
   clearClientSession,
   isSidebarCollapsed,
   setSidebarCollapsed,
+  hasDismissedMonthlySurvey,
 } from 'dashboard/helper/clientSession';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ClientSidebar from './ClientSidebar.vue';
 import ClientTour from './components/ClientTour.vue';
+import ClientMonthlySurveyDialog from './components/ClientMonthlySurveyDialog.vue';
 
 // O idioma é definido no boot (vide `entrypoints/dashboard.js`), antes de
 // qualquer tela montar.
@@ -112,6 +114,31 @@ const instalarApp = async () => {
 const clientTourRef = ref(null);
 const abrirTutorial = () => clientTourRef.value?.start();
 
+// A Avaliação Mensal abre sozinha no primeiro acesso do mês, se ainda não
+// respondida - ver `ClientMonthlySurveyDialog.vue`. `surveyAnswered` começa
+// em `true` (esconde o botão do cabeçalho) até a checagem no servidor voltar,
+// para não piscar o botão à toa em quem já respondeu.
+const monthlySurveyRef = ref(null);
+const surveyAnswered = ref(true);
+const abrirAvaliacaoMensal = () => monthlySurveyRef.value?.open();
+
+const verificarAvaliacaoMensal = async () => {
+  try {
+    const { data } = await ClientAreaAPI.monthlySurveyStatus();
+    surveyAnswered.value = data.answered;
+
+    if (!data.answered) {
+      const contactId = getClientSession()?.contact?.id;
+      if (!hasDismissedMonthlySurvey(contactId, data.reference_month)) {
+        setTimeout(abrirAvaliacaoMensal, 400);
+      }
+    }
+  } catch {
+    // Falhar a checagem nao pode travar o resto do Portal - o botao do
+    // cabecalho so' fica escondido, e tenta de novo no proximo acesso.
+  }
+};
+
 // A inscrição de push pode já estar concedida sem que o SERVIDOR saiba - o
 // Android pergunta sozinho ao instalar o app, e também dá para ligar direto
 // nas Configurações do aparelho. Garantida aqui, no enquadramento de toda a
@@ -119,6 +146,7 @@ const abrirTutorial = () => clientTourRef.value?.start();
 // instalar e ainda nem abriu aquela tela.
 onMounted(() => {
   ensureClientPushSubscribed();
+  verificarAvaliacaoMensal();
 });
 </script>
 
@@ -161,7 +189,20 @@ onMounted(() => {
           :label="t('CLIENT_AREA.TOUR.OPEN_BUTTON')"
           @click="abrirTutorial"
         />
-        <span v-if="isInstallable" class="contents" data-tour-step="install-app">
+        <Button
+          v-if="!surveyAnswered"
+          faded
+          slate
+          size="sm"
+          icon="i-lucide-star"
+          :label="t('CLIENT_AREA.MONTHLY_SURVEY.OPEN_BUTTON')"
+          @click="abrirAvaliacaoMensal"
+        />
+        <span
+          v-if="isInstallable"
+          class="contents"
+          data-tour-step="install-app"
+        >
           <Button
             faded
             slate
@@ -222,9 +263,11 @@ onMounted(() => {
       </router-link>
     </div>
 
-    <ClientTour
-      ref="clientTourRef"
-      @sidebar-needed="isMobileOpen = $event"
+    <ClientTour ref="clientTourRef" @sidebar-needed="isMobileOpen = $event" />
+
+    <ClientMonthlySurveyDialog
+      ref="monthlySurveyRef"
+      @answered="surveyAnswered = true"
     />
   </div>
 </template>

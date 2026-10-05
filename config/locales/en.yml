@@ -638,6 +638,11 @@ en:
       already_done: This record was already converted into a ticket.
       no_team: No active Mesa available to receive the ticket.
       description_header: 'Opened from record %{reference} (%{kind} - %{subject}).'
+  monthly_satisfaction_survey:
+    already_answered: You already answered this month's survey.
+    missing_questions: 'Missing answers: %{questions}'
+    unknown_question: One of the submitted answers does not match any question in the survey.
+    invalid_rating: Each answer must be a rating between 1 and 5.
   contacts:
     client_access:
       email_required: is required for Client Area access

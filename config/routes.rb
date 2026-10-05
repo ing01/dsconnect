@@ -73,6 +73,10 @@ Rails.application.routes.draw do
         resources :manifestations, only: [:index, :show, :create] do
           resources :messages, only: [:create], controller: 'manifestation_messages'
         end
+        # A avaliacao mensal de satisfacao. Recurso SINGULAR: do ponto de
+        # vista do contato so existe "a avaliacao deste mes", nunca uma lista
+        # com id para escolher.
+        resource :monthly_satisfaction_survey, only: [:show, :create]
         # A lista plana de Categorias do formulario de abertura.
         resources :categories, only: [:index]
         # A redefinicao de senha. Sem sessao de proposito - quem esqueceu a
@@ -599,6 +603,9 @@ Rails.application.routes.draw do
             post :convert, on: :member
             resources :messages, only: [:create], controller: 'manifestation_messages'
           end
+          # A avaliacao mensal, do lado interno - so leitura; quem grava e o
+          # Portal.
+          resources :monthly_satisfaction_surveys, only: [:index, :show]
           resources :service_catalogs do
             resources :areas, controller: 'service_catalog_areas', only: [:create, :update, :destroy] do
               resources :items, controller: 'service_catalog_items', only: [:create, :update, :destroy]

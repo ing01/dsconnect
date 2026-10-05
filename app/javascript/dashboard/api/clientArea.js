@@ -245,4 +245,22 @@ export default {
   chatHistoryConversation(id) {
     return cliente.get(`${BASE}/chat_history/${id}`, { headers: headers() });
   },
+
+  // A Avaliacao Mensal: se este contato ja respondeu o mes de referencia
+  // atual, e as dez chaves de pergunta (o texto de cada uma mora so no i18n
+  // do frontend - o servidor nunca devolve texto traduzido).
+  monthlySurveyStatus() {
+    return cliente.get(`${BASE}/monthly_satisfaction_survey`, {
+      headers: headers(),
+    });
+  },
+
+  // Uma nota (1 a 5) por pergunta, mais o comentario livre opcional.
+  submitMonthlySurvey({ answers, comment }) {
+    return cliente.post(
+      `${BASE}/monthly_satisfaction_survey`,
+      { answers, comment },
+      { headers: headers() }
+    );
+  },
 };

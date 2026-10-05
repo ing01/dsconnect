@@ -71,6 +71,9 @@ class Company < ApplicationRecord
   # Same reasoning as tickets: deleting an Empresa must not erase the SAC
   # history it produced.
   has_many :manifestations, dependent: :nullify
+  # Same reasoning: the monthly satisfaction survey history must survive the
+  # Empresa being deleted.
+  has_many :monthly_satisfaction_surveys, dependent: :nullify
   has_many :company_credentials, dependent: :destroy
   has_many :company_system_modules, dependent: :destroy
   has_many :system_modules, through: :company_system_modules

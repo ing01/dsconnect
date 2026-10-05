@@ -127,6 +127,39 @@
         "ERROR_EMPTY_INPUT": "Write or record something before generating the draft."
       }
     },
+    "MONTHLY_SURVEY": {
+      "OPEN_BUTTON": "Monthly Survey",
+      "TITLE": "Monthly Survey",
+      "DESCRIPTION": "Your feedback helps us improve the ERP and our support. It takes less than a minute.",
+      "SUBMIT": "Send feedback",
+      "LATER": "Answer later",
+      "CLOSE": "Close",
+      "COMMENT_LABEL": "What can we improve? (optional)",
+      "COMMENT_PLACEHOLDER": "Tell us what we can improve...",
+      "THANKS_TITLE": "Thank you!",
+      "THANKS_DESCRIPTION": "Your feedback was recorded. We appreciate you taking a minute for this.",
+      "ALREADY_ANSWERED": "You have already answered this month's survey.",
+      "ERROR": "Could not load the Monthly Survey. Please try again later.",
+      "ERRORS": {
+        "INVALID_ANSWERS": "Please answer every question before sending."
+      },
+      "SCALE": {
+        "WORST": "Very dissatisfied",
+        "BEST": "Very satisfied"
+      },
+      "QUESTIONS": {
+        "erp_overall": "How do you rate the Duesoft ERP overall?",
+        "erp_meets_needs": "Does the ERP meet your company's needs?",
+        "erp_ease_of_use": "How do you rate how easy the ERP is to use?",
+        "erp_practicality": "How do you rate the system's practicality in your daily work?",
+        "erp_performance": "How do you rate the ERP's performance/speed?",
+        "support_service": "How do you rate the support team's service?",
+        "support_clarity": "How do you rate the clarity of the guidance you received from support?",
+        "support_response_time": "How do you rate the support team's response time?",
+        "product_evolution": "How do you rate the system's evolution and improvements?",
+        "overall_experience": "Overall, what score would you give your experience with Duesoft?"
+      }
+    },
     "DETAIL": {
       "BACK": "Back",
       "NOT_FOUND": "Ticket not found.",
