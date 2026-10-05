@@ -53,18 +53,37 @@ export function useTicketCreation(context) {
     () => store.getters['teamMembers/getTeamMembers'](form.value.teamId) || []
   );
 
-  // Quais niveis esta Mesa usa. Vazio quando ela nao usa niveis - e ai a tela
-  // mostra um campo de responsavel so, como sempre mostrou.
+  // Se a Mesa deste ticket usa niveis de responsavel. Vem da Mesa, e nao de
+  // nenhum estado proprio: e configuracao dela, a mesma fonte que
+  // `useTicketDetail.js` ja le para a tela de detalhe.
+  const usesAssigneeLevels = computed(
+    () =>
+      store.getters['teams/getTeam'](form.value.teamId)
+        ?.assignee_levels_enabled === true
+  );
+
+  // Quais niveis esta Mesa usa. O SERVIDOR sempre devolve ao menos o Nivel 1
+  // (`Team#assignee_levels`, mesmo com a configuracao desligada) - por isso
+  // esta lista nunca e' vazia, e nao e' ela que diz se a Mesa usa niveis.
+  // Quem diz isso e' `usesAssigneeLevels`, acima.
   const assigneeLevels = computed(
     () =>
       store.getters['teams/getTeam'](form.value.teamId)?.assignee_levels || []
   );
 
-  // So quem esta habilitado NAQUELE nivel. Oferecer todo mundo era o que fazia
-  // um agente de Nivel 2 cair no campo do Nivel 1 e o servidor recusar - e numa
-  // Mesa sem ninguem no Nivel 1, nao havia escolha possivel.
-  const membersForLevel = level =>
-    mesaMembers.value.filter(member => (member.levels || []).includes(level));
+  // Quem pode ser responsavel de um nivel. Mesma regra do
+  // `Team#members_for_level` no servidor: sem a configuracao ligada nao ha
+  // niveis, e todo MEMBRO DA MESA serve - filtrar por `member.levels` aqui
+  // devolvia lista vazia para toda Mesa que nunca usou niveis, porque nenhum
+  // membro dela jamais teve nivel nenhum cadastrado. Era por isso que a Mesa
+  // de Implantacao (niveis desligados) nao deixava informar o responsavel.
+  const membersForLevel = level => {
+    if (!usesAssigneeLevels.value) return mesaMembers.value;
+
+    return mesaMembers.value.filter(member =>
+      (member.levels || []).includes(level)
+    );
+  };
 
   const loadMesaContext = teamId => {
     if (!teamId) return;
@@ -229,6 +248,7 @@ export function useTicketCreation(context) {
     categories,
     complexities,
     mesaMembers,
+    usesAssigneeLevels,
     assigneeLevels,
     membersForLevel,
     requiresAttachment,

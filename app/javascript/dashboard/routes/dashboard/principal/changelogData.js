@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-create-assignee-without-levels-fix',
+    date: '5 de outubro de 2026',
+    isoDate: '2026-10-05',
+    type: 'fix',
+    title:
+      'Não dava para informar o responsável em Mesa sem níveis configurados',
+    description:
+      'Ao abrir um ticket novo para uma Mesa com os níveis de responsável DESLIGADOS - como a de Implantação -, o campo de responsável vinha sem nenhum nome para escolher, mesmo a Mesa tendo membros de verdade. A tela filtrava por um nível que só existe quando a configuração está ligada, e nenhum membro de uma Mesa sem essa configuração jamais teve nível cadastrado. Agora a tela confere diretamente se a Mesa usa níveis: quando sim, mostra um campo por nível com só quem está habilitado nele, igual a antes; quando não, mostra um campo único com todos os membros vinculados à Mesa - a mesma regra que a edição de um ticket já existente já seguia corretamente.',
+  },
+  {
     id: 'commercial-menu-grouped',
     date: '5 de outubro de 2026',
     isoDate: '2026-10-05',

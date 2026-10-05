@@ -39,6 +39,7 @@ const {
   categories,
   complexities,
   mesaMembers,
+  usesAssigneeLevels,
   assigneeLevels,
   membersForLevel,
   requiresAttachment,
@@ -60,11 +61,17 @@ const complexityOptions = computed(() => toOptions(complexities.value));
 const memberOptions = computed(() => toOptions(mesaMembers.value));
 
 // Um campo de responsavel por nivel quando a Mesa usa niveis; um so quando
-// nao usa. Cada campo oferece apenas quem esta habilitado naquele nivel - e
-// por isso uma Mesa sem ninguem no Nivel 1 deixa de travar a abertura: basta
+// nao usa - a MESMA condicao que a tela de detalhe usa
+// (`TicketPropertiesCard.vue`'s `usesAssigneeLevels`), e nao o tamanho de
+// `assigneeLevels`: o servidor devolve `[1]` mesmo com a configuracao
+// desligada (todo ticket "usa" o Nivel 1), entao esta lista nunca fica vazia
+// e nunca seria o sinal certo para a troca de rotulo/campo.
+//
+// Sem niveis, cada campo oferece quem esta habilitado NAQUELE nivel - e por
+// isso uma Mesa sem ninguem no Nivel 1 deixa de travar a abertura: basta
 // indicar o Nivel 2.
 const assigneeFields = computed(() => {
-  if (!assigneeLevels.value.length) {
+  if (!usesAssigneeLevels.value) {
     return [
       {
         level: 1,

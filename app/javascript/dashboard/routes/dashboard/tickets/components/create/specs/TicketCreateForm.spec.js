@@ -129,6 +129,10 @@ const CAMPO = {
   prioridade: 'TICKET.FORM.PRIORITY.LABEL',
   categoria: 'TICKET.CREATE.CATEGORY',
   complexidade: 'TICKET.COMPLEXITY.LABEL',
+  // O rotulo do campo de responsavel QUANDO A MESA NAO USA NIVEIS - o mesmo
+  // texto que o campo de niveis usa quando ha so um nivel (ver
+  // `responsaveis`, abaixo).
+  responsavel: 'TICKET.CREATE.ASSIGNEE',
 };
 
 // Os campos de responsavel usam `campo.label`, que e o rotulo do nivel - eles sao
@@ -353,7 +357,11 @@ describe('TicketCreateForm', () => {
     // Nivel 1 e o servidor recusava qualquer agente de outro nivel.
     describe('Mesa com niveis de responsavel', () => {
       beforeEach(() => {
-        TEAMS_BY_ID[1] = { id: 1, assignee_levels: [1, 2] };
+        TEAMS_BY_ID[1] = {
+          id: 1,
+          assignee_levels: [1, 2],
+          assignee_levels_enabled: true,
+        };
         MEMBERS[1] = [
           { id: 50, name: 'Ana', levels: [2] },
           { id: 51, name: 'Carla', levels: [1] },
@@ -403,6 +411,54 @@ describe('TicketCreateForm', () => {
         const enviado = wrapper.emitted('submit')[0][0].ticket;
         expect(enviado.assignee_2_id).toBe(50);
         expect(enviado.assignee_id).toBeNull();
+      });
+    });
+
+    // O defeito que isto fixa: a Mesa de Implantacao tinha a configuracao de
+    // niveis DESLIGADA, e mesmo assim nao era possivel informar o responsavel
+    // ao abrir um ticket. O servidor manda `assignee_levels: [1]` mesmo com a
+    // configuracao desligada (todo ticket "usa" o Nivel 1 - ver
+    // `Team#assignee_levels`), e os membros desta Mesa nunca tiveram nivel
+    // algum cadastrado, porque a tela de niveis nunca apareceu para ela.
+    // Filtrar por `member.levels` neste estado devolvia uma lista vazia.
+    describe('Mesa sem niveis de responsavel', () => {
+      beforeEach(() => {
+        TEAMS_BY_ID[1] = {
+          id: 1,
+          assignee_levels: [1],
+          assignee_levels_enabled: false,
+        };
+        // Sem `levels` - exatamente como um membro de uma Mesa que nunca
+        // configurou niveis chega da API.
+        MEMBERS[1] = [
+          { id: 50, name: 'Ana' },
+          { id: 51, name: 'Carla' },
+        ];
+      });
+
+      it('offers every Mesa member, not an empty list', async () => {
+        const wrapper = await mountForm({ teamId: 1 });
+
+        expect(optionsOf(wrapper, CAMPO.responsavel)).toEqual(['Ana', 'Carla']);
+      });
+
+      // Um campo so, rotulado como sempre foi - sem o numero do nivel, que
+      // nesta Mesa nao existe de verdade.
+      it('shows a single plain field, not "Responsavel 1"', async () => {
+        const wrapper = await mountForm({ teamId: 1 });
+
+        expect(responsaveis(wrapper)).toHaveLength(1);
+        expect(selectBy(wrapper, CAMPO.responsavel)).toBeTruthy();
+      });
+
+      it('opens the ticket with the chosen assignee, at level 1', async () => {
+        const wrapper = await mountForm({ teamId: 1 });
+        await fill(wrapper);
+        await choose(wrapper, CAMPO.responsavel, '50');
+
+        await wrapper.find('form').trigger('submit');
+
+        expect(wrapper.emitted('submit')[0][0].ticket.assignee_id).toBe(50);
       });
     });
   });
