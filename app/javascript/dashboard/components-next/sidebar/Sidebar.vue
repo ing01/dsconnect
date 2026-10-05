@@ -576,34 +576,43 @@ const menuItems = computed(() => {
       ],
     },
     {
-      // Aparece para administrador ou quem tem `commercial_manage` - o
-      // proprio `to` ja resolve essa permissao (ver provider.js/usePolicy).
-      name: 'CrmClients',
-      label: t('SIDEBAR.CRM_CLIENTS'),
+      // Os quatro itens do Comercial, que eram soltos no menu, agora moram
+      // dentro de um drop so - o mesmo padrao de "Empresas"
+      // (Companies, abaixo): um item pai com `children`, sem `to` proprio.
+      //
+      // A permissao continua por ROTA, nao pelo grupo: `SidebarGroup` so
+      // mostra o pai quando pelo menos um filho passa por `isAllowed(to)`
+      // (administrador ou `commercial_manage` - ver provider.js/usePolicy).
+      // Quem nao tem a permissao nao ve nem o "Comercial" na lista.
+      name: 'Commercial',
+      label: t('SIDEBAR.CRM'),
       icon: 'i-lucide-briefcase-business',
-      to: accountScopedRoute('crm_clients_index'),
-      activeOn: ['crm_clients_index'],
-    },
-    {
-      name: 'CrmSales',
-      label: t('SIDEBAR.CRM_SALES'),
-      icon: 'i-lucide-handshake',
-      to: accountScopedRoute('crm_sales_index'),
-      activeOn: ['crm_sales_index'],
-    },
-    {
-      name: 'CrmDashboard',
-      label: t('SIDEBAR.CRM_DASHBOARD'),
-      icon: 'i-lucide-bar-chart-3',
-      to: accountScopedRoute('crm_dashboard_index'),
-      activeOn: ['crm_dashboard_index'],
-    },
-    {
-      name: 'CrmContracts',
-      label: t('SIDEBAR.CRM_CONTRACTS'),
-      icon: 'i-lucide-file-signature',
-      to: accountScopedRoute('crm_contracts_index'),
-      activeOn: ['crm_contracts_index'],
+      children: [
+        {
+          name: 'CrmClients',
+          label: t('SIDEBAR.CRM_CLIENTS'),
+          to: accountScopedRoute('crm_clients_index'),
+          activeOn: ['crm_clients_index'],
+        },
+        {
+          name: 'CrmSales',
+          label: t('SIDEBAR.CRM_SALES'),
+          to: accountScopedRoute('crm_sales_index'),
+          activeOn: ['crm_sales_index'],
+        },
+        {
+          name: 'CrmDashboard',
+          label: t('SIDEBAR.CRM_DASHBOARD'),
+          to: accountScopedRoute('crm_dashboard_index'),
+          activeOn: ['crm_dashboard_index'],
+        },
+        {
+          name: 'CrmContracts',
+          label: t('SIDEBAR.CRM_CONTRACTS'),
+          to: accountScopedRoute('crm_contracts_index'),
+          activeOn: ['crm_contracts_index'],
+        },
+      ],
     },
     {
       name: 'Agenda',

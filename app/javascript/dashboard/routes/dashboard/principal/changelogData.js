@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'commercial-menu-grouped',
+    date: '5 de outubro de 2026',
+    isoDate: '2026-10-05',
+    type: 'improvement',
+    title: 'Menu lateral mais curto: Comercial agora é um único item',
+    description:
+      'Clientes, Vendas, Indicadores e Contratos do Painel Comercial deixaram de ocupar quatro linhas soltas no menu e passaram a ficar dentro de um único item "Comercial", com um submenu - o mesmo formato já usado em "Empresas". Quem tem permissão continua vendo os quatro atalhos, só que organizados; quem não tem a permissão comercial continua sem ver nada disso, como antes.',
+  },
+  {
     id: 'client-ai-draft-no-categories-fix',
     date: '5 de outubro de 2026',
     isoDate: '2026-10-05',
