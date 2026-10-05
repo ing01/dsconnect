@@ -122,7 +122,9 @@
         "RECORD_ERROR": "Could not record audio.",
         "GENERATE": "Generate draft",
         "DRAFT_READY": "Draft generated - review it below before confirming.",
-        "ERROR": "Could not generate the draft. Please fill the form manually."
+        "ERROR": "Could not generate the draft. Please fill the form manually.",
+        "ERROR_NO_CATEGORIES": "No categories are available for opening a ticket yet. Please fill the form manually or try again later.",
+        "ERROR_EMPTY_INPUT": "Write or record something before generating the draft."
       }
     },
     "DETAIL": {

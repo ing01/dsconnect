@@ -122,7 +122,9 @@
         "RECORD_ERROR": "Não foi possível gravar o áudio.",
         "GENERATE": "Gerar rascunho",
         "DRAFT_READY": "Rascunho gerado - revise abaixo antes de confirmar.",
-        "ERROR": "Não foi possível gerar o rascunho. Preencha manualmente."
+        "ERROR": "Não foi possível gerar o rascunho. Preencha manualmente.",
+        "ERROR_NO_CATEGORIES": "Não há categorias disponíveis para abertura de chamado ainda. Preencha manualmente ou tente novamente mais tarde.",
+        "ERROR_EMPTY_INPUT": "Escreva ou grave algo antes de gerar o rascunho."
       }
     },
     "DETAIL": {

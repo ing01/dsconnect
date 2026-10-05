@@ -1,4 +1,5 @@
 import { mount, flushPromises } from '@vue/test-utils';
+import { useAlert } from 'dashboard/composables';
 import ClientTicketDialog from '../ClientTicketDialog.vue';
 
 vi.mock('vue-i18n', () => ({
@@ -6,10 +7,20 @@ vi.mock('vue-i18n', () => ({
 }));
 
 const createTicket = vi.fn(() => Promise.resolve({ data: { display_id: 42 } }));
+const aiDraftEnabled = vi.fn(() =>
+  Promise.resolve({ data: { enabled: true } })
+);
+const generateTicketDraft = vi.fn(() =>
+  Promise.resolve({
+    data: { ticket_category_id: 1, title: 'Título', description: 'Descrição' },
+  })
+);
 
 vi.mock('dashboard/api/clientArea', () => ({
   default: {
     createTicket: (...args) => createTicket(...args),
+    aiDraftEnabled: (...args) => aiDraftEnabled(...args),
+    generateTicketDraft: (...args) => generateTicketDraft(...args),
   },
 }));
 
@@ -37,11 +48,14 @@ const campoComMensagem = tag => ({
   </div>`,
 });
 
-const montar = () =>
+const montar = (props = {}) =>
   mount(ClientTicketDialog, {
-    props: { categories },
+    props: { categories, ...props },
     global: {
       stubs: {
+        // Só interessa que existe, não como grava áudio de verdade - o jsdom
+        // não tem as APIs de mídia que o componente real pede.
+        AudioRecorder: true,
         // Espelha o contrato do Dialog de components-next: expõe open/close e
         // dispara `confirm` pelo botão.
         Dialog: {
@@ -94,7 +108,15 @@ const preencherTexto = async wrapper => {
   await wrapper.find('textarea.campo').setValue('Detalhes do problema');
 };
 
-beforeEach(() => createTicket.mockClear());
+const botaoDeTexto = (wrapper, texto) =>
+  wrapper.findAll('button').find(b => b.text() === texto);
+
+beforeEach(() => {
+  createTicket.mockClear();
+  aiDraftEnabled.mockClear();
+  generateTicketDraft.mockClear();
+  useAlert.mockClear();
+});
 
 describe('ClientTicketDialog', () => {
   // O botão NÃO fica desabilitado: um botão apagado não diz o que falta, e a
@@ -196,5 +218,125 @@ describe('ClientTicketDialog', () => {
       expect.objectContaining({ title: 'Assunto', description: 'Descrição' }),
       []
     );
+  });
+
+  describe('abrir com IA', () => {
+    // A consulta do servidor para o rascunho é a MESMA que monta a lista de
+    // categorias - sem nenhuma, gerar sempre falharia com `no_categories`.
+    // Oferecer o botão nesse estado seria oferecer algo que só sabe falhar.
+    it('hides the AI option when there is no category to draft into', async () => {
+      const wrapper = montar({ categories: [] });
+      await wrapper.vm.open();
+      await flushPromises();
+
+      expect(
+        botaoDeTexto(wrapper, 'CLIENT_AREA.NEW_TICKET.AI.TOGGLE')
+      ).toBeUndefined();
+    });
+
+    it('offers the AI option when a category exists and the credential is set', async () => {
+      const wrapper = montar();
+      await wrapper.vm.open();
+      await flushPromises();
+
+      expect(
+        botaoDeTexto(wrapper, 'CLIENT_AREA.NEW_TICKET.AI.TOGGLE')
+      ).not.toBeUndefined();
+    });
+
+    it('stays hidden without a configured credential, even with categories available', async () => {
+      aiDraftEnabled.mockResolvedValueOnce({ data: { enabled: false } });
+      const wrapper = montar();
+      await wrapper.vm.open();
+      await flushPromises();
+
+      expect(
+        botaoDeTexto(wrapper, 'CLIENT_AREA.NEW_TICKET.AI.TOGGLE')
+      ).toBeUndefined();
+    });
+
+    const abrirPainelDeIa = async wrapper => {
+      await wrapper.vm.open();
+      await flushPromises();
+      await botaoDeTexto(wrapper, 'CLIENT_AREA.NEW_TICKET.AI.TOGGLE').trigger(
+        'click'
+      );
+    };
+
+    // O servidor manda um CÓDIGO ('no_categories', 'empty_input'), nunca o
+    // texto pronto - mostrar a palavra em inglês direto na tela seria o
+    // defeito relatado. Cobre mesmo não sendo mais alcançável pelo botão (a
+    // categoria pode ser removida por um administrador enquanto o diálogo já
+    // está aberto em outra aba).
+    it('translates no_categories instead of showing the raw code', async () => {
+      generateTicketDraft.mockRejectedValueOnce({
+        response: { data: { error: 'no_categories' } },
+      });
+      const wrapper = montar();
+      await abrirPainelDeIa(wrapper);
+      await wrapper.find('textarea.campo').setValue('Preciso de ajuda');
+      await botaoDeTexto(wrapper, 'CLIENT_AREA.NEW_TICKET.AI.GENERATE').trigger(
+        'click'
+      );
+      await flushPromises();
+
+      expect(useAlert).toHaveBeenCalledWith(
+        'CLIENT_AREA.NEW_TICKET.AI.ERROR_NO_CATEGORIES'
+      );
+    });
+
+    it('translates empty_input instead of showing the raw code', async () => {
+      generateTicketDraft.mockRejectedValueOnce({
+        response: { data: { error: 'empty_input' } },
+      });
+      const wrapper = montar();
+      await abrirPainelDeIa(wrapper);
+      await wrapper.find('textarea.campo').setValue('Preciso de ajuda');
+      await botaoDeTexto(wrapper, 'CLIENT_AREA.NEW_TICKET.AI.GENERATE').trigger(
+        'click'
+      );
+      await flushPromises();
+
+      expect(useAlert).toHaveBeenCalledWith(
+        'CLIENT_AREA.NEW_TICKET.AI.ERROR_EMPTY_INPUT'
+      );
+    });
+
+    // Um erro do PROVEDOR de IA é texto livre, sem tradução nossa - cai no
+    // aviso genérico em vez de qualquer um dos dois códigos fixos.
+    it('falls back to the generic message for anything else', async () => {
+      generateTicketDraft.mockRejectedValueOnce({
+        response: { data: { error: 'rate_limit_exceeded' } },
+      });
+      const wrapper = montar();
+      await abrirPainelDeIa(wrapper);
+      await wrapper.find('textarea.campo').setValue('Preciso de ajuda');
+      await botaoDeTexto(wrapper, 'CLIENT_AREA.NEW_TICKET.AI.GENERATE').trigger(
+        'click'
+      );
+      await flushPromises();
+
+      expect(useAlert).toHaveBeenCalledWith('CLIENT_AREA.NEW_TICKET.AI.ERROR');
+    });
+
+    it('fills the form from the generated draft', async () => {
+      const wrapper = montar();
+      await abrirPainelDeIa(wrapper);
+      await wrapper.find('textarea.campo').setValue('Preciso de ajuda');
+      await botaoDeTexto(wrapper, 'CLIENT_AREA.NEW_TICKET.AI.GENERATE').trigger(
+        'click'
+      );
+      await flushPromises();
+      await confirmar(wrapper).trigger('click');
+
+      expect(createTicket).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ticket_category_id: 1,
+          title: 'Título',
+          description: 'Descrição',
+        }),
+        []
+      );
+    });
   });
 });

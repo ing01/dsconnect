@@ -49,6 +49,16 @@ const form = ref({ categoryId: null, title: '', description: '' });
 // sempre revisa categoria/titulo/descricao (preenchidos abaixo, nos mesmos
 // campos do formulario normal) antes de confirmar pelo fluxo de sempre.
 const aiEnabled = ref(false);
+// Precisa das DUAS coisas: o credencial (`aiEnabled`, respondido pelo
+// servidor) e ter categoria para o rascunho preencher (`props.categories`,
+// carregado pelo pai antes do diálogo abrir - ver `ClientTicketsPage.vue`).
+// A consulta do servidor para o rascunho é a MESMA que monta esta lista,
+// então sem categoria aqui o servidor devolveria `no_categories` sempre que
+// a pessoa tentasse gerar - oferecer o botão nesse estado é oferecer um
+// botão que só sabe falhar.
+const aiAvailable = computed(
+  () => aiEnabled.value && props.categories.length > 0
+);
 const showAiPanel = ref(false);
 const aiText = ref('');
 const isRecordingAudio = ref(false);
@@ -170,6 +180,13 @@ const podeGerarRascunho = computed(
   () => Boolean(aiText.value.trim()) || Boolean(recordedAudioFile.value)
 );
 
+// Os dois códigos fixos que o servidor devolve - o resto (erro do provedor de
+// IA) é texto livre, e por isso cai no fallback genérico abaixo.
+const AI_ERROR_MESSAGES = {
+  no_categories: 'CLIENT_AREA.NEW_TICKET.AI.ERROR_NO_CATEGORIES',
+  empty_input: 'CLIENT_AREA.NEW_TICKET.AI.ERROR_EMPTY_INPUT',
+};
+
 const gerarRascunho = async () => {
   if (!podeGerarRascunho.value || isGeneratingDraft.value) return;
 
@@ -188,9 +205,12 @@ const gerarRascunho = async () => {
     resetAiPanel();
     useAlert(t('CLIENT_AREA.NEW_TICKET.AI.DRAFT_READY'));
   } catch (error) {
-    useAlert(
-      error?.response?.data?.error || t('CLIENT_AREA.NEW_TICKET.AI.ERROR')
-    );
+    // O servidor manda o CÓDIGO ('no_categories', 'empty_input'), nunca o
+    // texto pronto - mostrá-lo direto deixaria a palavra em inglês na tela
+    // do cliente. Só um erro de provedor de IA (texto livre, sem tradução
+    // nossa) cai no fallback genérico.
+    const codigo = error?.response?.data?.error;
+    useAlert(t(AI_ERROR_MESSAGES[codigo] || 'CLIENT_AREA.NEW_TICKET.AI.ERROR'));
   } finally {
     isGeneratingDraft.value = false;
   }
@@ -260,7 +280,7 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
     @confirm="submit"
   >
     <div class="flex flex-col w-full gap-4 min-w-0">
-      <div v-if="aiEnabled" class="flex flex-col w-full gap-2 min-w-0">
+      <div v-if="aiAvailable" class="flex flex-col w-full gap-2 min-w-0">
         <Button
           type="button"
           faded

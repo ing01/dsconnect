@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-ai-draft-no-categories-fix',
+    date: '5 de outubro de 2026',
+    isoDate: '2026-10-05',
+    type: 'fix',
+    title: 'Abrir chamado com IA não mostra mais erro em código',
+    description:
+      'No Portal do Cliente, gerar um rascunho pela opção "Abrir com IA" podia mostrar o erro cru "no_categories" na tela, em vez de uma mensagem legível - acontecia quando a conta ainda não tinha nenhuma categoria marcada para aparecer no Portal. A opção de IA agora só aparece quando há pelo menos uma categoria disponível, já que gerar um rascunho sem nenhuma sempre falharia; e se ainda assim o servidor recusar (por exemplo, uma categoria removida enquanto a tela já estava aberta), a mensagem agora vem traduzida.',
+  },
+  {
     id: 'client-push-subscription-after-install',
     date: '2 de outubro de 2026',
     isoDate: '2026-10-02',
