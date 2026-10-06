@@ -161,7 +161,9 @@
         "UPLOAD": "Upload template",
         "TOKENS": "Fields found",
         "ACTIONS": "Actions",
-        "EMPTY": "No template uploaded yet."
+        "EMPTY": "No template uploaded yet.",
+        "FILE": "File (.docx)",
+        "REMOVE": "Delete template"
       },
       "GENERATE": {
         "TITLE": "Generate contract",

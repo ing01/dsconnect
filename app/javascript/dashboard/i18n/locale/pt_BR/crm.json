@@ -161,7 +161,9 @@
         "UPLOAD": "Enviar modelo",
         "TOKENS": "Campos encontrados",
         "ACTIONS": "Acoes",
-        "EMPTY": "Nenhum modelo enviado ainda."
+        "EMPTY": "Nenhum modelo enviado ainda.",
+        "FILE": "Arquivo (.docx)",
+        "REMOVE": "Excluir modelo"
       },
       "GENERATE": {
         "TITLE": "Gerar contrato",

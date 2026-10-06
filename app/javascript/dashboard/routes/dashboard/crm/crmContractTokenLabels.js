@@ -90,3 +90,7 @@ export const CRM_YES_NO_TOKEN_KEYS = [
   'impl_cob_banc_sn',
   'srv_nuvem_sn',
 ];
+
+// Tokens de data - na tela de geracao viram um seletor de data nativo. O texto
+// do contrato sai como dd/mm/aaaa (ver `generate` em CrmContractsPage.vue).
+export const CRM_DATE_TOKEN_KEYS = ['representante_dt_nasc'];
