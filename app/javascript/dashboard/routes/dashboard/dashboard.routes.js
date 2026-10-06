@@ -16,6 +16,7 @@ import internalChatRoutes from './internalChat/internalChat.routes';
 import { routes as captainRoutes } from './captain/captain.routes';
 import projectsRoutes from './projects/projects.routes';
 import implementationReportsRoutes from './implementation_reports/implementation_reports.routes';
+import monthlySatisfactionSurveysRoutes from './monthly_satisfaction_surveys/monthly_satisfaction_surveys.routes';
 import principalRoutes from './principal/principal.routes';
 import suggestionsRoutes from './suggestions/suggestions.routes';
 import manifestationsRoutes from './manifestations/manifestations.routes';
@@ -49,6 +50,7 @@ export default {
         ...agendaRoutes,
         ...projectsRoutes.routes,
         ...implementationReportsRoutes.routes,
+        ...monthlySatisfactionSurveysRoutes.routes,
         ...principalRoutes.routes,
         ...suggestionsRoutes.routes,
         ...manifestationsRoutes.routes,
