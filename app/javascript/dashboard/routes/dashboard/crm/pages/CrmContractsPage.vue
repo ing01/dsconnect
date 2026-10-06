@@ -20,6 +20,10 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import { CRM_CONTRACT_TOKEN_HELP } from '../crmContractTokenHelp';
+import {
+  crmContractTokenLabel,
+  CRM_LOCKED_CLIENT_TOKEN_KEYS,
+} from '../crmContractTokenLabels';
 
 const { t } = useI18n();
 
@@ -49,23 +53,37 @@ const selectedTemplate = computed(() =>
 );
 
 const clientSales = computed(() =>
-  sales.value.filter(sale => sale.crm_client_id === Number(selectedClientId.value))
+  sales.value.filter(
+    sale => sale.crm_client_id === Number(selectedClientId.value)
+  )
 );
 
 const selectedClientExtraRepresentatives = computed(() => {
-  const client = clients.value.find(c => c.id === Number(selectedClientId.value));
+  const client = clients.value.find(
+    c => c.id === Number(selectedClientId.value)
+  );
   return client?.extra_representatives || [];
 });
+
+// Os 5 tokens de identidade do cliente (razão social, CNPJ etc.) sempre vêm
+// do cadastro - o backend já trava isso (ver Crm::ContractTokenMapper), e
+// por isso nem aparecem como campo editável aqui.
+const editableTokens = computed(() =>
+  (selectedTemplate.value?.tokens || []).filter(
+    token => !CRM_LOCKED_CLIENT_TOKEN_KEYS.includes(token)
+  )
+);
 
 const fetchAll = async () => {
   isLoading.value = true;
   try {
-    const [templatesRes, clientsRes, salesRes, contractsRes] = await Promise.all([
-      CrmContractTemplatesAPI.get(),
-      CrmClientsAPI.get(),
-      CrmSalesAPI.get(),
-      CrmGeneratedContractsAPI.get(),
-    ]);
+    const [templatesRes, clientsRes, salesRes, contractsRes] =
+      await Promise.all([
+        CrmContractTemplatesAPI.get(),
+        CrmClientsAPI.get(),
+        CrmSalesAPI.get(),
+        CrmGeneratedContractsAPI.get(),
+      ]);
     templates.value = templatesRes.data;
     clients.value = clientsRes.data;
     sales.value = salesRes.data;
@@ -112,7 +130,7 @@ const removeTemplate = async template => {
 
 const onSelectTemplate = () => {
   tokenValues.value = {};
-  (selectedTemplate.value?.tokens || []).forEach(token => {
+  editableTokens.value.forEach(token => {
     tokenValues.value[token] = '';
   });
 };
@@ -123,7 +141,9 @@ const generate = async () => {
   isGenerating.value = true;
   try {
     const filledData = Object.fromEntries(
-      Object.entries(tokenValues.value).filter(([, value]) => String(value || '').trim() !== '')
+      Object.entries(tokenValues.value).filter(
+        ([, value]) => String(value || '').trim() !== ''
+      )
     );
     await CrmGeneratedContractsAPI.create({
       crm_contract_template_id: selectedTemplateId.value,
@@ -133,7 +153,8 @@ const generate = async () => {
     });
     fetchAll();
   } catch (error) {
-    generationError.value = error?.response?.data?.error || t('CRM.CONTRACTS.GENERATE_ERROR');
+    generationError.value =
+      error?.response?.data?.error || t('CRM.CONTRACTS.GENERATE_ERROR');
   } finally {
     isGenerating.value = false;
   }
@@ -155,7 +176,9 @@ onMounted(fetchAll);
         @click="openTokenHelp"
       />
     </div>
-    <p class="mb-4 text-sm text-n-slate-11">{{ t('CRM.CONTRACTS.DESCRIPTION') }}</p>
+    <p class="mb-4 text-sm text-n-slate-11">
+      {{ t('CRM.CONTRACTS.DESCRIPTION') }}
+    </p>
 
     <Dialog
       ref="tokenHelpDialogRef"
@@ -174,8 +197,14 @@ onMounted(fetchAll);
           </tr>
         </thead>
         <tbody>
-          <tr v-for="[token, meaning] in tokenHelpEntries" :key="token" class="border-b border-n-weak align-top">
-            <td class="py-2 pr-3 font-mono whitespace-nowrap text-n-slate-12">[[{{ token }}]]</td>
+          <tr
+            v-for="[token, meaning] in tokenHelpEntries"
+            :key="token"
+            class="border-b border-n-weak align-top"
+          >
+            <td class="py-2 pr-3 font-mono whitespace-nowrap text-n-slate-12">
+              [[{{ token }}]]
+            </td>
             <td class="py-2 text-n-slate-11">{{ meaning }}</td>
           </tr>
         </tbody>
@@ -183,11 +212,22 @@ onMounted(fetchAll);
     </Dialog>
 
     <div class="p-4 mb-6 rounded-xl border border-n-weak bg-n-solid-2">
-      <h3 class="mb-3 text-sm font-medium text-n-slate-12">{{ t('CRM.CONTRACTS.TEMPLATES.TITLE') }}</h3>
+      <h3 class="mb-3 text-sm font-medium text-n-slate-12">
+        {{ t('CRM.CONTRACTS.TEMPLATES.TITLE') }}
+      </h3>
 
       <div class="flex items-end gap-3 mb-4">
-        <Input v-model="newTemplateName" :label="t('CRM.CONTRACTS.TEMPLATES.NAME')" class="max-w-xs" />
-        <input type="file" accept=".docx" class="text-xs" @change="onFileChange" />
+        <Input
+          v-model="newTemplateName"
+          :label="t('CRM.CONTRACTS.TEMPLATES.NAME')"
+          class="max-w-xs"
+        />
+        <input
+          type="file"
+          accept=".docx"
+          class="text-xs"
+          @change="onFileChange"
+        />
         <Button
           :label="t('CRM.CONTRACTS.TEMPLATES.UPLOAD')"
           :is-loading="isUploading"
@@ -205,8 +245,14 @@ onMounted(fetchAll);
           </tr>
         </thead>
         <tbody>
-          <tr v-for="template in templates" :key="template.id" class="border-b border-n-weak">
-            <td class="py-2 font-medium text-n-slate-12">{{ template.name }}</td>
+          <tr
+            v-for="template in templates"
+            :key="template.id"
+            class="border-b border-n-weak"
+          >
+            <td class="py-2 font-medium text-n-slate-12">
+              {{ template.name }}
+            </td>
             <td class="py-2 text-n-slate-11">{{ template.tokens.length }}</td>
             <td class="py-2">
               <button class="text-n-ruby-9" @click="removeTemplate(template)">
@@ -216,64 +262,102 @@ onMounted(fetchAll);
           </tr>
         </tbody>
       </table>
-      <p v-else class="text-sm text-n-slate-11">{{ t('CRM.CONTRACTS.TEMPLATES.EMPTY') }}</p>
+      <p v-else class="text-sm text-n-slate-11">
+        {{ t('CRM.CONTRACTS.TEMPLATES.EMPTY') }}
+      </p>
     </div>
 
     <div class="p-4 mb-6 rounded-xl border border-n-weak bg-n-solid-2">
-      <h3 class="mb-3 text-sm font-medium text-n-slate-12">{{ t('CRM.CONTRACTS.GENERATE.TITLE') }}</h3>
+      <h3 class="mb-3 text-sm font-medium text-n-slate-12">
+        {{ t('CRM.CONTRACTS.GENERATE.TITLE') }}
+      </h3>
 
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] font-medium text-n-slate-11">{{ t('CRM.CONTRACTS.GENERATE.TEMPLATE') }}</label>
+          <label class="text-[11px] font-medium text-n-slate-11">{{
+            t('CRM.CONTRACTS.GENERATE.TEMPLATE')
+          }}</label>
           <select
             v-model="selectedTemplateId"
             class="h-8 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12"
             @change="onSelectTemplate"
           >
             <option value="" disabled>-</option>
-            <option v-for="template in templates" :key="template.id" :value="template.id">{{ template.name }}</option>
+            <option
+              v-for="template in templates"
+              :key="template.id"
+              :value="template.id"
+            >
+              {{ template.name }}
+            </option>
           </select>
         </div>
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] font-medium text-n-slate-11">{{ t('CRM.CONTRACTS.GENERATE.CLIENT') }}</label>
+          <label class="text-[11px] font-medium text-n-slate-11">{{
+            t('CRM.CONTRACTS.GENERATE.CLIENT')
+          }}</label>
           <select
             v-model="selectedClientId"
             class="h-8 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12"
           >
             <option value="" disabled>-</option>
-            <option v-for="client in clients" :key="client.id" :value="client.id">{{ client.name }}</option>
+            <option
+              v-for="client in clients"
+              :key="client.id"
+              :value="client.id"
+            >
+              {{ client.name }}
+            </option>
           </select>
         </div>
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] font-medium text-n-slate-11">{{ t('CRM.CONTRACTS.GENERATE.SALE') }}</label>
+          <label class="text-[11px] font-medium text-n-slate-11">{{
+            t('CRM.CONTRACTS.GENERATE.SALE')
+          }}</label>
           <select
             v-model="selectedSaleId"
             class="h-8 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12"
           >
             <option value="">-</option>
-            <option v-for="sale in clientSales" :key="sale.id" :value="sale.id">{{ sale.competencia }}</option>
+            <option v-for="sale in clientSales" :key="sale.id" :value="sale.id">
+              {{ sale.competencia }}
+            </option>
           </select>
         </div>
       </div>
 
-      <p v-if="selectedClientExtraRepresentatives.length" class="mb-3 text-xs text-n-amber-11">
-        {{ t('CRM.CONTRACTS.GENERATE.EXTRA_REPRESENTATIVES_HINT', { count: selectedClientExtraRepresentatives.length }) }}
+      <p
+        v-if="selectedClientExtraRepresentatives.length"
+        class="mb-3 text-xs text-n-amber-11"
+      >
+        {{
+          t('CRM.CONTRACTS.GENERATE.EXTRA_REPRESENTATIVES_HINT', {
+            count: selectedClientExtraRepresentatives.length,
+          })
+        }}
       </p>
 
       <div v-if="selectedTemplate" class="mb-4">
-        <p class="mb-2 text-xs text-n-slate-11">{{ t('CRM.CONTRACTS.GENERATE.FIELDS_HINT') }}</p>
+        <p class="mb-2 text-xs text-n-slate-11">
+          {{ t('CRM.CONTRACTS.GENERATE.FIELDS_HINT') }}
+        </p>
+        <p class="mb-2 text-xs text-n-slate-10">
+          {{ t('CRM.CONTRACTS.GENERATE.LOCKED_FIELDS_HINT') }}
+        </p>
         <div class="grid grid-cols-3 gap-3">
           <Input
-            v-for="token in selectedTemplate.tokens"
+            v-for="token in editableTokens"
             :key="token"
             v-model="tokenValues[token]"
-            :label="token"
+            :label="`${crmContractTokenLabel(token)} (${token})`"
             size="sm"
           />
         </div>
       </div>
 
-      <p v-if="generationError" class="mb-3 text-xs text-n-ruby-9">{{ generationError }}</p>
+      <p v-if="generationError" class="mb-3 text-xs text-n-ruby-9">
+        {{ generationError }}
+      </p>
 
       <Button
         :label="t('CRM.CONTRACTS.GENERATE.SUBMIT')"
@@ -284,8 +368,12 @@ onMounted(fetchAll);
     </div>
 
     <div>
-      <h3 class="mb-3 text-sm font-medium text-n-slate-12">{{ t('CRM.CONTRACTS.LIST.TITLE') }}</h3>
-      <p v-if="!isLoading && !contracts.length" class="text-sm text-n-slate-11">{{ t('CRM.CONTRACTS.LIST.EMPTY') }}</p>
+      <h3 class="mb-3 text-sm font-medium text-n-slate-12">
+        {{ t('CRM.CONTRACTS.LIST.TITLE') }}
+      </h3>
+      <p v-if="!isLoading && !contracts.length" class="text-sm text-n-slate-11">
+        {{ t('CRM.CONTRACTS.LIST.EMPTY') }}
+      </p>
       <table v-else class="w-full text-sm">
         <thead>
           <tr class="text-left text-n-slate-11 border-b border-n-weak">
@@ -293,21 +381,62 @@ onMounted(fetchAll);
             <th class="py-2">{{ t('CRM.CONTRACTS.LIST.CLIENT') }}</th>
             <th class="py-2">{{ t('CRM.CONTRACTS.LIST.DOWNLOAD') }}</th>
             <th class="py-2">{{ t('CRM.CONTRACTS.LIST.DOWNLOAD_WORD') }}</th>
+            <th class="py-2">
+              {{ t('CRM.CONTRACTS.LIST.PREVIOUS_VERSIONS') }}
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="contract in contracts" :key="contract.id" class="border-b border-n-weak">
+          <tr
+            v-for="contract in contracts"
+            :key="contract.id"
+            class="border-b border-n-weak"
+          >
             <td class="py-2">{{ contract.template_name }}</td>
-            <td class="py-2 font-medium text-n-slate-12">{{ contract.client_name }}</td>
+            <td class="py-2 font-medium text-n-slate-12">
+              {{ contract.client_name }}
+            </td>
             <td class="py-2">
-              <a :href="contract.pdf_url" target="_blank" rel="noopener" class="text-n-brand">
+              <a
+                :href="contract.pdf_url"
+                target="_blank"
+                rel="noopener"
+                class="text-n-brand"
+              >
                 {{ t('CRM.CONTRACTS.LIST.DOWNLOAD') }}
               </a>
             </td>
             <td class="py-2">
-              <a v-if="contract.docx_url" :href="contract.docx_url" target="_blank" rel="noopener" class="text-n-brand">
+              <a
+                v-if="contract.docx_url"
+                :href="contract.docx_url"
+                target="_blank"
+                rel="noopener"
+                class="text-n-brand"
+              >
                 {{ t('CRM.CONTRACTS.LIST.DOWNLOAD_WORD') }}
               </a>
+            </td>
+            <td class="py-2">
+              <span v-if="!contract.revisions?.length" class="text-n-slate-10">-</span>
+              <div v-else class="flex flex-col gap-0.5">
+                <a
+                  v-for="revision in contract.revisions"
+                  :key="revision.id"
+                  :href="revision.pdf_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-n-brand text-xs"
+                >
+                  {{
+                    t('CRM.CONTRACTS.LIST.VERSION_FROM', {
+                      date: new Date(
+                        revision.created_at * 1000
+                      ).toLocaleDateString(),
+                    })
+                  }}
+                </a>
+              </div>
             </td>
           </tr>
         </tbody>

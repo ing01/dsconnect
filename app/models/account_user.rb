@@ -50,7 +50,13 @@ class AccountUser < ApplicationRecord
     # Mensagem do Chat Interno e dirigida a pessoa, como a atribuicao de
     # conversa: entra ligada por padrao. Sem isto, o tipo nasceria desligado
     # para toda conta nova e ninguem saberia que existe.
-    setting.selected_push_flags = %i[push_conversation_assignment push_internal_chat_message]
+    # Resposta do cliente num ticket entra ligada por padrao pelo mesmo
+    # motivo: so chega a quem e responsavel/segue o chamado (ver
+    # Tickets::CustomerCommunicationNotificationBuilder), entao nao ha risco
+    # de lotar a bandeja de quem nao tem nada a ver com aquele ticket.
+    setting.selected_push_flags = %i[
+      push_conversation_assignment push_internal_chat_message push_ticket_customer_communication_received
+    ]
     setting.save!
   end
 

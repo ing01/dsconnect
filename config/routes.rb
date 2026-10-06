@@ -575,7 +575,11 @@ Rails.application.routes.draw do
           # Painel Comercial (CRM) - cadastro proprio, acesso restrito via
           # `commercial_manage` (ver Crm::ClientPolicy/Crm::SalePolicy).
           namespace :crm do
-            resources :clients
+            resources :clients do
+              member do
+                patch :change_representative
+              end
+            end
             resources :sales
             resources :contract_templates, only: [:index, :create, :destroy]
             resources :generated_contracts, only: [:index, :create]

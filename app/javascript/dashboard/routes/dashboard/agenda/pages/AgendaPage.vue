@@ -14,6 +14,7 @@ import AgendaMonthView from 'dashboard/components-next/Agenda/AgendaView/AgendaM
 import AgendaWeekView from 'dashboard/components-next/Agenda/AgendaView/AgendaWeekView.vue';
 import AgendaDayView from 'dashboard/components-next/Agenda/AgendaView/AgendaDayView.vue';
 import CalendarEventFormDialog from 'dashboard/components-next/Agenda/CalendarEventFormDialog.vue';
+import RecurrenceScopeDialog from 'dashboard/components-next/Agenda/RecurrenceScopeDialog.vue';
 import { visibleRangeFor } from 'dashboard/components-next/Agenda/helpers/agendaDateHelper';
 
 const LAST_TEAM_STORAGE_KEY = 'agenda-last-team-id';
@@ -25,6 +26,7 @@ export default {
     AgendaWeekView,
     AgendaDayView,
     CalendarEventFormDialog,
+    RecurrenceScopeDialog,
   },
   data() {
     return {
@@ -36,6 +38,9 @@ export default {
       initialStart: null,
       showDeleteConfirm: false,
       selectedAgentIds: [],
+      showRecurrenceScope: false,
+      recurrenceScopeAction: null,
+      pendingPayload: null,
     };
   },
   computed: {
@@ -45,16 +50,22 @@ export default {
       teamMembersByTeam: 'teamMembers/getTeamMembers',
     }),
     agents() {
-      return this.selectedTeamId ? this.teamMembersByTeam(this.selectedTeamId) : [];
+      return this.selectedTeamId
+        ? this.teamMembersByTeam(this.selectedTeamId)
+        : [];
     },
     events() {
-      const teamEvents = this.selectedTeamId ? this.eventsByTeam(this.selectedTeamId) : [];
+      const teamEvents = this.selectedTeamId
+        ? this.eventsByTeam(this.selectedTeamId)
+        : [];
       if (!this.selectedAgentIds.length) return teamEvents;
 
       return teamEvents.filter(
         event =>
           this.selectedAgentIds.includes(event.created_by_id) ||
-          (event.attendees || []).some(attendee => this.selectedAgentIds.includes(attendee.id))
+          (event.attendees || []).some(attendee =>
+            this.selectedAgentIds.includes(attendee.id)
+          )
       );
     },
   },
@@ -78,9 +89,14 @@ export default {
   },
   methods: {
     pickInitialTeam() {
-      const savedId = Number(window.localStorage.getItem(LAST_TEAM_STORAGE_KEY));
-      const savedTeamExists = savedId && this.teams.some(team => team.id === savedId);
-      this.selectedTeamId = savedTeamExists ? savedId : this.teams[0]?.id || null;
+      const savedId = Number(
+        window.localStorage.getItem(LAST_TEAM_STORAGE_KEY)
+      );
+      const savedTeamExists =
+        savedId && this.teams.some(team => team.id === savedId);
+      this.selectedTeamId = savedTeamExists
+        ? savedId
+        : this.teams[0]?.id || null;
       if (this.selectedTeamId) this.loadEvents();
     },
     loadEvents() {
@@ -110,13 +126,17 @@ export default {
       this.referenceDate = new Date();
     },
     navigatePrevious() {
-      if (this.view === 'month') this.referenceDate = subMonths(this.referenceDate, 1);
-      else if (this.view === 'week') this.referenceDate = subWeeks(this.referenceDate, 1);
+      if (this.view === 'month')
+        this.referenceDate = subMonths(this.referenceDate, 1);
+      else if (this.view === 'week')
+        this.referenceDate = subWeeks(this.referenceDate, 1);
       else this.referenceDate = subDays(this.referenceDate, 1);
     },
     navigateNext() {
-      if (this.view === 'month') this.referenceDate = addMonths(this.referenceDate, 1);
-      else if (this.view === 'week') this.referenceDate = addWeeks(this.referenceDate, 1);
+      if (this.view === 'month')
+        this.referenceDate = addMonths(this.referenceDate, 1);
+      else if (this.view === 'week')
+        this.referenceDate = addWeeks(this.referenceDate, 1);
       else this.referenceDate = addDays(this.referenceDate, 1);
     },
     navigateDay(date) {
@@ -138,11 +158,48 @@ export default {
       this.selectedEvent = null;
       this.initialStart = null;
     },
-    async submitEvent(payload) {
+    // Uma ocorrencia de serie recorrente pergunta o ESCOPO antes de
+    // salvar - um evento simples (a grande maioria) segue direto, igual
+    // a antes.
+    submitEvent(payload) {
+      if (this.selectedEvent?.is_recurring) {
+        this.pendingPayload = payload;
+        this.showEventForm = false;
+        this.recurrenceScopeAction = 'update';
+        this.showRecurrenceScope = true;
+        return;
+      }
+      this.performUpdateOrCreate(payload);
+    },
+    confirmDeleteEvent() {
+      this.showEventForm = false;
+      if (this.selectedEvent?.is_recurring) {
+        this.recurrenceScopeAction = 'destroy';
+        this.showRecurrenceScope = true;
+        return;
+      }
+      this.showDeleteConfirm = true;
+    },
+    async confirmRecurrenceScope(scope) {
+      this.showRecurrenceScope = false;
+      const occurrenceDate = this.selectedEvent.occurrence_date;
+
+      if (this.recurrenceScopeAction === 'update') {
+        await this.performUpdateOrCreate(this.pendingPayload, {
+          scope,
+          occurrenceDate,
+        });
+      } else {
+        await this.performDelete({ scope, occurrenceDate });
+      }
+    },
+    async performUpdateOrCreate(payload, { scope, occurrenceDate } = {}) {
       try {
         if (this.selectedEvent) {
           await this.$store.dispatch('calendarEvents/update', {
             id: this.selectedEvent.id,
+            scope,
+            occurrenceDate,
             ...payload,
           });
         } else {
@@ -150,35 +207,43 @@ export default {
         }
         useAlert(this.$t('AGENDA.API.SUCCESS_MESSAGE'));
         this.closeEventForm();
+        // Um escopo com `scope` pode trocar varias ocorrencias de uma vez so
+        // (nova serie, excecoes indo/vindo) - recarregar a janela visivel e'
+        // mais simples e mais correto do que tentar remendar a lista local.
+        if (scope) this.loadEvents();
       } catch (error) {
         useAlert(this.$t('AGENDA.API.ERROR_MESSAGE'));
       }
     },
-    confirmDeleteEvent() {
-      this.showEventForm = false;
-      this.showDeleteConfirm = true;
-    },
-    async deleteEventConfirmed() {
+    async performDelete({ scope, occurrenceDate } = {}) {
       const event = this.selectedEvent;
       this.showDeleteConfirm = false;
       try {
         await this.$store.dispatch('calendarEvents/delete', {
           id: event.id,
           teamId: this.selectedTeamId,
+          scope,
+          occurrenceDate,
         });
         useAlert(this.$t('AGENDA.API.DELETE_SUCCESS_MESSAGE'));
+        if (scope) this.loadEvents();
       } catch (error) {
         useAlert(this.$t('AGENDA.API.DELETE_ERROR_MESSAGE'));
       } finally {
         this.selectedEvent = null;
       }
     },
+    deleteEventConfirmed() {
+      this.performDelete();
+    },
   },
 };
 </script>
 
 <template>
-  <div class="flex flex-col h-full w-full min-h-0 min-w-0 p-3 gap-3 overflow-hidden">
+  <div
+    class="flex flex-col h-full w-full min-h-0 min-w-0 p-3 gap-3 overflow-hidden"
+  >
     <AgendaHeader
       :teams="teams"
       :selected-team-id="selectedTeamId"
@@ -200,8 +265,12 @@ export default {
       v-if="!teams.length"
       class="flex flex-1 flex-col items-center justify-center gap-3 text-center"
     >
-      <h2 class="text-base font-medium text-n-slate-12">{{ $t('AGENDA.EMPTY.TITLE') }}</h2>
-      <p class="text-sm text-n-slate-11 max-w-sm">{{ $t('AGENDA.EMPTY.NO_TEAM_DESC') }}</p>
+      <h2 class="text-base font-medium text-n-slate-12">
+        {{ $t('AGENDA.EMPTY.TITLE') }}
+      </h2>
+      <p class="text-sm text-n-slate-11 max-w-sm">
+        {{ $t('AGENDA.EMPTY.NO_TEAM_DESC') }}
+      </p>
     </div>
 
     <template v-else>
@@ -231,7 +300,11 @@ export default {
       />
     </template>
 
-    <woot-modal v-model:show="showEventForm" size="medium" :on-close="closeEventForm">
+    <woot-modal
+      v-model:show="showEventForm"
+      size="medium"
+      :on-close="closeEventForm"
+    >
       <CalendarEventFormDialog
         :event="selectedEvent"
         :team-id="selectedTeamId"
@@ -250,6 +323,13 @@ export default {
       :message="$t('AGENDA.DELETE.MESSAGE')"
       :confirm-text="$t('AGENDA.DELETE.CONFIRM')"
       :reject-text="$t('AGENDA.DELETE.CANCEL')"
+    />
+
+    <RecurrenceScopeDialog
+      :show="showRecurrenceScope"
+      :action="recurrenceScopeAction"
+      @close="showRecurrenceScope = false"
+      @confirm="confirmRecurrenceScope"
     />
   </div>
 </template>

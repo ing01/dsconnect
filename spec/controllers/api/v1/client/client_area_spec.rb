@@ -378,6 +378,17 @@ RSpec.describe 'Client Area', type: :request do
       expect(mensagem.status).to eq('sent')
     end
 
+    # O ponto do pedido: o responsavel/seguidores do ticket precisam ser
+    # avisados quando o cliente responde - ver
+    # Tickets::CustomerCommunicationNotificationBuilder.
+    it 'enqueues a notification job for whoever follows the ticket' do
+      expect do
+        post "/api/v1/client/tickets/#{meu.id}/communications",
+             params: { body: 'O erro voltou a acontecer hoje.' },
+             headers: cabecalho(entrar)
+      end.to have_enqueued_job(Tickets::CustomerCommunicationNotificationJob)
+    end
+
     it 'keeps the files that came with the message tied to it' do
       post "/api/v1/client/tickets/#{meu.id}/communications",
            params: { body: 'Segue o print', attachments: [arquivo] },

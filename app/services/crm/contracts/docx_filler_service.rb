@@ -53,7 +53,9 @@ class Crm::Contracts::DocxFillerService
     full_text = text_nodes.map(&:text).join
     return unless full_text.include?('[[')
 
-    filled_text = full_text.gsub(TOKEN_REGEX) { |match| @data.key?($1) ? @data[$1].to_s : match }
+    # Campo vazio (ou token que nem apareceu no formulario) fica EM BRANCO -
+    # nunca mantem o `[[nome_do_token]]` solto no contrato gerado.
+    filled_text = full_text.gsub(TOKEN_REGEX) { @data[$1].to_s }
 
     first_node = text_nodes.first
     first_node.content = filled_text

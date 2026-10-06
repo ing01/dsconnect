@@ -174,7 +174,8 @@
           "SLA_MISSED_FIRST_RESPONSE": "Uma conversa perde o SLA de primeira resposta",
           "SLA_MISSED_NEXT_RESPONSE": "Uma conversa perde o SLA da próxima resposta",
           "SLA_MISSED_RESOLUTION": "Uma conversa perde o SLA de resolução",
-          "SUGGESTION_CREATED": "Uma nova sugestão é enviada"
+          "SUGGESTION_CREATED": "Uma nova sugestão é enviada",
+          "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "O cliente responde um ticket que você é responsável ou segue"
         },
         "PUSH_PREFERENCE": "Receber notificações push",
         "SAVE": "Salvar",
@@ -391,6 +392,7 @@
     "TICKETS": "Tickets",
     "PROJECTS": "Projetos",
     "IMPLEMENTATION_REPORTS": "Painel de Implantação",
+    "MONTHLY_SATISFACTION_SURVEYS": "Avaliação Mensal",
     "CRM": "Comercial",
     "CRM_CLIENTS": "Clientes",
     "CRM_SALES": "Vendas",

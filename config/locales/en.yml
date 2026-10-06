@@ -498,6 +498,7 @@ en:
       project_support_end_overdue: 'Support end date is overdue for %{project_name}'
       ticket_triage_pending: 'New ticket from %{company_name} (#%{display_id}) waiting for triage'
       suggestion_created: 'New improvement suggestion from %{user_name}'
+      ticket_customer_communication_received: 'New reply from %{company_name} on ticket #%{display_id}'
     unknown_contact: 'Unnamed contact'
     attachment: 'Attachment'
     no_content: 'No content'

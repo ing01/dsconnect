@@ -186,6 +186,57 @@ RSpec.describe Notification do
     end
   end
 
+  context 'when notification_type is ticket_customer_communication_received' do
+    let(:account) { create(:account) }
+    let(:team) { create(:team, account: account) }
+    let(:column) { create(:ticket_column, team: team) }
+    let(:company) { create(:company, account: account) }
+    let(:ticket) { create(:ticket, account: account, ticket_column: column, team: team, company: company) }
+    let(:communication) { create(:ticket_customer_communication, ticket: ticket, direction: 'inbound') }
+    let(:notification) do
+      create(:notification, notification_type: 'ticket_customer_communication_received', account: account,
+                            primary_actor: ticket, secondary_actor: communication)
+    end
+
+    it 'leva pro proprio ticket, na aba de comunicacao - nao pra triagem' do
+      expect(notification.push_target_path).to eq("/app/accounts/#{account.id}/tickets/#{ticket.id}?tab=communication")
+    end
+
+    it 'agrupa pelo ticket, nao pela tela de triagem' do
+      expect(notification.push_group_tag).to eq("ticket_communication_#{ticket.id}")
+    end
+
+    it 'o titulo cita o numero do chamado' do
+      expect(notification.push_message_title).to include("##{ticket.display_id}")
+    end
+
+    it 'o corpo usa quem escreveu e o texto da comunicacao' do
+      expect(notification.push_message_body).to eq("#{communication.author_name}: #{communication.body.truncate_words(10)}")
+    end
+
+    it 'nao quebra ao montar o push_event_data (secondary_actor precisa responder push_event_data)' do
+      expect { notification.push_event_data }.not_to raise_error
+    end
+  end
+
+  context 'when notification_type is ticket_triage_pending (still routes to triage)' do
+    let(:account) { create(:account) }
+    let(:team) { create(:team, account: account) }
+    let(:column) { create(:ticket_column, team: team) }
+    let(:ticket) { create(:ticket, account: account, ticket_column: column, team: team) }
+    let(:notification) do
+      create(:notification, notification_type: 'ticket_triage_pending', account: account, primary_actor: ticket)
+    end
+
+    it 'leva pra fila de triagem, nao pro ticket' do
+      expect(notification.push_target_path).to eq("/app/accounts/#{account.id}/tickets/triage")
+    end
+
+    it 'agrupa pela tela, nao pelo ticket' do
+      expect(notification.push_group_tag).to eq('ticket_triage')
+    end
+  end
+
   context 'when fcm push data' do
     it 'returns correct data for primary actor conversation' do
       notification = create(:notification, notification_type: 'conversation_creation')

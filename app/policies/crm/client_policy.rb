@@ -18,6 +18,10 @@ class Crm::ClientPolicy < ApplicationPolicy
     can_manage_commercial?
   end
 
+  def change_representative?
+    update?
+  end
+
   def destroy?
     can_manage_commercial?
   end

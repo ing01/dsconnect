@@ -56,6 +56,7 @@ import onboarding from './onboarding.json';
 import principal from './principal.json';
 import projects from './projects.json';
 import implementationReport from './implementationReport.json';
+import monthlySatisfactionSurveyReport from './monthlySatisfactionSurveyReport.json';
 import manifestation from './manifestation.json';
 import sessionLimit from './sessionLimit.json';
 import yearInReview from './yearInReview.json';
@@ -120,6 +121,7 @@ export default {
   ...principal,
   ...projects,
   ...implementationReport,
+  ...monthlySatisfactionSurveyReport,
   ...manifestation,
   ...sessionLimit,
   ...yearInReview,

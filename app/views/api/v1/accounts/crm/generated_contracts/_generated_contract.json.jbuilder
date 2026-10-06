@@ -9,3 +9,12 @@ json.pdf_name generated_contract.pdf_name
 json.docx_url generated_contract.docx_url
 json.docx_name generated_contract.docx_name
 json.created_at generated_contract.created_at.to_i
+
+# Versoes anteriores (antes de uma troca de representante, por exemplo) -
+# ver Crm::Contracts::RegenerationService/Crm::GeneratedContractRevision.
+json.revisions generated_contract.revisions.sort_by(&:created_at).reverse do |revision|
+  json.id revision.id
+  json.pdf_url revision.pdf_url
+  json.reason revision.reason
+  json.created_at revision.created_at.to_i
+end

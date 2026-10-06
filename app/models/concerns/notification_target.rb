@@ -23,9 +23,16 @@ module NotificationTarget
     when 'Project'
       "project_#{primary_actor_id}"
     when 'Ticket'
-      # Agrupado pela TELA, e nao pelo ticket: a triagem se lê de uma vez, e um
-      # aviso por chamado empilharia a bandeja num dia movimentado.
-      'ticket_triage'
+      if notification_type == 'ticket_customer_communication_received'
+        # Aqui SIM agrupado pelo ticket: duas respostas do mesmo cliente no
+        # mesmo chamado sao o MESMO assunto, a segunda substitui o aviso da
+        # primeira em vez de empilhar.
+        "ticket_communication_#{primary_actor_id}"
+      else
+        # Agrupado pela TELA, e nao pelo ticket: a triagem se lê de uma vez, e
+        # um aviso por chamado empilharia a bandeja num dia movimentado.
+        'ticket_triage'
+      end
     when 'Suggestion'
       "suggestion_#{primary_actor_id}"
     else
@@ -48,9 +55,15 @@ module NotificationTarget
     when 'Project'
       "/app/accounts/#{account_id}/projects?project=#{primary_actor_id}"
     when 'Ticket'
-      # Leva a fila, e nao ao chamado: o que se faz com ele e aceitar e
-      # encaminhar, e isso acontece na Triagem.
-      "/app/accounts/#{account_id}/tickets/triage"
+      if notification_type == 'ticket_customer_communication_received'
+        # Leva direto pro chamado, ja na aba de Comunicacao - e' ali que a
+        # resposta do cliente esta.
+        "/app/accounts/#{account_id}/tickets/#{primary_actor_id}?tab=communication"
+      else
+        # Leva a fila, e nao ao chamado: o que se faz com ele e aceitar e
+        # encaminhar, e isso acontece na Triagem.
+        "/app/accounts/#{account_id}/tickets/triage"
+      end
     when 'Suggestion'
       "/app/accounts/#{account_id}/suggestions"
     else

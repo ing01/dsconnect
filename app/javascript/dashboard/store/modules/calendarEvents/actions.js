@@ -42,22 +42,30 @@ export const actions = {
     }
   },
 
-  update: async ({ commit }, { id, ...eventData }) => {
+  update: async ({ commit }, { id, scope, occurrenceDate, ...eventData }) => {
     commit(SET_CALENDAR_EVENT_UI_FLAG, { isUpdating: true });
     try {
-      const { data } = await CalendarEventsAPI.update(id, eventData);
-      commit(EDIT_CALENDAR_EVENT, data);
+      const { data } = await CalendarEventsAPI.update(id, {
+        scope,
+        occurrenceDate,
+        ...eventData,
+      });
+      // Com `scope`, a resposta pode ser uma serie NOVA (id diferente) ou
+      // uma ocorrencia virou substituta - um commit por id so' faz sentido
+      // no caminho sem escopo; quem despachou com `scope` e' quem recarrega
+      // a janela visivel (ver `AgendaPage.vue`).
+      if (!scope) commit(EDIT_CALENDAR_EVENT, data);
       return data;
     } finally {
       commit(SET_CALENDAR_EVENT_UI_FLAG, { isUpdating: false });
     }
   },
 
-  delete: async ({ commit }, { id, teamId }) => {
+  delete: async ({ commit }, { id, teamId, scope, occurrenceDate }) => {
     commit(SET_CALENDAR_EVENT_UI_FLAG, { isDeleting: true });
     try {
-      await CalendarEventsAPI.delete(id);
-      commit(DELETE_CALENDAR_EVENT, { id, teamId });
+      await CalendarEventsAPI.delete(id, { scope, occurrenceDate });
+      if (!scope) commit(DELETE_CALENDAR_EVENT, { id, teamId });
     } finally {
       commit(SET_CALENDAR_EVENT_UI_FLAG, { isDeleting: false });
     }

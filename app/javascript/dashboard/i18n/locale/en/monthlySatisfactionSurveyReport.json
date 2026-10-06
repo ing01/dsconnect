@@ -1,0 +1,37 @@
+{
+  "MONTHLY_SATISFACTION_SURVEY_REPORT": {
+    "HEADER": "Monthly Survey",
+    "HEADER_DESCRIPTION": "Responses to the Client Portal's monthly satisfaction survey.",
+    "EMPTY": "No surveys for the selected filters.",
+    "ERROR": "Could not load the surveys.",
+    "FILTERS": {
+      "COMPANY": "Company",
+      "MONTH": "Month",
+      "ALL_MONTHS": "All months",
+      "CLEAR_MONTH": "Clear month"
+    },
+    "KPI": {
+      "AVERAGE_RATING": "Overall average",
+      "RESPONSES_COUNT": "Responses in period",
+      "LOWEST_QUESTION": "Lowest-rated question",
+      "NO_RESPONSES": "No responses"
+    },
+    "CHART": {
+      "TITLE": "Average per question",
+      "SERIES_LABEL": "Average"
+    },
+    "TABLE": {
+      "TITLE": "Responses",
+      "COMPANY": "Company",
+      "CONTACT": "Contact",
+      "MONTH": "Month",
+      "AVERAGE": "Average",
+      "COMMENT": "Comment",
+      "ANSWERED_AT": "Answered at",
+      "NO_COMMENT": "—",
+      "NO_CONTACT": "Removed contact",
+      "NO_COMPANY": "No company",
+      "DETAILS_TITLE": "Answers per question"
+    }
+  }
+}

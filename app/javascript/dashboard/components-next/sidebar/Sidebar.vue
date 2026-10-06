@@ -559,6 +559,13 @@ const menuItems = computed(() => {
       activeOn: ['implementation_reports_index'],
     },
     {
+      name: 'MonthlySatisfactionSurveys',
+      label: t('SIDEBAR.MONTHLY_SATISFACTION_SURVEYS'),
+      icon: 'i-lucide-smile',
+      to: accountScopedRoute('monthly_satisfaction_surveys_index'),
+      activeOn: ['monthly_satisfaction_surveys_index'],
+    },
+    {
       // Um item para os dois canais de sugestao: o quadro INTERNO da equipe e o
       // SAC dos CLIENTES, que se alcanca por um botao dentro da pagina. Dois
       // itens de menu com nomes parecidos faziam a equipe abrir o errado.

@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-communication-notifications',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'feature',
+    title: 'Notificação na troca de mensagens de um ticket com o cliente',
+    description:
+      'Quando o cliente responde um ticket pelo Portal, o responsável e os seguidores daquele ticket agora recebem um aviso - no site (sino, na hora) e por push, se tiverem a opção ligada (já nasce ligada, inclusive para quem já era agente). Quando é a equipe que responde, o cliente recebe um push no Portal avisando da resposta nova; se o agente marcar "não notificar" ao responder, nenhum aviso sai, igual já acontecia com o e-mail. O aviso abre direto na aba de Comunicação do ticket certo.',
+  },
+  {
     id: 'client-monthly-satisfaction-survey',
     date: '5 de outubro de 2026',
     isoDate: '2026-10-05',

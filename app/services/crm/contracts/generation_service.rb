@@ -1,19 +1,26 @@
-require 'open3'
 require 'tmpdir'
 
 # Gera o PDF de um contrato: preenche o .docx do modelo com os dados do
 # cliente/venda + o que foi digitado na tela, e converte para PDF via
-# LibreOffice (`soffice --headless --convert-to pdf`), que precisa estar
-# instalado no servidor. Sem LibreOffice instalado, levanta ConversionError
-# com uma mensagem clara em vez de travar silenciosamente.
+# Crm::Contracts::PdfConversion (LibreOffice).
 class Crm::Contracts::GenerationService
-  class ConversionError < StandardError; end
+  # Mesma classe de erro de PdfConversion, com o nome antigo preservado -
+  # quem ja' faz `rescue Crm::Contracts::GenerationService::ConversionError`
+  # (ver generated_contracts_controller.rb) continua funcionando sem mudanca.
+  ConversionError = Crm::Contracts::PdfConversion::ConversionError
 
   def initialize(template:, client:, sale: nil, data: {})
     @template = template
     @client = client
     @sale = sale
-    @data = Crm::ContractTokenMapper.new(client: client, sale: sale).to_h.merge(data.to_h.stringify_keys)
+
+    # Os tokens de identidade do cliente (razao social, CNPJ, nome fantasia,
+    # e-mail, telefone) SEMPRE vem do cadastro - um valor digitado a mao na
+    # tela de geracao (`data`) nunca pode sobrescreve-los, por isso o merge
+    # dos tokens do cadastro vem de novo, por cima, so' com essa fatia.
+    mapper_tokens = Crm::ContractTokenMapper.new(client: client, sale: sale).to_h
+    @data = mapper_tokens.merge(data.to_h.stringify_keys)
+                         .merge(mapper_tokens.slice(*Crm::ContractTokenMapper::LOCKED_CLIENT_TOKEN_KEYS))
   end
 
   def perform
@@ -24,7 +31,7 @@ class Crm::Contracts::GenerationService
       filled_path = File.join(dir, 'preenchido.docx')
       Crm::Contracts::DocxFillerService.new(source_path, @data).perform(filled_path)
 
-      pdf_path = convert_to_pdf(filled_path, dir)
+      pdf_path = Crm::Contracts::PdfConversion.convert!(filled_path, dir)
 
       base_filename = "#{@template.name.parameterize}-#{@client.name.parameterize}"
 
@@ -48,21 +55,5 @@ class Crm::Contracts::GenerationService
       contract.save!
       contract
     end
-  end
-
-  private
-
-  def convert_to_pdf(docx_path, dir)
-    _stdout, stderr, status = Open3.capture3('soffice', '--headless', '--convert-to', 'pdf', '--outdir', dir, docx_path)
-    unless status.success?
-      raise ConversionError, (stderr.presence || 'Falha ao converter para PDF - o LibreOffice (soffice) esta instalado no servidor?')
-    end
-
-    pdf_path = docx_path.sub(/\.docx\z/, '.pdf')
-    raise ConversionError, 'O LibreOffice nao gerou o PDF esperado' unless File.exist?(pdf_path)
-
-    pdf_path
-  rescue Errno::ENOENT
-    raise ConversionError, 'O LibreOffice (comando "soffice") nao foi encontrado no servidor - precisa instalar (sudo apt install -y libreoffice).'
   end
 end

@@ -10,6 +10,9 @@ class Crm::GeneratedContract < ApplicationRecord
   belongs_to :client, class_name: 'Crm::Client', foreign_key: 'crm_client_id', inverse_of: :generated_contracts
   belongs_to :sale, class_name: 'Crm::Sale', foreign_key: 'crm_sale_id', optional: true
 
+  has_many :revisions, class_name: 'Crm::GeneratedContractRevision', foreign_key: 'crm_generated_contract_id',
+                       dependent: :destroy, inverse_of: :generated_contract
+
   has_one_attached :pdf
   # Guarda tambem o .docx preenchido (so' com o primeiro representante) para
   # a Ingrid abrir no Word e acrescentar a mao os demais representantes,

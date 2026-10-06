@@ -29,6 +29,7 @@ import inboxMgmt from './inboxMgmt.json';
 import integrationApps from './integrationApps.json';
 import integrations from './integrations.json';
 import implementationReport from './implementationReport.json';
+import monthlySatisfactionSurveyReport from './monthlySatisfactionSurveyReport.json';
 import manifestation from './manifestation.json';
 import labelsMgmt from './labelsMgmt.json';
 import login from './login.json';
@@ -95,6 +96,7 @@ export default {
   ...integrations,
   ...labelsMgmt,
   ...implementationReport,
+  ...monthlySatisfactionSurveyReport,
   ...manifestation,
   ...login,
   ...macros,
