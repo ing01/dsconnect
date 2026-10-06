@@ -15,6 +15,10 @@ class Api::V1::Client::CommunicationsController < Api::V1::Client::BaseControlle
       attach_uploaded_files!
     end
 
+    # Em segundo plano - quem respondeu nao espera a bandeja do responsavel/
+    # seguidores ser escrita para receber o 201.
+    Tickets::CustomerCommunicationNotificationJob.perform_later(@communication.id)
+
     render 'api/v1/client/communications/show', status: :created
   end
 

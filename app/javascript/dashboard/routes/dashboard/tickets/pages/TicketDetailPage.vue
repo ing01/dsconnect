@@ -133,7 +133,22 @@ const levelAssignees = computed(() => {
   );
 });
 
-const activeTab = ref('overview');
+const VALID_TAB_VALUES = [
+  'overview',
+  'communication',
+  'appointments',
+  'checklists',
+  'time_entries',
+  'development',
+  'history',
+];
+
+// Um link de notificacao abre direto na aba certa (`?tab=communication`,
+// por exemplo) - sem isto, a resposta do cliente que avisou a notificacao
+// ficava escondida atras da aba "Informacoes gerais", que abre por padrao.
+const activeTab = ref(
+  VALID_TAB_VALUES.includes(route.query.tab) ? route.query.tab : 'overview'
+);
 const isSavingDescription = ref(false);
 
 const tabs = computed(() => [

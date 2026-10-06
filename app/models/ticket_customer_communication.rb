@@ -74,6 +74,21 @@ class TicketCustomerCommunication < ApplicationRecord
     update!(status: 'failed', error_message: message.to_s.truncate(1000))
   end
 
+  # Usado como `secondary_actor` de uma Notification (ver
+  # Tickets::CustomerCommunicationNotificationBuilder) - sem isto,
+  # `notification.push_event_data` quebra ao chamar `secondary_actor&.push_event_data`
+  # na hora de transmitir o aviso por ActionCable.
+  def push_event_data
+    {
+      id: id,
+      ticket_id: ticket_id,
+      direction: direction,
+      body: body,
+      author_name: author_name,
+      created_at: created_at.to_i
+    }
+  end
+
   private
 
   def ensure_account_id

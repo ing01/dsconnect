@@ -56,7 +56,10 @@ class Notification < ApplicationRecord
     # Chamado aberto pelo cliente, esperando alguem aceitar na Triagem.
     ticket_triage_pending: 12,
     # Sugestao de melhoria enviada por um usuario interno pela tela Principal.
-    suggestion_created: 13
+    suggestion_created: 13,
+    # O cliente respondeu num Ticket, pelo Portal - avisa so' o responsavel e
+    # os seguidores daquele ticket (ver Tickets::CustomerCommunicationNotificationBuilder).
+    ticket_customer_communication_received: 14
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES

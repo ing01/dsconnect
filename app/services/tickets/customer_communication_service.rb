@@ -78,9 +78,17 @@ class Tickets::CustomerCommunicationService
     communication.mark_sent!
     log_activity(communication)
     fulfil_response_sla(communication)
+    notify_customer_by_push(communication)
   rescue StandardError => e
     communication.mark_failed!(e.message)
     raise
+  end
+
+  # So' no caminho que de fato avisa o cliente (`deliver`, nunca
+  # `register_only`) - a mesma regra que ja vale pro e-mail: quando o agente
+  # marca "nao notificar", nada sai por nenhum canal.
+  def notify_customer_by_push(communication)
+    Client::TicketCommunicationPushNotificationJob.perform_later(communication.id)
   end
 
   # A real delivery produces a message with a recipient. A NullMail - which is

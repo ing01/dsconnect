@@ -25,7 +25,8 @@ module NotificationPushContent
       'project_support_end_overdue' => 'notifications.notification_title.project_support_end_overdue',
       'internal_chat_message' => 'notifications.notification_title.internal_chat_message',
       'ticket_triage_pending' => 'notifications.notification_title.ticket_triage_pending',
-      'suggestion_created' => 'notifications.notification_title.suggestion_created'
+      'suggestion_created' => 'notifications.notification_title.suggestion_created',
+      'ticket_customer_communication_received' => 'notifications.notification_title.ticket_customer_communication_received'
     }
 
     i18n_key = internal_chat_title_key || notification_title_map[notification_type]
@@ -66,7 +67,7 @@ module NotificationPushContent
       { project_name: primary_actor.name }
     when 'internal_chat_message'
       internal_chat_interpolations
-    when 'ticket_triage_pending'
+    when 'ticket_triage_pending', 'ticket_customer_communication_received'
       { display_id: primary_actor.display_id, company_name: primary_actor.company&.name.to_s }
     when 'suggestion_created'
       { user_name: primary_actor.user&.name.to_s }
@@ -102,13 +103,17 @@ module NotificationPushContent
       message_body(secondary_actor)
     when 'conversation_assignment', 'sla_missed_next_response', 'sla_missed_resolution'
       message_body((conversation.messages.incoming.last || conversation.messages.outgoing.last))
-    when 'internal_chat_message'
-      internal_chat_preview
-    when 'suggestion_created'
-      primary_actor.title
     else
-      ''
+      message_body_for_non_conversation_type
     end
+  end
+
+  def message_body_for_non_conversation_type
+    return internal_chat_preview if notification_type == 'internal_chat_message'
+    return primary_actor.title if notification_type == 'suggestion_created'
+    return ticket_customer_communication_preview if notification_type == 'ticket_customer_communication_received'
+
+    ''
   end
 
   # So uma previa: a notificacao aparece na tela de bloqueio, e mandar a
@@ -129,5 +134,12 @@ module NotificationPushContent
              sender_name: sender_name,
              content: content.truncate(INTERNAL_CHAT_PREVIEW_LIMIT))
     end
+  end
+
+  # `secondary_actor` e' a TicketCustomerCommunication - formato diferente do
+  # que `message_body` espera, por isso a previa propria.
+  def ticket_customer_communication_preview
+    content = secondary_actor.body.to_s.strip
+    "#{secondary_actor.author_name}: #{content.truncate_words(10)}"
   end
 end

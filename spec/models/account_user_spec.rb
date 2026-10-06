@@ -15,6 +15,14 @@ RSpec.describe AccountUser do
       expect(account_user.user.notification_settings.first.email_conversation_creation?).to be(false)
       expect(account_user.user.notification_settings.first.email_conversation_assignment?).to be(true)
     end
+
+    # Avaliado pelo responsavel/seguidores de um ticket - ver
+    # Tickets::CustomerCommunicationNotificationBuilder. Nasce ligado para
+    # agente novo pelo mesmo motivo do Chat Interno: sem isto, ninguem saberia
+    # que a opcao existe.
+    it 'nasce com o push de resposta do cliente no ticket ligado' do
+      expect(account_user.user.notification_settings.first.push_ticket_customer_communication_received?).to be(true)
+    end
   end
 
   describe 'permissions' do

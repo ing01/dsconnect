@@ -95,6 +95,12 @@ RSpec.describe Tickets::CustomerCommunicationService do
       expect(activity.new_value).to eq('renan@empresa.com')
     end
 
+    # O ponto do pedido: o cliente precisa ser avisado (push) quando a equipe
+    # responde de verdade - ver Client::TicketCommunicationPushNotificationJob.
+    it 'enqueues a push notification job for the customer' do
+      expect { with_smtp { perform } }.to have_enqueued_job(Client::TicketCommunicationPushNotificationJob)
+    end
+
     it 'satisfies the closing requirement' do
       with_smtp { perform }
 
@@ -233,6 +239,13 @@ RSpec.describe Tickets::CustomerCommunicationService do
       activity = ticket.ticket_activities.find_by(activity_type: :customer_communication_sent)
       expect(activity.user).to eq(user)
       expect(activity.meta['notify_customer']).to be(false)
+    end
+
+    # Mesma regra do e-mail: a pessoa marcou "nao notificar", nenhum canal
+    # avisa o cliente - nem e-mail, nem push.
+    it 'does not enqueue a push notification job for the customer' do
+      expect { with_smtp { perform(notify_customer: false) } }
+        .not_to have_enqueued_job(Client::TicketCommunicationPushNotificationJob)
     end
 
     # Sem SMTP nenhum o registro funciona igual: nao ha entrega para falhar. E o
