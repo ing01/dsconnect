@@ -41,6 +41,7 @@ const emptyForm = () => ({
   representative_cpf: '',
   representative_birth_date: '',
   representative_phone: '',
+  representative_mobile: '',
   representative_address_street: '',
   representative_address_number: '',
   representative_address_complement: '',
@@ -138,6 +139,7 @@ const emptyRepresentativeForm = () => ({
   representative_cpf: '',
   representative_birth_date: '',
   representative_phone: '',
+  representative_mobile: '',
   representative_address_street: '',
   representative_address_number: '',
   representative_address_complement: '',
@@ -308,6 +310,11 @@ onMounted(fetchClients);
           size="sm"
         />
         <Input
+          v-model="form.representative_mobile"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
+          size="sm"
+        />
+        <Input
           v-model="form.representative_address_street"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
           size="sm"
@@ -448,6 +455,11 @@ onMounted(fetchClients);
         <Input
           v-model="representativeForm.representative_phone"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_mobile"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
           size="sm"
         />
         <Input

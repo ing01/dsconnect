@@ -15,9 +15,9 @@ class Crm::ContractTokenMapper
   # trocar quando o representante do cliente muda, sem tocar no resto do
   # `data` ja gravado (licenca, implantacao etc., digitados a mao).
   REPRESENTATIVE_TOKEN_KEYS = %w[
-    representante_nome representante_cpf representante_dt_nasc representante_end_num
-    representante_bairro representante_end_complemento representante_cidade representante_uf
-    representante_cep representante_telefone
+    representante_nome representante_cpf representante_dt_nasc representante_endereco
+    representante_end_num representante_bairro representante_end_complemento representante_cidade
+    representante_uf representante_cep representante_telefone representante_celular
   ].freeze
 
   def initialize(client:, sale: nil)
@@ -45,6 +45,7 @@ class Crm::ContractTokenMapper
       'cliente_inscricao_estadual' => client.state_registration,
       'cliente_endereco_rua' => client.address_street,
       'cliente_endereco_num' => client.address_number,
+      'cliente_endereco_bairro' => client.address_neighborhood,
       'cliente_endereco_complemento' => client.address_complement,
       'cliente_cidade' => client.city,
       'cliente_uf' => client.state,
@@ -54,6 +55,7 @@ class Crm::ContractTokenMapper
       'representante_nome' => client.representative_name,
       'representante_cpf' => client.representative_cpf,
       'representante_dt_nasc' => client.representative_birth_date&.strftime('%d/%m/%Y'),
+      'representante_endereco' => client.representative_address_street,
       'representante_end_num' => client.representative_address_number,
       'representante_bairro' => client.representative_neighborhood,
       'representante_end_complemento' => client.representative_address_complement,
@@ -61,6 +63,7 @@ class Crm::ContractTokenMapper
       'representante_uf' => client.representative_state,
       'representante_cep' => client.representative_zip_code,
       'representante_telefone' => client.representative_phone,
+      'representante_celular' => client.representative_mobile,
     }
   end
 

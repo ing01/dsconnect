@@ -37,7 +37,8 @@
         "REPRESENTATIVE_NEIGHBORHOOD": "Bairro do representante",
         "REPRESENTATIVE_CITY": "Cidade do representante",
         "REPRESENTATIVE_STATE": "UF do representante",
-        "REPRESENTATIVE_ZIP_CODE": "CEP do representante"
+        "REPRESENTATIVE_ZIP_CODE": "CEP do representante",
+        "REPRESENTATIVE_MOBILE": "Celular do representante"
       },
       "CONTRACT_DATA_SECTION": "Dados para contrato (preenche uma vez, reaproveita em todos os modelos)",
       "EXTRA_REPRESENTATIVES": {
