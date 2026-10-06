@@ -9,6 +9,33 @@
 // card, então os dois precisam ficar em sincronia.
 export const PRINCIPAL_ENTRIES = [
   {
+    id: 'client-tutorial-first-access',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'feature',
+    title: 'Tutorial rápido na primeira vez que você entra',
+    description:
+      'Um guia mostra onde ficam Chamados, SAC e Sugestões, Chat, Notificações e o botão de instalar o app. Pode pular a qualquer momento - e quer rever depois? É só clicar em "Tutorial" no topo da tela.',
+  },
+  {
+    id: 'client-ticket-reply-push',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'improvement',
+    title: 'Aviso quando a equipe responde seu chamado',
+    description:
+      'Quando a equipe responde um chamado seu, você recebe um aviso no celular ou navegador (se tiver as notificações ativadas), que abre direto na conversa daquele chamado.',
+  },
+  {
+    id: 'client-monthly-satisfaction',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'feature',
+    title: 'Avaliação mensal de satisfação',
+    description:
+      'Uma vez por mês, você pode avaliar o atendimento recebido direto no Portal - leva poucos segundos e ajuda a equipe a melhorar.',
+  },
+  {
     id: 'client-chat-floating-button',
     date: '2 de outubro de 2026',
     isoDate: '2026-10-02',
