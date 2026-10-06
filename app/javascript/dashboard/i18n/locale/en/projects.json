@@ -54,7 +54,8 @@
       "COMPANY": {
         "LABEL": "Client",
         "NONE": "No client",
-        "SEARCH_PLACEHOLDER": "Search by name or code..."
+        "SEARCH_PLACEHOLDER": "Search by name or code...",
+        "NEW_SHORTCUT": "New client"
       },
       "TEAM": {
         "LABEL": "Service team",
@@ -229,6 +230,10 @@
       "DEFAULT_ASSIGNEE": {
         "LABEL": "Default assignee",
         "NONE": "Unassigned"
+      },
+      "CATEGORY": {
+        "LABEL": "Ticket category",
+        "NONE": "No category"
       },
       "DUE_DAYS": {
         "LABEL": "Due in (days)",

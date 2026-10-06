@@ -12,6 +12,8 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import { formatMesaName } from 'dashboard/helper/mesaName';
 import HelpButton from 'dashboard/components-next/help/HelpButton.vue';
+import CompanyCreateDialog from 'dashboard/components-next/Companies/CompanyCreateDialog.vue';
+import { useCompaniesStore } from 'dashboard/stores/companies';
 
 const props = defineProps({
   initialTeamId: {
@@ -72,6 +74,30 @@ const fetchCompanyOptions = async query => {
   }
 };
 
+const companiesStore = useCompaniesStore();
+const companyCreateRef = ref(null);
+const isCreatingCompany = ref(false);
+
+const openCreateCompany = () => companyCreateRef.value?.open();
+
+const createCompany = async attrs => {
+  isCreatingCompany.value = true;
+  try {
+    const newCompany = await companiesStore.create(attrs);
+    companyCreateRef.value?.onSuccess();
+    companyOptions.value = [
+      toCompanyOption(newCompany),
+      ...companyOptions.value.filter(option => option.value !== newCompany.id),
+    ];
+    companyId.value = newCompany.id;
+    useAlert(t('COMPANIES.CREATE.MESSAGES.SUCCESS'));
+  } catch {
+    useAlert(t('COMPANIES.CREATE.MESSAGES.ERROR'));
+  } finally {
+    isCreatingCompany.value = false;
+  }
+};
+
 const handleCompanyOpen = () => fetchCompanyOptions('');
 const handleCompanySearch = useDebounceFn(
   query => fetchCompanyOptions(query?.trim() || ''),
@@ -97,6 +123,13 @@ const onTeamChange = () => {
 const isStep1Valid = computed(() => {
   return !!name.value.trim() && !!teamId.value;
 });
+
+// A categoria do cadastro da tarefa e' achada pelo NOME dentro da Mesa escolhida
+// (a mesma Categoria existe em cada Mesa). Sem correspondencia, cai na primeira.
+const categoriaDoModelo = nome => {
+  if (!nome) return null;
+  return categories.value.find(c => c.name === nome)?.id || null;
+};
 
 const goToStep2 = () => {
   if (!isStep1Valid.value) return;
@@ -124,7 +157,10 @@ const goToStep2 = () => {
       assignee_id: tmpl.default_assignee_id || '',
       due_date: dueFormatted,
       scheduled_at: '',
-      ticket_category_id: categories.value[0]?.id || '',
+      ticket_category_id:
+        categoriaDoModelo(tmpl.ticket_category_name) ||
+        categories.value[0]?.id ||
+        '',
     };
   });
 
@@ -240,9 +276,19 @@ const submitProject = async () => {
 
         <!-- Cliente (Empresa) -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-n-slate-12">
-            {{ t('PROJECTS.FORM.COMPANY.LABEL') }}
-          </label>
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-medium text-n-slate-12">
+              {{ t('PROJECTS.FORM.COMPANY.LABEL') }}
+            </label>
+            <button
+              type="button"
+              class="text-xs text-n-teal-11 hover:underline flex items-center gap-1 font-medium"
+              @click="openCreateCompany"
+            >
+              <Icon icon="i-lucide-plus" class="size-3" />
+              {{ t('PROJECTS.FORM.COMPANY.NEW_SHORTCUT') }}
+            </button>
+          </div>
           <ComboBox
             v-model="companyId"
             :options="companyOptions"
@@ -457,5 +503,11 @@ const submitProject = async () => {
         </div>
       </div>
     </div>
+
+    <CompanyCreateDialog
+      ref="companyCreateRef"
+      :is-loading="isCreatingCompany"
+      @create="createCompany"
+    />
   </div>
 </template>

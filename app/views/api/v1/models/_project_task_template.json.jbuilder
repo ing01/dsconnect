@@ -9,6 +9,7 @@ json.next_project_stage resource.next_project_stage
 json.checklist_id resource.checklist_id
 json.checklist_name resource.checklist&.name
 json.checklist_items resource.checklist&.items
+json.ticket_category_name resource.ticket_category_name
 json.account_id resource.account_id
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
