@@ -128,6 +128,8 @@ RUN apk update && apk add --no-cache \
   imagemagick \
   git \
   vips \
+  libreoffice-writer \
+  libreoffice-lang-pt_br \
   && gem install bundler -v "$BUNDLER_VERSION"
 
 # Restrict libvips to its trusted image loaders when generating variants
