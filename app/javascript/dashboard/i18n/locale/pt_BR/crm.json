@@ -54,6 +54,15 @@
         "SAVE": "Salvar",
         "CANCEL": "Cancelar"
       },
+      "REPRESENTATIVE_CHANGE": {
+        "BUTTON": "Trocar representante",
+        "TITLE": "Trocar o representante de {client}",
+        "HINT": "Preencha so os dados do representante NOVO - os contratos ja gerados para este cliente sao atualizados automaticamente com o novo representante (a versao anterior de cada um fica guardada).",
+        "SUBMIT": "Confirmar troca",
+        "SUCCESS": "Representante atualizado. {ok} de {total} contrato(s) atualizado(s).",
+        "PARTIAL_ERROR": "Alguns contratos nao puderam ser atualizados: {errors}",
+        "ERROR": "Nao foi possivel trocar o representante."
+      },
       "TABLE": {
         "NAME": "Cliente",
         "CNPJ": "CNPJ/CPF",
@@ -159,6 +168,7 @@
         "CLIENT": "Cliente",
         "SALE": "Venda (opcional)",
         "FIELDS_HINT": "Deixe em branco o que o cadastro do cliente ja souber responder - so preencha o que for especifico deste contrato.",
+        "LOCKED_FIELDS_HINT": "Razao Social, CNPJ/CPF, Nome Fantasia, E-mail e Telefone do cliente vem direto do cadastro e nao aparecem aqui para preencher.",
         "EXTRA_REPRESENTATIVES_HINT": "Este cliente tem {count} representante(s) extra cadastrado(s) - o PDF/Word gerado entra so com o representante principal; acrescente os demais a mao no Word.",
         "SUBMIT": "Gerar PDF"
       },
@@ -168,7 +178,9 @@
         "TEMPLATE": "Modelo",
         "CLIENT": "Cliente",
         "DOWNLOAD": "Baixar PDF",
-        "DOWNLOAD_WORD": "Baixar Word"
+        "DOWNLOAD_WORD": "Baixar Word",
+        "PREVIOUS_VERSIONS": "Versões anteriores",
+        "VERSION_FROM": "Versão de {date}"
       }
     }
   }

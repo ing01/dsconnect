@@ -54,6 +54,15 @@
         "SAVE": "Save",
         "CANCEL": "Cancel"
       },
+      "REPRESENTATIVE_CHANGE": {
+        "BUTTON": "Change representative",
+        "TITLE": "Change {client}'s representative",
+        "HINT": "Fill in only the NEW representative's data - contracts already generated for this client are automatically updated with the new representative (each one's previous version is kept).",
+        "SUBMIT": "Confirm change",
+        "SUCCESS": "Representative updated. {ok} of {total} contract(s) updated.",
+        "PARTIAL_ERROR": "Some contracts could not be updated: {errors}",
+        "ERROR": "Could not change the representative."
+      },
       "TABLE": {
         "NAME": "Client",
         "CNPJ": "Tax ID",
@@ -159,6 +168,7 @@
         "CLIENT": "Client",
         "SALE": "Sale (optional)",
         "FIELDS_HINT": "Leave blank anything the client registry already knows - only fill in what's specific to this contract.",
+        "LOCKED_FIELDS_HINT": "Trade Name, CNPJ/CPF, Legal Name, E-mail and Phone come straight from the client record and don't show up here to fill in.",
         "EXTRA_REPRESENTATIVES_HINT": "This client has {count} extra representative(s) registered - the generated PDF/Word only includes the main representative; add the others by hand in Word.",
         "SUBMIT": "Generate PDF"
       },
@@ -168,7 +178,9 @@
         "TEMPLATE": "Template",
         "CLIENT": "Client",
         "DOWNLOAD": "Download PDF",
-        "DOWNLOAD_WORD": "Download Word"
+        "DOWNLOAD_WORD": "Download Word",
+        "PREVIOUS_VERSIONS": "Previous versions",
+        "VERSION_FROM": "Version from {date}"
       }
     }
   }

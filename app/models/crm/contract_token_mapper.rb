@@ -4,6 +4,22 @@
 # licenca, prazo, se tem treino, etc.) nao tem de onde vir automaticamente e
 # ficam em branco, para preenchimento manual a cada contrato.
 class Crm::ContractTokenMapper
+  # Identidade do cliente - sempre vem do cadastro, NUNCA do que foi digitado
+  # na tela de geracao (ver Crm::Contracts::GenerationService, que usa esta
+  # lista para fazer esses tokens ganharem de um `data` manual).
+  LOCKED_CLIENT_TOKEN_KEYS = %w[
+    cliente_razao_social cliente_cnpj cliente_nome_fantasia cliente_email cliente_telefone
+  ].freeze
+
+  # Usada por Crm::Contracts::RegenerationService para saber quais tokens
+  # trocar quando o representante do cliente muda, sem tocar no resto do
+  # `data` ja gravado (licenca, implantacao etc., digitados a mao).
+  REPRESENTATIVE_TOKEN_KEYS = %w[
+    representante_nome representante_cpf representante_dt_nasc representante_end_num
+    representante_bairro representante_end_complemento representante_cidade representante_uf
+    representante_cep representante_telefone
+  ].freeze
+
   def initialize(client:, sale: nil)
     @client = client
     @sale = sale

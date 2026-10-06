@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_06_100001) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_07_100000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1303,6 +1303,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_06_100001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_crm_contract_templates_on_account_id"
+  end
+
+  create_table "crm_generated_contract_revisions", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "crm_generated_contract_id", null: false
+    t.jsonb "data", default: {}, null: false
+    t.string "reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_crm_generated_contract_revisions_on_account_id"
+    t.index ["crm_generated_contract_id"], name: "idx_on_crm_generated_contract_id_bfda3a9f1e"
   end
 
   create_table "crm_generated_contracts", force: :cascade do |t|

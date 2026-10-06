@@ -3,8 +3,8 @@ class Api::V1::Accounts::Crm::GeneratedContractsController < Api::V1::Accounts::
 
   def index
     @contracts = Current.account.crm_generated_contracts
-                         .includes(:template, :client, pdf_attachment: :blob)
-                         .order(created_at: :desc)
+                        .includes(:template, :client, pdf_attachment: :blob, revisions: { pdf_attachment: :blob })
+                        .order(created_at: :desc)
     @contracts = @contracts.where(crm_client_id: params[:crm_client_id]) if params[:crm_client_id].present?
   end
 

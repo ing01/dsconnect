@@ -70,7 +70,9 @@ const removeExtraRepresentative = index => {
 const fetchClients = async () => {
   isLoading.value = true;
   try {
-    const { data } = await CrmClientsAPI.get({ search: searchQuery.value || undefined });
+    const { data } = await CrmClientsAPI.get({
+      search: searchQuery.value || undefined,
+    });
     clients.value = data;
   } catch {
     useAlert(t('CRM.CLIENTS.ERROR'));
@@ -126,13 +128,74 @@ const remove = async client => {
   }
 };
 
+// "Mudanca de representante" - um painel PROPRIO, separado do form de
+// edicao geral: so' os dados do representante NOVO, em branco (nunca
+// pre-preenchido com o antigo, pra nao editar por engano em vez de
+// substituir). Ao salvar, o servidor atualiza o cliente E regenera todos os
+// contratos ja gerados para ele (ver Crm::Contracts::RegenerationService).
+const emptyRepresentativeForm = () => ({
+  representative_name: '',
+  representative_cpf: '',
+  representative_birth_date: '',
+  representative_phone: '',
+  representative_address_street: '',
+  representative_address_number: '',
+  representative_address_complement: '',
+  representative_neighborhood: '',
+  representative_city: '',
+  representative_state: '',
+  representative_zip_code: '',
+});
+const representativeChangeClient = ref(null);
+const representativeForm = ref(emptyRepresentativeForm());
+const isChangingRepresentative = ref(false);
+
+const openChangeRepresentative = client => {
+  representativeChangeClient.value = client;
+  representativeForm.value = emptyRepresentativeForm();
+};
+
+const closeChangeRepresentative = () => {
+  representativeChangeClient.value = null;
+};
+
+const saveRepresentativeChange = async () => {
+  isChangingRepresentative.value = true;
+  try {
+    const { data } = await CrmClientsAPI.changeRepresentative(
+      representativeChangeClient.value.id,
+      representativeForm.value
+    );
+    const total = data.results.length;
+    const ok = data.results.filter(result => result.status === 'ok').length;
+    const failed = data.results.filter(result => result.status === 'error');
+
+    useAlert(t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.SUCCESS', { ok, total }));
+    if (failed.length) {
+      useAlert(
+        t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.PARTIAL_ERROR', {
+          errors: failed.map(result => result.error).join('; '),
+        })
+      );
+    }
+    closeChangeRepresentative();
+    fetchClients();
+  } catch {
+    useAlert(t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.ERROR'));
+  } finally {
+    isChangingRepresentative.value = false;
+  }
+};
+
 onMounted(fetchClients);
 </script>
 
 <template>
   <div class="flex-1 overflow-auto p-4">
     <ReportHeader :header-title="t('CRM.CLIENTS.HEADER')" />
-    <p class="mb-4 text-sm text-n-slate-11">{{ t('CRM.CLIENTS.DESCRIPTION') }}</p>
+    <p class="mb-4 text-sm text-n-slate-11">
+      {{ t('CRM.CLIENTS.DESCRIPTION') }}
+    </p>
 
     <div class="flex items-center justify-between gap-3 mb-4">
       <Input
@@ -141,14 +204,24 @@ onMounted(fetchClients);
         class="max-w-xs"
         @keyup.enter="fetchClients"
       />
-      <Button :label="t('CRM.CLIENTS.NEW')" icon="i-lucide-plus" @click="openNew" />
+      <Button
+        :label="t('CRM.CLIENTS.NEW')"
+        icon="i-lucide-plus"
+        @click="openNew"
+      />
     </div>
 
-    <div v-if="isFormOpen" class="flex flex-col gap-3 p-4 mb-4 rounded-xl border border-n-weak bg-n-solid-2">
+    <div
+      v-if="isFormOpen"
+      class="flex flex-col gap-3 p-4 mb-4 rounded-xl border border-n-weak bg-n-solid-2"
+    >
       <div class="grid grid-cols-2 gap-3">
         <Input v-model="form.name" :label="t('CRM.CLIENTS.FIELDS.NAME')" />
         <Input v-model="form.cnpj" :label="t('CRM.CLIENTS.FIELDS.CNPJ')" />
-        <Input v-model="form.contact_name" :label="t('CRM.CLIENTS.FIELDS.CONTACT_NAME')" />
+        <Input
+          v-model="form.contact_name"
+          :label="t('CRM.CLIENTS.FIELDS.CONTACT_NAME')"
+        />
         <Input v-model="form.phone" :label="t('CRM.CLIENTS.FIELDS.PHONE')" />
         <Input v-model="form.email" :label="t('CRM.CLIENTS.FIELDS.EMAIL')" />
       </div>
@@ -163,28 +236,77 @@ onMounted(fetchClients);
         class="self-start text-xs text-n-brand"
         @click="showContractData = !showContractData"
       >
-        {{ t('CRM.CLIENTS.CONTRACT_DATA_SECTION') }} {{ showContractData ? '▲' : '▼' }}
+        {{ t('CRM.CLIENTS.CONTRACT_DATA_SECTION') }}
+        {{ showContractData ? '▲' : '▼' }}
       </button>
 
       <div v-if="showContractData" class="grid grid-cols-3 gap-3">
-        <Input v-model="form.trade_name" :label="t('CRM.CLIENTS.FIELDS.TRADE_NAME')" size="sm" />
-        <Input v-model="form.state_registration" :label="t('CRM.CLIENTS.FIELDS.STATE_REGISTRATION')" size="sm" />
-        <Input v-model="form.address_street" :label="t('CRM.CLIENTS.FIELDS.ADDRESS_STREET')" size="sm" />
-        <Input v-model="form.address_number" :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')" size="sm" />
-        <Input v-model="form.address_complement" :label="t('CRM.CLIENTS.FIELDS.ADDRESS_COMPLEMENT')" size="sm" />
-        <Input v-model="form.address_neighborhood" :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NEIGHBORHOOD')" size="sm" />
-        <Input v-model="form.city" :label="t('CRM.CLIENTS.FIELDS.CITY')" size="sm" />
-        <Input v-model="form.state" :label="t('CRM.CLIENTS.FIELDS.STATE')" size="sm" />
-        <Input v-model="form.zip_code" :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')" size="sm" />
-        <Input v-model="form.representative_name" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NAME')" size="sm" />
-        <Input v-model="form.representative_cpf" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CPF')" size="sm" />
+        <Input
+          v-model="form.trade_name"
+          :label="t('CRM.CLIENTS.FIELDS.TRADE_NAME')"
+          size="sm"
+        />
+        <Input
+          v-model="form.state_registration"
+          :label="t('CRM.CLIENTS.FIELDS.STATE_REGISTRATION')"
+          size="sm"
+        />
+        <Input
+          v-model="form.address_street"
+          :label="t('CRM.CLIENTS.FIELDS.ADDRESS_STREET')"
+          size="sm"
+        />
+        <Input
+          v-model="form.address_number"
+          :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')"
+          size="sm"
+        />
+        <Input
+          v-model="form.address_complement"
+          :label="t('CRM.CLIENTS.FIELDS.ADDRESS_COMPLEMENT')"
+          size="sm"
+        />
+        <Input
+          v-model="form.address_neighborhood"
+          :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NEIGHBORHOOD')"
+          size="sm"
+        />
+        <Input
+          v-model="form.city"
+          :label="t('CRM.CLIENTS.FIELDS.CITY')"
+          size="sm"
+        />
+        <Input
+          v-model="form.state"
+          :label="t('CRM.CLIENTS.FIELDS.STATE')"
+          size="sm"
+        />
+        <Input
+          v-model="form.zip_code"
+          :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')"
+          size="sm"
+        />
+        <Input
+          v-model="form.representative_name"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NAME')"
+          size="sm"
+        />
+        <Input
+          v-model="form.representative_cpf"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CPF')"
+          size="sm"
+        />
         <Input
           v-model="form.representative_birth_date"
           type="date"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
           size="sm"
         />
-        <Input v-model="form.representative_phone" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')" size="sm" />
+        <Input
+          v-model="form.representative_phone"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+          size="sm"
+        />
         <Input
           v-model="form.representative_address_street"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
@@ -205,8 +327,16 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <Input v-model="form.representative_city" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')" size="sm" />
-        <Input v-model="form.representative_state" :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE')" size="sm" />
+        <Input
+          v-model="form.representative_city"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
+          size="sm"
+        />
+        <Input
+          v-model="form.representative_state"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE')"
+          size="sm"
+        />
         <Input
           v-model="form.representative_zip_code"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
@@ -216,36 +346,160 @@ onMounted(fetchClients);
 
       <div v-if="showContractData" class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-medium text-n-slate-11">{{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.TITLE') }}</span>
+          <span class="text-xs font-medium text-n-slate-11">{{
+            t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.TITLE')
+          }}</span>
           <button class="text-xs text-n-brand" @click="addExtraRepresentative">
             {{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.ADD') }}
           </button>
         </div>
-        <p class="text-[11px] text-n-slate-11">{{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.HINT') }}</p>
+        <p class="text-[11px] text-n-slate-11">
+          {{ t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.HINT') }}
+        </p>
         <div
           v-for="(representative, index) in form.extra_representatives"
           :key="index"
           class="grid grid-cols-[2fr_1fr_1fr_1fr_2fr_auto] gap-2 items-end"
         >
-          <Input v-model="representative.name" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.NAME')" size="sm" />
-          <Input v-model="representative.cpf" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.CPF')" size="sm" />
+          <Input
+            v-model="representative.name"
+            :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.NAME')"
+            size="sm"
+          />
+          <Input
+            v-model="representative.cpf"
+            :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.CPF')"
+            size="sm"
+          />
           <Input
             v-model="representative.birth_date"
             type="date"
             :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.BIRTH_DATE')"
             size="sm"
           />
-          <Input v-model="representative.phone" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.PHONE')" size="sm" />
-          <Input v-model="representative.address" :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.ADDRESS')" size="sm" />
-          <button class="mb-1 text-n-ruby-9" @click="removeExtraRepresentative(index)">
+          <Input
+            v-model="representative.phone"
+            :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.PHONE')"
+            size="sm"
+          />
+          <Input
+            v-model="representative.address"
+            :label="t('CRM.CLIENTS.EXTRA_REPRESENTATIVES.ADDRESS')"
+            size="sm"
+          />
+          <button
+            class="mb-1 text-n-ruby-9"
+            @click="removeExtraRepresentative(index)"
+          >
             <i class="i-lucide-trash-2 size-4" />
           </button>
         </div>
       </div>
 
       <div class="flex gap-2 justify-end">
-        <Button variant="faded" color="slate" :label="t('CRM.CLIENTS.FORM.CANCEL')" @click="closeForm" />
-        <Button :label="t('CRM.CLIENTS.FORM.SAVE')" :is-loading="isSaving" @click="save" />
+        <Button
+          variant="faded"
+          color="slate"
+          :label="t('CRM.CLIENTS.FORM.CANCEL')"
+          @click="closeForm"
+        />
+        <Button
+          :label="t('CRM.CLIENTS.FORM.SAVE')"
+          :is-loading="isSaving"
+          @click="save"
+        />
+      </div>
+    </div>
+
+    <div
+      v-if="representativeChangeClient"
+      class="flex flex-col gap-3 p-4 mb-4 rounded-xl border border-n-amber-6 bg-n-amber-2"
+    >
+      <div class="flex flex-col gap-1">
+        <span class="text-sm font-medium text-n-slate-12">
+          {{
+            t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.TITLE', {
+              client: representativeChangeClient.name,
+            })
+          }}
+        </span>
+        <p class="text-xs text-n-slate-11">
+          {{ t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.HINT') }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <Input
+          v-model="representativeForm.representative_name"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NAME')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_cpf"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CPF')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_birth_date"
+          type="date"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_phone"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_address_street"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_address_number"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_address_complement"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_COMPLEMENT')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_neighborhood"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_city"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_state"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeForm.representative_zip_code"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
+          size="sm"
+        />
+      </div>
+
+      <div class="flex gap-2 justify-end">
+        <Button
+          variant="faded"
+          color="slate"
+          :label="t('CRM.CLIENTS.FORM.CANCEL')"
+          @click="closeChangeRepresentative"
+        />
+        <Button
+          color="amber"
+          :label="t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.SUBMIT')"
+          :is-loading="isChangingRepresentative"
+          @click="saveRepresentativeChange"
+        />
       </div>
     </div>
 
@@ -264,7 +518,11 @@ onMounted(fetchClients);
         </tr>
       </thead>
       <tbody>
-        <tr v-for="client in clients" :key="client.id" class="border-b border-n-weak">
+        <tr
+          v-for="client in clients"
+          :key="client.id"
+          class="border-b border-n-weak"
+        >
           <td class="py-2 font-medium text-n-slate-12">{{ client.name }}</td>
           <td class="py-2">{{ client.cnpj }}</td>
           <td class="py-2">{{ client.contact_name }}</td>
@@ -272,6 +530,13 @@ onMounted(fetchClients);
           <td class="py-2">
             <button class="mr-3 text-n-brand" @click="openEdit(client)">
               <i class="i-lucide-pencil size-4" />
+            </button>
+            <button
+              class="mr-3 text-n-slate-11"
+              :title="t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.BUTTON')"
+              @click="openChangeRepresentative(client)"
+            >
+              <i class="i-lucide-user-cog size-4" />
             </button>
             <button class="text-n-ruby-9" @click="remove(client)">
               <i class="i-lucide-trash-2 size-4" />

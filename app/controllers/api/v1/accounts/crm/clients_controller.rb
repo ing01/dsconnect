@@ -1,5 +1,5 @@
 class Api::V1::Accounts::Crm::ClientsController < Api::V1::Accounts::BaseController
-  before_action :fetch_client, only: [:show, :update, :destroy]
+  before_action :fetch_client, only: [:show, :update, :destroy, :change_representative]
   before_action :check_authorization
 
   def index
@@ -29,6 +29,23 @@ class Api::V1::Accounts::Crm::ClientsController < Api::V1::Accounts::BaseControl
     head :ok
   end
 
+  # So' os dados do representante NOVO - o resto do cadastro (endereco,
+  # contato etc.) nao muda aqui. Atualiza o cliente e regenera TODOS os
+  # contratos ja gerados para ele, um a um: o PDF/DOCX antigo de cada um vai
+  # para uma Crm::GeneratedContractRevision antes de ser sobrescrito (ver
+  # Crm::Contracts::RegenerationService). Um contrato cuja conversao falhar
+  # (ex.: LibreOffice fora do ar) nao impede os outros nem desfaz a troca de
+  # representante em si - ela ja esta' salva quando o loop comeca.
+  def change_representative
+    @client.update!(representative_params)
+    @results = @client.generated_contracts.map do |contract|
+      Crm::Contracts::RegenerationService.new(contract: contract, reason: 'representative_change').perform
+      { id: contract.id, status: 'ok' }
+    rescue Crm::Contracts::GenerationService::ConversionError => e
+      { id: contract.id, status: 'error', error: e.message }
+    end
+  end
+
   private
 
   def fetch_client
@@ -48,6 +65,14 @@ class Api::V1::Accounts::Crm::ClientsController < Api::V1::Accounts::BaseControl
       :representative_address_street, :representative_address_number, :representative_address_complement,
       :representative_neighborhood, :representative_city, :representative_state, :representative_zip_code,
       extra_representatives: [:name, :cpf, :birth_date, :phone, :address]
+    )
+  end
+
+  def representative_params
+    params.require(:crm_client).permit(
+      :representative_name, :representative_cpf, :representative_birth_date, :representative_phone,
+      :representative_address_street, :representative_address_number, :representative_address_complement,
+      :representative_neighborhood, :representative_city, :representative_state, :representative_zip_code
     )
   end
 end
