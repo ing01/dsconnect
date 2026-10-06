@@ -41,8 +41,8 @@ export const CRM_CONTRACT_TOKEN_HELP = {
   tipo_licenca: 'Tipo da licença: Anual ou Mensal',
   valor_licenca: 'Valor da licença',
   prazo_licenca: 'Prazo da licença',
-  renov_auto:
-    'Renovação automática (Sim/Não) - ATENÇÃO: no modelo atual este mesmo token também aparece como "Reajuste anual automático"; preencher aqui repete o mesmo texto nos dois lugares.',
+  renov_auto: 'Renovação automática da licença? Sim ou Não',
+  reaj_anual_aut: 'Reajuste anual automático? Sim ou Não',
   for_pag: 'Forma de pagamento',
   impl_s_n: 'Tem implantação? Sim ou Não',
   impl_prazo: 'Prazo previsto para a implantação',

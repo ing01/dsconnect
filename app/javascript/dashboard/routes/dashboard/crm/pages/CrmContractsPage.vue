@@ -23,6 +23,7 @@ import { CRM_CONTRACT_TOKEN_HELP } from '../crmContractTokenHelp';
 import {
   crmContractTokenLabel,
   CRM_LOCKED_CLIENT_TOKEN_KEYS,
+  CRM_YES_NO_TOKEN_KEYS,
 } from '../crmContractTokenLabels';
 
 const { t } = useI18n();
@@ -73,6 +74,8 @@ const editableTokens = computed(() =>
     token => !CRM_LOCKED_CLIENT_TOKEN_KEYS.includes(token)
   )
 );
+
+const isYesNoToken = token => CRM_YES_NO_TOKEN_KEYS.includes(token);
 
 const fetchAll = async () => {
   isLoading.value = true;
@@ -345,13 +348,35 @@ onMounted(fetchAll);
           {{ t('CRM.CONTRACTS.GENERATE.LOCKED_FIELDS_HINT') }}
         </p>
         <div class="grid grid-cols-3 gap-3">
-          <Input
+          <div
             v-for="token in editableTokens"
             :key="token"
-            v-model="tokenValues[token]"
-            :label="`${crmContractTokenLabel(token)} (${token})`"
-            size="sm"
-          />
+            class="flex flex-col gap-1"
+          >
+            <template v-if="isYesNoToken(token)">
+              <label class="text-[11px] font-medium text-n-slate-11">{{
+                `${crmContractTokenLabel(token)} (${token})`
+              }}</label>
+              <select
+                v-model="tokenValues[token]"
+                class="h-8 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12"
+              >
+                <option value="">-</option>
+                <option value="Sim">
+                  {{ t('CRM.CONTRACTS.GENERATE.YES') }}
+                </option>
+                <option value="Não">
+                  {{ t('CRM.CONTRACTS.GENERATE.NO') }}
+                </option>
+              </select>
+            </template>
+            <Input
+              v-else
+              v-model="tokenValues[token]"
+              :label="`${crmContractTokenLabel(token)} (${token})`"
+              size="sm"
+            />
+          </div>
         </div>
       </div>
 

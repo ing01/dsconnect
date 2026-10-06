@@ -34,7 +34,8 @@ export const CRM_CONTRACT_TOKEN_LABELS = {
   tipo_licenca: 'Tipo da Licença',
   valor_licenca: 'Valor da Licença',
   prazo_licenca: 'Prazo da Licença',
-  renov_auto: 'Renovação/Reajuste Automático',
+  renov_auto: 'Renovação Automática da Licença',
+  reaj_anual_aut: 'Reajuste Anual Automático',
   for_pag: 'Forma de Pagamento',
   impl_s_n: 'Tem Implantação',
   impl_prazo: 'Prazo da Implantação',
@@ -68,4 +69,19 @@ export const CRM_LOCKED_CLIENT_TOKEN_KEYS = [
   'cliente_nome_fantasia',
   'cliente_email',
   'cliente_telefone',
+];
+
+// Tokens que o contrato sempre responde com "Sim" ou "Não" - na tela de
+// geração (`CrmContractsPage.vue`) isso vira um select em vez do campo de
+// texto livre, pra não entrar "sim", "SIM", "s", etc. no documento final.
+export const CRM_YES_NO_TOKEN_KEYS = [
+  'renov_auto',
+  'reaj_anual_aut',
+  'impl_s_n',
+  'impl_taxa_sn',
+  'impl_trein_sn',
+  'visitas_add_sn',
+  'imp_dados_sn',
+  'int_sn',
+  'impl_cob_banc_sn',
 ];

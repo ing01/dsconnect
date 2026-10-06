@@ -170,6 +170,8 @@
         "FIELDS_HINT": "Leave blank anything the client registry already knows - only fill in what's specific to this contract.",
         "LOCKED_FIELDS_HINT": "Trade Name, CNPJ/CPF, Legal Name, E-mail and Phone come straight from the client record and don't show up here to fill in.",
         "EXTRA_REPRESENTATIVES_HINT": "This client has {count} extra representative(s) registered - the generated PDF/Word only includes the main representative; add the others by hand in Word.",
+        "YES": "Yes",
+        "NO": "No",
         "SUBMIT": "Generate PDF"
       },
       "LIST": {
