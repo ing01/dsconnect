@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_07_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_08_100000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1984,6 +1984,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "checklist_id"
+    t.string "ticket_category_name"
     t.index ["account_id"], name: "index_project_task_templates_on_account_id"
     t.index ["checklist_id"], name: "index_project_task_templates_on_checklist_id"
     t.index ["default_assignee_id"], name: "index_project_task_templates_on_default_assignee_id"

@@ -151,10 +151,16 @@ const abrirTicket = ticket => {
   });
 };
 
+// A lista e' relida a cada abertura: a Categoria pode ter sido marcada ou
+// desmarcada para o Portal depois que a tela carregou, e o rascunho por IA
+// consulta o servidor de novo - uma lista velha faria o botao aparecer e o
+// servidor responder `no_categories`.
 const abrirNovoTicket = async () => {
-  if (!categorias.value.length) {
+  try {
     const { data } = await ClientAreaAPI.categories();
     categorias.value = data;
+  } catch {
+    categorias.value = [];
   }
   novoTicketDialog.value?.open();
 };

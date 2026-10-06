@@ -31,7 +31,7 @@ class Api::V1::Accounts::ProjectTaskTemplatesController < Api::V1::Accounts::Bas
   def project_task_template_params
     params.require(:project_task_template).permit(
       :name, :default_ticket_title, :description, :default_assignee_id,
-      :due_days, :next_project_stage, :checklist_id
+      :due_days, :next_project_stage, :checklist_id, :ticket_category_name
     )
   end
 end

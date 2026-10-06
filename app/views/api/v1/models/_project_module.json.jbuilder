@@ -17,5 +17,6 @@ json.task_templates resource.project_module_task_templates.order(:position, :id)
   json.checklist_id template.checklist_id
   json.checklist_name template.checklist&.name
   json.checklist_items template.checklist&.items
+  json.ticket_category_name template.ticket_category_name
   json.position join_row.position
 end

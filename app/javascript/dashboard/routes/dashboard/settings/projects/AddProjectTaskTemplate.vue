@@ -21,6 +21,7 @@ const defaultAssigneeId = ref('');
 const dueDays = ref(1);
 const nextProjectStage = ref('');
 const checklistId = ref('');
+const ticketCategoryName = ref('');
 const isSubmitting = ref(false);
 
 const agents = computed(() => store.getters['agents/getAgents'] || []);
@@ -28,6 +29,18 @@ const checklists = computed(() => store.getters['checklists/getChecklists'] || [
 const selectedChecklist = computed(() =>
   checklists.value.find(c => c.id === Number(checklistId.value))
 );
+
+// A mesma Categoria existe em cada Mesa - a lista e' a uniao dos NOMES de todas,
+// e o projeto acha a da Mesa escolhida pelo nome (ver ProjectCreateDialog).
+const categoryNames = computed(() => {
+  const nomes = new Set();
+  (store.getters['teams/getTeams'] || []).forEach(team => {
+    (store.getters['ticketColumns/getCategories'](team.id) || []).forEach(c =>
+      nomes.add(c.name)
+    );
+  });
+  return [...nomes].sort();
+});
 
 const stages = [
   { key: '', label: 'Nenhuma' },
@@ -40,9 +53,14 @@ const stages = [
   { key: 'finalizado', label: 'Completed' },
 ];
 
-onMounted(() => {
+onMounted(async () => {
   store.dispatch('agents/get');
   store.dispatch('checklists/get');
+  await store.dispatch('teams/get');
+  const teams = store.getters['teams/getTeams'] || [];
+  await Promise.all(
+    teams.map(team => store.dispatch('ticketColumns/fetchCategories', team.id))
+  );
 });
 
 const isFormValid = computed(() => {
@@ -62,6 +80,7 @@ const submit = async () => {
       due_days: Number(dueDays.value) || 0,
       next_project_stage: nextProjectStage.value || null,
       checklist_id: checklistId.value || null,
+      ticket_category_name: ticketCategoryName.value || null,
     });
 
     useAlert(t('PROJECT_TASKS.ADD.SUCCESS'));
@@ -141,6 +160,23 @@ const submit = async () => {
             {{ item.title || item }}
           </li>
         </ul>
+      </div>
+
+      <!-- Categoria padrao: vai para o chamado da tarefa e, no projeto novo,
+           ja' vem preenchida (se a Mesa escolhida tiver uma com este nome). -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-n-slate-12">
+          {{ t('PROJECT_TASKS.FORM.CATEGORY.LABEL') }}
+        </label>
+        <select
+          v-model="ticketCategoryName"
+          class="h-10 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+        >
+          <option value="">{{ t('PROJECT_TASKS.FORM.CATEGORY.NONE') }}</option>
+          <option v-for="nome in categoryNames" :key="nome" :value="nome">
+            {{ nome }}
+          </option>
+        </select>
       </div>
 
       <!-- Responsavel Padrão & Dias para Vencimento -->

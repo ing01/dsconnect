@@ -54,7 +54,8 @@
       "COMPANY": {
         "LABEL": "Cliente",
         "NONE": "Sem cliente",
-        "SEARCH_PLACEHOLDER": "Buscar por nome ou código..."
+        "SEARCH_PLACEHOLDER": "Buscar por nome ou código...",
+        "NEW_SHORTCUT": "Novo cliente"
       },
       "TEAM": {
         "LABEL": "Equipe de atendimento",
@@ -229,6 +230,10 @@
       "DEFAULT_ASSIGNEE": {
         "LABEL": "Responsável padrão",
         "NONE": "Não atribuído"
+      },
+      "CATEGORY": {
+        "LABEL": "Categoria do chamado",
+        "NONE": "Sem categoria"
       },
       "DUE_DAYS": {
         "LABEL": "Vencimento em (dias)",
