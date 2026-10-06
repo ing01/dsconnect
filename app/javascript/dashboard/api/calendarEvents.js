@@ -31,8 +31,22 @@ class CalendarEventsAPI extends ApiClient {
     return axios.post(this.url, { calendar_event: payload });
   }
 
-  update(id, payload) {
-    return axios.patch(`${this.url}/${id}`, { calendar_event: payload });
+  // `scope`/`occurrenceDate` so existem quando o evento e' uma ocorrencia de
+  // serie recorrente (ver RecurrenceScopeDialog) - para um evento simples
+  // vem undefined, e `buildParams` os descarta, preservando o comportamento
+  // de sempre.
+  update(id, { scope, occurrenceDate, ...payload } = {}) {
+    const params = buildParams({ scope, occurrence_date: occurrenceDate });
+    const suffix = params ? `?${params}` : '';
+    return axios.patch(`${this.url}/${id}${suffix}`, {
+      calendar_event: payload,
+    });
+  }
+
+  delete(id, { scope, occurrenceDate } = {}) {
+    const params = buildParams({ scope, occurrence_date: occurrenceDate });
+    const suffix = params ? `?${params}` : '';
+    return axios.delete(`${this.url}/${id}${suffix}`);
   }
 }
 

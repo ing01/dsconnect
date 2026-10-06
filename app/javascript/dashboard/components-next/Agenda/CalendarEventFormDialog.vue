@@ -41,6 +41,15 @@ const allTickets = useMapGetter('tickets/getTicketsList');
 
 const toLocalInputValue = date => format(date, "yyyy-MM-dd'T'HH:mm");
 
+// 'never'/'on_date'/'after_count' e' so' estado de TELA - o formulario so'
+// manda UM dos dois campos de termino pro servidor (ou nenhum, se "nunca
+// termina"), nunca os dois. Ver `recurrenceEndType` em `handleSubmit`.
+const recurrenceEndTypeFor = event => {
+  if (event.recurrence_end_at) return 'on_date';
+  if (event.recurrence_count) return 'after_count';
+  return 'never';
+};
+
 const buildInitialForm = () => {
   if (props.event) {
     return {
@@ -52,6 +61,13 @@ const buildInitialForm = () => {
       location: props.event.location || '',
       attendee_ids: (props.event.attendees || []).map(attendee => attendee.id),
       ticket_ids: (props.event.tickets || []).map(ticket => ticket.id),
+      recurrence_frequency: props.event.recurrence_frequency || 'single',
+      recurrence_interval: props.event.recurrence_interval || 1,
+      recurrence_end_type: recurrenceEndTypeFor(props.event),
+      recurrence_end_at: props.event.recurrence_end_at
+        ? format(parseISO(props.event.recurrence_end_at), 'yyyy-MM-dd')
+        : '',
+      recurrence_count: props.event.recurrence_count || 5,
     };
   }
 
@@ -66,6 +82,11 @@ const buildInitialForm = () => {
     location: '',
     attendee_ids: [],
     ticket_ids: [...props.presetTicketIds],
+    recurrence_frequency: 'single',
+    recurrence_interval: 1,
+    recurrence_end_type: 'never',
+    recurrence_end_at: '',
+    recurrence_count: 5,
   };
 };
 
@@ -115,13 +136,21 @@ const handleSubmit = () => {
   }
 
   isSubmitting.value = true;
-  emit('submit', {
+
+  const payload = {
     ...form,
     title: form.title.trim(),
     team_id: Number(props.teamId),
     start_at: new Date(form.start_at).toISOString(),
     end_at: new Date(form.end_at).toISOString(),
-  });
+    recurrence_interval: form.recurrence_frequency === 'single' ? null : Number(form.recurrence_interval),
+    recurrence_end_at: form.recurrence_frequency !== 'single' && form.recurrence_end_type === 'on_date' ? form.recurrence_end_at : null,
+    recurrence_count:
+      form.recurrence_frequency !== 'single' && form.recurrence_end_type === 'after_count' ? Number(form.recurrence_count) : null,
+  };
+  delete payload.recurrence_end_type;
+
+  emit('submit', payload);
 };
 
 onMounted(async () => {
@@ -169,6 +198,55 @@ onMounted(async () => {
             <input v-model="form.all_day" type="checkbox" class="rounded" />
             {{ t('AGENDA.FORM.ALL_DAY') }}
           </label>
+
+          <div class="flex flex-col gap-2 pt-2 border-t border-n-weak">
+            <label>
+              <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.RECURRENCE.LABEL') }}</span>
+              <select v-model="form.recurrence_frequency" class="w-full">
+                <option value="single">{{ t('AGENDA.FORM.RECURRENCE.NONE') }}</option>
+                <option value="daily">{{ t('AGENDA.FORM.RECURRENCE.DAILY') }}</option>
+                <option value="weekly">{{ t('AGENDA.FORM.RECURRENCE.WEEKLY') }}</option>
+                <option value="monthly">{{ t('AGENDA.FORM.RECURRENCE.MONTHLY') }}</option>
+                <option value="yearly">{{ t('AGENDA.FORM.RECURRENCE.YEARLY') }}</option>
+              </select>
+            </label>
+
+            <template v-if="form.recurrence_frequency !== 'single'">
+              <label>
+                <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.RECURRENCE.INTERVAL') }}</span>
+                <input v-model.number="form.recurrence_interval" type="number" min="1" class="w-full" />
+              </label>
+
+              <div class="flex flex-col gap-1.5">
+                <span class="block text-sm text-n-slate-11">{{ t('AGENDA.FORM.RECURRENCE.ENDS') }}</span>
+                <label class="flex items-center gap-2 text-sm text-n-slate-12">
+                  <input v-model="form.recurrence_end_type" type="radio" value="never" />
+                  {{ t('AGENDA.FORM.RECURRENCE.NEVER') }}
+                </label>
+                <label class="flex items-center gap-2 text-sm text-n-slate-12">
+                  <input v-model="form.recurrence_end_type" type="radio" value="on_date" />
+                  {{ t('AGENDA.FORM.RECURRENCE.ON_DATE') }}
+                  <input
+                    v-model="form.recurrence_end_at"
+                    type="date"
+                    class="flex-1"
+                    :disabled="form.recurrence_end_type !== 'on_date'"
+                  />
+                </label>
+                <label class="flex items-center gap-2 text-sm text-n-slate-12">
+                  <input v-model="form.recurrence_end_type" type="radio" value="after_count" />
+                  {{ t('AGENDA.FORM.RECURRENCE.AFTER_COUNT') }}
+                  <input
+                    v-model.number="form.recurrence_count"
+                    type="number"
+                    min="1"
+                    class="w-16"
+                    :disabled="form.recurrence_end_type !== 'after_count'"
+                  />
+                </label>
+              </div>
+            </template>
+          </div>
 
           <woot-input
             v-model="form.location"

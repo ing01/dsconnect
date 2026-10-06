@@ -52,6 +52,19 @@
       "TICKETS": "Tickets vinculados",
       "TICKETS_SEARCH_PLACEHOLDER": "Pesquisar tickets do time...",
       "NO_TICKETS": "Nenhum ticket encontrado para este time.",
+      "RECURRENCE": {
+        "LABEL": "Repetir",
+        "NONE": "Não se repete",
+        "DAILY": "Diariamente",
+        "WEEKLY": "Semanalmente",
+        "MONTHLY": "Mensalmente",
+        "YEARLY": "Anualmente",
+        "INTERVAL": "Repetir a cada (intervalo)",
+        "ENDS": "Termina",
+        "NEVER": "Nunca",
+        "ON_DATE": "Em uma data",
+        "AFTER_COUNT": "Depois de tantas ocorrências"
+      },
       "DELETE": "Excluir",
       "CANCEL": "Cancelar",
       "SAVE": "Salvar"
@@ -67,6 +80,14 @@
       "MESSAGE": "Isso removerá o evento permanentemente.",
       "CONFIRM": "Excluir",
       "CANCEL": "Cancelar"
+    },
+    "RECURRENCE_SCOPE": {
+      "UPDATE_TITLE": "Editar evento recorrente",
+      "DESTROY_TITLE": "Excluir evento recorrente",
+      "OCCURRENCE": "Somente esta ocorrência",
+      "FUTURE": "Esta e as próximas ocorrências",
+      "SERIES": "Toda a série",
+      "CONFIRM": "Continuar"
     }
   }
 }

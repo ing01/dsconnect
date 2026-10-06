@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_02_160000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_06_100001) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -377,6 +377,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_02_160000) do
     t.index ["user_id"], name: "index_calendar_event_attendees_on_user_id"
   end
 
+  create_table "calendar_event_occurrence_exceptions", force: :cascade do |t|
+    t.bigint "calendar_event_id", null: false
+    t.bigint "account_id", null: false
+    t.date "occurrence_date", null: false
+    t.integer "kind", default: 0, null: false
+    t.bigint "replacement_event_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_calendar_event_occurrence_exceptions_on_account_id"
+    t.index ["calendar_event_id", "occurrence_date"], name: "uniq_calendar_event_occurrence_exception", unique: true
+    t.index ["calendar_event_id"], name: "idx_on_calendar_event_id_7c4a713280"
+    t.index ["replacement_event_id"], name: "idx_on_replacement_event_id_e97d266827"
+  end
+
   create_table "calendar_event_tickets", force: :cascade do |t|
     t.bigint "calendar_event_id", null: false
     t.bigint "ticket_id", null: false
@@ -400,8 +414,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_02_160000) do
     t.string "color"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "recurrence_frequency", default: 0, null: false
+    t.integer "recurrence_interval"
+    t.datetime "recurrence_end_at"
+    t.integer "recurrence_count"
+    t.bigint "recurrence_parent_id"
     t.index ["account_id"], name: "index_calendar_events_on_account_id"
     t.index ["created_by_id"], name: "index_calendar_events_on_created_by_id"
+    t.index ["recurrence_parent_id"], name: "index_calendar_events_on_recurrence_parent_id"
     t.index ["team_id", "start_at"], name: "index_calendar_events_on_team_id_and_start_at"
     t.index ["team_id"], name: "index_calendar_events_on_team_id"
   end
@@ -1754,6 +1774,31 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_02_160000) do
     t.index ["source_id"], name: "index_messages_on_source_id"
   end
 
+  create_table "monthly_satisfaction_survey_answers", force: :cascade do |t|
+    t.bigint "monthly_satisfaction_survey_id", null: false
+    t.string "question_key", null: false
+    t.integer "rating", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["monthly_satisfaction_survey_id", "question_key"], name: "index_monthly_survey_answers_unique_question", unique: true
+    t.index ["monthly_satisfaction_survey_id"], name: "index_monthly_survey_answers_on_survey"
+  end
+
+  create_table "monthly_satisfaction_surveys", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "company_id"
+    t.bigint "contact_id"
+    t.date "reference_month", null: false
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "contact_id", "reference_month"], name: "index_monthly_surveys_unique_per_contact_month", unique: true
+    t.index ["account_id"], name: "index_monthly_satisfaction_surveys_on_account_id"
+    t.index ["company_id", "reference_month"], name: "idx_on_company_id_reference_month_8508aa1fa0"
+    t.index ["company_id"], name: "index_monthly_satisfaction_surveys_on_company_id"
+    t.index ["contact_id"], name: "index_monthly_satisfaction_surveys_on_contact_id"
+  end
+
   create_table "mood_entries", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "user_id", null: false
@@ -2659,9 +2704,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_02_160000) do
   add_foreign_key "attendance_windows", "accounts"
   add_foreign_key "calendar_event_attendees", "calendar_events"
   add_foreign_key "calendar_event_attendees", "users"
+  add_foreign_key "calendar_event_occurrence_exceptions", "accounts"
+  add_foreign_key "calendar_event_occurrence_exceptions", "calendar_events", column: "replacement_event_id", on_delete: :cascade
+  add_foreign_key "calendar_event_occurrence_exceptions", "calendar_events", on_delete: :cascade
   add_foreign_key "calendar_event_tickets", "calendar_events"
   add_foreign_key "calendar_event_tickets", "tickets"
   add_foreign_key "calendar_events", "accounts"
+  add_foreign_key "calendar_events", "calendar_events", column: "recurrence_parent_id", on_delete: :nullify
   add_foreign_key "calendar_events", "teams"
   add_foreign_key "calendar_events", "users", column: "created_by_id"
   add_foreign_key "campaign_recipients", "accounts", on_delete: :cascade
@@ -2711,6 +2760,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_02_160000) do
   add_foreign_key "manifestations", "contacts", on_delete: :nullify
   add_foreign_key "manifestations", "tickets", column: "converted_ticket_id", on_delete: :nullify
   add_foreign_key "manifestations", "users", column: "assignee_id", on_delete: :nullify
+  add_foreign_key "monthly_satisfaction_survey_answers", "monthly_satisfaction_surveys"
+  add_foreign_key "monthly_satisfaction_surveys", "accounts"
+  add_foreign_key "monthly_satisfaction_surveys", "companies", on_delete: :nullify
+  add_foreign_key "monthly_satisfaction_surveys", "contacts", on_delete: :nullify
   add_foreign_key "mood_entries", "accounts"
   add_foreign_key "mood_entries", "users"
   add_foreign_key "product_groups", "accounts"

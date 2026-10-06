@@ -52,6 +52,19 @@
       "TICKETS": "Linked tickets",
       "TICKETS_SEARCH_PLACEHOLDER": "Search this team's tickets...",
       "NO_TICKETS": "No tickets found for this team.",
+      "RECURRENCE": {
+        "LABEL": "Repeat",
+        "NONE": "Does not repeat",
+        "DAILY": "Daily",
+        "WEEKLY": "Weekly",
+        "MONTHLY": "Monthly",
+        "YEARLY": "Yearly",
+        "INTERVAL": "Repeat every (interval)",
+        "ENDS": "Ends",
+        "NEVER": "Never",
+        "ON_DATE": "On a date",
+        "AFTER_COUNT": "After this many occurrences"
+      },
       "DELETE": "Delete",
       "CANCEL": "Cancel",
       "SAVE": "Save"
@@ -67,6 +80,14 @@
       "MESSAGE": "This will permanently remove the event.",
       "CONFIRM": "Delete",
       "CANCEL": "Cancel"
+    },
+    "RECURRENCE_SCOPE": {
+      "UPDATE_TITLE": "Edit recurring event",
+      "DESTROY_TITLE": "Delete recurring event",
+      "OCCURRENCE": "This event only",
+      "FUTURE": "This and following events",
+      "SERIES": "All events in the series",
+      "CONFIRM": "Continue"
     }
   }
 }
