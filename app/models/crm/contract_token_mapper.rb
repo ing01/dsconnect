@@ -10,7 +10,11 @@ class Crm::ContractTokenMapper
   end
 
   def to_h
-    client_tokens.merge(sale_tokens).compact
+    # SEM `.compact`: um valor nil precisa continuar presente no hash, para
+    # o DocxFillerService saber que o token existe e so' preencher vazio -
+    # nao e' diferente de remover a chave hoje (o filler ja trata ausencia
+    # como vazio tambem), mas deixa a intencao explicita.
+    client_tokens.merge(sale_tokens)
   end
 
   private
