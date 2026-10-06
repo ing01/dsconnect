@@ -170,6 +170,8 @@
         "FIELDS_HINT": "Deixe em branco o que o cadastro do cliente ja souber responder - so preencha o que for especifico deste contrato.",
         "LOCKED_FIELDS_HINT": "Razao Social, CNPJ/CPF, Nome Fantasia, E-mail e Telefone do cliente vem direto do cadastro e nao aparecem aqui para preencher.",
         "EXTRA_REPRESENTATIVES_HINT": "Este cliente tem {count} representante(s) extra cadastrado(s) - o PDF/Word gerado entra so com o representante principal; acrescente os demais a mao no Word.",
+        "YES": "Sim",
+        "NO": "Não",
         "SUBMIT": "Gerar PDF"
       },
       "LIST": {
