@@ -520,9 +520,17 @@
       },
       "COMPANY_CNPJ_CHECK": {
         "TITLE": "Compare Tax ID spreadsheet",
-        "DESCRIPTION": "Does not change any records. Compares the spreadsheet's Tax IDs against existing companies and shows how many already exist and how many don't (download the list of missing ones).",
+        "DESCRIPTION": "Compares the spreadsheet's Tax IDs against existing companies and shows how many already exist and how many don't (download the list of missing ones). Also offers to delete, with confirmation, the registered companies that aren't in the spreadsheet.",
         "RESULT_SUMMARY": "{processed} of {total} Tax IDs already registered",
-        "ERROR_COUNT": "{count} Tax ID not registered yet (download list) | {count} Tax IDs not registered yet (download list)"
+        "ERROR_COUNT": "{count} Tax ID not registered yet (download list) | {count} Tax IDs not registered yet (download list)",
+        "UNMATCHED": {
+          "COUNT": "{count} registered company isn't in the spreadsheet. | {count} registered companies aren't in the spreadsheet.",
+          "DOWNLOAD": "Download list",
+          "DELETE_BUTTON": "Delete these companies",
+          "CONFIRM": "Are you sure you want to delete {count} compan(y/ies) that aren't in the spreadsheet? Their contacts, tickets and satisfaction surveys are kept (they just lose the company link), but credentials and system modules registered on them are deleted too. This action cannot be undone.",
+          "DELETE_SUCCESS": "{count} compan(y/ies) deleted.",
+          "DELETE_ERROR": "Could not delete the companies. Please try again."
+        }
       }
     },
     "DRAWER": {

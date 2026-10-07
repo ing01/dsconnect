@@ -47,6 +47,18 @@ class DataImportsAPI extends ApiClient {
       responseType: 'blob',
     });
   }
+
+  downloadUnmatchedCompanies(id) {
+    return axios.get(`${this.url}/${id}/unmatched_companies.csv`, {
+      responseType: 'blob',
+    });
+  }
+
+  deleteUnmatchedCompanies(id) {
+    return axios.delete(`${this.url}/${id}/unmatched_companies`, {
+      params: { confirm: true },
+    });
+  }
 }
 
 export default new DataImportsAPI();

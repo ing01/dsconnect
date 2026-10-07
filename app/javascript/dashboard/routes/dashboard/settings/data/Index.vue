@@ -302,6 +302,7 @@ onBeforeUnmount(() => {
           template-filename="comparativo-cnpj-modelo.xlsx"
           result-summary-key="DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.RESULT_SUMMARY"
           error-count-key="DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.ERROR_COUNT"
+          allow-delete-unmatched
         />
       </div>
 

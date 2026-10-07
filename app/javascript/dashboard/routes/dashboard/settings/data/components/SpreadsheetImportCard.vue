@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import DataImportsAPI from 'dashboard/api/dataImports';
@@ -24,6 +24,11 @@ const props = defineProps({
     type: String,
     default: 'DATA_IMPORTS.SPREADSHEETS.ERROR_COUNT',
   },
+  // So' o cartão de Comparativo de CNPJ usa isso: depois de comparar,
+  // oferece excluir as Empresas cadastradas que NÃO estão na planilha (ver
+  // CompanyCnpjCheckJob#record_unmatched_companies). Fica fora por padrão
+  // pra nenhum outro cartão de planilha ganhar essa opção sem querer.
+  allowDeleteUnmatched: { type: Boolean, default: false },
 });
 
 const { t } = useI18n();
@@ -33,7 +38,12 @@ const selectedFile = ref(null);
 const isUploading = ref(false);
 const isPolling = ref(false);
 const result = ref(null);
+const isDeletingUnmatched = ref(false);
 let pollTimer = null;
+
+const unmatchedCount = computed(
+  () => result.value?.stats?.unmatched_companies_count || 0
+);
 
 const stopPolling = () => {
   if (!pollTimer) return;
@@ -56,6 +66,7 @@ const pollStatus = dataImportId => {
         processed: data.processed_records || 0,
         total: data.total_records || 0,
         errorCount: data.import_errors_count || 0,
+        stats: data.stats || {},
       };
     } catch (error) {
       stopPolling();
@@ -87,16 +98,65 @@ const onSubmit = async () => {
   }
 };
 
-const downloadErrors = async () => {
-  if (!result.value) return;
-  const response = await DataImportsAPI.downloadErrorLogs(result.value.id);
+const downloadBlob = (response, filename) => {
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', `${props.dataType}-erros.csv`);
+  link.setAttribute('download', filename);
   document.body.appendChild(link);
   link.click();
   link.remove();
+};
+
+const downloadErrors = async () => {
+  if (!result.value) return;
+  const response = await DataImportsAPI.downloadErrorLogs(result.value.id);
+  downloadBlob(response, `${props.dataType}-erros.csv`);
+};
+
+const downloadUnmatchedCompanies = async () => {
+  if (!result.value) return;
+  const response = await DataImportsAPI.downloadUnmatchedCompanies(result.value.id);
+  downloadBlob(response, `${props.dataType}-empresas-fora-da-planilha.csv`);
+};
+
+// Confirmação explícita (window.confirm, mesmo padrão já usado nos outros
+// "excluir" deste app) antes de mandar o delete de verdade pro backend - a
+// mensagem já avisa o que é mantido (contatos/tickets/pesquisas, só ficam
+// sem empresa vinculada) e o que é apagado junto (credenciais e módulos de
+// sistema da Empresa).
+const deleteUnmatchedCompanies = async () => {
+  if (!result.value || !unmatchedCount.value) return;
+  // eslint-disable-next-line no-alert
+  if (
+    !window.confirm(
+      t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.UNMATCHED.CONFIRM', {
+        count: unmatchedCount.value,
+      })
+    )
+  ) {
+    return;
+  }
+
+  isDeletingUnmatched.value = true;
+  try {
+    const { data } = await DataImportsAPI.deleteUnmatchedCompanies(result.value.id);
+    useAlert(
+      t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.UNMATCHED.DELETE_SUCCESS', {
+        count: data.deleted_count,
+      })
+    );
+    result.value = {
+      ...result.value,
+      stats: { ...result.value.stats, unmatched_companies_count: 0 },
+    };
+  } catch (error) {
+    useAlert(
+      t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.UNMATCHED.DELETE_ERROR')
+    );
+  } finally {
+    isDeletingUnmatched.value = false;
+  }
 };
 
 onBeforeUnmount(() => stopPolling());
@@ -175,6 +235,46 @@ onBeforeUnmount(() => stopPolling());
         <Icon icon="i-lucide-triangle-alert" class="size-4" />
         {{ t(errorCountKey, { count: result.errorCount }) }}
       </button>
+
+      <div
+        v-if="allowDeleteUnmatched && unmatchedCount"
+        class="flex flex-col gap-2 pt-2 mt-1 border-t border-n-weak"
+      >
+        <p class="text-n-slate-11">
+          {{
+            t(
+              'DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.UNMATCHED.COUNT',
+              { count: unmatchedCount }
+            )
+          }}
+        </p>
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 font-medium text-n-blue-11 hover:underline"
+            @click="downloadUnmatchedCompanies"
+          >
+            <Icon icon="i-lucide-download" class="size-4" />
+            {{
+              t(
+                'DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.UNMATCHED.DOWNLOAD'
+              )
+            }}
+          </button>
+          <Button
+            size="sm"
+            color="ruby"
+            icon="i-lucide-trash-2"
+            :is-loading="isDeletingUnmatched"
+            :label="
+              t(
+                'DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.UNMATCHED.DELETE_BUTTON'
+              )
+            "
+            @click="deleteUnmatchedCompanies"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>

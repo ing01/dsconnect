@@ -1,9 +1,18 @@
 require 'roo'
 
-# Importacao "comparativa": nao cria nem atualiza nada. So le uma planilha de
-# CNPJs e devolve, linha a linha, se aquela empresa ja esta cadastrada na
-# conta ou nao - util pra comparar uma base de clientes externa contra o que
-# ja existe no Chatwoot antes de decidir o que importar de verdade.
+# Importacao "comparativa": nao cria nem atualiza empresa nenhuma. So le uma
+# planilha de CNPJs e devolve, linha a linha, se aquela empresa ja esta
+# cadastrada na conta ou nao - util pra comparar uma base de clientes externa
+# contra o que ja existe no Chatwoot antes de decidir o que importar de
+# verdade.
+#
+# Tambem calcula o INVERSO - quais empresas JA CADASTRADAS no sistema NAO
+# aparecem na planilha - e guarda os ids em `stats['unmatched_company_ids']`
+# (coluna jsonb que ja existe em todo DataImport). Isso so' alimenta dados
+# pra quem quiser excluir essas empresas depois (ver
+# `DataImports::UnmatchedCompaniesDeleter` e
+# `DataImportsController#destroy_unmatched_companies`) - este job em si
+# continua sem apagar nada.
 #
 # Reaproveita a mesma infraestrutura das outras importacoes (status,
 # `processed_records`/`total_records`, `DataImportError` + o download de
@@ -29,9 +38,11 @@ class CompanyCnpjCheckJob < ApplicationJob
     @account = data_import.account
     @processed = 0
     @failed = 0
+    @sheet_cnpjs = []
 
     @data_import.update!(status: :processing)
     process_rows
+    record_unmatched_companies
     @data_import.update!(status: :completed, processed_records: @processed, total_records: @processed + @failed)
   rescue StandardError => e
     @data_import.update!(status: :failed)
@@ -59,6 +70,8 @@ class CompanyCnpjCheckJob < ApplicationJob
     document_digits = cell(row, :cnpj).gsub(/\D/, '')
     raise "Nenhum CNPJ informado na linha #{row_number}" if document_digits.blank?
 
+    @sheet_cnpjs << document_digits
+
     if @account.companies.exists?(cnpj: document_digits)
       @processed += 1
     else
@@ -66,6 +79,22 @@ class CompanyCnpjCheckJob < ApplicationJob
     end
   rescue StandardError => e
     record_error(row_number, e.message)
+  end
+
+  # So' marca pra exclusao quando a planilha tem pelo menos um CNPJ valido -
+  # uma planilha vazia/toda invalida NAO pode marcar "todo mundo" como fora
+  # dela (`where.not(cnpj: [])` nao filtra nada, marcaria o cadastro inteiro
+  # por engano).
+  def record_unmatched_companies
+    return if @sheet_cnpjs.empty?
+
+    unmatched_ids = @account.companies.where.not(cnpj: [nil, '']).where.not(cnpj: @sheet_cnpjs).pluck(:id)
+    @data_import.update!(
+      stats: @data_import.stats.to_h.merge(
+        'unmatched_company_ids' => unmatched_ids,
+        'unmatched_companies_count' => unmatched_ids.size
+      )
+    )
   end
 
   def cell(row, key)
