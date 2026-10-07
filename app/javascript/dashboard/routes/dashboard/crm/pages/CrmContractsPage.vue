@@ -168,14 +168,15 @@ const visibleTokens = computed(() =>
     token => !pairedStateTokens.value.includes(token)
   )
 );
-// Largura fluida com teto maximo - fica curto quando ha espaco de sobra
-// (grid com varias colunas) e ocupa a linha toda no mobile, em vez de uma
-// largura fixa que nao encolhe/estica com a tela.
-const itemWrapperClass = token => {
-  if (isCityToken(token)) return 'sm:col-span-2 min-w-0';
-  if (isShortToken(token)) return 'w-full max-w-36';
-  return 'min-w-0';
-};
+// O "campo mais curto" encurta so' a CAIXA do campo, nunca o bloco
+// label+campo inteiro - se a largura do bloco todo fosse limitada, o rotulo
+// (que aqui inclui o nome do token entre parenteses, bem mais longo que um
+// label comum) quebraria em 3-4 linhas e desalinhava a grade toda. Por isso
+// o item da grade sempre usa a largura normal da coluna; so' a caixa do
+// input/select e que ganha um teto de largura (ver `SHORT_INPUT_CLASS`).
+const itemWrapperClass = token =>
+  isCityToken(token) ? 'sm:col-span-2 min-w-0' : 'min-w-0';
+const SHORT_INPUT_CLASS = 'max-w-36';
 
 // O seletor de data devolve aaaa-mm-dd; o contrato precisa de dd/mm/aaaa.
 const toContractDate = value => {
@@ -544,7 +545,10 @@ onMounted(fetchAll);
             </label>
             <label v-else-if="isSelectToken(token)" :class="FIELD_LABEL_CLASS">
               {{ `${crmContractTokenLabel(token)} (${token})` }}
-              <select v-model="tokenValues[token]" :class="SELECT_CLASS">
+              <select
+                v-model="tokenValues[token]"
+                :class="`${SELECT_CLASS} max-w-48`"
+              >
                 <option value="">-</option>
                 <option
                   v-for="opcao in CRM_SELECT_TOKEN_OPTIONS[token]"
@@ -557,7 +561,10 @@ onMounted(fetchAll);
             </label>
             <label v-else-if="isStateToken(token)" :class="FIELD_LABEL_CLASS">
               {{ `${crmContractTokenLabel(token)} (${token})` }}
-              <select v-model="tokenValues[token]" :class="SELECT_CLASS">
+              <select
+                v-model="tokenValues[token]"
+                :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
+              >
                 <option value="">-</option>
                 <option
                   v-for="estado in BRAZIL_STATES"
@@ -568,31 +575,34 @@ onMounted(fetchAll);
                 </option>
               </select>
             </label>
+            <!--
+              UF + Cidade lado a lado - o rotulo da UF nunca fica dentro de
+              uma caixa estreita (senao quebra em varias linhas); so' a caixa
+              do <select> em si e' que fica curta.
+            -->
             <div
               v-else-if="isCityToken(token)"
-              class="flex flex-wrap sm:flex-nowrap gap-3"
+              class="flex flex-wrap sm:flex-nowrap sm:items-start gap-3"
             >
-              <div
+              <label
                 v-if="pairedStateTokens.includes(cityStateToken(token))"
-                class="w-full max-w-28"
+                :class="FIELD_LABEL_CLASS"
               >
-                <label :class="FIELD_LABEL_CLASS">
-                  {{ crmContractTokenLabel(cityStateToken(token)) }}
-                  <select
-                    v-model="tokenValues[cityStateToken(token)]"
-                    :class="SELECT_CLASS"
+                {{ crmContractTokenLabel(cityStateToken(token)) }}
+                <select
+                  v-model="tokenValues[cityStateToken(token)]"
+                  :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
+                >
+                  <option value="">-</option>
+                  <option
+                    v-for="estado in BRAZIL_STATES"
+                    :key="estado.uf"
+                    :value="estado.uf"
                   >
-                    <option value="">-</option>
-                    <option
-                      v-for="estado in BRAZIL_STATES"
-                      :key="estado.uf"
-                      :value="estado.uf"
-                    >
-                      {{ estado.uf }}
-                    </option>
-                  </select>
-                </label>
-              </div>
+                    {{ estado.uf }}
+                  </option>
+                </select>
+              </label>
               <div class="flex-1 min-w-[160px]">
                 <Input
                   v-model="tokenValues[token]"
@@ -609,32 +619,34 @@ onMounted(fetchAll);
                 </datalist>
               </div>
             </div>
-            <div v-else-if="isPhoneToken(token)">
-              <Input
-                :model-value="tokenValues[token]"
-                :label="`${crmContractTokenLabel(token)} (${token})`"
-                size="sm"
-                @update:model-value="value => onPhoneInput(token, value)"
+            <label v-else-if="isPhoneToken(token)" :class="FIELD_LABEL_CLASS">
+              {{ `${crmContractTokenLabel(token)} (${token})` }}
+              <input
+                :value="tokenValues[token]"
+                type="text"
+                :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
+                @input="onPhoneInput(token, $event.target.value)"
               />
-            </div>
-            <div v-else-if="tokenSuffix(token)" class="flex items-end gap-2">
-              <Input
-                v-model="tokenValues[token]"
-                :label="`${crmContractTokenLabel(token)} (${token})`"
-                size="sm"
-                class="flex-1 min-w-0"
-              />
-              <span
-                class="h-9 flex items-center text-xs text-n-slate-11 whitespace-nowrap"
-              >
-                {{ tokenSuffix(token) }}
-              </span>
-            </div>
+            </label>
+            <label v-else-if="tokenSuffix(token)" :class="FIELD_LABEL_CLASS">
+              {{ `${crmContractTokenLabel(token)} (${token})` }}
+              <div class="flex items-center gap-2">
+                <input
+                  v-model="tokenValues[token]"
+                  type="text"
+                  :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
+                />
+                <span class="text-xs text-n-slate-11 whitespace-nowrap">
+                  {{ tokenSuffix(token) }}
+                </span>
+              </div>
+            </label>
             <Input
               v-else
               v-model="tokenValues[token]"
               :label="`${crmContractTokenLabel(token)} (${token})`"
               size="sm"
+              :custom-input-class="isShortToken(token) ? SHORT_INPUT_CLASS : ''"
             />
           </div>
         </div>

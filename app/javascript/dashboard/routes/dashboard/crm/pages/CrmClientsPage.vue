@@ -23,12 +23,13 @@ const SELECT_CLASS =
   'h-8 w-full px-2 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none';
 const CARD_CLASS =
   'flex flex-col gap-4 p-4 sm:p-5 mb-6 rounded-xl border border-n-weak bg-n-solid-2 shadow-sm';
-// Campos "mais curtos" (CEP, numero, celular...) usam largura fluida com um
-// teto maximo - ficam curtos quando ha espaco de sobra (grid com varias
-// colunas) e ocupam a linha toda no mobile (grid de 1 coluna), em vez de uma
-// largura fixa que nao encolhe/estica com a tela.
-const SHORT_FIELD_CLASS = 'w-full max-w-28';
-const MEDIUM_FIELD_CLASS = 'w-full max-w-36';
+// Campos "mais curtos" (CEP, numero, celular...) encurtam so' a CAIXA do
+// campo (via `custom-input-class` do `Input`) - nunca o bloco label+campo
+// inteiro, porque varios desses labels sao longos ("Numero do endereco do
+// representante") e quebrariam em 3-4 linhas se o bloco todo fosse estreito,
+// desalinhando a grade toda.
+const SHORT_INPUT_CLASS = 'max-w-28';
+const MEDIUM_INPUT_CLASS = 'max-w-36';
 
 // UF -> lista de cidades (API do IBGE) - cache compartilhado pelos 3
 // contextos de UF/Cidade desta tela (cliente, representante no cadastro e
@@ -324,13 +325,12 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_STREET')"
           size="sm"
         />
-        <div :class="SHORT_FIELD_CLASS">
-          <Input
-            v-model="form.address_number"
-            :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')"
-            size="sm"
-          />
-        </div>
+        <Input
+          v-model="form.address_number"
+          :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')"
+          size="sm"
+          :custom-input-class="SHORT_INPUT_CLASS"
+        />
         <Input
           v-model="form.address_complement"
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_COMPLEMENT')"
@@ -341,22 +341,20 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap gap-3">
-          <div :class="SHORT_FIELD_CLASS">
-            <label :class="FIELD_LABEL_CLASS">
-              {{ t('CRM.CLIENTS.FIELDS.STATE') }}
-              <select v-model="form.state" :class="SELECT_CLASS">
-                <option value="">-</option>
-                <option
-                  v-for="estado in BRAZIL_STATES"
-                  :key="estado.uf"
-                  :value="estado.uf"
-                >
-                  {{ estado.uf }}
-                </option>
-              </select>
-            </label>
-          </div>
+        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap sm:items-start gap-3">
+          <label :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CLIENTS.FIELDS.STATE') }}
+            <select v-model="form.state" :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`">
+              <option value="">-</option>
+              <option
+                v-for="estado in BRAZIL_STATES"
+                :key="estado.uf"
+                :value="estado.uf"
+              >
+                {{ estado.uf }}
+              </option>
+            </select>
+          </label>
           <div class="flex-1 min-w-[160px]">
             <Input
               v-model="form.city"
@@ -366,13 +364,12 @@ onMounted(fetchClients);
             />
           </div>
         </div>
-        <div :class="SHORT_FIELD_CLASS">
-          <Input
-            v-model="form.zip_code"
-            :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')"
-            size="sm"
-          />
-        </div>
+        <Input
+          v-model="form.zip_code"
+          :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')"
+          size="sm"
+          :custom-input-class="SHORT_INPUT_CLASS"
+        />
         <Input
           v-model="form.representative_name"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NAME')"
@@ -389,32 +386,29 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
           size="sm"
         />
-        <div :class="MEDIUM_FIELD_CLASS">
-          <Input
-            v-model="representativePhoneMasked"
-            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
-            size="sm"
-          />
-        </div>
-        <div :class="MEDIUM_FIELD_CLASS">
-          <Input
-            v-model="representativeMobileMasked"
-            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
-            size="sm"
-          />
-        </div>
+        <Input
+          v-model="representativePhoneMasked"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+          size="sm"
+          :custom-input-class="MEDIUM_INPUT_CLASS"
+        />
+        <Input
+          v-model="representativeMobileMasked"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
+          size="sm"
+          :custom-input-class="MEDIUM_INPUT_CLASS"
+        />
         <Input
           v-model="form.representative_address_street"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
           size="sm"
         />
-        <div :class="SHORT_FIELD_CLASS">
-          <Input
-            v-model="form.representative_address_number"
-            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
-            size="sm"
-          />
-        </div>
+        <Input
+          v-model="form.representative_address_number"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
+          size="sm"
+          :custom-input-class="SHORT_INPUT_CLASS"
+        />
         <Input
           v-model="form.representative_address_complement"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_COMPLEMENT')"
@@ -425,22 +419,23 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap gap-3">
-          <div :class="SHORT_FIELD_CLASS">
-            <label :class="FIELD_LABEL_CLASS">
-              {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
-              <select v-model="form.representative_state" :class="SELECT_CLASS">
-                <option value="">-</option>
-                <option
-                  v-for="estado in BRAZIL_STATES"
-                  :key="estado.uf"
-                  :value="estado.uf"
-                >
-                  {{ estado.uf }}
-                </option>
-              </select>
-            </label>
-          </div>
+        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap sm:items-start gap-3">
+          <label :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
+            <select
+              v-model="form.representative_state"
+              :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
+            >
+              <option value="">-</option>
+              <option
+                v-for="estado in BRAZIL_STATES"
+                :key="estado.uf"
+                :value="estado.uf"
+              >
+                {{ estado.uf }}
+              </option>
+            </select>
+          </label>
           <div class="flex-1 min-w-[160px]">
             <Input
               v-model="form.representative_city"
@@ -450,13 +445,12 @@ onMounted(fetchClients);
             />
           </div>
         </div>
-        <div :class="SHORT_FIELD_CLASS">
-          <Input
-            v-model="form.representative_zip_code"
-            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
-            size="sm"
-          />
-        </div>
+        <Input
+          v-model="form.representative_zip_code"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
+          size="sm"
+          :custom-input-class="SHORT_INPUT_CLASS"
+        />
       </div>
 
       <datalist id="crm-client-cities">
@@ -575,32 +569,29 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
           size="sm"
         />
-        <div :class="MEDIUM_FIELD_CLASS">
-          <Input
-            v-model="repChangePhoneMasked"
-            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
-            size="sm"
-          />
-        </div>
-        <div :class="MEDIUM_FIELD_CLASS">
-          <Input
-            v-model="repChangeMobileMasked"
-            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
-            size="sm"
-          />
-        </div>
+        <Input
+          v-model="repChangePhoneMasked"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+          size="sm"
+          :custom-input-class="MEDIUM_INPUT_CLASS"
+        />
+        <Input
+          v-model="repChangeMobileMasked"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
+          size="sm"
+          :custom-input-class="MEDIUM_INPUT_CLASS"
+        />
         <Input
           v-model="representativeForm.representative_address_street"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
           size="sm"
         />
-        <div :class="SHORT_FIELD_CLASS">
-          <Input
-            v-model="representativeForm.representative_address_number"
-            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
-            size="sm"
-          />
-        </div>
+        <Input
+          v-model="representativeForm.representative_address_number"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
+          size="sm"
+          :custom-input-class="SHORT_INPUT_CLASS"
+        />
         <Input
           v-model="representativeForm.representative_address_complement"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_COMPLEMENT')"
@@ -611,25 +602,23 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap gap-3">
-          <div :class="SHORT_FIELD_CLASS">
-            <label :class="FIELD_LABEL_CLASS">
-              {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
-              <select
-                v-model="representativeForm.representative_state"
-                :class="SELECT_CLASS"
+        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap sm:items-start gap-3">
+          <label :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
+            <select
+              v-model="representativeForm.representative_state"
+              :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
+            >
+              <option value="">-</option>
+              <option
+                v-for="estado in BRAZIL_STATES"
+                :key="estado.uf"
+                :value="estado.uf"
               >
-                <option value="">-</option>
-                <option
-                  v-for="estado in BRAZIL_STATES"
-                  :key="estado.uf"
-                  :value="estado.uf"
-                >
-                  {{ estado.uf }}
-                </option>
-              </select>
-            </label>
-          </div>
+                {{ estado.uf }}
+              </option>
+            </select>
+          </label>
           <div class="flex-1 min-w-[160px]">
             <Input
               v-model="representativeForm.representative_city"
@@ -639,13 +628,12 @@ onMounted(fetchClients);
             />
           </div>
         </div>
-        <div :class="SHORT_FIELD_CLASS">
-          <Input
-            v-model="representativeForm.representative_zip_code"
-            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
-            size="sm"
-          />
-        </div>
+        <Input
+          v-model="representativeForm.representative_zip_code"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
+          size="sm"
+          :custom-input-class="SHORT_INPUT_CLASS"
+        />
       </div>
 
       <datalist id="crm-repchange-cities">
