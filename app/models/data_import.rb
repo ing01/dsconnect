@@ -36,8 +36,8 @@ class DataImport < ApplicationRecord
   ACTIVE_INTERCOM_IMPORT_RUN_ID_KEY = 'active_intercom_import_run_id'.freeze
   IMPORT_STALLED_AFTER = 15.minutes
   INTERCOM_STALLED_AFTER = IMPORT_STALLED_AFTER
-  LEGACY_DATA_TYPES = %w[contacts clientes company_priority company_cnpj_check service_catalog].freeze
-  UPLOAD_DATA_TYPES = %w[clientes company_priority company_cnpj_check service_catalog].freeze
+  LEGACY_DATA_TYPES = %w[contacts clientes solicitantes company_priority company_cnpj_check service_catalog].freeze
+  UPLOAD_DATA_TYPES = %w[clientes solicitantes company_priority company_cnpj_check service_catalog].freeze
   INTEGRATION_DATA_TYPES = %w[freshdesk intercom].freeze
   IMPORT_TYPES = %w[contacts conversations].freeze
 
@@ -74,6 +74,14 @@ class DataImport < ApplicationRecord
 
   def clientes_import?
     data_type == 'clientes' && source_provider.blank?
+  end
+
+  # Importacao de Contatos/Solicitantes - igual a `clientes_import?` mas sem
+  # CNPJ: cada linha e' um contato, e o vinculo com Empresa (quando a
+  # planilha trouxer o Nome Fantasia) so' acontece se o nome bater EXATAMENTE
+  # com uma Empresa ja cadastrada (ver `SolicitantesImportJob`).
+  def solicitantes_import?
+    data_type == 'solicitantes' && source_provider.blank?
   end
 
   # Segunda opcao de importacao de Empresa - so Codigo/CNPJ/Prioridade,
@@ -159,6 +167,7 @@ class DataImport < ApplicationRecord
     # we wait for the file to be uploaded to the cloud
     return DataImportJob.set(wait: 1.minute).perform_later(self) if legacy_contacts_csv_import?
     return ClientesImportJob.set(wait: 1.minute).perform_later(self) if clientes_import?
+    return SolicitantesImportJob.set(wait: 1.minute).perform_later(self) if solicitantes_import?
     return CompanyPriorityImportJob.set(wait: 1.minute).perform_later(self) if company_priority_import?
     return CompanyCnpjCheckJob.set(wait: 1.minute).perform_later(self) if company_cnpj_check_import?
     return ServiceCatalogImportJob.set(wait: 1.minute).perform_later(self) if service_catalog_import?

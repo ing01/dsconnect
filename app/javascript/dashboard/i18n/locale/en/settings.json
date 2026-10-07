@@ -487,6 +487,7 @@
       "CONVERSATIONS": "Conversations",
       "MESSAGES": "Messages",
       "CLIENTES": "Customers",
+      "SOLICITANTES": "Contacts/Requesters",
       "COMPANY_PRIORITY": "Code/Tax ID/Priority",
       "COMPANY_CNPJ_CHECK": "Tax ID Comparison",
       "SERVICE_CATALOG": "Service Catalog"
@@ -502,6 +503,12 @@
       "CLIENTES": {
         "TITLE": "Import Customers",
         "DESCRIPTION": "Creates or updates companies (by CNPJ/tax ID) and contacts (by email/phone) from a spreadsheet."
+      },
+      "SOLICITANTES": {
+        "TITLE": "Import Contacts/Requesters",
+        "DESCRIPTION": "Creates or updates contacts (by ID, email or phone) from a spreadsheet with no tax ID. If the spreadsheet includes the company's trade name, it only links it when the name is an EXACT match to an already registered company - it never creates a new company.",
+        "RESULT_SUMMARY": "{processed} of {total} contacts imported successfully",
+        "ERROR_COUNT": "{count} row with a notice (download details) | {count} rows with notices (download details)"
       },
       "SERVICE_CATALOG": {
         "TITLE": "Import Service Catalog",

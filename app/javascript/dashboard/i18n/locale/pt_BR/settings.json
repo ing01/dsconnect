@@ -487,6 +487,7 @@
       "CONVERSATIONS": "Conversas",
       "MESSAGES": "Mensagens",
       "CLIENTES": "Clientes",
+      "SOLICITANTES": "Contatos/Solicitantes",
       "COMPANY_PRIORITY": "Código/CNPJ/Prioridade",
       "COMPANY_CNPJ_CHECK": "Comparativo de CNPJ",
       "SERVICE_CATALOG": "Catálogo de Serviços"
@@ -502,6 +503,12 @@
       "CLIENTES": {
         "TITLE": "Importar Clientes",
         "DESCRIPTION": "Cria ou atualiza empresas (por CPF/CNPJ) e contatos (por e-mail/telefone) a partir de uma planilha."
+      },
+      "SOLICITANTES": {
+        "TITLE": "Importar Contatos/Solicitantes",
+        "DESCRIPTION": "Cria ou atualiza contatos (por ID, e-mail ou telefone) a partir de uma planilha sem CNPJ. Se a planilha trouxer o Nome Fantasia da empresa, só vincula quando o nome for EXATAMENTE igual a uma empresa já cadastrada - nunca cria empresa nova.",
+        "RESULT_SUMMARY": "{processed} de {total} contatos importados com sucesso",
+        "ERROR_COUNT": "{count} linha com aviso (baixar detalhes) | {count} linhas com avisos (baixar detalhes)"
       },
       "SERVICE_CATALOG": {
         "TITLE": "Importar Catálogo de Serviços",
