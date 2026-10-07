@@ -7,8 +7,9 @@ require 'roo'
 #
 # Pensada pra quando a planilha de origem nao tem o CNPJ da empresa pra casar
 # com certeza (caso da Ingrid): a empresa so' e' vinculada quando o "Nome
-# Fantasia" da planilha bate EXATAMENTE (sensivel a mai'usculas/minusculas,
-# so' tira espaco nas pontas) com uma Empresa ja cadastrada na conta. Nunca
+# Fantasia" da planilha bate EXATAMENTE (maiusculo/minusculo nao importa -
+# no sistema o nome ja e' sempre cadastrado em maiusculo; so' tira espaco nas
+# pontas) com uma Empresa ja cadastrada na conta. Nunca
 # cria empresa nova e nunca vincula por aproximacao/parecido - se o nome nao
 # bater, o contato ainda e' importado normalmente, so' fica sem vinculo
 # (e isso aparece no log de erros da importacao, pra revisar).
@@ -122,15 +123,16 @@ class SolicitantesImportJob < ApplicationJob
     contact.additional_attributes = (contact.additional_attributes || {}).merge('setor' => contact_data[:sector])
   end
 
-  # So' vincula quando o nome bate EXATAMENTE (`find_by(name:)` e' sensivel a
-  # mai'usculas/minusculas no Postgres) - de proposito, pra nao arriscar
-  # vincular no cliente errado so' porque o nome e' parecido. Sem CNPJ na
-  # planilha, essa e' a unica forma segura de casar com uma Empresa.
+  # So' vincula quando o nome bate EXATAMENTE (ignorando maiusculas/minusculas
+  # - no sistema o nome da empresa e' sempre cadastrado em maiusculo, mas a
+  # planilha pode vir diferente) - de proposito, pra nao arriscar vincular no
+  # cliente errado so' porque o nome e' parecido. Sem CNPJ na planilha, essa
+  # e' a unica forma segura de casar com uma Empresa.
   def link_to_matching_company(contact, row, row_number)
     company_name = cell(row, :company_name)
     return if company_name.blank?
 
-    company = @account.companies.find_by(name: company_name)
+    company = @account.companies.where('UPPER(name) = UPPER(?)', company_name).first
     if company.blank?
       record_unmatched_company(row_number, company_name)
       return
