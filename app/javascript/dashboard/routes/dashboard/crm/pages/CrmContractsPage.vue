@@ -8,7 +8,7 @@
  * (ver Crm::ContractTokenMapper) - so sobrescrevemos quando a pessoa digitou
  * algo.
  */
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import CrmContractTemplatesAPI from 'dashboard/api/crmContractTemplates';
@@ -20,12 +20,74 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import { CRM_CONTRACT_TOKEN_HELP } from '../crmContractTokenHelp';
+import { BRAZIL_STATES, fetchCitiesByUf } from '../brazilLocations';
+import { formatBrPhone } from '../crmPhoneMask';
 import {
   crmContractTokenLabel,
   CRM_DATE_TOKEN_KEYS,
   CRM_LOCKED_CLIENT_TOKEN_KEYS,
   CRM_YES_NO_TOKEN_KEYS,
 } from '../crmContractTokenLabels';
+
+// Tokens que recebem um <select> com opcoes fixas em vez de texto livre.
+const CRM_SELECT_TOKEN_OPTIONS = {
+  tipo_licenca: ['Anual', 'Mensal'],
+};
+const isSelectToken = token => token in CRM_SELECT_TOKEN_OPTIONS;
+
+// Tokens de UF - vira <select> com as 27 UFs, e ao escolher carrega as
+// cidades daquela UF pro token de cidade correspondente (mesmo par
+// cliente_uf/cliente_cidade ou representante_uf/representante_cidade).
+const CRM_STATE_TOKEN_KEYS = ['cliente_uf', 'representante_uf'];
+const CRM_STATE_TO_CITY_TOKEN = {
+  cliente_uf: 'cliente_cidade',
+  representante_uf: 'representante_cidade',
+};
+const isStateToken = token => CRM_STATE_TOKEN_KEYS.includes(token);
+
+// Tokens de telefone/celular - mascara e limite de numeros (mesma mascara
+// do cadastro de cliente, ver `crmPhoneMask.js`).
+const CRM_MOBILE_TOKEN_KEYS = ['representante_celular'];
+const CRM_PHONE_TOKEN_KEYS = ['representante_telefone'];
+const isPhoneToken = token =>
+  CRM_MOBILE_TOKEN_KEYS.includes(token) || CRM_PHONE_TOKEN_KEYS.includes(token);
+
+// Tokens que ficam visualmente mais curtos (CEP, numero, quantidades) -
+// alguns ainda ganham um texto fixo do lado (dias, R$, R$/h).
+const CRM_SHORT_TOKEN_KEYS = [
+  'cliente_cep',
+  'representante_cep',
+  'cliente_endereco_num',
+  'representante_end_num',
+  'horas_trein',
+  'impl_prazo',
+  'impl_valor',
+  'prazo_licenca',
+  'qtde_licencas',
+  'valor_km',
+  'valor_licenca',
+  'vl_hr_add',
+  ...CRM_MOBILE_TOKEN_KEYS,
+  ...CRM_PHONE_TOKEN_KEYS,
+];
+const isShortToken = token => CRM_SHORT_TOKEN_KEYS.includes(token);
+
+const CRM_TOKEN_SUFFIX = {
+  impl_prazo: '| dias',
+  prazo_licenca: '| dias',
+  impl_valor: 'R$',
+  valor_km: 'R$',
+  valor_licenca: 'R$',
+  vl_hr_add: 'R$/h',
+};
+const tokenSuffix = token => CRM_TOKEN_SUFFIX[token] || '';
+
+const CRM_CITY_TOKEN_KEYS = Object.values(CRM_STATE_TO_CITY_TOKEN);
+const isCityToken = token => CRM_CITY_TOKEN_KEYS.includes(token);
+const cityStateToken = token =>
+  Object.entries(CRM_STATE_TO_CITY_TOKEN).find(
+    ([, cityToken]) => cityToken === token
+  )?.[0];
 
 const { t } = useI18n();
 
@@ -91,10 +153,50 @@ const editableTokens = computed(() =>
 const isYesNoToken = token => CRM_YES_NO_TOKEN_KEYS.includes(token);
 const isDateToken = token => CRM_DATE_TOKEN_KEYS.includes(token);
 
+// So' tira o token de UF da grade quando o par (UF + Cidade) existe nos dois
+// no mesmo modelo - sem isto, um [[cliente_uf]] sozinho (sem [[cliente_cidade]])
+// desapareceria do formulario.
+const pairedStateTokens = computed(() =>
+  CRM_STATE_TOKEN_KEYS.filter(
+    stateToken =>
+      editableTokens.value.includes(stateToken) &&
+      editableTokens.value.includes(CRM_STATE_TO_CITY_TOKEN[stateToken])
+  )
+);
+const visibleTokens = computed(() =>
+  editableTokens.value.filter(
+    token => !pairedStateTokens.value.includes(token)
+  )
+);
+const itemWrapperClass = token => {
+  if (isCityToken(token)) return 'sm:col-span-2 min-w-0';
+  if (isShortToken(token)) return 'w-32';
+  return 'min-w-0';
+};
+
 // O seletor de data devolve aaaa-mm-dd; o contrato precisa de dd/mm/aaaa.
 const toContractDate = value => {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
   return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
+};
+
+// UF -> lista de cidades (API do IBGE) - ao escolher a UF de um token
+// cliente_uf/representante_uf, a cidade correspondente passa a sugerir so'
+// as cidades daquele estado (ver <datalist> no template).
+const citiesByUf = ref({});
+const ensureCities = async uf => {
+  if (!uf || citiesByUf.value[uf]) return;
+  citiesByUf.value[uf] = await fetchCitiesByUf(uf);
+};
+watch(
+  () => CRM_STATE_TOKEN_KEYS.map(token => tokenValues.value[token]),
+  values => values.forEach(ensureCities)
+);
+
+const onPhoneInput = (token, value) => {
+  tokenValues.value[token] = formatBrPhone(value, {
+    mobile: CRM_MOBILE_TOKEN_KEYS.includes(token),
+  });
 };
 
 const fetchAll = async () => {
@@ -396,7 +498,11 @@ onMounted(fetchAll);
           {{ t('CRM.CONTRACTS.GENERATE.LOCKED_FIELDS_HINT') }}
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          <div v-for="token in editableTokens" :key="token" class="min-w-0">
+          <div
+            v-for="token in visibleTokens"
+            :key="token"
+            :class="itemWrapperClass(token)"
+          >
             <div v-if="isYesNoToken(token)" class="flex flex-col gap-1.5">
               <span :class="FIELD_LABEL_CLASS">{{
                 `${crmContractTokenLabel(token)} (${token})`
@@ -433,6 +539,88 @@ onMounted(fetchAll);
                 :class="SELECT_CLASS"
               />
             </label>
+            <label v-else-if="isSelectToken(token)" :class="FIELD_LABEL_CLASS">
+              {{ `${crmContractTokenLabel(token)} (${token})` }}
+              <select v-model="tokenValues[token]" :class="SELECT_CLASS">
+                <option value="">-</option>
+                <option
+                  v-for="opcao in CRM_SELECT_TOKEN_OPTIONS[token]"
+                  :key="opcao"
+                  :value="opcao"
+                >
+                  {{ opcao }}
+                </option>
+              </select>
+            </label>
+            <label v-else-if="isStateToken(token)" :class="FIELD_LABEL_CLASS">
+              {{ `${crmContractTokenLabel(token)} (${token})` }}
+              <select v-model="tokenValues[token]" :class="SELECT_CLASS">
+                <option value="">-</option>
+                <option
+                  v-for="estado in BRAZIL_STATES"
+                  :key="estado.uf"
+                  :value="estado.uf"
+                >
+                  {{ estado.uf }}
+                </option>
+              </select>
+            </label>
+            <div v-else-if="isCityToken(token)" class="flex gap-3">
+              <div v-if="pairedStateTokens.includes(cityStateToken(token))" class="w-24">
+                <label :class="FIELD_LABEL_CLASS">
+                  {{ crmContractTokenLabel(cityStateToken(token)) }}
+                  <select
+                    v-model="tokenValues[cityStateToken(token)]"
+                    :class="SELECT_CLASS"
+                  >
+                    <option value="">-</option>
+                    <option
+                      v-for="estado in BRAZIL_STATES"
+                      :key="estado.uf"
+                      :value="estado.uf"
+                    >
+                      {{ estado.uf }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+              <div class="flex-1 min-w-0">
+                <Input
+                  v-model="tokenValues[token]"
+                  :label="`${crmContractTokenLabel(token)} (${token})`"
+                  size="sm"
+                  :list="`crm-contract-cities-${token}`"
+                />
+                <datalist :id="`crm-contract-cities-${token}`">
+                  <option
+                    v-for="cidade in citiesByUf[tokenValues[cityStateToken(token)]] || []"
+                    :key="cidade"
+                    :value="cidade"
+                  />
+                </datalist>
+              </div>
+            </div>
+            <div v-else-if="isPhoneToken(token)">
+              <Input
+                :model-value="tokenValues[token]"
+                :label="`${crmContractTokenLabel(token)} (${token})`"
+                size="sm"
+                @update:model-value="value => onPhoneInput(token, value)"
+              />
+            </div>
+            <div v-else-if="tokenSuffix(token)" class="flex items-end gap-2">
+              <Input
+                v-model="tokenValues[token]"
+                :label="`${crmContractTokenLabel(token)} (${token})`"
+                size="sm"
+                class="flex-1 min-w-0"
+              />
+              <span
+                class="h-9 flex items-center text-xs text-n-slate-11 whitespace-nowrap"
+              >
+                {{ tokenSuffix(token) }}
+              </span>
+            </div>
             <Input
               v-else
               v-model="tokenValues[token]"

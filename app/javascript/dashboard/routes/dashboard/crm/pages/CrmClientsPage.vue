@@ -4,15 +4,32 @@
  * `commercial_manage` (ver crm.routes.js e Crm::ClientPolicy no backend).
  * De proposito SEPARADO de Companies: nem todo lead vira cliente pagante.
  */
-import { ref, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import CrmClientsAPI from 'dashboard/api/crmClients';
 import ReportHeader from '../../settings/reports/components/ReportHeader.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
+import { BRAZIL_STATES, fetchCitiesByUf } from '../brazilLocations';
+import { formatBrPhone } from '../crmPhoneMask';
 
 const { t } = useI18n();
+
+// Mesma tipografia do label do componente `Input` - usado nos poucos campos
+// que aqui sao <select> em vez de <Input>, pra letra nao ficar diferente.
+const FIELD_LABEL_CLASS = 'flex flex-col gap-1 text-heading-3 text-n-slate-12';
+const SELECT_CLASS =
+  'h-8 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none';
+
+// UF -> lista de cidades (API do IBGE) - cache compartilhado pelos 3
+// contextos de UF/Cidade desta tela (cliente, representante no cadastro e
+// representante na troca), pra nao buscar a mesma UF tres vezes.
+const citiesByUf = ref({});
+const ensureCities = async uf => {
+  if (!uf || citiesByUf.value[uf]) return;
+  citiesByUf.value[uf] = await fetchCitiesByUf(uf);
+};
 
 const isLoading = ref(true);
 const clients = ref([]);
@@ -53,6 +70,25 @@ const emptyForm = () => ({
 });
 const form = ref(emptyForm());
 const showContractData = ref(false);
+
+watch(() => form.value.state, ensureCities);
+watch(() => form.value.representative_state, ensureCities);
+
+// Celular/telefone do representante com mascara - formata enquanto digita e
+// ja corta no tamanho certo, pra nao deixar passar numero maior/menor nem
+// digitado errado.
+const representativePhoneMasked = computed({
+  get: () => form.value.representative_phone,
+  set: value => {
+    form.value.representative_phone = formatBrPhone(value, { mobile: false });
+  },
+});
+const representativeMobileMasked = computed({
+  get: () => form.value.representative_mobile,
+  set: value => {
+    form.value.representative_mobile = formatBrPhone(value, { mobile: true });
+  },
+});
 
 const addExtraRepresentative = () => {
   form.value.extra_representatives.push({
@@ -151,6 +187,25 @@ const emptyRepresentativeForm = () => ({
 const representativeChangeClient = ref(null);
 const representativeForm = ref(emptyRepresentativeForm());
 const isChangingRepresentative = ref(false);
+
+watch(() => representativeForm.value.representative_state, ensureCities);
+
+const repChangePhoneMasked = computed({
+  get: () => representativeForm.value.representative_phone,
+  set: value => {
+    representativeForm.value.representative_phone = formatBrPhone(value, {
+      mobile: false,
+    });
+  },
+});
+const repChangeMobileMasked = computed({
+  get: () => representativeForm.value.representative_mobile,
+  set: value => {
+    representativeForm.value.representative_mobile = formatBrPhone(value, {
+      mobile: true,
+    });
+  },
+});
 
 const openChangeRepresentative = client => {
   representativeChangeClient.value = client;
@@ -258,11 +313,13 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_STREET')"
           size="sm"
         />
-        <Input
-          v-model="form.address_number"
-          :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')"
-          size="sm"
-        />
+        <div class="w-24">
+          <Input
+            v-model="form.address_number"
+            :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')"
+            size="sm"
+          />
+        </div>
         <Input
           v-model="form.address_complement"
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_COMPLEMENT')"
@@ -273,21 +330,38 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NEIGHBORHOOD')"
           size="sm"
         />
-        <Input
-          v-model="form.city"
-          :label="t('CRM.CLIENTS.FIELDS.CITY')"
-          size="sm"
-        />
-        <Input
-          v-model="form.state"
-          :label="t('CRM.CLIENTS.FIELDS.STATE')"
-          size="sm"
-        />
-        <Input
-          v-model="form.zip_code"
-          :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')"
-          size="sm"
-        />
+        <div class="sm:col-span-2 flex gap-3">
+          <div class="w-24">
+            <label :class="FIELD_LABEL_CLASS">
+              {{ t('CRM.CLIENTS.FIELDS.STATE') }}
+              <select v-model="form.state" :class="SELECT_CLASS">
+                <option value="">-</option>
+                <option
+                  v-for="estado in BRAZIL_STATES"
+                  :key="estado.uf"
+                  :value="estado.uf"
+                >
+                  {{ estado.uf }}
+                </option>
+              </select>
+            </label>
+          </div>
+          <div class="flex-1 min-w-0">
+            <Input
+              v-model="form.city"
+              :label="t('CRM.CLIENTS.FIELDS.CITY')"
+              size="sm"
+              list="crm-client-cities"
+            />
+          </div>
+        </div>
+        <div class="w-28">
+          <Input
+            v-model="form.zip_code"
+            :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')"
+            size="sm"
+          />
+        </div>
         <Input
           v-model="form.representative_name"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NAME')"
@@ -304,26 +378,32 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
           size="sm"
         />
-        <Input
-          v-model="form.representative_phone"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
-          size="sm"
-        />
-        <Input
-          v-model="form.representative_mobile"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
-          size="sm"
-        />
+        <div class="w-32">
+          <Input
+            v-model="representativePhoneMasked"
+            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+            size="sm"
+          />
+        </div>
+        <div class="w-32">
+          <Input
+            v-model="representativeMobileMasked"
+            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
+            size="sm"
+          />
+        </div>
         <Input
           v-model="form.representative_address_street"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
           size="sm"
         />
-        <Input
-          v-model="form.representative_address_number"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
-          size="sm"
-        />
+        <div class="w-24">
+          <Input
+            v-model="form.representative_address_number"
+            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
+            size="sm"
+          />
+        </div>
         <Input
           v-model="form.representative_address_complement"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_COMPLEMENT')"
@@ -334,22 +414,54 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <Input
-          v-model="form.representative_city"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
-          size="sm"
-        />
-        <Input
-          v-model="form.representative_state"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE')"
-          size="sm"
-        />
-        <Input
-          v-model="form.representative_zip_code"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
-          size="sm"
-        />
+        <div class="sm:col-span-2 flex gap-3">
+          <div class="w-24">
+            <label :class="FIELD_LABEL_CLASS">
+              {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
+              <select v-model="form.representative_state" :class="SELECT_CLASS">
+                <option value="">-</option>
+                <option
+                  v-for="estado in BRAZIL_STATES"
+                  :key="estado.uf"
+                  :value="estado.uf"
+                >
+                  {{ estado.uf }}
+                </option>
+              </select>
+            </label>
+          </div>
+          <div class="flex-1 min-w-0">
+            <Input
+              v-model="form.representative_city"
+              :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
+              size="sm"
+              list="crm-representative-cities"
+            />
+          </div>
+        </div>
+        <div class="w-28">
+          <Input
+            v-model="form.representative_zip_code"
+            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
+            size="sm"
+          />
+        </div>
       </div>
+
+      <datalist id="crm-client-cities">
+        <option
+          v-for="cidade in citiesByUf[form.state] || []"
+          :key="cidade"
+          :value="cidade"
+        />
+      </datalist>
+      <datalist id="crm-representative-cities">
+        <option
+          v-for="cidade in citiesByUf[form.representative_state] || []"
+          :key="cidade"
+          :value="cidade"
+        />
+      </datalist>
 
       <div v-if="showContractData" class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
@@ -452,26 +564,32 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
           size="sm"
         />
-        <Input
-          v-model="representativeForm.representative_phone"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
-          size="sm"
-        />
-        <Input
-          v-model="representativeForm.representative_mobile"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
-          size="sm"
-        />
+        <div class="w-32">
+          <Input
+            v-model="repChangePhoneMasked"
+            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+            size="sm"
+          />
+        </div>
+        <div class="w-32">
+          <Input
+            v-model="repChangeMobileMasked"
+            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
+            size="sm"
+          />
+        </div>
         <Input
           v-model="representativeForm.representative_address_street"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
           size="sm"
         />
-        <Input
-          v-model="representativeForm.representative_address_number"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
-          size="sm"
-        />
+        <div class="w-24">
+          <Input
+            v-model="representativeForm.representative_address_number"
+            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
+            size="sm"
+          />
+        </div>
         <Input
           v-model="representativeForm.representative_address_complement"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_COMPLEMENT')"
@@ -482,22 +600,50 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <Input
-          v-model="representativeForm.representative_city"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
-          size="sm"
-        />
-        <Input
-          v-model="representativeForm.representative_state"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE')"
-          size="sm"
-        />
-        <Input
-          v-model="representativeForm.representative_zip_code"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
-          size="sm"
-        />
+        <div class="sm:col-span-2 flex gap-3">
+          <div class="w-24">
+            <label :class="FIELD_LABEL_CLASS">
+              {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
+              <select
+                v-model="representativeForm.representative_state"
+                :class="SELECT_CLASS"
+              >
+                <option value="">-</option>
+                <option
+                  v-for="estado in BRAZIL_STATES"
+                  :key="estado.uf"
+                  :value="estado.uf"
+                >
+                  {{ estado.uf }}
+                </option>
+              </select>
+            </label>
+          </div>
+          <div class="flex-1 min-w-0">
+            <Input
+              v-model="representativeForm.representative_city"
+              :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
+              size="sm"
+              list="crm-repchange-cities"
+            />
+          </div>
+        </div>
+        <div class="w-28">
+          <Input
+            v-model="representativeForm.representative_zip_code"
+            :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
+            size="sm"
+          />
+        </div>
       </div>
+
+      <datalist id="crm-repchange-cities">
+        <option
+          v-for="cidade in citiesByUf[representativeForm.representative_state] || []"
+          :key="cidade"
+          :value="cidade"
+        />
+      </datalist>
 
       <div class="flex gap-2 justify-end">
         <Button
