@@ -14,6 +14,9 @@ require 'roo'
 # `DataImportsController#destroy_unmatched_companies`) - este job em si
 # continua sem apagar nada.
 #
+# E tambem acha empresas DUPLICADAS dentro do proprio sistema (independe da
+# planilha) - ver `record_duplicate_companies` pra regra completa.
+#
 # Reaproveita a mesma infraestrutura das outras importacoes (status,
 # `processed_records`/`total_records`, `DataImportError` + o download de
 # "error_logs" ja existente) sem nenhuma tela ou rota nova: os CNPJs
@@ -43,6 +46,7 @@ class CompanyCnpjCheckJob < ApplicationJob
     @data_import.update!(status: :processing)
     process_rows
     record_unmatched_companies
+    record_duplicate_companies
     @data_import.update!(status: :completed, processed_records: @processed, total_records: @processed + @failed)
   rescue StandardError => e
     @data_import.update!(status: :failed)
@@ -95,6 +99,46 @@ class CompanyCnpjCheckJob < ApplicationJob
         'unmatched_companies_count' => unmatched_ids.size
       )
     )
+  end
+
+  # "Duplicada" = mais de uma Empresa da conta com o MESMO nome (ignora
+  # maiusculo/minusculo e espaco nas pontas). O banco ja tem indice unico de
+  # CNPJ por conta (`index_companies_on_account_and_cnpj`) - duas Empresas
+  # NUNCA tem o mesmo CNPJ preenchido - entao a duplicata de verdade e' quase
+  # sempre um cadastro antigo SEM CNPJ que sobrou quando a Empresa certa foi
+  # cadastrada de novo ja com o CNPJ.
+  #
+  # Regra, pra nao arriscar apagar duas empresas DIFERENTES que so'
+  # coincidem no nome:
+  # - Mais de uma empresa do grupo com CNPJ preenchido -> grupo INTEIRO
+  #   ignorado (nao da pra saber qual e' a "certa" so' pelo nome).
+  # - So' uma com CNPJ -> essa fica, as outras (sem CNPJ) sao marcadas.
+  # - Nenhuma com CNPJ -> fica a mais antiga, as demais sao marcadas.
+  def record_duplicate_companies
+    duplicate_ids = @account.companies
+                             .where.not(name: [nil, ''])
+                             .select(:id, :name, :cnpj, :created_at)
+                             .order(:created_at, :id)
+                             .group_by { |company| company.name.to_s.strip.upcase }
+                             .select { |name, companies| name.present? && companies.size > 1 }
+                             .flat_map { |_name, companies| duplicates_within(companies) }
+
+    @data_import.update!(
+      stats: @data_import.stats.to_h.merge(
+        'duplicate_company_ids' => duplicate_ids,
+        'duplicate_companies_count' => duplicate_ids.size
+      )
+    )
+  end
+
+  def duplicates_within(companies)
+    with_cnpj, without_cnpj = companies.partition { |company| company.cnpj.present? }
+    return [] if with_cnpj.size > 1
+    return without_cnpj.map(&:id) if with_cnpj.size == 1
+
+    # Nenhuma tem CNPJ - `companies` ja vem ordenada por created_at (a query
+    # em `record_duplicate_companies`), entao a primeira e' a mais antiga.
+    without_cnpj.drop(1).map(&:id)
   end
 
   def cell(row, key)

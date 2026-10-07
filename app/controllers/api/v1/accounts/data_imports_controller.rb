@@ -5,7 +5,11 @@ class Api::V1::Accounts::DataImportsController < Api::V1::Accounts::BaseControll
 
   before_action :ensure_data_import_feature_enabled
   before_action :set_data_import,
-                only: [:show, :start, :retry_import, :abandon, :error_logs, :skip_logs, :unmatched_companies, :destroy_unmatched_companies]
+                only: [
+                  :show, :start, :retry_import, :abandon, :error_logs, :skip_logs,
+                  :unmatched_companies, :destroy_unmatched_companies,
+                  :duplicate_companies, :destroy_duplicate_companies
+                ]
   before_action :check_authorization
 
   def index
@@ -124,11 +128,11 @@ class Api::V1::Accounts::DataImportsController < Api::V1::Accounts::BaseControll
   # SpreadsheetImportCard.vue) e so vale para uma comparacao de CNPJ ja
   # concluida.
   def destroy_unmatched_companies
-    unless @data_import.company_cnpj_check_import? && @data_import.completed?
+    unless company_cnpj_check_ready?
       render json: { message: 'Esta ação só vale para uma comparação de CNPJ já concluída.' }, status: :unprocessable_entity
       return
     end
-    unless ActiveModel::Type::Boolean.new.cast(params[:confirm])
+    unless confirmed?
       render json: { message: 'Confirmação obrigatória.' }, status: :unprocessable_entity
       return
     end
@@ -137,7 +141,40 @@ class Api::V1::Accounts::DataImportsController < Api::V1::Accounts::BaseControll
     render json: { deleted_count: removed_count }
   end
 
+  # Lista (pra conferir ANTES de excluir) as Empresas que `CompanyCnpjCheckJob`
+  # marcou como duplicata (ver a regra completa la no job).
+  def duplicate_companies
+    send_data(
+      duplicate_companies_csv,
+      filename: "data-import-#{@data_import.id}-empresas-duplicadas.csv",
+      type: 'text/csv'
+    )
+  end
+
+  # Mesmas regras do destroy_unmatched_companies, so que pras duplicatas.
+  def destroy_duplicate_companies
+    unless company_cnpj_check_ready?
+      render json: { message: 'Esta ação só vale para uma comparação de CNPJ já concluída.' }, status: :unprocessable_entity
+      return
+    end
+    unless confirmed?
+      render json: { message: 'Confirmação obrigatória.' }, status: :unprocessable_entity
+      return
+    end
+
+    removed_count = DataImports::DuplicateCompaniesDeleter.new(data_import: @data_import).perform
+    render json: { deleted_count: removed_count }
+  end
+
   private
+
+  def company_cnpj_check_ready?
+    @data_import.company_cnpj_check_import? && @data_import.completed?
+  end
+
+  def confirmed?
+    ActiveModel::Type::Boolean.new.cast(params[:confirm])
+  end
 
   def ensure_data_import_feature_enabled
     raise Pundit::NotAuthorizedError unless Current.account.feature_enabled?(DATA_IMPORT_FEATURE)
@@ -242,6 +279,16 @@ class Api::V1::Accounts::DataImportsController < Api::V1::Accounts::BaseControll
 
   def unmatched_companies_csv
     ids = Array(@data_import.stats['unmatched_company_ids'])
+    companies = Current.account.companies.where(id: ids).order(:name)
+
+    CSV.generate(headers: true) do |csv|
+      csv << %w[nome cnpj]
+      companies.each { |company| csv << [company.name, company.cnpj] }
+    end
+  end
+
+  def duplicate_companies_csv
+    ids = Array(@data_import.stats['duplicate_company_ids'])
     companies = Current.account.companies.where(id: ids).order(:name)
 
     CSV.generate(headers: true) do |csv|

@@ -520,7 +520,7 @@
       },
       "COMPANY_CNPJ_CHECK": {
         "TITLE": "Compare Tax ID spreadsheet",
-        "DESCRIPTION": "Compares the spreadsheet's Tax IDs against existing companies and shows how many already exist and how many don't (download the list of missing ones). Also offers to delete, with confirmation, the registered companies that aren't in the spreadsheet.",
+        "DESCRIPTION": "Compares the spreadsheet's Tax IDs against existing companies and shows how many already exist and how many don't (download the list of missing ones). Also offers to delete, with confirmation, the registered companies that aren't in the spreadsheet and the duplicate companies.",
         "RESULT_SUMMARY": "{processed} of {total} Tax IDs already registered",
         "ERROR_COUNT": "{count} Tax ID not registered yet (download list) | {count} Tax IDs not registered yet (download list)",
         "UNMATCHED": {
@@ -530,6 +530,14 @@
           "CONFIRM": "Are you sure you want to delete {count} compan(y/ies) that aren't in the spreadsheet? Their contacts, tickets and satisfaction surveys are kept (they just lose the company link), but credentials and system modules registered on them are deleted too. This action cannot be undone.",
           "DELETE_SUCCESS": "{count} compan(y/ies) deleted.",
           "DELETE_ERROR": "Could not delete the companies. Please try again."
+        },
+        "DUPLICATE": {
+          "COUNT": "{count} duplicate company found in the system (same name). | {count} duplicate companies found in the system (same name).",
+          "DOWNLOAD": "Download list",
+          "DELETE_BUTTON": "Delete duplicates",
+          "CONFIRM": "Are you sure you want to delete {count} duplicate compan(y/ies)? A duplicate is two or more companies sharing the same name; among the ones with no Tax ID, only the oldest (or the one that already has a Tax ID, when there is one) is kept. Groups with more than one company that has a Tax ID are left alone - it isn't safe to guess which one is correct. Contacts, tickets and satisfaction surveys are kept (they just lose the company link), but credentials and system modules registered on them are deleted too. This action cannot be undone.",
+          "DELETE_SUCCESS": "{count} duplicate compan(y/ies) deleted.",
+          "DELETE_ERROR": "Could not delete the duplicate companies. Please try again."
         }
       }
     },

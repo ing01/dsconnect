@@ -343,6 +343,8 @@ Rails.application.routes.draw do
               get :skip_logs
               get :unmatched_companies
               delete :unmatched_companies, action: :destroy_unmatched_companies
+              get :duplicate_companies
+              delete :duplicate_companies, action: :destroy_duplicate_companies
             end
           end
           resources :csat_survey_responses, only: [:index] do

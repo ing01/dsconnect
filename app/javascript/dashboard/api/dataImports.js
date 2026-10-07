@@ -59,6 +59,18 @@ class DataImportsAPI extends ApiClient {
       params: { confirm: true },
     });
   }
+
+  downloadDuplicateCompanies(id) {
+    return axios.get(`${this.url}/${id}/duplicate_companies.csv`, {
+      responseType: 'blob',
+    });
+  }
+
+  deleteDuplicateCompanies(id) {
+    return axios.delete(`${this.url}/${id}/duplicate_companies`, {
+      params: { confirm: true },
+    });
+  }
 }
 
 export default new DataImportsAPI();
