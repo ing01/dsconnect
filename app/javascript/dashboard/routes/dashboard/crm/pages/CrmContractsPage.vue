@@ -168,9 +168,12 @@ const visibleTokens = computed(() =>
     token => !pairedStateTokens.value.includes(token)
   )
 );
+// Largura fluida com teto maximo - fica curto quando ha espaco de sobra
+// (grid com varias colunas) e ocupa a linha toda no mobile, em vez de uma
+// largura fixa que nao encolhe/estica com a tela.
 const itemWrapperClass = token => {
   if (isCityToken(token)) return 'sm:col-span-2 min-w-0';
-  if (isShortToken(token)) return 'w-32';
+  if (isShortToken(token)) return 'w-full max-w-36';
   return 'min-w-0';
 };
 
@@ -565,8 +568,14 @@ onMounted(fetchAll);
                 </option>
               </select>
             </label>
-            <div v-else-if="isCityToken(token)" class="flex gap-3">
-              <div v-if="pairedStateTokens.includes(cityStateToken(token))" class="w-24">
+            <div
+              v-else-if="isCityToken(token)"
+              class="flex flex-wrap sm:flex-nowrap gap-3"
+            >
+              <div
+                v-if="pairedStateTokens.includes(cityStateToken(token))"
+                class="w-full max-w-28"
+              >
                 <label :class="FIELD_LABEL_CLASS">
                   {{ crmContractTokenLabel(cityStateToken(token)) }}
                   <select
@@ -584,7 +593,7 @@ onMounted(fetchAll);
                   </select>
                 </label>
               </div>
-              <div class="flex-1 min-w-0">
+              <div class="flex-1 min-w-[160px]">
                 <Input
                   v-model="tokenValues[token]"
                   :label="`${crmContractTokenLabel(token)} (${token})`"

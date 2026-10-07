@@ -20,7 +20,15 @@ const { t } = useI18n();
 // que aqui sao <select> em vez de <Input>, pra letra nao ficar diferente.
 const FIELD_LABEL_CLASS = 'flex flex-col gap-1 text-heading-3 text-n-slate-12';
 const SELECT_CLASS =
-  'h-8 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none';
+  'h-8 w-full px-2 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none';
+const CARD_CLASS =
+  'flex flex-col gap-4 p-4 sm:p-5 mb-6 rounded-xl border border-n-weak bg-n-solid-2 shadow-sm';
+// Campos "mais curtos" (CEP, numero, celular...) usam largura fluida com um
+// teto maximo - ficam curtos quando ha espaco de sobra (grid com varias
+// colunas) e ocupam a linha toda no mobile (grid de 1 coluna), em vez de uma
+// largura fixa que nao encolhe/estica com a tela.
+const SHORT_FIELD_CLASS = 'w-full max-w-28';
+const MEDIUM_FIELD_CLASS = 'w-full max-w-36';
 
 // UF -> lista de cidades (API do IBGE) - cache compartilhado pelos 3
 // contextos de UF/Cidade desta tela (cliente, representante no cadastro e
@@ -248,31 +256,31 @@ onMounted(fetchClients);
 </script>
 
 <template>
-  <div class="flex-1 overflow-auto p-4">
+  <div class="flex-1 overflow-y-auto p-4 sm:p-6">
     <ReportHeader :header-title="t('CRM.CLIENTS.HEADER')" />
-    <p class="mb-4 text-sm text-n-slate-11">
+    <p class="mb-5 text-sm text-n-slate-11 max-w-3xl">
       {{ t('CRM.CLIENTS.DESCRIPTION') }}
     </p>
 
-    <div class="flex items-center justify-between gap-3 mb-4">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5"
+    >
       <Input
         v-model="searchQuery"
         :placeholder="t('CRM.CLIENTS.SEARCH')"
-        class="max-w-xs"
+        class="w-full sm:max-w-xs"
         @keyup.enter="fetchClients"
       />
       <Button
+        class="w-full sm:w-auto"
         :label="t('CRM.CLIENTS.NEW')"
         icon="i-lucide-plus"
         @click="openNew"
       />
     </div>
 
-    <div
-      v-if="isFormOpen"
-      class="flex flex-col gap-3 p-4 mb-4 rounded-xl border border-n-weak bg-n-solid-2"
-    >
-      <div class="grid grid-cols-2 gap-3">
+    <div v-if="isFormOpen" :class="CARD_CLASS">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Input v-model="form.name" :label="t('CRM.CLIENTS.FIELDS.NAME')" />
         <Input v-model="form.cnpj" :label="t('CRM.CLIENTS.FIELDS.CNPJ')" />
         <Input
@@ -297,7 +305,10 @@ onMounted(fetchClients);
         {{ showContractData ? '▲' : '▼' }}
       </button>
 
-      <div v-if="showContractData" class="grid grid-cols-3 gap-3">
+      <div
+        v-if="showContractData"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+      >
         <Input
           v-model="form.trade_name"
           :label="t('CRM.CLIENTS.FIELDS.TRADE_NAME')"
@@ -313,7 +324,7 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_STREET')"
           size="sm"
         />
-        <div class="w-24">
+        <div :class="SHORT_FIELD_CLASS">
           <Input
             v-model="form.address_number"
             :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')"
@@ -330,8 +341,8 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex gap-3">
-          <div class="w-24">
+        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap gap-3">
+          <div :class="SHORT_FIELD_CLASS">
             <label :class="FIELD_LABEL_CLASS">
               {{ t('CRM.CLIENTS.FIELDS.STATE') }}
               <select v-model="form.state" :class="SELECT_CLASS">
@@ -346,7 +357,7 @@ onMounted(fetchClients);
               </select>
             </label>
           </div>
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-[160px]">
             <Input
               v-model="form.city"
               :label="t('CRM.CLIENTS.FIELDS.CITY')"
@@ -355,7 +366,7 @@ onMounted(fetchClients);
             />
           </div>
         </div>
-        <div class="w-28">
+        <div :class="SHORT_FIELD_CLASS">
           <Input
             v-model="form.zip_code"
             :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')"
@@ -378,14 +389,14 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
           size="sm"
         />
-        <div class="w-32">
+        <div :class="MEDIUM_FIELD_CLASS">
           <Input
             v-model="representativePhoneMasked"
             :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
             size="sm"
           />
         </div>
-        <div class="w-32">
+        <div :class="MEDIUM_FIELD_CLASS">
           <Input
             v-model="representativeMobileMasked"
             :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
@@ -397,7 +408,7 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
           size="sm"
         />
-        <div class="w-24">
+        <div :class="SHORT_FIELD_CLASS">
           <Input
             v-model="form.representative_address_number"
             :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
@@ -414,8 +425,8 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex gap-3">
-          <div class="w-24">
+        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap gap-3">
+          <div :class="SHORT_FIELD_CLASS">
             <label :class="FIELD_LABEL_CLASS">
               {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
               <select v-model="form.representative_state" :class="SELECT_CLASS">
@@ -430,7 +441,7 @@ onMounted(fetchClients);
               </select>
             </label>
           </div>
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-[160px]">
             <Input
               v-model="form.representative_city"
               :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
@@ -439,7 +450,7 @@ onMounted(fetchClients);
             />
           </div>
         </div>
-        <div class="w-28">
+        <div :class="SHORT_FIELD_CLASS">
           <Input
             v-model="form.representative_zip_code"
             :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
@@ -478,7 +489,7 @@ onMounted(fetchClients);
         <div
           v-for="(representative, index) in form.extra_representatives"
           :key="index"
-          class="grid grid-cols-[2fr_1fr_1fr_1fr_2fr_auto] gap-2 items-end"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_2fr_auto] gap-3 items-end p-3 rounded-lg bg-n-alpha-1 lg:bg-transparent lg:p-0"
         >
           <Input
             v-model="representative.name"
@@ -532,7 +543,7 @@ onMounted(fetchClients);
 
     <div
       v-if="representativeChangeClient"
-      class="flex flex-col gap-3 p-4 mb-4 rounded-xl border border-n-amber-6 bg-n-amber-2"
+      class="flex flex-col gap-4 p-4 sm:p-5 mb-6 rounded-xl border border-n-amber-6 bg-n-amber-2"
     >
       <div class="flex flex-col gap-1">
         <span class="text-sm font-medium text-n-slate-12">
@@ -547,7 +558,7 @@ onMounted(fetchClients);
         </p>
       </div>
 
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Input
           v-model="representativeForm.representative_name"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NAME')"
@@ -564,14 +575,14 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_BIRTH_DATE')"
           size="sm"
         />
-        <div class="w-32">
+        <div :class="MEDIUM_FIELD_CLASS">
           <Input
             v-model="repChangePhoneMasked"
             :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
             size="sm"
           />
         </div>
-        <div class="w-32">
+        <div :class="MEDIUM_FIELD_CLASS">
           <Input
             v-model="repChangeMobileMasked"
             :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
@@ -583,7 +594,7 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_STREET')"
           size="sm"
         />
-        <div class="w-24">
+        <div :class="SHORT_FIELD_CLASS">
           <Input
             v-model="representativeForm.representative_address_number"
             :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
@@ -600,8 +611,8 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex gap-3">
-          <div class="w-24">
+        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap gap-3">
+          <div :class="SHORT_FIELD_CLASS">
             <label :class="FIELD_LABEL_CLASS">
               {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
               <select
@@ -619,7 +630,7 @@ onMounted(fetchClients);
               </select>
             </label>
           </div>
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-[160px]">
             <Input
               v-model="representativeForm.representative_city"
               :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
@@ -628,7 +639,7 @@ onMounted(fetchClients);
             />
           </div>
         </div>
-        <div class="w-28">
+        <div :class="SHORT_FIELD_CLASS">
           <Input
             v-model="representativeForm.representative_zip_code"
             :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
@@ -665,43 +676,57 @@ onMounted(fetchClients);
       {{ t('CRM.CLIENTS.EMPTY') }}
     </p>
 
-    <table v-else class="w-full text-sm">
-      <thead>
-        <tr class="text-left text-n-slate-11 border-b border-n-weak">
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.NAME') }}</th>
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.CNPJ') }}</th>
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.CONTACT') }}</th>
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.PHONE') }}</th>
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.ACTIONS') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="client in clients"
-          :key="client.id"
-          class="border-b border-n-weak"
-        >
-          <td class="py-2 font-medium text-n-slate-12">{{ client.name }}</td>
-          <td class="py-2">{{ client.cnpj }}</td>
-          <td class="py-2">{{ client.contact_name }}</td>
-          <td class="py-2">{{ client.phone }}</td>
-          <td class="py-2">
-            <button class="mr-3 text-n-brand" @click="openEdit(client)">
-              <i class="i-lucide-pencil size-4" />
-            </button>
-            <button
-              class="mr-3 text-n-slate-11"
-              :title="t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.BUTTON')"
-              @click="openChangeRepresentative(client)"
-            >
-              <i class="i-lucide-user-cog size-4" />
-            </button>
-            <button class="text-n-ruby-9" @click="remove(client)">
-              <i class="i-lucide-trash-2 size-4" />
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="overflow-x-auto rounded-xl border border-n-weak">
+      <table class="w-full min-w-[640px] text-sm bg-n-solid-2">
+        <thead class="border-b border-n-weak bg-n-alpha-1">
+          <tr class="text-left text-n-slate-11">
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.NAME') }}
+            </th>
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.CNPJ') }}
+            </th>
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.CONTACT') }}
+            </th>
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.PHONE') }}
+            </th>
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.ACTIONS') }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="client in clients"
+            :key="client.id"
+            class="border-b border-n-weak last:border-0 hover:bg-n-alpha-1"
+          >
+            <td class="py-2.5 px-3 font-medium text-n-slate-12">
+              {{ client.name }}
+            </td>
+            <td class="py-2.5 px-3">{{ client.cnpj }}</td>
+            <td class="py-2.5 px-3">{{ client.contact_name }}</td>
+            <td class="py-2.5 px-3">{{ client.phone }}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap">
+              <button class="mr-3 text-n-brand" @click="openEdit(client)">
+                <i class="i-lucide-pencil size-4" />
+              </button>
+              <button
+                class="mr-3 text-n-slate-11"
+                :title="t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.BUTTON')"
+                @click="openChangeRepresentative(client)"
+              >
+                <i class="i-lucide-user-cog size-4" />
+              </button>
+              <button class="text-n-ruby-9" @click="remove(client)">
+                <i class="i-lucide-trash-2 size-4" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
