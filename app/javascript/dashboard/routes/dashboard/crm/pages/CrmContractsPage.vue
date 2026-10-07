@@ -31,6 +31,10 @@ const { t } = useI18n();
 
 const SELECT_CLASS =
   'h-9 w-full px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none';
+// Mesma tipografia do label do componente `Input` (`text-heading-3
+// text-n-slate-12`) - sem isto, os campos com `<select>`/checkbox ficavam
+// com letra menor e mais clara que os campos de texto ao lado.
+const FIELD_LABEL_CLASS = 'flex flex-col gap-1.5 text-heading-3 text-n-slate-12';
 const CARD_CLASS =
   'p-4 sm:p-5 mb-6 rounded-xl border border-n-weak bg-n-solid-2 shadow-sm';
 const TABLE_HEAD_CLASS =
@@ -150,8 +154,14 @@ const removeTemplate = async template => {
 const onSelectTemplate = () => {
   tokenValues.value = {};
   editableTokens.value.forEach(token => {
-    tokenValues.value[token] = '';
+    // O checkbox nao tem estado "em branco" - sem isto o campo nasceria
+    // marcado so' porque `tokenValues[token]` veio vazio (falsy).
+    tokenValues.value[token] = isYesNoToken(token) ? 'Não' : '';
   });
+};
+
+const toggleYesNo = (token, checked) => {
+  tokenValues.value[token] = checked ? 'Sim' : 'Não';
 };
 
 const generate = async () => {
@@ -326,7 +336,7 @@ onMounted(fetchAll);
       </h3>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-        <label class="flex flex-col gap-1.5 text-xs font-medium text-n-slate-11">
+        <label :class="FIELD_LABEL_CLASS">
           {{ t('CRM.CONTRACTS.GENERATE.TEMPLATE') }}
           <select
             v-model="selectedTemplateId"
@@ -343,7 +353,7 @@ onMounted(fetchAll);
             </option>
           </select>
         </label>
-        <label class="flex flex-col gap-1.5 text-xs font-medium text-n-slate-11">
+        <label :class="FIELD_LABEL_CLASS">
           {{ t('CRM.CONTRACTS.GENERATE.CLIENT') }}
           <select v-model="selectedClientId" :class="SELECT_CLASS">
             <option value="" disabled>-</option>
@@ -356,7 +366,7 @@ onMounted(fetchAll);
             </option>
           </select>
         </label>
-        <label class="flex flex-col gap-1.5 text-xs font-medium text-n-slate-11">
+        <label :class="FIELD_LABEL_CLASS">
           {{ t('CRM.CONTRACTS.GENERATE.SALE') }}
           <select v-model="selectedSaleId" :class="SELECT_CLASS">
             <option value="">-</option>
@@ -387,23 +397,27 @@ onMounted(fetchAll);
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           <div v-for="token in editableTokens" :key="token" class="min-w-0">
-            <template v-if="isYesNoToken(token)">
-              <label class="flex flex-col gap-1.5 text-xs font-medium text-n-slate-11">
-                {{ `${crmContractTokenLabel(token)} (${token})` }}
-                <select v-model="tokenValues[token]" :class="SELECT_CLASS">
-                  <option value="">-</option>
-                  <option value="Sim">
-                    {{ t('CRM.CONTRACTS.GENERATE.YES') }}
-                  </option>
-                  <option value="Não">
-                    {{ t('CRM.CONTRACTS.GENERATE.NO') }}
-                  </option>
-                </select>
+            <div v-if="isYesNoToken(token)" class="flex flex-col gap-1.5">
+              <span :class="FIELD_LABEL_CLASS">{{
+                `${crmContractTokenLabel(token)} (${token})`
+              }}</span>
+              <label class="flex items-center gap-2 h-9 text-sm text-n-slate-12 cursor-pointer">
+                <input
+                  type="checkbox"
+                  class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
+                  :checked="tokenValues[token] === 'Sim'"
+                  @change="toggleYesNo(token, $event.target.checked)"
+                />
+                {{
+                  tokenValues[token] === 'Sim'
+                    ? t('CRM.CONTRACTS.GENERATE.YES')
+                    : t('CRM.CONTRACTS.GENERATE.NO')
+                }}
               </label>
-            </template>
+            </div>
             <label
               v-else-if="isDateToken(token)"
-              class="flex flex-col gap-1.5 text-xs font-medium text-n-slate-11"
+              :class="FIELD_LABEL_CLASS"
             >
               {{ `${crmContractTokenLabel(token)} (${token})` }}
               <input
