@@ -11,25 +11,20 @@ import CrmClientsAPI from 'dashboard/api/crmClients';
 import ReportHeader from '../../settings/reports/components/ReportHeader.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
-import { BRAZIL_STATES, fetchCitiesByUf } from '../brazilLocations';
+import Select from 'dashboard/components-next/select/Select.vue';
+import { BRAZIL_STATE_OPTIONS, fetchCitiesByUf } from '../brazilLocations';
 import { formatBrPhone } from '../crmPhoneMask';
 
 const { t } = useI18n();
 
-// Mesma tipografia do label do componente `Input` - usado nos poucos campos
-// que aqui sao <select> em vez de <Input>, pra letra nao ficar diferente.
-const FIELD_LABEL_CLASS = 'flex flex-col gap-1 text-heading-3 text-n-slate-12';
-const SELECT_CLASS =
-  'h-8 w-full px-2 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none';
+// Mesmo espacamento/tipografia do rotulo do componente `Input` - usado nos
+// poucos campos que aqui sao `Select` em vez de `Input` (o `Select` do
+// design system nao tem rotulo embutido), pra ficar com a letra igual as
+// demais.
+const FIELD_WRAPPER_CLASS = 'flex flex-col min-w-0 gap-1';
+const FIELD_LABEL_CLASS = 'mb-0.5 text-heading-3 text-n-slate-12';
 const CARD_CLASS =
   'flex flex-col gap-4 p-4 sm:p-5 mb-6 rounded-xl border border-n-weak bg-n-solid-2 shadow-sm';
-// Campos "mais curtos" (CEP, numero, celular...) encurtam so' a CAIXA do
-// campo (via `custom-input-class` do `Input`) - nunca o bloco label+campo
-// inteiro, porque varios desses labels sao longos ("Numero do endereco do
-// representante") e quebrariam em 3-4 linhas se o bloco todo fosse estreito,
-// desalinhando a grade toda.
-const SHORT_INPUT_CLASS = 'max-w-28';
-const MEDIUM_INPUT_CLASS = 'max-w-36';
 
 // UF -> lista de cidades (API do IBGE) - cache compartilhado pelos 3
 // contextos de UF/Cidade desta tela (cliente, representante no cadastro e
@@ -329,7 +324,6 @@ onMounted(fetchClients);
           v-model="form.address_number"
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NUMBER')"
           size="sm"
-          :custom-input-class="SHORT_INPUT_CLASS"
         />
         <Input
           v-model="form.address_complement"
@@ -341,34 +335,22 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap sm:items-start gap-3">
-          <label :class="FIELD_LABEL_CLASS">
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
             {{ t('CRM.CLIENTS.FIELDS.STATE') }}
-            <select v-model="form.state" :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`">
-              <option value="">-</option>
-              <option
-                v-for="estado in BRAZIL_STATES"
-                :key="estado.uf"
-                :value="estado.uf"
-              >
-                {{ estado.uf }}
-              </option>
-            </select>
-          </label>
-          <div class="flex-1 min-w-[160px]">
-            <Input
-              v-model="form.city"
-              :label="t('CRM.CLIENTS.FIELDS.CITY')"
-              size="sm"
-              list="crm-client-cities"
-            />
-          </div>
+          </span>
+          <Select v-model="form.state" :options="BRAZIL_STATE_OPTIONS" placeholder="-" />
         </div>
+        <Input
+          v-model="form.city"
+          :label="t('CRM.CLIENTS.FIELDS.CITY')"
+          size="sm"
+          list="crm-client-cities"
+        />
         <Input
           v-model="form.zip_code"
           :label="t('CRM.CLIENTS.FIELDS.ZIP_CODE')"
           size="sm"
-          :custom-input-class="SHORT_INPUT_CLASS"
         />
         <Input
           v-model="form.representative_name"
@@ -390,13 +372,11 @@ onMounted(fetchClients);
           v-model="representativePhoneMasked"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
           size="sm"
-          :custom-input-class="MEDIUM_INPUT_CLASS"
         />
         <Input
           v-model="representativeMobileMasked"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
           size="sm"
-          :custom-input-class="MEDIUM_INPUT_CLASS"
         />
         <Input
           v-model="form.representative_address_street"
@@ -407,7 +387,6 @@ onMounted(fetchClients);
           v-model="form.representative_address_number"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
           size="sm"
-          :custom-input-class="SHORT_INPUT_CLASS"
         />
         <Input
           v-model="form.representative_address_complement"
@@ -419,37 +398,26 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap sm:items-start gap-3">
-          <label :class="FIELD_LABEL_CLASS">
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
             {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
-            <select
-              v-model="form.representative_state"
-              :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
-            >
-              <option value="">-</option>
-              <option
-                v-for="estado in BRAZIL_STATES"
-                :key="estado.uf"
-                :value="estado.uf"
-              >
-                {{ estado.uf }}
-              </option>
-            </select>
-          </label>
-          <div class="flex-1 min-w-[160px]">
-            <Input
-              v-model="form.representative_city"
-              :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
-              size="sm"
-              list="crm-representative-cities"
-            />
-          </div>
+          </span>
+          <Select
+            v-model="form.representative_state"
+            :options="BRAZIL_STATE_OPTIONS"
+            placeholder="-"
+          />
         </div>
+        <Input
+          v-model="form.representative_city"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
+          size="sm"
+          list="crm-representative-cities"
+        />
         <Input
           v-model="form.representative_zip_code"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
           size="sm"
-          :custom-input-class="SHORT_INPUT_CLASS"
         />
       </div>
 
@@ -573,13 +541,11 @@ onMounted(fetchClients);
           v-model="repChangePhoneMasked"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
           size="sm"
-          :custom-input-class="MEDIUM_INPUT_CLASS"
         />
         <Input
           v-model="repChangeMobileMasked"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
           size="sm"
-          :custom-input-class="MEDIUM_INPUT_CLASS"
         />
         <Input
           v-model="representativeForm.representative_address_street"
@@ -590,7 +556,6 @@ onMounted(fetchClients);
           v-model="representativeForm.representative_address_number"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ADDRESS_NUMBER')"
           size="sm"
-          :custom-input-class="SHORT_INPUT_CLASS"
         />
         <Input
           v-model="representativeForm.representative_address_complement"
@@ -602,37 +567,26 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
-        <div class="sm:col-span-2 flex flex-wrap sm:flex-nowrap sm:items-start gap-3">
-          <label :class="FIELD_LABEL_CLASS">
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
             {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
-            <select
-              v-model="representativeForm.representative_state"
-              :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
-            >
-              <option value="">-</option>
-              <option
-                v-for="estado in BRAZIL_STATES"
-                :key="estado.uf"
-                :value="estado.uf"
-              >
-                {{ estado.uf }}
-              </option>
-            </select>
-          </label>
-          <div class="flex-1 min-w-[160px]">
-            <Input
-              v-model="representativeForm.representative_city"
-              :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
-              size="sm"
-              list="crm-repchange-cities"
-            />
-          </div>
+          </span>
+          <Select
+            v-model="representativeForm.representative_state"
+            :options="BRAZIL_STATE_OPTIONS"
+            placeholder="-"
+          />
         </div>
+        <Input
+          v-model="representativeForm.representative_city"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
+          size="sm"
+          list="crm-repchange-cities"
+        />
         <Input
           v-model="representativeForm.representative_zip_code"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_ZIP_CODE')"
           size="sm"
-          :custom-input-class="SHORT_INPUT_CLASS"
         />
       </div>
 

@@ -18,9 +18,10 @@ import CrmSalesAPI from 'dashboard/api/crmSales';
 import ReportHeader from '../../settings/reports/components/ReportHeader.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
+import Select from 'dashboard/components-next/select/Select.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import { CRM_CONTRACT_TOKEN_HELP } from '../crmContractTokenHelp';
-import { BRAZIL_STATES, fetchCitiesByUf } from '../brazilLocations';
+import { BRAZIL_STATE_OPTIONS, fetchCitiesByUf } from '../brazilLocations';
 import { formatBrPhone } from '../crmPhoneMask';
 import {
   crmContractTokenLabel,
@@ -29,13 +30,16 @@ import {
   CRM_YES_NO_TOKEN_KEYS,
 } from '../crmContractTokenLabels';
 
-// Tokens que recebem um <select> com opcoes fixas em vez de texto livre.
+// Tokens que recebem um `Select` com opcoes fixas em vez de texto livre.
 const CRM_SELECT_TOKEN_OPTIONS = {
-  tipo_licenca: ['Anual', 'Mensal'],
+  tipo_licenca: [
+    { value: 'Anual', label: 'Anual' },
+    { value: 'Mensal', label: 'Mensal' },
+  ],
 };
 const isSelectToken = token => token in CRM_SELECT_TOKEN_OPTIONS;
 
-// Tokens de UF - vira <select> com as 27 UFs, e ao escolher carrega as
+// Tokens de UF - vira `Select` com as 27 UFs, e ao escolher carrega as
 // cidades daquela UF pro token de cidade correspondente (mesmo par
 // cliente_uf/cliente_cidade ou representante_uf/representante_cidade).
 const CRM_STATE_TOKEN_KEYS = ['cliente_uf', 'representante_uf'];
@@ -53,7 +57,10 @@ const isPhoneToken = token =>
   CRM_MOBILE_TOKEN_KEYS.includes(token) || CRM_PHONE_TOKEN_KEYS.includes(token);
 
 // Tokens que ficam visualmente mais curtos (CEP, numero, quantidades) -
-// alguns ainda ganham um texto fixo do lado (dias, R$, R$/h).
+// alguns ainda ganham um texto fixo do lado (dias, R$, R$/h). So' a CAIXA do
+// campo encolhe (`custom-input-class`); o rotulo sempre usa a largura normal
+// da coluna - varios desses rotulos incluem o nome do token entre
+// parenteses e quebrariam em varias linhas se o bloco todo fosse estreito.
 const CRM_SHORT_TOKEN_KEYS = [
   'cliente_cep',
   'representante_cep',
@@ -67,14 +74,13 @@ const CRM_SHORT_TOKEN_KEYS = [
   'valor_km',
   'valor_licenca',
   'vl_hr_add',
-  ...CRM_MOBILE_TOKEN_KEYS,
-  ...CRM_PHONE_TOKEN_KEYS,
 ];
 const isShortToken = token => CRM_SHORT_TOKEN_KEYS.includes(token);
+const SHORT_INPUT_CLASS = 'max-w-36';
 
 const CRM_TOKEN_SUFFIX = {
-  impl_prazo: '| dias',
-  prazo_licenca: '| dias',
+  impl_prazo: 'dias',
+  prazo_licenca: 'dias',
   impl_valor: 'R$',
   valor_km: 'R$',
   valor_licenca: 'R$',
@@ -91,12 +97,12 @@ const cityStateToken = token =>
 
 const { t } = useI18n();
 
-const SELECT_CLASS =
-  'h-9 w-full px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none';
-// Mesma tipografia do label do componente `Input` (`text-heading-3
-// text-n-slate-12`) - sem isto, os campos com `<select>`/checkbox ficavam
-// com letra menor e mais clara que os campos de texto ao lado.
-const FIELD_LABEL_CLASS = 'flex flex-col gap-1.5 text-heading-3 text-n-slate-12';
+// Mesmo espacamento/tipografia do rotulo do componente `Input` - usado nos
+// poucos campos que aqui sao `Select` em vez de `Input` (o `Select` do
+// design system nao tem rotulo embutido), pra ficar com a letra igual as
+// demais.
+const FIELD_WRAPPER_CLASS = 'flex flex-col min-w-0 gap-1';
+const FIELD_LABEL_CLASS = 'mb-0.5 text-heading-3 text-n-slate-12';
 const CARD_CLASS =
   'p-4 sm:p-5 mb-6 rounded-xl border border-n-weak bg-n-solid-2 shadow-sm';
 const TABLE_HEAD_CLASS =
@@ -124,6 +130,13 @@ const tokenValues = ref({});
 const isGenerating = ref(false);
 const generationError = ref('');
 
+const templateOptions = computed(() =>
+  templates.value.map(tmpl => ({ value: tmpl.id, label: tmpl.name }))
+);
+const clientOptions = computed(() =>
+  clients.value.map(client => ({ value: client.id, label: client.name }))
+);
+
 const selectedTemplate = computed(() =>
   templates.value.find(tmpl => tmpl.id === Number(selectedTemplateId.value))
 );
@@ -132,6 +145,9 @@ const clientSales = computed(() =>
   sales.value.filter(
     sale => sale.crm_client_id === Number(selectedClientId.value)
   )
+);
+const saleOptions = computed(() =>
+  clientSales.value.map(sale => ({ value: sale.id, label: sale.competencia }))
 );
 
 const selectedClientExtraRepresentatives = computed(() => {
@@ -152,31 +168,6 @@ const editableTokens = computed(() =>
 
 const isYesNoToken = token => CRM_YES_NO_TOKEN_KEYS.includes(token);
 const isDateToken = token => CRM_DATE_TOKEN_KEYS.includes(token);
-
-// So' tira o token de UF da grade quando o par (UF + Cidade) existe nos dois
-// no mesmo modelo - sem isto, um [[cliente_uf]] sozinho (sem [[cliente_cidade]])
-// desapareceria do formulario.
-const pairedStateTokens = computed(() =>
-  CRM_STATE_TOKEN_KEYS.filter(
-    stateToken =>
-      editableTokens.value.includes(stateToken) &&
-      editableTokens.value.includes(CRM_STATE_TO_CITY_TOKEN[stateToken])
-  )
-);
-const visibleTokens = computed(() =>
-  editableTokens.value.filter(
-    token => !pairedStateTokens.value.includes(token)
-  )
-);
-// O "campo mais curto" encurta so' a CAIXA do campo, nunca o bloco
-// label+campo inteiro - se a largura do bloco todo fosse limitada, o rotulo
-// (que aqui inclui o nome do token entre parenteses, bem mais longo que um
-// label comum) quebraria em 3-4 linhas e desalinhava a grade toda. Por isso
-// o item da grade sempre usa a largura normal da coluna; so' a caixa do
-// input/select e que ganha um teto de largura (ver `SHORT_INPUT_CLASS`).
-const itemWrapperClass = token =>
-  isCityToken(token) ? 'sm:col-span-2 min-w-0' : 'min-w-0';
-const SHORT_INPUT_CLASS = 'max-w-36';
 
 // O seletor de data devolve aaaa-mm-dd; o contrato precisa de dd/mm/aaaa.
 const toContractDate = value => {
@@ -265,6 +256,9 @@ const onSelectTemplate = () => {
     tokenValues.value[token] = isYesNoToken(token) ? 'Sim' : '';
   });
 };
+// `Select` so' tem v-model (sem @change) - o reset dos campos do modelo
+// dispara sozinho sempre que a pessoa troca de modelo.
+watch(selectedTemplateId, onSelectTemplate);
 
 const setYesNo = (token, value) => {
   tokenValues.value[token] = value;
@@ -442,45 +436,36 @@ onMounted(fetchAll);
       </h3>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-        <label :class="FIELD_LABEL_CLASS">
-          {{ t('CRM.CONTRACTS.GENERATE.TEMPLATE') }}
-          <select
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CONTRACTS.GENERATE.TEMPLATE') }}
+          </span>
+          <Select
             v-model="selectedTemplateId"
-            :class="SELECT_CLASS"
-            @change="onSelectTemplate"
-          >
-            <option value="" disabled>-</option>
-            <option
-              v-for="template in templates"
-              :key="template.id"
-              :value="template.id"
-            >
-              {{ template.name }}
-            </option>
-          </select>
-        </label>
-        <label :class="FIELD_LABEL_CLASS">
-          {{ t('CRM.CONTRACTS.GENERATE.CLIENT') }}
-          <select v-model="selectedClientId" :class="SELECT_CLASS">
-            <option value="" disabled>-</option>
-            <option
-              v-for="client in clients"
-              :key="client.id"
-              :value="client.id"
-            >
-              {{ client.name }}
-            </option>
-          </select>
-        </label>
-        <label :class="FIELD_LABEL_CLASS">
-          {{ t('CRM.CONTRACTS.GENERATE.SALE') }}
-          <select v-model="selectedSaleId" :class="SELECT_CLASS">
-            <option value="">-</option>
-            <option v-for="sale in clientSales" :key="sale.id" :value="sale.id">
-              {{ sale.competencia }}
-            </option>
-          </select>
-        </label>
+            :options="templateOptions"
+            placeholder="-"
+          />
+        </div>
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CONTRACTS.GENERATE.CLIENT') }}
+          </span>
+          <Select
+            v-model="selectedClientId"
+            :options="clientOptions"
+            placeholder="-"
+          />
+        </div>
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CONTRACTS.GENERATE.SALE') }}
+          </span>
+          <Select
+            v-model="selectedSaleId"
+            :options="saleOptions"
+            placeholder="-"
+          />
+        </div>
       </div>
 
       <p
@@ -502,11 +487,7 @@ onMounted(fetchAll);
           {{ t('CRM.CONTRACTS.GENERATE.LOCKED_FIELDS_HINT') }}
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          <div
-            v-for="token in visibleTokens"
-            :key="token"
-            :class="itemWrapperClass(token)"
-          >
+          <div v-for="token in editableTokens" :key="token" class="min-w-0">
             <div v-if="isYesNoToken(token)" class="flex flex-col gap-1.5">
               <span :class="FIELD_LABEL_CLASS">{{
                 `${crmContractTokenLabel(token)} (${token})`
@@ -532,115 +513,71 @@ onMounted(fetchAll);
                 </label>
               </div>
             </div>
-            <label
+            <Input
               v-else-if="isDateToken(token)"
-              :class="FIELD_LABEL_CLASS"
-            >
-              {{ `${crmContractTokenLabel(token)} (${token})` }}
-              <input
+              v-model="tokenValues[token]"
+              type="date"
+              :label="`${crmContractTokenLabel(token)} (${token})`"
+              size="sm"
+            />
+            <div v-else-if="isSelectToken(token)" :class="FIELD_WRAPPER_CLASS">
+              <span :class="FIELD_LABEL_CLASS">
+                {{ `${crmContractTokenLabel(token)} (${token})` }}
+              </span>
+              <Select
                 v-model="tokenValues[token]"
-                type="date"
-                :class="SELECT_CLASS"
+                :options="CRM_SELECT_TOKEN_OPTIONS[token]"
+                placeholder="-"
               />
-            </label>
-            <label v-else-if="isSelectToken(token)" :class="FIELD_LABEL_CLASS">
-              {{ `${crmContractTokenLabel(token)} (${token})` }}
-              <select
+            </div>
+            <div v-else-if="isStateToken(token)" :class="FIELD_WRAPPER_CLASS">
+              <span :class="FIELD_LABEL_CLASS">
+                {{ `${crmContractTokenLabel(token)} (${token})` }}
+              </span>
+              <Select
                 v-model="tokenValues[token]"
-                :class="`${SELECT_CLASS} max-w-48`"
-              >
-                <option value="">-</option>
-                <option
-                  v-for="opcao in CRM_SELECT_TOKEN_OPTIONS[token]"
-                  :key="opcao"
-                  :value="opcao"
-                >
-                  {{ opcao }}
-                </option>
-              </select>
-            </label>
-            <label v-else-if="isStateToken(token)" :class="FIELD_LABEL_CLASS">
-              {{ `${crmContractTokenLabel(token)} (${token})` }}
-              <select
+                :options="BRAZIL_STATE_OPTIONS"
+                placeholder="-"
+              />
+            </div>
+            <div v-else-if="isCityToken(token)">
+              <Input
                 v-model="tokenValues[token]"
-                :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
-              >
-                <option value="">-</option>
+                :label="`${crmContractTokenLabel(token)} (${token})`"
+                size="sm"
+                :list="`crm-contract-cities-${token}`"
+              />
+              <datalist :id="`crm-contract-cities-${token}`">
                 <option
-                  v-for="estado in BRAZIL_STATES"
-                  :key="estado.uf"
-                  :value="estado.uf"
-                >
-                  {{ estado.uf }}
-                </option>
-              </select>
-            </label>
-            <!--
-              UF + Cidade lado a lado - o rotulo da UF nunca fica dentro de
-              uma caixa estreita (senao quebra em varias linhas); so' a caixa
-              do <select> em si e' que fica curta.
-            -->
-            <div
-              v-else-if="isCityToken(token)"
-              class="flex flex-wrap sm:flex-nowrap sm:items-start gap-3"
-            >
-              <label
-                v-if="pairedStateTokens.includes(cityStateToken(token))"
-                :class="FIELD_LABEL_CLASS"
-              >
-                {{ crmContractTokenLabel(cityStateToken(token)) }}
-                <select
-                  v-model="tokenValues[cityStateToken(token)]"
-                  :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
-                >
-                  <option value="">-</option>
-                  <option
-                    v-for="estado in BRAZIL_STATES"
-                    :key="estado.uf"
-                    :value="estado.uf"
-                  >
-                    {{ estado.uf }}
-                  </option>
-                </select>
-              </label>
-              <div class="flex-1 min-w-[160px]">
+                  v-for="cidade in citiesByUf[tokenValues[cityStateToken(token)]] || []"
+                  :key="cidade"
+                  :value="cidade"
+                />
+              </datalist>
+            </div>
+            <Input
+              v-else-if="isPhoneToken(token)"
+              :model-value="tokenValues[token]"
+              :label="`${crmContractTokenLabel(token)} (${token})`"
+              size="sm"
+              :custom-input-class="SHORT_INPUT_CLASS"
+              @update:model-value="value => onPhoneInput(token, value)"
+            />
+            <div v-else-if="tokenSuffix(token)" :class="FIELD_WRAPPER_CLASS">
+              <span :class="FIELD_LABEL_CLASS">
+                {{ `${crmContractTokenLabel(token)} (${token})` }}
+              </span>
+              <div class="flex items-center gap-2">
                 <Input
                   v-model="tokenValues[token]"
-                  :label="`${crmContractTokenLabel(token)} (${token})`"
                   size="sm"
-                  :list="`crm-contract-cities-${token}`"
+                  :custom-input-class="SHORT_INPUT_CLASS"
                 />
-                <datalist :id="`crm-contract-cities-${token}`">
-                  <option
-                    v-for="cidade in citiesByUf[tokenValues[cityStateToken(token)]] || []"
-                    :key="cidade"
-                    :value="cidade"
-                  />
-                </datalist>
-              </div>
-            </div>
-            <label v-else-if="isPhoneToken(token)" :class="FIELD_LABEL_CLASS">
-              {{ `${crmContractTokenLabel(token)} (${token})` }}
-              <input
-                :value="tokenValues[token]"
-                type="text"
-                :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
-                @input="onPhoneInput(token, $event.target.value)"
-              />
-            </label>
-            <label v-else-if="tokenSuffix(token)" :class="FIELD_LABEL_CLASS">
-              {{ `${crmContractTokenLabel(token)} (${token})` }}
-              <div class="flex items-center gap-2">
-                <input
-                  v-model="tokenValues[token]"
-                  type="text"
-                  :class="`${SELECT_CLASS} ${SHORT_INPUT_CLASS}`"
-                />
-                <span class="text-xs text-n-slate-11 whitespace-nowrap">
+                <span class="text-sm text-n-slate-11 whitespace-nowrap">
                   {{ tokenSuffix(token) }}
                 </span>
               </div>
-            </label>
+            </div>
             <Input
               v-else
               v-model="tokenValues[token]"

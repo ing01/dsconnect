@@ -35,6 +35,13 @@ export const BRAZIL_STATES = [
   { uf: 'TO', name: 'Tocantins' },
 ];
 
+// Mesmo formato {value, label} que o componente `Select` do design system
+// espera (`dashboard/components-next/select/Select.vue`).
+export const BRAZIL_STATE_OPTIONS = BRAZIL_STATES.map(({ uf }) => ({
+  value: uf,
+  label: uf,
+}));
+
 // Cache em memoria (dura so' a navegacao na pagina) - evita rebuscar a mesma
 // UF varias vezes quando ela aparece em mais de um campo da tela (cliente e
 // representante, por exemplo).
