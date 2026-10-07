@@ -156,12 +156,12 @@ const onSelectTemplate = () => {
   editableTokens.value.forEach(token => {
     // O checkbox nao tem estado "em branco" - sem isto o campo nasceria
     // marcado so' porque `tokenValues[token]` veio vazio (falsy).
-    tokenValues.value[token] = isYesNoToken(token) ? 'Não' : '';
+    tokenValues.value[token] = isYesNoToken(token) ? 'Sim' : '';
   });
 };
 
-const toggleYesNo = (token, checked) => {
-  tokenValues.value[token] = checked ? 'Sim' : 'Não';
+const setYesNo = (token, value) => {
+  tokenValues.value[token] = value;
 };
 
 const generate = async () => {
@@ -401,19 +401,26 @@ onMounted(fetchAll);
               <span :class="FIELD_LABEL_CLASS">{{
                 `${crmContractTokenLabel(token)} (${token})`
               }}</span>
-              <label class="flex items-center gap-2 h-9 text-sm text-n-slate-12 cursor-pointer">
-                <input
-                  type="checkbox"
-                  class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
-                  :checked="tokenValues[token] === 'Sim'"
-                  @change="toggleYesNo(token, $event.target.checked)"
-                />
-                {{
-                  tokenValues[token] === 'Sim'
-                    ? t('CRM.CONTRACTS.GENERATE.YES')
-                    : t('CRM.CONTRACTS.GENERATE.NO')
-                }}
-              </label>
+              <div class="flex items-center gap-4 h-9">
+                <label class="flex items-center gap-2 text-sm text-n-slate-12 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
+                    :checked="tokenValues[token] === 'Sim'"
+                    @change="setYesNo(token, 'Sim')"
+                  />
+                  {{ t('CRM.CONTRACTS.GENERATE.YES') }}
+                </label>
+                <label class="flex items-center gap-2 text-sm text-n-slate-12 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
+                    :checked="tokenValues[token] === 'Não'"
+                    @change="setYesNo(token, 'Não')"
+                  />
+                  {{ t('CRM.CONTRACTS.GENERATE.NO') }}
+                </label>
+              </div>
             </div>
             <label
               v-else-if="isDateToken(token)"
