@@ -320,8 +320,16 @@ export default {
 
         return fileUrl;
       } catch (error) {
+        // O texto antigo aqui ("Você não está autorizado...") era fixo pra
+        // QUALQUER erro desse upload - CEP/URL invalida, imagem colada que
+        // não é um link de verdade (ex: print direto da área de
+        // transferência), imagem grande demais etc. nunca era de fato uma
+        // falta de permissão. Mostra a mensagem real que o servidor
+        // devolveu (já vem em português) e só cai no texto genérico se não
+        // tiver nenhuma.
         useAlert(
-          this.$t('HELP_CENTER.ARTICLE_EDITOR.IMAGE_UPLOAD.UN_AUTHORIZED_ERROR')
+          error?.response?.data?.error ||
+            this.$t('HELP_CENTER.ARTICLE_EDITOR.IMAGE_UPLOAD.ERROR')
         );
         return '';
       }
