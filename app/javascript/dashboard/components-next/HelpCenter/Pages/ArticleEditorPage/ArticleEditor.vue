@@ -191,6 +191,7 @@ const handleCreateArticle = event => {
         "
         :enabled-menu-options="ARTICLE_EDITOR_MENU_OPTIONS"
         :autofocus="!isNewArticle"
+        full-height
       />
     </template>
   </HelpCenterLayout>

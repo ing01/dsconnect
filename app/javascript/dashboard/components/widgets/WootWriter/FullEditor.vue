@@ -67,6 +67,15 @@ export default {
       type: Boolean,
       default: true,
     },
+    // `.ProseMirror-woot-style` (a caixa de texto editavel em si) tem
+    // max-height: 7.5rem fixo mais abaixo - certo pra caixa de resposta
+    // curta do ticket, mas cortava o editor de Artigo da Central de Ajuda
+    // (texto longo, imagem). O editor de Artigo passa isto pra tirar esse
+    // teto e deixar a caixa crescer com o conteudo de verdade.
+    fullHeight: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['blur', 'input', 'update:modelValue', 'keyup', 'focus', 'keydown'],
   setup() {
@@ -520,7 +529,10 @@ export default {
 
 <template>
   <div>
-    <div class="editor-root editor--article relative">
+    <div
+      class="editor-root editor--article relative"
+      :class="{ 'editor-root--full-height': fullHeight }"
+    >
       <SlashCommandMenu
         v-if="showSlashMenu"
         ref="slashMenu"
@@ -570,6 +582,13 @@ export default {
   min-height: 5rem;
   max-height: 7.5rem;
   overflow: auto;
+}
+
+// Editor de Artigo (Central de Ajuda) - sem teto de altura, a pagina toda
+// (ver `HelpCenterLayout.vue`) e' quem rola, nao uma caixinha por dentro.
+.editor-root--full-height .ProseMirror-woot-style {
+  max-height: none;
+  overflow: visible;
 }
 
 .ProseMirror .cw-embed-preview {
