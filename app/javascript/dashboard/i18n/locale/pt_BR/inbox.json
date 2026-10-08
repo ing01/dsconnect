@@ -38,6 +38,8 @@
       "ASSIGNED_CONVERSATION_NEW_MESSAGE": "Nova Mensagem",
       "INTERNAL_CHAT_MESSAGE": "Chat interno",
       "SUGGESTION_CREATED": "Nova sugestão",
+      "ARTICLE_PUBLISHED": "Novo artigo",
+      "PORTAL_CREATED": "Novo portal",
       "SNOOZED_UNTIL": "Adiado para {time}",
       "SNOOZED_ENDS": "Adiamento encerrado"
     },

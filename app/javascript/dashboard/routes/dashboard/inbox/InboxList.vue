@@ -184,6 +184,13 @@ const destinationFor = notificationItem => {
     };
   }
 
+  // Artigo/Portal tambem tem `id` - sem este desvio, cairia no fallback de
+  // conversa abaixo e abriria uma conversa errada (o id de uma conversa
+  // qualquer, coincidindo por acaso com o id do Artigo/Portal).
+  if (primaryActorType === 'Article' || primaryActorType === 'Portal') {
+    return null;
+  }
+
   const { inboxId, id: conversationId } = primaryActor ?? {};
   if (!conversationId) return null;
 

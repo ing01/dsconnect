@@ -35,6 +35,10 @@ module NotificationTarget
       end
     when 'Suggestion'
       "suggestion_#{primary_actor_id}"
+    when 'Article'
+      "article_#{primary_actor_id}"
+    when 'Portal'
+      "portal_#{primary_actor_id}"
     else
       "conversation_#{primary_actor_id}"
     end
@@ -66,8 +70,26 @@ module NotificationTarget
       end
     when 'Suggestion'
       "/app/accounts/#{account_id}/suggestions"
+    when 'Article'
+      article_target_path
+    when 'Portal'
+      "/app/accounts/#{account_id}/portals/#{primary_actor.slug}/#{primary_actor.default_locale}/articles"
     else
       app_account_conversation_path(account_id: account_id, id: conversation.display_id)
+    end
+  end
+
+  # Com Categoria, a tela de edicao vive debaixo dela; sem Categoria, debaixo
+  # do Portal direto - sao duas rotas diferentes no painel (ver
+  # helpcenter.routes.js: portals_categories_articles_edit / portals_articles_edit).
+  def article_target_path
+    base = "/app/accounts/#{account_id}/portals/#{primary_actor.portal.slug}/#{primary_actor.locale}"
+    category = primary_actor.category
+
+    if category.present?
+      "#{base}/categories/#{category.slug}/articles/#{primary_actor.slug}"
+    else
+      "#{base}/articles/edit/#{primary_actor.slug}"
     end
   end
 

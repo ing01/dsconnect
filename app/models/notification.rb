@@ -59,7 +59,11 @@ class Notification < ApplicationRecord
     suggestion_created: 13,
     # O cliente respondeu num Ticket, pelo Portal - avisa so' o responsavel e
     # os seguidores daquele ticket (ver Tickets::CustomerCommunicationNotificationBuilder).
-    ticket_customer_communication_received: 14
+    ticket_customer_communication_received: 14,
+    # Artigo da Central de Ajuda publicado, ou Portal novo criado - avisa os
+    # colaboradores da conta (ver HelpCenter::ContentNotificationBuilder).
+    article_published: 15,
+    portal_created: 16
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES
@@ -69,7 +73,7 @@ class Notification < ApplicationRecord
   after_destroy_commit :dispatch_destroy_event
   after_update_commit :dispatch_update_event
 
-  PRIMARY_ACTORS = %w[Conversation Project ChatMessage Ticket Suggestion].freeze
+  PRIMARY_ACTORS = %w[Conversation Project ChatMessage Ticket Suggestion Article Portal].freeze
 
   def push_event_data
     # Secondary actor could be nil for cases like system assigning conversation

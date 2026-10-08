@@ -47,6 +47,14 @@ export const NOTIFICATION_TYPES = [
       'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.TICKET_CUSTOMER_COMMUNICATION_RECEIVED',
     value: 'ticket_customer_communication_received',
   },
+  {
+    label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.ARTICLE_PUBLISHED',
+    value: 'article_published',
+  },
+  {
+    label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.PORTAL_CREATED',
+    value: 'portal_created',
+  },
 ];
 
 export const EVENT_TYPES = {

@@ -26,7 +26,9 @@ module NotificationPushContent
       'internal_chat_message' => 'notifications.notification_title.internal_chat_message',
       'ticket_triage_pending' => 'notifications.notification_title.ticket_triage_pending',
       'suggestion_created' => 'notifications.notification_title.suggestion_created',
-      'ticket_customer_communication_received' => 'notifications.notification_title.ticket_customer_communication_received'
+      'ticket_customer_communication_received' => 'notifications.notification_title.ticket_customer_communication_received',
+      'article_published' => 'notifications.notification_title.article_published',
+      'portal_created' => 'notifications.notification_title.portal_created'
     }
 
     i18n_key = internal_chat_title_key || notification_title_map[notification_type]
@@ -71,6 +73,10 @@ module NotificationPushContent
       { display_id: primary_actor.display_id, company_name: primary_actor.company&.name.to_s }
     when 'suggestion_created'
       { user_name: primary_actor.user&.name.to_s }
+    when 'article_published'
+      { article_title: primary_actor.title }
+    when 'portal_created'
+      { portal_name: primary_actor.name }
     else
       # A familia das conversas, mais os SLAs. Chave sobrando e ignorada pela
       # interpolacao, entao um ramo so responde por todas.
@@ -110,7 +116,8 @@ module NotificationPushContent
 
   def message_body_for_non_conversation_type
     return internal_chat_preview if notification_type == 'internal_chat_message'
-    return primary_actor.title if notification_type == 'suggestion_created'
+    return primary_actor.title if %w[suggestion_created article_published].include?(notification_type)
+    return primary_actor.name if notification_type == 'portal_created'
     return ticket_customer_communication_preview if notification_type == 'ticket_customer_communication_received'
 
     ''

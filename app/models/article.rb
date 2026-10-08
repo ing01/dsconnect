@@ -69,6 +69,9 @@ class Article < ApplicationRecord
   # ensuring that the position is always set correctly
   before_create :add_position_to_article
   after_save :category_id_changed_action, if: :saved_change_to_category_id?
+  # So' quando o status VIRA "published" - rascunho e arquivamento nao avisam
+  # ninguem, so' o momento em que o artigo fica visivel pro cliente no Portal.
+  after_update_commit :notify_colaboradores_de_publicacao, if: -> { saved_change_to_status? && published? }
 
   enum status: { draft: 0, published: 1, archived: 2 }
 
@@ -130,6 +133,16 @@ class Article < ApplicationRecord
 
   def draft!
     update(status: :draft)
+  end
+
+  def push_event_data
+    {
+      id: id,
+      title: title,
+      slug: slug,
+      portal_id: portal_id,
+      category_id: category_id
+    }
   end
 
   def increment_view_count
@@ -220,6 +233,10 @@ class Article < ApplicationRecord
 
   def ensure_account_id
     self.account_id = portal&.account_id
+  end
+
+  def notify_colaboradores_de_publicacao
+    HelpCenter::ContentNotificationJob.perform_later('Article', id, 'article_published', author_id)
   end
 
   def ensure_article_slug

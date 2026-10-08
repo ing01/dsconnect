@@ -51,6 +51,12 @@ class Portal < ApplicationRecord
                  schema: PortalConfigSchema::CONFIG_PARAMS_SCHEMA,
                  attribute_resolver: ->(record) { record.config }
 
+  # Avisa os colaboradores que um Portal novo foi criado. `Current.user` so'
+  # existe durante a propria requisicao que criou o Portal (o job roda depois,
+  # numa thread sem isso) - por isso precisa ser lido AQUI e passado como
+  # argumento, nao dentro do job.
+  after_create_commit -> { HelpCenter::ContentNotificationJob.perform_later('Portal', id, 'portal_created', Current.user&.id) }
+
   scope :active, -> { where(archived: false) }
 
   # Analytics id fields and the format each must match. Formats keep values safe to
@@ -82,6 +88,14 @@ class Portal < ApplicationRecord
   # Max number of recommended categories/articles shown per locale.
   POPULAR_CATEGORY_LIMIT = 3
   POPULAR_ARTICLE_LIMIT = 6
+
+  def push_event_data
+    {
+      id: id,
+      name: name,
+      slug: slug
+    }
+  end
 
   def file_base_data
     {
