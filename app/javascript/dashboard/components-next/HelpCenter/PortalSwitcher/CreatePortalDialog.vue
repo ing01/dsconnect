@@ -64,7 +64,7 @@ watch(
 );
 
 const redirectToPortal = portal => {
-  emit('create', { slug: portal.slug, locale: 'en' });
+  emit('create', { slug: portal.slug, locale: 'pt_BR' });
 };
 
 const resetForm = () => {
@@ -110,6 +110,11 @@ const handleDialogConfirm = async () => {
     custom_domain: state.domain,
     blob_id: state.avatarBlobId || null,
     color: '#2781F6', // The default color is set to Chatwoot brand color
+    // O sistema e' sempre em portugues - sem isto, o portal nasceria com
+    // `allowed_locales: ['en']` (o default da coluna `config` no banco) e
+    // toda categoria/artigo criado nele cairia como locale "en" por
+    // tabela, so' corrigivel depois a mao em Configuracoes > Idiomas.
+    config: { default_locale: 'pt_BR', allowed_locales: ['pt_BR'] },
   };
   await createPortal(portal);
 };
