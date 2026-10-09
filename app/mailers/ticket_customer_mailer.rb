@@ -46,12 +46,16 @@ class TicketCustomerMailer < ApplicationMailer
     @sent_at = local_time(communication)
   end
 
-  # The account's own timezone when it has one, so the stamp reads as the hour
-  # the agent saw, not UTC.
+  # O padrao do app e UTC (`config.time_zone` nunca foi definido) - sem uma
+  # conversao aqui, o horario no e-mail sai 3h adiantado do Brasil sempre que
+  # a conta nao tiver `reporting_timezone` configurado (a maioria nao tem; e
+  # opt-in, via rake task). O cliente nao escolhe fuso horario nenhum, entao o
+  # padrao e sempre Brasilia - a conta so' sobrescreve quando tem outro de
+  # verdade.
   def local_time(communication)
     moment = communication.sent_at || Time.zone.now
-    zone = communication.account&.reporting_timezone
-    moment = moment.in_time_zone(zone) if zone.present? && ActiveSupport::TimeZone[zone].present?
+    zone = communication.account&.reporting_timezone.presence || 'America/Sao_Paulo'
+    moment = moment.in_time_zone(zone) if ActiveSupport::TimeZone[zone].present?
     # Formatted here rather than through a locale `time.formats` entry: these
     # files have no such section, and adding one would change how dates render
     # elsewhere.

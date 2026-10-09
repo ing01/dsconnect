@@ -64,8 +64,12 @@ RSpec.describe TicketCustomerMailer do
       expect(body_of(mail)).to include('Realizamos os ajustes necessários.')
     end
 
-    it 'stamps the moment it was sent' do
-      expect(body_of(mail)).to include('26/08/2026 11:01')
+    # `sent_at` e gravado em UTC (padrao do app, `Time.zone` nunca foi
+    # mudado) - 11:01 UTC e 08:01 em Brasilia, o fuso padrao do e-mail
+    # quando a conta nao tem `reporting_timezone` configurado (ver testes
+    # de "the account timezone" abaixo).
+    it 'stamps the moment it was sent, converted to Brasilia' do
+      expect(body_of(mail)).to include('26/08/2026 08:01')
     end
 
     it 'signs off for the company' do
@@ -82,10 +86,14 @@ RSpec.describe TicketCustomerMailer do
         expect(body_of(mail)).to include('26/08/2026 11:01')
       end
 
-      it 'falls back cleanly when the account has none' do
+      # Sem fuso configurado na conta (a maioria nunca configura - e opt-in,
+      # via rake task), o padrao e Brasilia: o cliente nao escolhe fuso
+      # horario nenhum, e UTC cru era exatamente o defeito relatado (horario
+      # do e-mail saindo 3h adiantado do Brasil).
+      it 'defaults to Brasilia time when the account has none configured' do
         communication.update!(sent_at: Time.zone.parse('2026-08-26 14:01 UTC'))
 
-        expect(body_of(mail)).to include('26/08/2026 14:01')
+        expect(body_of(mail)).to include('26/08/2026 11:01')
       end
     end
 
