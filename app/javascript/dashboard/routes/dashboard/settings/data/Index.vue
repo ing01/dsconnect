@@ -77,6 +77,9 @@ const importTypeLabel = dataImport =>
         return t('DATA_IMPORTS.TYPES.CONVERSATIONS');
       }
       if (type === 'clientes') return t('DATA_IMPORTS.TYPES.CLIENTES');
+      if (type === 'solicitantes') {
+        return t('DATA_IMPORTS.TYPES.SOLICITANTES');
+      }
       if (type === 'company_priority') {
         return t('DATA_IMPORTS.TYPES.COMPANY_PRIORITY');
       }
@@ -265,6 +268,16 @@ onBeforeUnmount(() => {
           template-filename="clientes-modelo.xlsx"
         />
         <SpreadsheetImportCard
+          data-type="solicitantes"
+          icon="i-lucide-user-round-plus"
+          :title="$t('DATA_IMPORTS.SPREADSHEETS.SOLICITANTES.TITLE')"
+          :description="$t('DATA_IMPORTS.SPREADSHEETS.SOLICITANTES.DESCRIPTION')"
+          template-url="/downloads/solicitantes-modelo.xlsx"
+          template-filename="solicitantes-modelo.xlsx"
+          result-summary-key="DATA_IMPORTS.SPREADSHEETS.SOLICITANTES.RESULT_SUMMARY"
+          error-count-key="DATA_IMPORTS.SPREADSHEETS.SOLICITANTES.ERROR_COUNT"
+        />
+        <SpreadsheetImportCard
           data-type="service_catalog"
           icon="i-lucide-list-tree"
           :title="$t('DATA_IMPORTS.SPREADSHEETS.SERVICE_CATALOG.TITLE')"
@@ -289,6 +302,8 @@ onBeforeUnmount(() => {
           template-filename="comparativo-cnpj-modelo.xlsx"
           result-summary-key="DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.RESULT_SUMMARY"
           error-count-key="DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.ERROR_COUNT"
+          allow-delete-unmatched
+          allow-delete-duplicates
         />
       </div>
 

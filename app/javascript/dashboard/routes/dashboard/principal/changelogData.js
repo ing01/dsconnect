@@ -26,6 +26,52 @@ export const CHANGELOG_ENTRIES = [
       'A tela de chamados do cliente deixou de mostrar um quadro por Mesa de serviço - agora é uma lista única com todos os chamados de todas as Mesas juntos, cada linha já dizendo em qual Mesa e em qual Estágio o chamado está. Antes era preciso trocar de Mesa para ver cada grupo separadamente; o seletor de Mesa e a visão em Kanban saíram da tela do cliente (o painel interno continua com as duas).',
   },
   {
+    id: 'agenda-recurrence',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'feature',
+    title: 'Agenda com eventos recorrentes',
+    description:
+      'Eventos podem se repetir diária, semanal, mensal ou anualmente. Ao alterar ou excluir um evento recorrente, você escolhe se a mudança vale só para esta ocorrência ou para todas.',
+  },
+  {
+    id: 'crm-contract-revisions',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'feature',
+    title: 'Contratos: histórico de revisões e troca de representante',
+    description:
+      'Ao trocar o representante de um cliente, os contratos já gerados dele são regenerados automaticamente, e a versão anterior de cada um fica guardada no histórico. Também corrigido: campos vazios não aparecem mais como texto solto no PDF.',
+  },
+  {
+    id: 'projects-task-category-and-new-client',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'improvement',
+    title:
+      'Projetos: categoria padrão na tarefa e cliente novo sem sair da tela',
+    description:
+      'O cadastro de tarefa do módulo ganhou o campo Categoria, que já vem preenchida ao criar um projeto a partir do módulo. Na tela de Projeto novo, o botão "Novo cliente" abre o cadastro de empresa e já seleciona o cliente recém-criado.',
+  },
+  {
+    id: 'reports-monthly-satisfaction',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'feature',
+    title: 'Relatório da Avaliação Mensal de satisfação',
+    description:
+      'Nova área de consulta interna com o resultado das avaliações mensais de satisfação dos clientes, para acompanhar a opinião dos clientes ao longo do tempo.',
+  },
+  {
+    id: 'client-tutorial-first-access',
+    date: '6 de outubro de 2026',
+    isoDate: '2026-10-06',
+    type: 'feature',
+    title: 'Tutorial guiado no primeiro acesso do Portal',
+    description:
+      'Na primeira vez que o cliente entra no Portal, um tutorial rápido mostra onde ficam Chamados, SAC, Chat, Notificações e o botão de instalar o app. Pode ser pulado a qualquer momento e revisto pelo botão "Tutorial" no topo da tela.',
+  },
+  {
     id: 'ticket-communication-notifications',
     date: '6 de outubro de 2026',
     isoDate: '2026-10-06',

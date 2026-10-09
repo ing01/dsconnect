@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_08_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_09_110000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1285,6 +1285,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_08_100000) do
     t.string "representative_cpf"
     t.date "representative_birth_date"
     t.string "representative_phone"
+    t.string "representative_mobile"
     t.string "representative_address_street"
     t.string "representative_address_number"
     t.string "representative_address_complement"

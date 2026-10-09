@@ -145,7 +145,11 @@ const handleCreateArticle = event => {
 </script>
 
 <template>
-  <HelpCenterLayout :show-header-title="false" :show-pagination-footer="false">
+  <HelpCenterLayout
+    :show-header-title="false"
+    :show-pagination-footer="false"
+    full-width-content
+  >
     <template #header-actions>
       <ArticleEditorHeader
         :is-updating="isUpdating"
@@ -187,6 +191,7 @@ const handleCreateArticle = event => {
         "
         :enabled-menu-options="ARTICLE_EDITOR_MENU_OPTIONS"
         :autofocus="!isNewArticle"
+        full-height
       />
     </template>
   </HelpCenterLayout>

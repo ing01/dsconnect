@@ -9,7 +9,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import PortalSwitcher from 'dashboard/components-next/HelpCenter/PortalSwitcher/PortalSwitcher.vue';
 import CreatePortalDialog from 'dashboard/components-next/HelpCenter/PortalSwitcher/CreatePortalDialog.vue';
 
-defineProps({
+const props = defineProps({
   currentPage: {
     type: Number,
     default: 1,
@@ -34,7 +34,19 @@ defineProps({
     type: String,
     default: '',
   },
+  // O editor de Artigo passa isto pra usar a largura toda da pagina (texto,
+  // imagem etc. ficam espremidos no max-w-5xl das telas de lista) - as
+  // demais telas (lista de Categorias/Artigos, Idiomas...) continuam com a
+  // largura de leitura padrao.
+  fullWidthContent: {
+    type: Boolean,
+    default: false,
+  },
 });
+
+const containerWidthClass = computed(() =>
+  props.fullWidthContent ? 'max-w-none' : 'max-w-5xl'
+);
 
 const emit = defineEmits(['update:currentPage']);
 
@@ -65,7 +77,7 @@ const togglePortalSwitcher = () => {
 <template>
   <section class="flex flex-col w-full h-full overflow-hidden bg-n-surface-1">
     <header class="sticky top-0 z-10 px-6 pb-3">
-      <div class="w-full max-w-5xl mx-auto">
+      <div class="w-full mx-auto" :class="containerWidthClass">
         <div
           v-if="showHeaderTitle"
           class="flex items-center justify-start h-20 gap-2"
@@ -112,7 +124,7 @@ const togglePortalSwitcher = () => {
       </div>
     </header>
     <main class="flex-1 px-6 overflow-y-auto">
-      <div class="w-full max-w-5xl mx-auto py-3">
+      <div class="w-full mx-auto py-3" :class="containerWidthClass">
         <slot name="content" />
       </div>
     </main>

@@ -30,7 +30,11 @@ export const CRM_CONTRACT_TOKEN_LABELS = {
   representante_cidade: 'Cidade do Representante',
   representante_uf: 'UF do Representante',
   representante_cep: 'CEP do Representante',
-  representante_telefone: 'Telefone/Celular do Representante',
+  representante_telefone: 'Telefone do Representante',
+  representante_celular: 'Celular do Representante',
+  representante_endereco: 'Endereço do Representante',
+  cliente_endereco_bairro: 'Bairro do Cliente',
+  srv_nuvem_sn: 'Servidor em Nuvem',
   tipo_licenca: 'Tipo da Licença',
   valor_licenca: 'Valor da Licença',
   prazo_licenca: 'Prazo da Licença',
@@ -84,4 +88,9 @@ export const CRM_YES_NO_TOKEN_KEYS = [
   'imp_dados_sn',
   'int_sn',
   'impl_cob_banc_sn',
+  'srv_nuvem_sn',
 ];
+
+// Tokens de data - na tela de geracao viram um seletor de data nativo. O texto
+// do contrato sai como dd/mm/aaaa (ver `generate` em CrmContractsPage.vue).
+export const CRM_DATE_TOKEN_KEYS = ['representante_dt_nasc'];

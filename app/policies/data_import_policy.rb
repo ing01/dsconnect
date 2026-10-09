@@ -39,6 +39,22 @@ class DataImportPolicy < ApplicationPolicy
     show?
   end
 
+  def unmatched_companies?
+    show?
+  end
+
+  def destroy_unmatched_companies?
+    show?
+  end
+
+  def duplicate_companies?
+    show?
+  end
+
+  def destroy_duplicate_companies?
+    show?
+  end
+
   class Scope < Scope
     def resolve
       return scope.where(account_id: account.id) if account_user.administrator?

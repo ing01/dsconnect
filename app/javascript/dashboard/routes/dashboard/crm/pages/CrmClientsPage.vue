@@ -4,15 +4,36 @@
  * `commercial_manage` (ver crm.routes.js e Crm::ClientPolicy no backend).
  * De proposito SEPARADO de Companies: nem todo lead vira cliente pagante.
  */
-import { ref, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import CrmClientsAPI from 'dashboard/api/crmClients';
 import ReportHeader from '../../settings/reports/components/ReportHeader.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
+import Select from 'dashboard/components-next/select/Select.vue';
+import { BRAZIL_STATE_OPTIONS, fetchCitiesByUf } from '../brazilLocations';
+import { formatBrPhone } from '../crmPhoneMask';
 
 const { t } = useI18n();
+
+// Mesmo espacamento/tipografia do rotulo do componente `Input` - usado nos
+// poucos campos que aqui sao `Select` em vez de `Input` (o `Select` do
+// design system nao tem rotulo embutido), pra ficar com a letra igual as
+// demais.
+const FIELD_WRAPPER_CLASS = 'flex flex-col min-w-0 gap-1';
+const FIELD_LABEL_CLASS = 'mb-0.5 text-heading-3 text-n-slate-12';
+const CARD_CLASS =
+  'flex flex-col gap-4 p-4 sm:p-5 mb-6 rounded-xl border border-n-weak bg-n-solid-2 shadow-sm';
+
+// UF -> lista de cidades (API do IBGE) - cache compartilhado pelos 3
+// contextos de UF/Cidade desta tela (cliente, representante no cadastro e
+// representante na troca), pra nao buscar a mesma UF tres vezes.
+const citiesByUf = ref({});
+const ensureCities = async uf => {
+  if (!uf || citiesByUf.value[uf]) return;
+  citiesByUf.value[uf] = await fetchCitiesByUf(uf);
+};
 
 const isLoading = ref(true);
 const clients = ref([]);
@@ -41,6 +62,7 @@ const emptyForm = () => ({
   representative_cpf: '',
   representative_birth_date: '',
   representative_phone: '',
+  representative_mobile: '',
   representative_address_street: '',
   representative_address_number: '',
   representative_address_complement: '',
@@ -52,6 +74,25 @@ const emptyForm = () => ({
 });
 const form = ref(emptyForm());
 const showContractData = ref(false);
+
+watch(() => form.value.state, ensureCities);
+watch(() => form.value.representative_state, ensureCities);
+
+// Celular/telefone do representante com mascara - formata enquanto digita e
+// ja corta no tamanho certo, pra nao deixar passar numero maior/menor nem
+// digitado errado.
+const representativePhoneMasked = computed({
+  get: () => form.value.representative_phone,
+  set: value => {
+    form.value.representative_phone = formatBrPhone(value, { mobile: false });
+  },
+});
+const representativeMobileMasked = computed({
+  get: () => form.value.representative_mobile,
+  set: value => {
+    form.value.representative_mobile = formatBrPhone(value, { mobile: true });
+  },
+});
 
 const addExtraRepresentative = () => {
   form.value.extra_representatives.push({
@@ -138,6 +179,7 @@ const emptyRepresentativeForm = () => ({
   representative_cpf: '',
   representative_birth_date: '',
   representative_phone: '',
+  representative_mobile: '',
   representative_address_street: '',
   representative_address_number: '',
   representative_address_complement: '',
@@ -149,6 +191,25 @@ const emptyRepresentativeForm = () => ({
 const representativeChangeClient = ref(null);
 const representativeForm = ref(emptyRepresentativeForm());
 const isChangingRepresentative = ref(false);
+
+watch(() => representativeForm.value.representative_state, ensureCities);
+
+const repChangePhoneMasked = computed({
+  get: () => representativeForm.value.representative_phone,
+  set: value => {
+    representativeForm.value.representative_phone = formatBrPhone(value, {
+      mobile: false,
+    });
+  },
+});
+const repChangeMobileMasked = computed({
+  get: () => representativeForm.value.representative_mobile,
+  set: value => {
+    representativeForm.value.representative_mobile = formatBrPhone(value, {
+      mobile: true,
+    });
+  },
+});
 
 const openChangeRepresentative = client => {
   representativeChangeClient.value = client;
@@ -191,31 +252,31 @@ onMounted(fetchClients);
 </script>
 
 <template>
-  <div class="flex-1 overflow-auto p-4">
+  <div class="flex-1 overflow-y-auto p-4 sm:p-6">
     <ReportHeader :header-title="t('CRM.CLIENTS.HEADER')" />
-    <p class="mb-4 text-sm text-n-slate-11">
+    <p class="mb-5 text-sm text-n-slate-11 max-w-3xl">
       {{ t('CRM.CLIENTS.DESCRIPTION') }}
     </p>
 
-    <div class="flex items-center justify-between gap-3 mb-4">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5"
+    >
       <Input
         v-model="searchQuery"
         :placeholder="t('CRM.CLIENTS.SEARCH')"
-        class="max-w-xs"
+        class="w-full sm:max-w-xs"
         @keyup.enter="fetchClients"
       />
       <Button
+        class="w-full sm:w-auto"
         :label="t('CRM.CLIENTS.NEW')"
         icon="i-lucide-plus"
         @click="openNew"
       />
     </div>
 
-    <div
-      v-if="isFormOpen"
-      class="flex flex-col gap-3 p-4 mb-4 rounded-xl border border-n-weak bg-n-solid-2"
-    >
-      <div class="grid grid-cols-2 gap-3">
+    <div v-if="isFormOpen" :class="CARD_CLASS">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Input v-model="form.name" :label="t('CRM.CLIENTS.FIELDS.NAME')" />
         <Input v-model="form.cnpj" :label="t('CRM.CLIENTS.FIELDS.CNPJ')" />
         <Input
@@ -240,7 +301,10 @@ onMounted(fetchClients);
         {{ showContractData ? '▲' : '▼' }}
       </button>
 
-      <div v-if="showContractData" class="grid grid-cols-3 gap-3">
+      <div
+        v-if="showContractData"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+      >
         <Input
           v-model="form.trade_name"
           :label="t('CRM.CLIENTS.FIELDS.TRADE_NAME')"
@@ -271,15 +335,17 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.ADDRESS_NEIGHBORHOOD')"
           size="sm"
         />
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CLIENTS.FIELDS.STATE') }}
+          </span>
+          <Select v-model="form.state" :options="BRAZIL_STATE_OPTIONS" placeholder="-" />
+        </div>
         <Input
           v-model="form.city"
           :label="t('CRM.CLIENTS.FIELDS.CITY')"
           size="sm"
-        />
-        <Input
-          v-model="form.state"
-          :label="t('CRM.CLIENTS.FIELDS.STATE')"
-          size="sm"
+          list="crm-client-cities"
         />
         <Input
           v-model="form.zip_code"
@@ -303,8 +369,13 @@ onMounted(fetchClients);
           size="sm"
         />
         <Input
-          v-model="form.representative_phone"
+          v-model="representativePhoneMasked"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+          size="sm"
+        />
+        <Input
+          v-model="representativeMobileMasked"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
           size="sm"
         />
         <Input
@@ -327,15 +398,21 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
+          </span>
+          <Select
+            v-model="form.representative_state"
+            :options="BRAZIL_STATE_OPTIONS"
+            placeholder="-"
+          />
+        </div>
         <Input
           v-model="form.representative_city"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
           size="sm"
-        />
-        <Input
-          v-model="form.representative_state"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE')"
-          size="sm"
+          list="crm-representative-cities"
         />
         <Input
           v-model="form.representative_zip_code"
@@ -343,6 +420,21 @@ onMounted(fetchClients);
           size="sm"
         />
       </div>
+
+      <datalist id="crm-client-cities">
+        <option
+          v-for="cidade in citiesByUf[form.state] || []"
+          :key="cidade"
+          :value="cidade"
+        />
+      </datalist>
+      <datalist id="crm-representative-cities">
+        <option
+          v-for="cidade in citiesByUf[form.representative_state] || []"
+          :key="cidade"
+          :value="cidade"
+        />
+      </datalist>
 
       <div v-if="showContractData" class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
@@ -359,7 +451,7 @@ onMounted(fetchClients);
         <div
           v-for="(representative, index) in form.extra_representatives"
           :key="index"
-          class="grid grid-cols-[2fr_1fr_1fr_1fr_2fr_auto] gap-2 items-end"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_2fr_auto] gap-3 items-end p-3 rounded-lg bg-n-alpha-1 lg:bg-transparent lg:p-0"
         >
           <Input
             v-model="representative.name"
@@ -413,7 +505,7 @@ onMounted(fetchClients);
 
     <div
       v-if="representativeChangeClient"
-      class="flex flex-col gap-3 p-4 mb-4 rounded-xl border border-n-amber-6 bg-n-amber-2"
+      class="flex flex-col gap-4 p-4 sm:p-5 mb-6 rounded-xl border border-n-amber-6 bg-n-amber-2"
     >
       <div class="flex flex-col gap-1">
         <span class="text-sm font-medium text-n-slate-12">
@@ -428,7 +520,7 @@ onMounted(fetchClients);
         </p>
       </div>
 
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Input
           v-model="representativeForm.representative_name"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NAME')"
@@ -446,8 +538,13 @@ onMounted(fetchClients);
           size="sm"
         />
         <Input
-          v-model="representativeForm.representative_phone"
+          v-model="repChangePhoneMasked"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_PHONE')"
+          size="sm"
+        />
+        <Input
+          v-model="repChangeMobileMasked"
+          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_MOBILE')"
           size="sm"
         />
         <Input
@@ -470,15 +567,21 @@ onMounted(fetchClients);
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_NEIGHBORHOOD')"
           size="sm"
         />
+        <div :class="FIELD_WRAPPER_CLASS">
+          <span :class="FIELD_LABEL_CLASS">
+            {{ t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE') }}
+          </span>
+          <Select
+            v-model="representativeForm.representative_state"
+            :options="BRAZIL_STATE_OPTIONS"
+            placeholder="-"
+          />
+        </div>
         <Input
           v-model="representativeForm.representative_city"
           :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_CITY')"
           size="sm"
-        />
-        <Input
-          v-model="representativeForm.representative_state"
-          :label="t('CRM.CLIENTS.FIELDS.REPRESENTATIVE_STATE')"
-          size="sm"
+          list="crm-repchange-cities"
         />
         <Input
           v-model="representativeForm.representative_zip_code"
@@ -486,6 +589,14 @@ onMounted(fetchClients);
           size="sm"
         />
       </div>
+
+      <datalist id="crm-repchange-cities">
+        <option
+          v-for="cidade in citiesByUf[representativeForm.representative_state] || []"
+          :key="cidade"
+          :value="cidade"
+        />
+      </datalist>
 
       <div class="flex gap-2 justify-end">
         <Button
@@ -507,43 +618,57 @@ onMounted(fetchClients);
       {{ t('CRM.CLIENTS.EMPTY') }}
     </p>
 
-    <table v-else class="w-full text-sm">
-      <thead>
-        <tr class="text-left text-n-slate-11 border-b border-n-weak">
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.NAME') }}</th>
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.CNPJ') }}</th>
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.CONTACT') }}</th>
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.PHONE') }}</th>
-          <th class="py-2">{{ t('CRM.CLIENTS.TABLE.ACTIONS') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="client in clients"
-          :key="client.id"
-          class="border-b border-n-weak"
-        >
-          <td class="py-2 font-medium text-n-slate-12">{{ client.name }}</td>
-          <td class="py-2">{{ client.cnpj }}</td>
-          <td class="py-2">{{ client.contact_name }}</td>
-          <td class="py-2">{{ client.phone }}</td>
-          <td class="py-2">
-            <button class="mr-3 text-n-brand" @click="openEdit(client)">
-              <i class="i-lucide-pencil size-4" />
-            </button>
-            <button
-              class="mr-3 text-n-slate-11"
-              :title="t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.BUTTON')"
-              @click="openChangeRepresentative(client)"
-            >
-              <i class="i-lucide-user-cog size-4" />
-            </button>
-            <button class="text-n-ruby-9" @click="remove(client)">
-              <i class="i-lucide-trash-2 size-4" />
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="overflow-x-auto rounded-xl border border-n-weak">
+      <table class="w-full min-w-[640px] text-sm bg-n-solid-2">
+        <thead class="border-b border-n-weak bg-n-alpha-1">
+          <tr class="text-left text-n-slate-11">
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.NAME') }}
+            </th>
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.CNPJ') }}
+            </th>
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.CONTACT') }}
+            </th>
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.PHONE') }}
+            </th>
+            <th class="py-2.5 px-3 text-xs font-medium whitespace-nowrap">
+              {{ t('CRM.CLIENTS.TABLE.ACTIONS') }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="client in clients"
+            :key="client.id"
+            class="border-b border-n-weak last:border-0 hover:bg-n-alpha-1"
+          >
+            <td class="py-2.5 px-3 font-medium text-n-slate-12">
+              {{ client.name }}
+            </td>
+            <td class="py-2.5 px-3">{{ client.cnpj }}</td>
+            <td class="py-2.5 px-3">{{ client.contact_name }}</td>
+            <td class="py-2.5 px-3">{{ client.phone }}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap">
+              <button class="mr-3 text-n-brand" @click="openEdit(client)">
+                <i class="i-lucide-pencil size-4" />
+              </button>
+              <button
+                class="mr-3 text-n-slate-11"
+                :title="t('CRM.CLIENTS.REPRESENTATIVE_CHANGE.BUTTON')"
+                @click="openChangeRepresentative(client)"
+              >
+                <i class="i-lucide-user-cog size-4" />
+              </button>
+              <button class="text-n-ruby-9" @click="remove(client)">
+                <i class="i-lucide-trash-2 size-4" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>

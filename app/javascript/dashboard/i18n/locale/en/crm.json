@@ -37,7 +37,8 @@
         "REPRESENTATIVE_NEIGHBORHOOD": "Representative neighborhood",
         "REPRESENTATIVE_CITY": "Representative city",
         "REPRESENTATIVE_STATE": "Representative state",
-        "REPRESENTATIVE_ZIP_CODE": "Representative zip code"
+        "REPRESENTATIVE_ZIP_CODE": "Representative zip code",
+        "REPRESENTATIVE_MOBILE": "Representative mobile"
       },
       "CONTRACT_DATA_SECTION": "Contract data (fill once, reused across every template)",
       "EXTRA_REPRESENTATIVES": {
@@ -160,7 +161,9 @@
         "UPLOAD": "Upload template",
         "TOKENS": "Fields found",
         "ACTIONS": "Actions",
-        "EMPTY": "No template uploaded yet."
+        "EMPTY": "No template uploaded yet.",
+        "FILE": "File (.docx)",
+        "REMOVE": "Delete template"
       },
       "GENERATE": {
         "TITLE": "Generate contract",

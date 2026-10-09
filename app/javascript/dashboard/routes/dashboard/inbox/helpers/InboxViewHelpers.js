@@ -17,4 +17,6 @@ export const NOTIFICATION_TYPES_MAPPING = {
   SLA_MISSED_NEXT_RESPONSE: ['i-lucide-heart-crack', 'text-n-ruby-11'],
   SLA_MISSED_RESOLUTION: ['i-lucide-heart-crack', 'text-n-ruby-11'],
   SUGGESTION_CREATED: ['i-lucide-lightbulb', 'text-n-amber-11'],
+  ARTICLE_PUBLISHED: ['i-lucide-file-text', 'text-n-teal-11'],
+  PORTAL_CREATED: ['i-lucide-book-open', 'text-n-teal-11'],
 };

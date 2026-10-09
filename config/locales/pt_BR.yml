@@ -499,6 +499,8 @@ pt_BR:
       ticket_triage_pending: 'Novo chamado de %{company_name} (#%{display_id}) aguardando triagem'
       suggestion_created: 'Nova sugestão de melhoria de %{user_name}'
       ticket_customer_communication_received: 'Nova resposta de %{company_name} no chamado #%{display_id}'
+      article_published: 'Novo artigo publicado: %{article_title}'
+      portal_created: 'Novo Portal criado: %{portal_name}'
     unknown_contact: 'Contato sem nome'
     attachment: 'Anexo'
     no_content: 'Sem conteúdo'

@@ -17,7 +17,21 @@ import Input from 'dashboard/components-next/input/Input.vue';
 const { t } = useI18n();
 const store = useStore();
 
-const sellers = computed(() => store.getters['agents/getAgents'] || []);
+const customRoles = computed(
+  () => store.getters['customRole/getCustomRoles'] || []
+);
+
+// So' agentes com acesso ao Painel Comercial podem ser marcados como
+// vendedor - mesma regra do backend (Crm::SalePolicy/Crm::ClientPolicy):
+// administrador, ou funcao personalizada com `commercial_manage`.
+const sellers = computed(() => {
+  const agents = store.getters['agents/getAgents'] || [];
+  return agents.filter(agent => {
+    if (agent.role === 'administrator') return true;
+    const role = customRoles.value.find(r => r.id === agent.custom_role_id);
+    return Boolean(role?.permissions?.includes('commercial_manage'));
+  });
+});
 
 const isLoading = ref(true);
 const sales = ref([]);
@@ -151,6 +165,7 @@ const remove = async sale => {
 onMounted(() => {
   fetchClients();
   fetchSales();
+  store.dispatch('customRole/getCustomRole');
 });
 </script>
 

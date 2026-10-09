@@ -18,8 +18,8 @@ export const CRM_CONTRACT_TOKEN_HELP = {
   cliente_nome_fantasia: 'Nome fantasia do cliente',
   cliente_inscricao_estadual: 'Inscrição estadual do cliente',
   cliente_endereco_rua: 'Endereço (rua/avenida) do cliente',
-  cliente_endereco_num:
-    'Número do endereço do cliente - ATENÇÃO: no modelo atual este mesmo token também aparece como "Bairro"; preencher aqui repete o mesmo texto nos dois lugares.',
+  cliente_endereco_num: 'Número do endereço do cliente',
+  cliente_endereco_bairro: 'Bairro do cliente',
   cliente_endereco_complemento: 'Complemento do endereço do cliente',
   cliente_cidade: 'Cidade do cliente',
   cliente_uf: 'UF do cliente',
@@ -28,16 +28,16 @@ export const CRM_CONTRACT_TOKEN_HELP = {
   cliente_email: 'E-mail do cliente',
   representante_nome: 'Nome do representante legal',
   representante_cpf: 'CPF do representante legal',
-  representante_dt_nasc:
-    'Data de nascimento do representante - ATENÇÃO: no modelo atual este mesmo token também aparece como "Endereço do representante"; preencher aqui repete o mesmo texto nos dois lugares.',
+  representante_dt_nasc: 'Data de nascimento do representante',
+  representante_endereco: 'Endereço (rua) do representante',
   representante_end_num: 'Número do endereço do representante',
   representante_bairro: 'Bairro do representante',
   representante_end_complemento: 'Complemento do endereço do representante',
   representante_cidade: 'Cidade do representante',
   representante_uf: 'UF do representante',
   representante_cep: 'CEP do representante',
-  representante_telefone:
-    'Telefone do representante - ATENÇÃO: no modelo atual este mesmo token também aparece como "Celular do representante"; preencher aqui repete o mesmo texto nos dois lugares.',
+  representante_telefone: 'Telefone do representante',
+  representante_celular: 'Celular do representante',
   tipo_licenca: 'Tipo da licença: Anual ou Mensal',
   valor_licenca: 'Valor da licença',
   prazo_licenca: 'Prazo da licença',
@@ -57,8 +57,8 @@ export const CRM_CONTRACT_TOKEN_HELP = {
   valor_km: 'Valor do km rodado',
   imp_dados_sn: 'Tem importação de dados? Sim ou Não',
   int_sn: 'Tem integrações? Sim ou Não',
-  impl_cob_banc_sn:
-    'Tem implantação de cobrança bancária? Sim ou Não - ATENÇÃO: no modelo atual este mesmo token também aparece como "Servidor em nuvem"; preencher aqui repete o mesmo texto nos dois lugares.',
+  impl_cob_banc_sn: 'Tem implantação de cobrança bancária? Sim ou Não',
+  srv_nuvem_sn: 'Usa servidor em nuvem? Sim ou Não',
 };
 
 export const crmContractTokenDescription = token =>
