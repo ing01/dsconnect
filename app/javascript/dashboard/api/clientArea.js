@@ -78,13 +78,13 @@ export default {
     });
   },
 
-  // O Kanban: Mesas, Empresas, Estágios e os tickets que este contato pode
-  // ver. `companyId` só estreita quando o contato tem mais de uma Empresa.
-  board(teamId, companyId) {
+  // A lista: Empresas e os tickets que este contato pode ver, de todas as
+  // Mesas juntas. `companyId` só estreita quando o contato tem mais de uma
+  // Empresa.
+  board(companyId) {
     return cliente.get(`${BASE}/tickets`, {
       headers: headers(),
       params: {
-        ...(teamId ? { team_id: teamId } : {}),
         ...(companyId ? { company_id: companyId } : {}),
       },
     });

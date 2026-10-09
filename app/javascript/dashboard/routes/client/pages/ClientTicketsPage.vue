@@ -1,17 +1,17 @@
 <script setup>
 /**
- * Os chamados do cliente, em LISTA ou em Kanban.
+ * Os chamados do cliente, numa lista unica - todas as Mesas juntas, e nao
+ * uma por vez. Antes era preciso trocar de Mesa para ver cada conjunto de
+ * chamados; agora a lista inteira aparece de uma vez, e cada linha traz a
+ * Mesa e o Estagio onde o chamado esta (`team_name`/`ticket_column_name`,
+ * colunas MESA/ESTAGIO da `TicketListView`).
  *
- * As duas visões são os componentes reais do painel - `TicketListView` e
- * `TicketBoard` -> `TicketBoardColumn` -> `TicketCard` -, com o mesmo cabeçalho:
- * seletor de Mesa, busca rápida e ordenação. Não há cópia visual nenhuma aqui;
- * o que muda é a origem dos dados (a API do cliente, já recortada pela empresa
- * dele), o modo `read-only`, que tira do quadro as ações do atendimento, e a
- * ausência do filtro por responsável, que é escolha de quem atende.
- *
- * UMA carga alimenta as duas: o botão troca a forma de ler, e não o conjunto
- * lido. Buscar de novo ao alternar deixaria a lista e o quadro discordando
- * sobre quantos chamados existem.
+ * A visao e a mesma `TicketListView` do painel interno, sem cópia visual - o
+ * que muda e a origem dos dados (a API do cliente, já recortada pela empresa
+ * dele) e a ausência do filtro por responsável, que é escolha de quem
+ * atende. Sem agrupamento por Estagio aqui: Mesas diferentes tem Estagios
+ * com nomes proprios, e juntar colunas que nao significam a mesma coisa
+ * bagunçaria a leitura - por isso um grupo so, sem cabecalho (ver `grupos`).
  *
  * Quando o painel mudar, esta tela muda junto - que é o motivo de ela não ter
  * componentes próprios.
@@ -21,103 +21,53 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import ClientAreaAPI from 'dashboard/api/clientArea';
-import {
-  getClientSession,
-  getTicketsView,
-  setTicketsView,
-} from 'dashboard/helper/clientSession';
-import {
-  readSortPreference,
-  writeSortPreference,
-} from 'dashboard/routes/dashboard/tickets/helpers/ticketSort';
+import { getClientSession } from 'dashboard/helper/clientSession';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
-import TicketBoard from 'dashboard/routes/dashboard/tickets/components/TicketBoard.vue';
 import TicketListView from 'dashboard/routes/dashboard/tickets/components/TicketListView.vue';
 import { ticketMatchesFilters } from 'dashboard/routes/dashboard/tickets/helpers/ticketFilters';
-import TicketMesaSelector from 'dashboard/routes/dashboard/tickets/components/TicketMesaSelector.vue';
-import TicketSortMenu from 'dashboard/routes/dashboard/tickets/components/TicketSortMenu.vue';
 import ClientTicketDialog from '../components/ClientTicketDialog.vue';
 
 const { t } = useI18n();
 const router = useRouter();
 
 const isLoading = ref(true);
-const board = ref({ teams: [], companies: [], ticket_columns: [], id: null });
+const board = ref({ companies: [], tickets: [] });
 const categorias = ref([]);
-const selectedTeamId = ref(null);
 const selectedCompanyId = ref(null);
 const quickSearch = ref('');
-const sort = ref(null);
 const novoTicketDialog = ref(null);
-// Lista por padrão: foi o que pediram como visão principal. O Kanban continua
-// inteiro, a um clique.
-const visao = ref(getTicketsView());
 
 const contact = computed(() => getClientSession()?.contact || {});
 const accountId = computed(() => contact.value.account_id);
-const teams = computed(() => board.value.teams || []);
 // So faz sentido mostrar o filtro quando ha o que filtrar - um contato com
 // uma unica Empresa ja ve so os tickets dela, sem escolha nenhuma.
 const companies = computed(() => board.value.companies || []);
 const showCompanyFilter = computed(() => companies.value.length > 1);
 
-// A busca rápida, aplicada sobre o quadro já carregado - o mesmo caminho do
-// Kanban interno. Não há filtro por responsável: quem atende é assunto da
-// equipe, e o cliente não escolhe por isso.
+// A busca rápida, aplicada sobre a lista já carregada.
 const filters = computed(() => ({ query: quickSearch.value }));
 
-// Os responsáveis que aparecem nos chamados DELE - e não o quadro de agentes da
-// conta, que não é informação do cliente.
-//
-// Continua existindo mesmo sem o filtro por agente: é desta lista que o cartão
-// do Kanban tira o NOME de quem atende (vide `assigneeName` em TicketCard).
-const mesaAgents = computed(() => {
-  const vistos = new Map();
-  (board.value.ticket_columns || []).forEach(column =>
-    (column.tickets || []).forEach(ticket => {
-      if (ticket.assignee_id && !vistos.has(ticket.assignee_id)) {
-        vistos.set(ticket.assignee_id, {
-          id: ticket.assignee_id,
-          name: ticket.assignee_name,
-          thumbnail: ticket.assignee_thumbnail,
-        });
-      }
-    })
-  );
-  return [...vistos.values()];
-});
-
-// Os grupos da lista: um por Estágio, na ORDEM da Mesa, com os mesmos chamados
-// do quadro passados pelo MESMO filtro que as colunas aplicam.
-//
-// Separado por Estágio de propósito, e não achatado: é assim que o cliente
-// acompanha o andamento, e cada grupo pode ser recolhido para tirar da frente o
-// que ele não quer ver. A `TicketListView` guarda o que está recolhido.
-const grupos = computed(() =>
-  (board.value.ticket_columns || []).map(column => ({
-    id: column.id,
-    name: column.name,
-    rows: (column.tickets || []).filter(ticket =>
+// Um grupo so, sem nome - a `TicketListView` sabe nao desenhar cabecalho de
+// Estagio quando o grupo nao tem nome (ver o componente), e e exatamente o
+// que se quer aqui: uma lista unica, sem divisao por Mesa nem por Estagio.
+const grupos = computed(() => [
+  {
+    id: 'all',
+    name: '',
+    rows: (board.value.tickets || []).filter(ticket =>
       ticketMatchesFilters(ticket, filters.value)
     ),
-  }))
-);
+  },
+]);
 
-const trocarVisao = escolhida => {
-  visao.value = escolhida;
-  setTicketsView(escolhida);
-};
-
-const carregar = async (teamId = null) => {
+const carregar = async () => {
   isLoading.value = true;
   try {
-    const { data } = await ClientAreaAPI.board(teamId, selectedCompanyId.value);
+    const { data } = await ClientAreaAPI.board(selectedCompanyId.value);
     board.value = data;
-    selectedTeamId.value = data.id;
-    sort.value = readSortPreference(accountId.value, data.id);
   } catch {
     useAlert(t('CLIENT_AREA.BOARD.ERROR'));
   } finally {
@@ -125,23 +75,10 @@ const carregar = async (teamId = null) => {
   }
 };
 
-const selectTeam = teamId => {
-  selectedTeamId.value = Number(teamId);
-  carregar(Number(teamId));
-};
-
 const selectCompany = event => {
   const valor = event.target.value;
   selectedCompanyId.value = valor ? Number(valor) : null;
-  // Sem Mesa fixa: a Mesa "mais recente" pode mudar quando o filtro de
-  // Empresa muda (o ticket mais recente de OUTRA empresa pode ser de outra
-  // Mesa), do mesmo jeito que a carga inicial decide sozinha.
   carregar();
-};
-
-const updateSort = novaOrdem => {
-  sort.value = novaOrdem;
-  writeSortPreference(accountId.value, selectedTeamId.value, novaOrdem);
 };
 
 const abrirTicket = ticket => {
@@ -165,11 +102,8 @@ const abrirNovoTicket = async () => {
   novoTicketDialog.value?.open();
 };
 
-// Depois de abrir, o quadro é relido: o chamado novo precisa aparecer onde a
-// Mesa o colocou, e não onde a tela imaginaria.
-const aoCriar = () => {
-  carregar(selectedTeamId.value);
-};
+// Depois de abrir, a lista é relida: o chamado novo precisa aparecer.
+const aoCriar = () => carregar();
 
 onMounted(() => carregar());
 </script>
@@ -187,13 +121,6 @@ onMounted(() => carregar());
       </div>
 
       <div class="flex flex-wrap items-center w-full gap-3 min-w-0">
-        <TicketMesaSelector
-          v-if="teams.length"
-          :teams="teams"
-          :selected-team-id="selectedTeamId"
-          @select="selectTeam"
-        />
-
         <select
           v-if="showCompanyFilter"
           :value="selectedCompanyId ?? ''"
@@ -211,37 +138,7 @@ onMounted(() => carregar());
           </option>
         </select>
 
-        <!-- Lista ou Kanban. Os dois botões juntos, como um seletor: são duas
-             formas de ler o MESMO conjunto, e não duas telas. -->
-        <div
-          v-if="selectedTeamId"
-          class="flex flex-shrink-0 gap-1 p-1 border rounded-lg border-n-weak bg-n-alpha-black2"
-          role="group"
-          :aria-label="t('CLIENT_AREA.BOARD.VIEW.LABEL')"
-        >
-          <button
-            v-for="opcao in ['list', 'kanban']"
-            :key="opcao"
-            type="button"
-            class="flex items-center gap-1.5 px-2.5 py-1 text-sm rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
-            :class="
-              visao === opcao
-                ? 'bg-n-solid-1 text-n-slate-12 font-medium shadow-sm'
-                : 'text-n-slate-11 hover:text-n-slate-12'
-            "
-            :aria-pressed="visao === opcao"
-            @click="trocarVisao(opcao)"
-          >
-            <Icon
-              :icon="opcao === 'list' ? 'i-lucide-list' : 'i-lucide-kanban'"
-              class="size-4"
-            />
-            {{ t(`CLIENT_AREA.BOARD.VIEW.${opcao.toUpperCase()}`) }}
-          </button>
-        </div>
-
         <NextInput
-          v-if="selectedTeamId"
           v-model="quickSearch"
           type="search"
           size="sm"
@@ -256,14 +153,6 @@ onMounted(() => carregar());
             />
           </template>
         </NextInput>
-
-        <!-- A ordenação do cabeçalho é do quadro: nele cada Estágio é uma
-             pilha própria. Na lista, quem ordena é o cabeçalho da tabela. -->
-        <TicketSortMenu
-          v-if="selectedTeamId && visao === 'kanban'"
-          :sort="sort"
-          @update="updateSort"
-        />
 
         <NextButton
           icon="i-lucide-plus"
@@ -283,7 +172,7 @@ onMounted(() => carregar());
     </div>
 
     <div
-      v-else-if="!board.ticket_columns.length"
+      v-else-if="!board.tickets.length"
       class="flex flex-col items-center justify-center flex-1 gap-2 text-center"
     >
       <Icon icon="i-lucide-inbox" class="size-6 text-n-slate-10" />
@@ -293,25 +182,12 @@ onMounted(() => carregar());
     </div>
 
     <TicketListView
-      v-else-if="visao === 'list'"
+      v-else
       :filters="filters"
       :groups="grupos"
       :account-id="accountId"
-      :team-id="selectedTeamId"
       :loading="isLoading"
       complexity-column="due_date"
-      @open-ticket="abrirTicket"
-    />
-
-    <TicketBoard
-      v-else
-      :board="board"
-      :account-id="accountId"
-      :team-id="selectedTeamId"
-      :agents="mesaAgents"
-      :filters="filters"
-      :sort="sort"
-      read-only
       @open-ticket="abrirTicket"
     />
 

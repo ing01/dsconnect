@@ -188,8 +188,11 @@ const linhasVisiveis = computed(() => {
   }
 
   return grupos.value.flatMap(grupo => [
-    { tipo: 'grupo', chave: `g-${grupo.id}`, grupo },
-    ...(estaRecolhido(grupo.id)
+    // Grupo sem nome (lista nao dividida por Estagio, caso da Area do
+    // Cliente quando junta todas as Mesas): sem faixa de cabecalho, e por
+    // isso nunca recolhido - nao ha botao para recolhe-lo.
+    ...(grupo.name ? [{ tipo: 'grupo', chave: `g-${grupo.id}`, grupo }] : []),
+    ...(grupo.name && estaRecolhido(grupo.id)
       ? []
       : grupo.rows.map(ticket => ({
           tipo: 'ticket',

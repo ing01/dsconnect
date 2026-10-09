@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-area-tickets-single-list',
+    date: '9 de outubro de 2026',
+    isoDate: '2026-10-09',
+    type: 'improvement',
+    title: 'Chamados do Portal numa lista só, sem precisar trocar de Mesa',
+    description:
+      'A tela de chamados do cliente deixou de mostrar um quadro por Mesa de serviço - agora é uma lista única com todos os chamados de todas as Mesas juntos, cada linha já dizendo em qual Mesa e em qual Estágio o chamado está. Antes era preciso trocar de Mesa para ver cada grupo separadamente; o seletor de Mesa e a visão em Kanban saíram da tela do cliente (o painel interno continua com as duas).',
+  },
+  {
     id: 'ticket-communication-notifications',
     date: '6 de outubro de 2026',
     isoDate: '2026-10-06',

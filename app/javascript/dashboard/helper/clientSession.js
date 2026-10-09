@@ -78,36 +78,6 @@ export const setSidebarCollapsed = valor => {
 };
 
 /**
- * Como o cliente prefere ver os chamados: em lista ou no Kanban.
- *
- * Guardado no navegador pelo mesmo motivo do menu lateral - o contato nao tem
- * `ui_settings`. E preferencia de leitura: quem acompanha poucos chamados tende
- * a querer a lista, quem acompanha o andamento quer o quadro.
- */
-const CHAVE_VISAO = 'cw_client_tickets_view';
-
-export const VISOES = ['list', 'kanban'];
-
-export const getTicketsView = () => {
-  try {
-    const salvo = window.localStorage.getItem(CHAVE_VISAO);
-    return VISOES.includes(salvo) ? salvo : 'list';
-  } catch {
-    // Armazenamento bloqueado: cai no padrao, que e a lista - foi o que
-    // pediram como visao principal.
-    return 'list';
-  }
-};
-
-export const setTicketsView = valor => {
-  try {
-    window.localStorage.setItem(CHAVE_VISAO, valor);
-  } catch {
-    // Nao poder lembrar a preferencia nao pode derrubar a tela.
-  }
-};
-
-/**
  * Se o contato ja viu o tutorial guiado do Portal (primeiro acesso).
  *
  * Guardado por CONTATO (nao so' por navegador) dentro de uma unica chave -

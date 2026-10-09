@@ -1,4 +1,4 @@
-# Os tickets na Area do Cliente: o Kanban, o detalhe e a abertura.
+# Os tickets na Area do Cliente: a lista, o detalhe e a abertura.
 #
 # Nenhuma acao monta a propria consulta - todas partem de `visible_tickets`, na
 # base. Trocar o id na URL nao alcanca ticket de outra empresa porque a busca
@@ -14,22 +14,18 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
 
   before_action :fetch_ticket, only: [:show]
 
-  # O quadro. Agrupado pelos Estagios da Mesa escolhida, como o Kanban interno -
-  # as mesmas Mesas e os mesmos Estagios, so que sem nada que o cliente nao
-  # deva ver.
+  # A lista. Todas as Mesas do cliente juntas, e nao uma por vez - o cartao de
+  # cada chamado traz a Mesa e o Estagio (`team_name`/`ticket_column_name`,
+  # no partial) para dizer onde ele esta, ja que o board deixou de recortar
+  # por Mesa.
   def index
-    @teams = client_teams
-    @team = pick_team
     @companies = client_companies
-    @columns = @team ? @team.ticket_columns.order(:position, :id) : TicketColumn.none
-    # `operational`: resolvido, fechado e cancelado saem do quadro, como no
-    # Kanban interno. Os includes sao os que o cartao le - sem eles o quadro
+    # `operational`: resolvido, fechado e cancelado saem da lista, como no
+    # Kanban interno. Os includes sao os que o cartao le - sem eles a lista
     # dispara uma consulta por ticket.
-    @tickets_by_column = tickets_scoped_by_company.operational
-                                                   .where(ticket_column_id: @columns.select(:id))
-                                                   .includes(*BOARD_INCLUDES)
-                                                   .order(:position, :id)
-                                                   .group_by(&:ticket_column_id)
+    @tickets = tickets_scoped_by_company.operational
+                                        .includes(*BOARD_INCLUDES)
+                                        .order(created_at: :desc)
   end
 
   def show; end
@@ -94,9 +90,9 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
                   .find_by(id: params[:ticket_category_id])
   end
 
-  # As Mesas que atendem este cliente. Hoje, as ativas da conta: o cliente abre
-  # chamado para a area que precisa, e o Kanban dele so mostra Mesa onde ele
-  # tenha ticket.
+  # As Mesas que atendem este cliente. Hoje, as ativas da conta - usada so na
+  # abertura de um chamado novo (entrada padrao quando a Categoria nao decide
+  # a Mesa); a lista de chamados nao recorta mais por Mesa.
   def client_teams
     Current.account.teams.active.visible_in_portal.order(:name)
   end
@@ -115,15 +111,6 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
 
     empresa = client_companies.find_by(id: params[:company_id])
     empresa ? visible_tickets.where(company_id: empresa.id) : visible_tickets
-  end
-
-  def pick_team
-    return client_teams.find_by(id: params[:team_id]) if params[:team_id].present?
-
-    # Sem escolha explicita, a Mesa do ticket mais recente dele - e onde ele
-    # estava olhando da ultima vez, sem precisar escolher nada.
-    ultima = tickets_scoped_by_company.order(created_at: :desc).first&.team
-    ultima || client_teams.first
   end
 
   # Onde o chamado do cliente entra: o Estagio "Pendente" da Mesa quando existe -

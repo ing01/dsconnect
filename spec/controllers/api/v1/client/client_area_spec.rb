@@ -81,7 +81,7 @@ RSpec.describe 'Client Area', type: :request do
 
       get '/api/v1/client/tickets', headers: cabecalho(entrar), as: :json
 
-      ids = response.parsed_body['ticket_columns'].flat_map { |c| c['tickets'].map { |t| t['id'] } }
+      ids = response.parsed_body['tickets'].map { |t| t['id'] }
       expect(ids).to include(meu.id)
       expect(ids).not_to include(colega.id)
       expect(ids).not_to include(alheio.id)
@@ -96,39 +96,61 @@ RSpec.describe 'Client Area', type: :request do
 
       get '/api/v1/client/tickets', headers: cabecalho(entrar), as: :json
 
-      ids = response.parsed_body['ticket_columns'].flat_map { |c| c['tickets'].map { |t| t['id'] } }
+      ids = response.parsed_body['tickets'].map { |t| t['id'] }
       expect(ids).to include(colega.id)
       expect(ids).not_to include(alheio.id)
     end
 
-    # O quadro do cliente monta os componentes REAIS do Kanban, e eles leem o
-    # mesmo partial de ticket - por isso o cartao vem com os mesmos campos.
+    # O pedido que motivou a troca do quadro por Mesa para uma lista unica:
+    # chamados de Mesas diferentes tem que aparecer juntos, e cada um precisa
+    # dizer em qual Mesa e em qual Estagio esta.
+    it 'brings together tickets from different teams, each saying its own team and stage' do
+      outra_mesa = create(:team, account: account)
+      outra_coluna = create(:ticket_column, team: outra_mesa, position: 0)
+      desta_mesa = ticket_para(contato: cliente, titulo: 'Desta Mesa')
+      da_outra_mesa = create(:ticket, account: account, team: outra_mesa, ticket_column: outra_coluna,
+                                      ticket_category: outra_mesa.ticket_categories.first,
+                                      company: empresa, contact: cliente, title: 'Da outra Mesa')
+
+      get '/api/v1/client/tickets', headers: cabecalho(entrar), as: :json
+
+      tickets = response.parsed_body['tickets'].index_by { |t| t['id'] }
+      expect(tickets.keys).to include(desta_mesa.id, da_outra_mesa.id)
+      expect(tickets[desta_mesa.id]['team_name']).to eq(team.name)
+      expect(tickets[desta_mesa.id]['ticket_column_name']).to eq(column.name)
+      expect(tickets[da_outra_mesa.id]['team_name']).to eq(outra_mesa.name)
+      expect(tickets[da_outra_mesa.id]['ticket_column_name']).to eq(outra_coluna.name)
+    end
+
+    # A lista do cliente monta o mesmo componente REAL do painel interno
+    # (`TicketListView`), e ele le o mesmo partial de ticket - por isso a
+    # linha vem com os mesmos campos.
     #
     # A fronteira que vale aqui e a de LINHAS: o recorte por empresa acontece
     # antes de qualquer serializacao, e e o que os exemplos acima fixam. Se um
     # dia algum campo precisar sair do payload do cliente, e aqui que a regra
     # nova deve ser escrita.
-    it 'serialises the cards exactly like the internal board does' do
+    it 'serialises the rows exactly like the internal list does' do
       ticket_para(contato: cliente)
 
       get '/api/v1/client/tickets', headers: cabecalho(entrar), as: :json
 
-      ticket = response.parsed_body['ticket_columns'].flat_map { |c| c['tickets'] }.first
+      ticket = response.parsed_body['tickets'].first
       expect(ticket).to include('id', 'display_id', 'title', 'status', 'priority', 'ticket_column_id')
     end
 
-    # O quadro nao e a busca: resolvido, fechado e cancelado saem dele, como no
+    # A lista nao e a busca: resolvido, fechado e cancelado saem dela, como no
     # Kanban interno.
-    it 'keeps finished tickets out of the board' do
+    it 'keeps finished tickets out of the list' do
       aberto = ticket_para(contato: cliente, titulo: 'Em andamento')
       encerrado = ticket_para(contato: cliente, titulo: 'Ja encerrado')
       # `update_columns` de proposito: cancelar pelo model exige motivo e
-      # dispara atividade, e o que este exemplo prova e so o recorte do quadro.
+      # dispara atividade, e o que este exemplo prova e so o recorte da lista.
       encerrado.update_columns(status: 'cancelled') # rubocop:disable Rails/SkipsModelValidations
 
       get '/api/v1/client/tickets', headers: cabecalho(entrar), as: :json
 
-      ids = response.parsed_body['ticket_columns'].flat_map { |c| c['tickets'].map { |t| t['id'] } }
+      ids = response.parsed_body['tickets'].map { |t| t['id'] }
       expect(ids).to include(aberto.id)
       expect(ids).not_to include(encerrado.id)
     end

@@ -80,12 +80,7 @@
       "SHOW_COMPLETED": "Show finished",
       "STATUS": "Status",
       "PRIORITY": "Priority",
-      "DESCRIPTION": "Follow your company tickets and open new ones.",
-      "VIEW": {
-        "LABEL": "View mode",
-        "LIST": "List",
-        "KANBAN": "Kanban"
-      }
+      "DESCRIPTION": "Follow your company tickets and open new ones."
     },
     "NEW_TICKET": {
       "TITLE": "Open a new ticket",

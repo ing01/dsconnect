@@ -94,6 +94,18 @@ describe('TicketListView', () => {
     ]);
   });
 
+  // A Área do Cliente, quando junta Mesas diferentes, entrega um grupo só e
+  // sem nome - não há faixa de Estágio para desenhar, e as linhas aparecem
+  // soltas (ver `ClientTicketsPage.vue`).
+  it('draws no header for a nameless group, but keeps its rows', () => {
+    const wrapper = montarAgrupado({
+      groups: [{ id: 'all', name: '', rows: [ticket(1), ticket(2)] }],
+    });
+
+    expect(faixas(wrapper)).toHaveLength(0);
+    expect(linhasTicket(wrapper)).toHaveLength(2);
+  });
+
   // O número ao lado do nome é o que diz se vale a pena abrir o grupo.
   it('counts the tickets of each Estagio', () => {
     const wrapper = montarAgrupado();

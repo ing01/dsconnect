@@ -80,12 +80,7 @@
       "SHOW_COMPLETED": "Mostrar finalizados",
       "STATUS": "Status",
       "PRIORITY": "Prioridade",
-      "DESCRIPTION": "Acompanhe os chamados da sua empresa e abra novos.",
-      "VIEW": {
-        "LABEL": "Forma de visualizar",
-        "LIST": "Lista",
-        "KANBAN": "Kanban"
-      }
+      "DESCRIPTION": "Acompanhe os chamados da sua empresa e abra novos."
     },
     "NEW_TICKET": {
       "TITLE": "Abrir um novo chamado",
