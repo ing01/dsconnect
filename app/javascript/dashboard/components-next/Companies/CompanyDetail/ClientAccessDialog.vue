@@ -66,8 +66,21 @@ const salvar = async () => {
     );
     emit('saved', data);
   } catch (error) {
+    // So quem administra pode liberar acesso (ver `ContactPolicy#client_access?`) -
+    // quem nao e' deixa passar pelo Pundit com 401/sem corpo `message`, e cai
+    // direto no fallback generico de baixo sem dizer o motivo.
+    if (error?.response?.status === 401) {
+      useAlert(t('COMPANIES.DETAIL.CONTACTS.CLIENT_ACCESS.FORBIDDEN'));
+      return;
+    }
+
+    // A validacao do backend (email/senha faltando, por exemplo) manda
+    // `message`; a maioria dos outros erros da API manda `error` - os dois
+    // precisam ser lidos, senao um deles sempre cai no texto generico abaixo,
+    // escondendo o motivo real.
     useAlert(
       error?.response?.data?.message ||
+        error?.response?.data?.error ||
         t('COMPANIES.DETAIL.CONTACTS.CLIENT_ACCESS.ERROR')
     );
   } finally {

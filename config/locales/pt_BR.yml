@@ -39,6 +39,13 @@ pt_BR:
         restrict_dependent_destroy:
           has_one: 'Não é possível excluir o registro pois existe um(a) %{record} dependente'
           has_many: 'Não é possível excluir o registro pois existem %{record} dependentes'
+    attributes:
+      # So os dois campos da liberacao de acesso a Area do Cliente - sem isto,
+      # a mensagem de validacao ("Email e obrigatorio...") saia com o nome do
+      # atributo em ingles no meio de uma frase em portugues.
+      contact:
+        email: 'E-mail'
+        password: 'Senha'
   inbox:
     reauthorization:
       success: 'Canal reautenticado com sucesso'

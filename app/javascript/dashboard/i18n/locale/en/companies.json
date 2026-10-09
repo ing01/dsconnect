@@ -219,7 +219,8 @@
           "CONFIRM": "Save",
           "ENABLED": "Client Area access enabled.",
           "DISABLED": "Client Area access disabled.",
-          "ERROR": "Could not save the access."
+          "ERROR": "Could not save the access.",
+          "FORBIDDEN": "Only administrators can enable or disable Client Area access."
         }
       },
       "AVATAR": {

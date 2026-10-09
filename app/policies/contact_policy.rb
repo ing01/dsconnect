@@ -52,10 +52,11 @@ class ContactPolicy < ApplicationPolicy
   end
 
   # Liberar acesso a Area do Cliente e emitir uma credencial de login para
-  # alguem de fora - decisao de administrador, e nao tratativa de atendimento.
-  # Por isso fica ao lado de `destroy?`/`import?`, e nao de `update?`.
+  # alguem de fora - qualquer agente pode fazer isso, e nao so' administrador
+  # (pedido explicito: quem atende o cliente e quem sabe que ele precisa de
+  # acesso ao Portal).
   def client_access?
-    @account_user.administrator?
+    true
   end
 end
 

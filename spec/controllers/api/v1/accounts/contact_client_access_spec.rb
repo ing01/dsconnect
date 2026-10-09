@@ -70,11 +70,12 @@ RSpec.describe 'Contact client access', type: :request do
     expect(contato.access_token).to be_nil
   end
 
-  # Emitir credencial de login para alguem de fora e decisao de administrador.
-  it 'refuses a plain agent' do
+  # Pedido explicito: nao e so' decisao de administrador - quem atende o
+  # cliente e quem sabe que ele precisa de acesso ao Portal.
+  it 'allows a plain agent too' do
     habilitar({ enabled: true, password: 'SenhaDoCliente@01' }, user: agente)
 
-    expect(response).to have_http_status(:unauthorized)
-    expect(contato.reload.client_access?).to be(false)
+    expect(response).to have_http_status(:success)
+    expect(contato.reload.client_access?).to be(true)
   end
 end

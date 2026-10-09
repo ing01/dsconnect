@@ -219,7 +219,8 @@
           "CONFIRM": "Salvar",
           "ENABLED": "Acesso à Área do Cliente liberado.",
           "DISABLED": "Acesso à Área do Cliente desativado.",
-          "ERROR": "Não foi possível salvar o acesso."
+          "ERROR": "Não foi possível salvar o acesso.",
+          "FORBIDDEN": "Apenas administradores podem liberar ou desativar o acesso à Área do Cliente."
         }
       },
       "AVATAR": {

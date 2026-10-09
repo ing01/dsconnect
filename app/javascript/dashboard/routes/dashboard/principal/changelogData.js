@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-access-error-message-fix',
+    date: '9 de outubro de 2026',
+    isoDate: '2026-10-09',
+    type: 'fix',
+    title: 'Erro ao liberar acesso ao Portal agora diz o motivo',
+    description:
+      'Liberar o acesso de um contato à Área do Cliente sempre mostrava "Não foi possível salvar o acesso", mesmo quando o motivo era outro. A tela agora mostra o motivo real sempre que o servidor informa um. Além disso, qualquer agente - não só administrador - já pode liberar ou desativar esse acesso.',
+  },
+  {
     id: 'client-area-tickets-single-list',
     date: '9 de outubro de 2026',
     isoDate: '2026-10-09',
