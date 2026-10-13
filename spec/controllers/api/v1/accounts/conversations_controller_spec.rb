@@ -361,6 +361,29 @@ RSpec.describe 'Conversations API', type: :request do
         expect(response).to have_http_status(:success)
         expect(JSON.parse(response.body, symbolize_names: true)[:id]).to eq(conversation.display_id)
       end
+
+      # A Mesa do ticket vinculado - pra lista de conversas poder dizer, ao
+      # lado de quem atende, se aquele assunto e' de uma Mesa ou de outra.
+      it 'carries the Mesa name of a ticket linked to the conversation' do
+        team = create(:team, account: account, name: 'Suporte N2')
+        column = create(:ticket_column, team: team)
+        ticket = create(:ticket, account: account, team: team, ticket_column: column)
+        ticket.ticket_conversations.create!(account_id: account.id, conversation: conversation)
+
+        get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}",
+            headers: administrator.create_new_auth_token,
+            as: :json
+
+        expect(response.parsed_body['ticket_team_name']).to eq(team.reload.name)
+      end
+
+      it 'carries no Mesa name when there is no linked ticket' do
+        get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}",
+            headers: administrator.create_new_auth_token,
+            as: :json
+
+        expect(response.parsed_body['ticket_team_name']).to be_nil
+      end
     end
   end
 

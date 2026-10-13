@@ -10,6 +10,7 @@ import CardPriorityIcon from 'dashboard/components-next/Conversation/Conversatio
 import UnreadBadge from 'dashboard/components-next/Conversation/ConversationCard/UnreadBadge.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import RequeuedCardLabel from './components/RequeuedCardLabel.vue';
+import TicketMesaCardLabel from './components/TicketMesaCardLabel.vue';
 import VoiceCallStatus from './VoiceCallStatus.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 
@@ -183,6 +184,7 @@ watch(
             class="size-3 text-n-slate-11 flex-shrink-0"
           />
           <span class="truncate">{{ assignee.name }}</span>
+          <TicketMesaCardLabel :chat="chat" class="flex-shrink-0" />
         </span>
         <RequeuedCardLabel :chat="chat" class="flex-shrink-0" />
         <CardPriorityIcon :priority="chat.priority" class="flex-shrink-0" />

@@ -231,7 +231,7 @@ class ConversationFinder
   def conversations_base_query
     @conversations.includes(
       :taggings, :inbox, { assignee: { avatar_attachment: [:blob] } }, { contact: { avatar_attachment: [:blob] } }, :team, :queue,
-      :contact_inbox
+      :contact_inbox, { tickets: :team }
     )
   end
 

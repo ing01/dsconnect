@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'conversation-card-ticket-mesa',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'improvement',
+    title: 'Lista de conversas mostra a Mesa do ticket vinculado',
+    description:
+      'Cada card da lista de conversas já mostrava o responsável pela conversa - agora, quando existe um ticket vinculado a ela, a Mesa desse ticket aparece ao lado do nome, para qualquer equipe reconhecer de cara se o assunto é dela ou de outro time.',
+  },
+  {
     id: 'login-wrong-password-pt-br',
     date: '13 de outubro de 2026',
     isoDate: '2026-10-13',

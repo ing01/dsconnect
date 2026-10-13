@@ -67,4 +67,9 @@ json.waiting_since conversation.waiting_since.to_i.to_i
 json.requeued_at conversation.requeued_at.to_i
 sla_applicable = conversation.account.feature_enabled?('sla') && (!conversation.respond_to?(:sla_applicable?) || conversation.sla_applicable?)
 json.sla_policy_id sla_applicable ? conversation.sla_policy_id : nil
+# A Mesa do ticket vinculado - e nao `conversation.team` (recurso nativo do
+# Chatwoot, sem relacao com o Kanban de tickets deste app). Uma conversa pode
+# ter mais de um ticket; o primeiro e' o caso comum e o suficiente pro cartao
+# da lista so' dizer de qual Mesa e' o assunto.
+json.ticket_team_name conversation.tickets.first&.team&.name
 json.partial! 'enterprise/api/v1/conversations/partials/conversation', conversation: conversation if ChatwootApp.enterprise?
