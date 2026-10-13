@@ -59,6 +59,14 @@ class Tickets::ImportService
   # outro comeca, entao esses casos continuam colados.
   DESCRIPTION_LABEL_BREAK_REGEX = /(?<=[^\s\p{Lu}])(\p{Lu}[\p{Lu}\sº°]{1,30}:)/
 
+  # Outra planilha de origem usa "→" como separador de paragrafo em vez de
+  # quebra de linha de verdade: "...antecedencia.→ Cliente informou..." -
+  # mas o MESMO caractere tambem aparece DENTRO de um valor, como trilha/
+  # caminho ("DS ONE → Conhecimento de Transporte"), onde NAO e' quebra de
+  # paragrafo nenhuma. So' conta como quebra quando vem logo apos um ponto
+  # final (fim de frase) - e' o que distingue os dois casos.
+  DESCRIPTION_ARROW_BREAK_REGEX = /\.\s*→\s*/
+
   # Da esquerda (nome que a planilha usa) pro nome de campo interno.
   HEADER_ALIASES = {
     'número' => 'numero', 'numero' => 'numero',
@@ -418,6 +426,7 @@ class Tickets::ImportService
   end
 
   def normalize_description(text)
+    text = text.gsub(DESCRIPTION_ARROW_BREAK_REGEX, ".\n\n")
     text.gsub(DESCRIPTION_LABEL_BREAK_REGEX) { "\n\n#{Regexp.last_match(1)}" }
   end
 

@@ -49,6 +49,15 @@ class Ticket < ApplicationRecord
   validate :ticket_column_belongs_to_account
   validate :team_matches_ticket_column
 
+  # Sobrescreve o teto generico do ApplicationRecord (255 pra string, 20 mil
+  # pra text - anti-DOS) so' pra estes dois campos: planilhas de importacao
+  # reais (Movidesk) trazem historico de desenvolvimento e descricoes bem
+  # mais longos que isso. Nenhuma das duas colunas tem limite no banco
+  # (`t.string "jira_key"` sem `limit:`, `t.text "description"`) - so' a
+  # validacao generica barrava.
+  validates :jira_key, length: { maximum: ApplicationRecord::MAX_TEXT_COLUMN_LENGTH }
+  validates :description, length: { maximum: 100_000 }
+
   enum priority: { low: 0, medium: 1, high: 2, urgent: 3 }
   # Lifecycle status. Intentionally independent from `ticket_column` (which
   # represents the Kanban workflow stage/queue a ticket is currently in) and
