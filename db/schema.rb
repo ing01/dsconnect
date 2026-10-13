@@ -932,6 +932,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_13_162016) do
     t.jsonb "subscription_attributes", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "subscription_type", default: 1, null: false
     t.index ["account_id"], name: "index_client_push_subscriptions_on_account_id"
     t.index ["contact_id"], name: "index_client_push_subscriptions_on_contact_id"
   end
