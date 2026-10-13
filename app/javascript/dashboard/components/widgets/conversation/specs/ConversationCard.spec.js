@@ -97,5 +97,19 @@ describe('ConversationCard', () => {
         wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
       ).toBe(false);
     });
+
+    // O caso comum: a conversa quase nunca tem um ticket vinculado, mas pode
+    // ter um Time nativo atribuido pelo menu "Atribuir Time" - a faixa
+    // precisa aparecer so' por causa dele, mesmo sem nenhum outro motivo.
+    it('reserves the row when only the conversation’s own Time is present (no linked ticket)', () => {
+      const wrapper = mountComponent({
+        ticket_team_name: null,
+        meta: { team: { name: 'Suporte' } },
+      });
+
+      expect(
+        wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
+      ).toBe(true);
+    });
   });
 });

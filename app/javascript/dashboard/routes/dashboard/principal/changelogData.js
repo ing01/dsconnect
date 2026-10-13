@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'conversation-card-mesa-fallback-to-conversation-team',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'fix',
+    title: 'Mesa no card da conversa: agora aparece de verdade',
+    description:
+      'A Mesa só aparecia quando havia um TICKET vinculado à conversa - e isso é raro no dia a dia (só acontece em alguns fluxos específicos), então o rótulo quase nunca era mostrado. Agora, na falta de um ticket vinculado, ele mostra o Time da própria conversa (o mesmo definido em "Atribuir Time", no menu da conversa) - que é o que realmente existe na maioria dos casos.',
+  },
+  {
     id: 'conversation-card-ticket-mesa-always-visible',
     date: '13 de outubro de 2026',
     isoDate: '2026-10-13',

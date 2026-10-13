@@ -51,12 +51,19 @@ const voiceCallData = computed(() => {
   };
 });
 
+// A Mesa que aparece aqui e' a do ticket vinculado OU, na falta dele (o caso
+// comum), a do Time nativo da conversa - mesma regra de TicketMesaCardLabel.
+// Repetida aqui porque e' o que decide se a faixa inteira existe.
+const hasMesaToShow = computed(
+  () => props.chat.ticket_team_name || props.chat.meta?.team?.name
+);
+
 const showMetaSection = computed(() => {
   return (
     (props.showAssignee && props.assignee.name) ||
     props.chat.priority ||
     props.chat.requeued_at ||
-    props.chat.ticket_team_name
+    hasMesaToShow.value
   );
 });
 
