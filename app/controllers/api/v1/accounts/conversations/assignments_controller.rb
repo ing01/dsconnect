@@ -65,7 +65,36 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
     @conversation.with_lock do
       @conversation.update!(team: @team)
     end
+    sync_linked_tickets_to_team if @team
     render json: @team
+  end
+
+  # "Atribuir Time" na conversa e a Mesa do Ticket eram dois campos sem
+  # nenhuma ligacao - trocar o Time aqui nunca movia o ticket vinculado, e o
+  # cartao da lista (que mostra a Mesa do TICKET) ficava parado. Qualquer
+  # ticket vinculado a esta conversa passa a seguir para a mesma Mesa, pelo
+  # Estagio de entrada dela - o mesmo caminho de Tickets::TransferService
+  # que a tela de Transferir usa.
+  def sync_linked_tickets_to_team
+    column = entry_column(@team)
+    return unless column
+
+    @conversation.tickets.where.not(team_id: @team.id).find_each do |ticket|
+      Tickets::TransferService.new(
+        ticket: ticket, user: Current.user,
+        attributes: { team_id: @team.id, ticket_column_id: column.id }
+      ).perform
+    rescue ActiveRecord::RecordInvalid
+      # O Estagio de entrada da Mesa nova pode exigir algo que o ticket ainda
+      # nao tem (prazo, responsavel...) - a troca de Time da conversa nao
+      # pode travar por isso; o ticket so fica de fora, pra alguem mover a
+      # mao mais tarde.
+      next
+    end
+  end
+
+  def entry_column(team)
+    team.ticket_columns.find_by(kind: 'pending') || team.ticket_columns.order(:position, :id).first
   end
 
   def agent_bot_assignment?

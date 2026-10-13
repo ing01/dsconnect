@@ -243,6 +243,11 @@ const actions = {
         teamId,
       });
       dispatch('setCurrentChatTeam', { team: response.data, conversationId });
+      // O servidor pode ter movido um ticket vinculado para esta mesma Mesa
+      // (ver Api::V1::Accounts::Conversations::AssignmentsController) - essa
+      // resposta so' traz o Time, nao o `ticket_team_name` novo, entao o
+      // card da lista so' atualiza buscando a conversa de novo.
+      dispatch('getConversation', conversationId);
     } catch (error) {
       // Handle error
     }

@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'assign-team-moves-ticket-mesa',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'improvement',
+    title: '"Atribuir Time" na conversa agora move a Mesa do ticket junto',
+    description:
+      'Atribuir uma conversa a um Time, pelo menu da conversa, agora também transfere o ticket vinculado a ela para essa mesma Mesa (pelo Estágio de entrada dela) - os dois campos ficam sincronizados, e o card da lista de conversas já mostra a Mesa certa. Se o Estágio de entrada exigir algo que o ticket ainda não tem (prazo, responsável), ele fica de fora da troca, sem travar a atribuição do Time.',
+  },
+  {
     id: 'conversation-card-ticket-mesa',
     date: '13 de outubro de 2026',
     isoDate: '2026-10-13',

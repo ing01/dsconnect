@@ -406,13 +406,21 @@ describe('#actions', () => {
   });
 
   describe('#assignTeam', () => {
-    it('sends correct mutations if assignment is successful', async () => {
+    // O servidor pode ter movido um ticket vinculado a esta conversa para a
+    // mesma Mesa (ver AssignmentsController) - a resposta deste endpoint so'
+    // traz o Time, nao o `ticket_team_name` novo, entao o card da lista so'
+    // pega essa troca buscando a conversa de novo.
+    it('re-fetches the conversation after assigning its team, so the linked ticket Mesa refreshes too', async () => {
       axios.post.mockResolvedValue({
         data: { id: 1, name: 'Team' },
       });
-      await actions.assignTeam({ commit }, { conversationId: 1, teamId: 1 });
-      expect(commit).toHaveBeenCalledTimes(0);
-      expect(commit.mock.calls).toEqual([]);
+      await actions.assignTeam({ dispatch }, { conversationId: 1, teamId: 1 });
+
+      expect(dispatch).toHaveBeenCalledWith('setCurrentChatTeam', {
+        team: { id: 1, name: 'Team' },
+        conversationId: 1,
+      });
+      expect(dispatch).toHaveBeenCalledWith('getConversation', 1);
     });
   });
 

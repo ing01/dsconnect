@@ -90,6 +90,62 @@ RSpec.describe 'Conversation Assignment API', type: :request do
         # assignee will be from team
         expect(conversation.reload.assignee).to eq(team_member)
       end
+
+      # O card da lista de conversas mostra a Mesa do TICKET vinculado, nao a
+      # da conversa - sem isto, "Atribuir Time" na conversa nunca refletia
+      # ali, porque os dois campos viviam sem nenhuma ligacao.
+      context 'with a ticket linked to the conversation' do
+        let(:origem) { create(:team, account: account) }
+        let(:ticket) do
+          coluna = origem.ticket_columns.first
+          criado = create(:ticket, account: account, team: origem, ticket_column: coluna)
+          criado.ticket_conversations.create!(account_id: account.id, conversation: conversation)
+          criado
+        end
+
+        it "moves the linked ticket's Mesa along with the conversation's team" do
+          ticket
+          post api_v1_account_conversation_assignments_url(account_id: account.id, conversation_id: conversation.display_id),
+               params: { team_id: team.id },
+               headers: agent.create_new_auth_token,
+               as: :json
+
+          expect(response).to have_http_status(:success)
+          ticket.reload
+          expect(ticket.team).to eq(team)
+          expect(ticket.ticket_column.team).to eq(team)
+        end
+
+        # A troca de Time da conversa nao pode travar por causa do ticket -
+        # o Estagio de entrada da Mesa nova pode exigir algo que ele ainda
+        # nao tem (responsavel, no exemplo).
+        it 'leaves a ticket behind, without failing, when the destination Estagio has unmet requirements' do
+          team.ticket_columns.first.update!(require_assignee: true)
+          ticket.update_columns(assignee_id: nil) # rubocop:disable Rails/SkipsModelValidations
+
+          post api_v1_account_conversation_assignments_url(account_id: account.id, conversation_id: conversation.display_id),
+               params: { team_id: team.id },
+               headers: agent.create_new_auth_token,
+               as: :json
+
+          expect(response).to have_http_status(:success)
+          expect(conversation.reload.team).to eq(team)
+          expect(ticket.reload.team).to eq(origem)
+        end
+
+        it 'does not move the ticket when the team is being cleared, not assigned' do
+          conversation.update!(team: team)
+
+          post api_v1_account_conversation_assignments_url(account_id: account.id, conversation_id: conversation.display_id),
+               params: { team_id: 0 },
+               headers: agent.create_new_auth_token,
+               as: :json
+
+          expect(response).to have_http_status(:success)
+          expect(conversation.reload.team).to be_nil
+          expect(ticket.reload.team).to eq(origem)
+        end
+      end
     end
 
     context 'when it is an authenticated bot with access to the inbox' do
