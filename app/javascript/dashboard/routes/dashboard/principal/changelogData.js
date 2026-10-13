@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'conversation-card-ticket-mesa-always-visible',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'fix',
+    title: 'Mesa do ticket no card da conversa agora sempre aparece',
+    description:
+      'A Mesa do ticket vinculado só aparecia quando o nome de quem atende também aparecia - e a aba "Minhas conversas" esconde esse nome de propósito, então a Mesa ficava invisível justamente na tela mais usada. Agora ela aparece sempre que há um ticket vinculado, em qualquer aba e nos dois formatos de card (compacto e expandido).',
+  },
+  {
     id: 'suggestion-notification-opens-right-screen',
     date: '13 de outubro de 2026',
     isoDate: '2026-10-13',

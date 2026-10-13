@@ -58,13 +58,23 @@ describe('ConversationCard', () => {
     expect(wrapper.findComponent({ name: 'CardLabels' }).exists()).toBe(false);
   });
 
-  // Pedido: a Mesa do ticket vinculado ao lado de quem atende, pra dar pra
-  // ver de cara se o assunto e' de uma Mesa ou de outra.
+  // Pedido: a Mesa do ticket vinculado precisa ser aparente - e e' informacao
+  // do TICKET, nao de quem atende, entao nao pode depender de `showAssignee`
+  // estar ligado (a aba "Minhas conversas" o deixa desligado de proposito,
+  // por ser obvio quem atende) nem de haver responsavel.
   describe('the linked ticket Mesa', () => {
-    const mountWithAssignee = ticketTeamName =>
-      shallowMount(ConversationCard, {
+    it('shows it even when the assignee name is hidden (ex.: aba "Minhas conversas")', () => {
+      const wrapper = mountComponent({ ticket_team_name: 'Suporte N2' });
+
+      expect(
+        wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
+      ).toBe(true);
+    });
+
+    it('shows it alongside the assignee name when that is also visible', () => {
+      const wrapper = shallowMount(ConversationCard, {
         props: {
-          chat: { ...defaultChat, ticket_team_name: ticketTeamName },
+          chat: { ...defaultChat, ticket_team_name: 'Suporte N2' },
           currentContact: { name: 'Jane Doe' },
           assignee: { name: 'Maria Suporte' },
           showAssignee: true,
@@ -73,19 +83,15 @@ describe('ConversationCard', () => {
         global: { stubs: { 'fluent-icon': true } },
       });
 
-    it('shows it next to the assignee name when the ticket has a Mesa', () => {
-      const wrapper = mountWithAssignee('Suporte N2');
-
       expect(
         wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
       ).toBe(true);
     });
 
-    it('is not mounted when the assignee name is not shown', () => {
-      // Mesmo gatilho que esconde o nome do agente (`showAssignee`/
-      // `assignee.name`) - o rotulo de Mesa vive dentro do mesmo bloco, de
-      // proposito: "ao lado do nome do agente" pressupoe que o nome apareca.
-      const wrapper = mountComponent({ ticket_team_name: 'Suporte N2' });
+    // Sem Mesa, sem responsavel visivel, sem prioridade e sem "devolvida" -
+    // a faixa inteira fica de fora (nao uma faixa vazia ocupando espaco).
+    it('reserves no row at all when there is nothing to show in it', () => {
+      const wrapper = mountComponent({ ticket_team_name: null });
 
       expect(
         wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()

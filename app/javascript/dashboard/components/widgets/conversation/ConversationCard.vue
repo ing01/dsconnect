@@ -55,7 +55,8 @@ const showMetaSection = computed(() => {
   return (
     (props.showAssignee && props.assignee.name) ||
     props.chat.priority ||
-    props.chat.requeued_at
+    props.chat.requeued_at ||
+    props.chat.ticket_team_name
   );
 });
 
@@ -184,10 +185,16 @@ watch(
             class="size-3 text-n-slate-11 flex-shrink-0"
           />
           <span class="truncate">{{ assignee.name }}</span>
-          <TicketMesaCardLabel :chat="chat" class="flex-shrink-0" />
         </span>
-        <RequeuedCardLabel :chat="chat" class="flex-shrink-0" />
-        <CardPriorityIcon :priority="chat.priority" class="flex-shrink-0" />
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <!-- Fora do `v-if` do responsavel de proposito: a Mesa do ticket e'
+               informacao do TICKET, nao de quem atende - precisa aparecer
+               mesmo na aba "Minhas conversas" (onde o nome de quem atende
+               fica escondido por ser obvio) e mesmo sem responsavel nenhum. -->
+          <TicketMesaCardLabel :chat="chat" />
+          <RequeuedCardLabel :chat="chat" />
+          <CardPriorityIcon :priority="chat.priority" />
+        </div>
       </div>
       <h4
         class="conversation--user text-base my-0 mx-2 capitalize pt-0.5 text-ellipsis overflow-hidden whitespace-nowrap flex-1 min-w-0 text-n-slate-12"
