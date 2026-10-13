@@ -88,7 +88,7 @@ class Api::V1::Accounts::CalendarEventsController < Api::V1::Accounts::BaseContr
 
   def calendar_event_params
     params.require(:calendar_event).permit(
-      :title, :description, :start_at, :end_at, :all_day, :location, :color, :team_id,
+      :title, :description, :start_at, :end_at, :all_day, :location, :color, :team_id, :event_type,
       :recurrence_frequency, :recurrence_interval, :recurrence_end_at, :recurrence_count,
       attendee_ids: [], ticket_ids: []
     )

@@ -6,6 +6,7 @@ json.end_at resource.end_at.iso8601
 json.all_day resource.all_day
 json.location resource.location
 json.color resource.color
+json.event_type resource.event_type
 json.team_id resource.team_id
 json.created_by_id resource.created_by_id
 json.created_by_name resource.created_by&.name

@@ -47,8 +47,14 @@
         "LABEL": "Local",
         "PLACEHOLDER": "Ex.: Sala de reuniões, link da chamada..."
       },
+      "EVENT_TYPE": {
+        "EVENT": "Compromisso",
+        "TIME_OFF": "Folga"
+      },
       "ATTENDEES": "Participantes",
+      "ATTENDEES_TIME_OFF_LABEL": "Quem está de folga",
       "ATTENDEES_COLOR_HINT": "A cor do evento na agenda segue quem criou o evento.",
+      "ATTENDEES_REQUIRED_FOR_TIME_OFF_ERROR": "Selecione pelo menos um agente para marcar a folga.",
       "TICKETS": "Tickets vinculados",
       "TICKETS_SEARCH_PLACEHOLDER": "Pesquisar tickets do time...",
       "NO_TICKETS": "Nenhum ticket encontrado para este time.",

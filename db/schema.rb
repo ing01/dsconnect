@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_13_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_13_162016) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -419,6 +419,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_13_100000) do
     t.datetime "recurrence_end_at"
     t.integer "recurrence_count"
     t.bigint "recurrence_parent_id"
+    t.integer "event_type", default: 0, null: false
     t.index ["account_id"], name: "index_calendar_events_on_account_id"
     t.index ["created_by_id"], name: "index_calendar_events_on_created_by_id"
     t.index ["recurrence_parent_id"], name: "index_calendar_events_on_recurrence_parent_id"
@@ -931,6 +932,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_13_100000) do
     t.jsonb "subscription_attributes", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "subscription_type", default: 1, null: false
     t.index ["account_id"], name: "index_client_push_subscriptions_on_account_id"
     t.index ["contact_id"], name: "index_client_push_subscriptions_on_contact_id"
   end

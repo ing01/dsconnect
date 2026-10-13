@@ -236,6 +236,21 @@ export default {
     deleteEventConfirmed() {
       this.performDelete();
     },
+    // Arrastar/redimensionar na propria grade: salva direto, sem abrir o
+    // formulario - eventos recorrentes nunca chegam aqui (AgendaEventBlock
+    // nao arrasta uma ocorrencia de serie, ver o comentario na prop
+    // `draggable` dele).
+    async moveEvent({ event, startAt, endAt }) {
+      try {
+        await this.$store.dispatch('calendarEvents/update', {
+          id: event.id,
+          start_at: startAt.toISOString(),
+          end_at: endAt.toISOString(),
+        });
+      } catch (error) {
+        useAlert(this.$t('AGENDA.API.ERROR_MESSAGE'));
+      }
+    },
   },
 };
 </script>
@@ -289,6 +304,7 @@ export default {
         class="flex-1 min-h-0"
         @create-event="openCreateEvent"
         @open-event="openEditEvent"
+        @move-event="moveEvent"
       />
       <AgendaDayView
         v-else
@@ -297,6 +313,7 @@ export default {
         class="flex-1 min-h-0"
         @create-event="openCreateEvent"
         @open-event="openEditEvent"
+        @move-event="moveEvent"
       />
     </template>
 

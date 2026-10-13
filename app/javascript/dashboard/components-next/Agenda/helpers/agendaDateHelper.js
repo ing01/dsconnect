@@ -44,6 +44,8 @@ export const buildWeekDays = referenceDate => {
 export const isAllDayEvent = event =>
   event.all_day || differenceInCalendarDays(parseISO(event.end_at), parseISO(event.start_at)) >= 1;
 
+export const isTimeOffEvent = event => event.event_type === 'time_off';
+
 // For every day in [gridStart, gridEnd], collects the events that occupy
 // that day (single-day events land on exactly one day; multi-day events
 // repeat on every day they cover). `end_at` is inclusive (end of the last

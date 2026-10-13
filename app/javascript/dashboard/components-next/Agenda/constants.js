@@ -1,8 +1,11 @@
-export const HOUR_HEIGHT_PX = 48;
-export const DAY_START_HOUR = 0;
-export const DAY_END_HOUR = 24;
+export const HOUR_HEIGHT_PX = 56;
+export const DAY_START_HOUR = 7;
+export const DAY_END_HOUR = 18;
 export const MAX_PILLS_PER_CELL = 3;
 export const MIN_EVENT_DURATION_MINUTES = 15;
+// Arrastar/redimensionar um evento sempre arredonda pra este multiplo de
+// minutos - o mesmo "passo" que o clique-pra-criar ja usava.
+export const DRAG_SNAP_MINUTES = 15;
 
 export const EVENT_COLOR_OPTIONS = [
   '#2563eb',

@@ -17,6 +17,25 @@ export const CHANGELOG_ENTRIES = [
       'A Mesa só aparecia quando havia um TICKET vinculado à conversa - e isso é raro no dia a dia (só acontece em alguns fluxos específicos), então o rótulo quase nunca era mostrado. Agora, na falta de um ticket vinculado, ele mostra o Time da própria conversa (o mesmo definido em "Atribuir Time", no menu da conversa) - que é o que realmente existe na maioria dos casos.',
   },
   {
+    id: 'agenda-redesign-time-off-drag',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'feature',
+    title:
+      'Agenda renovada: arrastar, horário de atendimento e folga de agente',
+    description:
+      'A Agenda (Semana/Dia) agora mostra só o horário das 8h às 18h, com uma linha marcando a hora atual. Dá para arrastar um evento direto na grade para mudar horário/dia, e puxar a borda de baixo para mudar a duração - sem precisar abrir o formulário (eventos recorrentes continuam abrindo o formulário normalmente). Novo tipo de evento "Folga": ao criar um evento, um alternador no topo troca entre "Compromisso" e "Folga" - a folga exige marcar pelo menos um agente, assume o dia inteiro automaticamente e aparece com um ícone e visual diferentes na agenda. O filtro de agentes também ficou mais visível, mostrando os avatares de quem está filtrado direto no botão.',
+  },
+  {
+    id: 'ticket-import-responsible-column',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'improvement',
+    title: 'Importação de tickets: coluna "Responsável"',
+    description:
+      'A planilha de importação de tickets (Configurações > Tickets > Importar) ganhou a coluna "Responsável": o nome ou e-mail casa com um agente/administrador já cadastrado na conta e vincula automaticamente como responsável do ticket importado. Quando não encontra ninguém com esse nome, o ticket é criado normalmente, só sem responsável, e um aviso lista a linha. O modelo de planilha baixável já vem com a nova coluna.',
+  },
+  {
     id: 'conversation-card-ticket-mesa-always-visible',
     date: '13 de outubro de 2026',
     isoDate: '2026-10-13',

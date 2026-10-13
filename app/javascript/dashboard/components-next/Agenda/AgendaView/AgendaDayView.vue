@@ -15,7 +15,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['create-event', 'open-event']);
+const emit = defineEmits(['create-event', 'open-event', 'move-event']);
 
 const days = computed(() => [props.referenceDate]);
 const allDayEvents = computed(() => props.events.filter(isAllDayEvent));
@@ -35,6 +35,7 @@ const handleSlotClick = date => emit('create-event', { start: date });
       :events="timedEvents"
       @slot-click="handleSlotClick"
       @event-click="event => emit('open-event', event)"
+      @event-drag-end="payload => emit('move-event', payload)"
     />
   </div>
 </template>
