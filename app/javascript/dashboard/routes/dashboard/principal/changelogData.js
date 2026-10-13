@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-kanban-keeps-state',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'fix',
+    title:
+      'Kanban de Tickets não perde mais filtro e rolagem ao abrir um ticket',
+    description:
+      'Abrir um ticket pelo Kanban e voltar para a tela apagava o filtro de responsável e voltava o scroll de cada coluna para o topo, porque a tela era recriada do zero a cada ida e volta. Agora ela permanece viva em segundo plano - filtro, busca e a posição da rolagem continuam exatamente como foram deixados.',
+  },
+  {
     id: 'client-access-error-message-fix',
     date: '9 de outubro de 2026',
     isoDate: '2026-10-09',

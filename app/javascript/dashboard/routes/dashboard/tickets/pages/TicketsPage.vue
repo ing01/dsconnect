@@ -20,6 +20,11 @@ import TicketImpededModal from '../components/TicketImpededModal.vue';
 const LAST_TEAM_STORAGE_KEY = 'ticket-kanban-last-team-id';
 
 export default {
+  // Casado com o `include="TicketsPage"` do KeepAlive em
+  // TicketsWorkspaceRouteView.vue - sem o nome explicito aqui, o KeepAlive
+  // nao reconhece esta pagina e ela volta a ser destruida/recriada a cada
+  // ida e volta do Kanban, perdendo filtro e rolagem de novo.
+  name: 'TicketsPage',
   components: {
     NextButton,
     Spinner,
@@ -87,6 +92,17 @@ export default {
   },
   mounted() {
     this.$store.dispatch('teams/get').then(() => this.pickInitialTeam());
+  },
+  // So dispara em visitas SEGUINTES: o KeepAlive chama `activated` tambem na
+  // primeira montagem (junto com `mounted`, acima), mas `selectedTeamId`
+  // ainda esta nulo nesse instante - o guard abaixo evita um fetch duplicado
+  // no primeiro carregamento. Reler o quadro ao voltar (e nao so confiar no
+  // que ficou em cache) importa porque outro atendente pode ter movido um
+  // ticket enquanto esta tela estava em segundo plano.
+  activated() {
+    if (this.selectedTeamId) {
+      this.loadMesa(this.selectedTeamId);
+    }
   },
   methods: {
     // A brand-new account has no Mesa at all, which would leave the Kanban on a
