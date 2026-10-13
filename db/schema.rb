@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_09_110000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_13_100000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -2475,7 +2475,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_110000) do
     t.text "failure_message"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "updated_count", default: 0, null: false
+    t.bigint "user_id"
     t.index ["account_id"], name: "index_ticket_imports_on_account_id"
+    t.index ["user_id"], name: "index_ticket_imports_on_user_id"
   end
 
   create_table "ticket_routing_rules", force: :cascade do |t|
@@ -2828,6 +2831,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_110000) do
   add_foreign_key "ticket_followers", "tickets"
   add_foreign_key "ticket_followers", "users"
   add_foreign_key "ticket_imports", "accounts"
+  add_foreign_key "ticket_imports", "users"
   add_foreign_key "ticket_sla_extensions", "accounts"
   add_foreign_key "ticket_sla_extensions", "tickets"
   add_foreign_key "ticket_sla_extensions", "users"

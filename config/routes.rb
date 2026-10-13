@@ -549,7 +549,7 @@ Rails.application.routes.draw do
           # nao mexe num ticket especifico. `show` e consultado
           # periodicamente pra acompanhar o progresso (roda em segundo
           # plano - ver Tickets::ImportJob).
-          resources :ticket_imports, only: [:create, :show]
+          resources :ticket_imports, only: [:index, :create, :show]
 
           # Quadro de Sugestoes de melhoria - 1 por conta, nao aninhado em Team.
           resources :suggestions, only: [:index, :create, :update, :destroy] do

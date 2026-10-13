@@ -6,9 +6,12 @@
 # pra mostrar o progresso.
 class TicketImport < ApplicationRecord
   belongs_to :account
+  belongs_to :user, optional: true
   has_one_attached :file
 
   enum status: { pending: 0, processing: 1, completed: 2, failed: 3 }
+
+  scope :recent_first, -> { order(created_at: :desc) }
 
   def push_event_data
     {
@@ -17,10 +20,13 @@ class TicketImport < ApplicationRecord
       total_rows: total_rows,
       processed_rows: processed_rows,
       created_count: created_count,
+      updated_count: updated_count,
       skipped_count: skipped_count,
       row_errors: row_errors,
       row_warnings: row_warnings,
-      failure_message: failure_message
+      failure_message: failure_message,
+      created_at: created_at.to_i,
+      user_name: user&.name
     }
   end
 end

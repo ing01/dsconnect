@@ -795,10 +795,23 @@
           "PROCESSING_WITH_TOTAL": "Processando... {processed} de {total} linhas",
           "FAILED": "A importação falhou: {message}",
           "CREATED": "{count} ticket(s) criado(s)",
+          "UPDATED": "{count} ticket(s) atualizado(s)",
           "SKIPPED": "{count} linha(s) com erro",
           "ERRORS_TITLE": "Erros",
           "WARNINGS_TITLE": "Avisos",
           "ROW_MESSAGE": "Linha {row}: {message}"
+        },
+        "LOG": {
+          "TITLE": "Histórico de importações",
+          "UNKNOWN_USER": "Usuário não identificado",
+          "SHOW_DETAILS": "Ver detalhes",
+          "HIDE_DETAILS": "Ocultar detalhes",
+          "STATUS": {
+            "PENDING": "Na fila",
+            "PROCESSING": "Processando",
+            "COMPLETED": "Concluída",
+            "FAILED": "Falhou"
+          }
         }
       },
       "COMPLEXITY": {
