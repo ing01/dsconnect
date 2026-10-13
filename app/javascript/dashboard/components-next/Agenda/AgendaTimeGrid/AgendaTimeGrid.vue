@@ -15,7 +15,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['slot-click', 'event-click']);
+const emit = defineEmits(['slot-click', 'event-click', 'event-drag-end']);
 
 const hourLabels = computed(() =>
   Array.from({ length: DAY_END_HOUR - DAY_START_HOUR }, (_, i) =>
@@ -54,6 +54,7 @@ const eventsFor = day =>
         :day-end-hour="DAY_END_HOUR"
         @slot-click="date => emit('slot-click', date)"
         @event-click="event => emit('event-click', event)"
+        @event-drag-end="payload => emit('event-drag-end', payload)"
       />
     </div>
   </div>

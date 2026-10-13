@@ -118,6 +118,7 @@ class CalendarEvents::OccurrenceExpansionService
     def all_day = display_source.all_day
     def location = display_source.location
     def color = display_source.color
+    def event_type = display_source.event_type
     def team_id = display_source.team_id
     def created_by_id = display_source.created_by_id
     def created_by = display_source.created_by

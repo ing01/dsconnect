@@ -53,6 +53,7 @@ const recurrenceEndTypeFor = event => {
 const buildInitialForm = () => {
   if (props.event) {
     return {
+      event_type: props.event.event_type || 'event',
       title: props.event.title,
       description: props.event.description || '',
       all_day: props.event.all_day,
@@ -74,6 +75,7 @@ const buildInitialForm = () => {
   const start = props.initialStart || new Date();
   const end = addMinutes(start, 30);
   return {
+    event_type: 'event',
     title: '',
     description: '',
     all_day: false,
@@ -108,6 +110,7 @@ const toggleAttendee = id => {
   form.attendee_ids = form.attendee_ids.includes(id)
     ? form.attendee_ids.filter(attendeeId => attendeeId !== id)
     : [...form.attendee_ids, id];
+  attendeesError.value = '';
 };
 
 const toggleTicket = id => {
@@ -115,6 +118,22 @@ const toggleTicket = id => {
     ? form.ticket_ids.filter(ticketId => ticketId !== id)
     : [...form.ticket_ids, id];
 };
+
+const isTimeOff = computed(() => form.event_type === 'time_off');
+const attendeesError = ref('');
+
+// Trocar pra "Folga" assume dia inteiro de cara (o caso comum) - o agente
+// ainda pode desmarcar se for so' meio periodo. O contrario (voltando pra
+// "Compromisso") nao mexe no que a pessoa ja tinha escolhido.
+watch(
+  () => form.event_type,
+  eventType => {
+    if (eventType !== 'time_off') return;
+    form.all_day = true;
+    form.ticket_ids = [];
+    form.location = '';
+  }
+);
 
 watch(
   () => form.all_day,
@@ -128,6 +147,13 @@ watch(
 const handleSubmit = () => {
   if (!form.title.trim()) {
     titleError.value = t('AGENDA.FORM.TITLE.REQUIRED_ERROR');
+    return;
+  }
+  // Uma folga sem ninguem marcado nao diz de quem e' a ausencia - nao faz
+  // sentido existir sem isso, diferente de um compromisso comum (onde
+  // participante e' so' informativo).
+  if (isTimeOff.value && !form.attendee_ids.length) {
+    attendeesError.value = t('AGENDA.FORM.ATTENDEES_REQUIRED_FOR_TIME_OFF_ERROR');
     return;
   }
   if (new Date(form.end_at) < new Date(form.start_at)) {
@@ -165,6 +191,26 @@ onMounted(async () => {
       :header-title="isEditing ? t('AGENDA.FORM.EDIT_TITLE') : t('AGENDA.FORM.ADD_TITLE')"
     />
     <div class="px-8 pb-4 flex-1 overflow-y-auto">
+      <div class="flex gap-1 p-1 mb-4 rounded-lg bg-n-alpha-1 w-fit">
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          :class="!isTimeOff ? 'bg-n-solid-2 text-n-slate-12 shadow-sm' : 'text-n-slate-11 hover:text-n-slate-12'"
+          @click="form.event_type = 'event'"
+        >
+          {{ t('AGENDA.FORM.EVENT_TYPE.EVENT') }}
+        </button>
+        <button
+          type="button"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          :class="isTimeOff ? 'bg-n-solid-2 text-n-slate-12 shadow-sm' : 'text-n-slate-11 hover:text-n-slate-12'"
+          @click="form.event_type = 'time_off'"
+        >
+          <span class="i-lucide-palmtree size-3.5" />
+          {{ t('AGENDA.FORM.EVENT_TYPE.TIME_OFF') }}
+        </button>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
         <div class="flex flex-col gap-4">
           <woot-input
@@ -249,6 +295,7 @@ onMounted(async () => {
           </div>
 
           <woot-input
+            v-if="!isTimeOff"
             v-model="form.location"
             :label="t('AGENDA.FORM.LOCATION.LABEL')"
             :placeholder="t('AGENDA.FORM.LOCATION.PLACEHOLDER')"
@@ -267,7 +314,9 @@ onMounted(async () => {
 
         <div class="flex flex-col gap-4">
           <div v-if="teamMembers(teamId).length">
-            <span class="block mb-1 text-sm text-n-slate-11">{{ t('AGENDA.FORM.ATTENDEES') }}</span>
+            <span class="block mb-1 text-sm text-n-slate-11">
+              {{ isTimeOff ? t('AGENDA.FORM.ATTENDEES_TIME_OFF_LABEL') : t('AGENDA.FORM.ATTENDEES') }}
+            </span>
             <p class="mb-1.5 text-xs text-n-slate-10">{{ t('AGENDA.FORM.ATTENDEES_COLOR_HINT') }}</p>
             <div class="flex flex-wrap gap-2">
               <button
@@ -287,9 +336,10 @@ onMounted(async () => {
                 {{ member.name }}
               </button>
             </div>
+            <p v-if="attendeesError" class="mt-1 text-xs text-n-ruby-11">{{ attendeesError }}</p>
           </div>
 
-          <div class="flex flex-col flex-1 min-h-0">
+          <div v-if="!isTimeOff" class="flex flex-col flex-1 min-h-0">
             <span class="block mb-1 text-sm text-n-slate-11">{{ t('AGENDA.FORM.TICKETS') }}</span>
             <woot-input
               v-model="ticketSearchQuery"

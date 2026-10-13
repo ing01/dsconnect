@@ -22,6 +22,10 @@ class CalendarEvent < ApplicationRecord
   # se chama `none` porque colide com o método de classe
   # `ActiveRecord::Querying#none` (relação vazia).
   enum recurrence_frequency: { single: 0, daily: 1, weekly: 2, monthly: 3, yearly: 4 }
+  # `time_off` e' a folga/ausencia de um agente - mesmo mecanismo de evento de
+  # sempre (inclusive recorrente, ex: "toda sexta-feira"), so' com um visual
+  # diferente na agenda (ver colorForEvent/AgendaEventPill no frontend).
+  enum event_type: { event: 0, time_off: 1 }
 
   validates :title, presence: true
   validates :start_at, presence: true

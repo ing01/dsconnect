@@ -62,6 +62,12 @@ const agentFilterLabel = computed(() =>
     : t('AGENDA.AGENT_FILTER.BUTTON')
 );
 
+// Mostra quem esta filtrado direto no botao fechado - sem isso, o unico
+// jeito de lembrar quem estava selecionado era abrir o dropdown de novo.
+const selectedAgents = computed(() =>
+  props.agents.filter(agent => props.selectedAgentIds.includes(agent.id))
+);
+
 const teamOptions = computed(() =>
   props.teams.map(team => ({ value: team.id, label: team.name }))
 );
@@ -110,15 +116,31 @@ const handleTabChanged = tab => emit('change-view', tab.value);
 
       <OnClickOutside v-if="agents.length" @trigger="closeAgentFilter">
         <div class="relative">
-          <Button
-            icon="i-lucide-users"
-            trailing-icon
-            variant="faded"
-            :color="selectedAgentIds.length ? 'blue' : 'slate'"
-            size="sm"
-            :label="agentFilterLabel"
+          <button
+            type="button"
+            class="flex items-center gap-1.5 pl-1.5 pr-3 py-1 rounded-lg border text-sm font-medium transition-colors"
+            :class="
+              selectedAgentIds.length
+                ? 'border-n-blue-6 bg-n-blue-3 text-n-blue-11'
+                : 'border-n-weak text-n-slate-11 hover:bg-n-alpha-1'
+            "
             @click="toggleAgentFilter"
-          />
+          >
+            <span v-if="selectedAgents.length" class="flex -space-x-1.5">
+              <Avatar
+                v-for="agent in selectedAgents.slice(0, 3)"
+                :key="agent.id"
+                :name="agent.name"
+                :src="agent.thumbnail || agent.avatar_url"
+                :size="20"
+                rounded-full
+                class="ring-2 ring-n-solid-2"
+              />
+            </span>
+            <span v-else class="i-lucide-users size-4" />
+            {{ agentFilterLabel }}
+            <span class="i-lucide-chevron-down size-3.5" />
+          </button>
           <div
             v-if="isAgentFilterOpen"
             class="absolute right-0 z-20 mt-1 w-64 p-2 rounded-xl border border-n-weak bg-n-solid-2 shadow-lg"
