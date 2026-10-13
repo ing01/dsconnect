@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { OnClickOutside } from '@vueuse/components';
 import Button from 'dashboard/components-next/button/Button.vue';
 import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
@@ -83,9 +84,9 @@ const activeViewIndex = computed(() =>
 );
 
 const headerLabel = computed(() => {
-  if (props.view === 'month') return format(props.referenceDate, 'MMMM yyyy');
-  if (props.view === 'day') return format(props.referenceDate, 'PPP');
-  return format(props.referenceDate, 'MMMM yyyy');
+  if (props.view === 'month') return format(props.referenceDate, 'MMMM yyyy', { locale: ptBR });
+  if (props.view === 'day') return format(props.referenceDate, 'PPP', { locale: ptBR });
+  return format(props.referenceDate, 'MMMM yyyy', { locale: ptBR });
 });
 
 const handleTeamChange = value => emit('select-team', Number(value));
