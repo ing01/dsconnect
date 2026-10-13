@@ -11,6 +11,19 @@ class TicketColumn < ApplicationRecord
   has_many :operational_tickets, -> { operational.triaged.order(:position, :id) },
            class_name: 'Ticket', inverse_of: :ticket_column, dependent: nil
 
+  # Quantos tickets o quadro carrega por coluna. Sem isso, uma Mesa com
+  # milhares de tickets "aberto" numa so' coluna (ex: um lote grande de
+  # Tickets::ImportService que caiu como "aberto") faz `teams#show` tentar
+  # montar o board inteiro de uma vez - lento o bastante pra estourar o
+  # timeout e responder "Internal Server Error", derrubando a tela a ponto de
+  # nem os Estagios aparecerem. `board_tickets` e' o que a tela usa pra
+  # desenhar o quadro; `operational_tickets` (sem limite, acima) continua
+  # disponivel pra quem precisa do total de verdade (ex: a contagem exibida
+  # quando ha mais tickets do que o quadro mostra).
+  BOARD_TICKETS_LIMIT = 300
+  has_many :board_tickets, -> { operational.triaged.order(:position, :id).limit(BOARD_TICKETS_LIMIT) },
+           class_name: 'Ticket', inverse_of: :ticket_column, dependent: nil
+
   # `pending` and `completed` mark the mandatory "Pendente"/"Finalizado"
   # Estagios of a Mesa's Kanban: `pending` is where Projects::CreateTicketsService
   # lands new project tickets, `completed` is just the required "done" slot -

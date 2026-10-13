@@ -15,6 +15,12 @@ json.require_assignee resource.require_assignee
 # Only the operational tickets: resolved, closed and cancelled ones leave the
 # Kanban. They stay in the database and remain reachable through the
 # "Busca detalhada", which does not apply this scope.
-json.tickets resource.operational_tickets do |ticket|
+#
+# `board_tickets` caps how many load (TicketColumn::BOARD_TICKETS_LIMIT) so a
+# column with thousands of open tickets cannot make this request time out.
+# `tickets_total_count` says the real total, so the UI can show "mostrando
+# 300 de 4000" instead of silently hiding the rest.
+json.tickets resource.board_tickets do |ticket|
   json.partial! 'api/v1/models/ticket', formats: [:json], resource: ticket
 end
+json.tickets_total_count resource.operational_tickets.count
