@@ -10,7 +10,8 @@ require 'csv'
 # Contato, Time, Prioridade, Catalogo de Servicos, Area do Catalogo de
 # Servicos, Item, Ticket pai, Criado por, Criado em, Categoria, Data,
 # Desenvolvimento (chave do Jira - aparece na aba "Desenvolvimento" do
-# ticket).
+# ticket), Responsavel (agente/administrador da conta que fica responsavel
+# pelo ticket - casa por nome ou e-mail).
 #
 # Duas passadas: a primeira cria/atualiza os tickets (sem "Ticket pai"
 # ainda), a segunda liga o "Ticket pai" usando o "Numero" original que cada
@@ -86,7 +87,8 @@ class Tickets::ImportService
     'criado em' => 'criado_em',
     'categoria' => 'categoria',
     'data' => 'data',
-    'desenvolvimento' => 'desenvolvimento'
+    'desenvolvimento' => 'desenvolvimento',
+    'responsável' => 'responsavel', 'responsavel' => 'responsavel'
   }.freeze
 
   pattr_initialize [:account!, :csv_content!, :ticket_import!]
@@ -172,11 +174,12 @@ class Tickets::ImportService
     company = find_company(row['cliente'], warnings)
     contact = find_contact(row['contato'], company, warnings)
     service_catalog_item = find_service_catalog_item(row['catalogo'], row['area'], row['item'], warnings)
+    assignee = find_agent(row['responsavel'], warnings)
 
     attributes = {
       team: team, ticket_column: ticket_column, ticket_category: category,
       title: title, description: description, priority: priority, status: status,
-      company: company, contact: contact,
+      company: company, contact: contact, assignee: assignee,
       created_at: parse_date(row['criado_em']) || Time.current,
       scheduled_at: parse_date(row['data']),
       jira_key: row['desenvolvimento'].to_s.strip.presence
@@ -312,6 +315,16 @@ class Tickets::ImportService
     @contacts_by_name ||= account.contacts.each_with_object({}) { |c, h| h[c.name.to_s.strip.downcase] = c }
   end
 
+  # Casa tanto por nome quanto por e-mail - a planilha de origem costuma trazer
+  # o nome do atendente, mas o e-mail e' menos ambiguo quando duas pessoas tem o
+  # mesmo nome, entao os dois ficam disponiveis no mesmo indice.
+  def agents_by_identifier
+    @agents_by_identifier ||= account.users.each_with_object({}) do |u, h|
+      h[u.name.to_s.strip.downcase] = u
+      h[u.email.to_s.strip.downcase] = u
+    end
+  end
+
   # Inclui as Areas e os Itens de cada Catalogo - a busca por Area/Item vira
   # busca em array (`find`), sem consulta nenhuma por linha.
   def service_catalogs_by_name
@@ -374,6 +387,14 @@ class Tickets::ImportService
       return nil
     end
     contact
+  end
+
+  def find_agent(name, warnings)
+    return nil if name.blank?
+
+    agent = agents_by_identifier[name.to_s.strip.downcase]
+    warnings << "Responsável \"#{name}\" não encontrado - ticket criado sem responsável" if agent.blank?
+    agent
   end
 
   def find_service_catalog_item(catalog_name, area_name, item_name, warnings)

@@ -33,6 +33,7 @@ const TEMPLATE_HEADERS = [
   'Categoria',
   'Data',
   'Desenvolvimento',
+  'Responsável',
 ];
 const TEMPLATE_EXAMPLE_ROW = [
   '1001',
@@ -53,6 +54,7 @@ const TEMPLATE_EXAMPLE_ROW = [
   'Erro',
   '',
   'PROJ-123',
+  'Carlos Andrade',
 ];
 
 // A cada quanto tempo a tela busca o progresso de uma importacao rodando em
