@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { usePolicy } from 'dashboard/composables/usePolicy';
@@ -16,6 +16,7 @@ import { suggestionMatchesFilters } from '../helpers/suggestionFilters';
 const { t } = useI18n();
 const store = useStore();
 const router = useRouter();
+const route = useRoute();
 const { checkPermissions } = usePolicy();
 
 const canManage = computed(() =>
@@ -75,17 +76,34 @@ const detailDialog = ref(null);
 const createDialog = ref(null);
 const isCreating = ref(false);
 
-const loadBoard = () => {
+const openSuggestion = suggestion => detailDialog.value?.open(suggestion);
+
+// O clique numa notificacao de nova sugestao chega aqui como `?suggestion=` -
+// abre o card direto, em vez de deixar quem recebeu o aviso procurar a
+// sugestao sozinho no quadro. Precisa esperar `suggestions/get` responder:
+// antes disso a sugestao ainda nao esta na lista pra ser encontrada.
+const openLinkedSuggestion = () => {
+  const suggestionId = Number(route.query.suggestion);
+  if (!suggestionId) return;
+
+  const suggestion = suggestions.value.find(item => item.id === suggestionId);
+  if (suggestion) openSuggestion(suggestion);
+
+  // Tira da URL depois de usar - um F5 na tela nao deve reabrir o card.
+  const { suggestion: _unused, ...query } = route.query;
+  router.replace({ query });
+};
+
+const loadBoard = async () => {
   store.dispatch('suggestionColumns/get');
   store.dispatch('suggestionPriorities/get');
   store.dispatch('suggestionCategories/get');
   store.dispatch('agents/get');
-  store.dispatch('suggestions/get');
+  await store.dispatch('suggestions/get');
+  openLinkedSuggestion();
 };
 
 onMounted(loadBoard);
-
-const openSuggestion = suggestion => detailDialog.value?.open(suggestion);
 
 const openCreateDialog = () => createDialog.value?.open();
 

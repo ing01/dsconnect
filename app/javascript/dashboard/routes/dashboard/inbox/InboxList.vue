@@ -8,6 +8,7 @@ import { useUISettings } from 'dashboard/composables/useUISettings';
 import wootConstants from 'dashboard/constants/globals';
 import { INBOX_EVENTS } from 'dashboard/helper/AnalyticsHelper/events';
 
+import { notificationDestinationFor } from './helpers/notificationDestination';
 import InboxCard from 'dashboard/components-next/Inbox/InboxCard.vue';
 import InboxListHeader from './components/InboxListHeader.vue';
 import IntersectionObserver from 'dashboard/components/IntersectionObserver.vue';
@@ -165,44 +166,20 @@ const setSavedFilter = () => {
   store.dispatch('notifications/setNotificationFilters', inboxFilters.value);
 };
 
-// Para onde o clique leva, por tipo de notificacao. Nem todo aviso vem de uma
-// conversa: o do Chat Interno tem uma ChatMessage como ator, sem inbox e sem
-// conversa, e a rota de conversa ficava com `inboxId` indefinido - o clique nao
-// ia a lugar nenhum, sem erro visivel.
-const destinationFor = notificationItem => {
-  const { primaryActorType, primaryActor } = notificationItem;
-
-  if (primaryActorType === 'ChatMessage') {
-    const room = primaryActor?.chatChannelId;
-    if (!room) return null;
-
-    // A tela do Chat Interno escolhe a sala pela query `room`.
-    return {
-      name: 'internal_chat',
-      params: { accountId: route.params.accountId },
-      query: { room },
-    };
-  }
-
-  // Artigo/Portal tambem tem `id` - sem este desvio, cairia no fallback de
-  // conversa abaixo e abriria uma conversa errada (o id de uma conversa
-  // qualquer, coincidindo por acaso com o id do Artigo/Portal).
-  if (primaryActorType === 'Article' || primaryActorType === 'Portal') {
-    return null;
-  }
-
-  const { inboxId, id: conversationId } = primaryActor ?? {};
-  if (!conversationId) return null;
-
-  return {
-    name: 'inbox_view_conversation',
-    params: { inboxId, type: 'conversation', id: conversationId },
-  };
-};
+// Para onde o clique leva, por tipo de notificacao - ver
+// helpers/notificationDestination.js (extraido pra poder testar cada ramo
+// sem montar esta tela inteira).
+const destinationFor = notificationItem =>
+  notificationDestinationFor(notificationItem, route.params.accountId);
 
 const openConversation = async notificationItem => {
-  const { id, primaryActorId, primaryActorType, primaryActor, notificationType } =
-    notificationItem;
+  const {
+    id,
+    primaryActorId,
+    primaryActorType,
+    primaryActor,
+    notificationType,
+  } = notificationItem;
 
   // So vale para conversa: ali o `route.params.id` e o id da conversa aberta.
   if (

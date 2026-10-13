@@ -69,7 +69,10 @@ module NotificationTarget
         "/app/accounts/#{account_id}/tickets/triage"
       end
     when 'Suggestion'
-      "/app/accounts/#{account_id}/suggestions"
+      # `?suggestion=` e o que SuggestionsPage.vue le para abrir o card certo
+      # direto, em vez de so' levar ao quadro e deixar quem recebeu o aviso
+      # procurar a sugestao sozinho.
+      "/app/accounts/#{account_id}/suggestions?suggestion=#{primary_actor_id}"
     when 'Article'
       article_target_path
     when 'Portal'

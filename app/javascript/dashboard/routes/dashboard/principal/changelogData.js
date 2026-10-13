@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'suggestion-notification-opens-right-screen',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'fix',
+    title: 'Notificação de sugestão abre a tela certa, já na sugestão',
+    description:
+      'Clicar numa notificação de nova sugestão não abria a tela de Sugestões - caía numa tela errada. Agora abre certinho e já mostra o card da sugestão específica, sem precisar procurar no quadro. A mesma correção vale para o aviso de resposta do cliente num ticket, que também não estava abrindo o ticket certo.',
+  },
+  {
     id: 'assign-team-moves-ticket-mesa',
     date: '13 de outubro de 2026',
     isoDate: '2026-10-13',

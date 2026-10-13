@@ -237,6 +237,25 @@ RSpec.describe Notification do
     end
   end
 
+  # O clique precisa abrir o card certo direto - sem o `?suggestion=`, a tela
+  # de Sugestoes abria vazia e quem recebeu o aviso tinha que procurar.
+  context 'when notification_type is suggestion_created' do
+    let(:account) { create(:account) }
+    let(:suggestion_column) { create(:suggestion_column, account: account) }
+    let(:suggestion) { create(:suggestion, account: account, suggestion_column: suggestion_column) }
+    let(:notification) do
+      create(:notification, notification_type: 'suggestion_created', account: account, primary_actor: suggestion)
+    end
+
+    it 'leva pro quadro de sugestoes ja com a sugestao marcada' do
+      expect(notification.push_target_path).to eq("/app/accounts/#{account.id}/suggestions?suggestion=#{suggestion.id}")
+    end
+
+    it 'agrupa pela propria sugestao' do
+      expect(notification.push_group_tag).to eq("suggestion_#{suggestion.id}")
+    end
+  end
+
   context 'when fcm push data' do
     it 'returns correct data for primary actor conversation' do
       notification = create(:notification, notification_type: 'conversation_creation')
