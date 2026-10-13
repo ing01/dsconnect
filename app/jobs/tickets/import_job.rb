@@ -14,7 +14,7 @@ class Tickets::ImportJob < ApplicationJob
     ).perform
 
     ticket_import.update!(
-      status: :completed, created_count: result.created, skipped_count: result.skipped,
+      status: :completed, created_count: result.created, updated_count: result.updated, skipped_count: result.skipped,
       row_errors: result.errors, row_warnings: result.warnings
     )
   rescue StandardError => e

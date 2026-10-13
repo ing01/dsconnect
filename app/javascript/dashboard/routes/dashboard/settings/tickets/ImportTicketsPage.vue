@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
+import { dynamicTime, shortTimestamp } from 'shared/helpers/timeHelper';
 import TicketImportsAPI from 'dashboard/api/ticketImports';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -65,6 +66,45 @@ const ticketImport = ref(null);
 const fileInput = ref(null);
 let pollTimer = null;
 
+// O log: as ultimas importacoes da conta, pra saber o que ja rodou mesmo
+// depois de sair e voltar pra esta tela - o resultado de `ticketImport`
+// acima so existe enquanto o upload que a gerou estiver na tela.
+const importLog = ref([]);
+const expandedLogIds = ref(new Set());
+
+const fetchImportLog = async () => {
+  try {
+    const { data } = await TicketImportsAPI.get();
+    importLog.value = data;
+  } catch (error) {
+    // Uma falha pontual de rede deixa o historico vazio por agora - a tela
+    // nao trava por isso, o upload continua funcionando normalmente.
+  }
+};
+
+const toggleLogDetails = id => {
+  const next = new Set(expandedLogIds.value);
+  if (next.has(id)) {
+    next.delete(id);
+  } else {
+    next.add(id);
+  }
+  expandedLogIds.value = next;
+};
+
+const formatLogDate = unixSeconds =>
+  unixSeconds ? shortTimestamp(dynamicTime(unixSeconds)) : '';
+
+const LOG_STATUS_CLASSES = {
+  completed: 'text-n-teal-11',
+  failed: 'text-n-ruby-11',
+  processing: 'text-n-amber-11',
+  pending: 'text-n-slate-11',
+};
+const logStatusClass = status => LOG_STATUS_CLASSES[status] || 'text-n-slate-11';
+
+onMounted(fetchImportLog);
+
 const isProcessing = computed(
   () =>
     ticketImport.value &&
@@ -90,6 +130,9 @@ const pollStatus = async id => {
     ticketImport.value = data;
     if (!['pending', 'processing'].includes(data.status)) {
       stopPolling();
+      // A importacao que acabou de terminar tambem deve aparecer no log,
+      // sem precisar sair e voltar na tela (ou dar F5) pra ver.
+      fetchImportLog();
     }
   } catch (error) {
     // Uma falha pontual de rede nao para o acompanhamento - a proxima
@@ -264,6 +307,13 @@ onBeforeUnmount(stopPolling);
                   })
                 }}
               </span>
+              <span v-if="ticketImport.updated_count" class="text-sm text-n-blue-11">
+                {{
+                  t('TICKET.SETTINGS.IMPORT.RESULT.UPDATED', {
+                    count: ticketImport.updated_count,
+                  })
+                }}
+              </span>
               <span v-if="ticketImport.skipped_count" class="text-sm text-n-ruby-11">
                 {{
                   t('TICKET.SETTINGS.IMPORT.RESULT.SKIPPED', {
@@ -303,6 +353,119 @@ onBeforeUnmount(stopPolling);
               </ul>
             </div>
           </template>
+        </div>
+
+        <div
+          v-if="importLog.length"
+          class="flex flex-col w-full gap-4 p-5 outline-1 outline outline-n-container rounded-xl bg-n-solid-2"
+        >
+          <h3 class="text-heading-2 text-n-slate-12">
+            {{ t('TICKET.SETTINGS.IMPORT.LOG.TITLE') }}
+          </h3>
+
+          <div class="flex flex-col gap-3">
+            <div
+              v-for="log in importLog"
+              :key="log.id"
+              class="flex flex-col gap-2 p-3 border rounded-lg border-n-weak"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium text-n-slate-12">
+                    {{ formatLogDate(log.created_at) }}
+                  </span>
+                  <span class="text-xs text-n-slate-11">
+                    {{ log.user_name || t('TICKET.SETTINGS.IMPORT.LOG.UNKNOWN_USER') }}
+                  </span>
+                </div>
+                <span
+                  class="text-xs font-medium"
+                  :class="logStatusClass(log.status)"
+                >
+                  {{ t(`TICKET.SETTINGS.IMPORT.LOG.STATUS.${log.status.toUpperCase()}`) }}
+                </span>
+              </div>
+
+              <p v-if="log.status === 'failed'" class="mb-0 text-sm text-n-ruby-11">
+                {{
+                  t('TICKET.SETTINGS.IMPORT.RESULT.FAILED', {
+                    message: log.failure_message,
+                  })
+                }}
+              </p>
+
+              <div v-else-if="log.status === 'completed'" class="flex gap-4">
+                <span class="text-sm text-n-teal-11">
+                  {{
+                    t('TICKET.SETTINGS.IMPORT.RESULT.CREATED', {
+                      count: log.created_count,
+                    })
+                  }}
+                </span>
+                <span v-if="log.updated_count" class="text-sm text-n-blue-11">
+                  {{
+                    t('TICKET.SETTINGS.IMPORT.RESULT.UPDATED', {
+                      count: log.updated_count,
+                    })
+                  }}
+                </span>
+                <span v-if="log.skipped_count" class="text-sm text-n-ruby-11">
+                  {{
+                    t('TICKET.SETTINGS.IMPORT.RESULT.SKIPPED', {
+                      count: log.skipped_count,
+                    })
+                  }}
+                </span>
+              </div>
+
+              <NextButton
+                v-if="log.row_errors?.length || log.row_warnings?.length"
+                type="button"
+                slate
+                faded
+                xs
+                class="self-start"
+                :label="
+                  expandedLogIds.has(log.id)
+                    ? t('TICKET.SETTINGS.IMPORT.LOG.HIDE_DETAILS')
+                    : t('TICKET.SETTINGS.IMPORT.LOG.SHOW_DETAILS')
+                "
+                @click="toggleLogDetails(log.id)"
+              />
+
+              <template v-if="expandedLogIds.has(log.id)">
+                <div v-if="log.row_errors?.length" class="flex flex-col gap-2">
+                  <h4 class="text-sm font-medium text-n-ruby-11">
+                    {{ t('TICKET.SETTINGS.IMPORT.RESULT.ERRORS_TITLE') }}
+                  </h4>
+                  <ul class="flex flex-col gap-1 pl-4 m-0 list-disc">
+                    <li
+                      v-for="(error, index) in log.row_errors"
+                      :key="index"
+                      class="text-sm text-n-slate-11"
+                    >
+                      {{ formatRowMessage(error) }}
+                    </li>
+                  </ul>
+                </div>
+
+                <div v-if="log.row_warnings?.length" class="flex flex-col gap-2">
+                  <h4 class="text-sm font-medium text-n-amber-11">
+                    {{ t('TICKET.SETTINGS.IMPORT.RESULT.WARNINGS_TITLE') }}
+                  </h4>
+                  <ul class="flex flex-col gap-1 pl-4 m-0 list-disc">
+                    <li
+                      v-for="(warning, index) in log.row_warnings"
+                      :key="index"
+                      class="text-sm text-n-slate-11"
+                    >
+                      {{ formatRowMessage(warning) }}
+                    </li>
+                  </ul>
+                </div>
+              </template>
+            </div>
+          </div>
         </div>
       </div>
     </template>

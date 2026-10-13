@@ -44,9 +44,21 @@ module TicketCustomer
   # "#26 - [ELETROSUL - FILIAL] | [João Vitor] | [Erro na emissão da nota]",
   # skipping whichever parts this ticket does not have rather than rendering
   # empty brackets. Same shape the detail page header shows.
+  #
+  # Ticket importado e' excecao: o titulo ja vem pronto da planilha de origem
+  # (ver Tickets::ImportService), muitas vezes ja com colchetes e nome de
+  # empresa dentro dele mesmo (convencao do sistema anterior). Embrulhar de
+  # novo com Empresa/Contato duplicava a informacao e deixava o Assunto do
+  # e-mail ilegivel - pedido da Ingrid.
   def display_subject
+    return "##{display_id} - #{title}" if imported?
+
     parts = [company&.name, requester_contact&.name, title].compact_blank
     "##{display_id} - #{parts.map { |part| "[#{part}]" }.join(' | ')}"
+  end
+
+  def imported?
+    custom_attributes.to_h['imported_ticket_number'].present?
   end
 
   private

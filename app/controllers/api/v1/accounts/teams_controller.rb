@@ -31,7 +31,7 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
   private
 
   def fetch_team
-    @team = Current.account.teams.includes(ticket_columns: { operational_tickets: BOARD_TICKET_INCLUDES }).find(params[:id])
+    @team = Current.account.teams.includes(ticket_columns: { board_tickets: BOARD_TICKET_INCLUDES }).find(params[:id])
   end
 
   def team_params
