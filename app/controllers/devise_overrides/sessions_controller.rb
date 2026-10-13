@@ -29,6 +29,17 @@ class DeviseOverrides::SessionsController < DeviseTokenAuth::SessionsController
 
   private
 
+  # O login nunca tem conta/usuario resolvido ainda - e justamente o que esta
+  # se autenticando aqui -, e o produto e so' em portugues, nunca em ingles.
+  # Sem isto, a mensagem de credencial errada (`bad_credentials`) saia no
+  # locale padrao da gem devise_token_auth em ingles sempre que nada mais
+  # (parametro, usuario, dominio) tivesse resolvido um idioma ainda - e esse
+  # "nada mais" e exatamente o caso do login. Mesmo padrao de
+  # ForcedPortugueseLocale (mailers), aqui no controller.
+  def switch_locale(&)
+    I18n.with_locale(:pt_BR, &)
+  end
+
   def render_create_error_not_confirmed
     render_error(
       :unauthorized,

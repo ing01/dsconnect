@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'login-wrong-password-pt-br',
+    date: '13 de outubro de 2026',
+    isoDate: '2026-10-13',
+    type: 'fix',
+    title: 'Erro de senha errada no login agora é em português',
+    description:
+      'Ao digitar e-mail ou senha errados na tela de login, a mensagem aparecia em inglês ("Invalid login credentials"). Agora ela é em português e já lembra que é possível redefinir a senha pelo link "Esqueci minha senha", na mesma tela.',
+  },
+  {
     id: 'ticket-kanban-keeps-state',
     date: '13 de outubro de 2026',
     isoDate: '2026-10-13',

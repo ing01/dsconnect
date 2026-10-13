@@ -22,6 +22,20 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
 
         expect(response).to have_http_status(:unauthorized)
       end
+
+      # A gem devise_token_auth so vem com locale em ingles - sem a chave
+      # pt_BR (`config/locales/pt_BR.yml`), a tela de login mostrava
+      # "Invalid login credentials. Please try again." direto pro usuario.
+      it 'rejects invalid credentials with a Portuguese message mentioning password reset' do
+        post :create, params: { email: user.email, password: 'wrong' }
+
+        mensagem = response.parsed_body['errors'].first
+        expect(mensagem).to eq(
+          I18n.with_locale(:pt_BR) { I18n.t('devise_token_auth.sessions.bad_credentials') }
+        )
+        expect(mensagem).not_to include('Invalid login credentials')
+        expect(mensagem).to include('redefinir sua senha')
+      end
     end
 
     context 'with MFA authentication' do
@@ -90,7 +104,7 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
           }
 
           expect(response).to have_http_status(:bad_request)
-          expect(response.parsed_body['error']).to eq(I18n.t('errors.mfa.invalid_code'))
+          expect(response.parsed_body['error']).to eq(I18n.with_locale(:pt_BR) { I18n.t('errors.mfa.invalid_code') })
         end
 
         it 'rejects invalid backup code' do
@@ -102,7 +116,7 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
           }
 
           expect(response).to have_http_status(:bad_request)
-          expect(response.parsed_body['error']).to eq(I18n.t('errors.mfa.invalid_code'))
+          expect(response.parsed_body['error']).to eq(I18n.with_locale(:pt_BR) { I18n.t('errors.mfa.invalid_code') })
         end
 
         it 'rejects expired MFA token' do
@@ -118,14 +132,14 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
           }
 
           expect(response).to have_http_status(:unauthorized)
-          expect(response.parsed_body['error']).to eq(I18n.t('errors.mfa.invalid_token'))
+          expect(response.parsed_body['error']).to eq(I18n.with_locale(:pt_BR) { I18n.t('errors.mfa.invalid_token') })
         end
 
         it 'requires either OTP or backup code' do
           post :create, params: { mfa_token: mfa_token }
 
           expect(response).to have_http_status(:bad_request)
-          expect(response.parsed_body['error']).to eq(I18n.t('errors.mfa.invalid_code'))
+          expect(response.parsed_body['error']).to eq(I18n.with_locale(:pt_BR) { I18n.t('errors.mfa.invalid_code') })
         end
       end
     end

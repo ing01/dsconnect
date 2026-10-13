@@ -55,6 +55,14 @@ pt_BR:
     saml:
       invalid_email: 'Por favor, insira um endereço de e-mail válido'
       authentication_failed: 'Falha na autenticação. Por favor, verifique suas credenciais e tente novamente.'
+  # A gem devise_token_auth so vem com locale em ingles - sem este bloco, o
+  # login errado (e so ele; as outras chaves da gem nao aparecem na tela)
+  # mostrava "Invalid login credentials. Please try again." direto na tela de
+  # entrada, porque o controller chama `I18n.t('devise_token_auth.sessions.*')`
+  # e cai no locale em ingles da propria gem quando a chave nao existe aqui.
+  devise_token_auth:
+    sessions:
+      bad_credentials: 'E-mail ou senha incorretos. Você também pode redefinir sua senha clicando em "Esqueci minha senha".'
   messages:
     reset_password: A solicitação de redefinição de senha foi realizada com sucesso. Um e-mail com instruções será enviado para o seu endereço de e-mail, caso ele exista em nosso sistema.
     reset_password_saml_user: Esta conta usa autenticação SAML. A redefinição de senha não está disponível. Por favor, contate o administrador.
