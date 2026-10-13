@@ -2,17 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_providers.dart';
+import 'client_chat_screen.dart';
+import 'client_notifications_screen.dart';
+import 'client_tickets_list_screen.dart';
 
-// Placeholder da Fase 1 - meus chamados, abertura por IA e chat chegam na
-// Fase 3 (ver o plano do app).
-class ClientHomeShell extends ConsumerWidget {
+// Fase 3 - modo cliente: chamados, chat com a equipe e notificações. O
+// colaborador fica em segundo plano por enquanto (pedido da Ingrid).
+class ClientHomeShell extends ConsumerStatefulWidget {
   const ClientHomeShell({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ClientHomeShell> createState() => _ClientHomeShellState();
+}
+
+const _tabs = [
+  (title: 'Meus chamados', icon: Icons.confirmation_number_outlined, screen: ClientTicketsListScreen()),
+  (title: 'Chat', icon: Icons.chat_bubble_outline, screen: ClientChatScreen()),
+  (title: 'Notificações', icon: Icons.notifications_none, screen: ClientNotificationsScreen()),
+];
+
+class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DSConnect'),
+        title: Text(_tabs[_currentIndex].title),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -21,14 +37,16 @@ class ClientHomeShell extends ConsumerWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text(
-            'Login de cliente funcionando.\nA lista de chamados chega na próxima etapa.',
-            textAlign: TextAlign.center,
-          ),
-        ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [for (final tab in _tabs) tab.screen],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        destinations: [
+          for (final tab in _tabs) NavigationDestination(icon: Icon(tab.icon), label: tab.title),
+        ],
       ),
     );
   }
