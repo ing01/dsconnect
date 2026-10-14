@@ -5,6 +5,7 @@ import '../models/chat_message.dart';
 import '../models/client_notification.dart';
 import '../models/client_ticket.dart';
 import '../models/client_ticket_detail.dart';
+import '../models/company.dart';
 import '../models/ticket_category.dart';
 
 // Rotas fora de /accounts/:id - a conta do cliente vem do proprio token, nunca
@@ -14,13 +15,25 @@ class ClientRepository {
 
   final Dio _dio;
 
-  Future<List<ClientTicket>> fetchTickets() async {
-    final response = await _dio.get<Map<String, dynamic>>('/api/v1/client/tickets');
+  Future<ClientTicketsResult> fetchTickets({int? companyId, String? query}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/v1/client/tickets',
+      queryParameters: {
+        // ignore: use_null_aware_elements
+        if (companyId != null) 'company_id': companyId,
+        // ignore: use_null_aware_elements
+        if (query != null && query.isNotEmpty) 'q': query,
+      },
+    );
     // O servidor devolve {"companies": [...], "tickets": [...]} - ver
     // api/v1/client/tickets/index.json.jbuilder.
-    return (response.data?['tickets'] as List<dynamic>? ?? const [])
+    final tickets = (response.data?['tickets'] as List<dynamic>? ?? const [])
         .map((entry) => ClientTicket.fromJson(entry as Map<String, dynamic>))
         .toList();
+    final companies = (response.data?['companies'] as List<dynamic>? ?? const [])
+        .map((entry) => Company.fromJson(entry as Map<String, dynamic>))
+        .toList();
+    return ClientTicketsResult(tickets: tickets, companies: companies);
   }
 
   Future<ClientTicketDetail> fetchTicketDetail(int ticketId) async {
@@ -114,6 +127,13 @@ class ClientRepository {
         .map((entry) => ClientNotification.fromJson(entry as Map<String, dynamic>))
         .toList();
   }
+}
+
+class ClientTicketsResult {
+  const ClientTicketsResult({required this.tickets, required this.companies});
+
+  final List<ClientTicket> tickets;
+  final List<Company> companies;
 }
 
 class TicketDraft {

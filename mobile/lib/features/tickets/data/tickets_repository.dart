@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../models/company.dart';
 import '../models/team.dart';
 import '../models/ticket_column.dart';
 import '../models/ticket_detail.dart';
@@ -18,6 +19,27 @@ class TicketsRepository {
     return (response.data ?? const [])
         .map((entry) => Team.fromJson(entry as Map<String, dynamic>))
         .toList();
+  }
+
+  // Paginado no servidor (25 por pagina) - a lista de filtro precisa delas
+  // todas de uma vez, entao percorre as paginas ate acabar.
+  Future<List<Company>> fetchCompanies(int accountId) async {
+    final companies = <Company>[];
+    var page = 1;
+    while (true) {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/api/v1/accounts/$accountId/companies',
+        queryParameters: {'page': page},
+      );
+      final batch = (response.data?['payload'] as List<dynamic>? ?? const [])
+          .map((entry) => Company.fromJson(entry as Map<String, dynamic>))
+          .toList();
+      companies.addAll(batch);
+      final totalCount = (response.data?['meta']?['total_count'] as int?) ?? companies.length;
+      if (batch.isEmpty || companies.length >= totalCount) break;
+      page += 1;
+    }
+    return companies;
   }
 
   Future<List<TicketColumn>> fetchColumns(int accountId, int teamId) async {
@@ -59,6 +81,8 @@ class TicketsRepository {
   Future<TicketPage> fetchMine({
     required int accountId,
     int? teamId,
+    int? companyId,
+    String? query,
     int page = 1,
   }) async {
     final response = await _dio.get<Map<String, dynamic>>(
@@ -69,6 +93,10 @@ class TicketsRepository {
         // `?chave: valor` equivalente pra entrada de mapa.
         // ignore: use_null_aware_elements
         if (teamId != null) 'team_id': teamId,
+        // ignore: use_null_aware_elements
+        if (companyId != null) 'company_id': companyId,
+        // ignore: use_null_aware_elements
+        if (query != null && query.isNotEmpty) 'q': query,
         'page': page,
       },
     );
