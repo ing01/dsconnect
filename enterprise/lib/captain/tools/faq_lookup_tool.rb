@@ -16,6 +16,14 @@ class Captain::Tools::FaqLookupTool < Captain::Tools::BasePublicTool
       log_tool_usage('found_results', { query: query, count: responses.size })
       format_responses(tool_context, responses)
     end
+  rescue Captain::Llm::EmbeddingService::EmbeddingsError => e
+    # Alguns provedores OpenAI-compativeis (ex.: Groq) nao aceitam algum
+    # parametro que o pedido de embedding manda (ex.: "dimensions"), ou nao
+    # tem um modelo de embedding equivalente de verdade. Sem isto, essa falha
+    # derrubava a resposta INTEIRA do agente (nao so' a busca de FAQ) - melhor
+    # responder sem citar documentos do que nao responder nada.
+    log_tool_usage('search_failed', { query: query, error: e.message })
+    "FAQ search unavailable right now (#{e.message}). Answer using your own knowledge instead."
   end
 
   private
