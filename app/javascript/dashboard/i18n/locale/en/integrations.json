@@ -753,6 +753,11 @@
           "UNSELECT_ALL": "Unselect all ({count})",
           "BULK_DELETE_BUTTON": "Delete"
         },
+        "SUGGESTIONS": {
+          "ITEM_1": "Block queries that share or request sensitive personal information (e.g. phone numbers, passwords).",
+          "ITEM_2": "Reject queries that include offensive, discriminatory, or threatening language.",
+          "ITEM_3": "Deflect when the assistant is asked for legal or medical diagnosis or treatment."
+        },
         "ADD": {
           "SUGGESTED": {
             "TITLE": "Example guardrails",
@@ -798,6 +803,11 @@
           "UNSELECT_ALL": "Unselect all ({count})",
           "BULK_DELETE_BUTTON": "Delete"
         },
+        "SUGGESTIONS": {
+          "ITEM_1": "Block queries that share or request sensitive personal information (e.g. phone numbers, passwords).",
+          "ITEM_2": "Reject queries that include offensive, discriminatory, or threatening language.",
+          "ITEM_3": "Deflect when the assistant is asked for legal or medical diagnosis or treatment."
+        },
         "ADD": {
           "SUGGESTED": {
             "TITLE": "Example response guidelines",
@@ -837,6 +847,13 @@
       "SCENARIOS": {
         "TITLE": "Scenarios",
         "DESCRIPTION": "Give your assistant some context—like “what to do when a user is stuck,” or “how to act during a refund request.”",
+        "SUGGESTIONS": {
+          "PROSPECTIVE_BUYER": {
+            "TITLE": "Prospective Buyer",
+            "DESCRIPTION": "Handle customers who are showing interest in purchasing a license",
+            "INSTRUCTION": "If someone is interested in purchasing a license, ask them for following:\n\n1. How many licenses are they willing to purchase?\n2. Are they migrating from another platform?\n\nOnce these details are collected, do the following steps:\n1. Add a private note with the information you collected using [Add Private Note](tool://add_private_note)\n2. Add label \"sales\" to the contact using [Add Label to Conversation](tool://add_label_to_conversation)\n3. Reply saying \"one of us will reach out soon\" and provide an estimated timeline for the response, and [Handoff to Human](tool://handoff)"
+          }
+        },
         "BULK_ACTION": {
           "SELECTED": "{count} item selected | {count} items selected",
           "SELECT_ALL": "Select all ({count})",
