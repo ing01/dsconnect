@@ -31,23 +31,11 @@ const displayGuardrails = computed(() =>
   guardrailsContent.value.map((c, idx) => ({ id: idx, content: c }))
 );
 
-const guardrailsExample = [
-  {
-    id: 1,
-    content:
-      'Block queries that share or request sensitive personal information (e.g. phone numbers, passwords).',
-  },
-  {
-    id: 2,
-    content:
-      'Reject queries that include offensive, discriminatory, or threatening language.',
-  },
-  {
-    id: 3,
-    content:
-      'Deflect when the assistant is asked for legal or medical diagnosis or treatment.',
-  },
-];
+const guardrailsExample = computed(() => [
+  { id: 1, content: t('CAPTAIN.ASSISTANTS.GUARDRAILS.SUGGESTIONS.ITEM_1') },
+  { id: 2, content: t('CAPTAIN.ASSISTANTS.GUARDRAILS.SUGGESTIONS.ITEM_2') },
+  { id: 3, content: t('CAPTAIN.ASSISTANTS.GUARDRAILS.SUGGESTIONS.ITEM_3') },
+]);
 
 const filteredGuardrails = computed(() => {
   const query = searchQuery.value.trim();
@@ -151,7 +139,7 @@ const bulkDeleteGuardrails = async () => {
 const addAllExample = () => {
   updateUISettings({ show_guardrails_suggestions: false });
   try {
-    const exampleContents = guardrailsExample.map(example => example.content);
+    const exampleContents = guardrailsExample.value.map(example => example.content);
     const newGuardrails = [...guardrailsContent.value, ...exampleContents];
     saveGuardrails(newGuardrails);
   } catch {

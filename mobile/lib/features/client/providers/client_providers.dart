@@ -8,25 +8,75 @@ import '../models/chat_message.dart';
 import '../models/client_notification.dart';
 import '../models/client_ticket.dart';
 import '../models/client_ticket_detail.dart';
+import '../models/company.dart';
 import '../models/ticket_category.dart';
 
 final clientRepositoryProvider = Provider<ClientRepository>((ref) {
   return ClientRepository(ref.watch(apiClientProvider));
 });
 
+class ClientTicketsState {
+  const ClientTicketsState({
+    this.tickets = const [],
+    this.companies = const [],
+    this.companyId,
+    this.query = '',
+  });
+
+  final List<ClientTicket> tickets;
+  final List<Company> companies;
+  final int? companyId;
+  final String query;
+
+  ClientTicketsState copyWith({
+    List<ClientTicket>? tickets,
+    List<Company>? companies,
+    int? companyId,
+    bool clearCompany = false,
+    String? query,
+  }) =>
+      ClientTicketsState(
+        tickets: tickets ?? this.tickets,
+        companies: companies ?? this.companies,
+        companyId: clearCompany ? null : (companyId ?? this.companyId),
+        query: query ?? this.query,
+      );
+}
+
 // "Meus chamados" - lista unica, todas as Mesas juntas (ver o comentario no
 // controller do servidor: o board deixou de recortar por Mesa do lado do
 // cliente). Puxar pra atualizar chama `refresh()`.
-class ClientTicketsNotifier extends AsyncNotifier<List<ClientTicket>> {
+class ClientTicketsNotifier extends AsyncNotifier<ClientTicketsState> {
   @override
-  Future<List<ClientTicket>> build() => ref.read(clientRepositoryProvider).fetchTickets();
+  Future<ClientTicketsState> build() async {
+    final result = await ref.read(clientRepositoryProvider).fetchTickets();
+    return ClientTicketsState(tickets: result.tickets, companies: result.companies);
+  }
 
   Future<void> refresh() async {
-    state = await AsyncValue.guard(() => ref.read(clientRepositoryProvider).fetchTickets());
+    final current = state.value ?? const ClientTicketsState();
+    final result = await ref.read(clientRepositoryProvider).fetchTickets(
+          companyId: current.companyId,
+          query: current.query,
+        );
+    state = AsyncData(current.copyWith(tickets: result.tickets, companies: result.companies));
+  }
+
+  Future<void> filterByCompany(int? companyId) async {
+    final current = state.value ?? const ClientTicketsState();
+    state = AsyncData(current.copyWith(companyId: companyId, clearCompany: companyId == null));
+    await refresh();
+  }
+
+  Future<void> search(String query) async {
+    final current = state.value ?? const ClientTicketsState();
+    if (current.query == query) return;
+    state = AsyncData(current.copyWith(query: query));
+    await refresh();
   }
 }
 
-final clientTicketsProvider = AsyncNotifierProvider<ClientTicketsNotifier, List<ClientTicket>>(
+final clientTicketsProvider = AsyncNotifierProvider<ClientTicketsNotifier, ClientTicketsState>(
   ClientTicketsNotifier.new,
 );
 

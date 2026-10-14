@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_providers.dart';
 import '../data/tickets_repository.dart';
+import '../models/company.dart';
 import '../models/team.dart';
 import '../models/ticket_summary.dart';
 
@@ -24,6 +25,12 @@ final teamsProvider = FutureProvider<List<Team>>((ref) async {
   return ref.watch(ticketsRepositoryProvider).fetchTeams(accountId);
 });
 
+final companiesProvider = FutureProvider<List<Company>>((ref) async {
+  final accountId = ref.watch(currentAccountIdProvider);
+  if (accountId == null) return const [];
+  return ref.watch(ticketsRepositoryProvider).fetchCompanies(accountId);
+});
+
 // `null` = "todas as Mesas que participo" (sem filtro).
 class SelectedTeamIdNotifier extends Notifier<int?> {
   @override
@@ -33,6 +40,27 @@ class SelectedTeamIdNotifier extends Notifier<int?> {
 }
 
 final selectedTeamIdProvider = NotifierProvider<SelectedTeamIdNotifier, int?>(SelectedTeamIdNotifier.new);
+
+// `null` = "todas as Empresas" (sem filtro).
+class SelectedCompanyIdNotifier extends Notifier<int?> {
+  @override
+  int? build() => null;
+
+  void select(int? companyId) => state = companyId;
+}
+
+final selectedCompanyIdProvider = NotifierProvider<SelectedCompanyIdNotifier, int?>(SelectedCompanyIdNotifier.new);
+
+// A busca por numero do chamado (texto livre - o servidor casa parcialmente
+// com titulo OU numero, ver `TicketFinder#filter_by_date_and_text`).
+class TicketSearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void set(String query) => state = query;
+}
+
+final ticketSearchQueryProvider = NotifierProvider<TicketSearchQueryNotifier, String>(TicketSearchQueryNotifier.new);
 
 class TicketsState {
   const TicketsState({
@@ -76,8 +104,14 @@ class TicketsState {
 class TicketsNotifier extends Notifier<TicketsState> {
   @override
   TicketsState build() {
-    // Recarrega do zero sempre que a Mesa filtrada mudar.
+    // Recarrega do zero sempre que a Mesa, a Empresa ou a busca mudarem.
     ref.listen(selectedTeamIdProvider, (previous, next) {
+      if (previous != next) refresh();
+    });
+    ref.listen(selectedCompanyIdProvider, (previous, next) {
+      if (previous != next) refresh();
+    });
+    ref.listen(ticketSearchQueryProvider, (previous, next) {
       if (previous != next) refresh();
     });
     Future.microtask(refresh);
@@ -93,6 +127,8 @@ class TicketsNotifier extends Notifier<TicketsState> {
       final page = await ref.read(ticketsRepositoryProvider).fetchMine(
             accountId: accountId,
             teamId: ref.read(selectedTeamIdProvider),
+            companyId: ref.read(selectedCompanyIdProvider),
+            query: ref.read(ticketSearchQueryProvider),
             page: 1,
           );
       state = TicketsState(
@@ -115,6 +151,8 @@ class TicketsNotifier extends Notifier<TicketsState> {
       final page = await ref.read(ticketsRepositoryProvider).fetchMine(
             accountId: accountId,
             teamId: ref.read(selectedTeamIdProvider),
+            companyId: ref.read(selectedCompanyIdProvider),
+            query: ref.read(ticketSearchQueryProvider),
             page: nextPage,
           );
       state = state.copyWith(

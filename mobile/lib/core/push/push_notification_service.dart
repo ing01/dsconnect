@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -40,6 +41,12 @@ class PushNotificationService {
   final _localNotifications = FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
+  // A tela do cliente (bolinha vermelha no icone do Chat) escuta isto pra
+  // saber que chegou algo novo enquanto o app esta aberto, sem precisar sair
+  // e voltar da tela pra recarregar a lista de notificacoes.
+  final _messageController = StreamController<void>.broadcast();
+  Stream<void> get onMessageReceived => _messageController.stream;
+
   Future<void> registerForSession(Session session) async {
     try {
       await _ensureInitialized();
@@ -79,6 +86,8 @@ class PushNotificationService {
   }
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {
+    _messageController.add(null);
+
     final notification = message.notification;
     if (notification == null) return;
 

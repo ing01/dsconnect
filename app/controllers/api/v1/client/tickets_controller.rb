@@ -23,9 +23,9 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     # `operational`: resolvido, fechado e cancelado saem da lista, como no
     # Kanban interno. Os includes sao os que o cartao le - sem eles a lista
     # dispara uma consulta por ticket.
-    @tickets = tickets_scoped_by_company.operational
-                                        .includes(*BOARD_INCLUDES)
-                                        .order(created_at: :desc)
+    @tickets = tickets_scoped_by_number(tickets_scoped_by_company.operational)
+               .includes(*BOARD_INCLUDES)
+               .order(created_at: :desc)
   end
 
   def show; end
@@ -111,6 +111,16 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
 
     empresa = client_companies.find_by(id: params[:company_id])
     empresa ? visible_tickets.where(company_id: empresa.id) : visible_tickets
+  end
+
+  # Busca pelo numero do chamado (`display_id`) - parcial, porque o cliente
+  # pode nao lembrar o numero inteiro. So estreita quando o parametro vem
+  # preenchido, nunca troca a fronteira de `visible_tickets`.
+  def tickets_scoped_by_number(relation)
+    query = params[:q].to_s.strip
+    return relation if query.blank?
+
+    relation.where('CAST(tickets.display_id AS TEXT) LIKE ?', "%#{query}%")
   end
 
   # Onde o chamado do cliente entra: o Estagio "Pendente" da Mesa quando existe -

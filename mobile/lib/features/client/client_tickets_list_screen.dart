@@ -11,43 +11,112 @@ import 'client_ticket_detail_screen.dart';
 import 'models/client_ticket.dart';
 import 'providers/client_providers.dart';
 
-class ClientTicketsListScreen extends ConsumerWidget {
+class ClientTicketsListScreen extends ConsumerStatefulWidget {
   const ClientTicketsListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ClientTicketsListScreen> createState() => _ClientTicketsListScreenState();
+}
+
+class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScreen> {
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ticketsAsync = ref.watch(clientTicketsProvider);
+    final state = ticketsAsync.value;
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () => ref.read(clientTicketsProvider.notifier).refresh(),
-        child: ticketsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, _) => ListView(
-            children: [
-              const SizedBox(height: 80),
-              const Icon(Icons.error_outline, size: 40),
-              const SizedBox(height: 12),
-              const Center(child: Text('Não foi possível carregar seus chamados.')),
-            ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: TextField(
+              controller: _searchController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: 'Buscar pelo número do chamado',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                isDense: true,
+                suffixIcon: _searchController.text.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          _searchController.clear();
+                          ref.read(clientTicketsProvider.notifier).search('');
+                          setState(() {});
+                        },
+                      ),
+              ),
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (value) => ref.read(clientTicketsProvider.notifier).search(value.trim()),
+            ),
           ),
-          data: (tickets) {
-            if (tickets.isEmpty) {
-              return ListView(
-                children: const [
-                  SizedBox(height: 80),
-                  Center(child: Text('Você ainda não tem nenhum chamado aberto.')),
-                ],
-              );
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: tickets.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (context, index) => _TicketTile(ticket: tickets[index]),
-            );
-          },
-        ),
+          if ((state?.companies.length ?? 0) > 1)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: SizedBox(
+                height: 40,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _CompanyChip(
+                      label: 'Todas as empresas',
+                      selected: state!.companyId == null,
+                      onTap: () => ref.read(clientTicketsProvider.notifier).filterByCompany(null),
+                    ),
+                    for (final company in state.companies)
+                      _CompanyChip(
+                        label: company.name,
+                        selected: state.companyId == company.id,
+                        onTap: () => ref.read(clientTicketsProvider.notifier).filterByCompany(company.id),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => ref.read(clientTicketsProvider.notifier).refresh(),
+              child: ticketsAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, _) => ListView(
+                  children: [
+                    const SizedBox(height: 80),
+                    const Icon(Icons.error_outline, size: 40),
+                    const SizedBox(height: 12),
+                    const Center(child: Text('Não foi possível carregar seus chamados.')),
+                  ],
+                ),
+                data: (data) {
+                  final tickets = data.tickets;
+                  if (tickets.isEmpty) {
+                    return ListView(
+                      children: const [
+                        SizedBox(height: 80),
+                        Center(child: Text('Nenhum chamado encontrado.')),
+                      ],
+                    );
+                  }
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: tickets.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) => _TicketTile(ticket: tickets[index]),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: Container(
         height: 48,
@@ -79,6 +148,22 @@ class ClientTicketsListScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CompanyChip extends StatelessWidget {
+  const _CompanyChip({required this.label, required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onTap()),
     );
   }
 }

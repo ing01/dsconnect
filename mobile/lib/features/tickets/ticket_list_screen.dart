@@ -9,17 +9,56 @@ import 'models/ticket_summary.dart';
 import 'providers/tickets_providers.dart';
 import 'ticket_detail_screen.dart';
 
-class TicketListScreen extends ConsumerWidget {
+class TicketListScreen extends ConsumerStatefulWidget {
   const TicketListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TicketListScreen> createState() => _TicketListScreenState();
+}
+
+class _TicketListScreenState extends ConsumerState<TicketListScreen> {
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(ticketsProvider);
     final teamsAsync = ref.watch(teamsProvider);
+    final companiesAsync = ref.watch(companiesProvider);
     final selectedTeamId = ref.watch(selectedTeamIdProvider);
+    final selectedCompanyId = ref.watch(selectedCompanyIdProvider);
 
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Buscar por número ou título',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              isDense: true,
+              suffixIcon: _searchController.text.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        _searchController.clear();
+                        ref.read(ticketSearchQueryProvider.notifier).set('');
+                        setState(() {});
+                      },
+                    ),
+            ),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (value) => ref.read(ticketSearchQueryProvider.notifier).set(value.trim()),
+          ),
+        ),
         teamsAsync.when(
           data: (teams) {
             if (teams.isEmpty) return const SizedBox.shrink();
@@ -40,6 +79,35 @@ class TicketListScreen extends ConsumerWidget {
                         label: team.name,
                         selected: selectedTeamId == team.id,
                         onTap: () => ref.read(selectedTeamIdProvider.notifier).select(team.id),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
+        ),
+        companiesAsync.when(
+          data: (companies) {
+            if (companies.isEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: SizedBox(
+                height: 40,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _TeamChip(
+                      label: 'Todas as Empresas',
+                      selected: selectedCompanyId == null,
+                      onTap: () => ref.read(selectedCompanyIdProvider.notifier).select(null),
+                    ),
+                    for (final company in companies)
+                      _TeamChip(
+                        label: company.name,
+                        selected: selectedCompanyId == company.id,
+                        onTap: () => ref.read(selectedCompanyIdProvider.notifier).select(company.id),
                       ),
                   ],
                 ),

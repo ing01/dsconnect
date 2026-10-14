@@ -753,6 +753,11 @@
           "UNSELECT_ALL": "Desmarcar todos ({count})",
           "BULK_DELETE_BUTTON": "Excluir"
         },
+        "SUGGESTIONS": {
+          "ITEM_1": "Bloquear perguntas que compartilhem ou peçam informações pessoais sensíveis (ex.: telefone, senhas).",
+          "ITEM_2": "Recusar perguntas que contenham linguagem ofensiva, discriminatória ou ameaçadora.",
+          "ITEM_3": "Desviar quando pedirem diagnóstico ou tratamento médico ou jurídico ao assistente."
+        },
         "ADD": {
           "SUGGESTED": {
             "TITLE": "Exemplos de proteções",
@@ -798,6 +803,11 @@
           "UNSELECT_ALL": "Desmarcar todos ({count})",
           "BULK_DELETE_BUTTON": "Excluir"
         },
+        "SUGGESTIONS": {
+          "ITEM_1": "Bloquear perguntas que compartilhem ou peçam informações pessoais sensíveis (ex.: telefone, senhas).",
+          "ITEM_2": "Recusar perguntas que contenham linguagem ofensiva, discriminatória ou ameaçadora.",
+          "ITEM_3": "Desviar quando pedirem diagnóstico ou tratamento médico ou jurídico ao assistente."
+        },
         "ADD": {
           "SUGGESTED": {
             "TITLE": "Exemplos de diretrizes de resposta",
@@ -837,6 +847,13 @@
       "SCENARIOS": {
         "TITLE": "Cenários",
         "DESCRIPTION": "Dê algum contexto ao seu assistente — como \"o que fazer quando um usuário estiver com problemas\", ou \"como agir durante uma solicitação de reembolso\".",
+        "SUGGESTIONS": {
+          "PROSPECTIVE_BUYER": {
+            "TITLE": "Cliente em potencial",
+            "DESCRIPTION": "Atender clientes que estão demonstrando interesse em comprar uma licença",
+            "INSTRUCTION": "Se alguém demonstrar interesse em comprar uma licença, peça as seguintes informações:\n\n1. Quantas licenças pretende comprar?\n2. Está migrando de outra plataforma?\n\nDepois de coletar esses detalhes, siga os passos abaixo:\n1. Adicione uma nota privada com as informações coletadas usando [Adicionar Nota Privada](tool://add_private_note)\n2. Adicione o marcador \"vendas\" ao contato usando [Adicionar Marcador à Conversa](tool://add_label_to_conversation)\n3. Responda dizendo que alguém da equipe vai entrar em contato em breve, informe um prazo estimado, e [Transferir para um Humano](tool://handoff)"
+          }
+        },
         "BULK_ACTION": {
           "SELECTED": "{count} item selecionado | {count} itens selecionados",
           "SELECT_ALL": "Selecionar todos ({count})",

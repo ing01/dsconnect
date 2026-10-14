@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../core/auth/auth_providers.dart';
 import '../../core/auth/auth_repository.dart';
@@ -153,12 +154,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  const Center(child: _AppVersionLabel()),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+// Mostra a versão instalada - a forma mais simples de confirmar, ao abrir o
+// app depois de instalar um APK novo, que o build certo chegou no aparelho.
+class _AppVersionLabel extends StatelessWidget {
+  const _AppVersionLabel();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<PackageInfo>(
+      future: PackageInfo.fromPlatform(),
+      builder: (context, snapshot) {
+        final info = snapshot.data;
+        if (info == null) return const SizedBox.shrink();
+        return Text(
+          'Versão ${info.version} (${info.buildNumber})',
+          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.outline),
+        );
+      },
     );
   }
 }
