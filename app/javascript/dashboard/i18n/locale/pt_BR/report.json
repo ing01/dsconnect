@@ -1,5 +1,25 @@
 {
   "REPORT": {
+    "HUB": {
+      "TITLE": "Relatórios",
+      "DESCRIPTION": "Escolha um relatório para ver os detalhes.",
+      "OPEN": "Abrir",
+      "CARDS": {
+        "OVERVIEW": "Números em tempo real: conversas, agentes e filas agora.",
+        "HELPDESK_OVERVIEW": "Visão geral do atendimento: chamados, SLA e volume.",
+        "CONVERSATION": "Volume e tempos de resposta das conversas, por período.",
+        "AGENT": "Desempenho por agente: conversas, tempo de resposta e resolução.",
+        "LABEL": "Conversas agrupadas por etiqueta.",
+        "INBOX": "Conversas e tempos de resposta por caixa de entrada.",
+        "TEAM": "Desempenho por Mesa/equipe.",
+        "TICKET": "Uma linha por chamado, com filtros de cliente, status e período.",
+        "CSAT": "Notas de satisfação deixadas pelos clientes.",
+        "SLA": "Cumprimento dos acordos de nível de serviço.",
+        "BOT": "Desempenho das respostas automáticas da Dua.",
+        "MOOD_CHECKINS": "Como a equipe está se sentindo, por período.",
+        "MONTHLY_SATISFACTION_SURVEYS": "Avaliação mensal preenchida pelos clientes."
+      }
+    },
     "HEADER": "Conversas",
     "LOADING_CHART": "Carregando dados do gráfico...",
     "NO_ENOUGH_DATA": "Não existem dados suficientes para gerar o relatório. Tente novamente mais tarde.",

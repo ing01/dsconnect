@@ -7,7 +7,10 @@ import SidebarUnreadBadge from './SidebarUnreadBadge.vue';
 
 const props = defineProps({
   label: { type: String, required: true },
-  to: { type: [String, Object], required: true },
+  to: { type: [String, Object], default: null },
+  // Item que abre uma URL fora do painel (ex.: "Atualizador automatico") -
+  // sem rota do Vue Router, entao vira um <a> comum em vez de <router-link>.
+  href: { type: String, default: null },
   icon: { type: [String, Object], default: null },
   active: { type: Boolean, default: false },
   component: { type: Function, default: null },
@@ -44,8 +47,11 @@ const TREE_CONNECTOR =
     }"
   >
     <component
-      :is="to ? 'router-link' : 'div'"
-      :to="to"
+      :is="href ? 'a' : to ? 'router-link' : 'div'"
+      :to="href ? undefined : to"
+      :href="href || undefined"
+      :target="href ? '_blank' : undefined"
+      :rel="href ? 'noopener noreferrer' : undefined"
       :title="label"
       class="flex h-9 items-center gap-2 px-2 py-1 rounded-lg ltr:hover:bg-gradient-to-r rtl:hover:bg-gradient-to-l from-transparent via-n-slate-3/70 to-n-slate-3/70 group min-w-0"
       :class="{

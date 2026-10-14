@@ -2,6 +2,7 @@ import { frontendURL } from '../../../../helper/URLHelper';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 import ReportsWrapper from './components/ReportsWrapper.vue';
+import ReportsHub from './ReportsHub.vue';
 import Index from './Index.vue';
 
 import AgentReportsIndex from './AgentReportsIndex.vue';
@@ -135,8 +136,14 @@ export default {
         {
           path: '',
           redirect: to => {
-            return { name: 'account_overview_reports', params: to.params };
+            return { name: 'reports_hub', params: to.params };
           },
+        },
+        {
+          path: 'hub',
+          name: 'reports_hub',
+          meta,
+          component: ReportsHub,
         },
         {
           path: 'overview',

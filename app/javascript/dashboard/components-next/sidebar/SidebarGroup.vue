@@ -119,6 +119,9 @@ const visibleChildren = computed(() => {
 
   return props.children.filter(child => {
     if (child.children) return hasAccessibleSubChildren(child);
+    // Item de link externo (ex.: "Atualizador automatico") - sem rota do Vue
+    // Router pra checar permissao/feature flag, entao fica sempre visivel.
+    if (child.href) return true;
 
     return child.to && isAllowed(child.to);
   });
