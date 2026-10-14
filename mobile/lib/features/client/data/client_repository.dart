@@ -90,10 +90,20 @@ class ClientRepository {
     return ChatSession.fromJson(response.data!);
   }
 
-  Future<ChatMessage> sendChatMessage(String content) async {
+  Future<ChatMessage> sendChatMessage(
+    String content, {
+    List<XFile> attachments = const [],
+    bool isVoiceMessage = false,
+  }) async {
+    final data = FormData.fromMap({
+      if (content.isNotEmpty) 'content': content,
+      if (isVoiceMessage) 'is_voice_message': true,
+    });
+    await _appendAttachments(data, attachments);
+
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/client/chat/messages',
-      data: {'content': content},
+      data: data,
     );
     return ChatMessage.fromJson(response.data!);
   }

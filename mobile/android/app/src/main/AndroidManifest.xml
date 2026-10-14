@@ -9,6 +9,8 @@
          sistema), so a camera. -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <!-- Gravar audio pro chat (pacote `record`). -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Android 13+ exige essa permissao (pedida em tempo de execucao pelo
          firebase_messaging) pra poder mostrar notificacao - sem ela no
          manifest o pedido nem aparece pro usuario. -->

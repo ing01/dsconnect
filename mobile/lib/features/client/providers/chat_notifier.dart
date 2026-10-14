@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/realtime/action_cable_client.dart';
 import 'client_providers.dart';
@@ -42,11 +43,19 @@ class ClientChatNotifier extends AsyncNotifier<ChatState> {
     state = AsyncData(ChatState(session: session));
   }
 
-  Future<void> send(String content) async {
+  Future<void> send(
+    String content, {
+    List<XFile> attachments = const [],
+    bool isVoiceMessage = false,
+  }) async {
     final current = state.value ?? const ChatState();
     state = AsyncData(current.copyWith(isSending: true, clearError: true));
     try {
-      await ref.read(clientRepositoryProvider).sendChatMessage(content);
+      await ref.read(clientRepositoryProvider).sendChatMessage(
+            content,
+            attachments: attachments,
+            isVoiceMessage: isVoiceMessage,
+          );
       await refresh();
     } catch (_) {
       state = AsyncData(current.copyWith(isSending: false, error: 'Não foi possível enviar a mensagem.'));

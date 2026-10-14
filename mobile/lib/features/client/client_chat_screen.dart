@@ -1,6 +1,10 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 
 import '../../core/theme/app_theme.dart';
 import 'models/chat_message.dart';
@@ -16,6 +20,8 @@ class ClientChatScreen extends ConsumerStatefulWidget {
 class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+  final _recorder = AudioRecorder();
+  bool _isRecording = false;
 
   // Marcar como "vista" ao abrir o chat fica a cargo de quem troca de aba
   // (ClientHomeShell) - esta tela e' montada uma unica vez pelo `IndexedStack`
@@ -26,6 +32,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
+    _recorder.dispose();
     super.dispose();
   }
 
@@ -42,6 +49,81 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     _controller.clear();
     await ref.read(clientChatProvider.notifier).send(text);
     _scrollToBottom();
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final file = await ImagePicker().pickImage(source: source, imageQuality: 85);
+      if (file == null) return;
+      await ref.read(clientChatProvider.notifier).send('', attachments: [file]);
+      _scrollToBottom();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível acessar a câmera/galeria. Confira a permissão do app.')),
+        );
+      }
+    }
+  }
+
+  void _openAttachmentSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Tirar foto'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Escolher da galeria'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleRecording() async {
+    if (_isRecording) {
+      final path = await _recorder.stop();
+      setState(() => _isRecording = false);
+      if (path == null) return;
+      await ref.read(clientChatProvider.notifier).send('', attachments: [XFile(path)], isVoiceMessage: true);
+      _scrollToBottom();
+      return;
+    }
+
+    try {
+      if (!await _recorder.hasPermission()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Permissão de microfone negada.')),
+          );
+        }
+        return;
+      }
+      final dir = await getTemporaryDirectory();
+      final path = '${dir.path}/chat_audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      await _recorder.start(const RecordConfig(encoder: AudioEncoder.aacLc), path: path);
+      setState(() => _isRecording = true);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível gravar áudio.')),
+        );
+      }
+    }
   }
 
   @override
@@ -77,23 +159,46 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(state.error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
                 ),
+              if (_isRecording)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Row(
+                    children: [
+                      Icon(Icons.fiber_manual_record, size: 14, color: Theme.of(context).colorScheme.error),
+                      const SizedBox(width: 6),
+                      const Text('Gravando áudio... toque no microfone pra enviar'),
+                    ],
+                  ),
+                ),
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(8),
                   child: Row(
                     children: [
+                      IconButton(
+                        onPressed: _isRecording ? null : _openAttachmentSheet,
+                        icon: const Icon(Icons.attach_file),
+                      ),
                       Expanded(
                         child: TextField(
                           controller: _controller,
                           minLines: 1,
                           maxLines: 4,
+                          enabled: !_isRecording,
                           decoration: const InputDecoration(hintText: 'Mensagem...', border: OutlineInputBorder()),
                           onSubmitted: (_) => _send(),
                         ),
                       ),
                       const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: state.isSending ? null : _toggleRecording,
+                        icon: Icon(
+                          _isRecording ? Icons.stop_circle : Icons.mic_none,
+                          color: _isRecording ? Theme.of(context).colorScheme.error : null,
+                        ),
+                      ),
                       GradientIconButton(
-                        onPressed: state.isSending ? null : _send,
+                        onPressed: (state.isSending || _isRecording) ? null : _send,
                         icon: state.isSending
                             ? const SizedBox(
                                 height: 16,
@@ -141,7 +246,8 @@ class _ChatBubble extends StatelessWidget {
                 message.authorName!,
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.primary),
               ),
-            Text(message.content),
+            for (final attachment in message.attachments) _ChatAttachmentView(attachment: attachment),
+            if (message.content.isNotEmpty) Text(message.content),
             const SizedBox(height: 4),
             Text(
               DateFormat('HH:mm').format(message.createdAt.toLocal()),
@@ -150,6 +256,103 @@ class _ChatBubble extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ChatAttachmentView extends StatelessWidget {
+  const _ChatAttachmentView({required this.attachment});
+
+  final ChatAttachment attachment;
+
+  @override
+  Widget build(BuildContext context) {
+    if (attachment.dataUrl.isEmpty) return const SizedBox.shrink();
+
+    if (attachment.isImage) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            attachment.dataUrl,
+            width: 220,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stack) => const SizedBox(
+              width: 220,
+              height: 120,
+              child: Center(child: Icon(Icons.broken_image_outlined)),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (attachment.isAudio) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: _AudioAttachmentPlayer(url: attachment.dataUrl),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+}
+
+class _AudioAttachmentPlayer extends StatefulWidget {
+  const _AudioAttachmentPlayer({required this.url});
+
+  final String url;
+
+  @override
+  State<_AudioAttachmentPlayer> createState() => _AudioAttachmentPlayerState();
+}
+
+class _AudioAttachmentPlayerState extends State<_AudioAttachmentPlayer> {
+  final _player = AudioPlayer();
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _player.onPlayerStateChanged.listen((playerState) {
+      if (!mounted) return;
+      setState(() => _isPlaying = playerState == PlayerState.playing);
+    });
+    _player.onPlayerComplete.listen((_) {
+      if (!mounted) return;
+      setState(() => _isPlaying = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _toggle() async {
+    if (_isPlaying) {
+      await _player.pause();
+    } else {
+      await _player.play(UrlSource(widget.url));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          onPressed: _toggle,
+          icon: Icon(_isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill, size: 32),
+        ),
+        const SizedBox(width: 6),
+        const Text('Mensagem de áudio'),
+      ],
     );
   }
 }
