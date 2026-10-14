@@ -31,7 +31,12 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
   private
 
   def fetch_team
-    @team = Current.account.teams.includes(ticket_columns: { board_tickets: BOARD_TICKET_INCLUDES }).find(params[:id])
+    @team = Current.account.teams.includes(:ticket_columns).find(params[:id])
+    # Carrega `board_tickets` de cada Estagio numa query so' que respeita o
+    # limite POR COLUNA (ver TicketColumn.preload_board_tickets!) - encadear
+    # `board_tickets` dentro do `includes(ticket_columns: {...})` acima faria o
+    # Rails misturar as colunas numa unica query e aplicar o LIMIT na Mesa toda.
+    TicketColumn.preload_board_tickets!(@team.ticket_columns, includes: BOARD_TICKET_INCLUDES)
   end
 
   def team_params

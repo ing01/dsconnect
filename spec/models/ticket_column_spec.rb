@@ -128,6 +128,51 @@ RSpec.describe TicketColumn do
     end
   end
 
+  describe '.preload_board_tickets!' do
+    it 'keeps each column at its own BOARD_TICKETS_LIMIT instead of sharing one across the Mesa' do
+      team = create(:team)
+      stub_const('TicketColumn::BOARD_TICKETS_LIMIT', 3)
+      first_column = create(:ticket_column, team: team, kind: 'normal')
+      second_column = create(:ticket_column, team: team, kind: 'normal')
+      # Mais tickets na primeira coluna do que o limite - se o corte vazar para
+      # a Mesa toda (em vez de valer por coluna), ele consome o espaco da
+      # segunda coluna mesmo ela tendo bem menos tickets do que o limite.
+      create_list(:ticket, 5, ticket_column: first_column, team: team)
+      create_list(:ticket, 2, ticket_column: second_column, team: team)
+
+      described_class.preload_board_tickets!([first_column, second_column])
+
+      expect(first_column.board_tickets.size).to eq(3)
+      expect(second_column.board_tickets.size).to eq(2)
+    end
+
+    it 'does not hide a ticket sitting further down its own column just because other Estagios have lower positions' do
+      team = create(:team)
+      stub_const('TicketColumn::BOARD_TICKETS_LIMIT', 3)
+      crowded_column = create(:ticket_column, team: team, kind: 'normal')
+      target_column = create(:ticket_column, team: team, kind: 'normal')
+      create_list(:ticket, 10, ticket_column: crowded_column, team: team)
+      tickets = create_list(:ticket, 3, ticket_column: target_column, team: team)
+      wanted = tickets.last
+
+      described_class.preload_board_tickets!([crowded_column, target_column])
+
+      expect(target_column.board_tickets.map(&:id)).to include(wanted.id)
+    end
+
+    it 'matches calling board_tickets on a single column directly (no preload involved)' do
+      team = create(:team)
+      column = create(:ticket_column, team: team, kind: 'normal')
+      other_column = create(:ticket_column, team: team, kind: 'normal')
+      create_list(:ticket, 4, ticket_column: other_column, team: team)
+      expected = create_list(:ticket, 4, ticket_column: column, team: team)
+
+      described_class.preload_board_tickets!([column, other_column])
+
+      expect(column.board_tickets.map(&:id)).to eq(expected.map(&:id))
+    end
+  end
+
   describe 'kind' do
     it 'defaults to normal' do
       expect(create(:ticket_column).kind).to eq('normal')

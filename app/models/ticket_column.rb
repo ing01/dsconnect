@@ -24,6 +24,45 @@ class TicketColumn < ApplicationRecord
   has_many :board_tickets, -> { operational.triaged.order(:position, :id).limit(BOARD_TICKETS_LIMIT) },
            class_name: 'Ticket', inverse_of: :ticket_column, dependent: nil
 
+  # `has_many :board_tickets` sozinho funciona certo so' para UMA coluna. O
+  # problema aparece quando o Rails precisa carregar `board_tickets` de VARIAS
+  # colunas de uma vez (como o board de uma Mesa faz, via `includes`): ele junta
+  # as colunas numa so' query (`WHERE ticket_column_id IN (...) ... LIMIT 300`),
+  # o que faz o LIMIT valer para a MESA TODA, nao para cada Estagio - colunas
+  # com tickets de posicao baixa em QUALQUER Estagio comem o espaco de outra
+  # coluna, mesmo que nenhuma delas sozinha passe de 300. Foi por isso que uma
+  # Mesa com varios Estagios (ex: apos uma importacao grande) passou a esconder
+  # tickets reais do quadro sem bater nenhum limite por coluna.
+  #
+  # Este metodo busca todas as colunas de uma vez com UMA query so' (sem repetir
+  # o problema acima) usando ROW_NUMBER() OVER (PARTITION BY ticket_column_id ...)
+  # para que o corte de BOARD_TICKETS_LIMIT seja calculado por coluna dentro do
+  # banco, e depois preenche `board_tickets` de cada coluna com o resultado ja'
+  # carregado - chamar `column.board_tickets` depois nao dispara nova query.
+  def self.preload_board_tickets!(columns, includes: [])
+    columns = Array(columns)
+    return columns if columns.empty?
+
+    ranked = Ticket.operational.triaged
+                   .where(ticket_column_id: columns.map(&:id))
+                   .select(
+                     'tickets.*, row_number() over ' \
+                     '(partition by ticket_column_id order by position asc, id asc) as board_rank'
+                   )
+    limited = Ticket.from(ranked, :tickets)
+                    .where('board_rank <= ?', BOARD_TICKETS_LIMIT)
+                    .order(Arel.sql('board_rank asc'))
+                    .includes(includes)
+
+    tickets_by_column = limited.group_by(&:ticket_column_id)
+    columns.each do |column|
+      association = column.association(:board_tickets)
+      association.target = tickets_by_column[column.id] || []
+      association.loaded!
+    end
+    columns
+  end
+
   # `pending` and `completed` mark the mandatory "Pendente"/"Finalizado"
   # Estagios of a Mesa's Kanban: `pending` is where Projects::CreateTicketsService
   # lands new project tickets, `completed` is just the required "done" slot -

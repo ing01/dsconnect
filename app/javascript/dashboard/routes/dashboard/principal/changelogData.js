@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-board-tickets-limit-per-column',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'fix',
+    title: 'Kanban: tickets desaparecendo em Mesas com vários Estágios',
+    description:
+      'Em Mesas com vários Estágios, o quadro vinha escondendo tickets de verdade (ex: um ticket aparecia na busca mas não no Kanban) mesmo sem nenhum deles passar de 300 tickets. A causa era um limite de carregamento que deveria valer por Estágio, mas estava sendo aplicado à Mesa inteira de uma vez, fazendo colunas competirem pelo mesmo espaço. Agora cada Estágio tem seu próprio limite, e todos os tickets aparecem corretamente.',
+  },
+  {
     id: 'conversation-card-mesa-fallback-to-conversation-team',
     date: '13 de outubro de 2026',
     isoDate: '2026-10-13',
