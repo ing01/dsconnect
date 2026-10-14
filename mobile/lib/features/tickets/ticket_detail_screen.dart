@@ -1,22 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/semantic_colors.dart';
+import '../../core/widgets/bordered_card.dart';
+import '../../core/widgets/pill_label.dart';
 import 'models/ticket_detail.dart';
 import 'providers/ticket_detail_providers.dart';
-
-const _statusLabels = {
-  'open': 'Aberto',
-  'resolved': 'Resolvido',
-  'closed': 'Fechado',
-  'cancelled': 'Cancelado',
-};
-
-const _priorityLabels = {
-  'urgent': 'Urgente',
-  'high': 'Alta',
-  'medium': 'Média',
-  'low': 'Baixa',
-};
 
 class TicketDetailScreen extends ConsumerWidget {
   const TicketDetailScreen({required this.ticketId, super.key});
@@ -69,12 +58,15 @@ class _TicketDetailBody extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       children: [
         Text(ticket.title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Wrap(
-          spacing: 8,
+          spacing: 6,
           children: [
-            Chip(label: Text(_statusLabels[ticket.status] ?? ticket.status)),
-            Chip(label: Text(_priorityLabels[ticket.priority] ?? ticket.priority)),
+            PillLabel(statusLabels[ticket.status] ?? ticket.status, colorName: statusColorName(ticket.status)),
+            PillLabel(
+              priorityLabels[ticket.priority] ?? ticket.priority,
+              colorName: priorityColorName(ticket.priority),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -104,9 +96,19 @@ class _TicketDetailBody extends ConsumerWidget {
         if (ticket.contactEmail != null) _InfoRow(label: 'E-mail', value: ticket.contactEmail!),
         if (ticket.contactPhone != null) _InfoRow(label: 'Telefone', value: ticket.contactPhone!),
         const Divider(height: 32),
-        Text('Descrição', style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 8),
-        Text(ticket.description),
+        BorderedCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Descrição',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 6),
+              Text(ticket.description, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            ],
+          ),
+        ),
         const SizedBox(height: 24),
         if (ticket.canUpdate) _StatusActions(ticket: ticket, onAction: (a) => _runAction(context, ref, a)),
       ],

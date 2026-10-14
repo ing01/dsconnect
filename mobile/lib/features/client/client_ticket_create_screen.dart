@@ -1,7 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../core/api/api_error.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/widgets/bordered_card.dart';
 import 'client_ticket_detail_screen.dart';
+import 'models/ticket_category.dart';
 import 'providers/client_providers.dart';
 
 class ClientTicketCreateScreen extends ConsumerStatefulWidget {
@@ -17,12 +24,31 @@ class _ClientTicketCreateScreenState extends ConsumerState<ClientTicketCreateScr
   final _descriptionController = TextEditingController();
   int? _categoryId;
   bool _isSubmitting = false;
+  final List<XFile> _attachments = [];
+  String? _attachmentError;
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final file = await ImagePicker().pickImage(source: source, imageQuality: 85);
+      if (file == null) return;
+      setState(() {
+        _attachments.add(file);
+        _attachmentError = null;
+      });
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível acessar a câmera/galeria. Confira a permissão do app.')),
+        );
+      }
+    }
   }
 
   Future<void> _openAiDraftSheet() async {
@@ -44,20 +70,28 @@ class _ClientTicketCreateScreenState extends ConsumerState<ClientTicketCreateScr
         _descriptionController.text = draft.description;
         if (draft.categoryId != null) _categoryId = draft.categoryId;
       });
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
       Navigator.of(context, rootNavigator: true).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não foi possível gerar o rascunho. Preencha manualmente.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(describeApiError(error))));
     }
   }
 
-  Future<void> _submit() async {
+  bool _requiresAttachment(List<TicketCategory> categories) {
+    return categories.where((c) => c.id == _categoryId).firstOrNull?.requireAttachment == true;
+  }
+
+  Future<void> _submit(List<TicketCategory> categories) async {
     if (!_formKey.currentState!.validate() || _categoryId == null) {
       if (_categoryId == null) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Escolha uma categoria.')));
       }
+      return;
+    }
+
+    final category = categories.where((c) => c.id == _categoryId).firstOrNull;
+    if (category?.requireAttachment == true && _attachments.isEmpty) {
+      setState(() => _attachmentError = 'Esta categoria exige pelo menos um anexo (foto/print).');
       return;
     }
 
@@ -67,17 +101,16 @@ class _ClientTicketCreateScreenState extends ConsumerState<ClientTicketCreateScr
             categoryId: _categoryId!,
             title: _titleController.text.trim(),
             description: _descriptionController.text.trim(),
+            attachments: _attachments,
           );
       ref.invalidate(clientTicketsProvider);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => ClientTicketDetailScreen(ticketId: detail.ticket.id)),
       );
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Não foi possível abrir o chamado. Tente novamente.')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(describeApiError(error))));
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -107,10 +140,13 @@ class _ClientTicketCreateScreenState extends ConsumerState<ClientTicketCreateScr
               ),
             categoriesAsync.when(
               loading: () => const LinearProgressIndicator(),
-              error: (_, _) => const Text('Não foi possível carregar as categorias.'),
+              error: (error, _) => Text(
+                'Não foi possível carregar as categorias.\n${describeApiError(error)}',
+                style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
+              ),
               data: (categories) => DropdownButtonFormField<int>(
                 initialValue: _categoryId,
-                decoration: const InputDecoration(labelText: 'Categoria'),
+                decoration: const InputDecoration(labelText: 'Categoria', border: OutlineInputBorder()),
                 items: [
                   for (final category in categories) DropdownMenuItem(value: category.id, child: Text(category.name)),
                 ],
@@ -120,26 +156,111 @@ class _ClientTicketCreateScreenState extends ConsumerState<ClientTicketCreateScr
             const SizedBox(height: 16),
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Assunto'),
+              decoration: const InputDecoration(labelText: 'Assunto', border: OutlineInputBorder()),
               validator: (value) => (value == null || value.trim().isEmpty) ? 'Informe o assunto' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Descrição do problema'),
+              decoration: const InputDecoration(labelText: 'Descrição do problema', border: OutlineInputBorder()),
               maxLines: 6,
               validator: (value) => (value == null || value.trim().isEmpty) ? 'Descreva o problema' : null,
             ),
+            const SizedBox(height: 16),
+            BorderedCard(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Anexos',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      if (_requiresAttachment(categoriesAsync.value ?? const []))
+                        Text(
+                          ' *',
+                          style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final file in _attachments)
+                        _AttachmentThumbnail(
+                          file: file,
+                          onRemove: () => setState(() => _attachments.remove(file)),
+                        ),
+                      OutlinedButton.icon(
+                        onPressed: () => _pickImage(ImageSource.camera),
+                        icon: const Icon(Icons.photo_camera_outlined),
+                        label: const Text('Tirar foto'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () => _pickImage(ImageSource.gallery),
+                        icon: const Icon(Icons.image_outlined),
+                        label: const Text('Galeria'),
+                      ),
+                    ],
+                  ),
+                  if (_attachmentError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(_attachmentError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                    ),
+                ],
+              ),
+            ),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _isSubmitting ? null : _submit,
+            GradientButton(
+              onPressed: _isSubmitting ? null : () => _submit(categoriesAsync.value ?? const []),
               child: _isSubmitting
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
                   : const Text('Abrir chamado'),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AttachmentThumbnail extends StatelessWidget {
+  const _AttachmentThumbnail({required this.file, required this.onRemove});
+
+  final XFile file;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.file(File(file.path), width: 64, height: 64, fit: BoxFit.cover),
+        ),
+        Positioned(
+          top: -8,
+          right: -8,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: CircleAvatar(
+              radius: 10,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              child: const Icon(Icons.close, size: 14, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -549,6 +549,9 @@
       "HEADER": "Assistentes",
       "NO_ASSISTANTS_AVAILABLE": "Não há assistentes disponíveis em sua conta.",
       "ADD_NEW": "Criar um novo assistente",
+      "CARD": {
+        "NO_DESCRIPTION": "Descrição não disponível"
+      },
       "DELETE": {
         "TITLE": "Tem certeza que deseja excluir o assistente?",
         "DESCRIPTION": "Esta ação é permanente. Excluir este assistente irá removê-lo de todas as caixas de entrada conectadas e apagará permanentemente todo o conhecimento gerado.",
@@ -608,6 +611,79 @@
           "ALLOW_MEMORIES": "Capture os principais detalhes como memórias de interações do cliente.",
           "ALLOW_CITATIONS": "Incluir fonte de citações nas respostas",
           "ALLOW_CONTACT_ATTRIBUTES": "Permitir acesso às informações do contato"
+        },
+        "INACTIVITY_RESOLUTION": {
+          "TITLE": "Quando o cliente para de responder",
+          "DESCRIPTION": "Escolha como a Dua lida com a conversa.",
+          "MODE_LABEL": "Ação quando o cliente para de responder",
+          "REVIEW_AFTER": "Revisar após",
+          "RESOLVE_AFTER": "Resolver após",
+          "ALWAYS_WARNING": "A Dua vai resolver toda conversa depois do tempo selecionado, sem revisar antes. Algumas conversas que ainda precisam de ajuda podem acabar sendo encerradas.",
+          "PENDING_INFO": "A conversa permanece pendente até o cliente responder.",
+          "RESOLUTION_MESSAGE": {
+            "TITLE": "Enviar uma mensagem ao resolver",
+            "DESCRIPTION": "A Dua envia esta mensagem de encerramento antes de resolver a conversa."
+          },
+          "MODES": {
+            "DISABLED": {
+              "LABEL": "Esperar o cliente",
+              "DESCRIPTION": "A Dua não resolve a conversa sozinha. Ela ainda pode transferir para um humano se o cliente pedir."
+            },
+            "LEGACY": {
+              "LABEL": "Sempre resolver",
+              "DESCRIPTION": "A Dua resolve toda conversa depois do tempo selecionado."
+            },
+            "EVALUATED": {
+              "LABEL": "Deixar a Dua avaliar (recomendado)",
+              "DESCRIPTION": "A Dua decide se resolve a conversa ou transfere para um humano."
+            }
+          },
+          "DURATION_HOURS_ARIA_LABEL": "Horas antes da ação",
+          "DURATION_MINUTES_ARIA_LABEL": "Minutos antes da ação",
+          "DURATION_HOURS_SHORT": "{count} h",
+          "DURATION_MINUTES_SHORT": "{count} min"
+        },
+        "AUDIENCE": {
+          "EVERYONE": {
+            "LABEL": "Todo mundo",
+            "DESC": "A Dua responde a toda conversa nas caixas de entrada conectadas."
+          },
+          "SPECIFIC": {
+            "LABEL": "Público específico",
+            "DESC": "A Dua responde só aos clientes que atendem às condições abaixo."
+          },
+          "ADD_CONDITION": "Adicionar condição",
+          "ADD_GROUP": "Adicionar grupo de condições",
+          "EMPTY_TITLE": "Nenhuma condição ainda",
+          "EMPTY_BODY": "Adicione uma condição para atingir clientes específicos, ou um grupo de condições para combinar condições com lógica \"e\"/\"ou\" diferente.",
+          "EMPTY_ERROR": "Adicione pelo menos uma condição para um público específico.",
+          "MATCH_PREFIX": "Corresponder a",
+          "MATCH_SUFFIX": "das condições a seguir",
+          "MATCH_ALL": "todas",
+          "MATCH_ANY": "qualquer uma",
+          "GROUP_CONTACT": "Atributos do contato",
+          "GROUP_CONVERSATION": "Conversa",
+          "GROUP_CUSTOM": "Atributos personalizados",
+          "BROWSER_LANGUAGE": "Idioma do navegador",
+          "CONVERSATION_LANGUAGE": "Idioma da primeira mensagem",
+          "LOGGED_IN": "Usuário autenticado",
+          "LOGGED_IN_TRUE": "Sim",
+          "LOGGED_IN_FALSE": "Não"
+        },
+        "SCHEDULE": {
+          "ALWAYS": {
+            "LABEL": "A qualquer momento",
+            "DESC": "A Dua responde a toda conversa, independente do horário."
+          },
+          "BUSINESS_HOURS": {
+            "LABEL": "No horário comercial",
+            "DESC": "A Dua responde só dentro do horário comercial de cada caixa de entrada."
+          },
+          "OUTSIDE_BUSINESS_HOURS": {
+            "LABEL": "Fora do horário comercial",
+            "DESC": "A Dua responde só quando cada caixa de entrada está fechada."
+          },
+          "HINT": "Caixas de entrada sem horário comercial configurado são sempre cobertas."
         }
       },
       "EDIT": {
@@ -624,7 +700,16 @@
         },
         "SYSTEM_SETTINGS": {
           "TITLE": "Configurações do sistema",
-          "DESCRIPTION": "Personalize o que o assistente diz quando termina uma conversa ou transfere para um humano."
+          "DESCRIPTION": "Personalize o que o assistente diz quando termina uma conversa ou transfere para um humano.",
+          "DESCRIPTION_V2": "Controle o que a Dua faz quando o cliente para de responder e defina a mensagem de transferência."
+        },
+        "AUDIENCE": {
+          "TITLE": "Público-alvo",
+          "DESCRIPTION": "Escolha se este assistente responde a todo mundo ou só a um público específico."
+        },
+        "SCHEDULE": {
+          "TITLE": "Agenda",
+          "DESCRIPTION": "Escolha quando a Dua responde. Fora dessa janela, as conversas são encaminhadas para sua equipe."
         },
         "CONTROL_ITEMS": {
           "TITLE": "As Coisas Divertidas",
@@ -818,6 +903,8 @@
       "HEADER": "Documentos",
       "ADD_NEW": "Criar um novo documento",
       "FAQ_COUNT": "{n} FAQ | {n} FAQs",
+      "USED_IN_CONVERSATIONS": "Usado em {n} conversa | Usado em {n} conversas",
+      "NO_USED_CONVERSATIONS": "Nenhuma conversa encontrada para este documento.",
       "SELECTED": "{count} selecionado",
       "SELECT_ALL": "Selecionar todos ({count})",
       "UNSELECT_ALL": "Desmarcar todos ({count})",
@@ -855,7 +942,8 @@
         },
         "SORT": {
           "RECENTLY_UPDATED": "Atualizado recentemente",
-          "RECENTLY_CREATED": "Criado recentemente"
+          "RECENTLY_CREATED": "Criado recentemente",
+          "MOST_USED": "Mais usado em conversas"
         },
         "SEARCH_PLACEHOLDER": "Pesquisar..."
       },
@@ -883,6 +971,7 @@
         "DESCRIPTION": "Revise o conteúdo coletado e as FAQs geradas a partir desta fonte.",
         "SOURCE": "Fonte",
         "GENERATED_FAQS": "FAQs Geradas",
+        "USED_IN_CONVERSATIONS": "Usado em conversas",
         "LAST_UPDATED": "Última atualização",
         "NOT_AVAILABLE": "Indisponível",
         "CONTENT_TAB": "Conteúdo coletado",
@@ -1085,6 +1174,7 @@
     "RESPONSES": {
       "HEADER": "FAQs",
       "ADD_NEW": "Criar nova FAQ",
+      "NO_USED_CONVERSATIONS": "Nenhuma conversa encontrada para esta FAQ.",
       "DOCUMENTABLE": {
         "CONVERSATION": "Conversação #{id}"
       },

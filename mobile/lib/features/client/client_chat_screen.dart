@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/theme/app_theme.dart';
 import 'models/chat_message.dart';
 import 'providers/chat_notifier.dart';
+import 'providers/client_providers.dart';
 
 class ClientChatScreen extends ConsumerStatefulWidget {
   const ClientChatScreen({super.key});
@@ -15,6 +17,14 @@ class ClientChatScreen extends ConsumerStatefulWidget {
 class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Abrir o chat conta como "ver" as novidades de chat, mesmo sem clicar
+    // na notificacao especifica.
+    Future.microtask(() => ref.read(dismissedNotificationsProvider.notifier).dismissChatNotifications());
+  }
 
   @override
   void dispose() {
@@ -86,10 +96,14 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      IconButton.filled(
+                      GradientIconButton(
                         onPressed: state.isSending ? null : _send,
                         icon: state.isSending
-                            ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
                             : const Icon(Icons.send),
                       ),
                     ],

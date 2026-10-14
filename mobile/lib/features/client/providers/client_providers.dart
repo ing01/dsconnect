@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/auth/auth_providers.dart';
 import '../data/client_repository.dart';
+import '../data/notification_dismiss_store.dart';
 import '../models/chat_message.dart';
 import '../models/client_notification.dart';
 import '../models/client_ticket.dart';
@@ -43,8 +45,8 @@ class ClientTicketDetailNotifier extends AsyncNotifier<ClientTicketDetail> {
   // Responde e recarrega o detalhe (pra trazer a mensagem nova junto, com
   // o mesmo formato/ordenacao que o resto da conversa) - mais simples e mais
   // confiavel do que tentar inserir a mensagem local "na mao".
-  Future<void> reply(String body) async {
-    await ref.read(clientRepositoryProvider).replyToTicket(ticketId, body);
+  Future<void> reply(String body, {List<XFile> attachments = const []}) async {
+    await ref.read(clientRepositoryProvider).replyToTicket(ticketId, body, attachments: attachments);
     await refresh();
   }
 }
@@ -63,6 +65,44 @@ final aiDraftEnabledProvider = FutureProvider.autoDispose<bool>((ref) {
 final clientNotificationsProvider = FutureProvider.autoDispose<List<ClientNotification>>((ref) {
   return ref.watch(clientRepositoryProvider).fetchNotifications();
 });
+
+final _notificationDismissStoreProvider = Provider<NotificationDismissStore>((ref) => NotificationDismissStore());
+
+// Ids de notificacao ja abertas pelo cliente - some da lista ao clicar, ainda
+// que o servidor nao tenha coluna de lido/nao-lido (ver NotificationDismissStore).
+class DismissedNotificationsNotifier extends AsyncNotifier<Set<String>> {
+  @override
+  Future<Set<String>> build() => ref.read(_notificationDismissStoreProvider).read();
+
+  Future<void> dismiss(String id) async {
+    final current = state.value ?? const {};
+    if (current.contains(id)) return;
+
+    state = AsyncData({...current, id});
+    await ref.read(_notificationDismissStoreProvider).dismiss(id);
+  }
+
+  // Pra sumir a notificacao tambem quando a conversa e' aberta por outro
+  // caminho (ex.: o chamado pela lista "Meus chamados", ou o Chat direto
+  // pela aba) - nao so quando se clica na propria notificacao.
+  Future<void> dismissForTicket(int ticketId) async {
+    final all = ref.read(clientNotificationsProvider).value ?? const [];
+    for (final item in all) {
+      if (item.ticketId == ticketId) await dismiss(item.id);
+    }
+  }
+
+  Future<void> dismissChatNotifications() async {
+    final all = ref.read(clientNotificationsProvider).value ?? const [];
+    for (final item in all) {
+      if (item.type != 'ticket') await dismiss(item.id);
+    }
+  }
+}
+
+final dismissedNotificationsProvider = AsyncNotifierProvider<DismissedNotificationsNotifier, Set<String>>(
+  DismissedNotificationsNotifier.new,
+);
 
 // Estado do Chat do Portal - ver `ClientChatNotifier` (providers/chat_notifier.dart)
 // pela parte de tempo real.

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
@@ -34,6 +34,11 @@ const load = async () => {
     hasLoaded.value = false;
   }
 };
+
+// Busca a contagem real assim que o ticket carrega, mesmo com o acordeao
+// fechado - sem isso o titulo mostra "Arquivo (0)" ate alguem clicar pra
+// expandir (ver `load`, so disparado antes no @toggle do Accordion).
+onMounted(load);
 
 const pickFile = () => fileInput.value?.click();
 

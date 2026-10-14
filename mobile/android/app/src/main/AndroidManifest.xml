@@ -1,4 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Sem isso o app nao resolve nem o DNS do servidor - o Flutter so
+         adiciona essa permissao sozinho nos manifests de debug/profile (pra
+         hot reload), entao builds de release (o .apk que vai pro celular de
+         verdade) ficam sem internet nenhuma sem essa linha aqui. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Tirar foto pra anexar num chamado (image_picker) - a galeria em si
+         nao precisa de permissao no Android 13+ (seletor de fotos do
+         sistema), so a camera. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <!-- Android 13+ exige essa permissao (pedida em tempo de execucao pelo
+         firebase_messaging) pra poder mostrar notificacao - sem ela no
+         manifest o pedido nem aparece pro usuario. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="DSConnect"
         android:name="${applicationName}"

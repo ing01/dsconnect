@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/auth/auth_mode.dart';
 import 'core/auth/auth_providers.dart';
+import 'core/theme/app_theme.dart';
 import 'features/agent/agent_home_shell.dart';
 import 'features/auth/account_picker_screen.dart';
 import 'features/auth/login_screen.dart';
@@ -16,7 +17,7 @@ class DuedeskApp extends StatelessWidget {
     return MaterialApp(
       title: 'DSConnect',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: const Color(0xFF2781F6), useMaterial3: true),
+      theme: AppTheme.light(),
       home: const _RootGate(),
     );
   }

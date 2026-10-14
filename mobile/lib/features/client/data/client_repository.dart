@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/chat_message.dart';
 import '../models/client_notification.dart';
@@ -15,7 +16,9 @@ class ClientRepository {
 
   Future<List<ClientTicket>> fetchTickets() async {
     final response = await _dio.get<Map<String, dynamic>>('/api/v1/client/tickets');
-    return (response.data?['payload'] as List<dynamic>? ?? const [])
+    // O servidor devolve {"companies": [...], "tickets": [...]} - ver
+    // api/v1/client/tickets/index.json.jbuilder.
+    return (response.data?['tickets'] as List<dynamic>? ?? const [])
         .map((entry) => ClientTicket.fromJson(entry as Map<String, dynamic>))
         .toList();
   }
@@ -36,19 +39,32 @@ class ClientRepository {
     required int categoryId,
     required String title,
     required String description,
+    List<XFile> attachments = const [],
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/api/v1/client/tickets',
-      data: {'ticket_category_id': categoryId, 'title': title, 'description': description},
-    );
+    final data = FormData.fromMap({
+      'ticket_category_id': categoryId,
+      'title': title,
+      'description': description,
+    });
+    await _appendAttachments(data, attachments);
+
+    final response = await _dio.post<Map<String, dynamic>>('/api/v1/client/tickets', data: data);
     return ClientTicketDetail.fromJson(response.data!);
   }
 
-  Future<void> replyToTicket(int ticketId, String body) async {
-    await _dio.post<Map<String, dynamic>>(
-      '/api/v1/client/tickets/$ticketId/communications',
-      data: {'body': body},
-    );
+  Future<void> replyToTicket(int ticketId, String body, {List<XFile> attachments = const []}) async {
+    final data = FormData.fromMap({'body': body});
+    await _appendAttachments(data, attachments);
+
+    await _dio.post<Map<String, dynamic>>('/api/v1/client/tickets/$ticketId/communications', data: data);
+  }
+
+  // `attachments[]` repetido - o servidor le com `Array(params[:attachments])`
+  // dos dois lados (abertura e resposta), igual o formulario web manda.
+  Future<void> _appendAttachments(FormData data, List<XFile> attachments) async {
+    for (final file in attachments) {
+      data.files.add(MapEntry('attachments[]', await MultipartFile.fromFile(file.path, filename: file.name)));
+    }
   }
 
   // Se nenhuma IA estiver configurada na conta (Hook OpenAI ou
