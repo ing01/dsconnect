@@ -2,26 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/theme/semantic_colors.dart';
+import '../../core/widgets/bordered_card.dart';
+import '../../core/widgets/pill_label.dart';
 import 'models/ticket_summary.dart';
 import 'providers/tickets_providers.dart';
 import 'ticket_detail_screen.dart';
-
-// A cor do carinha de prioridade - mesma ideia visual do Kanban web, so que
-// num ponto pequeno em vez de uma borda colorida (a lista e' densa demais
-// pra isso aqui).
-const _priorityColors = {
-  'urgent': Colors.red,
-  'high': Colors.orange,
-  'medium': Colors.amber,
-  'low': Colors.blueGrey,
-};
-
-const _statusLabels = {
-  'open': 'Aberto',
-  'resolved': 'Resolvido',
-  'closed': 'Fechado',
-  'cancelled': 'Cancelado',
-};
 
 class TicketListScreen extends ConsumerWidget {
   const TicketListScreen({super.key});
@@ -103,9 +89,9 @@ class TicketListScreen extends ConsumerWidget {
         return false;
       },
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(16),
         itemCount: state.tickets.length + (state.hasMore ? 1 : 0),
-        separatorBuilder: (_, _) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           if (index >= state.tickets.length) {
             return const Padding(
@@ -143,33 +129,51 @@ class _TicketTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return BorderedCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => TicketDetailScreen(ticketId: ticket.id)),
       ),
-      leading: CircleAvatar(
-        radius: 6,
-        backgroundColor: _priorityColors[ticket.priority] ?? Colors.grey,
-      ),
-      title: Text(
-        ticket.displayId != null ? '#${ticket.displayId} ${ticket.title}' : ticket.title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        '${ticket.teamName} · ${ticket.ticketColumnName}'
-        '${ticket.companyName != null ? ' · ${ticket.companyName}' : ''}',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(_statusLabels[ticket.status] ?? ticket.status, style: const TextStyle(fontSize: 12)),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  ticket.displayId != null ? '#${ticket.displayId} ${ticket.title}' : ticket.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                DateFormat('dd/MM HH:mm').format(ticket.updatedAt.toLocal()),
+                style: TextStyle(fontSize: 11, color: colorScheme.outline),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
           Text(
-            DateFormat('dd/MM HH:mm').format(ticket.updatedAt.toLocal()),
-            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.outline),
+            '${ticket.teamName} · ${ticket.ticketColumnName}'
+            '${ticket.companyName != null ? ' · ${ticket.companyName}' : ''}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12, color: colorScheme.outline),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            children: [
+              PillLabel(statusLabels[ticket.status] ?? ticket.status, colorName: statusColorName(ticket.status)),
+              PillLabel(
+                priorityLabels[ticket.priority] ?? ticket.priority,
+                colorName: priorityColorName(ticket.priority),
+              ),
+            ],
           ),
         ],
       ),
