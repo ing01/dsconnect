@@ -4,6 +4,12 @@
     "WHATS_NEW_SUBTITLE": "Acompanhe as mudanças na plataforma e fique por dentro das novidades.",
     "BEFORE": "Antes",
     "AFTER": "Depois",
+    "PLATFORM_FILTER": {
+      "ALL": "Tudo",
+      "WEB": "Sistema Web",
+      "MOBILE": "Sistema Mobile",
+      "EMPTY": "Nenhuma novidade nesse filtro ainda."
+    },
     "SUGGESTIONS": {
       "BANNER_TITLE": "Tem uma melhoria para sugerir?",
       "BANNER_SUBTITLE": "Fale conosco - sua sugestão entra direto no quadro de melhorias do sistema.",

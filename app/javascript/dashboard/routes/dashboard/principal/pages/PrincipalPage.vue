@@ -15,6 +15,24 @@ const { greetingMessage, globalConfig } = useGreeting();
 
 const visibleChangelogEntries = computed(() => getVisibleChangelogEntries());
 
+// 'all' | 'web' | 'mobile' - entradas sem `platform` sao do sistema web (a
+// grande maioria do historico, de antes do app mobile existir).
+const platformFilter = ref('all');
+
+const platformFilterOptions = [
+  { value: 'all', labelKey: 'PRINCIPAL.PLATFORM_FILTER.ALL' },
+  { value: 'web', labelKey: 'PRINCIPAL.PLATFORM_FILTER.WEB' },
+  { value: 'mobile', labelKey: 'PRINCIPAL.PLATFORM_FILTER.MOBILE' },
+];
+
+const filteredChangelogEntries = computed(() => {
+  if (platformFilter.value === 'all') return visibleChangelogEntries.value;
+
+  return visibleChangelogEntries.value.filter(
+    entry => (entry.platform || 'web') === platformFilter.value
+  );
+});
+
 const suggestionDialog = ref(null);
 const isSubmittingSuggestion = ref(false);
 
@@ -82,15 +100,40 @@ const submitSuggestion = async ({ title, description, files }) => {
     </div>
 
     <div class="mt-8">
-      <h2 class="mb-1 text-lg font-semibold text-n-slate-12">
-        {{ $t('PRINCIPAL.WHATS_NEW_TITLE') }}
-      </h2>
-      <p class="mb-4 text-sm text-n-slate-11">
-        {{ $t('PRINCIPAL.WHATS_NEW_SUBTITLE') }}
-      </p>
-      <div class="flex flex-col gap-3">
+      <div
+        class="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h2 class="mb-1 text-lg font-semibold text-n-slate-12">
+            {{ $t('PRINCIPAL.WHATS_NEW_TITLE') }}
+          </h2>
+          <p class="mb-0 text-sm text-n-slate-11">
+            {{ $t('PRINCIPAL.WHATS_NEW_SUBTITLE') }}
+          </p>
+        </div>
+        <div class="flex gap-1 p-1 rounded-lg bg-n-alpha-2 w-fit">
+          <button
+            v-for="option in platformFilterOptions"
+            :key="option.value"
+            type="button"
+            class="px-3 py-1 text-xs font-medium rounded-md transition-colors"
+            :class="
+              platformFilter === option.value
+                ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
+                : 'text-n-slate-11 hover:text-n-slate-12'
+            "
+            @click="platformFilter = option.value"
+          >
+            {{ $t(option.labelKey) }}
+          </button>
+        </div>
+      </div>
+      <div v-if="!filteredChangelogEntries.length" class="text-sm text-n-slate-10">
+        {{ $t('PRINCIPAL.PLATFORM_FILTER.EMPTY') }}
+      </div>
+      <div v-else class="flex flex-col gap-3">
         <ChangelogEntryCard
-          v-for="entry in visibleChangelogEntries"
+          v-for="entry in filteredChangelogEntries"
           :key="entry.id"
           v-bind="entry"
         />
