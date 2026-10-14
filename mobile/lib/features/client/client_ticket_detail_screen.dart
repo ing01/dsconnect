@@ -139,6 +139,11 @@ class _TicketDetailBodyState extends ConsumerState<_TicketDetailBody> {
                   if (ticket.categoryName != null) PillLabel(ticket.categoryName!, colorName: 'slate'),
                 ],
               ),
+              const SizedBox(height: 12),
+              Text(
+                '${ticket.teamName} · ${ticket.ticketColumnName}',
+                style: TextStyle(fontSize: 13, color: colorScheme.outline),
+              ),
               const SizedBox(height: 16),
               BorderedCard(
                 child: Column(

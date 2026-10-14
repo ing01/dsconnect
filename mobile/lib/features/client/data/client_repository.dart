@@ -89,11 +89,24 @@ class ClientRepository {
   }
 
   // Devolve categoria/titulo/descricao sugeridos - nunca cria o ticket
-  // sozinho, so preenche o formulario pra revisao.
-  Future<TicketDraft> generateDraft(String text) async {
+  // sozinho, so preenche o formulario pra revisao. Texto digitado tem
+  // prioridade; sem ele, manda o audio gravado pra transcricao no servidor
+  // (mesma regra de `Api::V1::Client::TicketDraftsController#resolved_text`).
+  Future<TicketDraft> generateDraft({String? text, XFile? audio}) async {
+    final Object data;
+    if (text != null && text.isNotEmpty) {
+      data = {'text': text};
+    } else if (audio != null) {
+      final formData = FormData();
+      formData.files.add(MapEntry('audio', await MultipartFile.fromFile(audio.path, filename: audio.name)));
+      data = formData;
+    } else {
+      data = {};
+    }
+
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/client/ticket_drafts',
-      data: {'text': text},
+      data: data,
     );
     return TicketDraft.fromJson(response.data!);
   }

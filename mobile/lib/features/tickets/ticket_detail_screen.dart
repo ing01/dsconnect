@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/theme/semantic_colors.dart';
 import '../../core/widgets/bordered_card.dart';
@@ -91,6 +92,8 @@ class _TicketDetailBody extends ConsumerWidget {
           error: (_, _) => _InfoRow(label: 'Estágio', value: ticket.ticketColumnName),
         ),
         if (ticket.assigneeName != null) _InfoRow(label: 'Responsável', value: ticket.assigneeName!),
+        if (ticket.dueDate != null)
+          _InfoRow(label: 'Prazo', value: DateFormat('dd/MM/yyyy HH:mm').format(ticket.dueDate!.toLocal())),
         if (ticket.companyName != null) _InfoRow(label: 'Empresa', value: ticket.companyName!),
         if (ticket.contactName != null) _InfoRow(label: 'Solicitante', value: ticket.contactName!),
         if (ticket.contactEmail != null) _InfoRow(label: 'E-mail', value: ticket.contactEmail!),
