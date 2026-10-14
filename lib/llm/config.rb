@@ -42,7 +42,7 @@ module Llm::Config
     def configure_ruby_llm
       RubyLLM.configure do |config|
         config.openai_api_key = system_api_key if system_api_key.present?
-        config.openai_api_base = openai_endpoint.chomp('/') if openai_endpoint.present?
+        config.openai_api_base = normalized_openai_endpoint if openai_endpoint.present?
         config.model_registry_file = Rails.root.join('config/llm_models.json').to_s
         config.logger = Rails.logger
       end
@@ -54,6 +54,14 @@ module Llm::Config
 
     def openai_endpoint
       InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
+    end
+
+    # O campo guarda so a raiz do provider (ex.: Groq e' "https://api.groq.com/openai"),
+    # sem o "/v1" - mesma convencao de `Captain::BaseTaskService#api_base`.
+    # `delete_suffix` torna isto tolerante a quem digitar o "/v1" de qualquer
+    # jeito (o "/v1" nao dobra).
+    def normalized_openai_endpoint
+      "#{openai_endpoint.chomp('/').delete_suffix('/v1')}/v1"
     end
   end
 end
