@@ -15,6 +15,7 @@ class ClientTicket {
     this.categoryName,
     required this.createdAt,
     required this.updatedAt,
+    this.dueDate,
     this.requestedBy,
     required this.requestedByMe,
   });
@@ -31,6 +32,7 @@ class ClientTicket {
   final String? categoryName;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DateTime? dueDate;
   final String? requestedBy;
   final bool requestedByMe;
 
@@ -47,7 +49,20 @@ class ClientTicket {
         categoryName: json['category_name'] as String?,
         createdAt: DateTime.fromMillisecondsSinceEpoch(((json['created_at'] as int?) ?? 0) * 1000),
         updatedAt: DateTime.fromMillisecondsSinceEpoch(((json['updated_at'] as int?) ?? 0) * 1000),
+        dueDate: _parseDueDate(json['due_date']),
         requestedBy: json['requested_by'] as String?,
         requestedByMe: (json['requested_by_me'] as bool?) ?? false,
       );
+}
+
+// A lista "Meus chamados" e o detalhe do chamado vem de dois jbuilders
+// diferentes no servidor, e cada um manda `due_date` num formato - a lista
+// usa o partial interno (ISO 8601, ex. "2026-10-20T00:00:00Z"), o detalhe
+// usa o partial do cliente (epoch em segundos). Aceita os dois pra nao
+// quebrar nenhuma das duas telas.
+DateTime? _parseDueDate(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return DateTime.fromMillisecondsSinceEpoch(value * 1000);
+  if (value is String) return DateTime.tryParse(value);
+  return null;
 }

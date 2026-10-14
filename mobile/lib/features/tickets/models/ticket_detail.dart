@@ -19,7 +19,6 @@ class TicketDetail {
     this.contactEmail,
     this.contactPhone,
     this.companyName,
-    this.dueDate,
     required this.canUpdate,
   });
 
@@ -38,7 +37,6 @@ class TicketDetail {
   final String? contactEmail;
   final String? contactPhone;
   final String? companyName;
-  final DateTime? dueDate;
   final bool canUpdate;
 
   factory TicketDetail.fromJson(Map<String, dynamic> json) {
@@ -59,7 +57,6 @@ class TicketDetail {
       contactEmail: contact?['email'] as String?,
       contactPhone: contact?['phone_number'] as String?,
       companyName: json['company_name'] as String?,
-      dueDate: json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) : null,
       canUpdate: (json['can_update'] as bool?) ?? false,
     );
   }
