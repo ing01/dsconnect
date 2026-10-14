@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -20,11 +22,28 @@ class ClientTicketsListScreen extends ConsumerStatefulWidget {
 
 class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScreen> {
   final _searchController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _runSearch() => ref.read(clientTicketsProvider.notifier).search(_searchController.text.trim());
+
+  void _onSearchChanged(String value) {
+    setState(() {});
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), _runSearch);
+  }
+
+  void _clearSearch() {
+    _debounce?.cancel();
+    _searchController.clear();
+    ref.read(clientTicketsProvider.notifier).search('');
+    setState(() {});
   }
 
   @override
@@ -40,24 +59,24 @@ class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScree
             child: TextField(
               controller: _searchController,
               keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: 'Buscar pelo número do chamado',
-                prefixIcon: const Icon(Icons.search),
+                // Toque no icone de busca tambem dispara - o teclado numerico
+                // de alguns aparelhos nao tem uma tecla de "ir"/"buscar", so
+                // digitos, e sem isto nao haveria jeito de confirmar a busca.
+                prefixIcon: IconButton(icon: const Icon(Icons.search), onPressed: _runSearch),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 isDense: true,
                 suffixIcon: _searchController.text.isEmpty
                     ? null
                     : IconButton(
                         icon: const Icon(Icons.close),
-                        onPressed: () {
-                          _searchController.clear();
-                          ref.read(clientTicketsProvider.notifier).search('');
-                          setState(() {});
-                        },
+                        onPressed: _clearSearch,
                       ),
               ),
-              onChanged: (_) => setState(() {}),
-              onSubmitted: (value) => ref.read(clientTicketsProvider.notifier).search(value.trim()),
+              onChanged: _onSearchChanged,
+              onSubmitted: (_) => _runSearch(),
             ),
           ),
           if ((state?.companies.length ?? 0) > 1)
@@ -99,10 +118,15 @@ class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScree
                 data: (data) {
                   final tickets = data.tickets;
                   if (tickets.isEmpty) {
+                    final isFiltering = data.query.isNotEmpty || data.companyId != null;
                     return ListView(
-                      children: const [
-                        SizedBox(height: 80),
-                        Center(child: Text('Nenhum chamado encontrado.')),
+                      children: [
+                        const SizedBox(height: 80),
+                        Center(
+                          child: Text(
+                            isFiltering ? 'Nenhum chamado encontrado.' : 'Você ainda não tem nenhum chamado aberto.',
+                          ),
+                        ),
                       ],
                     );
                   }

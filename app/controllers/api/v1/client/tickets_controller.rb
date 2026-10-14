@@ -117,7 +117,9 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   # pode nao lembrar o numero inteiro. So estreita quando o parametro vem
   # preenchido, nunca troca a fronteira de `visible_tickets`.
   def tickets_scoped_by_number(relation)
-    query = params[:q].to_s.strip
+    # Aceita digitar com ou sem o `#` (o cartao mostra "#42") - sem tirar o
+    # prefixo, buscar "#42" nunca bateria com nada.
+    query = params[:q].to_s.strip.delete_prefix('#')
     return relation if query.blank?
 
     relation.where('CAST(tickets.display_id AS TEXT) LIKE ?', "%#{query}%")
@@ -143,11 +145,12 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   # O que o cliente escolheu, mais o que ele nao escolhe: Mesa de entrada,
   # Estagio, prioridade, Empresa e solicitante saem daqui, nunca dos parametros.
   #
-  # A triagem manual (fila de Triagem) e' coisa de canal onde ninguem sabe
-  # ainda quem e' o cliente (e-mail, por exemplo) - aqui o contato ja esta
-  # AUTENTICADO como aquela Empresa, entao o Portal sempre roteia sozinho:
-  # pela regra de prioridade da Empresa quando existir (`routing_rule_for`,
-  # abaixo), senao pela Mesa da Categoria escolhida, como ja funcionava.
+  # A Mesa/Estagio calculados aqui sao so a ENTRADA SUGERIDA - o chamado fica
+  # em `pending_triage` ate um agente aprovar (ver `TicketTriage#approve_triage!`),
+  # e so entao passa a valer no Kanban da equipe. A regra de roteamento por
+  # Empresa (`routing_rule_for`, abaixo) decide essa sugestao quando existe,
+  # senao a Mesa da Categoria escolhida - do jeito que ja funcionava -, mas em
+  # nenhum dos dois casos isso dispensa a aprovacao manual.
   def build_ticket(categoria)
     empresa = company_for_new_ticket
     regra = routing_rule_for(empresa)
@@ -168,8 +171,9 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     ticket.company_id = empresa
     ticket.contact_id = current_contact.id
     ticket.origin = 'client_area'
-    # Sem fila de Triagem: o Portal ja roteia para a Mesa certa sozinho.
-    ticket.pending_triage = false
+    # Todo chamado do Portal (app ou navegador) entra em Triagem - so' vai
+    # para o Kanban da equipe depois que um agente aprovar.
+    ticket.pending_triage = true
     ticket
   end
 
