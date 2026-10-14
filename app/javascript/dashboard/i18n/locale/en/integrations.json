@@ -549,6 +549,9 @@
       "HEADER": "Assistants",
       "NO_ASSISTANTS_AVAILABLE": "There are no assistants available in your account.",
       "ADD_NEW": "Create a new assistant",
+      "CARD": {
+        "NO_DESCRIPTION": "Description not available"
+      },
       "DELETE": {
         "TITLE": "Are you sure to delete the assistant?",
         "DESCRIPTION": "This action is permanent. Deleting this assistant will remove it from all connected inboxes and permanently erase all generated knowledge.",

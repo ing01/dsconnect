@@ -549,6 +549,9 @@
       "HEADER": "Assistentes",
       "NO_ASSISTANTS_AVAILABLE": "Não há assistentes disponíveis em sua conta.",
       "ADD_NEW": "Criar um novo assistente",
+      "CARD": {
+        "NO_DESCRIPTION": "Descrição não disponível"
+      },
       "DELETE": {
         "TITLE": "Tem certeza que deseja excluir o assistente?",
         "DESCRIPTION": "Esta ação é permanente. Excluir este assistente irá removê-lo de todas as caixas de entrada conectadas e apagará permanentemente todo o conhecimento gerado.",

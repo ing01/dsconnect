@@ -16,9 +16,12 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  // Sem fallback em texto fixo (igual os outros labels acima) - quem usa
+  // este componente sempre manda a label traduzida; um default em ingles
+  // aqui so' apareceria se algum consumidor futuro esquecesse de passar.
   deleteLabel: {
     type: String,
-    default: 'Delete',
+    default: '',
   },
 });
 
