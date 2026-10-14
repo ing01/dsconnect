@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import '../../core/theme/app_theme.dart';
 import 'models/chat_message.dart';
 import 'providers/chat_notifier.dart';
-import 'providers/client_providers.dart';
 
 class ClientChatScreen extends ConsumerStatefulWidget {
   const ClientChatScreen({super.key});
@@ -18,13 +17,10 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
 
-  @override
-  void initState() {
-    super.initState();
-    // Abrir o chat conta como "ver" as novidades de chat, mesmo sem clicar
-    // na notificacao especifica.
-    Future.microtask(() => ref.read(dismissedNotificationsProvider.notifier).dismissChatNotifications());
-  }
+  // Marcar como "vista" ao abrir o chat fica a cargo de quem troca de aba
+  // (ClientHomeShell) - esta tela e' montada uma unica vez pelo `IndexedStack`
+  // junto com as outras abas, entao `initState` aqui rodaria so' na abertura
+  // do app, nao a cada troca de aba de verdade.
 
   @override
   void dispose() {
