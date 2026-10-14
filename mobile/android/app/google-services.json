@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "28806894279",
+    "project_id": "duedesk-notificacoes",
+    "storage_bucket": "duedesk-notificacoes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28806894279:android:bf8f0916e3cacbfed1e4e2",
+        "android_client_info": {
+          "package_name": "com.duesoft.duedesk_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxyb9CWWrGKcs1mGTHBaFQyURh8WsxRkw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
