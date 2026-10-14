@@ -34,6 +34,7 @@ const name = ref('');
 const companyId = ref('');
 const teamId = ref(props.initialTeamId);
 const projectModuleId = ref(null);
+const defaultTicketCategoryId = ref(null);
 const startDate = ref(new Date().toISOString().split('T')[0]);
 const projectDueDate = ref('');
 
@@ -114,6 +115,9 @@ onMounted(async () => {
 });
 
 const onTeamChange = () => {
+  // Categoria padrao era da Mesa anterior - nao faz sentido sobreviver a
+  // troca (a lista de opcoes abaixo tambem muda inteira).
+  defaultTicketCategoryId.value = null;
   if (teamId.value) {
     store.dispatch('teamMembers/get', { teamId: teamId.value });
     store.dispatch('ticketColumns/fetchCategories', teamId.value);
@@ -159,6 +163,7 @@ const goToStep2 = () => {
       scheduled_at: '',
       ticket_category_id:
         categoriaDoModelo(tmpl.ticket_category_name) ||
+        defaultTicketCategoryId.value ||
         categories.value[0]?.id ||
         '',
     };
@@ -181,6 +186,7 @@ const submitProject = async () => {
       company_id: companyId.value || null,
       team_id: teamId.value,
       project_module_id: projectModuleId.value || null,
+      default_ticket_category_id: defaultTicketCategoryId.value || null,
       start_date: startDate.value || null,
       due_date: projectDueDate.value || null,
       stage: 'pendente',
@@ -342,6 +348,25 @@ const submitProject = async () => {
               {{ mod.name }} ({{ mod.task_templates?.length || 0 }} {{ t('PROJECTS.CARD.TASK_COUNT') }})
             </option>
           </select>
+        </div>
+
+        <!-- Categoria padrao das Tarefas, so' depois de escolher a Mesa -->
+        <div v-if="teamId" class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-n-slate-12">
+            {{ t('PROJECTS.FORM.DEFAULT_CATEGORY.LABEL') }}
+          </label>
+          <select
+            v-model="defaultTicketCategoryId"
+            class="h-10 px-3 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+          >
+            <option :value="null">{{ t('PROJECTS.FORM.DEFAULT_CATEGORY.NONE') }}</option>
+            <option v-for="category in categories" :key="category.id" :value="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+          <p class="text-xs text-n-slate-10">
+            {{ t('PROJECTS.FORM.DEFAULT_CATEGORY.HELP') }}
+          </p>
         </div>
 
         <!-- Datas: Inicio e Previsao -->

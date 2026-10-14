@@ -66,6 +66,11 @@
         "NEW_SHORTCUT": "Novo módulo",
         "NONE": "Sem módulo"
       },
+      "DEFAULT_CATEGORY": {
+        "LABEL": "Categoria padrão das tarefas",
+        "NONE": "Sem categoria padrão",
+        "HELP": "Preenche a categoria de cada tarefa gerada no próximo passo, quando o Modelo de Tarefa não tiver uma categoria própria."
+      },
       "START_DATE": {
         "LABEL": "Data de início"
       },

@@ -81,7 +81,8 @@ class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
   # So podem ser alterados DEPOIS de criado por quem administra o projeto -
   # na criacao (`create`) continuam livres, e' so a EDICAO posterior desses
   # campos que exige `project_manage`.
-  RESTRICTED_ATTRS = %i[name company_id contact_id team_id project_module_id start_date due_date].freeze
+  RESTRICTED_ATTRS = %i[name company_id contact_id team_id project_module_id start_date due_date
+                        default_ticket_category_id].freeze
 
   def project_params
     params.require(:project).permit(*permitted_project_attrs, custom_attributes: {})

@@ -73,11 +73,13 @@ module Projects
     end
 
     # Ticket#ticket_category is required on create (see TicketOpening) - a task
-    # can name a specific Categoria (chosen in ProjectCreateDialog's step 2),
-    # falling back to the Mesa's first one so generation never fails just
-    # because nobody picked one.
+    # can name a specific Categoria (chosen in ProjectCreateDialog's step 2,
+    # which already defaults it from the Modelo de Tarefa or from the
+    # Projeto's propria Categoria padrao). Sem nenhuma das duas, cai na
+    # Categoria padrao do Projeto e, por ultimo, na primeira da Mesa - assim
+    # a geracao nunca falha so' porque nada foi escolhido.
     def ticket_category_for(task_data)
-      requested_id = task_data[:ticket_category_id].presence
+      requested_id = task_data[:ticket_category_id].presence || project.default_ticket_category_id
       category = project.team.ticket_categories.find_by(id: requested_id) if requested_id
 
       category || project.team.ticket_categories.order(:position, :id).first
