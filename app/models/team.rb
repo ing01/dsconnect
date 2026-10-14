@@ -62,10 +62,17 @@ class Team < ApplicationRecord
 
   validates :name,
             presence: { message: I18n.t('errors.validations.presence') },
-            uniqueness: { scope: :account_id }
+            uniqueness: { scope: :account_id, case_sensitive: false }
 
+  # So' a primeira letra - nao um `.downcase` geral (o nome aparece em telas,
+  # relatorios e notificacoes, onde "especialista"/"suporte" lidos em minusculo
+  # destoam do resto da UI). Continua case-insensitive na unicidade acima, para
+  # nao permitir "Suporte" e "suporte" como duas Mesas diferentes.
   before_validation do
-    self.name = name.gsub(/[[:cntrl:]]/, '').strip.downcase if attribute_present?('name')
+    next unless attribute_present?('name')
+
+    sanitized = name.gsub(/[[:cntrl:]]/, '').strip
+    self.name = sanitized.sub(/\A\p{Alpha}/, &:upcase)
   end
 
   scope :active, -> { where(active: true) }

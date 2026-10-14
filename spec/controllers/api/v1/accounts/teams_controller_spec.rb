@@ -125,7 +125,8 @@ RSpec.describe 'Teams API', type: :request do
 
         expect(response).to have_http_status(:success)
         expect(response).to conform_schema(200)
-        expect(team.reload.name).to eq('new-team')
+        # So a primeira letra e capitalizada - vide Team#before_validation.
+        expect(team.reload.name).to eq('New-team')
       end
 
       it 'updates handles_conversations and handles_projects' do

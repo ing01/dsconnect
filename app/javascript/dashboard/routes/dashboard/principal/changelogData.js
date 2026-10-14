@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'team-name-capitalized',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'fix',
+    title: 'Nome da Mesa/Time: primeira letra maiúscula',
+    description:
+      'O nome das Mesas/Times (ex: "especialista", "suporte") era sempre salvo todo em minúsculo, e aparecia assim em várias telas. Agora só a primeira letra é maiúscula - os nomes já existentes foram corrigidos, e qualquer Mesa nova ou renomeada já nasce assim.',
+  },
+  {
     id: 'kanban-ticket-card-assignee-photo',
     date: '14 de outubro de 2026',
     isoDate: '2026-10-14',

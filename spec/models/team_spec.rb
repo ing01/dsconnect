@@ -23,25 +23,37 @@ RSpec.describe Team do
   describe 'name normalization' do
     let(:account) { create(:account) }
 
-    it 'downcases the name' do
-      team = create(:team, account: account, name: 'Customer Support')
-      expect(team.name).to eq('customer support')
+    it 'capitalizes only the first letter, leaving the rest untouched' do
+      team = create(:team, account: account, name: 'customer Support')
+      expect(team.name).to eq('Customer Support')
+    end
+
+    it 'leaves an already-capitalized name as is' do
+      team = create(:team, account: account, name: 'Suporte')
+      expect(team.name).to eq('Suporte')
     end
 
     it 'strips control characters and surrounding whitespace' do
-      team = create(:team, account: account, name: "  Sales\n")
-      expect(team.name).to eq('sales')
+      team = create(:team, account: account, name: "  sales\n")
+      expect(team.name).to eq('Sales')
     end
 
     it 'removes control characters embedded within the name' do
       team = create(:team, account: account, name: "su\npport")
-      expect(team.name).to eq('support')
+      expect(team.name).to eq('Support')
     end
 
     it 'is invalid when the name reduces to blank after sanitization' do
       team = build(:team, account: account, name: "\t\n  ")
       expect(team).not_to be_valid
       expect(team.errors[:name]).to include(I18n.t('errors.validations.presence'))
+    end
+
+    it 'rejects a name that differs from an existing Mesa only by case' do
+      create(:team, account: account, name: 'Suporte')
+      duplicate = build(:team, account: account, name: 'SUPORTE')
+
+      expect(duplicate).not_to be_valid
     end
   end
 
