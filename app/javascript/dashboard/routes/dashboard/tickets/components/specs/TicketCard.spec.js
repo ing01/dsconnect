@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import TicketCard from '../TicketCard.vue';
+import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 
 const ticket = (overrides = {}) => ({
   id: 11,
@@ -56,6 +57,47 @@ const openMenu = async wrapper => {
 
 const values = wrapper =>
   wrapper.findAll('li').map(li => li.attributes('data-value'));
+
+// Pedido: o card mostrava so a inicial do responsavel, nunca a foto dele -
+// o Avatar real precisa receber o `thumbnail` do agente, nao so o nome.
+describe('TicketCard assignee avatar', () => {
+  const agents = [
+    {
+      id: 7,
+      name: 'Guilherme Vasconcelos',
+      thumbnail: 'https://cdn.example.com/guilherme.png',
+    },
+  ];
+
+  it('passes the assignee photo to the Avatar instead of only the initial', () => {
+    const wrapper = mountCard({
+      ticket: ticket({ assignee_id: 7 }),
+      agents,
+    });
+
+    const avatar = wrapper.findComponent(Avatar);
+    expect(avatar.props('name')).toBe('Guilherme Vasconcelos');
+    expect(avatar.props('src')).toBe('https://cdn.example.com/guilherme.png');
+  });
+
+  it('still shows the Avatar (falling back to the initial) when the agent has no photo', () => {
+    const wrapper = mountCard({
+      ticket: ticket({ assignee_id: 7 }),
+      agents: [{ id: 7, name: 'Guilherme Vasconcelos', thumbnail: '' }],
+    });
+
+    expect(wrapper.findComponent(Avatar).props('src')).toBe('');
+  });
+
+  it('shows nothing when the ticket has no assignee', () => {
+    const wrapper = mountCard({
+      ticket: ticket({ assignee_id: null }),
+      agents,
+    });
+
+    expect(wrapper.findComponent(Avatar).exists()).toBe(false);
+  });
+});
 
 describe('TicketCard menu', () => {
   it('stays closed until the menu button is clicked', () => {

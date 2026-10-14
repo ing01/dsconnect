@@ -3,6 +3,7 @@ import WootLabel from 'dashboard/components-next/label/Label.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
+import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import { format, parseISO, isPast } from 'date-fns';
 import { statusColor, priorityColor } from '../helpers/ticketLabels';
 
@@ -12,6 +13,7 @@ export default {
     Icon,
     NextButton,
     DropdownMenu,
+    Avatar,
   },
   props: {
     ticket: {
@@ -72,9 +74,11 @@ export default {
         ? this.$t(`TICKET.STATUS.${this.ticket.status.toUpperCase()}`)
         : '';
     },
+    assignee() {
+      return this.agents.find(a => a.id === this.ticket.assignee_id) || null;
+    },
     assigneeName() {
-      const agent = this.agents.find(a => a.id === this.ticket.assignee_id);
-      return agent?.name || '';
+      return this.assignee?.name || '';
     },
     conversationCount() {
       return this.ticket.conversation_ids?.length || 0;
@@ -321,11 +325,14 @@ export default {
 
     <div class="flex items-center justify-between gap-2">
       <div v-if="assigneeName" class="flex items-center gap-1.5 min-w-0">
-        <span
-          class="flex size-5 flex-shrink-0 items-center justify-center rounded-full bg-n-slate-4 text-[10px] font-medium text-n-slate-12"
-        >
-          {{ assigneeName.charAt(0).toUpperCase() }}
-        </span>
+        <Avatar
+          :name="assigneeName"
+          :src="assignee?.thumbnail"
+          :size="20"
+          rounded-full
+          hide-offline-status
+          class="flex-shrink-0"
+        />
         <span class="text-xs text-n-slate-11 truncate">{{ assigneeName }}</span>
       </div>
       <div v-else />

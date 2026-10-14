@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-ticket-card-assignee-photo',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'fix',
+    title: 'Kanban: foto do responsável no card do ticket',
+    description:
+      'O card do ticket no Kanban mostrava só a inicial do nome do responsável, mesmo quando o agente tinha foto cadastrada. Agora mostra a foto de verdade, com a inicial como alternativa só para quem não tem foto.',
+  },
+  {
     id: 'kanban-board-tickets-limit-per-column',
     date: '14 de outubro de 2026',
     isoDate: '2026-10-14',
