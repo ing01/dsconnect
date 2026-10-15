@@ -144,6 +144,19 @@ class _TicketDetailBodyState extends ConsumerState<_TicketDetailBody> {
                 '${ticket.teamName} · ${ticket.ticketColumnName}',
                 style: TextStyle(fontSize: 13, color: colorScheme.outline),
               ),
+              if (ticket.assigneeName != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.person_outline, size: 14, color: colorScheme.outline),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Responsável: ${ticket.assigneeName}',
+                      style: TextStyle(fontSize: 13, color: colorScheme.outline),
+                    ),
+                  ],
+                ),
+              ],
               if (ticket.dueDate != null) ...[
                 const SizedBox(height: 4),
                 Text(

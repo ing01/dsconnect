@@ -21,11 +21,23 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   def index
     @companies = client_companies
     # `operational`: resolvido, fechado e cancelado saem da lista, como no
-    # Kanban interno. Os includes sao os que o cartao le - sem eles a lista
-    # dispara uma consulta por ticket.
-    @tickets = tickets_scoped_by_number(tickets_scoped_by_company.operational)
-               .includes(*BOARD_INCLUDES)
-               .order(created_at: :desc)
+    # Kanban interno. Opcoes de filtro vem de TODOS os chamados operacionais
+    # do cliente, nao so dos que sobrevivem aos filtros ja aplicados - senao
+    # escolher uma Mesa faria o filtro de Estagio esquecer as opcoes das
+    # outras Mesas.
+    base = visible_tickets.operational
+    @teams = filter_options(base, :team, 'teams')
+    @ticket_columns = filter_options(base, :ticket_column, 'ticket_columns')
+    @assignees = filter_options(base, :assignee, 'users')
+
+    relation = tickets_scoped_by_number(tickets_scoped_by_company(base))
+    relation = tickets_scoped_by_team(relation)
+    relation = tickets_scoped_by_column(relation)
+    relation = tickets_scoped_by_assignee(relation)
+    relation = tickets_scoped_by_date(relation)
+    # Os includes sao os que o cartao le - sem eles a lista dispara uma
+    # consulta por ticket.
+    @tickets = relation.includes(*BOARD_INCLUDES).order(created_at: :desc)
   end
 
   def show; end
@@ -103,14 +115,14 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     Company.where(account_id: Current.account.id, id: current_contact.client_company_ids).order(:name)
   end
 
-  # `visible_tickets` ja e' a fronteira; isto so ESTREITA para a Empresa
-  # escolhida no seletor - nunca para uma fora de `client_company_ids`, que
-  # `client_companies` garante de saida.
-  def tickets_scoped_by_company
-    return visible_tickets if params[:company_id].blank?
+  # `relation` ja e' a fronteira; isto so ESTREITA para a Empresa escolhida no
+  # seletor - nunca para uma fora de `client_company_ids`, que `client_companies`
+  # garante de saida.
+  def tickets_scoped_by_company(relation)
+    return relation if params[:company_id].blank?
 
     empresa = client_companies.find_by(id: params[:company_id])
-    empresa ? visible_tickets.where(company_id: empresa.id) : visible_tickets
+    empresa ? relation.where(company_id: empresa.id) : relation
   end
 
   # Busca pelo numero do chamado (`display_id`) - parcial, porque o cliente
@@ -123,6 +135,41 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     return relation if query.blank?
 
     relation.where('CAST(tickets.display_id AS TEXT) LIKE ?', "%#{query}%")
+  end
+
+  def tickets_scoped_by_team(relation)
+    return relation if params[:team_id].blank?
+
+    relation.where(team_id: params[:team_id])
+  end
+
+  def tickets_scoped_by_column(relation)
+    return relation if params[:ticket_column_id].blank?
+
+    relation.where(ticket_column_id: params[:ticket_column_id])
+  end
+
+  def tickets_scoped_by_assignee(relation)
+    return relation if params[:assignee_id].blank?
+
+    relation.where(assignee_id: params[:assignee_id])
+  end
+
+  # `created_after`/`created_before` sao datas soltas ("YYYY-MM-DD"); o limite
+  # de cima vai ate o fim do dia, senao um chamado aberto a tarde no ultimo dia
+  # do periodo ficaria de fora (a data pura vira meia-noite na comparacao).
+  def tickets_scoped_by_date(relation)
+    relation = relation.where('tickets.created_at >= ?', params[:created_after].to_date.beginning_of_day) if params[:created_after].present?
+    relation = relation.where('tickets.created_at <= ?', params[:created_before].to_date.end_of_day) if params[:created_before].present?
+    relation
+  end
+
+  # Opcoes pro seletor de um filtro - so os valores que aparecem de verdade
+  # entre os chamados que o cliente pode ver, nunca a lista inteira da conta
+  # (uma Mesa ou um agente sem nenhum chamado deste cliente nao e' uma opcao
+  # util, e exporia estrutura interna sem necessidade).
+  def filter_options(relation, association, table)
+    relation.joins(association).distinct.pluck("#{table}.id", "#{table}.name").map { |id, name| { id: id, name: name } }
   end
 
   # Onde o chamado do cliente entra: o Estagio "Pendente" da Mesa quando existe -

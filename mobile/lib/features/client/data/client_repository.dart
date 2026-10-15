@@ -6,6 +6,7 @@ import '../models/client_notification.dart';
 import '../models/client_ticket.dart';
 import '../models/client_ticket_detail.dart';
 import '../models/company.dart';
+import '../models/filter_option.dart';
 import '../models/ticket_category.dart';
 
 // Rotas fora de /accounts/:id - a conta do cliente vem do proprio token, nunca
@@ -15,7 +16,15 @@ class ClientRepository {
 
   final Dio _dio;
 
-  Future<ClientTicketsResult> fetchTickets({int? companyId, String? query}) async {
+  Future<ClientTicketsResult> fetchTickets({
+    int? companyId,
+    String? query,
+    int? teamId,
+    int? ticketColumnId,
+    int? assigneeId,
+    String? createdAfter,
+    String? createdBefore,
+  }) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/client/tickets',
       queryParameters: {
@@ -23,9 +32,20 @@ class ClientRepository {
         if (companyId != null) 'company_id': companyId,
         // ignore: use_null_aware_elements
         if (query != null && query.isNotEmpty) 'q': query,
+        // ignore: use_null_aware_elements
+        if (teamId != null) 'team_id': teamId,
+        // ignore: use_null_aware_elements
+        if (ticketColumnId != null) 'ticket_column_id': ticketColumnId,
+        // ignore: use_null_aware_elements
+        if (assigneeId != null) 'assignee_id': assigneeId,
+        // ignore: use_null_aware_elements
+        if (createdAfter != null) 'created_after': createdAfter,
+        // ignore: use_null_aware_elements
+        if (createdBefore != null) 'created_before': createdBefore,
       },
     );
-    // O servidor devolve {"companies": [...], "tickets": [...]} - ver
+    // O servidor devolve {"companies": [...], "teams": [...],
+    // "ticket_columns": [...], "assignees": [...], "tickets": [...]} - ver
     // api/v1/client/tickets/index.json.jbuilder.
     final tickets = (response.data?['tickets'] as List<dynamic>? ?? const [])
         .map((entry) => ClientTicket.fromJson(entry as Map<String, dynamic>))
@@ -33,7 +53,22 @@ class ClientRepository {
     final companies = (response.data?['companies'] as List<dynamic>? ?? const [])
         .map((entry) => Company.fromJson(entry as Map<String, dynamic>))
         .toList();
-    return ClientTicketsResult(tickets: tickets, companies: companies);
+    final teams = (response.data?['teams'] as List<dynamic>? ?? const [])
+        .map((entry) => FilterOption.fromJson(entry as Map<String, dynamic>))
+        .toList();
+    final ticketColumns = (response.data?['ticket_columns'] as List<dynamic>? ?? const [])
+        .map((entry) => FilterOption.fromJson(entry as Map<String, dynamic>))
+        .toList();
+    final assignees = (response.data?['assignees'] as List<dynamic>? ?? const [])
+        .map((entry) => FilterOption.fromJson(entry as Map<String, dynamic>))
+        .toList();
+    return ClientTicketsResult(
+      tickets: tickets,
+      companies: companies,
+      teams: teams,
+      ticketColumns: ticketColumns,
+      assignees: assignees,
+    );
   }
 
   Future<ClientTicketDetail> fetchTicketDetail(int ticketId) async {
@@ -143,10 +178,19 @@ class ClientRepository {
 }
 
 class ClientTicketsResult {
-  const ClientTicketsResult({required this.tickets, required this.companies});
+  const ClientTicketsResult({
+    required this.tickets,
+    required this.companies,
+    this.teams = const [],
+    this.ticketColumns = const [],
+    this.assignees = const [],
+  });
 
   final List<ClientTicket> tickets;
   final List<Company> companies;
+  final List<FilterOption> teams;
+  final List<FilterOption> ticketColumns;
+  final List<FilterOption> assignees;
 }
 
 class TicketDraft {

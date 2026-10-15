@@ -9,6 +9,7 @@ import '../models/client_notification.dart';
 import '../models/client_ticket.dart';
 import '../models/client_ticket_detail.dart';
 import '../models/company.dart';
+import '../models/filter_option.dart';
 import '../models/ticket_category.dart';
 
 final clientRepositoryProvider = Provider<ClientRepository>((ref) {
@@ -19,26 +20,75 @@ class ClientTicketsState {
   const ClientTicketsState({
     this.tickets = const [],
     this.companies = const [],
+    this.teams = const [],
+    this.ticketColumns = const [],
+    this.assignees = const [],
     this.companyId,
+    this.teamId,
+    this.ticketColumnId,
+    this.assigneeId,
+    this.createdAfter,
+    this.createdBefore,
     this.query = '',
   });
 
   final List<ClientTicket> tickets;
   final List<Company> companies;
+  final List<FilterOption> teams;
+  final List<FilterOption> ticketColumns;
+  final List<FilterOption> assignees;
   final int? companyId;
+  final int? teamId;
+  final int? ticketColumnId;
+  final int? assigneeId;
+  // "yyyy-MM-dd", mesmo formato que o servidor espera.
+  final String? createdAfter;
+  final String? createdBefore;
   final String query;
+
+  // Quantos filtros (alem da busca por numero) estao ativos agora - usado
+  // pra mostrar um contador no botao de Filtros.
+  int get activeFilterCount => [
+        companyId,
+        teamId,
+        ticketColumnId,
+        assigneeId,
+        createdAfter,
+        createdBefore,
+      ].where((value) => value != null).length;
 
   ClientTicketsState copyWith({
     List<ClientTicket>? tickets,
     List<Company>? companies,
+    List<FilterOption>? teams,
+    List<FilterOption>? ticketColumns,
+    List<FilterOption>? assignees,
     int? companyId,
     bool clearCompany = false,
+    int? teamId,
+    bool clearTeam = false,
+    int? ticketColumnId,
+    bool clearTicketColumn = false,
+    int? assigneeId,
+    bool clearAssignee = false,
+    String? createdAfter,
+    bool clearCreatedAfter = false,
+    String? createdBefore,
+    bool clearCreatedBefore = false,
     String? query,
   }) =>
       ClientTicketsState(
         tickets: tickets ?? this.tickets,
         companies: companies ?? this.companies,
+        teams: teams ?? this.teams,
+        ticketColumns: ticketColumns ?? this.ticketColumns,
+        assignees: assignees ?? this.assignees,
         companyId: clearCompany ? null : (companyId ?? this.companyId),
+        teamId: clearTeam ? null : (teamId ?? this.teamId),
+        ticketColumnId: clearTicketColumn ? null : (ticketColumnId ?? this.ticketColumnId),
+        assigneeId: clearAssignee ? null : (assigneeId ?? this.assigneeId),
+        createdAfter: clearCreatedAfter ? null : (createdAfter ?? this.createdAfter),
+        createdBefore: clearCreatedBefore ? null : (createdBefore ?? this.createdBefore),
         query: query ?? this.query,
       );
 }
@@ -50,7 +100,13 @@ class ClientTicketsNotifier extends AsyncNotifier<ClientTicketsState> {
   @override
   Future<ClientTicketsState> build() async {
     final result = await ref.read(clientRepositoryProvider).fetchTickets();
-    return ClientTicketsState(tickets: result.tickets, companies: result.companies);
+    return ClientTicketsState(
+      tickets: result.tickets,
+      companies: result.companies,
+      teams: result.teams,
+      ticketColumns: result.ticketColumns,
+      assignees: result.assignees,
+    );
   }
 
   Future<void> refresh() async {
@@ -58,8 +114,19 @@ class ClientTicketsNotifier extends AsyncNotifier<ClientTicketsState> {
     final result = await ref.read(clientRepositoryProvider).fetchTickets(
           companyId: current.companyId,
           query: current.query,
+          teamId: current.teamId,
+          ticketColumnId: current.ticketColumnId,
+          assigneeId: current.assigneeId,
+          createdAfter: current.createdAfter,
+          createdBefore: current.createdBefore,
         );
-    state = AsyncData(current.copyWith(tickets: result.tickets, companies: result.companies));
+    state = AsyncData(current.copyWith(
+      tickets: result.tickets,
+      companies: result.companies,
+      teams: result.teams,
+      ticketColumns: result.ticketColumns,
+      assignees: result.assignees,
+    ));
   }
 
   Future<void> filterByCompany(int? companyId) async {
@@ -72,6 +139,31 @@ class ClientTicketsNotifier extends AsyncNotifier<ClientTicketsState> {
     final current = state.value ?? const ClientTicketsState();
     if (current.query == query) return;
     state = AsyncData(current.copyWith(query: query));
+    await refresh();
+  }
+
+  // Aplica Mesa, Estagio, Responsavel e Periodo de uma vez - usado pelo
+  // modal de Filtros, que so busca de novo quando a pessoa confirma.
+  Future<void> applyFilters({
+    int? teamId,
+    int? ticketColumnId,
+    int? assigneeId,
+    String? createdAfter,
+    String? createdBefore,
+  }) async {
+    final current = state.value ?? const ClientTicketsState();
+    state = AsyncData(current.copyWith(
+      teamId: teamId,
+      clearTeam: teamId == null,
+      ticketColumnId: ticketColumnId,
+      clearTicketColumn: ticketColumnId == null,
+      assigneeId: assigneeId,
+      clearAssignee: assigneeId == null,
+      createdAfter: createdAfter,
+      clearCreatedAfter: createdAfter == null,
+      createdBefore: createdBefore,
+      clearCreatedBefore: createdBefore == null,
+    ));
     await refresh();
   }
 }

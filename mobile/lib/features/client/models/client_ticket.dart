@@ -1,6 +1,7 @@
 // Um chamado como o CLIENTE o ve - bem mais enxuto que o do colaborador
-// (sem responsavel, SLA, impedimento, etc. - ver api/v1/client/models/_ticket
-// no servidor).
+// (sem SLA, impedimento, etc. - ver api/v1/client/models/_ticket no
+// servidor). O nome do responsavel e' a excecao: o cliente precisa saber
+// quem esta cuidando do chamado dele.
 class ClientTicket {
   const ClientTicket({
     required this.id,
@@ -13,6 +14,7 @@ class ClientTicket {
     required this.ticketColumnName,
     required this.teamName,
     this.categoryName,
+    this.assigneeName,
     required this.createdAt,
     required this.updatedAt,
     this.dueDate,
@@ -30,6 +32,7 @@ class ClientTicket {
   final String ticketColumnName;
   final String teamName;
   final String? categoryName;
+  final String? assigneeName;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? dueDate;
@@ -47,6 +50,7 @@ class ClientTicket {
         ticketColumnName: (json['ticket_column_name'] as String?) ?? '',
         teamName: (json['team_name'] as String?) ?? '',
         categoryName: json['category_name'] as String?,
+        assigneeName: json['assignee_name'] as String?,
         createdAt: DateTime.fromMillisecondsSinceEpoch(((json['created_at'] as int?) ?? 0) * 1000),
         updatedAt: DateTime.fromMillisecondsSinceEpoch(((json['updated_at'] as int?) ?? 0) * 1000),
         dueDate: _parseDueDate(json['due_date']),
