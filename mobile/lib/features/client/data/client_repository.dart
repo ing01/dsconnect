@@ -22,6 +22,7 @@ class ClientRepository {
     int? teamId,
     int? ticketColumnId,
     int? assigneeId,
+    String? status,
     String? createdAfter,
     String? createdBefore,
   }) async {
@@ -38,6 +39,8 @@ class ClientRepository {
         if (ticketColumnId != null) 'ticket_column_id': ticketColumnId,
         // ignore: use_null_aware_elements
         if (assigneeId != null) 'assignee_id': assigneeId,
+        // ignore: use_null_aware_elements
+        if (status != null) 'status': status,
         // ignore: use_null_aware_elements
         if (createdAfter != null) 'created_after': createdAfter,
         // ignore: use_null_aware_elements

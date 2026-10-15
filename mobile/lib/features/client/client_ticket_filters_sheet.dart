@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/theme/semantic_colors.dart';
 import 'models/filter_option.dart';
 
 class ClientTicketFiltersResult {
@@ -8,6 +9,7 @@ class ClientTicketFiltersResult {
     this.teamId,
     this.ticketColumnId,
     this.assigneeId,
+    this.status,
     this.createdAfter,
     this.createdBefore,
   });
@@ -15,6 +17,7 @@ class ClientTicketFiltersResult {
   final int? teamId;
   final int? ticketColumnId;
   final int? assigneeId;
+  final String? status;
   final String? createdAfter;
   final String? createdBefore;
 }
@@ -29,6 +32,7 @@ class ClientTicketFiltersSheet extends StatefulWidget {
     this.initialTeamId,
     this.initialTicketColumnId,
     this.initialAssigneeId,
+    this.initialStatus,
     this.initialCreatedAfter,
     this.initialCreatedBefore,
     super.key,
@@ -40,6 +44,7 @@ class ClientTicketFiltersSheet extends StatefulWidget {
   final int? initialTeamId;
   final int? initialTicketColumnId;
   final int? initialAssigneeId;
+  final String? initialStatus;
   final String? initialCreatedAfter;
   final String? initialCreatedBefore;
 
@@ -51,6 +56,7 @@ class _ClientTicketFiltersSheetState extends State<ClientTicketFiltersSheet> {
   int? _teamId;
   int? _ticketColumnId;
   int? _assigneeId;
+  String? _status;
   DateTime? _createdAfter;
   DateTime? _createdBefore;
 
@@ -63,6 +69,7 @@ class _ClientTicketFiltersSheetState extends State<ClientTicketFiltersSheet> {
     _teamId = widget.initialTeamId;
     _ticketColumnId = widget.initialTicketColumnId;
     _assigneeId = widget.initialAssigneeId;
+    _status = widget.initialStatus;
     _createdAfter = widget.initialCreatedAfter != null ? DateTime.tryParse(widget.initialCreatedAfter!) : null;
     _createdBefore = widget.initialCreatedBefore != null ? DateTime.tryParse(widget.initialCreatedBefore!) : null;
   }
@@ -90,6 +97,7 @@ class _ClientTicketFiltersSheetState extends State<ClientTicketFiltersSheet> {
       _teamId = null;
       _ticketColumnId = null;
       _assigneeId = null;
+      _status = null;
       _createdAfter = null;
       _createdBefore = null;
     });
@@ -101,6 +109,7 @@ class _ClientTicketFiltersSheetState extends State<ClientTicketFiltersSheet> {
         teamId: _teamId,
         ticketColumnId: _ticketColumnId,
         assigneeId: _assigneeId,
+        status: _status,
         createdAfter: _createdAfter != null ? _apiDateFormat.format(_createdAfter!) : null,
         createdBefore: _createdBefore != null ? _apiDateFormat.format(_createdBefore!) : null,
       ),
@@ -150,6 +159,14 @@ class _ClientTicketFiltersSheetState extends State<ClientTicketFiltersSheet> {
             ),
             const SizedBox(height: 12),
           ],
+          // Sem isso escolhido, a lista so' mostra chamados abertos (igual
+          // sempre foi) - escolher um status aqui e' o jeito de achar um
+          // chamado ja resolvido/fechado/cancelado.
+          _StatusDropdown(
+            value: _status,
+            onChanged: (value) => setState(() => _status = value),
+          ),
+          const SizedBox(height: 12),
           Text('Período', style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: 6),
           Row(
@@ -173,6 +190,27 @@ class _ClientTicketFiltersSheetState extends State<ClientTicketFiltersSheet> {
           FilledButton(onPressed: _apply, child: const Text('Aplicar filtros')),
         ],
       ),
+    );
+  }
+}
+
+class _StatusDropdown extends StatelessWidget {
+  const _StatusDropdown({required this.value, required this.onChanged});
+
+  final String? value;
+  final void Function(String?) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      decoration: const InputDecoration(labelText: 'Status', border: OutlineInputBorder(), isDense: true),
+      items: [
+        const DropdownMenuItem(value: null, child: Text('Abertos (padrão)')),
+        for (final entry in statusLabels.entries)
+          if (entry.key != 'open') DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+      ],
+      onChanged: onChanged,
     );
   }
 }

@@ -27,6 +27,7 @@ class ClientTicketsState {
     this.teamId,
     this.ticketColumnId,
     this.assigneeId,
+    this.status,
     this.createdAfter,
     this.createdBefore,
     this.query = '',
@@ -41,6 +42,9 @@ class ClientTicketsState {
   final int? teamId;
   final int? ticketColumnId;
   final int? assigneeId;
+  // Sem valor, o servidor assume "aberto" (o padrao de sempre) - so' um
+  // status explicito (resolved/closed/cancelled) muda essa fronteira.
+  final String? status;
   // "yyyy-MM-dd", mesmo formato que o servidor espera.
   final String? createdAfter;
   final String? createdBefore;
@@ -53,6 +57,7 @@ class ClientTicketsState {
         teamId,
         ticketColumnId,
         assigneeId,
+        status,
         createdAfter,
         createdBefore,
       ].where((value) => value != null).length;
@@ -71,6 +76,8 @@ class ClientTicketsState {
     bool clearTicketColumn = false,
     int? assigneeId,
     bool clearAssignee = false,
+    String? status,
+    bool clearStatus = false,
     String? createdAfter,
     bool clearCreatedAfter = false,
     String? createdBefore,
@@ -87,6 +94,7 @@ class ClientTicketsState {
         teamId: clearTeam ? null : (teamId ?? this.teamId),
         ticketColumnId: clearTicketColumn ? null : (ticketColumnId ?? this.ticketColumnId),
         assigneeId: clearAssignee ? null : (assigneeId ?? this.assigneeId),
+        status: clearStatus ? null : (status ?? this.status),
         createdAfter: clearCreatedAfter ? null : (createdAfter ?? this.createdAfter),
         createdBefore: clearCreatedBefore ? null : (createdBefore ?? this.createdBefore),
         query: query ?? this.query,
@@ -117,6 +125,7 @@ class ClientTicketsNotifier extends AsyncNotifier<ClientTicketsState> {
           teamId: current.teamId,
           ticketColumnId: current.ticketColumnId,
           assigneeId: current.assigneeId,
+          status: current.status,
           createdAfter: current.createdAfter,
           createdBefore: current.createdBefore,
         );
@@ -148,6 +157,7 @@ class ClientTicketsNotifier extends AsyncNotifier<ClientTicketsState> {
     int? teamId,
     int? ticketColumnId,
     int? assigneeId,
+    String? status,
     String? createdAfter,
     String? createdBefore,
   }) async {
@@ -159,6 +169,8 @@ class ClientTicketsNotifier extends AsyncNotifier<ClientTicketsState> {
       clearTicketColumn: ticketColumnId == null,
       assigneeId: assigneeId,
       clearAssignee: assigneeId == null,
+      status: status,
+      clearStatus: status == null,
       createdAfter: createdAfter,
       clearCreatedAfter: createdAfter == null,
       createdBefore: createdBefore,

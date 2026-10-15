@@ -46,6 +46,7 @@ class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScree
         initialTeamId: state.teamId,
         initialTicketColumnId: state.ticketColumnId,
         initialAssigneeId: state.assigneeId,
+        initialStatus: state.status,
         initialCreatedAfter: state.createdAfter,
         initialCreatedBefore: state.createdBefore,
       ),
@@ -55,6 +56,7 @@ class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScree
           teamId: result.teamId,
           ticketColumnId: result.ticketColumnId,
           assigneeId: result.assigneeId,
+          status: result.status,
           createdAfter: result.createdAfter,
           createdBefore: result.createdBefore,
         );

@@ -20,17 +20,19 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   # por Mesa.
   def index
     @companies = client_companies
-    # `operational`: resolvido, fechado e cancelado saem da lista, como no
-    # Kanban interno. Opcoes de filtro vem de TODOS os chamados operacionais
-    # do cliente, nao so dos que sobrevivem aos filtros ja aplicados - senao
+    # As OPCOES de filtro continuam vindo so' dos chamados abertos (como
+    # sempre foi) - nao dos que sobrevivem aos filtros ja aplicados, senao
     # escolher uma Mesa faria o filtro de Estagio esquecer as opcoes das
-    # outras Mesas.
+    # outras Mesas. O status em si tem opcoes fixas (`Ticket.statuses`), nao
+    # precisa de consulta - e' `tickets_scoped_by_status`, abaixo, que decide
+    # se a LISTA fica so' nos abertos ou troca pra outro status escolhido.
     base = visible_tickets.operational
     @teams = filter_options(base, :team, 'teams')
     @ticket_columns = filter_options(base, :ticket_column, 'ticket_columns')
     @assignees = filter_options(base, :assignee, 'users')
 
-    relation = tickets_scoped_by_number(tickets_scoped_by_company(base))
+    relation = tickets_scoped_by_status(visible_tickets)
+    relation = tickets_scoped_by_number(tickets_scoped_by_company(relation))
     relation = tickets_scoped_by_team(relation)
     relation = tickets_scoped_by_column(relation)
     relation = tickets_scoped_by_assignee(relation)
@@ -140,6 +142,18 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
       'tickets.title ILIKE :texto OR CAST(tickets.display_id AS TEXT) LIKE :numero',
       texto: "%#{query}%", numero: "%#{numero}%"
     )
+  end
+
+  # Sem `status` escolhido, so' os chamados abertos aparecem - igual o Kanban
+  # interno (ver `Ticket.operational`). Escolhendo um status especifico (ex.:
+  # "closed"), a fronteira muda pra esse status - e' assim que um chamado ja
+  # encerrado volta a aparecer na lista/busca, sem abrir mao do filtro padrao
+  # pra quem nao escolhe nada.
+  def tickets_scoped_by_status(relation)
+    status = params[:status].presence
+    return relation.operational if status.blank? || !Ticket.statuses.key?(status)
+
+    relation.where(status: status)
   end
 
   def tickets_scoped_by_team(relation)
