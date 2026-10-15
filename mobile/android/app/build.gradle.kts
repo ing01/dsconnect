@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -5,15 +7,16 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties()
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(keystorePropsFile.inputStream())
+}
+
 android {
     namespace = "com.duesoft.dsconnect_mobile"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
-    val keystoreProps = java.util.Properties().apply {
-        val f = rootProject.file("keystore.properties")
-        if (f.exists()) load(f.inputStream())
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -33,10 +36,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile     = file(keystoreProps["storeFile"] as String)
-            storePassword = keystoreProps["storePassword"] as String
-            keyAlias      = keystoreProps["keyAlias"] as String
-            keyPassword   = keystoreProps["keyPassword"] as String
+            storeFile     = file(keystoreProps.getProperty("storeFile"))
+            storePassword = keystoreProps.getProperty("storePassword")
+            keyAlias      = keystoreProps.getProperty("keyAlias")
+            keyPassword   = keystoreProps.getProperty("keyPassword")
         }
     }
 
