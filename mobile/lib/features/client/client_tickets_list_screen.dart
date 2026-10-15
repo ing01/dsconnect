@@ -91,14 +91,12 @@ class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScree
                 Expanded(
                   child: TextField(
                     controller: _searchController,
-                    keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
-                      hintText: 'Buscar pelo número do chamado',
-                      // Toque no icone de busca tambem dispara - o teclado
-                      // numerico de alguns aparelhos nao tem uma tecla de
-                      // "ir"/"buscar", so digitos, e sem isto nao haveria
-                      // jeito de confirmar a busca.
+                      hintText: 'Buscar por número ou assunto',
+                      // Toque no icone de busca tambem dispara - alguns
+                      // teclados nao tem uma tecla de "ir"/"buscar", e sem
+                      // isto nao haveria jeito de confirmar a busca.
                       prefixIcon: IconButton(icon: const Icon(Icons.search), onPressed: _runSearch),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       isDense: true,

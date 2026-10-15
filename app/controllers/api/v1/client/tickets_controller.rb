@@ -125,16 +125,21 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     empresa ? relation.where(company_id: empresa.id) : relation
   end
 
-  # Busca pelo numero do chamado (`display_id`) - parcial, porque o cliente
-  # pode nao lembrar o numero inteiro. So estreita quando o parametro vem
-  # preenchido, nunca troca a fronteira de `visible_tickets`.
+  # Busca pelo numero OU pelo titulo do chamado - parcial dos dois jeitos,
+  # porque o cliente pode lembrar so' um pedaco do assunto ou nao lembrar o
+  # numero inteiro. So estreita quando o parametro vem preenchido, nunca
+  # troca a fronteira de `visible_tickets`.
   def tickets_scoped_by_number(relation)
     # Aceita digitar com ou sem o `#` (o cartao mostra "#42") - sem tirar o
-    # prefixo, buscar "#42" nunca bateria com nada.
-    query = params[:q].to_s.strip.delete_prefix('#')
+    # prefixo, buscar "#42" nunca bateria com nada no numero.
+    query = params[:q].to_s.strip
     return relation if query.blank?
 
-    relation.where('CAST(tickets.display_id AS TEXT) LIKE ?', "%#{query}%")
+    numero = query.delete_prefix('#')
+    relation.where(
+      'tickets.title ILIKE :texto OR CAST(tickets.display_id AS TEXT) LIKE :numero',
+      texto: "%#{query}%", numero: "%#{numero}%"
+    )
   end
 
   def tickets_scoped_by_team(relation)
