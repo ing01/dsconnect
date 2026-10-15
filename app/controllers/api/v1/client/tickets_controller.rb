@@ -28,7 +28,11 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     # se a LISTA fica so' nos abertos ou troca pra outro status escolhido.
     base = visible_tickets.operational
     @teams = filter_options(base, :team, 'teams')
-    @ticket_columns = filter_options(base, :ticket_column, 'ticket_columns')
+    # Com o `team_id` junto: Estagios de Mesas diferentes podem ter o MESMO
+    # nome (ex.: "Pendente" em mais de uma Mesa) - sem o `team_id`, o seletor
+    # mostraria nomes repetidos sem jeito de diferenciar, e a tela so' pode
+    # filtrar pela Mesa escolhida sabendo de qual Mesa cada opcao e'.
+    @ticket_columns = ticket_column_options(base)
     @assignees = filter_options(base, :assignee, 'users')
 
     relation = tickets_scoped_by_status(visible_tickets)
@@ -189,6 +193,16 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   # util, e exporia estrutura interna sem necessidade).
   def filter_options(relation, association, table)
     relation.joins(association).distinct.pluck("#{table}.id", "#{table}.name").map { |id, name| { id: id, name: name } }
+  end
+
+  # Igual `filter_options`, mas com o `team_id` de cada Estagio junto - e'
+  # o que permite a tela so' acender o seletor de Estagio depois de uma Mesa
+  # escolhida, e so' com os Estagios DAQUELA Mesa (ver o comentario em `index`).
+  def ticket_column_options(relation)
+    relation.joins(:ticket_column)
+            .distinct
+            .pluck('ticket_columns.id', 'ticket_columns.name', 'ticket_columns.team_id')
+            .map { |id, name, team_id| { id: id, name: name, team_id: team_id } }
   end
 
   # Onde o chamado do cliente entra: o Estagio "Pendente" da Mesa quando existe -

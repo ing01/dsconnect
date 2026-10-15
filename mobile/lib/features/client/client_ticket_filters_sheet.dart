@@ -137,18 +137,39 @@ class _ClientTicketFiltersSheetState extends State<ClientTicketFiltersSheet> {
               label: 'Mesa',
               value: _teamId,
               options: widget.teams,
-              onChanged: (value) => setState(() => _teamId = value),
+              // Troca de Mesa limpa o Estagio escolhido - um Estagio de outra
+              // Mesa nao faz mais sentido (e pode ter o MESMO nome, tipo
+              // "Pendente", de uma Mesa diferente).
+              onChanged: (value) => setState(() {
+                _teamId = value;
+                _ticketColumnId = null;
+              }),
             ),
             const SizedBox(height: 12),
           ],
           if (widget.ticketColumns.isNotEmpty) ...[
-            _FilterDropdown(
-              label: 'Estágio',
-              value: _ticketColumnId,
-              options: widget.ticketColumns,
-              onChanged: (value) => setState(() => _ticketColumnId = value),
-            ),
-            const SizedBox(height: 12),
+            if (widget.teams.length > 1 && _teamId == null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  'Escolha uma Mesa para filtrar por Estágio',
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.outline),
+                ),
+              )
+            else ...[
+              _FilterDropdown(
+                label: 'Estágio',
+                value: _ticketColumnId,
+                // So' os Estagios da Mesa escolhida - Mesas diferentes podem
+                // ter um Estagio com o MESMO nome, e misturar tudo faria a
+                // lista mostrar "Pendente" repetido sem distincao nenhuma.
+                options: widget.teams.length > 1
+                    ? widget.ticketColumns.where((coluna) => coluna.teamId == _teamId).toList()
+                    : widget.ticketColumns,
+                onChanged: (value) => setState(() => _ticketColumnId = value),
+              ),
+              const SizedBox(height: 12),
+            ],
           ],
           if (widget.assignees.isNotEmpty) ...[
             _FilterDropdown(
