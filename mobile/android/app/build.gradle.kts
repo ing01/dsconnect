@@ -34,18 +34,23 @@ android {
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        create("release") {
-            storeFile     = file(keystoreProps.getProperty("storeFile"))
-            storePassword = keystoreProps.getProperty("storePassword")
-            keyAlias      = keystoreProps.getProperty("keyAlias")
-            keyPassword   = keystoreProps.getProperty("keyPassword")
+    if (keystorePropsFile.exists()) {
+        signingConfigs {
+            create("release") {
+                storeFile     = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias      = keystoreProps.getProperty("keyAlias")
+                keyPassword   = keystoreProps.getProperty("keyPassword")
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig     = signingConfigs.getByName("release")
+            signingConfig = if (keystorePropsFile.exists())
+                signingConfigs.getByName("release")
+            else
+                signingConfigs.getByName("debug")
             isMinifyEnabled   = true
             isShrinkResources = true
         }
