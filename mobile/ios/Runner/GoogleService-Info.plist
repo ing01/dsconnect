@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.duesoft.duedeskMobile</string>
+	<string>com.duesoft.dsconnectMobile</string>
 	<key>PROJECT_ID</key>
 	<string>duedesk-notificacoes</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:28806894279:ios:7047d5fe08976ebdd1e4e2</string>
+	<string>1:28806894279:ios:ed1aaecd72d87da7d1e4e2</string>
 </dict>
 </plist>
