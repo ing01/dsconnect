@@ -44,5 +44,18 @@ RSpec.describe AutoAssignment::AgentAssignmentService do
       expect(described_class.new(conversation: conversation,
                                  allowed_agent_ids: inbox_members.map(&:user_id).map(&:to_s)).find_assignee).to eq(inbox_members[4].user)
     end
+
+    # Pedido: 20 minutos antes do horario de almoco cadastrado, o agente para
+    # de receber novas conversas - mesmo estando "online".
+    it 'skips an online agent who is currently in their lunch break window' do
+      AccountUser.find_by(account: account, user: inbox_members[3].user)
+                 .update!(lunch_start_hour: 11, lunch_start_minutes: 0, lunch_end_hour: 13, lunch_end_minutes: 0)
+
+      travel_to(Time.find_zone!('America/Sao_Paulo').local(2026, 10, 15, 12, 0)) do
+        # So o membro 4 (online) sobra - o 3 (online, mas em almoco) e pulado.
+        expect(described_class.new(conversation: conversation,
+                                   allowed_agent_ids: inbox_members.map(&:user_id).map(&:to_s)).find_assignee).to eq(inbox_members[4].user)
+      end
+    end
   end
 end

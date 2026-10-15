@@ -31,7 +31,18 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
 
   def update
     @agent.update!(agent_params.slice(:name).compact)
-    @agent.current_account_user.update!(agent_params.slice(*account_user_attributes).compact)
+    # `.compact` tira os campos ausentes do payload (ex: tela nao manda
+    # `enforce_queue_order` quando nao mudou) - mas os 4 campos de almoco
+    # precisam poder chegar como `nil` de proposito, pra "apagar" um horario
+    # ja cadastrado. Por isso saem do `.compact` e entram sempre, se vieram
+    # no payload.
+    lunch_attributes = [:lunch_start_hour, :lunch_start_minutes, :lunch_end_hour, :lunch_end_minutes]
+    account_user_params = agent_params.slice(*(account_user_attributes - lunch_attributes)).compact
+    # `slice` so traz as chaves que vieram de verdade no payload - um `merge!`
+    # incondicional nao sobrescreve nada quando a tela nao manda nenhuma delas.
+    account_user_params.merge!(agent_params.slice(*lunch_attributes))
+
+    @agent.current_account_user.update!(account_user_params)
   end
 
   # Define uma senha nova para um agente desta conta.
@@ -94,11 +105,13 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   end
 
   def account_user_attributes
-    [:role, :availability, :auto_offline, :enforce_queue_order]
+    [:role, :availability, :auto_offline, :enforce_queue_order,
+     :lunch_start_hour, :lunch_start_minutes, :lunch_end_hour, :lunch_end_minutes]
   end
 
   def allowed_agent_params
-    [:name, :email, :role, :availability, :auto_offline, :enforce_queue_order]
+    [:name, :email, :role, :availability, :auto_offline, :enforce_queue_order,
+     :lunch_start_hour, :lunch_start_minutes, :lunch_end_hour, :lunch_end_minutes]
   end
 
   def agent_params

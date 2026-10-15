@@ -323,6 +323,10 @@ const confirmDeletion = () => {
         :availability="currentAgent.availability_status"
         :custom-role-id="currentAgent.custom_role_id"
         :enforce-queue-order="currentAgent.enforce_queue_order"
+        :lunch-start-hour="currentAgent.lunch_start_hour"
+        :lunch-start-minutes="currentAgent.lunch_start_minutes"
+        :lunch-end-hour="currentAgent.lunch_end_hour"
+        :lunch-end-minutes="currentAgent.lunch_end_minutes"
         @close="hideEditPopup"
       />
     </woot-modal>

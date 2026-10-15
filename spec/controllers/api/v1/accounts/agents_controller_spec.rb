@@ -140,6 +140,34 @@ RSpec.describe 'Agents API', type: :request do
         expect(response_data['auto_offline']).to be(false)
         expect(other_agent.account_users.first.role).to eq('administrator')
       end
+
+      # Pedido: horario de almoco por agente - a distribuicao automatica usa
+      # esses 4 campos pra parar de atribuir 20 min antes do inicio.
+      it 'saves the lunch break fields' do
+        put "/api/v1/accounts/#{account.id}/agents/#{other_agent.id}",
+            params: { lunch_start_hour: 11, lunch_start_minutes: 0, lunch_end_hour: 13, lunch_end_minutes: 0 },
+            headers: admin.create_new_auth_token,
+            as: :json
+
+        expect(response).to have_http_status(:success)
+        account_user = other_agent.account_users.first
+        expect(account_user.lunch_start_hour).to eq(11)
+        expect(account_user.lunch_end_hour).to eq(13)
+        expect(response.parsed_body['lunch_start_hour']).to eq(11)
+      end
+
+      it 'clears an already saved lunch break when all 4 fields come back as null' do
+        other_agent.account_users.first.update!(lunch_start_hour: 11, lunch_start_minutes: 0,
+                                                lunch_end_hour: 13, lunch_end_minutes: 0)
+
+        put "/api/v1/accounts/#{account.id}/agents/#{other_agent.id}",
+            params: { lunch_start_hour: nil, lunch_start_minutes: nil, lunch_end_hour: nil, lunch_end_minutes: nil },
+            headers: admin.create_new_auth_token,
+            as: :json
+
+        expect(response).to have_http_status(:success)
+        expect(other_agent.account_users.first.lunch_start_hour).to be_nil
+      end
     end
   end
 

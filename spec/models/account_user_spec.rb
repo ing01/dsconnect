@@ -25,6 +25,88 @@ RSpec.describe AccountUser do
     end
   end
 
+  describe 'horario de almoco' do
+    # 11:00 as 13:00 em America/Sao_Paulo (UTC-3) - usado nos horarios abaixo.
+    def at_sao_paulo(hour, min)
+      Time.find_zone!('America/Sao_Paulo').local(2026, 10, 15, hour, min)
+    end
+
+    describe 'validations' do
+      it 'is valid without any lunch field set' do
+        expect(build(:account_user)).to be_valid
+      end
+
+      it 'is invalid when only some of the 4 fields are set' do
+        account_user.lunch_start_hour = 11
+
+        expect(account_user).not_to be_valid
+        expect(account_user.errors[:base]).to be_present
+      end
+
+      it 'is invalid when the lunch break end is not after the start' do
+        account_user.assign_attributes(lunch_start_hour: 13, lunch_start_minutes: 0,
+                                       lunch_end_hour: 11, lunch_end_minutes: 0)
+
+        expect(account_user).not_to be_valid
+      end
+
+      it 'is valid with all 4 fields set and end after start' do
+        account_user.assign_attributes(lunch_start_hour: 11, lunch_start_minutes: 0,
+                                       lunch_end_hour: 13, lunch_end_minutes: 0)
+
+        expect(account_user).to be_valid
+      end
+    end
+
+    describe '#lunch_blackout_now?' do
+      before do
+        account_user.update!(lunch_start_hour: 11, lunch_start_minutes: 0,
+                             lunch_end_hour: 13, lunch_end_minutes: 0)
+      end
+
+      it 'is false without a lunch break configured' do
+        account_user.assign_attributes(lunch_start_hour: nil, lunch_start_minutes: nil,
+                                       lunch_end_hour: nil, lunch_end_minutes: nil)
+
+        expect(account_user.lunch_blackout_now?(at: at_sao_paulo(11, 0))).to be(false)
+      end
+
+      it 'is false well before the 20-minute buffer' do
+        expect(account_user.lunch_blackout_now?(at: at_sao_paulo(10, 30))).to be(false)
+      end
+
+      it 'is true exactly 20 minutes before the start' do
+        expect(account_user.lunch_blackout_now?(at: at_sao_paulo(10, 40))).to be(true)
+      end
+
+      it 'is true during the lunch break' do
+        expect(account_user.lunch_blackout_now?(at: at_sao_paulo(12, 0))).to be(true)
+      end
+
+      it 'is false right after the lunch break ends' do
+        expect(account_user.lunch_blackout_now?(at: at_sao_paulo(13, 1))).to be(false)
+      end
+    end
+
+    describe '.lunch_blackout_user_ids' do
+      it 'only includes agents currently inside their own blackout window' do
+        on_lunch = create(:account_user, account: account_user.account,
+                                         lunch_start_hour: 11, lunch_start_minutes: 0,
+                                         lunch_end_hour: 13, lunch_end_minutes: 0)
+        not_on_lunch_yet = create(:account_user, account: account_user.account,
+                                                 lunch_start_hour: 13, lunch_start_minutes: 0,
+                                                 lunch_end_hour: 15, lunch_end_minutes: 0)
+
+        travel_to(at_sao_paulo(12, 0)) do
+          ids = described_class.lunch_blackout_user_ids(account_user.account_id)
+
+          expect(ids).to include(on_lunch.user_id)
+          expect(ids).not_to include(not_on_lunch_yet.user_id, account_user.user_id)
+        end
+      end
+    end
+  end
+
   describe 'permissions' do
     it 'returns the right permissions' do
       expect(account_user.permissions).to eq(['agent'])

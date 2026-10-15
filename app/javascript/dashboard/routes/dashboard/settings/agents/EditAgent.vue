@@ -42,6 +42,22 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  lunchStartHour: {
+    type: Number,
+    default: null,
+  },
+  lunchStartMinutes: {
+    type: Number,
+    default: null,
+  },
+  lunchEndHour: {
+    type: Number,
+    default: null,
+  },
+  lunchEndMinutes: {
+    type: Number,
+    default: null,
+  },
 });
 
 const emit = defineEmits(['close']);
@@ -56,6 +72,36 @@ const agentAvailability = ref(props.availability);
 const selectedRoleId = ref(props.customRoleId || props.type);
 const agentCredentials = ref({ email: props.email });
 const enforceQueueOrder = ref(props.enforceQueueOrder);
+
+// `<input type="time">` fala HH:MM - as 4 colunas (hora/minuto separados)
+// sao so o formato de armazenamento, pensado pra bater com WorkingHour. Os
+// dois campos vazios juntos = sem almoco cadastrado (o `payload` abaixo manda
+// os 4 como null nesse caso, pra poder apagar um horario ja salvo).
+const timeToHourMinutes = time => {
+  if (!time) return [null, null];
+  const [hour, minutes] = time.split(':').map(Number);
+  return [hour, minutes];
+};
+
+const hourMinutesToTime = (hour, minutes) => {
+  if (hour == null || minutes == null) return '';
+  return `${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
+const lunchStart = ref(
+  hourMinutesToTime(props.lunchStartHour, props.lunchStartMinutes)
+);
+const lunchEnd = ref(
+  hourMinutesToTime(props.lunchEndHour, props.lunchEndMinutes)
+);
+
+const lunchBreakInvalid = computed(() => {
+  // Um campo preenchido e o outro vazio - os dois juntos sao obrigatorios
+  // (ou nenhum). Fim antes do inicio tambem e invalido.
+  if (!lunchStart.value && !lunchEnd.value) return false;
+  if (!lunchStart.value || !lunchEnd.value) return true;
+  return lunchEnd.value <= lunchStart.value;
+});
 
 const rules = {
   agentName: { required, minLength: minLength(1) },
@@ -124,14 +170,23 @@ const availabilityStatuses = computed(() =>
 
 const editAgent = async () => {
   v$.value.$touch();
-  if (v$.value.$invalid) return;
+  if (v$.value.$invalid || lunchBreakInvalid.value) return;
 
   try {
+    const [lunchStartHour, lunchStartMinutes] = timeToHourMinutes(
+      lunchStart.value
+    );
+    const [lunchEndHour, lunchEndMinutes] = timeToHourMinutes(lunchEnd.value);
+
     const payload = {
       id: props.id,
       name: agentName.value,
       availability: agentAvailability.value,
       enforce_queue_order: enforceQueueOrder.value,
+      lunch_start_hour: lunchStartHour,
+      lunch_start_minutes: lunchStartMinutes,
+      lunch_end_hour: lunchEndHour,
+      lunch_end_minutes: lunchEndMinutes,
     };
 
     if (selectedRole.value.name.startsWith('custom_')) {
@@ -213,11 +268,28 @@ const resetPassword = async () => {
       <div class="w-full">
         <label class="flex items-center gap-2">
           <input v-model="enforceQueueOrder" type="checkbox" class="!m-0" />
-          <span>{{ $t('AGENT_MGMT.EDIT.FORM.ENFORCE_QUEUE_ORDER.LABEL') }}</span>
+          <span>{{
+            $t('AGENT_MGMT.EDIT.FORM.ENFORCE_QUEUE_ORDER.LABEL')
+          }}</span>
         </label>
         <p class="mb-0 text-xs text-n-slate-11">
           {{ $t('AGENT_MGMT.EDIT.FORM.ENFORCE_QUEUE_ORDER.HELP') }}
         </p>
+      </div>
+
+      <div class="w-full">
+        <label>{{ $t('AGENT_MGMT.EDIT.FORM.LUNCH_BREAK.LABEL') }}</label>
+        <div class="flex items-center gap-2">
+          <input v-model="lunchStart" type="time" class="!mb-0" />
+          <span>{{ $t('AGENT_MGMT.EDIT.FORM.LUNCH_BREAK.TO') }}</span>
+          <input v-model="lunchEnd" type="time" class="!mb-0" />
+        </div>
+        <p class="mb-0 text-xs text-n-slate-11">
+          {{ $t('AGENT_MGMT.EDIT.FORM.LUNCH_BREAK.HELP') }}
+        </p>
+        <span v-if="lunchBreakInvalid" class="message">
+          {{ $t('AGENT_MGMT.EDIT.FORM.LUNCH_BREAK.ERROR') }}
+        </span>
       </div>
 
       <div class="flex flex-row justify-start w-full gap-2 px-0 py-2">
@@ -243,7 +315,7 @@ const resetPassword = async () => {
           <Button
             type="submit"
             :label="$t('AGENT_MGMT.EDIT.FORM.SUBMIT')"
-            :disabled="v$.$invalid || uiFlags.isUpdating"
+            :disabled="v$.$invalid || lunchBreakInvalid || uiFlags.isUpdating"
             :is-loading="uiFlags.isUpdating"
           />
         </div>

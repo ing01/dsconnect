@@ -231,6 +231,9 @@ en:
         invalid: is not a valid email address
     validations:
       presence: must not be blank
+    account_user:
+      lunch_break_incomplete: Fill in both the lunch break start and end, or leave both blank
+      lunch_break_end_before_start: Lunch break end must be after the start
     conversation:
       must_be_assigned_to_reply: This conversation is assigned to another agent. Assign it to yourself to reply.
       must_reopen_to_reply: This conversation is resolved. Reopen it to reply.

@@ -34,7 +34,10 @@ class AutoAssignment::AgentAssignmentService
 
   def online_agent_ids
     online_agents = OnlineStatusTracker.get_available_users(conversation.account_id)
-    online_agents.select { |_key, value| value.eql?('online') }.keys if online_agents.present?
+    return if online_agents.blank?
+
+    lunch_blackout_ids = AccountUser.lunch_blackout_user_ids(conversation.account_id).map(&:to_s)
+    online_agents.select { |_key, value| value.eql?('online') }.keys - lunch_blackout_ids
   end
 
   def allowed_online_agent_ids

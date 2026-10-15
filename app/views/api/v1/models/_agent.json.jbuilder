@@ -13,3 +13,7 @@ json.role resource.role
 json.thumbnail resource.avatar_url
 json.custom_role_id resource.current_account_user&.custom_role_id if ChatwootApp.enterprise?
 json.enforce_queue_order resource.current_account_user&.enforce_queue_order
+json.lunch_start_hour resource.current_account_user&.lunch_start_hour
+json.lunch_start_minutes resource.current_account_user&.lunch_start_minutes
+json.lunch_end_hour resource.current_account_user&.lunch_end_hour
+json.lunch_end_minutes resource.current_account_user&.lunch_end_minutes

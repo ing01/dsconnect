@@ -2,7 +2,7 @@ module Enterprise::InboxAgentAvailability
   extend ActiveSupport::Concern
 
   def member_ids_with_assignment_capacity
-    return member_ids unless capacity_filtering_enabled?
+    return member_ids - lunch_blackout_agent_ids unless capacity_filtering_enabled?
 
     # Get online agents with capacity
     agents = available_agents

@@ -91,6 +91,12 @@
           "LABEL": "Obrigar a pegar a próxima da fila, em ordem",
           "HELP": "Quando ligado, este agente não escolhe livremente uma conversa da fila - só pode pegar a próxima (por prioridade, depois mais antiga) usando o botão \"Pegar próximo da fila\". Administradores nunca são afetados por isso."
         },
+        "LUNCH_BREAK": {
+          "LABEL": "Horário de almoço",
+          "TO": "até",
+          "HELP": "A distribuição automática para de atribuir novas conversas a este agente 20 minutos antes do início e volta a atribuir normalmente no horário de retorno. Conversas já atribuídas não são afetadas. Deixe os dois campos vazios para não usar esta regra.",
+          "ERROR": "Preencha os dois horários (início e fim), com o fim depois do início"
+        },
         "SUBMIT": "Editar agente"
       },
       "BUTTON_TEXT": "Alterar",

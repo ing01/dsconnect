@@ -240,6 +240,9 @@ pt_BR:
         invalid: is not a valid email address
     validations:
       presence: não pode ficar em branco
+    account_user:
+      lunch_break_incomplete: Preencha o início e o fim do horário de almoço, ou deixe os dois em branco
+      lunch_break_end_before_start: O fim do almoço precisa ser depois do início
     conversation:
       must_be_assigned_to_reply: Esta conversa está atribuída a outro atendente. Atribua a você mesmo para responder.
       must_reopen_to_reply: Esta conversa está resolvida. Reabra-a para responder.

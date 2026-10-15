@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'agent-lunch-break-auto-assignment',
+    date: '15 de outubro de 2026',
+    isoDate: '2026-10-15',
+    type: 'feature',
+    platform: 'web',
+    title: 'Horário de almoço do agente, respeitado na distribuição automática',
+    description:
+      'Em Configurações > Agentes > editar agente, agora dá para cadastrar o horário de almoço de cada um. A distribuição automática de conversas para de atribuir novos chats a esse agente 20 minutos antes do início do almoço, e volta a atribuir normalmente no horário de retorno - sem precisar de nenhuma ação manual. Conversas já atribuídas não são afetadas.',
+  },
+  {
     id: 'ticket-triage-notification-fixes',
     date: '15 de outubro de 2026',
     isoDate: '2026-10-15',
