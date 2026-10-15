@@ -235,6 +235,16 @@ RSpec.describe Notification do
     it 'agrupa pela tela, nao pelo ticket' do
       expect(notification.push_group_tag).to eq('ticket_triage')
     end
+
+    it 'o titulo cita o numero do chamado' do
+      expect(notification.push_message_title).to include("##{ticket.display_id}")
+    end
+
+    # O corpo ficava vazio (cai no `''` generico de message_body_for_non_conversation_type)
+    # - o push/card chegava sem nenhum texto, so o titulo.
+    it 'o corpo mostra o titulo do ticket, em vez de vir vazio' do
+      expect(notification.push_message_body).to eq(ticket.title)
+    end
   end
 
   # O clique precisa abrir o card certo direto - sem o `?suggestion=`, a tela

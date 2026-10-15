@@ -116,7 +116,7 @@ module NotificationPushContent
 
   def message_body_for_non_conversation_type
     return internal_chat_preview if notification_type == 'internal_chat_message'
-    return primary_actor.title if %w[suggestion_created article_published].include?(notification_type)
+    return primary_actor.title if %w[suggestion_created article_published ticket_triage_pending].include?(notification_type)
     return primary_actor.name if notification_type == 'portal_created'
     return ticket_customer_communication_preview if notification_type == 'ticket_customer_communication_received'
 

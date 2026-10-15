@@ -43,6 +43,10 @@ export const NOTIFICATION_TYPES = [
     value: 'suggestion_created',
   },
   {
+    label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.TICKET_TRIAGE_PENDING',
+    value: 'ticket_triage_pending',
+  },
+  {
     label:
       'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.TICKET_CUSTOMER_COMMUNICATION_RECEIVED',
     value: 'ticket_customer_communication_received',

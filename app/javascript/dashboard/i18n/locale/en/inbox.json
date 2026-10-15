@@ -38,6 +38,8 @@
       "ASSIGNED_CONVERSATION_NEW_MESSAGE": "New message",
       "INTERNAL_CHAT_MESSAGE": "Internal chat",
       "SUGGESTION_CREATED": "New suggestion",
+      "TICKET_TRIAGE_PENDING": "Ticket waiting for triage",
+      "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "Customer replied",
       "SNOOZED_UNTIL": "Snoozed for {time}",
       "SNOOZED_ENDS": "Snooze ended"
     },

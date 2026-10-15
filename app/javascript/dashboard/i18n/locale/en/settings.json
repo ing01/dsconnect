@@ -175,6 +175,7 @@
           "SLA_MISSED_NEXT_RESPONSE": "A conversation misses next response SLA",
           "SLA_MISSED_RESOLUTION": "A conversation misses resolution SLA",
           "SUGGESTION_CREATED": "A new suggestion is submitted",
+          "TICKET_TRIAGE_PENDING": "A ticket opened by a customer is waiting for triage",
           "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "A customer replies on a ticket you're assigned to or following"
         },
         "PUSH_PREFERENCE": "Receive push notifications",

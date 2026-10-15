@@ -40,6 +40,8 @@
       "SUGGESTION_CREATED": "Nova sugestão",
       "ARTICLE_PUBLISHED": "Novo artigo",
       "PORTAL_CREATED": "Novo portal",
+      "TICKET_TRIAGE_PENDING": "Chamado em triagem",
+      "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "Cliente respondeu",
       "SNOOZED_UNTIL": "Adiado para {time}",
       "SNOOZED_ENDS": "Adiamento encerrado"
     },

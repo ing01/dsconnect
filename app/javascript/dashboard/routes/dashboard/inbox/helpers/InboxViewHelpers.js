@@ -19,4 +19,9 @@ export const NOTIFICATION_TYPES_MAPPING = {
   SUGGESTION_CREATED: ['i-lucide-lightbulb', 'text-n-amber-11'],
   ARTICLE_PUBLISHED: ['i-lucide-file-text', 'text-n-teal-11'],
   PORTAL_CREATED: ['i-lucide-book-open', 'text-n-teal-11'],
+  TICKET_TRIAGE_PENDING: ['i-lucide-inbox', 'text-n-amber-11'],
+  TICKET_CUSTOMER_COMMUNICATION_RECEIVED: [
+    'i-lucide-message-circle-reply',
+    'text-n-blue-11',
+  ],
 };

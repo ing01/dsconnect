@@ -8,6 +8,15 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-triage-notification-fixes',
+    date: '15 de outubro de 2026',
+    isoDate: '2026-10-15',
+    type: 'fix',
+    title: 'Notificação de Triagem: corpo vazio e sem ícone na aba',
+    description:
+      'A notificação de "chamado na Triagem" chegava no push só com o título, sem nenhum texto no corpo, e aparecia na aba Notificações sem ícone e sem rótulo de tipo. Agora o corpo mostra o título do chamado, e o card tem ícone e rótulo corretos. Esse tipo de notificação também passou a aparecer em Configurações > Perfil > Notificações, para quem quiser ligar o push dela (antes não tinha como habilitar pela tela).',
+  },
+  {
     id: 'team-name-capitalized',
     date: '14 de outubro de 2026',
     isoDate: '2026-10-14',
