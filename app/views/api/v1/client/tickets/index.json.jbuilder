@@ -11,6 +11,10 @@ json.companies @companies do |company|
   json.name company.name
 end
 
+json.teams @teams
+json.ticket_columns @ticket_columns
+json.assignees @assignees
+
 json.tickets @tickets do |ticket|
   json.partial! 'api/v1/models/ticket', formats: [:json], resource: ticket
 end

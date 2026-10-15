@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 
 import '../../core/api/api_error.dart';
 import '../../core/theme/app_theme.dart';
@@ -52,17 +54,17 @@ class _ClientTicketCreateScreenState extends ConsumerState<ClientTicketCreateScr
   }
 
   Future<void> _openAiDraftSheet() async {
-    final text = await showModalBottomSheet<String>(
+    final result = await showModalBottomSheet<_AiDraftSheetResult>(
       context: context,
       isScrollControlled: true,
       builder: (context) => const _AiDraftSheet(),
     );
-    if (text == null || text.trim().isEmpty) return;
+    if (result == null || (result.text == null && result.audio == null)) return;
     if (!mounted) return;
 
     showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
     try {
-      final draft = await ref.read(clientRepositoryProvider).generateDraft(text.trim());
+      final draft = await ref.read(clientRepositoryProvider).generateDraft(text: result.text, audio: result.audio);
       if (!mounted) return;
       Navigator.of(context, rootNavigator: true).pop();
       setState(() {
@@ -265,6 +267,13 @@ class _AttachmentThumbnail extends StatelessWidget {
   }
 }
 
+class _AiDraftSheetResult {
+  const _AiDraftSheetResult({this.text, this.audio});
+
+  final String? text;
+  final XFile? audio;
+}
+
 class _AiDraftSheet extends StatefulWidget {
   const _AiDraftSheet();
 
@@ -274,12 +283,56 @@ class _AiDraftSheet extends StatefulWidget {
 
 class _AiDraftSheetState extends State<_AiDraftSheet> {
   final _controller = TextEditingController();
+  final _recorder = AudioRecorder();
+  bool _isRecording = false;
+  XFile? _recordedAudio;
 
   @override
   void dispose() {
     _controller.dispose();
+    _recorder.dispose();
     super.dispose();
   }
+
+  Future<void> _toggleRecording() async {
+    if (_isRecording) {
+      final path = await _recorder.stop();
+      setState(() {
+        _isRecording = false;
+        if (path != null) _recordedAudio = XFile(path);
+      });
+      return;
+    }
+
+    try {
+      if (!await _recorder.hasPermission()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Permissão de microfone negada.')),
+          );
+        }
+        return;
+      }
+      final dir = await getTemporaryDirectory();
+      final path = '${dir.path}/ticket_draft_audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      await _recorder.start(const RecordConfig(encoder: AudioEncoder.aacLc), path: path);
+      setState(() {
+        _isRecording = true;
+        _recordedAudio = null;
+      });
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível gravar áudio.')),
+        );
+      }
+    }
+  }
+
+  void _removeRecording() => setState(() => _recordedAudio = null);
+
+  bool get _hasText => _controller.text.trim().isNotEmpty;
+  bool get _canSubmit => _hasText || _recordedAudio != null;
 
   @override
   Widget build(BuildContext context) {
@@ -291,17 +344,53 @@ class _AiDraftSheetState extends State<_AiDraftSheet> {
         children: [
           Text('Descreva o problema', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 4),
-          const Text('A IA sugere a categoria, o assunto e a descrição - você revisa antes de confirmar.'),
+          const Text(
+            'A IA sugere a categoria, o assunto e a descrição - você revisa antes de confirmar. Pode digitar ou gravar um áudio.',
+          ),
           const SizedBox(height: 12),
           TextField(
             controller: _controller,
             maxLines: 4,
             autofocus: true,
+            enabled: _recordedAudio == null && !_isRecording,
             decoration: const InputDecoration(hintText: 'Ex.: Não consigo emitir nota fiscal...', border: OutlineInputBorder()),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: _hasText ? null : _toggleRecording,
+                icon: Icon(
+                  _isRecording ? Icons.stop_circle : Icons.mic_none,
+                  color: _isRecording ? Theme.of(context).colorScheme.error : null,
+                ),
+                label: Text(_isRecording ? 'Parar gravação' : 'Gravar áudio'),
+              ),
+              if (_recordedAudio != null) ...[
+                const SizedBox(width: 8),
+                Icon(Icons.check_circle, color: Colors.green.shade600, size: 18),
+                const SizedBox(width: 4),
+                const Text('Áudio gravado', style: TextStyle(fontSize: 12)),
+                IconButton(
+                  onPressed: _removeRecording,
+                  icon: const Icon(Icons.close, size: 16),
+                  tooltip: 'Remover áudio',
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 16),
           FilledButton(
-            onPressed: () => Navigator.of(context).pop(_controller.text),
+            onPressed: _canSubmit
+                ? () => Navigator.of(context).pop(
+                      _AiDraftSheetResult(
+                        text: _hasText ? _controller.text.trim() : null,
+                        audio: _recordedAudio,
+                      ),
+                    )
+                : null,
             child: const Text('Gerar rascunho'),
           ),
         ],

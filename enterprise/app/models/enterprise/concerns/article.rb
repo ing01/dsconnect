@@ -83,7 +83,7 @@ module Enterprise::Concerns::Article
 
   def openai_api_url
     endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence || 'https://api.openai.com/'
-    endpoint = endpoint.chomp('/')
+    endpoint = endpoint.chomp('/').delete_suffix('/v1')
     "#{endpoint}/v1/chat/completions"
   end
 end

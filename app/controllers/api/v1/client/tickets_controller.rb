@@ -20,12 +20,30 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   # por Mesa.
   def index
     @companies = client_companies
-    # `operational`: resolvido, fechado e cancelado saem da lista, como no
-    # Kanban interno. Os includes sao os que o cartao le - sem eles a lista
-    # dispara uma consulta por ticket.
-    @tickets = tickets_scoped_by_number(tickets_scoped_by_company.operational)
-               .includes(*BOARD_INCLUDES)
-               .order(created_at: :desc)
+    # As OPCOES de filtro continuam vindo so' dos chamados abertos (como
+    # sempre foi) - nao dos que sobrevivem aos filtros ja aplicados, senao
+    # escolher uma Mesa faria o filtro de Estagio esquecer as opcoes das
+    # outras Mesas. O status em si tem opcoes fixas (`Ticket.statuses`), nao
+    # precisa de consulta - e' `tickets_scoped_by_status`, abaixo, que decide
+    # se a LISTA fica so' nos abertos ou troca pra outro status escolhido.
+    base = visible_tickets.operational
+    @teams = filter_options(base, :team, 'teams')
+    # Com o `team_id` junto: Estagios de Mesas diferentes podem ter o MESMO
+    # nome (ex.: "Pendente" em mais de uma Mesa) - sem o `team_id`, o seletor
+    # mostraria nomes repetidos sem jeito de diferenciar, e a tela so' pode
+    # filtrar pela Mesa escolhida sabendo de qual Mesa cada opcao e'.
+    @ticket_columns = ticket_column_options(base)
+    @assignees = filter_options(base, :assignee, 'users')
+
+    relation = tickets_scoped_by_status(visible_tickets)
+    relation = tickets_scoped_by_number(tickets_scoped_by_company(relation))
+    relation = tickets_scoped_by_team(relation)
+    relation = tickets_scoped_by_column(relation)
+    relation = tickets_scoped_by_assignee(relation)
+    relation = tickets_scoped_by_date(relation)
+    # Os includes sao os que o cartao le - sem eles a lista dispara uma
+    # consulta por ticket.
+    @tickets = relation.includes(*BOARD_INCLUDES).order(created_at: :desc)
   end
 
   def show; end
@@ -103,24 +121,88 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     Company.where(account_id: Current.account.id, id: current_contact.client_company_ids).order(:name)
   end
 
-  # `visible_tickets` ja e' a fronteira; isto so ESTREITA para a Empresa
-  # escolhida no seletor - nunca para uma fora de `client_company_ids`, que
-  # `client_companies` garante de saida.
-  def tickets_scoped_by_company
-    return visible_tickets if params[:company_id].blank?
+  # `relation` ja e' a fronteira; isto so ESTREITA para a Empresa escolhida no
+  # seletor - nunca para uma fora de `client_company_ids`, que `client_companies`
+  # garante de saida.
+  def tickets_scoped_by_company(relation)
+    return relation if params[:company_id].blank?
 
     empresa = client_companies.find_by(id: params[:company_id])
-    empresa ? visible_tickets.where(company_id: empresa.id) : visible_tickets
+    empresa ? relation.where(company_id: empresa.id) : relation
   end
 
-  # Busca pelo numero do chamado (`display_id`) - parcial, porque o cliente
-  # pode nao lembrar o numero inteiro. So estreita quando o parametro vem
-  # preenchido, nunca troca a fronteira de `visible_tickets`.
+  # Busca pelo numero OU pelo titulo do chamado - parcial dos dois jeitos,
+  # porque o cliente pode lembrar so' um pedaco do assunto ou nao lembrar o
+  # numero inteiro. So estreita quando o parametro vem preenchido, nunca
+  # troca a fronteira de `visible_tickets`.
   def tickets_scoped_by_number(relation)
+    # Aceita digitar com ou sem o `#` (o cartao mostra "#42") - sem tirar o
+    # prefixo, buscar "#42" nunca bateria com nada no numero.
     query = params[:q].to_s.strip
     return relation if query.blank?
 
-    relation.where('CAST(tickets.display_id AS TEXT) LIKE ?', "%#{query}%")
+    numero = query.delete_prefix('#')
+    relation.where(
+      'tickets.title ILIKE :texto OR CAST(tickets.display_id AS TEXT) LIKE :numero',
+      texto: "%#{query}%", numero: "%#{numero}%"
+    )
+  end
+
+  # Sem `status` escolhido, so' os chamados abertos aparecem - igual o Kanban
+  # interno (ver `Ticket.operational`). Escolhendo um status especifico (ex.:
+  # "closed"), a fronteira muda pra esse status - e' assim que um chamado ja
+  # encerrado volta a aparecer na lista/busca, sem abrir mao do filtro padrao
+  # pra quem nao escolhe nada.
+  def tickets_scoped_by_status(relation)
+    status = params[:status].presence
+    return relation.operational if status.blank? || !Ticket.statuses.key?(status)
+
+    relation.where(status: status)
+  end
+
+  def tickets_scoped_by_team(relation)
+    return relation if params[:team_id].blank?
+
+    relation.where(team_id: params[:team_id])
+  end
+
+  def tickets_scoped_by_column(relation)
+    return relation if params[:ticket_column_id].blank?
+
+    relation.where(ticket_column_id: params[:ticket_column_id])
+  end
+
+  def tickets_scoped_by_assignee(relation)
+    return relation if params[:assignee_id].blank?
+
+    relation.where(assignee_id: params[:assignee_id])
+  end
+
+  # `created_after`/`created_before` sao datas soltas ("YYYY-MM-DD"); o limite
+  # de cima vai ate o fim do dia, senao um chamado aberto a tarde no ultimo dia
+  # do periodo ficaria de fora (a data pura vira meia-noite na comparacao).
+  def tickets_scoped_by_date(relation)
+    relation = relation.where('tickets.created_at >= ?', params[:created_after].to_date.beginning_of_day) if params[:created_after].present?
+    relation = relation.where('tickets.created_at <= ?', params[:created_before].to_date.end_of_day) if params[:created_before].present?
+    relation
+  end
+
+  # Opcoes pro seletor de um filtro - so os valores que aparecem de verdade
+  # entre os chamados que o cliente pode ver, nunca a lista inteira da conta
+  # (uma Mesa ou um agente sem nenhum chamado deste cliente nao e' uma opcao
+  # util, e exporia estrutura interna sem necessidade).
+  def filter_options(relation, association, table)
+    relation.joins(association).distinct.pluck("#{table}.id", "#{table}.name").map { |id, name| { id: id, name: name } }
+  end
+
+  # Igual `filter_options`, mas com o `team_id` de cada Estagio junto - e'
+  # o que permite a tela so' acender o seletor de Estagio depois de uma Mesa
+  # escolhida, e so' com os Estagios DAQUELA Mesa (ver o comentario em `index`).
+  def ticket_column_options(relation)
+    relation.joins(:ticket_column)
+            .distinct
+            .pluck('ticket_columns.id', 'ticket_columns.name', 'ticket_columns.team_id')
+            .map { |id, name, team_id| { id: id, name: name, team_id: team_id } }
   end
 
   # Onde o chamado do cliente entra: o Estagio "Pendente" da Mesa quando existe -
@@ -143,11 +225,12 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   # O que o cliente escolheu, mais o que ele nao escolhe: Mesa de entrada,
   # Estagio, prioridade, Empresa e solicitante saem daqui, nunca dos parametros.
   #
-  # A triagem manual (fila de Triagem) e' coisa de canal onde ninguem sabe
-  # ainda quem e' o cliente (e-mail, por exemplo) - aqui o contato ja esta
-  # AUTENTICADO como aquela Empresa, entao o Portal sempre roteia sozinho:
-  # pela regra de prioridade da Empresa quando existir (`routing_rule_for`,
-  # abaixo), senao pela Mesa da Categoria escolhida, como ja funcionava.
+  # A Mesa/Estagio calculados aqui sao so a ENTRADA SUGERIDA - o chamado fica
+  # em `pending_triage` ate um agente aprovar (ver `TicketTriage#approve_triage!`),
+  # e so entao passa a valer no Kanban da equipe. A regra de roteamento por
+  # Empresa (`routing_rule_for`, abaixo) decide essa sugestao quando existe,
+  # senao a Mesa da Categoria escolhida - do jeito que ja funcionava -, mas em
+  # nenhum dos dois casos isso dispensa a aprovacao manual.
   def build_ticket(categoria)
     empresa = company_for_new_ticket
     regra = routing_rule_for(empresa)
@@ -168,8 +251,9 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     ticket.company_id = empresa
     ticket.contact_id = current_contact.id
     ticket.origin = 'client_area'
-    # Sem fila de Triagem: o Portal ja roteia para a Mesa certa sozinho.
-    ticket.pending_triage = false
+    # Todo chamado do Portal (app ou navegador) entra em Triagem - so' vai
+    # para o Kanban da equipe depois que um agente aprovar.
+    ticket.pending_triage = true
     ticket
   end
 

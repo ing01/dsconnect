@@ -68,13 +68,6 @@ const isFeatureEnabledonAccount = useMapGetter(
   'accounts/isFeatureEnabledonAccount'
 );
 
-const hasAdvancedAssignment = computed(() => {
-  return isFeatureEnabledonAccount.value(
-    accountId.value,
-    FEATURE_FLAGS.ADVANCED_ASSIGNMENT
-  );
-});
-
 const hasConversationUnreadCounts = computed(() => {
   return isFeatureEnabledonAccount.value(
     accountId.value,
@@ -332,34 +325,6 @@ const closeMobileSidebar = () => {
   emit('closeMobileSidebar');
 };
 
-const newReportRoutes = () => [
-  {
-    name: 'Reports Agent',
-    label: t('SIDEBAR.REPORTS_AGENT'),
-    to: accountScopedRoute('agent_reports_index'),
-    activeOn: ['agent_reports_show'],
-  },
-  {
-    name: 'Reports Label',
-    label: t('SIDEBAR.REPORTS_LABEL'),
-    to: accountScopedRoute('label_reports_index'),
-  },
-  {
-    name: 'Reports Inbox',
-    label: t('SIDEBAR.REPORTS_INBOX'),
-    to: accountScopedRoute('inbox_reports_index'),
-    activeOn: ['inbox_reports_show'],
-  },
-  {
-    name: 'Reports Team',
-    label: t('SIDEBAR.REPORTS_TEAM'),
-    to: accountScopedRoute('team_reports_index'),
-    activeOn: ['team_reports_show'],
-  },
-];
-
-const reportRoutes = computed(() => newReportRoutes());
-
 const menuItems = computed(() => {
   return [
     {
@@ -559,13 +524,6 @@ const menuItems = computed(() => {
       activeOn: ['implementation_reports_index'],
     },
     {
-      name: 'MonthlySatisfactionSurveys',
-      label: t('SIDEBAR.MONTHLY_SATISFACTION_SURVEYS'),
-      icon: 'i-lucide-smile',
-      to: accountScopedRoute('monthly_satisfaction_surveys_index'),
-      activeOn: ['monthly_satisfaction_surveys_index'],
-    },
-    {
       // Um item para os dois canais de sugestao: o quadro INTERNO da equipe e o
       // SAC dos CLIENTES, que se alcanca por um botao dentro da pagina. Dois
       // itens de menu com nomes parecidos faziam a equipe abrir o errado.
@@ -719,53 +677,31 @@ const menuItems = computed(() => {
       ],
     },
     {
+      // Um card por relatorio dentro da pagina (ReportsHub.vue), em vez de uma
+      // lista comprida aqui no menu - inclui a Avaliacao Mensal, que antes
+      // era um item separado.
       name: 'Reports',
       label: t('SIDEBAR.REPORTS'),
       icon: 'i-lucide-chart-spline',
-      children: [
-        {
-          name: 'Report Overview',
-          label: t('SIDEBAR.REPORTS_OVERVIEW'),
-          to: accountScopedRoute('account_overview_reports'),
-        },
-        {
-          name: 'Helpdesk Overview',
-          label: t('SIDEBAR.HELPDESK_OVERVIEW'),
-          to: accountScopedRoute('helpdesk_overview_reports'),
-        },
-        {
-          name: 'Report Conversation',
-          label: t('SIDEBAR.REPORTS_CONVERSATION'),
-          to: accountScopedRoute('conversation_reports'),
-        },
-        ...reportRoutes.value,
-        {
-          name: 'Reports Ticket',
-          label: t('SIDEBAR.REPORTS_TICKET'),
-          to: accountScopedRoute('ticket_reports'),
-        },
-        {
-          name: 'Reports CSAT',
-          label: t('SIDEBAR.CSAT'),
-          to: accountScopedRoute('csat_reports'),
-        },
-        {
-          name: 'Reports SLA',
-          label: t('SIDEBAR.REPORTS_SLA'),
-          to: accountScopedRoute('sla_reports'),
-        },
-        {
-          name: 'Reports Bot',
-          label: t('SIDEBAR.REPORTS_BOT'),
-          to: accountScopedRoute('bot_reports'),
-        },
-        {
-          name: 'Mood Checkins',
-          label: t('SIDEBAR.MOOD_CHECKINS'),
-          icon: 'i-lucide-smile',
-          to: accountScopedRoute('mood_checkins_index'),
-          activeOn: ['mood_checkins_index'],
-        },
+      to: accountScopedRoute('reports_hub'),
+      activeOn: [
+        'reports_hub',
+        'account_overview_reports',
+        'helpdesk_overview_reports',
+        'conversation_reports',
+        'agent_reports_index',
+        'agent_reports_show',
+        'label_reports_index',
+        'inbox_reports_index',
+        'inbox_reports_show',
+        'team_reports_index',
+        'team_reports_show',
+        'ticket_reports',
+        'csat_reports',
+        'sla_reports',
+        'bot_reports',
+        'mood_checkins_index',
+        'monthly_satisfaction_surveys_index',
       ],
     },
     {
@@ -821,10 +757,10 @@ const menuItems = computed(() => {
       icon: 'i-lucide-bolt',
       children: [
         {
-          name: 'Settings Account Settings',
-          label: t('SIDEBAR.ACCOUNT_SETTINGS'),
-          icon: 'i-lucide-briefcase',
-          to: accountScopedRoute('general_settings_index'),
+          name: 'Settings Auto Updater',
+          label: t('SIDEBAR.AUTO_UPDATER'),
+          icon: 'i-lucide-download',
+          href: 'https://arquivos.duesoft.com.br/Dashboard',
         },
         // {
         //   name: 'Settings Captain',
@@ -962,25 +898,6 @@ const menuItems = computed(() => {
             },
           ],
         },
-        ...(hasAdvancedAssignment.value
-          ? [
-              {
-                name: 'Settings Agent Assignment',
-                label: t('SIDEBAR.AGENT_ASSIGNMENT'),
-                icon: 'i-lucide-user-cog',
-                activeOn: [
-                  'assignment_policy_index',
-                  'agent_assignment_policy_index',
-                  'agent_assignment_policy_create',
-                  'agent_assignment_policy_edit',
-                  'agent_capacity_policy_index',
-                  'agent_capacity_policy_create',
-                  'agent_capacity_policy_edit',
-                ],
-                to: accountScopedRoute('assignment_policy_index'),
-              },
-            ]
-          : []),
         {
           name: 'Settings Inboxes',
           label: t('SIDEBAR.INBOXES'),
@@ -1020,35 +937,10 @@ const menuItems = computed(() => {
           to: accountScopedRoute('product_groups_list'),
         },
         {
-          name: 'Settings Custom Attributes',
-          label: t('SIDEBAR.CUSTOM_ATTRIBUTES'),
-          icon: 'i-lucide-code',
-          to: accountScopedRoute('attributes_list'),
-        },
-        {
           name: 'Settings Automation',
           label: t('SIDEBAR.AUTOMATION'),
           icon: 'i-lucide-repeat',
           to: accountScopedRoute('automation_list'),
-        },
-        {
-          name: 'Settings Agent Bots',
-          label: t('SIDEBAR.AGENT_BOTS'),
-          icon: 'i-lucide-bot',
-          to: accountScopedRoute('agent_bots'),
-        },
-        {
-          name: 'Settings Conversation Flows',
-          label: t('SIDEBAR.CONVERSATION_FLOWS'),
-          icon: 'i-lucide-git-branch',
-          activeOn: ['conversation_flows_list', 'conversation_flows_edit'],
-          to: accountScopedRoute('conversation_flows_list'),
-        },
-        {
-          name: 'Settings Macros',
-          label: t('SIDEBAR.MACROS'),
-          icon: 'i-lucide-toy-brick',
-          to: accountScopedRoute('macros_wrapper'),
         },
         {
           name: 'Settings Canned Responses',

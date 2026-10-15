@@ -11,10 +11,14 @@ Rails.application.config.after_initialize do
     Agents.configure do |config|
       config.openai_api_key = api_key
       if api_endpoint.present?
-        # CAPTAIN_OPEN_AI_ENDPOINT already includes any provider-specific path
-        # (e.g. Groq's "https://api.groq.com/openai/v1") - matches the convention
-        # used in lib/llm/config.rb. Don't append /v1 again here.
-        config.openai_api_base = api_endpoint.chomp('/')
+        # Mesma convencao de lib/captain/base_task_service.rb#api_base e dos
+        # demais pontos que leem CAPTAIN_OPEN_AI_ENDPOINT: o campo guarda so a
+        # raiz do provider (ex.: Groq e' "https://api.groq.com/openai"), sem
+        # o "/v1" - e' este initializer que completa. `delete_suffix` torna
+        # isto tolerante a quem digitar o "/v1" de qualquer jeito (o `/v1`
+        # nao dobra).
+        base = api_endpoint.chomp('/').delete_suffix('/v1')
+        config.openai_api_base = "#{base}/v1"
       end
       config.default_model = model
       config.debug = false

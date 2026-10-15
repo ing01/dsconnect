@@ -12,6 +12,12 @@ class Captain::Assistant::AgentRunnerService
 
   REPLY_SUGGESTION_SOURCE = 'copilot_reply_suggestion'.freeze
 
+  # Erro que alguns provedores OpenAI-compativeis (ex.: Groq) devolvem ao
+  # combinar saida estruturada (JSON Schema) com chamada de ferramentas na
+  # mesma requisicao - a mesma limitacao que `Captain::ChatHelper` (V1) ja
+  # contorna com uma segunda tentativa sem o modo JSON.
+  SCHEMA_TOOL_CONFLICT_MESSAGE = 'json mode cannot be combined with tool'.freeze
+
   def initialize(assistant:, conversation: nil, callbacks: {}, source: nil, responding_to_message_id: nil)
     @assistant = assistant
     @conversation = conversation
@@ -26,6 +32,12 @@ class Captain::Assistant::AgentRunnerService
   def generate_response(message_history: [])
     message_to_process, context = run_payload(message_history)
     @last_run_result = runner.run(message_to_process, context: context, max_turns: 10)
+
+    if schema_tool_conflict?(@last_run_result)
+      Rails.logger.warn "[Captain V2] Retrying without JSON schema after provider conflict: #{@last_run_result.error.message}"
+      @last_run_result = runner(with_schema: false).run(message_to_process, context: context, max_turns: 10)
+    end
+
     record_turn_start(@last_run_result)
     @last_run_result = rewrite_oversized_response(@last_run_result) if response_too_long?(@last_run_result)
 
@@ -101,11 +113,11 @@ class Captain::Assistant::AgentRunnerService
     text_parts.join(' ')
   end
 
-  def build_and_wire_agents
-    return [reply_suggestion_agent] if reply_suggestion?
+  def build_and_wire_agents(with_schema: true)
+    return [reply_suggestion_agent(with_schema: with_schema)] if reply_suggestion?
 
-    assistant_agent = @assistant.agent
-    scenario_agents = @assistant.scenarios.enabled.map(&:agent)
+    assistant_agent = @assistant.agent(with_schema: with_schema)
+    scenario_agents = @assistant.scenarios.enabled.map { |scenario| scenario.agent(with_schema: with_schema) }
 
     assistant_agent.register_handoffs(*scenario_agents) if scenario_agents.any?
     scenario_agents.each { |scenario_agent| scenario_agent.register_handoffs(assistant_agent) }
@@ -113,12 +125,17 @@ class Captain::Assistant::AgentRunnerService
     [assistant_agent] + scenario_agents
   end
 
-  def reply_suggestion_agent
-    agent = @assistant.agent
+  def reply_suggestion_agent(with_schema: true)
+    agent = @assistant.agent(with_schema: with_schema)
     agent.clone(
       instructions: ->(context) { @assistant.agent_instructions(context, prompt_template: 'copilot_reply_suggestion') },
       tools: agent.tools.select { |tool| available_in_reply_suggestion?(tool) }
     )
+  end
+
+  def schema_tool_conflict?(result)
+    error = result&.error
+    error.is_a?(RubyLLM::BadRequestError) && error.message.to_s.include?(SCHEMA_TOOL_CONFLICT_MESSAGE)
   end
 
   def available_in_reply_suggestion?(tool)
@@ -129,9 +146,13 @@ class Captain::Assistant::AgentRunnerService
 
   def reply_suggestion? = @source == REPLY_SUGGESTION_SOURCE
 
-  def runner
-    @runner ||= begin
-      configured_runner = Agents::Runner.with_agents(*build_and_wire_agents)
+  # Duas variantes possiveis (com/sem schema) - cada uma so' e' montada na
+  # primeira vez que e' pedida, e a tentativa sem schema so' acontece depois
+  # de um conflito de verdade (ver `schema_tool_conflict?`).
+  def runner(with_schema: true)
+    @runners ||= {}
+    @runners[with_schema] ||= begin
+      configured_runner = Agents::Runner.with_agents(*build_and_wire_agents(with_schema: with_schema))
       configured_runner = add_usage_metadata_callback(configured_runner)
       configured_runner = add_callbacks_to_runner(configured_runner) if @callbacks.any?
       install_instrumentation(configured_runner)

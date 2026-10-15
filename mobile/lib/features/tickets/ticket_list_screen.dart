@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -18,11 +20,28 @@ class TicketListScreen extends ConsumerStatefulWidget {
 
 class _TicketListScreenState extends ConsumerState<TicketListScreen> {
   final _searchController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _runSearch() => ref.read(ticketSearchQueryProvider.notifier).set(_searchController.text.trim());
+
+  void _onSearchChanged(String value) {
+    setState(() {});
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), _runSearch);
+  }
+
+  void _clearSearch() {
+    _debounce?.cancel();
+    _searchController.clear();
+    ref.read(ticketSearchQueryProvider.notifier).set('');
+    setState(() {});
   }
 
   @override
@@ -39,24 +58,21 @@ class _TicketListScreenState extends ConsumerState<TicketListScreen> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: TextField(
             controller: _searchController,
+            textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               hintText: 'Buscar por número ou título',
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: IconButton(icon: const Icon(Icons.search), onPressed: _runSearch),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               isDense: true,
               suffixIcon: _searchController.text.isEmpty
                   ? null
                   : IconButton(
                       icon: const Icon(Icons.close),
-                      onPressed: () {
-                        _searchController.clear();
-                        ref.read(ticketSearchQueryProvider.notifier).set('');
-                        setState(() {});
-                      },
+                      onPressed: _clearSearch,
                     ),
             ),
-            onChanged: (_) => setState(() {}),
-            onSubmitted: (value) => ref.read(ticketSearchQueryProvider.notifier).set(value.trim()),
+            onChanged: _onSearchChanged,
+            onSubmitted: (_) => _runSearch(),
           ),
         ),
         teamsAsync.when(
@@ -142,10 +158,15 @@ class _TicketListScreenState extends ConsumerState<TicketListScreen> {
       );
     }
     if (state.tickets.isEmpty) {
+      final isFiltering = ref.read(ticketSearchQueryProvider).isNotEmpty ||
+          ref.read(selectedTeamIdProvider) != null ||
+          ref.read(selectedCompanyIdProvider) != null;
       return ListView(
-        children: const [
-          SizedBox(height: 80),
-          Center(child: Text('Nenhum ticket atribuído a você aqui.')),
+        children: [
+          const SizedBox(height: 80),
+          Center(
+            child: Text(isFiltering ? 'Nenhum ticket encontrado.' : 'Nenhum ticket atribuído a você aqui.'),
+          ),
         ],
       );
     }

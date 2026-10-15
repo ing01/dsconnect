@@ -33,7 +33,7 @@ class Captain::BaseTaskService
 
   def api_base
     endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence || 'https://api.openai.com/'
-    endpoint = endpoint.chomp('/')
+    endpoint = endpoint.chomp('/').delete_suffix('/v1')
     "#{endpoint}/v1"
   end
 

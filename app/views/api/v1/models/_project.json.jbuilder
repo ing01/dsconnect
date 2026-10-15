@@ -9,6 +9,8 @@ json.contact_id resource.contact_id
 json.contact_name resource.contact&.name
 json.project_module_id resource.project_module_id
 json.project_module_name resource.project_module&.name
+json.default_ticket_category_id resource.default_ticket_category_id
+json.default_ticket_category_name resource.default_ticket_category&.name
 json.implementer_id resource.implementer_id
 json.implementer_name resource.implementer&.name
 json.stage resource.stage

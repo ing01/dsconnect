@@ -4,7 +4,8 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 const props = defineProps({
   date: { type: String, required: true },
-  type: { type: String, required: true, validator: v => ['design', 'feature'].includes(v) },
+  type: { type: String, required: true },
+  platform: { type: String, default: 'web' },
   title: { type: String, required: true },
   description: { type: String, required: true },
   comparison: { type: Object, default: null },
@@ -12,6 +13,10 @@ const props = defineProps({
 
 const icon = computed(() =>
   props.type === 'design' ? 'i-lucide-palette' : 'i-lucide-sparkles'
+);
+
+const platformLabel = computed(() =>
+  props.platform === 'mobile' ? 'App mobile' : 'Sistema web'
 );
 
 const gradientStyle = colors => ({
@@ -31,7 +36,15 @@ const gradientStyle = colors => ({
     <div class="flex-1 min-w-0">
       <div class="flex items-start justify-between gap-2">
         <span class="font-medium text-n-slate-12">{{ title }}</span>
-        <span class="flex-shrink-0 text-xs text-n-slate-10">{{ date }}</span>
+        <span class="flex items-center flex-shrink-0 gap-2">
+          <span
+            v-if="platform === 'mobile'"
+            class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-n-teal-3 text-n-teal-11"
+          >
+            {{ platformLabel }}
+          </span>
+          <span class="text-xs text-n-slate-10">{{ date }}</span>
+        </span>
       </div>
       <p class="mt-1 text-sm text-n-slate-11">{{ description }}</p>
 

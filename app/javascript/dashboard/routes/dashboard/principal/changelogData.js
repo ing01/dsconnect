@@ -12,9 +12,101 @@ export const CHANGELOG_ENTRIES = [
     date: '15 de outubro de 2026',
     isoDate: '2026-10-15',
     type: 'fix',
+    platform: 'web',
     title: 'Notificação de Triagem: corpo vazio e sem ícone na aba',
     description:
       'A notificação de "chamado na Triagem" chegava no push só com o título, sem nenhum texto no corpo, e aparecia na aba Notificações sem ícone e sem rótulo de tipo. Agora o corpo mostra o título do chamado, e o card tem ícone e rótulo corretos. Esse tipo de notificação também passou a aparecer em Configurações > Perfil > Notificações, para quem quiser ligar o push dela (antes não tinha como habilitar pela tela).',
+  },
+  {
+    id: 'mobile-app-launch',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'feature',
+    platform: 'mobile',
+    title: 'App mobile DSConnect: lançamento',
+    description:
+      'O sistema agora tem um aplicativo próprio para Android e iOS, para colaborador e cliente no mesmo app - o login descobre sozinho qual dos dois é, com o mesmo e-mail/senha de sempre. Colaborador acompanha "Meus tickets" com filtro por Mesa, move Estágio e muda status. Cliente acompanha "Meus chamados", abre chamado (inclusive com IA, por texto ou áudio), conversa pelo Chat com a equipe em tempo real, e recebe Notificações. Visual alinhado com o sistema web: mesma logo, cores e gradiente.',
+  },
+  {
+    id: 'mobile-push-notifications',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'feature',
+    platform: 'mobile',
+    title: 'Notificações push no app, com bolinha de mensagem nova',
+    description:
+      'O app passou a registrar o aparelho no Firebase e recebe notificação mesmo fechado, tanto para colaborador quanto para cliente. No Chat, uma bolinha vermelha no ícone avisa que chegou mensagem nova, e some sozinha ao abrir a aba.',
+  },
+  {
+    id: 'mobile-chat-audio-photos',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'feature',
+    platform: 'mobile',
+    title: 'Chat do app: enviar áudio e fotos',
+    description:
+      'O Chat do cliente dentro do app ganhou botão de anexar foto (câmera ou galeria) e botão de gravar áudio, direto na tela de conversa - mensagens de foto aparecem como miniatura e as de áudio com um player (tocar/pausar).',
+  },
+  {
+    id: 'mobile-ticket-filters-search',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'improvement',
+    platform: 'mobile',
+    title: 'Filtro por Empresa e busca por número do chamado no app',
+    description:
+      'As listas "Meus tickets" (colaborador) e "Meus chamados" (cliente) ganharam filtro por Empresa e um campo de busca pelo número do chamado, com resultado em tempo real enquanto digita. Corrigido também: em alguns aparelhos o teclado numérico não tinha como confirmar a busca - agora o ícone de lupa também funciona como botão.',
+  },
+  {
+    id: 'mobile-version-on-login',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'improvement',
+    platform: 'mobile',
+    title: 'Versão do app aparece na tela de login',
+    description:
+      'A tela de login agora mostra a versão instalada (ex: "Versão 1.0.2 (3)") - forma simples de conferir, depois de instalar um APK novo, se a atualização realmente chegou no aparelho.',
+  },
+  {
+    id: 'projects-default-task-category',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'feature',
+    platform: 'web',
+    title: 'Categoria padrão no cadastro de Projeto',
+    description:
+      'Depois de escolher a Mesa, o cadastro de Projeto ganhou o campo "Categoria padrão das tarefas" - preenche sozinha a Categoria de cada tarefa gerada no passo 2, quando o Modelo de Tarefa não tiver uma categoria própria configurada.',
+  },
+  {
+    id: 'settings-menu-cleanup-reports-hub',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'improvement',
+    platform: 'web',
+    title:
+      'Menu de Configurações mais enxuto, Relatórios em cards e Atualizador automático',
+    description:
+      'O menu de Configurações ficou mais curto: Conta, Atribuição de Agentes, Atributos Personalizados, Robôs, Macros e Fluxos saíram da lista (as telas continuam existindo, só pararam de aparecer no menu). Novo item "Atualizador automático", que abre o link de atualização numa aba nova. E "Relatórios" deixou de ser uma lista comprida dentro do menu: agora abre uma página com um card por relatório - a Avaliação Mensal, que era um item separado, virou mais um card ali dentro.',
+  },
+  {
+    id: 'client-portal-triage-reactivated',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'fix',
+    platform: 'web',
+    title: 'Triagem reativada para chamados abertos pela Área do Cliente',
+    description:
+      'Chamados abertos pela Área do Cliente (site ou app) estavam pulando a fila de Triagem e indo direto para o Kanban da equipe, sem aprovação - a tela de Triagem já esperava isso, só não estava recebendo nada. Agora todo chamado do cliente entra em Triagem normalmente, como já acontecia com os demais canais.',
+  },
+  {
+    id: 'dua-groq-fixes',
+    date: '14 de outubro de 2026',
+    isoDate: '2026-10-14',
+    type: 'fix',
+    platform: 'web',
+    title: 'Dua (IA) voltou a responder no Playground usando a Groq',
+    description:
+      'Configurar a Dua com uma chave da Groq não funcionava: o endereço da API estava incompleto, uma configuração antiga de outra conta sobrepunha o modelo escolhido, a Groq recusa combinar resposta estruturada com uso de ferramentas (agora o sistema tenta de novo automaticamente sem isso), e um campo técnico que a Groq devolve mas não aceita de volta travava a resposta depois do uso de uma ferramenta. Também corrigido: se a busca de FAQ falhar (a Groq não faz "embeddings"), a Dua responde mesmo assim, só sem citar documentos.',
   },
   {
     id: 'team-name-capitalized',

@@ -7,6 +7,11 @@ class Project < ApplicationRecord
   belongs_to :contact, optional: true
   belongs_to :project_module, optional: true
   belongs_to :implementer, class_name: 'User', optional: true
+  # Categoria sugerida para as Tarefas geradas deste Projeto (passo 2 do
+  # cadastro) - so' um padrao pratico, nunca obrigatorio: o Modelo de Tarefa
+  # (`ticket_category_name`) ainda tem prioridade quando casa com uma
+  # Categoria da Mesa escolhida (ver `Projects::CreateTicketsService`).
+  belongs_to :default_ticket_category, class_name: 'TicketCategory', optional: true
 
   has_many :tickets, dependent: :nullify
 

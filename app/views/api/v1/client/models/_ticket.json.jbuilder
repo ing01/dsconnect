@@ -1,8 +1,11 @@
 # O ticket como o CLIENTE o ve.
 #
-# Partial proprio, e nao o `api/v1/models/_ticket`: aquele carrega responsavel,
-# SLA, impedimento, seguidores e a Empresa - informacao interna do atendimento.
-# Filtrar no frontend nao serviria: o dado ja teria saido daqui.
+# Partial proprio, e nao o `api/v1/models/_ticket`: aquele carrega SLA,
+# impedimento, seguidores e a Empresa - informacao interna do atendimento, que
+# nao faz sentido pro cliente. O nome do responsavel e' a excecao: o cliente
+# precisa saber quem esta cuidando do chamado dele, mas so' o nome - nada de
+# nivel, e-mail ou qualquer outro dado do agente. Filtrar no frontend nao
+# serviria: o dado ja teria saido daqui.
 json.id resource.id
 json.display_id resource.display_id
 json.title resource.title
@@ -19,6 +22,7 @@ json.ticket_column_name resource.ticket_column.name
 json.team_id resource.team_id
 json.team_name resource.team.name
 json.category_name resource.ticket_category&.name
+json.assignee_name resource.assignee&.name
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
 json.closed_at resource.closed_at&.to_i

@@ -44,6 +44,17 @@ const navigateAndClose = to => {
   emit('close');
 };
 
+// Item de link externo (ex.: "Atualizador automatico") - nao tem `to`, entao
+// nao passa pelo Vue Router.
+const activateChild = child => {
+  if (child.href) {
+    window.open(child.href, '_blank', 'noopener,noreferrer');
+    emit('close');
+    return;
+  }
+  navigateAndClose(child.to);
+};
+
 const isActive = child => props.activeChild?.name === child.name;
 
 const getAccessibleSubChildren = children =>
@@ -72,6 +83,8 @@ const accessibleChildren = computed(() => {
     if (child.children) {
       return child.children.some(subChild => isAllowed(subChild.to));
     }
+    if (child.href) return true;
+
     return child.to && isAllowed(child.to);
   });
 });
@@ -211,7 +224,7 @@ onMounted(async () => {
                   'text-n-slate-12 bg-n-alpha-2': isActive(child),
                   'text-n-slate-11 hover:bg-n-alpha-2': !isActive(child),
                 }"
-                @click="navigateAndClose(child.to)"
+                @click="activateChild(child)"
               >
                 <component
                   :is="renderIcon(child.icon).component"

@@ -3,8 +3,18 @@ module Concerns::Agentable
 
   DEFAULT_TEMPERATURE = 0.5
 
-  def agent
-    Agents::Agent.new(
+  # `with_schema: false` monta o agente SEM saida estruturada (JSON Schema) -
+  # alguns provedores OpenAI-compativeis (ex.: Groq) recusam combinar isto com
+  # chamada de ferramentas na mesma requisicao ("json mode cannot be combined
+  # with tool/function calling"). O schema fica de fora da chamada (em vez de
+  # mandar `response_schema: nil`) porque nao da pra saber, sem o codigo-fonte
+  # da gem `ai-agents` em maos, se ela trata um valor nil do mesmo jeito que a
+  # ausencia do parametro - omitir e' a forma garantidamente segura de
+  # desligar. Usado por `Captain::Assistant::AgentRunnerService` numa
+  # segunda tentativa, apos a primeira falhar com esse erro especifico (ver
+  # `Captain::ChatHelper#request_chat_completion`, que ja faz o mesmo no V1).
+  def agent(with_schema: true)
+    options = {
       name: agent_name,
       instructions: ->(context) { agent_instructions(context) },
       tools: agent_tools,
@@ -17,9 +27,11 @@ module Concerns::Agentable
       # OpenAI-compatible endpoint such as Groq) as an OpenRouter model id.
       provider: :openai,
       assume_model_exists: true,
-      temperature: temperature.presence&.to_f || DEFAULT_TEMPERATURE,
-      response_schema: agent_response_schema
-    )
+      temperature: temperature.presence&.to_f || DEFAULT_TEMPERATURE
+    }
+    options[:response_schema] = agent_response_schema if with_schema
+
+    Agents::Agent.new(**options)
   end
 
   def agent_instructions(context = nil, prompt_template: template_name)
