@@ -27,6 +27,11 @@ const _chatTabIndex = 1;
 
 class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
   int _currentIndex = 0;
+  // Abas já visitadas pelo usuário nesta sessão. O Chat só é montado (e sua
+  // conexão WebSocket + chamada ao servidor só são abertas) quando o usuário
+  // toca na aba pela primeira vez — evita disparar "Nova Mensagem" no painel
+  // do colaborador só porque o cliente logou.
+  final _visited = <int>{0};
   StreamSubscription<void>? _pushSubscription;
 
   @override
@@ -47,7 +52,10 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
   }
 
   void _selectTab(int index) {
-    setState(() => _currentIndex = index);
+    setState(() {
+      _currentIndex = index;
+      _visited.add(index);
+    });
     // Entrar na aba do Chat conta como "ver" as mensagens novas - some a
     // bolinha vermelha do icone.
     if (index == _chatTabIndex) {
@@ -75,7 +83,10 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
       ),
       body: IndexedStack(
         index: _currentIndex,
-        children: [for (final tab in _tabs) tab.screen],
+        children: [
+          for (var i = 0; i < _tabs.length; i++)
+            _visited.contains(i) ? _tabs[i].screen : const SizedBox.shrink(),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
