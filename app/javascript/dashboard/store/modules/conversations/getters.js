@@ -107,7 +107,7 @@ const getters = {
   getQueuedChats: _state => activeFilters => {
     return _state.allConversations
       .filter(conversation => {
-        const isQueued = !!conversation.queue_id;
+        const isQueued = !!conversation.queue_id && !conversation.meta?.assignee;
         const shouldFilter = applyPageFilters(conversation, activeFilters);
         return isQueued && shouldFilter;
       })
