@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 import '../../core/theme/app_theme.dart';
+import 'client_chat_history_screen.dart';
 import 'models/chat_message.dart';
 import 'providers/chat_notifier.dart';
 
@@ -139,11 +140,40 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     return Scaffold(
       body: chatAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => const Center(child: Text('Não foi possível abrir o chat.')),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Não foi possível abrir o chat.'),
+              const SizedBox(height: 12),
+              TextButton.icon(
+                onPressed: () => ref.invalidate(clientChatProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Tentar novamente'),
+              ),
+            ],
+          ),
+        ),
         data: (state) {
           final messages = state.session?.messages ?? const [];
           return Column(
             children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const ClientChatHistoryScreen()),
+                  ),
+                  icon: const Icon(Icons.history, size: 16),
+                  label: const Text('Histórico'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.outline,
+                    textStyle: const TextStyle(fontSize: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                ),
+              ),
               Expanded(
                 child: messages.isEmpty
                     ? const Center(child: Text('Mande uma mensagem pra começar a conversa.'))

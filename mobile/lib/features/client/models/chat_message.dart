@@ -36,7 +36,7 @@ class ChatMessage {
   final List<ChatAttachment> attachments;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
-        id: json['id'] as int,
+        id: (json['id'] as int?) ?? 0,
         content: (json['content'] as String?) ?? '',
         fromMe: (json['from_you'] as bool?) ?? false,
         authorName: json['author_name'] as String?,

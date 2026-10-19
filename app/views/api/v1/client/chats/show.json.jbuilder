@@ -7,7 +7,7 @@ if @conversation.nil?
   json.conversation_id nil
   json.messages []
 else
-  json.pubsub_token @conversation.contact_inbox.pubsub_token
+  json.pubsub_token @conversation.contact_inbox&.pubsub_token
   json.conversation_id @conversation.display_id
   json.messages @conversation.messages.chat.includes(:attachments).order(created_at: :asc) do |mensagem|
     json.partial! 'api/v1/client/chats/message', resource: mensagem
