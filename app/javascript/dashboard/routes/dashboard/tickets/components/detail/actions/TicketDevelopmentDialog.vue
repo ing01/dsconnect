@@ -82,6 +82,13 @@ const removeFile = index => {
 
 const formatSize = bytes => `${Math.max(1, Math.round(bytes / 1024))} KB`;
 
+const htmlToPlainText = html => {
+  if (!html) return '';
+  const el = document.createElement('div');
+  el.innerHTML = html;
+  return (el.textContent || el.innerText || '').trim();
+};
+
 // Link search
 const searchQuery = ref('');
 const searchResults = ref([]);
@@ -117,7 +124,7 @@ const loadDevTeam = async () => {
 const resetForm = () => {
   form.value = {
     title: '',
-    description: props.ticket?.description || '',
+    description: htmlToPlainText(props.ticket?.description),
     ticketCategoryId: null,
     assigneeId: null,
     priority: 'medium',
@@ -135,11 +142,8 @@ const open = async (initialMode = 'create') => {
   mode.value = initialMode;
   resetForm();
   resetLink();
-  dialogRef.value?.open();
-  if (initialMode === 'link') searchTickets();
-  // Always re-fetch categories so newly-created ones appear without needing
-  // a page reload. Use the return value directly to bypass Vuex getter
-  // reactivity issues with factory-function getters.
+  // Re-fetch categories before opening so new ones (e.g. "Tarefa") are
+  // visible immediately — dialog only opens after fresh data arrives.
   if (devTeam.value) {
     const cats = await store.dispatch(
       'ticketColumns/fetchCategories',
@@ -147,6 +151,8 @@ const open = async (initialMode = 'create') => {
     );
     allCategories.value = Array.isArray(cats) ? cats : [];
   }
+  dialogRef.value?.open();
+  if (initialMode === 'link') searchTickets();
 };
 
 const validate = () => {
