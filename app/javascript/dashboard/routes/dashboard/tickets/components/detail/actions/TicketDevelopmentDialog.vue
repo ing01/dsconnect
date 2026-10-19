@@ -117,7 +117,7 @@ const loadDevTeam = async () => {
 const resetForm = () => {
   form.value = {
     title: '',
-    description: '',
+    description: props.ticket?.description || '',
     ticketCategoryId: null,
     assigneeId: null,
     priority: 'medium',
