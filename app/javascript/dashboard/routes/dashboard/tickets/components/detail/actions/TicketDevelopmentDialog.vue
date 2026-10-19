@@ -136,8 +136,13 @@ const open = (initialMode = 'create') => {
   mode.value = initialMode;
   resetForm();
   resetLink();
-  if (initialMode === 'link') searchTickets();
   dialogRef.value?.open();
+  if (initialMode === 'link') searchTickets();
+  // Always re-fetch categories so newly-created ones appear without needing
+  // a page reload.
+  if (devTeam.value) {
+    store.dispatch('ticketColumns/fetchCategories', devTeam.value.id);
+  }
 };
 
 const validate = () => {
