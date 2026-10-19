@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   get '/privacidade', to: 'pages#privacy_policy'
+  get '/exclusao-conta', to: 'pages#account_deletion'
 
   # AUTH STARTS
   mount_devise_token_auth_for 'User', at: 'auth', controllers: {
