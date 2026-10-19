@@ -398,7 +398,37 @@
       "DEVELOPMENT": {
         "TITLE": "Desenvolvimento",
         "EMPTY": "Nenhum item de desenvolvimento vinculado.",
-        "JIRA_KEY_IMPORTED": "Key do Jira Importado:"
+        "JIRA_KEY_IMPORTED": "Key do Jira Importado:",
+        "ADD_BUTTON": "Criar / Vincular",
+        "LINKED_TITLE": "Tickets de desenvolvimento",
+        "DIALOG_TITLE": "Ticket de Desenvolvimento",
+        "TAB_CREATE": "Criar",
+        "TAB_LINK": "Vincular existente",
+        "NO_TEAM": "Nenhuma Mesa chamada \"Desenvolvimento\" foi encontrada. Crie-a em Configurações → Mesas.",
+        "NO_COLUMN": "A Mesa Desenvolvimento não possui estágios cadastrados.",
+        "CREATE": {
+          "CONFIRM": "Criar ticket",
+          "TITLE_LABEL": "Título",
+          "TITLE_PLACEHOLDER": "Descreva o que precisa ser desenvolvido",
+          "TITLE_REQUIRED": "Título é obrigatório",
+          "DESCRIPTION_LABEL": "Descrição",
+          "DESCRIPTION_PLACEHOLDER": "Detalhes do desenvolvimento",
+          "DESCRIPTION_REQUIRED": "Descrição é obrigatória",
+          "CATEGORY_LABEL": "Categoria",
+          "CATEGORY_PLACEHOLDER": "Selecione uma categoria",
+          "CATEGORY_REQUIRED": "Categoria é obrigatória",
+          "ASSIGNEE_LABEL": "Responsável (desenvolvedor)",
+          "ASSIGNEE_PLACEHOLDER": "Nenhum (opcional)",
+          "PRIORITY_LABEL": "Prioridade"
+        },
+        "LINK": {
+          "SEARCH_PLACEHOLDER": "Buscar tickets de desenvolvimento...",
+          "NO_RESULTS": "Nenhum ticket encontrado",
+          "LINK_ACTION": "Vincular"
+        },
+        "CHILD_LABEL": "#{number} — {title}",
+        "CHILD_STATUS_OPEN": "Aberto",
+        "CHILD_STATUS_RESOLVED": "Resolvido"
       },
       "TAB_HISTORY": "Histórico",
       "RELATIONSHIPS": {
