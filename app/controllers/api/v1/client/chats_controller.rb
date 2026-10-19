@@ -13,7 +13,16 @@
 # dela como roda em qualquer conversa: `message_created`/`conversation_created`
 # disparam normalmente.
 class Api::V1::Client::ChatsController < Api::V1::Client::BaseController
+  # So devolve a conversa existente - nao cria uma nova. A conversa nasce
+  # apenas quando o cliente envia a primeira mensagem
+  # (`Api::V1::Client::ChatMessagesController`). Assim a conversa nunca
+  # aparece no painel do atendente antes de haver algo para ler.
   def show
-    @conversation = ::Client::ChatConversationResolver.new(account: Current.account, contact: current_contact).perform
+    inbox = ::Inboxes::EnsureClientPortalInboxService.find_existing(Current.account)
+    @conversation = inbox && Current.account.conversations
+                                            .where(inbox_id: inbox.id, contact_id: current_contact.id)
+                                            .where.not(status: :resolved)
+                                            .order(created_at: :desc)
+                                            .first
   end
 end

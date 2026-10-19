@@ -21,7 +21,10 @@ class ClientChatNotifier extends AsyncNotifier<ChatState> {
     ref.onDispose(() => _cable?.dispose());
 
     final session = await ref.read(clientRepositoryProvider).fetchChat();
-    _connectRealtime(session.pubsubToken);
+    // Sem conversa ainda (primeiro acesso, antes de qualquer mensagem):
+    // pubsubToken e' null. Nao ha canal para assinar agora; _connectRealtime
+    // sera' chamado em refresh(), que roda apos o primeiro envio.
+    if (session.pubsubToken != null) _connectRealtime(session.pubsubToken!);
     return ChatState(session: session);
   }
 
@@ -36,9 +39,11 @@ class ClientChatNotifier extends AsyncNotifier<ChatState> {
   Future<void> refresh() async {
     final session = await ref.read(clientRepositoryProvider).fetchChat();
     // A sessao de chat pode trocar de conversa (sessao anterior resolvida
-    // vira uma nova) - se o pubsub_token mudou, reconecta no canal certo.
-    if (state.value?.session?.pubsubToken != session.pubsubToken) {
-      _connectRealtime(session.pubsubToken);
+    // vira uma nova, ou foi criada agora pelo primeiro envio) - se o
+    // pubsub_token mudou (inclusive de null para um token real), reconecta.
+    if (session.pubsubToken != null &&
+        state.value?.session?.pubsubToken != session.pubsubToken) {
+      _connectRealtime(session.pubsubToken!);
     }
     state = AsyncData(ChatState(session: session));
   }

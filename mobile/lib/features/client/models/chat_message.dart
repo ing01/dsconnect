@@ -48,15 +48,18 @@ class ChatMessage {
 }
 
 class ChatSession {
-  const ChatSession({required this.pubsubToken, required this.conversationId, required this.messages});
+  const ChatSession({this.pubsubToken, this.conversationId, required this.messages});
 
-  final String pubsubToken;
-  final int conversationId;
+  // Nulos enquanto o cliente ainda nao enviou nenhuma mensagem: a conversa
+  // so e' criada no primeiro envio, para nao aparecer no painel do atendente
+  // vazia. O notifier so assina o canal em tempo real quando ambos existirem.
+  final String? pubsubToken;
+  final int? conversationId;
   final List<ChatMessage> messages;
 
   factory ChatSession.fromJson(Map<String, dynamic> json) => ChatSession(
-        pubsubToken: (json['pubsub_token'] as String?) ?? '',
-        conversationId: json['conversation_id'] as int,
+        pubsubToken: json['pubsub_token'] as String?,
+        conversationId: json['conversation_id'] as int?,
         messages: (json['messages'] as List<dynamic>? ?? const [])
             .map((entry) => ChatMessage.fromJson(entry as Map<String, dynamic>))
             .toList(),
