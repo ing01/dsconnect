@@ -417,9 +417,13 @@
           "CATEGORY_LABEL": "Categoria",
           "CATEGORY_PLACEHOLDER": "Selecione uma categoria",
           "CATEGORY_REQUIRED": "Categoria é obrigatória",
+          "CATEGORY_TYPE_TASK": "Tarefa",
+          "CATEGORY_TYPE_ERROR": "Erro",
+          "CATEGORY_NO_MATCH": "Crie as categorias 'Erro' e 'Tarefa' nessa Mesa em Configurações → Mesas.",
           "ASSIGNEE_LABEL": "Responsável (desenvolvedor)",
           "ASSIGNEE_PLACEHOLDER": "Nenhum (opcional)",
-          "PRIORITY_LABEL": "Prioridade"
+          "PRIORITY_LABEL": "Prioridade",
+          "FILES_LABEL": "Anexos"
         },
         "LINK": {
           "SEARCH_PLACEHOLDER": "Buscar tickets de desenvolvimento...",
@@ -428,7 +432,14 @@
         },
         "CHILD_LABEL": "#{number} — {title}",
         "CHILD_STATUS_OPEN": "Aberto",
-        "CHILD_STATUS_RESOLVED": "Resolvido"
+        "CHILD_STATUS_RESOLVED": "Resolvido",
+        "CHILD_OPEN": "Abrir em nova aba",
+        "CHILD_UNLINK": "Desvincular",
+        "CHILD_DELETE": "Excluir",
+        "CHILD_CONFIRM_DELETE": "Excluir este ticket?",
+        "CHILD_CONFIRM_UNLINK": "Desvincular?",
+        "CHILD_CONFIRM_YES": "Confirmar",
+        "CHILD_CONFIRM_NO": "Cancelar"
       },
       "TAB_HISTORY": "Histórico",
       "RELATIONSHIPS": {

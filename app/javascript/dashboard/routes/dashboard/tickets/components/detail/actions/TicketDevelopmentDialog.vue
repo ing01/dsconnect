@@ -26,10 +26,21 @@ const isSubmitting = ref(false);
 const devTeam = ref(null);
 const noDevTeam = ref(false);
 
-const categories = computed(() =>
+const allCategories = computed(() =>
   devTeam.value
     ? store.getters['ticketColumns/getCategories'](devTeam.value.id) || []
     : []
+);
+
+// Only show "Erro" and "Tarefa" type categories for development tickets.
+const categories = computed(() =>
+  allCategories.value.filter(c =>
+    ['erro', 'tarefa'].includes(c.name.toLowerCase().trim())
+  )
+);
+
+const noCategoryMatch = computed(
+  () => allCategories.value.length > 0 && categories.value.length === 0
 );
 const columns = computed(() =>
   devTeam.value
@@ -58,6 +69,20 @@ const form = ref({
   priority: 'medium',
 });
 const errors = ref({});
+const files = ref([]);
+const fileInput = ref(null);
+
+const addFiles = event => {
+  const chosen = Array.from(event.target.files || []);
+  if (chosen.length) files.value = [...files.value, ...chosen];
+  event.target.value = '';
+};
+
+const removeFile = index => {
+  files.value = files.value.filter((_, i) => i !== index);
+};
+
+const formatSize = bytes => `${Math.max(1, Math.round(bytes / 1024))} KB`;
 
 // Link search
 const searchQuery = ref('');
@@ -99,6 +124,7 @@ const resetForm = () => {
     priority: 'medium',
   };
   errors.value = {};
+  files.value = [];
 };
 
 const resetLink = () => {
@@ -139,7 +165,7 @@ const submitCreate = async () => {
   }
   isSubmitting.value = true;
   try {
-    await TicketsAPI.createTicket({
+    const { data: created } = await TicketsAPI.createTicket({
       ticket: {
         title: form.value.title.trim(),
         description: form.value.description,
@@ -153,6 +179,11 @@ const submitCreate = async () => {
         parent_id: props.ticket.id,
       },
     });
+    // Upload attachments sequentially after the ticket exists.
+    for (const file of files.value) {
+      // eslint-disable-next-line no-await-in-loop
+      await TicketsAPI.createAttachment(created.id, file);
+    }
     dialogRef.value?.close();
     emit('created');
   } catch {
@@ -332,38 +363,78 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           </span>
         </div>
 
-        <!-- Category -->
+        <!-- Attachments -->
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.FILES_LABEL') }}
+          </label>
+          <input
+            ref="fileInput"
+            type="file"
+            multiple
+            class="hidden"
+            @change="addFiles"
+          />
+          <Button
+            slate
+            faded
+            xs
+            type="button"
+            icon="i-lucide-paperclip"
+            :label="t('TICKET.CREATE.FILES.ADD')"
+            class="w-fit"
+            @click="fileInput?.click()"
+          />
+          <ul v-if="files.length" class="flex flex-col gap-1 mt-1">
+            <li
+              v-for="(file, index) in files"
+              :key="`${file.name}-${index}`"
+              class="flex items-center gap-2 text-xs text-n-slate-11 min-w-0"
+            >
+              <Icon icon="i-lucide-file" class="flex-shrink-0 size-3.5" />
+              <span class="truncate min-w-0" :title="file.name">{{ file.name }}</span>
+              <span class="flex-shrink-0 text-n-slate-10">{{ formatSize(file.size) }}</span>
+              <button
+                type="button"
+                class="flex-shrink-0 p-0.5 rounded hover:bg-n-alpha-2"
+                @click="removeFile(index)"
+              >
+                <Icon icon="i-lucide-x" class="size-3.5" />
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Category — Erro / Tarefa toggle -->
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-n-slate-12">
             {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.CATEGORY_LABEL') }}
             <span class="text-red-500">*</span>
           </label>
-          <select
-            v-model="form.ticketCategoryId"
-            class="w-full rounded-xl border px-3 py-2 text-sm bg-transparent outline-none transition-colors"
-            :class="
-              errors.category
-                ? 'border-red-400 focus:border-red-500'
-                : 'border-n-strong focus:border-n-brand'
-            "
-            @change="delete errors.category"
-          >
-            <option :value="null" disabled>
-              {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.CATEGORY_PLACEHOLDER') }}
-            </option>
-            <option
+          <div class="flex gap-2">
+            <button
               v-for="cat in categories"
               :key="cat.id"
-              :value="cat.id"
+              type="button"
+              class="flex-1 py-2 px-3 text-sm rounded-xl border transition-colors font-medium"
+              :class="
+                form.ticketCategoryId === cat.id
+                  ? 'border-n-brand bg-n-brand/10 text-n-brand'
+                  : 'border-n-strong text-n-slate-11 hover:border-n-brand/60 hover:text-n-slate-12'
+              "
+              @click="form.ticketCategoryId = cat.id; delete errors.category"
             >
               {{ cat.name }}
-            </option>
-          </select>
+            </button>
+          </div>
           <span v-if="errors.category" class="text-xs text-red-500">
             {{ errors.category }}
           </span>
-          <p v-if="!categories.length" class="text-xs text-n-slate-10">
-            Nenhuma categoria cadastrada nesta Mesa.
+          <p v-if="noCategoryMatch" class="text-xs text-n-slate-10">
+            {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.CATEGORY_NO_MATCH') }}
+          </p>
+          <p v-else-if="!categories.length && !allCategories.length" class="text-xs text-n-slate-10">
+            {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.CATEGORY_NO_MATCH') }}
           </p>
         </div>
 

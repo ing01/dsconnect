@@ -1,9 +1,13 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
+import { useAlert } from 'dashboard/composables';
+import { frontendURL } from 'dashboard/helper/URLHelper';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import TicketDevelopmentDialog from './actions/TicketDevelopmentDialog.vue';
+import TicketsAPI from 'dashboard/api/tickets';
 
 const props = defineProps({
   ticket: {
@@ -15,6 +19,7 @@ const props = defineProps({
 const emit = defineEmits(['refresh']);
 
 const { t } = useI18n();
+const route = useRoute();
 
 const dialogRef = ref(null);
 
@@ -36,6 +41,49 @@ const STATUS_ICON = {
 };
 
 const statusIcon = status => STATUS_ICON[status] || 'i-lucide-circle-dot';
+
+const openInNewTab = child => {
+  const path = frontendURL(
+    `accounts/${route.params.accountId}/tickets/${child.id}`
+  );
+  window.open(window.location.origin + path, '_blank');
+};
+
+// Per-child confirmation state for destructive actions.
+const confirmingId = ref(null);
+const confirmingAction = ref(null); // 'delete' | 'unlink'
+const isActing = ref(false);
+
+const startConfirm = (childId, action, event) => {
+  event.stopPropagation();
+  confirmingId.value = childId;
+  confirmingAction.value = action;
+};
+
+const cancelConfirm = event => {
+  event?.stopPropagation();
+  confirmingId.value = null;
+  confirmingAction.value = null;
+};
+
+const executeConfirm = async event => {
+  event.stopPropagation();
+  if (isActing.value) return;
+  isActing.value = true;
+  try {
+    if (confirmingAction.value === 'delete') {
+      await TicketsAPI.delete(confirmingId.value);
+    } else {
+      await TicketsAPI.setParent(confirmingId.value, null);
+    }
+    cancelConfirm();
+    emit('refresh');
+  } catch {
+    useAlert(t('TICKET.API.ERROR_MESSAGE'));
+  } finally {
+    isActing.value = false;
+  }
+};
 
 const onCreated = () => emit('refresh');
 const onLinked = () => emit('refresh');
@@ -76,7 +124,9 @@ const onLinked = () => emit('refresh');
       <div
         v-for="child in devChildren"
         :key="child.id"
-        class="flex items-center gap-2 py-1.5 px-2 rounded-lg bg-n-slate-2 hover:bg-n-slate-3 transition-colors"
+        class="group flex items-center gap-2 py-1.5 px-2 rounded-lg bg-n-slate-2 hover:bg-n-slate-3 transition-colors cursor-pointer"
+        :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_OPEN')"
+        @click="openInNewTab(child)"
       >
         <Icon
           :icon="statusIcon(child.status)"
@@ -86,9 +136,57 @@ const onLinked = () => emit('refresh');
         <span class="text-xs text-n-slate-10 flex-shrink-0">
           #{{ child.display_id }}
         </span>
-        <span class="text-sm text-n-slate-12 truncate min-w-0">
+        <span class="text-sm text-n-slate-12 truncate min-w-0 flex-1">
           {{ child.title }}
         </span>
+
+        <!-- Confirm state replaces action buttons -->
+        <template v-if="confirmingId === child.id">
+          <span class="text-xs text-n-slate-11 flex-shrink-0">
+            {{
+              confirmingAction === 'delete'
+                ? t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_DELETE')
+                : t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_UNLINK')
+            }}
+          </span>
+          <Button
+            xs
+            slate
+            :is-loading="isActing"
+            :label="t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_YES')"
+            @click="executeConfirm($event)"
+          />
+          <Button
+            xs
+            slate
+            faded
+            :label="t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_NO')"
+            @click="cancelConfirm($event)"
+          />
+        </template>
+
+        <!-- Normal action buttons, shown on hover -->
+        <template v-else>
+          <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+            <Button
+              xs
+              slate
+              faded
+              icon="i-lucide-link-2-off"
+              :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_UNLINK')"
+              @click="startConfirm(child.id, 'unlink', $event)"
+            />
+            <Button
+              xs
+              slate
+              faded
+              icon="i-lucide-trash-2"
+              :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_DELETE')"
+              class="text-n-ruby-11 hover:text-n-ruby-11"
+              @click="startConfirm(child.id, 'delete', $event)"
+            />
+          </div>
+        </template>
       </div>
     </div>
 
