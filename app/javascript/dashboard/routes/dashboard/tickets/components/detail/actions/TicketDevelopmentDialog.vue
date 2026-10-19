@@ -26,11 +26,9 @@ const isSubmitting = ref(false);
 const devTeam = ref(null);
 const noDevTeam = ref(false);
 
-const allCategories = computed(() =>
-  devTeam.value
-    ? store.getters['ticketColumns/getCategories'](devTeam.value.id) || []
-    : []
-);
+// Use a local ref instead of a store getter computed to avoid Vuex 4 + Vue 3
+// reactivity tracking issues with factory-function getters.
+const allCategories = ref([]);
 
 // Only show "Erro" and "Tarefa" type categories for development tickets.
 const categories = computed(() =>
@@ -103,11 +101,12 @@ const loadDevTeam = async () => {
       return;
     }
     devTeam.value = found;
-    await Promise.all([
+    const [, cats] = await Promise.all([
       store.dispatch('ticketColumns/fetchColumns', found.id),
       store.dispatch('ticketColumns/fetchCategories', found.id),
       store.dispatch('teamMembers/get', { teamId: found.id }),
     ]);
+    allCategories.value = Array.isArray(cats) ? cats : [];
   } catch {
     noDevTeam.value = true;
   } finally {
@@ -132,16 +131,21 @@ const resetLink = () => {
   searchResults.value = [];
 };
 
-const open = (initialMode = 'create') => {
+const open = async (initialMode = 'create') => {
   mode.value = initialMode;
   resetForm();
   resetLink();
   dialogRef.value?.open();
   if (initialMode === 'link') searchTickets();
   // Always re-fetch categories so newly-created ones appear without needing
-  // a page reload.
+  // a page reload. Use the return value directly to bypass Vuex getter
+  // reactivity issues with factory-function getters.
   if (devTeam.value) {
-    store.dispatch('ticketColumns/fetchCategories', devTeam.value.id);
+    const cats = await store.dispatch(
+      'ticketColumns/fetchCategories',
+      devTeam.value.id
+    );
+    allCategories.value = Array.isArray(cats) ? cats : [];
   }
 };
 
