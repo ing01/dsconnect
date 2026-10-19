@@ -30,16 +30,10 @@ const noDevTeam = ref(false);
 // reactivity tracking issues with factory-function getters.
 const allCategories = ref([]);
 
-// Only show "Erro" and "Tarefa" type categories for development tickets.
-const categories = computed(() =>
-  allCategories.value.filter(c =>
-    ['erro', 'tarefa'].includes(c.name.toLowerCase().trim())
-  )
-);
+// Show all categories that belong to the development team.
+const categories = computed(() => allCategories.value);
 
-const noCategoryMatch = computed(
-  () => allCategories.value.length > 0 && categories.value.length === 0
-);
+const noCategoryMatch = computed(() => false);
 const columns = computed(() =>
   devTeam.value
     ? store.getters['ticketColumns/getColumns'](devTeam.value.id) || []
