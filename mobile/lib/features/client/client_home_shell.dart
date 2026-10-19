@@ -9,6 +9,8 @@ import 'client_notifications_screen.dart';
 import 'client_tickets_list_screen.dart';
 import 'providers/client_providers.dart';
 
+enum _AppBarAction { logout, deleteAccount }
+
 // Fase 3 - modo cliente: chamados, chat com a equipe e notificações. O
 // colaborador fica em segundo plano por enquanto (pedido da Ingrid).
 class ClientHomeShell extends ConsumerStatefulWidget {
@@ -51,6 +53,68 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
     super.dispose();
   }
 
+  Future<void> _showDeleteAccountDialog() async {
+    final passwordController = TextEditingController();
+    String? errorMsg;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Excluir minha conta'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Esta ação é permanente e não pode ser desfeita. Seus dados pessoais serão removidos e você não conseguirá mais fazer login.',
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Confirme sua senha',
+                  hintText: 'Digite sua senha',
+                  errorText: errorMsg,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () async {
+                final password = passwordController.text;
+                if (password.isEmpty) return;
+                try {
+                  await ref
+                      .read(clientRepositoryProvider)
+                      .deleteAccount(password);
+                  if (ctx.mounted) Navigator.of(ctx).pop();
+                  ref.read(sessionProvider.notifier).logout();
+                } catch (e) {
+                  setDialogState(() {
+                    errorMsg = 'Senha incorreta. Verifique e tente novamente.';
+                  });
+                }
+              },
+              child: const Text('Excluir minha conta'),
+            ),
+          ],
+        ),
+      ),
+    );
+    passwordController.dispose();
+  }
+
   void _selectTab(int index) {
     setState(() {
       _currentIndex = index;
@@ -74,10 +138,37 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
       appBar: AppBar(
         title: Text(_tabs[_currentIndex].title),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sair',
-            onPressed: () => ref.read(sessionProvider.notifier).logout(),
+          PopupMenuButton<_AppBarAction>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'Mais opções',
+            onSelected: (action) {
+              switch (action) {
+                case _AppBarAction.logout:
+                  ref.read(sessionProvider.notifier).logout();
+                case _AppBarAction.deleteAccount:
+                  _showDeleteAccountDialog();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: _AppBarAction.logout,
+                child: ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text('Sair'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ),
+              const PopupMenuItem(
+                value: _AppBarAction.deleteAccount,
+                child: ListTile(
+                  leading: Icon(Icons.delete_forever_outlined, color: Colors.red),
+                  title: Text('Excluir minha conta', style: TextStyle(color: Colors.red)),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ),
+            ],
           ),
         ],
       ),

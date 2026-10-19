@@ -192,6 +192,10 @@ class ClientRepository {
         .map((entry) => ClientNotification.fromJson(entry as Map<String, dynamic>))
         .toList();
   }
+
+  Future<void> deleteAccount(String password) async {
+    await _dio.delete<void>('/api/v1/client/account', data: {'password': password});
+  }
 }
 
 class ClientTicketsResult {

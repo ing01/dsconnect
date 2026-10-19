@@ -85,6 +85,7 @@ Rails.application.routes.draw do
         # senha nao tem nenhuma; quem autoriza e o token do e-mail. O PEDIDO do
         # link entra pelo botao compartilhado da tela de login.
         resource :password, only: [:update], controller: 'passwords'
+        resource :account, only: [:destroy], controller: 'accounts'
       end
 
       # ----------------------------------

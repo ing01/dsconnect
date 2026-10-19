@@ -68,6 +68,40 @@ const toggleMenu = () => {
   isMobileOpen.value = !isMobileOpen.value;
 };
 
+const showDeleteDialog = ref(false);
+const deletePassword = ref('');
+const isDeleting = ref(false);
+const deleteError = ref('');
+
+const abrirDialogExcluir = () => {
+  deletePassword.value = '';
+  deleteError.value = '';
+  showDeleteDialog.value = true;
+};
+
+const fecharDialogExcluir = () => {
+  showDeleteDialog.value = false;
+};
+
+const excluirConta = async () => {
+  if (!deletePassword.value) return;
+  isDeleting.value = true;
+  deleteError.value = '';
+  try {
+    await ClientAreaAPI.deleteAccount(deletePassword.value);
+    clearClientSession();
+    window.location.assign('/app/login');
+  } catch (erro) {
+    const status = erro?.response?.status;
+    deleteError.value =
+      status === 401
+        ? t('CLIENT_AREA.DELETE_ACCOUNT.ERROR_WRONG_PASSWORD')
+        : t('CLIENT_AREA.DELETE_ACCOUNT.ERROR_GENERIC');
+  } finally {
+    isDeleting.value = false;
+  }
+};
+
 const sair = async () => {
   // A falha da chamada é engolida de propósito, e não deixada como `finally`
   // sem `catch`: assim a rejeição não escapa para o console. A sessão local cai
@@ -220,8 +254,79 @@ onMounted(() => {
           :label="t('CLIENT_AREA.LOGOUT')"
           @click="sair"
         />
+        <Button
+          faded
+          ruby
+          size="sm"
+          icon="i-lucide-trash-2"
+          :label="t('CLIENT_AREA.DELETE_ACCOUNT.BUTTON')"
+          @click="abrirDialogExcluir"
+        />
       </div>
     </header>
+
+    <!-- Dialog de exclusão de conta -->
+    <Teleport to="body">
+      <div
+        v-if="showDeleteDialog"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-n-slate-12/50"
+        @click.self="fecharDialogExcluir"
+      >
+        <div class="w-full max-w-md rounded-xl bg-n-solid-2 shadow-xl border border-n-weak p-6 flex flex-col gap-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex flex-col gap-1">
+              <h2 class="text-base font-semibold text-n-slate-12 m-0">
+                {{ t('CLIENT_AREA.DELETE_ACCOUNT.DIALOG_TITLE') }}
+              </h2>
+              <p class="text-sm text-n-slate-11 m-0">
+                {{ t('CLIENT_AREA.DELETE_ACCOUNT.DIALOG_DESCRIPTION') }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="flex-shrink-0 flex items-center justify-center rounded-lg size-8 text-n-slate-10 hover:bg-n-alpha-2"
+              @click="fecharDialogExcluir"
+            >
+              <Icon icon="i-lucide-x" class="size-4" />
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-medium text-n-slate-11">
+              {{ t('CLIENT_AREA.DELETE_ACCOUNT.PASSWORD_LABEL') }}
+            </label>
+            <input
+              v-model="deletePassword"
+              type="password"
+              :placeholder="t('CLIENT_AREA.DELETE_ACCOUNT.PASSWORD_PLACEHOLDER')"
+              class="w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 py-2 text-sm text-n-slate-12 outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand"
+              @keyup.enter="excluirConta"
+            />
+            <p v-if="deleteError" class="text-xs text-n-ruby-9 mt-1 m-0">{{ deleteError }}</p>
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <Button
+              faded
+              slate
+              size="sm"
+              :label="t('CLIENT_AREA.DELETE_ACCOUNT.CANCEL')"
+              :disabled="isDeleting"
+              @click="fecharDialogExcluir"
+            />
+            <Button
+              solid
+              ruby
+              size="sm"
+              :label="t('CLIENT_AREA.DELETE_ACCOUNT.CONFIRM_BUTTON')"
+              :disabled="!deletePassword || isDeleting"
+              :is-loading="isDeleting"
+              @click="excluirConta"
+            />
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- Cabeçalho em cima, menu à esquerda e conteúdo à direita - o mesmo
          arranjo do painel interno. -->
