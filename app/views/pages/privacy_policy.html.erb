@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política de Privacidade — DSConnect</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --fg: #1a1a2e;
+      --fg-muted: #4a5568;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --border: #e2e8f0;
+      --header-bg: #1e3a5f;
+      --header-fg: #ffffff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --fg: #e2e8f0;
+        --fg-muted: #94a3b8;
+        --accent: #60a5fa;
+        --accent-light: #1e3a5f;
+        --border: #334155;
+        --header-bg: #0f172a;
+        --header-fg: #e2e8f0;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--fg);
+      background: var(--bg);
+    }
+
+    header {
+      background: var(--header-bg);
+      color: var(--header-fg);
+      padding: 28px max(24px, env(safe-area-inset-left, 0px));
+    }
+
+    header .inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: #2563eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      color: #fff;
+      letter-spacing: -0.05em;
+      flex-shrink: 0;
+    }
+
+    .logo-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px max(24px, env(safe-area-inset-left, 0px));
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    p {
+      color: var(--fg-muted);
+      margin-bottom: 12px;
+    }
+
+    ul {
+      color: var(--fg-muted);
+      margin: 8px 0 12px 20px;
+    }
+
+    ul li {
+      margin-bottom: 6px;
+    }
+
+    strong {
+      color: var(--fg);
+    }
+
+    .highlight-box {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+    }
+
+    .highlight-box p {
+      margin: 0;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px max(24px, env(safe-area-inset-left, 0px));
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.3rem; }
+      main { padding-top: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <div class="logo-row">
+      <div class="logo-mark">DS</div>
+      <span class="logo-name">DSConnect</span>
+    </div>
+    <h1>Política de Privacidade</h1>
+    <p>Última atualização: <%= Date.today.strftime('%d de %B de %Y').gsub('January','janeiro').gsub('February','fevereiro').gsub('March','março').gsub('April','abril').gsub('May','maio').gsub('June','junho').gsub('July','julho').gsub('August','agosto').gsub('September','setembro').gsub('October','outubro').gsub('November','novembro').gsub('December','dezembro') %></p>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <div class="highlight-box">
+      <p>Esta Política de Privacidade descreve como a <strong>Duesoft</strong> coleta, usa e protege as informações dos usuários do aplicativo <strong>DSConnect</strong> para Android.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>1. Quem Somos</h2>
+    <p>O <strong>DSConnect</strong> é um aplicativo de gestão de chamados e suporte ao cliente desenvolvido e operado pela <strong>Duesoft</strong>. O aplicativo permite que clientes abram e acompanhem chamados de suporte, conversem em tempo real com a equipe de atendimento e recebam notificações sobre atualizações.</p>
+    <p>Para dúvidas sobre esta política, entre em contato pelo e-mail: <a href="mailto:contato@duesoft.com.br">contato@duesoft.com.br</a></p>
+  </section>
+
+  <section>
+    <h2>2. Dados Coletados</h2>
+    <p>Para o funcionamento do aplicativo, coletamos os seguintes dados:</p>
+
+    <p><strong>Dados de autenticação:</strong></p>
+    <ul>
+      <li>Endereço de e-mail</li>
+      <li>Senha (armazenada de forma criptografada)</li>
+      <li>Token de sessão (armazenado localmente de forma segura)</li>
+    </ul>
+
+    <p><strong>Dados de uso do serviço:</strong></p>
+    <ul>
+      <li>Informações de chamados: título, descrição, categoria, status e histórico de mensagens</li>
+      <li>Arquivos e imagens anexadas aos chamados ou mensagens de chat</li>
+      <li>Mensagens de chat em tempo real</li>
+      <li>Histórico de conversas de suporte encerradas</li>
+    </ul>
+
+    <p><strong>Dados de dispositivo:</strong></p>
+    <ul>
+      <li>Token do Firebase Cloud Messaging (FCM) para envio de notificações push</li>
+    </ul>
+
+    <p><strong>Dados de áudio (opcional):</strong></p>
+    <ul>
+      <li>Gravações de voz para geração assistida por IA de rascunhos de chamados — processadas no servidor e não armazenadas permanentemente</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>3. Permissões Solicitadas</h2>
+    <p>O aplicativo pode solicitar as seguintes permissões no seu dispositivo:</p>
+    <ul>
+      <li><strong>Internet</strong> — necessária para comunicação com o servidor</li>
+      <li><strong>Câmera</strong> — para tirar fotos e anexá-las a chamados ou mensagens</li>
+      <li><strong>Microfone</strong> — para gravação de mensagens de voz e geração de rascunhos por áudio</li>
+      <li><strong>Notificações</strong> — para receber alertas sobre atualizações de chamados e mensagens de chat (Android 13+)</li>
+    </ul>
+    <p>As permissões de câmera e microfone são opcionais — o aplicativo funciona sem elas, apenas sem as funcionalidades correspondentes.</p>
+  </section>
+
+  <section>
+    <h2>4. Como Usamos os Dados</h2>
+    <p>Os dados coletados são usados exclusivamente para:</p>
+    <ul>
+      <li>Autenticar e identificar o usuário no sistema</li>
+      <li>Exibir, criar e atualizar chamados de suporte</li>
+      <li>Permitir comunicação em tempo real via chat</li>
+      <li>Enviar notificações push sobre atualizações relevantes</li>
+      <li>Gerar rascunhos de chamados assistidos por inteligência artificial (quando o usuário opta por usar o recurso)</li>
+    </ul>
+    <p>Não utilizamos os dados para fins publicitários, não os vendemos e não os compartilhamos com terceiros, exceto quando necessário para a prestação do serviço (ex.: processamento de áudio para transcrição via serviço de IA contratado).</p>
+  </section>
+
+  <section>
+    <h2>5. Armazenamento e Segurança</h2>
+    <p>Os dados são armazenados em servidores seguros. O token de sessão é armazenado localmente no dispositivo utilizando <strong>armazenamento seguro criptografado</strong> (<em>flutter_secure_storage</em>), que usa o Keystore do Android para proteger as credenciais.</p>
+    <p>Adotamos medidas técnicas e organizacionais adequadas para proteger os dados contra acesso não autorizado, alteração, divulgação ou destruição.</p>
+  </section>
+
+  <section>
+    <h2>6. Compartilhamento de Dados</h2>
+    <p>Os dados dos usuários não são vendidos, alugados ou compartilhados com terceiros para fins comerciais. Os dados podem ser compartilhados apenas nas seguintes situações:</p>
+    <ul>
+      <li><strong>Prestadores de serviço</strong>: serviços de infraestrutura, hospedagem e processamento de IA, sob obrigações contratuais de confidencialidade</li>
+      <li><strong>Obrigação legal</strong>: quando exigido por lei ou ordem judicial</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. Retenção de Dados</h2>
+    <p>Os dados são mantidos enquanto a conta do usuário estiver ativa ou enquanto forem necessários para a prestação do serviço. Dados de gravações de áudio usadas para transcrição são processados e descartados após a geração do rascunho, não sendo armazenados permanentemente.</p>
+  </section>
+
+  <section>
+    <h2>8. Direitos do Usuário</h2>
+    <p>Nos termos da Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018), o usuário tem direito a:</p>
+    <ul>
+      <li>Acessar os dados pessoais que temos sobre você</li>
+      <li>Solicitar a correção de dados incorretos ou desatualizados</li>
+      <li>Solicitar a exclusão dos seus dados pessoais</li>
+      <li>Revogar o consentimento para uso dos dados, quando aplicável</li>
+      <li>Solicitar a portabilidade dos dados</li>
+    </ul>
+    <p>Para exercer esses direitos, entre em contato: <a href="mailto:contato@duesoft.com.br">contato@duesoft.com.br</a></p>
+  </section>
+
+  <section>
+    <h2>9. Crianças</h2>
+    <p>O DSConnect não é destinado a crianças menores de 13 anos. Não coletamos intencionalmente dados pessoais de menores. Caso identifiquemos que coletamos dados de um menor sem consentimento parental, excluiremos essas informações.</p>
+  </section>
+
+  <section>
+    <h2>10. Alterações nesta Política</h2>
+    <p>Podemos atualizar esta Política de Privacidade periodicamente. Notificaremos os usuários sobre alterações significativas por meio do aplicativo ou por e-mail. O uso continuado do aplicativo após a publicação de alterações constitui aceitação das novas condições.</p>
+  </section>
+
+  <section>
+    <h2>11. Contato</h2>
+    <p>Para dúvidas, solicitações ou reclamações relacionadas à privacidade dos seus dados:</p>
+    <ul>
+      <li><strong>Empresa:</strong> Duesoft</li>
+      <li><strong>E-mail:</strong> <a href="mailto:contato@duesoft.com.br">contato@duesoft.com.br</a></li>
+      <li><strong>Site:</strong> <a href="https://dsconnect.duesoft.com.br" target="_blank" rel="noopener">dsconnect.duesoft.com.br</a></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  &copy; <%= Date.today.year %> Duesoft. Todos os direitos reservados.
+  &nbsp;·&nbsp;
+  <a href="https://dsconnect.duesoft.com.br">DSConnect</a>
+</footer>
+
+</body>
+</html>

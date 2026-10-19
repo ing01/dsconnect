@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get '/privacidade', to: 'pages#privacy_policy'
+
   # AUTH STARTS
   mount_devise_token_auth_for 'User', at: 'auth', controllers: {
     confirmations: 'devise_overrides/confirmations',
