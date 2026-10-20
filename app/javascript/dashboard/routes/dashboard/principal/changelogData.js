@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-delete-account-self-service',
+    date: '19 de outubro de 2026',
+    isoDate: '2026-10-19',
+    type: 'feature',
+    platform: 'web',
+    title: 'Clientes podem excluir a própria conta pelo Portal e pelo app',
+    description:
+      'No Portal do Cliente, o menu do canto superior direito agora tem a opção "Excluir minha conta" (em vermelho). No app Android, a mesma opção aparece no menu ⋮. O cliente confirma com a senha e os dados pessoais (nome, e-mail, telefone e senha) são removidos imediatamente — o histórico de chamados continua visível para a equipe, mas sem nenhum dado pessoal vinculado. O link de instruções para o Google Play está em dsconnect.duesoft.com.br/exclusao-conta.',
+  },
+  {
     id: 'agent-lunch-break-auto-assignment',
     date: '15 de outubro de 2026',
     isoDate: '2026-10-15',
