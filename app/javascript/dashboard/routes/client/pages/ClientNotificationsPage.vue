@@ -16,6 +16,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
+import { useClientNotificationsCount } from 'dashboard/composables/useClientNotificationsCount';
 import ClientAreaAPI from 'dashboard/api/clientArea';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -24,6 +25,8 @@ import Button from 'dashboard/components-next/button/Button.vue';
 
 const { t } = useI18n();
 const router = useRouter();
+
+const { count: notificationsCount } = useClientNotificationsCount();
 
 const isLoading = ref(true);
 const isClearing = ref(false);
@@ -39,6 +42,7 @@ const dataHora = segundos =>
 // uma tela travada esperando o servidor.
 const dispensar = item => {
   items.value = items.value.filter(i => i.id !== item.id);
+  notificationsCount.value = items.value.length;
   ClientAreaAPI.dismissNotification(item.id).catch(() => {});
 };
 
@@ -65,6 +69,7 @@ const limparTudo = async () => {
   try {
     await ClientAreaAPI.dismissAllNotifications();
     items.value = [];
+    notificationsCount.value = 0;
   } catch {
     useAlert(t('CLIENT_AREA.NOTIFICATIONS.ERROR'));
   } finally {
@@ -76,6 +81,7 @@ onMounted(async () => {
   try {
     const { data } = await ClientAreaAPI.notifications();
     items.value = data;
+    notificationsCount.value = data.length;
   } catch {
     useAlert(t('CLIENT_AREA.NOTIFICATIONS.ERROR'));
   } finally {
@@ -167,10 +173,10 @@ onMounted(async () => {
           type="button"
           :aria-label="t('CLIENT_AREA.NOTIFICATIONS.REMOVE')"
           :title="t('CLIENT_AREA.NOTIFICATIONS.REMOVE')"
-          class="absolute flex items-center justify-center rounded-md top-2 right-2 size-6 text-n-slate-10 hover:bg-n-slate-3 hover:text-n-slate-12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+          class="absolute flex items-center justify-center rounded-md top-2 right-2 size-10 text-n-slate-10 hover:bg-n-slate-3 hover:text-n-slate-12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
           @click="removerSemAbrir(item, $event)"
         >
-          <Icon icon="i-lucide-x" class="size-3.5" />
+          <Icon icon="i-lucide-x" class="size-5" />
         </button>
       </li>
     </ul>

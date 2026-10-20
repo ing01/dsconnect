@@ -22,6 +22,7 @@ import { useRoute } from 'vue-router';
 import { provideSidebarContext } from 'dashboard/components-next/sidebar/provider';
 import SidebarGroupLeaf from 'dashboard/components-next/sidebar/SidebarGroupLeaf.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import { useClientNotificationsCount } from 'dashboard/composables/useClientNotificationsCount';
 
 const props = defineProps({
   // Recolhida no desktop: só os ícones.
@@ -34,6 +35,7 @@ const emit = defineEmits(['toggleCollapse', 'closeMobile']);
 
 const { t } = useI18n();
 const route = useRoute();
+const { count: notificationsCount } = useClientNotificationsCount();
 
 provideSidebarContext({});
 
@@ -81,6 +83,7 @@ const itens = computed(() => [
     icon: 'i-lucide-bell',
     to: { name: 'client_notifications' },
     activeOn: ['client_notifications'],
+    badgeCount: notificationsCount.value,
   },
 ]);
 
@@ -112,6 +115,7 @@ const larguraDesktop = computed(() =>
           :icon="item.icon"
           :to="item.to"
           :active="isActive(item)"
+          :badge-count="item.badgeCount || 0"
           :collapsed="isCollapsed"
           :title="item.label"
           hide-tree-line

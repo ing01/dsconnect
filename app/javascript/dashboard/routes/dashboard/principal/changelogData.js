@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-area-notifications-badge-and-bigger-remove-button',
+    date: '20 de outubro de 2026',
+    isoDate: '2026-10-20',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Selo de notificações no menu da Área do Cliente',
+    description:
+      'O menu lateral da Área do Cliente agora mostra, no item Notificações, quantas notificações existem sem precisar abrir a aba - igual já funciona no painel interno. O botão de remover uma notificação sem abri-la também ficou maior, mais fácil de acertar.',
+  },
+  {
     id: 'client-area-notifications-dismiss',
     date: '20 de outubro de 2026',
     isoDate: '2026-10-20',

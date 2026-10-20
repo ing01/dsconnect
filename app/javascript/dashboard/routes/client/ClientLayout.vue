@@ -12,6 +12,7 @@ import { useI18n } from 'vue-i18n';
 import ClientAreaAPI from 'dashboard/api/clientArea';
 import { useAlert } from 'dashboard/composables';
 import { useAppInstallPrompt } from 'dashboard/composables/useAppInstallPrompt';
+import { useClientNotificationsCount } from 'dashboard/composables/useClientNotificationsCount';
 import {
   clientPushPermission,
   ensureClientPushSubscribed,
@@ -178,9 +179,13 @@ const verificarAvaliacaoMensal = async () => {
 // nas Configurações do aparelho. Garantida aqui, no enquadramento de toda a
 // Área do Cliente, e não só na tela de chat: é o que cobre quem acabou de
 // instalar e ainda nem abriu aquela tela.
+const { refresh: atualizarContagemNotificacoes } =
+  useClientNotificationsCount();
+
 onMounted(() => {
   ensureClientPushSubscribed();
   verificarAvaliacaoMensal();
+  atualizarContagemNotificacoes();
 });
 </script>
 
