@@ -38,6 +38,27 @@ export const CHANGELOG_ENTRIES = [
       'Na lista de tickets (Busca detalhada e Tickets da Área do Cliente), agora dá para arrastar a borda de uma coluna pra redimensioná-la, e usar o botão "Colunas" para ocultar as que não interessam. A coluna Título já nasce mais larga por padrão, para não cortar o assunto do chamado atrás dos prefixos de Mesa/Categoria. A escolha fica salva por conta, sem precisar refazer toda vez.',
   },
   {
+    id: 'ticket-development-tab-create-link',
+    date: '19 de outubro de 2026',
+    isoDate: '2026-10-19',
+    type: 'feature',
+    platform: 'web',
+    title:
+      'Aba Desenvolvimento: criar e vincular tickets de dev direto do chamado',
+    description:
+      'A aba Desenvolvimento do detalhe do chamado ganhou o botão "Criar / Vincular". Criar: abre um formulário pré-filtrado pela Mesa de Desenvolvimento (categorias limitadas a Erro e Tarefa, responsáveis só da mesa), com suporte a anexos — o ticket criado já nasce vinculado como filho do chamado atual. Vincular: busca entre tickets existentes da Mesa Dev e os vincula como filho. Os tickets filhos listados na aba abrem em nova aba ao clicar, e cada um tem botões de Desvincular e Excluir com confirmação inline.',
+  },
+  {
+    id: 'client-delete-account-self-service',
+    date: '19 de outubro de 2026',
+    isoDate: '2026-10-19',
+    type: 'feature',
+    platform: 'web',
+    title: 'Clientes podem excluir a própria conta pelo Portal e pelo app',
+    description:
+      'No Portal do Cliente, o menu do canto superior direito agora tem a opção "Excluir minha conta" (em vermelho). No app Android, a mesma opção aparece no menu ⋮. O cliente confirma com a senha e os dados pessoais (nome, e-mail, telefone e senha) são removidos imediatamente — o histórico de chamados continua visível para a equipe, mas sem nenhum dado pessoal vinculado. O link de instruções para o Google Play está em dsconnect.duesoft.com.br/exclusao-conta.',
+  },
+  {
     id: 'agent-lunch-break-auto-assignment',
     date: '15 de outubro de 2026',
     isoDate: '2026-10-15',

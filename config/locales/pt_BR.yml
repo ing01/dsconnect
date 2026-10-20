@@ -627,6 +627,7 @@ pt_BR:
       push_action_open: Abrir conversa
     unauthorized: Sessão inválida ou acesso à Área do Cliente desativado.
     invalid_credentials: E-mail ou senha inválidos.
+    wrong_password: Senha incorreta. Verifique e tente novamente.
     password:
       updated: Senha alterada. Entre com a nova senha.
       invalid_token: Este link de redefinição não é mais válido. Peça um novo na tela de login.

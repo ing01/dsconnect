@@ -307,6 +307,19 @@ class _TicketTile extends StatelessWidget {
               ],
             ),
           ],
+          if (ticket.dueDate != null) ...[
+            const SizedBox(height: 2),
+            Row(
+              children: [
+                Icon(Icons.calendar_today_outlined, size: 13, color: colorScheme.outline),
+                const SizedBox(width: 4),
+                Text(
+                  'Entrega: ${DateFormat('dd/MM/yy').format(ticket.dueDate!.toLocal())}',
+                  style: TextStyle(fontSize: 12, color: colorScheme.outline),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 8),
           Wrap(
             spacing: 6,
@@ -400,10 +413,23 @@ class _TicketListRow extends StatelessWidget {
         children: [
           PillLabel(statusLabels[ticket.status] ?? ticket.status, colorName: statusColorName(ticket.status)),
           const SizedBox(height: 2),
-          Text(
-            DateFormat('dd/MM/yy').format(ticket.updatedAt.toLocal()),
-            style: TextStyle(fontSize: 10, color: colorScheme.outline),
-          ),
+          if (ticket.dueDate != null)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.calendar_today_outlined, size: 10, color: colorScheme.outline),
+                const SizedBox(width: 3),
+                Text(
+                  DateFormat('dd/MM/yy').format(ticket.dueDate!.toLocal()),
+                  style: TextStyle(fontSize: 10, color: colorScheme.outline),
+                ),
+              ],
+            )
+          else
+            Text(
+              DateFormat('dd/MM/yy').format(ticket.updatedAt.toLocal()),
+              style: TextStyle(fontSize: 10, color: colorScheme.outline),
+            ),
         ],
       ),
     );

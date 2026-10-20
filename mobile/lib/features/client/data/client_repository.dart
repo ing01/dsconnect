@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../models/chat_history_session.dart';
 import '../models/chat_message.dart';
 import '../models/client_notification.dart';
 import '../models/client_ticket.dart';
@@ -154,6 +155,19 @@ class ClientRepository {
     return ChatSession.fromJson(response.data!);
   }
 
+  Future<List<ChatHistorySession>> fetchChatHistory() async {
+    final response = await _dio.get<List<dynamic>>('/api/v1/client/chat_history');
+    return (response.data ?? const [])
+        .map((e) => ChatHistorySession.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<ChatHistoryDetail> fetchChatHistoryDetail(int id) async {
+    final response =
+        await _dio.get<Map<String, dynamic>>('/api/v1/client/chat_history/$id');
+    return ChatHistoryDetail.fromJson(response.data!);
+  }
+
   Future<ChatMessage> sendChatMessage(
     String content, {
     List<XFile> attachments = const [],
@@ -177,6 +191,10 @@ class ClientRepository {
     return (response.data ?? const [])
         .map((entry) => ClientNotification.fromJson(entry as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<void> deleteAccount(String password) async {
+    await _dio.delete<void>('/api/v1/client/account', data: {'password': password});
   }
 }
 

@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get '/privacidade', to: 'pages#privacy_policy'
+  get '/exclusao-conta', to: 'pages#account_deletion'
+
   # AUTH STARTS
   mount_devise_token_auth_for 'User', at: 'auth', controllers: {
     confirmations: 'devise_overrides/confirmations',
@@ -83,6 +86,7 @@ Rails.application.routes.draw do
         # senha nao tem nenhuma; quem autoriza e o token do e-mail. O PEDIDO do
         # link entra pelo botao compartilhado da tela de login.
         resource :password, only: [:update], controller: 'passwords'
+        resource :account, only: [:destroy], controller: 'accounts'
       end
 
       # ----------------------------------

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:28806894279:android:bf8f0916e3cacbfed1e4e2",
+        "mobilesdk_app_id": "1:28806894279:android:202f44519d89b62ed1e4e2",
         "android_client_info": {
-          "package_name": "com.duesoft.duedesk_mobile"
+          "package_name": "com.duesoft.dsconnect_mobile"
         }
       },
       "oauth_client": [],

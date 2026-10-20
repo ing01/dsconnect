@@ -245,6 +245,17 @@
       "EMPTY": "Nenhuma novidade nos seus chamados ainda.",
       "ERROR": "Não foi possível carregar as notificações."
     },
+    "DELETE_ACCOUNT": {
+      "BUTTON": "Excluir minha conta",
+      "DIALOG_TITLE": "Excluir conta",
+      "DIALOG_DESCRIPTION": "Esta ação é permanente e não pode ser desfeita. Seus dados pessoais serão removidos e você não conseguirá mais fazer login.",
+      "PASSWORD_LABEL": "Confirme sua senha para continuar",
+      "PASSWORD_PLACEHOLDER": "Digite sua senha",
+      "CONFIRM_BUTTON": "Excluir minha conta",
+      "CANCEL": "Cancelar",
+      "ERROR_WRONG_PASSWORD": "Senha incorreta. Verifique e tente novamente.",
+      "ERROR_GENERIC": "Não foi possível excluir a conta. Tente novamente."
+    },
     "PASSWORD": {
       "TITLE": "Definir nova senha",
       "DESCRIPTION": "Escolha a senha que você vai usar para entrar na Área do Cliente.",

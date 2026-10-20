@@ -68,6 +68,13 @@ export default {
     return cliente.delete(`${BASE}/session`, { headers: headers() });
   },
 
+  deleteAccount(password) {
+    return cliente.delete(`${BASE}/account`, {
+      headers: headers(),
+      data: { password },
+    });
+  },
+
   // A troca de senha pelo link do e-mail. SEM cabeçalho de sessão de propósito:
   // quem esqueceu a senha não tem nenhuma, e quem autoriza é o token do e-mail.
   resetPassword({ token, password, passwordConfirmation }) {

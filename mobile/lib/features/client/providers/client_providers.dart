@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/auth/auth_providers.dart';
 import '../data/client_repository.dart';
 import '../data/notification_dismiss_store.dart';
+import '../models/chat_history_session.dart';
 import '../models/chat_message.dart';
 import '../models/client_notification.dart';
 import '../models/client_ticket.dart';
@@ -218,6 +219,15 @@ final aiDraftEnabledProvider = FutureProvider.autoDispose<bool>((ref) {
 
 final clientNotificationsProvider = FutureProvider.autoDispose<List<ClientNotification>>((ref) {
   return ref.watch(clientRepositoryProvider).fetchNotifications();
+});
+
+final chatHistoryProvider = FutureProvider.autoDispose<List<ChatHistorySession>>((ref) {
+  return ref.watch(clientRepositoryProvider).fetchChatHistory();
+});
+
+final chatHistoryDetailProvider =
+    FutureProvider.autoDispose.family<ChatHistoryDetail, int>((ref, id) {
+  return ref.watch(clientRepositoryProvider).fetchChatHistoryDetail(id);
 });
 
 final _notificationDismissStoreProvider = Provider<NotificationDismissStore>((ref) => NotificationDismissStore());
