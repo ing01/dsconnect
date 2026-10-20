@@ -63,29 +63,43 @@ const toggleConversationLayout = () => {
 
 <template>
   <div
-    class="flex items-center justify-between gap-2 px-3 h-[3.25rem]"
+    class="flex flex-col gap-2 px-3 pt-2 pb-2"
     :class="{
       'border-b border-n-strong': hasAppliedFiltersOrActiveFolders,
     }"
   >
-    <div class="flex items-center justify-center min-w-0">
-      <h1
-        class="text-base font-medium truncate text-n-slate-12"
-        :title="pageTitle"
-      >
-        {{ pageTitle }}
-      </h1>
-      <span
-        v-if="
-          allCount > 0 && hasAppliedFiltersOrActiveFolders && !isListLoading
-        "
-        class="px-2 py-1 my-0.5 mx-1 rounded-md capitalize bg-n-slate-3 text-xxs text-n-slate-12 shrink-0"
-        :title="allCount"
-      >
-        {{ formattedAllCount }}
-      </span>
+    <!-- Linha superior: título + botão Nova Conversa -->
+    <div class="flex items-center justify-between gap-2 min-w-0">
+      <div class="flex items-center min-w-0 gap-1.5">
+        <h1
+          class="text-base font-semibold truncate text-n-slate-12"
+          :title="pageTitle"
+        >
+          {{ pageTitle }}
+        </h1>
+        <span
+          v-if="
+            allCount > 0 && hasAppliedFiltersOrActiveFolders && !isListLoading
+          "
+          class="px-2 py-0.5 rounded-md capitalize bg-n-slate-3 text-xs text-n-slate-12 shrink-0"
+          :title="allCount"
+        >
+          {{ formattedAllCount }}
+        </span>
+      </div>
+      <ComposeConversation>
+        <template #trigger>
+          <NextButton
+            icon="i-lucide-pen-line"
+            size="sm"
+            :label="$t('CHAT_LIST.NEW_CONVERSATION_BUTTON')"
+          />
+        </template>
+      </ComposeConversation>
     </div>
-    <div class="flex items-center gap-1">
+
+    <!-- Linha inferior: filtros de status + ações -->
+    <div class="flex items-center justify-between gap-1.5">
       <div
         v-if="!hasAppliedFiltersOrActiveFolders"
         class="flex items-center gap-0.5 p-0.5 rounded-lg bg-n-slate-3 shrink-0"
@@ -93,7 +107,7 @@ const toggleConversationLayout = () => {
         <NextButton
           v-for="status in QUICK_STATUSES"
           :key="status"
-          size="xs"
+          size="sm"
           variant="ghost"
           color="slate"
           no-animation
@@ -105,39 +119,68 @@ const toggleConversationLayout = () => {
           @click="onBasicFilterChange(status, 'status')"
         />
       </div>
-      <template v-if="hasAppliedFilters && !hasActiveFolders">
-        <div class="relative">
+      <div v-else class="flex-1" />
+
+      <div class="flex items-center gap-1 shrink-0">
+        <template v-if="hasAppliedFilters && !hasActiveFolders">
+          <div class="relative">
+            <NextButton
+              v-tooltip.top-end="$t('FILTER.CUSTOM_VIEWS.ADD.SAVE_BUTTON')"
+              icon="i-lucide-save"
+              slate
+              sm
+              faded
+              @click="emit('addFolders')"
+            />
+            <div
+              id="saveFilterTeleportTarget"
+              class="absolute z-50 mt-2"
+              :class="{ 'ltr:right-0 rtl:left-0': isOnExpandedLayout }"
+            />
+          </div>
           <NextButton
-            v-tooltip.top-end="$t('FILTER.CUSTOM_VIEWS.ADD.SAVE_BUTTON')"
-            icon="i-lucide-save"
-            slate
-            xs
+            v-tooltip.top-end="$t('FILTER.CLEAR_BUTTON_LABEL')"
+            icon="i-lucide-circle-x"
+            ruby
             faded
-            @click="emit('addFolders')"
+            sm
+            @click="emit('resetFilters')"
           />
-          <div
-            id="saveFilterTeleportTarget"
-            class="absolute z-50 mt-2"
-            :class="{ 'ltr:right-0 rtl:left-0': isOnExpandedLayout }"
-          />
-        </div>
-        <NextButton
-          v-tooltip.top-end="$t('FILTER.CLEAR_BUTTON_LABEL')"
-          icon="i-lucide-circle-x"
-          ruby
-          faded
-          xs
-          @click="emit('resetFilters')"
-        />
-      </template>
-      <template v-if="hasActiveFolders">
-        <div class="relative">
+        </template>
+        <template v-if="hasActiveFolders">
+          <div class="relative">
+            <NextButton
+              id="toggleConversationFilterButton"
+              v-tooltip.top-end="$t('FILTER.CUSTOM_VIEWS.EDIT.EDIT_BUTTON')"
+              icon="i-lucide-pen-line"
+              slate
+              sm
+              faded
+              @click="emit('filtersModal')"
+            />
+            <div
+              id="conversationFilterTeleportTarget"
+              class="absolute z-50 mt-2"
+              :class="{ 'ltr:right-0 rtl:left-0': isOnExpandedLayout }"
+            />
+          </div>
           <NextButton
             id="toggleConversationFilterButton"
-            v-tooltip.top-end="$t('FILTER.CUSTOM_VIEWS.EDIT.EDIT_BUTTON')"
-            icon="i-lucide-pen-line"
+            v-tooltip.top-end="$t('FILTER.CUSTOM_VIEWS.DELETE.DELETE_BUTTON')"
+            icon="i-lucide-trash-2"
+            ruby
+            sm
+            faded
+            @click="emit('deleteFolders')"
+          />
+        </template>
+        <div v-else class="relative">
+          <NextButton
+            id="toggleConversationFilterButton"
+            v-tooltip.right="$t('FILTER.TOOLTIP_LABEL')"
+            icon="i-lucide-list-filter"
             slate
-            xs
+            sm
             faded
             @click="emit('filtersModal')"
           />
@@ -147,50 +190,16 @@ const toggleConversationLayout = () => {
             :class="{ 'ltr:right-0 rtl:left-0': isOnExpandedLayout }"
           />
         </div>
-        <NextButton
-          id="toggleConversationFilterButton"
-          v-tooltip.top-end="$t('FILTER.CUSTOM_VIEWS.DELETE.DELETE_BUTTON')"
-          icon="i-lucide-trash-2"
-          ruby
-          xs
-          faded
-          @click="emit('deleteFolders')"
+        <ConversationBasicFilter
+          v-if="!hasAppliedFiltersOrActiveFolders"
+          :is-on-expanded-layout="isOnExpandedLayout"
+          @change-filter="onBasicFilterChange"
         />
-      </template>
-      <div v-else class="relative">
-        <NextButton
-          id="toggleConversationFilterButton"
-          v-tooltip.right="$t('FILTER.TOOLTIP_LABEL')"
-          icon="i-lucide-list-filter"
-          slate
-          xs
-          faded
-          @click="emit('filtersModal')"
-        />
-        <div
-          id="conversationFilterTeleportTarget"
-          class="absolute z-50 mt-2"
-          :class="{ 'ltr:right-0 rtl:left-0': isOnExpandedLayout }"
+        <SwitchLayout
+          :is-on-expanded-layout="isOnExpandedLayout"
+          @toggle="toggleConversationLayout"
         />
       </div>
-      <ConversationBasicFilter
-        v-if="!hasAppliedFiltersOrActiveFolders"
-        :is-on-expanded-layout="isOnExpandedLayout"
-        @change-filter="onBasicFilterChange"
-      />
-      <SwitchLayout
-        :is-on-expanded-layout="isOnExpandedLayout"
-        @toggle="toggleConversationLayout"
-      />
-      <ComposeConversation>
-        <template #trigger>
-          <NextButton
-            icon="i-lucide-pen-line"
-            size="xs"
-            :label="$t('CHAT_LIST.NEW_CONVERSATION_BUTTON')"
-          />
-        </template>
-      </ComposeConversation>
     </div>
   </div>
 </template>
