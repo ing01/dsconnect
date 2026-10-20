@@ -120,6 +120,25 @@ export default {
     return cliente.get(`${BASE}/notifications`, { headers: headers() });
   },
 
+  // Abrir (ou um botão de remover) some com UM item da lista - não apaga a
+  // comunicação/mensagem original, só marca que este contato já viu/dispensou.
+  dismissNotification(id) {
+    return cliente.post(
+      `${BASE}/notifications/${id}/dismiss`,
+      {},
+      { headers: headers() }
+    );
+  },
+
+  // "Limpar tudo": dispensa só o que está visível agora.
+  dismissAllNotifications() {
+    return cliente.post(
+      `${BASE}/notifications/dismiss_all`,
+      {},
+      { headers: headers() }
+    );
+  },
+
   // As Categorias do formulário de abertura - lista plana, de todas as Mesas.
   // O cliente descreve o problema; Mesa e Estágio são decisão da triagem.
   categories() {

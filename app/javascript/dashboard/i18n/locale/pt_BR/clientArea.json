@@ -243,7 +243,9 @@
       "TITLE": "Notificações",
       "DESCRIPTION": "O que a equipe escreveu nos seus chamados.",
       "EMPTY": "Nenhuma novidade nos seus chamados ainda.",
-      "ERROR": "Não foi possível carregar as notificações."
+      "ERROR": "Não foi possível carregar as notificações.",
+      "REMOVE": "Remover notificação",
+      "CLEAR_ALL": "Limpar tudo"
     },
     "DELETE_ACCOUNT": {
       "BUTTON": "Excluir minha conta",

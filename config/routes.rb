@@ -69,7 +69,10 @@ Rails.application.routes.draw do
         resources :ticket_drafts, only: [:create] do
           get :enabled, on: :collection
         end
-        resources :notifications, only: [:index]
+        resources :notifications, only: [:index] do
+          post :dismiss, on: :member
+          post :dismiss_all, on: :collection
+        end
         # O SAC: sugestoes, reclamacoes, elogios e pedidos de melhoria. Sem
         # `update` nem `destroy` - depois de registrada, o que o cliente faz e
         # acompanhar e responder.

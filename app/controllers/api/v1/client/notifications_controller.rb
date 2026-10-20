@@ -4,15 +4,63 @@
 #
 # Continua sem tabela de notificacao propria: as DUAS fontes ja existem, e o
 # que muda aqui e' so juntar as duas listas antes de cortar pelo limite.
-# Quando houver estado de lido/nao lido, e aqui que ele entra.
+# O estado de lido/removido mora em ClientNotificationDismissal, guardado so'
+# pela CHAVE sintetica do item (ver `communication_item`/`chat_item`) - nao
+# ha' onde gravar um "lido" dentro da propria TicketCustomerCommunication ou
+# Message sem misturar o que e' do agente com o que e' do contato.
 class Api::V1::Client::NotificationsController < Api::V1::Client::BaseController
   LIMIT = 50
 
   def index
-    @items = (communication_items + chat_items).sort_by { |item| -item[:created_at] }.first(LIMIT)
+    @items = visible_items
+  end
+
+  # Abrir (ou um botao de remover) dispensa UM item - ele so' some da lista,
+  # nunca apaga a comunicacao/mensagem original.
+  def dismiss
+    upsert_dismissals([params[:id]])
+    head :ok
+  end
+
+  # "Limpar tudo": dispensa so' o que a tela estaria mostrando agora, nao
+  # qualquer comunicacao que algum dia tenha existido.
+  def dismiss_all
+    upsert_dismissals(visible_items.pluck(:id))
+    head :ok
   end
 
   private
+
+  def visible_items
+    @visible_items ||= all_items.reject { |item| dismissed_keys.include?(item[:id]) }.first(LIMIT)
+  end
+
+  def all_items
+    @all_items ||= (communication_items + chat_items).sort_by { |item| -item[:created_at] }
+  end
+
+  def dismissed_keys
+    @dismissed_keys ||= current_contact.client_notification_dismissals
+                                       .where(account_id: Current.account.id)
+                                       .pluck(:item_key).to_set
+  end
+
+  # `upsert_all` pula validacao/callback de proposito: isto e' so' um upsert
+  # idempotente de chave (conta+contato+item_key), nao um registro com regra
+  # de negocio - e evita estourar em corrida (duplo clique) sem precisar de
+  # `rescue` pra unicidade.
+  # rubocop:disable Rails/SkipsModelValidations
+  def upsert_dismissals(keys)
+    return if keys.blank?
+
+    agora = Time.current
+    registros = keys.map do |key|
+      { account_id: Current.account.id, contact_id: current_contact.id,
+        item_key: key, dismissed_at: agora, created_at: agora, updated_at: agora }
+    end
+    ClientNotificationDismissal.upsert_all(registros, unique_by: :idx_client_notif_dismissals_on_contact_and_key)
+  end
+  # rubocop:enable Rails/SkipsModelValidations
 
   def communication_items
     TicketCustomerCommunication

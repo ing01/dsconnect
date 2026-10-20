@@ -6,10 +6,11 @@
  * antigo, com o caminho para o chamado. A resposta que ele mesmo enviou não
  * aparece - não é novidade para quem escreveu.
  *
- * Ainda não há estado de lido/não lido: não existe tabela de notificação para
- * contato, e criar uma antes de haver o que guardar seria estrutura à toa. Por
- * isso também não há contador no menu - um número que nunca zera é pior do que
- * número nenhum.
+ * Os itens continuam sintéticos (comunicação de ticket + mensagem de chat, sem
+ * tabela de notificação própria) - o que persiste é só a CHAVE do que este
+ * contato já abriu/removeu (`ClientNotificationDismissal`, por item_key), não
+ * o item em si. Por isso abrir UM item já o remove daqui, e tem um botão para
+ * remover sem abrir, e outro para limpar tudo que está visível agora.
  */
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -19,11 +20,13 @@ import ClientAreaAPI from 'dashboard/api/clientArea';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Label from 'dashboard/components-next/label/Label.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const { t } = useI18n();
 const router = useRouter();
 
 const isLoading = ref(true);
+const isClearing = ref(false);
 const items = ref([]);
 
 const temItens = computed(() => items.value.length > 0);
@@ -31,7 +34,16 @@ const temItens = computed(() => items.value.length > 0);
 const dataHora = segundos =>
   segundos ? new Date(segundos * 1000).toLocaleString() : '';
 
+// Dispara sem esperar resposta: a tela já reage removendo o item da lista -
+// se a chamada falhar, o pior caso é o item reaparecer na próxima visita, não
+// uma tela travada esperando o servidor.
+const dispensar = item => {
+  items.value = items.value.filter(i => i.id !== item.id);
+  ClientAreaAPI.dismissNotification(item.id).catch(() => {});
+};
+
 const abrir = item => {
+  dispensar(item);
   if (item.type === 'chat') {
     router.push({ name: 'client_chat' });
     return;
@@ -40,6 +52,24 @@ const abrir = item => {
     name: 'client_ticket_detail',
     params: { ticketId: item.ticket_id },
   });
+};
+
+const removerSemAbrir = (item, event) => {
+  event.stopPropagation();
+  dispensar(item);
+};
+
+const limparTudo = async () => {
+  if (isClearing.value) return;
+  isClearing.value = true;
+  try {
+    await ClientAreaAPI.dismissAllNotifications();
+    items.value = [];
+  } catch {
+    useAlert(t('CLIENT_AREA.NOTIFICATIONS.ERROR'));
+  } finally {
+    isClearing.value = false;
+  }
 };
 
 onMounted(async () => {
@@ -56,13 +86,24 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col flex-1 h-full min-h-0 gap-4 p-4 min-w-0 sm:p-6">
-    <div class="flex-shrink-0">
-      <h1 class="m-0 text-xl font-medium text-n-slate-12">
-        {{ t('CLIENT_AREA.NOTIFICATIONS.TITLE') }}
-      </h1>
-      <p class="m-0 text-sm text-n-slate-11">
-        {{ t('CLIENT_AREA.NOTIFICATIONS.DESCRIPTION') }}
-      </p>
+    <div class="flex items-start justify-between flex-shrink-0 gap-2">
+      <div>
+        <h1 class="m-0 text-xl font-medium text-n-slate-12">
+          {{ t('CLIENT_AREA.NOTIFICATIONS.TITLE') }}
+        </h1>
+        <p class="m-0 text-sm text-n-slate-11">
+          {{ t('CLIENT_AREA.NOTIFICATIONS.DESCRIPTION') }}
+        </p>
+      </div>
+      <Button
+        v-if="temItens"
+        variant="ghost"
+        size="sm"
+        :disabled="isClearing"
+        @click="limparTudo"
+      >
+        {{ t('CLIENT_AREA.NOTIFICATIONS.CLEAR_ALL') }}
+      </Button>
     </div>
 
     <div v-if="isLoading" class="flex justify-center py-16 text-n-slate-10">
@@ -80,10 +121,10 @@ onMounted(async () => {
     </div>
 
     <ul v-else class="flex flex-col gap-2 m-0 overflow-y-auto">
-      <li v-for="item in items" :key="item.id" class="list-none">
+      <li v-for="item in items" :key="item.id" class="relative list-none group">
         <button
           type="button"
-          class="flex flex-col w-full gap-1.5 p-3 text-left border rounded-lg cursor-pointer border-n-weak hover:border-n-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+          class="flex flex-col w-full gap-1.5 p-3 pr-10 text-left border rounded-lg cursor-pointer border-n-weak hover:border-n-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
           @click="abrir(item)"
         >
           <div class="flex flex-wrap items-center w-full gap-2 min-w-0">
@@ -120,6 +161,16 @@ onMounted(async () => {
           <span v-if="item.author_name" class="text-xs text-n-slate-10">
             {{ item.author_name }}
           </span>
+        </button>
+
+        <button
+          type="button"
+          :aria-label="t('CLIENT_AREA.NOTIFICATIONS.REMOVE')"
+          :title="t('CLIENT_AREA.NOTIFICATIONS.REMOVE')"
+          class="absolute flex items-center justify-center rounded-md top-2 right-2 size-6 text-n-slate-10 hover:bg-n-slate-3 hover:text-n-slate-12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+          @click="removerSemAbrir(item, $event)"
+        >
+          <Icon icon="i-lucide-x" class="size-3.5" />
         </button>
       </li>
     </ul>

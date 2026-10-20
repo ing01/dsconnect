@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-area-notifications-dismiss',
+    date: '20 de outubro de 2026',
+    isoDate: '2026-10-20',
+    type: 'feature',
+    platform: 'web',
+    title: 'Notificações da Área do Cliente agora podem ser removidas',
+    description:
+      'Na aba Notificações da Área do Cliente, abrir uma notificação agora a remove da lista (ela não fica mais aparecendo depois de já ter sido vista). Também foi adicionado um botão para remover uma notificação sem precisar abri-la, e um botão "Limpar tudo" para remover todas as que estão visíveis no momento.',
+  },
+  {
     id: 'ticket-list-due-date-invalid-date-fix',
     date: '20 de outubro de 2026',
     isoDate: '2026-10-20',
