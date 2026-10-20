@@ -65,9 +65,23 @@
         "ON_DATE": "On a date",
         "AFTER_COUNT": "After this many occurrences"
       },
+      "REMINDER": {
+        "LABEL": "Remind me before",
+        "NONE": "No reminder",
+        "MINUTES": "{n} min before",
+        "HOUR": "1 hour before",
+        "HOURS": "{n} hours before"
+      },
       "DELETE": "Delete",
       "CANCEL": "Cancel",
       "SAVE": "Save"
+    },
+    "REMINDER_TOAST": {
+      "LABEL": "Reminder",
+      "STARTS_IN": "Starts in {n} min",
+      "STARTS_NOW": "Starting now",
+      "OPEN": "Open event",
+      "DISMISS": "Dismiss"
     },
     "API": {
       "SUCCESS_MESSAGE": "Event saved.",

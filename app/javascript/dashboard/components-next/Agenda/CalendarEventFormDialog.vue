@@ -69,6 +69,7 @@ const buildInitialForm = () => {
         ? format(parseISO(props.event.recurrence_end_at), 'yyyy-MM-dd')
         : '',
       recurrence_count: props.event.recurrence_count || 5,
+      reminder_minutes_before: props.event.reminder_minutes_before ?? null,
     };
   }
 
@@ -89,6 +90,7 @@ const buildInitialForm = () => {
     recurrence_end_type: 'never',
     recurrence_end_at: '',
     recurrence_count: 5,
+    reminder_minutes_before: null,
   };
 };
 
@@ -300,6 +302,19 @@ onMounted(async () => {
             :label="t('AGENDA.FORM.LOCATION.LABEL')"
             :placeholder="t('AGENDA.FORM.LOCATION.PLACEHOLDER')"
           />
+
+          <label v-if="!form.all_day">
+            <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.REMINDER.LABEL') }}</span>
+            <select v-model.number="form.reminder_minutes_before" class="w-full">
+              <option :value="null">{{ t('AGENDA.FORM.REMINDER.NONE') }}</option>
+              <option :value="5">{{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 5 }) }}</option>
+              <option :value="10">{{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 10 }) }}</option>
+              <option :value="15">{{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 15 }) }}</option>
+              <option :value="30">{{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 30 }) }}</option>
+              <option :value="60">{{ t('AGENDA.FORM.REMINDER.HOUR') }}</option>
+              <option :value="120">{{ t('AGENDA.FORM.REMINDER.HOURS', { n: 2 }) }}</option>
+            </select>
+          </label>
 
           <label>
             <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.DESCRIPTION.LABEL') }}</span>
