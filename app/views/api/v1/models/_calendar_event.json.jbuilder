@@ -14,6 +14,7 @@ json.attendees resource.attendees.map { |attendee| { id: attendee.id, name: atte
 json.tickets resource.tickets.map { |ticket| { id: ticket.id, display_id: ticket.display_id, title: ticket.title } }
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
+json.reminder_minutes_before resource.reminder_minutes_before
 json.is_recurring resource.is_recurring
 json.recurring_series_id resource.recurring_series_id
 json.occurrence_date resource.occurrence_date&.iso8601

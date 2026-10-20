@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { format, addHours, startOfDay } from 'date-fns';
 import { HOUR_HEIGHT_PX, DAY_START_HOUR, DAY_END_HOUR } from '../constants';
 import AgendaTimeGridColumn from './AgendaTimeGridColumn.vue';
@@ -17,6 +17,8 @@ const props = defineProps({
 
 const emit = defineEmits(['slot-click', 'event-click', 'event-drag-end']);
 
+const scrollEl = ref(null);
+
 const hourLabels = computed(() =>
   Array.from({ length: DAY_END_HOUR - DAY_START_HOUR }, (_, i) =>
     format(addHours(startOfDay(new Date()), DAY_START_HOUR + i), 'HH:mm')
@@ -29,15 +31,24 @@ const eventsFor = day =>
     const end = new Date(event.end_at);
     return start < addHours(startOfDay(day), DAY_END_HOUR) && end > addHours(startOfDay(day), DAY_START_HOUR);
   });
+
+onMounted(() => {
+  if (!scrollEl.value) return;
+  const now = new Date();
+  const minutesFromStart = (now.getHours() - DAY_START_HOUR) * 60 + now.getMinutes();
+  const nowTopPx = (minutesFromStart / 60) * HOUR_HEIGHT_PX;
+  // Centraliza o horário atual na área visível; clampado a 0 para não rolar pra cima do início.
+  scrollEl.value.scrollTop = Math.max(0, nowTopPx - scrollEl.value.clientHeight / 2);
+});
 </script>
 
 <template>
-  <div class="flex flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden">
-    <div class="sticky left-0 flex-shrink-0 w-14 bg-n-background z-10">
+  <div ref="scrollEl" class="flex flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden">
+    <div class="sticky left-0 flex-shrink-0 w-14 pt-2 bg-n-background z-10">
       <div
         v-for="label in hourLabels"
         :key="label"
-        class="text-right pr-2 text-xs text-n-slate-10 -translate-y-2"
+        class="text-right pr-2 text-xs text-n-slate-11 -translate-y-2"
         :style="{ height: `${HOUR_HEIGHT_PX}px` }"
       >
         {{ label }}

@@ -136,11 +136,12 @@ const handleClick = e => {
 <template>
   <button
     type="button"
-    class="absolute overflow-hidden rounded-md px-2 py-1 text-left text-white shadow-sm transition-[opacity] hover:opacity-90 select-none"
+    class="absolute overflow-hidden rounded-md pl-3 pr-2 py-1 text-left text-white shadow-md transition-[opacity,shadow] hover:opacity-90 hover:shadow-lg select-none"
     :class="[
       { 'rounded-t-none': clippedAtStart, 'rounded-b-none': clippedAtEnd },
       { 'cursor-grab': draggable && !isDragging, 'cursor-grabbing': isDragging, 'ring-2 ring-white/70 z-10': isDragging },
       { 'opacity-80 border border-dashed border-white/70': isTimeOff },
+      { 'border-l-[3px] border-l-black/20': !isTimeOff },
     ]"
     :style="{
       top: `${top}px`,

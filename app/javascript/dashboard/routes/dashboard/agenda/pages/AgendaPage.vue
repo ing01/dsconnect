@@ -15,6 +15,7 @@ import AgendaWeekView from 'dashboard/components-next/Agenda/AgendaView/AgendaWe
 import AgendaDayView from 'dashboard/components-next/Agenda/AgendaView/AgendaDayView.vue';
 import CalendarEventFormDialog from 'dashboard/components-next/Agenda/CalendarEventFormDialog.vue';
 import RecurrenceScopeDialog from 'dashboard/components-next/Agenda/RecurrenceScopeDialog.vue';
+import AgendaReminderToast from 'dashboard/components-next/Agenda/AgendaReminderToast.vue';
 import { visibleRangeFor } from 'dashboard/components-next/Agenda/helpers/agendaDateHelper';
 
 const LAST_TEAM_STORAGE_KEY = 'agenda-last-team-id';
@@ -27,7 +28,9 @@ export default {
     AgendaDayView,
     CalendarEventFormDialog,
     RecurrenceScopeDialog,
+    AgendaReminderToast,
   },
+
   data() {
     return {
       selectedTeamId: null,
@@ -347,6 +350,11 @@ export default {
       :action="recurrenceScopeAction"
       @close="showRecurrenceScope = false"
       @confirm="confirmRecurrenceScope"
+    />
+
+    <AgendaReminderToast
+      :events="events"
+      @open="openEditEvent"
     />
   </div>
 </template>

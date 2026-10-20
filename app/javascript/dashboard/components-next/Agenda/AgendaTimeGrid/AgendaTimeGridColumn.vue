@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { isToday as isDateToday } from 'date-fns';
+import { isToday as isDateToday, format } from 'date-fns';
 import { eventToPosition, computeOverlapLayout, slotClickToDate } from '../helpers/agendaLayoutHelper';
 import AgendaEventBlock from './AgendaEventBlock.vue';
 
@@ -76,15 +76,21 @@ const showNowLine = computed(
 <template>
   <div
     class="relative flex-1 min-w-0 border-r border-n-weak last:border-r-0"
+    :class="{ 'bg-n-blue-1/5 dark:bg-white/[0.018]': isTodayColumn }"
     :style="{ height: `${hourCount * hourHeight}px` }"
     @click="handleBackgroundClick"
   >
     <div
       v-for="hour in hourCount"
       :key="hour"
-      class="border-b border-n-weak transition-colors cursor-pointer hover:bg-n-slate-2 dark:hover:bg-n-solid-2"
+      class="relative border-b border-n-weak transition-colors cursor-pointer hover:bg-n-slate-2 dark:hover:bg-n-solid-2"
       :style="{ height: `${hourHeight}px` }"
-    />
+    >
+      <div
+        class="absolute inset-x-0 border-b border-dashed border-n-weak/50 pointer-events-none"
+        :style="{ top: `${hourHeight / 2}px` }"
+      />
+    </div>
 
     <AgendaEventBlock
       v-for="item in positionedEvents"
@@ -106,7 +112,10 @@ const showNowLine = computed(
       class="absolute inset-x-0 z-10 flex items-center pointer-events-none"
       :style="{ top: `${nowTopPx}px` }"
     >
-      <span class="-ml-1 size-2 rounded-full bg-n-ruby-9" />
+      <span class="shrink-0 text-[10px] font-semibold leading-none text-n-ruby-9 pr-1 -translate-y-px">
+        {{ format(now, 'HH:mm') }}
+      </span>
+      <span class="shrink-0 size-2 rounded-full bg-n-ruby-9" />
       <span class="flex-1 h-px bg-n-ruby-9" />
     </div>
   </div>
