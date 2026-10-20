@@ -7,6 +7,8 @@
     "NO_ENTRIES": "No time logged in this period.",
     "TOTAL_HOURS": "Total hours",
     "TOTAL_ENTRIES": "Entries",
+    "BY_COMPANY": "By client",
+    "NO_COMPANY": "No client",
     "LOADING": "Loading...",
     "ERROR": "Could not load the report.",
     "FILTERS": {
@@ -15,6 +17,7 @@
       "TEAM": "Service desk",
       "LEVEL": "Level",
       "USER": "User",
+      "COMPANY": "Client",
       "ALL": "All",
       "APPLY": "Apply",
       "CLEAR": "Clear filters"

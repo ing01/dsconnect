@@ -414,6 +414,8 @@
     "REPORTS_INBOX": "Caixa de Entrada",
     "REPORTS_TEAM": "Time",
     "REPORTS_TICKET": "Tickets",
+    "REPORTS_TICKET_TIME": "Horas apontadas",
+    "REPORTS_TICKET_SLA": "SLA por agente/Cliente",
     "AGENT_ASSIGNMENT": "Atribuição de Agentes",
     "SET_AVAILABILITY_TITLE": "Defina como",
     "SET_YOUR_AVAILABILITY": "Disponibilidade",

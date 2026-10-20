@@ -110,6 +110,7 @@
       "replied": "replied to the customer",
       "internal_note_added": "added an internal note",
       "converted_to_ticket": "converted it into a ticket",
+      "converted_to_suggestion": "converted it into a suggestion",
       "client_replied": "replied",
       "FROM_TO": "from {from} to {to}",
       "TO": "to {to}"
@@ -125,6 +126,15 @@
       "DONE": "Ticket #{number} created.",
       "ALREADY": "Already converted into ticket #{number}.",
       "OPEN_TICKET": "Open ticket #{number}"
+    },
+    "CONVERT_SUGGESTION": {
+      "ACTION": "Send to Suggestions & Improvements",
+      "TITLE": "Send to Suggestions & Improvements",
+      "DESCRIPTION": "A suggestion will be created on the Suggestions & Improvements board, with the description and image/video attachments of this record. The record stays, linked to the suggestion.",
+      "CONFIRM": "Send",
+      "CANCEL": "Cancel",
+      "DONE": "Suggestion created.",
+      "OPEN_SUGGESTION": "View on the Suggestions board"
     },
     "STATUS_CHANGE": {
       "LABEL": "Change status",

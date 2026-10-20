@@ -12,14 +12,15 @@ class Tickets::TimeEntriesReportBuilder
     {
       totals: totals,
       by_level: by_level,
-      by_user: by_user
+      by_user: by_user,
+      by_company: by_company
     }
   end
 
   private
 
   def scope
-    @scope ||= filter_by_team(filter_by_attributes(filter_by_period(account.ticket_time_entries.reorder(nil))))
+    @scope ||= filter_by_company(filter_by_team(filter_by_attributes(filter_by_period(account.ticket_time_entries.reorder(nil)))))
   end
 
   def filter_by_period(relation)
@@ -42,6 +43,14 @@ class Tickets::TimeEntriesReportBuilder
     return relation if params[:team_id].blank?
 
     relation.joins(:ticket).where(tickets: { team_id: params[:team_id] })
+  end
+
+  # Mesmo raciocinio do filtro de Mesa, para a Empresa - e o corte que a analise
+  # de margem por Cliente precisa.
+  def filter_by_company(relation)
+    return relation if params[:company_id].blank?
+
+    relation.joins(:ticket).where(tickets: { company_id: params[:company_id] })
   end
 
   def totals
@@ -87,6 +96,21 @@ class Tickets::TimeEntriesReportBuilder
 
   def user_names
     @user_names ||= User.where(id: scope.distinct.pluck(:user_id)).pluck(:id, :name).to_h
+  end
+
+  # Quanto cada Cliente consumiu - o corte que a analise de margem precisa:
+  # cruzar as horas gastas num Cliente com o que se cobra dele.
+  def by_company
+    totals_by_company = scope.joins(:ticket).group('tickets.company_id').sum(:hours)
+
+    rows = totals_by_company.map do |company_id, hours|
+      { company_id: company_id, company_name: company_names[company_id], hours: hours.to_f }
+    end
+    rows.sort_by { |row| -row[:hours] }
+  end
+
+  def company_names
+    @company_names ||= Company.where(id: scope.joins(:ticket).distinct.pluck('tickets.company_id')).pluck(:id, :name).to_h
   end
 
   def from

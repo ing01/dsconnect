@@ -14,3 +14,9 @@ json.by_user @report[:by_user] do |row|
   json.level row[:level]
   json.hours row[:hours]
 end
+
+json.by_company @report[:by_company] do |row|
+  json.company_id row[:company_id]
+  json.company_name row[:company_name]
+  json.hours row[:hours]
+end

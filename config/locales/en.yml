@@ -639,8 +639,9 @@ en:
     attachment:
       too_large: 'is larger than the %{limit} MB limit'
     convert:
-      already_done: This record was already converted into a ticket.
+      already_done: This record was already converted.
       no_team: No active Mesa available to receive the ticket.
+      no_suggestion_column: No stage configured on the Suggestions board.
       description_header: 'Opened from record %{reference} (%{kind} - %{subject}).'
   monthly_satisfaction_survey:
     already_answered: You already answered this month's survey.

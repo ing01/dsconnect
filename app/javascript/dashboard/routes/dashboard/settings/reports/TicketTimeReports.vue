@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import TicketTimeReportsAPI from 'dashboard/api/ticketTimeReports';
+import TicketCompanySelect from '../../tickets/components/TicketCompanySelect.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 
@@ -13,7 +14,15 @@ const store = useStore();
 const teams = useMapGetter('teams/getTeams');
 const agents = useMapGetter('agents/getAgents');
 
-const filters = ref({ from: '', to: '', teamId: '', level: '', userId: '' });
+const filters = ref({
+  from: '',
+  to: '',
+  teamId: '',
+  level: '',
+  userId: '',
+  companyId: null,
+});
+const companyName = ref('');
 const report = ref(null);
 const isLoading = ref(false);
 
@@ -28,6 +37,7 @@ const load = async () => {
       team_id: filters.value.teamId || undefined,
       level: filters.value.level || undefined,
       user_id: filters.value.userId || undefined,
+      company_id: filters.value.companyId || undefined,
     });
     report.value = data;
   } catch (error) {
@@ -66,7 +76,15 @@ watch(LEVELS, niveis => {
 });
 
 const clear = () => {
-  filters.value = { from: '', to: '', teamId: '', level: '', userId: '' };
+  filters.value = {
+    from: '',
+    to: '',
+    teamId: '',
+    level: '',
+    userId: '',
+    companyId: null,
+  };
+  companyName.value = '';
   load();
 };
 
@@ -153,6 +171,17 @@ onMounted(() => {
           </option>
         </select>
       </label>
+      <!-- O corte que a analise de margem por Cliente pede. -->
+      <label class="flex flex-col gap-1 min-w-0">
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('TICKET_TIME_REPORTS.FILTERS.COMPANY') }}
+        </span>
+        <TicketCompanySelect
+          v-model="filters.companyId"
+          :initial-name="companyName"
+          @select="company => (companyName = company?.name || '')"
+        />
+      </label>
     </div>
 
     <div class="flex gap-2">
@@ -228,6 +257,33 @@ onMounted(() => {
             class="flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-lg bg-n-alpha-1"
           >
             <span class="truncate text-n-slate-12">{{ row.user_name }}</span>
+            <span class="flex-shrink-0 text-n-slate-11">
+              {{ t('TICKET_TIME_REPORTS.HOURS', { hours: row.hours }) }}
+            </span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- O cruzamento que a analise de margem por Cliente pede: quanto cada
+           Empresa consumiu, independente de nivel. -->
+      <section class="flex flex-col gap-2">
+        <h2 class="text-sm font-medium text-n-slate-12">
+          {{ t('TICKET_TIME_REPORTS.BY_COMPANY') }}
+        </h2>
+
+        <p v-if="!report.by_company.length" class="text-sm text-n-slate-10">
+          {{ t('TICKET_TIME_REPORTS.NO_ENTRIES') }}
+        </p>
+
+        <ul v-else class="flex flex-col gap-1">
+          <li
+            v-for="row in report.by_company"
+            :key="row.company_id ?? 'none'"
+            class="flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-lg bg-n-alpha-1"
+          >
+            <span class="truncate text-n-slate-12">
+              {{ row.company_name || t('TICKET_TIME_REPORTS.NO_COMPANY') }}
+            </span>
             <span class="flex-shrink-0 text-n-slate-11">
               {{ t('TICKET_TIME_REPORTS.HOURS', { hours: row.hours }) }}
             </span>

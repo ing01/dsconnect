@@ -13,6 +13,8 @@
         "INBOX": "Conversas e tempos de resposta por caixa de entrada.",
         "TEAM": "Desempenho por Mesa/equipe.",
         "TICKET": "Uma linha por chamado, com filtros de cliente, status e período.",
+        "TICKET_TIME": "Horas apontadas nos chamados, por Mesa, nível, agente e Cliente - para análise de margem.",
+        "TICKET_SLA": "Cumprimento do SLA dos chamados, por agente e por Cliente, combinado ou por tipo de prazo.",
         "CSAT": "Notas de satisfação deixadas pelos clientes.",
         "SLA": "Cumprimento dos acordos de nível de serviço.",
         "BOT": "Desempenho das respostas automáticas da Dua.",

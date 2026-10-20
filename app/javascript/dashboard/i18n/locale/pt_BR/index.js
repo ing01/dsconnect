@@ -56,6 +56,7 @@ import internalChat from './internalChat.json';
 import clientArea from './clientArea.json';
 import ticket from './ticket.json';
 import ticketTimeReports from './ticketTimeReports.json';
+import ticketSlaReports from './ticketSlaReports.json';
 import ticketReports from './ticketReports.json';
 import webhooks from './webhooks.json';
 import whatsappTemplates from './whatsappTemplates.json';
@@ -122,6 +123,7 @@ export default {
   ...clientArea,
   ...ticket,
   ...ticketTimeReports,
+  ...ticketSlaReports,
   ...ticketReports,
   ...webhooks,
   ...whatsappTemplates,

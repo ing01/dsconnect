@@ -10,6 +10,7 @@ vi.mock('dashboard/api/manifestations', () => ({
     create: vi.fn(),
     reply: vi.fn(),
     convert: vi.fn(),
+    convertToSuggestion: vi.fn(),
   },
 }));
 
@@ -154,6 +155,21 @@ describe('o SAC no store', () => {
         ticketCategoryId: 3,
       });
       expect(dados.converted).toBe(true);
+    });
+  });
+
+  // Pedido: a outra saida, sem Mesa - so' a conta inteira tem UM quadro de
+  // Sugestoes, entao nao ha o que escolher na chamada.
+  describe('a conversão em sugestão', () => {
+    it('converts through the server, without any team/category param', async () => {
+      ManifestationsAPI.convertToSuggestion.mockResolvedValue({
+        data: { id: 1, converted: true, converted_suggestion_id: 9 },
+      });
+
+      const dados = await actions.convertToSuggestion({ commit: vi.fn() }, 1);
+
+      expect(ManifestationsAPI.convertToSuggestion).toHaveBeenCalledWith(1);
+      expect(dados.converted_suggestion_id).toBe(9);
     });
   });
 

@@ -12,6 +12,10 @@ class Manifestation < ApplicationRecord
   belongs_to :contact, optional: true
   belongs_to :assignee, class_name: 'User', optional: true
   belongs_to :converted_ticket, class_name: 'Ticket', optional: true
+  # A outra saida possivel: quando o assunto e' melhoria/sugestao/bug interno,
+  # nao um atendimento de verdade, ela vai para o quadro de Sugestoes em vez de
+  # virar ticket numa Mesa (ver Manifestations::SuggestionConversionService).
+  belongs_to :converted_suggestion, class_name: 'Suggestion', optional: true
 
   has_many :manifestation_messages, dependent: :destroy
   has_many :manifestation_activities, dependent: :destroy
@@ -53,7 +57,7 @@ class Manifestation < ApplicationRecord
   end
 
   def converted?
-    converted_ticket_id.present?
+    converted_ticket_id.present? || converted_suggestion_id.present?
   end
 
   # O numero como o cliente o cita.

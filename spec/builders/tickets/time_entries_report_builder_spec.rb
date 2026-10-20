@@ -68,4 +68,42 @@ RSpec.describe Tickets::TimeEntriesReportBuilder do
 
     expect(relatorio[:by_level].map { |row| row[:level] }).to eq([1, 2, nil])
   end
+
+  # O corte pedido para a analise de margem: quanto cada Cliente consumiu.
+  describe 'by_company' do
+    it 'sums the hours logged per client' do
+      team = create(:team, account: account)
+      cliente_a = create(:company, account: account)
+      cliente_b = create(:company, account: account)
+      ticket_a = ticket_da(team).tap { |t| t.update!(company: cliente_a) }
+      ticket_b = ticket_da(team).tap { |t| t.update!(company: cliente_b) }
+
+      ticket_a.ticket_time_entries.create!(account: account, user: agente, hours: 3,
+                                           category: 'desenvolvimento', worked_on: Time.zone.today)
+      ticket_b.ticket_time_entries.create!(account: account, user: agente, hours: 1,
+                                           category: 'desenvolvimento', worked_on: Time.zone.today)
+
+      resultado = relatorio[:by_company]
+
+      expect(resultado.find { |row| row[:company_id] == cliente_a.id }[:hours]).to eq(3.0)
+      expect(resultado.find { |row| row[:company_id] == cliente_b.id }[:hours]).to eq(1.0)
+    end
+
+    it 'narrows everything to one client when filtered' do
+      team = create(:team, account: account)
+      cliente_a = create(:company, account: account)
+      cliente_b = create(:company, account: account)
+      ticket_a = ticket_da(team).tap { |t| t.update!(company: cliente_a) }
+      ticket_b = ticket_da(team).tap { |t| t.update!(company: cliente_b) }
+
+      ticket_a.ticket_time_entries.create!(account: account, user: agente, hours: 3,
+                                           category: 'desenvolvimento', worked_on: Time.zone.today)
+      ticket_b.ticket_time_entries.create!(account: account, user: agente, hours: 1,
+                                           category: 'desenvolvimento', worked_on: Time.zone.today)
+
+      resultado = relatorio(company_id: cliente_a.id)
+
+      expect(resultado[:totals][:hours]).to eq(3.0)
+    end
+  end
 end

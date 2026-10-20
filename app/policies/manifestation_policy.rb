@@ -30,6 +30,12 @@ class ManifestationPolicy < ApplicationPolicy
     administrator?
   end
 
+  # A outra saida (quadro de Sugestoes) e' tao definitiva quanto virar ticket -
+  # mesma regra, mesmo motivo.
+  def convert_to_suggestion?
+    administrator?
+  end
+
   def destroy?
     administrator?
   end

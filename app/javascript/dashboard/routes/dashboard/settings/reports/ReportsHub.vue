@@ -68,6 +68,20 @@ const cards = computed(() => [
     to: accountScopedRoute('ticket_reports'),
   },
   {
+    key: 'ticket_time',
+    icon: 'i-lucide-clock-3',
+    title: t('SIDEBAR.REPORTS_TICKET_TIME'),
+    description: t('REPORT.HUB.CARDS.TICKET_TIME'),
+    to: accountScopedRoute('ticket_time_reports'),
+  },
+  {
+    key: 'ticket_sla',
+    icon: 'i-lucide-gauge',
+    title: t('SIDEBAR.REPORTS_TICKET_SLA'),
+    description: t('REPORT.HUB.CARDS.TICKET_SLA'),
+    to: accountScopedRoute('ticket_sla_reports'),
+  },
+  {
     key: 'csat',
     icon: 'i-lucide-star',
     title: t('SIDEBAR.CSAT'),

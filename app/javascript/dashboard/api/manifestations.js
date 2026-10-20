@@ -37,6 +37,12 @@ class ManifestationsAPI extends ApiClient {
       ...(ticketCategoryId ? { ticket_category_id: ticketCategoryId } : {}),
     });
   }
+
+  // A outra saida: o quadro de Sugestoes, sem Mesa/Categoria - so' uma fila
+  // por conta, entao nao ha o que escolher alem de confirmar.
+  convertToSuggestion(id) {
+    return axios.post(`${this.url}/${id}/convert_to_suggestion`);
+  }
 }
 
 export default new ManifestationsAPI();

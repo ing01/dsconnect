@@ -20,6 +20,6 @@ class Api::V1::Accounts::TicketTimeReportsController < Api::V1::Accounts::BaseCo
   end
 
   def report_params
-    params.permit(:from, :to, :team_id, :level, :user_id, :category)
+    params.permit(:from, :to, :team_id, :level, :user_id, :category, :company_id)
   end
 end

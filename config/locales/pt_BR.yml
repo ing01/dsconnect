@@ -652,8 +652,9 @@ pt_BR:
     attachment:
       too_large: 'é maior que o limite de %{limit} MB'
     convert:
-      already_done: Esta manifestação já foi convertida em ticket.
+      already_done: Esta manifestação já foi convertida.
       no_team: Nenhuma Mesa ativa para receber o ticket.
+      no_suggestion_column: Nenhum Estágio cadastrado no quadro de Sugestões.
       description_header: 'Aberto a partir da manifestação %{reference} (%{kind} - %{subject}).'
   monthly_satisfaction_survey:
     already_answered: Você já respondeu a avaliação deste mês.

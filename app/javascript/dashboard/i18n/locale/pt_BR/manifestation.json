@@ -110,6 +110,7 @@
       "replied": "respondeu ao cliente",
       "internal_note_added": "adicionou uma anotação interna",
       "converted_to_ticket": "converteu em ticket",
+      "converted_to_suggestion": "converteu em sugestão",
       "client_replied": "respondeu",
       "FROM_TO": "de {from} para {to}",
       "TO": "para {to}"
@@ -125,6 +126,15 @@
       "DONE": "Ticket #{number} criado.",
       "ALREADY": "Já convertida no ticket #{number}.",
       "OPEN_TICKET": "Abrir o ticket #{number}"
+    },
+    "CONVERT_SUGGESTION": {
+      "ACTION": "Enviar para Sugestões e Melhorias",
+      "TITLE": "Enviar para Sugestões e Melhorias",
+      "DESCRIPTION": "Será criada uma sugestão no quadro de Sugestões e Melhorias, com a descrição e os anexos de imagem/vídeo desta manifestação. A manifestação continua existindo, vinculada à sugestão.",
+      "CONFIRM": "Enviar",
+      "CANCEL": "Cancelar",
+      "DONE": "Sugestão criada.",
+      "OPEN_SUGGESTION": "Ver no quadro de Sugestões"
     },
     "STATUS_CHANGE": {
       "LABEL": "Alterar status",

@@ -8,6 +8,36 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-sla-report-and-time-by-company',
+    date: '20 de outubro de 2026',
+    isoDate: '2026-10-20',
+    type: 'feature',
+    platform: 'web',
+    title: 'Relatório de SLA por agente/Cliente, e horas por Cliente',
+    description:
+      'Novo relatório em Configurações > Relatórios > "SLA por agente/Cliente": cumprimento do SLA (relógios de atendimento/estágio/solução), com quantos cumpridos, vencidos, em andamento, taxa de cumprimento, tempo realmente gasto e tempo de atraso - por agente e por Cliente, combinado ou separado por tipo de prazo, com filtro de período/Mesa/Cliente. O relatório de Horas apontadas (que já existia) ganhou o mesmo corte por Cliente e passou a aparecer no hub de Relatórios. Os dois juntos dão a base para análise de margem de lucro por Cliente.',
+  },
+  {
+    id: 'manifestation-convert-to-suggestion',
+    date: '20 de outubro de 2026',
+    isoDate: '2026-10-20',
+    type: 'feature',
+    platform: 'web',
+    title: 'SAC: enviar manifestação para Sugestões e Melhorias',
+    description:
+      'No SAC, uma manifestação de melhoria/sugestão/bug interno agora pode ser enviada direto para o quadro de Sugestões e Melhorias, sem precisar virar um ticket numa Mesa. A sugestão nasce com a descrição e os anexos de imagem/vídeo da manifestação, e um link volta para o SAC de origem - igual já acontecia com "Converter em Ticket". As duas saídas são excludentes: a manifestação vira ticket OU sugestão, nunca os dois.',
+  },
+  {
+    id: 'ticket-list-column-resize-and-hide',
+    date: '20 de outubro de 2026',
+    isoDate: '2026-10-20',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Lista de tickets: redimensionar e ocultar colunas',
+    description:
+      'Na lista de tickets (Busca detalhada e Tickets da Área do Cliente), agora dá para arrastar a borda de uma coluna pra redimensioná-la, e usar o botão "Colunas" para ocultar as que não interessam. A coluna Título já nasce mais larga por padrão, para não cortar o assunto do chamado atrás dos prefixos de Mesa/Categoria. A escolha fica salva por conta, sem precisar refazer toda vez.',
+  },
+  {
     id: 'agent-lunch-break-auto-assignment',
     date: '15 de outubro de 2026',
     isoDate: '2026-10-15',

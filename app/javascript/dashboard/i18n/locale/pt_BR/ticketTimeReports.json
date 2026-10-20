@@ -7,6 +7,8 @@
     "NO_ENTRIES": "Nenhum apontamento no período.",
     "TOTAL_HOURS": "Total de horas",
     "TOTAL_ENTRIES": "Apontamentos",
+    "BY_COMPANY": "Por Cliente",
+    "NO_COMPANY": "Sem Cliente",
     "LOADING": "Carregando...",
     "ERROR": "Não foi possível carregar o relatório.",
     "FILTERS": {
@@ -15,6 +17,7 @@
       "TEAM": "Mesa de Serviço",
       "LEVEL": "Nível",
       "USER": "Usuário",
+      "COMPANY": "Cliente",
       "ALL": "Todos",
       "APPLY": "Aplicar",
       "CLEAR": "Limpar filtros"

@@ -27,6 +27,7 @@ import {
   statusOptions,
 } from '../helpers/manifestationLabels';
 import ManifestationConvertDialog from '../components/ManifestationConvertDialog.vue';
+import ManifestationConvertToSuggestionDialog from '../components/ManifestationConvertToSuggestionDialog.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -40,6 +41,7 @@ const agents = computed(() => getters['agents/getVerifiedAgents'].value || []);
 const currentRole = computed(() => getters.getCurrentRole?.value);
 
 const convertDialogRef = ref(null);
+const convertSuggestionDialogRef = ref(null);
 const texto = ref('');
 const ehAnotacao = ref(false);
 const aguardarCliente = ref(false);
@@ -120,6 +122,12 @@ const abrirTicket = () =>
     )
   );
 
+const abrirSugestao = () =>
+  router.push({
+    name: 'suggestions_index',
+    query: { suggestion: manifestacao.value.converted_suggestion_id },
+  });
+
 const descricaoAtividade = atividade => {
   const acao = t(`MANIFESTATION.ACTIVITY.${atividade.activity_type}`);
   if (atividade.activity_type !== 'status_changed') return acao;
@@ -191,11 +199,11 @@ onMounted(async () => {
         </div>
 
         <div class="flex flex-wrap items-center flex-shrink-0 gap-2">
-          <!-- Já convertida: o botão dá lugar ao caminho para o ticket. É isso
-               que evita a segunda conversão pela tela; o servidor recusa de
-               todo jeito. -->
+          <!-- Já convertida: o botão dá lugar ao caminho para onde foi (ticket
+               OU sugestão - nunca os dois). É isso que evita a segunda
+               conversão pela tela; o servidor recusa de todo jeito. -->
           <Button
-            v-if="manifestacao.converted"
+            v-if="manifestacao.converted_ticket_id"
             variant="faded"
             color="teal"
             size="sm"
@@ -208,14 +216,32 @@ onMounted(async () => {
             @click="abrirTicket"
           />
           <Button
-            v-else-if="podeConverter"
+            v-else-if="manifestacao.converted_suggestion_id"
             variant="faded"
-            color="slate"
+            color="teal"
             size="sm"
-            icon="i-lucide-ticket"
-            :label="t('MANIFESTATION.CONVERT.ACTION')"
-            @click="convertDialogRef?.open()"
+            icon="i-lucide-lightbulb"
+            :label="t('MANIFESTATION.CONVERT_SUGGESTION.OPEN_SUGGESTION')"
+            @click="abrirSugestao"
           />
+          <template v-else-if="podeConverter">
+            <Button
+              variant="faded"
+              color="slate"
+              size="sm"
+              icon="i-lucide-ticket"
+              :label="t('MANIFESTATION.CONVERT.ACTION')"
+              @click="convertDialogRef?.open()"
+            />
+            <Button
+              variant="faded"
+              color="slate"
+              size="sm"
+              icon="i-lucide-lightbulb"
+              :label="t('MANIFESTATION.CONVERT_SUGGESTION.ACTION')"
+              @click="convertSuggestionDialogRef?.open()"
+            />
+          </template>
         </div>
       </div>
 
@@ -407,6 +433,10 @@ onMounted(async () => {
 
       <ManifestationConvertDialog
         ref="convertDialogRef"
+        :manifestation="manifestacao"
+      />
+      <ManifestationConvertToSuggestionDialog
+        ref="convertSuggestionDialogRef"
         :manifestation="manifestacao"
       />
     </template>

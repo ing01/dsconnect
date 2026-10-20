@@ -27,6 +27,8 @@ json.assignee_name resource.assignee&.name
 json.converted resource.converted?
 json.converted_ticket_id resource.converted_ticket_id
 json.converted_ticket_display_id resource.converted_ticket&.display_id
+json.converted_suggestion_id resource.converted_suggestion_id
+json.converted_suggestion_title resource.converted_suggestion&.title
 json.converted_at resource.converted_at&.to_i
 
 json.attachments resource.manifestation_attachments do |anexo|

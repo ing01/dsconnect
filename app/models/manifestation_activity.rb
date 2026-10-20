@@ -16,7 +16,8 @@ class ManifestationActivity < ApplicationRecord
     replied: 3,
     internal_note_added: 4,
     converted_to_ticket: 5,
-    client_replied: 6
+    client_replied: 6,
+    converted_to_suggestion: 7
   }
 
   before_validation :ensure_account_id

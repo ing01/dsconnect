@@ -1,0 +1,39 @@
+{
+  "TICKET_SLA_REPORTS": {
+    "TITLE": "Ticket SLA",
+    "DESC": "SLA compliance by agent and by client - combined or by clock type.",
+    "BY_AGENT": "By agent",
+    "BY_COMPANY": "By client",
+    "NO_COMPANY": "No client",
+    "UNASSIGNED": "Unassigned",
+    "NO_ENTRIES": "No SLA clock in this period.",
+    "LOADING": "Loading...",
+    "ERROR": "Could not load the report.",
+    "KIND": {
+      "ALL": "All",
+      "RESPONSE": "Response",
+      "STAGE": "Stage",
+      "RESOLUTION": "Resolution"
+    },
+    "METRICS": {
+      "NAME": "Name",
+      "CLOCKS": "Clocks",
+      "HIT": "Hit",
+      "MISSED": "Missed",
+      "ACTIVE": "Active",
+      "HIT_RATE": "Hit rate",
+      "ACTUAL_HOURS": "Time spent",
+      "OVERRUN_HOURS": "Overrun time"
+    },
+    "FILTERS": {
+      "FROM": "From",
+      "TO": "To",
+      "TEAM": "Service desk",
+      "COMPANY": "Client",
+      "ALL": "All",
+      "APPLY": "Apply",
+      "CLEAR": "Clear filters"
+    },
+    "HOURS": "{hours}h"
+  }
+}

@@ -414,6 +414,109 @@ RSpec.describe 'Manifestations API', type: :request do
     end
   end
 
+  describe 'POST convert_to_suggestion' do
+    let!(:coluna_sugestoes) { create(:suggestion_column, account: account, name: 'Entrada') }
+    let(:registro) do
+      manifestacao(kind: :improvement, subject_area: :erp, title: 'Exportar em Excel',
+                   description: 'Seria util exportar direto em Excel.')
+    end
+
+    def converter_sugestao(user: administrador)
+      post "/api/v1/accounts/#{account.id}/manifestations/#{registro.id}/convert_to_suggestion",
+           headers: user.create_new_auth_token, as: :json
+    end
+
+    it 'creates a suggestion on the account board, without needing a Mesa' do
+      converter_sugestao
+
+      expect(response).to have_http_status(:success)
+      sugestao = registro.reload.converted_suggestion
+      expect(sugestao).to be_present
+      expect(sugestao.suggestion_column_id).to eq(coluna_sugestoes.id)
+      expect(sugestao.title).to eq('Exportar em Excel')
+      expect(sugestao.description).to include('Seria util exportar direto em Excel.')
+      expect(sugestao.description).to include(registro.reference)
+    end
+
+    it 'credits the suggestion to whoever converted it' do
+      converter_sugestao
+
+      expect(registro.reload.converted_suggestion.user_id).to eq(administrador.id)
+    end
+
+    it 'only copies attachments the Suggestions board accepts (image/video)' do
+      imagem = registro.manifestation_attachments.new(account_id: account.id)
+      imagem.file.attach(io: Rails.root.join('spec/assets/avatar.png').open,
+                         filename: 'avatar.png', content_type: 'image/png')
+      imagem.save!
+      documento = registro.manifestation_attachments.new(account_id: account.id)
+      documento.file.attach(io: StringIO.new('conteudo'), filename: 'nota.pdf', content_type: 'application/pdf')
+      documento.save!
+
+      converter_sugestao
+
+      expect(registro.reload.converted_suggestion.attachments.count).to eq(1)
+      expect(registro.manifestation_attachments.count).to eq(2)
+    end
+
+    it 'records the conversion in the history' do
+      converter_sugestao
+
+      atividade = registro.reload.manifestation_activities.last
+      expect(atividade.activity_type).to eq('converted_to_suggestion')
+    end
+
+    it 'links the manifestation to the suggestion and stamps the time' do
+      converter_sugestao
+
+      expect(registro.reload.converted_suggestion_id).to be_present
+      expect(registro.converted_at).to be_present
+      expect(registro.converted?).to be(true)
+    end
+
+    it 'refuses to convert twice' do
+      converter_sugestao
+      primeiro = registro.reload.converted_suggestion_id
+
+      expect { converter_sugestao }.not_to change(Suggestion, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(registro.reload.converted_suggestion_id).to eq(primeiro)
+    end
+
+    # As duas saidas sao mutuamente exclusivas: uma manifestacao ja convertida
+    # em ticket nao pode tambem virar sugestao.
+    it 'refuses when the manifestation was already converted into a ticket' do
+      post "/api/v1/accounts/#{account.id}/manifestations/#{registro.id}/convert",
+           params: { team_id: suporte.id }, headers: administrador.create_new_auth_token, as: :json
+
+      expect { converter_sugestao }.not_to change(Suggestion, :count)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'forbids a plain agent from converting' do
+      converter_sugestao(user: agente)
+
+      expect(response).to have_http_status(:unauthorized)
+      expect(registro.reload.converted?).to be(false)
+    end
+
+    it 'moves the manifestation to in progress' do
+      converter_sugestao
+
+      expect(registro.reload.status).to eq('in_progress')
+    end
+
+    it 'fails clearly when the account has no Suggestions board column' do
+      coluna_sugestoes.destroy!
+
+      converter_sugestao
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(registro.reload.converted?).to be(false)
+    end
+  end
+
   describe 'DELETE destroy' do
     it 'lets an administrator delete one' do
       registro = manifestacao

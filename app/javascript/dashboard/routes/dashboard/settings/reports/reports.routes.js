@@ -20,6 +20,7 @@ import InboxReports from './InboxReports.vue';
 import LabelReports from './LabelReports.vue';
 import TeamReports from './TeamReports.vue';
 import TicketTimeReports from './TicketTimeReports.vue';
+import TicketSlaReports from './TicketSlaReports.vue';
 import TicketReports from './TicketReports.vue';
 
 import CsatResponses from './CsatResponses.vue';
@@ -72,6 +73,14 @@ const oldReportRoutes = [
     name: 'ticket_reports',
     meta,
     component: TicketReports,
+  },
+  {
+    // Cumprimento do SLA dos tickets, por agente e por Cliente - combinado ou
+    // por tipo de relogio (atendimento/estagio/solucao).
+    path: 'ticket_sla',
+    name: 'ticket_sla_reports',
+    meta,
+    component: TicketSlaReports,
   },
 ];
 

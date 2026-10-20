@@ -4,10 +4,10 @@
 # anotacoes internas e a conversao em ticket.
 class Api::V1::Accounts::ManifestationsController < Api::V1::Accounts::BaseController
   LIST_INCLUDES = [:company, :contact, :assignee].freeze
-  DETAIL_INCLUDES = [:company, :contact, :assignee, :converted_ticket,
+  DETAIL_INCLUDES = [:company, :contact, :assignee, :converted_ticket, :converted_suggestion,
                      { manifestation_attachments: { file_attachment: :blob } }].freeze
 
-  before_action :fetch_manifestation, only: [:show, :update, :destroy, :convert]
+  before_action :fetch_manifestation, only: [:show, :update, :destroy, :convert, :convert_to_suggestion]
   before_action :check_authorization
 
   def index
@@ -74,6 +74,19 @@ class Api::V1::Accounts::ManifestationsController < Api::V1::Accounts::BaseContr
     render 'show'
   rescue Manifestations::TicketConversionService::AlreadyConverted,
          Manifestations::TicketConversionService::NoTeamAvailable => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  # Converter no quadro de Sugestoes em vez de virar ticket - sem Mesa/Time, a
+  # unica entrada e' a propria manifestacao.
+  def convert_to_suggestion
+    Manifestations::SuggestionConversionService.new(manifestation: @manifestation, user: Current.user).perform
+
+    @manifestation.reload
+    load_detail_lists
+    render 'show'
+  rescue Manifestations::SuggestionConversionService::AlreadyConverted,
+         Manifestations::SuggestionConversionService::NoColumnAvailable => e
     render json: { error: e.message }, status: :unprocessable_entity
   end
 

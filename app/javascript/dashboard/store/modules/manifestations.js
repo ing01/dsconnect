@@ -102,6 +102,18 @@ export const actions = {
     }
   },
 
+  convertToSuggestion: async ({ commit }, id) => {
+    commit(types.SET_MANIFESTATION_UI_FLAG, { isConverting: true });
+    try {
+      const { data } = await ManifestationsAPI.convertToSuggestion(id);
+      commit(types.SET_MANIFESTATION_DETAIL, data);
+      commit(types.UPDATE_MANIFESTATION, data);
+      return data;
+    } finally {
+      commit(types.SET_MANIFESTATION_UI_FLAG, { isConverting: false });
+    }
+  },
+
   create: async ({ commit, dispatch }, atributos) => {
     commit(types.SET_MANIFESTATION_UI_FLAG, { isUpdating: true });
     try {

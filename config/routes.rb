@@ -103,6 +103,7 @@ Rails.application.routes.draw do
           end
           # Relatorio de apontamentos: horas por nivel e por pessoa. So leitura.
           resources :ticket_time_reports, only: [:index]
+          resources :ticket_sla_reports, only: [:index]
           # Relatorio de tickets: uma linha por ticket, filtravel por cliente,
           # status, responsavel, catalogo e periodo. So leitura.
           resources :ticket_reports, only: [:index]
@@ -609,6 +610,7 @@ Rails.application.routes.draw do
           # alteracao da manifestacao, e sim a criacao de outro registro.
           resources :manifestations do
             post :convert, on: :member
+            post :convert_to_suggestion, on: :member
             resources :messages, only: [:create], controller: 'manifestation_messages'
           end
           # A avaliacao mensal, do lado interno - so leitura; quem grava e o

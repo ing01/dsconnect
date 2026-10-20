@@ -1,0 +1,39 @@
+{
+  "TICKET_SLA_REPORTS": {
+    "TITLE": "SLA de tickets",
+    "DESC": "Cumprimento do SLA por agente e por Cliente - combinado ou por tipo de prazo.",
+    "BY_AGENT": "Por agente",
+    "BY_COMPANY": "Por Cliente",
+    "NO_COMPANY": "Sem Cliente",
+    "UNASSIGNED": "Sem responsável",
+    "NO_ENTRIES": "Nenhum relógio de SLA no período.",
+    "LOADING": "Carregando...",
+    "ERROR": "Não foi possível carregar o relatório.",
+    "KIND": {
+      "ALL": "Tudo",
+      "RESPONSE": "Atendimento",
+      "STAGE": "Estágio",
+      "RESOLUTION": "Solução"
+    },
+    "METRICS": {
+      "NAME": "Nome",
+      "CLOCKS": "Relógios",
+      "HIT": "Cumpridos",
+      "MISSED": "Vencidos",
+      "ACTIVE": "Em andamento",
+      "HIT_RATE": "Taxa de cumprimento",
+      "ACTUAL_HOURS": "Tempo gasto",
+      "OVERRUN_HOURS": "Tempo de atraso"
+    },
+    "FILTERS": {
+      "FROM": "De",
+      "TO": "Até",
+      "TEAM": "Mesa de Serviço",
+      "COMPANY": "Cliente",
+      "ALL": "Todas",
+      "APPLY": "Aplicar",
+      "CLEAR": "Limpar filtros"
+    },
+    "HOURS": "{hours}h"
+  }
+}
