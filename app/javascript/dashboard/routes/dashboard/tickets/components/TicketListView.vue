@@ -227,11 +227,14 @@ const SORT_FIELD_BY_COLUMN = {
   ticket_due_date: 'due_date',
 };
 
-// Mesmo formato usado na coluna de abertura (created_at) - so unix -> data
-// local. `due_date` e opcional (Estagio pode nao exigir prazo), entao fica
-// travessao quando ausente, igual as outras colunas sem valor.
+// Diferente da coluna de abertura (created_at, que vem como epoch unix em
+// segundos - por isso o `* 1000` la): `due_date` vem como string ISO 8601
+// (`resource.due_date&.iso8601` no jbuilder) - multiplicar por 1000 aqui
+// virava NaN -> "Invalid Date". `due_date` e opcional (Estagio pode nao
+// exigir prazo), entao fica travessao quando ausente, igual as outras
+// colunas sem valor.
 const formatDueDate = dueDate =>
-  dueDate ? new Date(dueDate * 1000).toLocaleDateString() : '—';
+  dueDate ? new Date(dueDate).toLocaleDateString() : '—';
 
 const sortBy = ref('');
 const sortOrder = ref('asc');

@@ -310,4 +310,42 @@ describe('TicketListView', () => {
       ).toBe(false);
     });
   });
+
+  // Pedido: a coluna Prazo (Área do Cliente, `complexityColumn="due_date"`)
+  // mostrava "Invalid Date" - o backend manda `due_date` como string ISO 8601
+  // (`resource.due_date&.iso8601`), nao como epoch unix (`created_at` e' o
+  // epoch; `due_date` nunca foi).
+  describe('coluna Prazo (due_date)', () => {
+    const linhaDoTicket = wrapper => linhasTicket(wrapper)[0];
+    const celulaDoPrazo = wrapper =>
+      linhaDoTicket(wrapper).findAll('td').at(-1);
+
+    it('mostra a data corretamente para um prazo ISO valido', () => {
+      const wrapper = montarAgrupado({
+        complexityColumn: 'due_date',
+        groups: [
+          {
+            id: 10,
+            name: 'Pendente',
+            rows: [ticket(1, { due_date: '2026-10-25T10:00:00Z' })],
+          },
+        ],
+      });
+
+      const texto = celulaDoPrazo(wrapper).text();
+      expect(texto).not.toContain('Invalid Date');
+      expect(texto).toBe(new Date('2026-10-25T10:00:00Z').toLocaleDateString());
+    });
+
+    it('mostra travessao quando o ticket nao tem prazo', () => {
+      const wrapper = montarAgrupado({
+        complexityColumn: 'due_date',
+        groups: [
+          { id: 10, name: 'Pendente', rows: [ticket(1, { due_date: null })] },
+        ],
+      });
+
+      expect(celulaDoPrazo(wrapper).text()).toBe('—');
+    });
+  });
 });

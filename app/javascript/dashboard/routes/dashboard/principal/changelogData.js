@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-list-due-date-invalid-date-fix',
+    date: '20 de outubro de 2026',
+    isoDate: '2026-10-20',
+    type: 'fix',
+    platform: 'web',
+    title: 'Coluna Prazo mostrando "Invalid Date" corrigida',
+    description:
+      'Na lista de tickets da Área do Cliente, a coluna Prazo mostrava "Invalid Date" em vez da data real quando o chamado tinha prazo definido. A tela tratava o prazo como se fosse o mesmo formato da data de abertura, mas o servidor manda os dois em formatos diferentes - corrigido para ler o formato certo.',
+  },
+  {
     id: 'ticket-sla-report-and-time-by-company',
     date: '20 de outubro de 2026',
     isoDate: '2026-10-20',
