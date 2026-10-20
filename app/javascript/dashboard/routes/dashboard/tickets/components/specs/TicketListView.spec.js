@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import TicketListView from '../TicketListView.vue';
 import { collapsedColumnsKey } from '../../helpers/collapsedColumns';
+import { ticketListColumnsKey } from '../../helpers/ticketListColumns';
 
 // A lista tem DUAS origens: o store do painel e os grupos entregues por prop
 // (o caminho da Área do Cliente). O que estes testes protegem é a separação -
@@ -48,7 +49,12 @@ const montar = (props = {}) =>
     props: { filters: {}, ...props },
     global: {
       mocks: { $t: key => key },
-      stubs: { Spinner: true, WootLabel: true, PaginationFooter: true },
+      stubs: {
+        Spinner: true,
+        WootLabel: true,
+        PaginationFooter: true,
+        OnClickOutside: { template: '<div><slot /></div>' },
+      },
     },
   });
 
@@ -185,5 +191,123 @@ describe('TicketListView', () => {
     expect(cabecalhos[4].find('button').exists()).toBe(false);
     expect(cabecalhos[6].find('button').exists()).toBe(false);
     expect(cabecalhos[0].find('button').exists()).toBe(true);
+  });
+
+  // Pedido: o título some truncado atrás de prefixos tipo "[FORÇA E LUZ][DS
+  // COMERCIAL]" - dá para ocultar colunas que não interessam e redimensionar
+  // as que sobram.
+  describe('colunas: ocultar e redimensionar', () => {
+    const abrirMenuDeColunas = async wrapper => {
+      await wrapper.find('button[type="button"]').trigger('click');
+    };
+
+    it('mostra todas as colunas por padrão', () => {
+      const wrapper = montarAgrupado();
+
+      // ID, Criado em, Título, Empresa, Solicitante, Status, Mesa, Estágio, Resp., Complexidade
+      expect(wrapper.findAll('thead th')).toHaveLength(10);
+    });
+
+    it('esconde uma coluna ao desmarcá-la no menu', async () => {
+      const wrapper = montarAgrupado();
+      await abrirMenuDeColunas(wrapper);
+
+      // Ordem do menu é a mesma de COLUMNS: índice 2 = "Título".
+      await wrapper.findAll('input[type="checkbox"]')[2].trigger('change');
+
+      expect(wrapper.findAll('thead th')).toHaveLength(9);
+      expect(
+        wrapper.findAll('thead th').some(th => th.text().includes('TITLE'))
+      ).toBe(false);
+    });
+
+    it('lembra quais colunas foram escondidas (persiste por conta)', async () => {
+      const wrapper = montarAgrupado();
+      await abrirMenuDeColunas(wrapper);
+      await wrapper.findAll('input[type="checkbox"]')[2].trigger('change');
+
+      const stored = JSON.parse(
+        window.localStorage.getItem(ticketListColumnsKey(1))
+      );
+      expect(stored.hidden).toContain('title');
+
+      // Uma montagem nova (ex: reabrir a tela) já nasce sem essa coluna.
+      expect(montarAgrupado().findAll('thead th')).toHaveLength(9);
+    });
+
+    it('não deixa esconder a última coluna visível', async () => {
+      window.localStorage.setItem(
+        ticketListColumnsKey(1),
+        JSON.stringify({
+          hidden: [
+            'created_at',
+            'title',
+            'company',
+            'contact',
+            'status',
+            'team',
+            'ticket_column',
+            'assignee',
+            'ticket_complexity',
+          ],
+          widths: {},
+        })
+      );
+      const wrapper = montarAgrupado();
+      await abrirMenuDeColunas(wrapper);
+
+      // Só sobrou "ID" visível - a checkbox dela deve estar desabilitada.
+      const unicaCheckbox = wrapper.find('input[type="checkbox"]');
+      expect(unicaCheckbox.element.disabled).toBe(true);
+
+      await unicaCheckbox.trigger('change');
+      expect(wrapper.findAll('thead th')).toHaveLength(1);
+    });
+
+    it('redimensiona uma coluna arrastando a alça', async () => {
+      const wrapper = montarAgrupado();
+      const alca = wrapper.findAll('thead th')[2].find('.cursor-col-resize');
+
+      await alca.trigger('mousedown', { clientX: 300 });
+      window.dispatchEvent(new MouseEvent('mousemove', { clientX: 380 }));
+      window.dispatchEvent(new MouseEvent('mouseup'));
+      await wrapper.vm.$nextTick();
+
+      const stored = JSON.parse(
+        window.localStorage.getItem(ticketListColumnsKey(1))
+      );
+      expect(stored.widths.title).toBe(320 + 80);
+    });
+
+    it('nunca deixa a coluna ficar menor que a largura mínima', async () => {
+      const wrapper = montarAgrupado();
+      const alca = wrapper.findAll('thead th')[2].find('.cursor-col-resize');
+
+      await alca.trigger('mousedown', { clientX: 300 });
+      window.dispatchEvent(new MouseEvent('mousemove', { clientX: -5000 }));
+      window.dispatchEvent(new MouseEvent('mouseup'));
+      await wrapper.vm.$nextTick();
+
+      const stored = JSON.parse(
+        window.localStorage.getItem(ticketListColumnsKey(1))
+      );
+      expect(stored.widths.title).toBe(72);
+    });
+
+    it('não confunde arrastar a alça com clicar para ordenar', async () => {
+      const wrapper = montarAgrupado();
+      const alca = wrapper.findAll('thead th')[0].find('.cursor-col-resize');
+
+      await alca.trigger('mousedown', { clientX: 100 });
+      window.dispatchEvent(new MouseEvent('mousemove', { clientX: 140 }));
+      window.dispatchEvent(new MouseEvent('mouseup'));
+      await wrapper.vm.$nextTick();
+
+      expect(dispatch).not.toHaveBeenCalled();
+      // Nenhuma seta de ordenação apareceu no cabeçalho de ID.
+      expect(
+        wrapper.findAll('thead th')[0].find('.i-lucide-arrow-up').exists()
+      ).toBe(false);
+    });
   });
 });

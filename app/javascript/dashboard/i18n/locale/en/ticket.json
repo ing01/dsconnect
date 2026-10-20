@@ -105,6 +105,7 @@
     },
     "LIST": {
       "EMPTY": "No tickets found",
+      "COLUMNS_BUTTON": "Columns",
       "COLUMNS": {
         "ID": "#",
         "TITLE": "Title",

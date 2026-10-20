@@ -1,13 +1,20 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { toSearchParams } from '../helpers/ticketSearchParams';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { OnClickOutside } from '@vueuse/components';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
+import {
+  readColumnPreferences,
+  toggleColumnHidden,
+  setColumnWidth,
+} from '../helpers/ticketListColumns';
 
 // `filters` is the flat, camelCase state owned by TicketDetailedSearchModal
 // (the "Busca detalhada" panel) - this component only turns it into
@@ -94,6 +101,117 @@ const COLUMNS = computed(() => [
   { key: 'assignee', label: 'ASSIGNEE' },
   LAST_COLUMN[props.complexityColumn],
 ]);
+
+// Pedido: o titulo vem com prefixos tipo "[FORCA E LUZ][DS COMERCIAL]" e some
+// truncado antes de dizer o assunto - dar largura maior por padrao, e deixar
+// arrastar/ocultar coluna para quem quiser outro equilibrio.
+const DEFAULT_COLUMN_WIDTH = {
+  display_id: 84,
+  created_at: 104,
+  title: 320,
+  company: 144,
+  contact: 144,
+  status: 108,
+  team: 116,
+  ticket_column: 132,
+  assignee: 140,
+  ticket_complexity: 128,
+  ticket_due_date: 116,
+};
+const MIN_COLUMN_WIDTH = 72;
+// Sempre sobra pelo menos uma coluna visivel - ocultar todas deixaria a
+// tabela sem nenhuma informacao e sem como religar (o botao de colunas
+// tambem estaria escondido atras de uma tabela vazia).
+const MIN_VISIBLE_COLUMNS = 1;
+
+// `accountId` chega vazio no modo "Busca detalhada" (nao e passado - ver
+// TicketDetailedSearchModal), que ja tem a conta atual pelo store; no modo
+// Portal do Cliente ele vem explicito, porque ali nao ha sessao no Vuex.
+const scopeAccountId = computed(
+  () => props.accountId ?? currentAccountId.value
+);
+
+const columnPrefs = ref(
+  readColumnPreferences(
+    scopeAccountId.value,
+    COLUMNS.value.map(column => column.key)
+  )
+);
+
+watch(scopeAccountId, accountId => {
+  columnPrefs.value = readColumnPreferences(
+    accountId,
+    COLUMNS.value.map(column => column.key)
+  );
+});
+
+const visibleColumns = computed(() =>
+  COLUMNS.value.filter(column => !columnPrefs.value.hidden.includes(column.key))
+);
+
+const columnWidth = key =>
+  columnPrefs.value.widths[key] || DEFAULT_COLUMN_WIDTH[key] || 140;
+
+const isColumnHideable = key =>
+  columnPrefs.value.hidden.includes(key) ||
+  visibleColumns.value.length > MIN_VISIBLE_COLUMNS;
+
+const toggleColumn = key => {
+  if (!isColumnHideable(key)) return;
+  columnPrefs.value = toggleColumnHidden(
+    scopeAccountId.value,
+    key,
+    COLUMNS.value.map(column => column.key)
+  );
+};
+
+// --- Redimensionar coluna arrastando a borda direita do cabecalho ---
+const resizing = ref(null); // { key, startX, startWidth } | null
+
+const onResizeMove = event => {
+  if (!resizing.value) return;
+
+  const { key, startX, startWidth } = resizing.value;
+  const delta = event.clientX - startX;
+  const width = Math.max(MIN_COLUMN_WIDTH, Math.round(startWidth + delta));
+  // So em memoria enquanto arrasta - gravar a cada pixel encheria o
+  // localStorage de escritas por nada, o valor final e' salvo no mouseup.
+  columnPrefs.value = {
+    ...columnPrefs.value,
+    widths: { ...columnPrefs.value.widths, [key]: width },
+  };
+};
+
+const onResizeEnd = () => {
+  if (resizing.value) {
+    setColumnWidth(
+      scopeAccountId.value,
+      resizing.value.key,
+      columnWidth(resizing.value.key),
+      COLUMNS.value.map(column => column.key)
+    );
+  }
+  resizing.value = null;
+  window.removeEventListener('mousemove', onResizeMove);
+  window.removeEventListener('mouseup', onResizeEnd);
+};
+
+const onResizeStart = (key, event) => {
+  resizing.value = {
+    key,
+    startX: event.clientX,
+    startWidth: columnWidth(key),
+  };
+  window.addEventListener('mousemove', onResizeMove);
+  window.addEventListener('mouseup', onResizeEnd);
+};
+
+onBeforeUnmount(() => {
+  window.removeEventListener('mousemove', onResizeMove);
+  window.removeEventListener('mouseup', onResizeEnd);
+});
+
+const showColumnMenu = ref(false);
 
 // Com `groups` a ordenacao acontece aqui, e nao no servidor - entao so valem as
 // colunas que `sortTickets` sabe comparar. As demais viram texto simples: um
@@ -297,138 +415,205 @@ onMounted(() => {
       <p class="text-sm text-n-slate-11">{{ t('TICKET.LIST.EMPTY') }}</p>
     </div>
 
-    <div
-      v-else
-      class="flex-1 min-h-0 overflow-auto rounded-xl border border-n-weak"
-    >
-      <table class="w-full text-sm">
-        <thead class="sticky top-0 bg-n-solid-1 border-b border-n-weak">
-          <tr class="text-left text-xs text-n-slate-10">
-            <th
-              v-for="column in COLUMNS"
-              :key="column.key"
-              class="px-3 py-2 font-medium"
-              :aria-sort="
-                sortBy === column.key
-                  ? sortOrder === 'asc'
-                    ? 'ascending'
-                    : 'descending'
-                  : 'none'
-              "
+    <template v-else>
+      <div class="flex justify-end flex-shrink-0">
+        <OnClickOutside @trigger="showColumnMenu = false">
+          <div class="relative">
+            <button
+              type="button"
+              class="flex items-center gap-1 px-2 py-1 text-xs rounded-lg text-n-slate-11 hover:bg-n-slate-2 hover:text-n-slate-12"
+              @click="showColumnMenu = !showColumnMenu"
             >
-              <component
-                :is="podeOrdenar(column.key) ? 'button' : 'span'"
-                :type="podeOrdenar(column.key) ? 'button' : null"
-                class="flex items-center gap-1 font-medium transition-colors"
-                :class="[
-                  podeOrdenar(column.key)
-                    ? 'hover:text-n-slate-12'
-                    : 'cursor-default',
-                  sortBy === column.key ? 'text-n-slate-12' : '',
-                ]"
-                @click="sortByColumn(column.key)"
+              <Icon icon="i-lucide-columns-3" class="size-3.5" />
+              {{ t('TICKET.LIST.COLUMNS_BUTTON') }}
+            </button>
+            <div
+              v-if="showColumnMenu"
+              class="absolute z-10 py-1 mt-1 border rounded-lg shadow-lg ltr:right-0 rtl:left-0 top-full border-n-weak bg-n-solid-1 min-w-48"
+            >
+              <label
+                v-for="column in COLUMNS"
+                :key="column.key"
+                class="flex items-center gap-2 px-3 py-1.5 text-sm text-n-slate-12"
+                :class="
+                  isColumnHideable(column.key)
+                    ? 'cursor-pointer hover:bg-n-slate-2'
+                    : 'opacity-50 cursor-not-allowed'
+                "
               >
+                <input
+                  type="checkbox"
+                  :checked="!columnPrefs.hidden.includes(column.key)"
+                  :disabled="!isColumnHideable(column.key)"
+                  @change="toggleColumn(column.key)"
+                />
                 {{ t(`TICKET.LIST.COLUMNS.${column.label}`) }}
-                <!-- A seta so aparece na coluna que esta ordenando, para nao
-                     sugerir que todas estao ativas ao mesmo tempo. -->
-                <span
-                  v-if="sortBy === column.key"
-                  :class="
-                    sortOrder === 'asc'
-                      ? 'i-lucide-arrow-up'
-                      : 'i-lucide-arrow-down'
-                  "
-                  class="size-3"
-                />
-              </component>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="linha in linhasVisiveis" :key="linha.chave">
-            <!-- O Estagio. Clicar na faixa inteira recolhe ou abre: e um alvo
-                 muito maior que o sinal de mais, e o cliente vai usar isso para
-                 esconder o que nao quer acompanhar. -->
-            <tr v-if="linha.tipo === 'grupo'" class="bg-n-alpha-black2">
-              <td :colspan="COLUMNS.length" class="p-0 border-b border-n-weak">
-                <button
-                  type="button"
-                  class="flex items-center w-full gap-2 px-3 py-2 text-left transition-colors hover:bg-n-slate-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-n-brand"
-                  :aria-expanded="!estaRecolhido(linha.grupo.id)"
-                  @click="alternarGrupo(linha.grupo.id)"
-                >
-                  <span
-                    class="size-3.5 text-n-slate-10"
-                    :class="
-                      estaRecolhido(linha.grupo.id)
-                        ? 'i-lucide-plus'
-                        : 'i-lucide-minus'
-                    "
-                  />
-                  <span class="text-sm font-medium text-n-slate-12">
-                    {{ linha.grupo.name }}
-                  </span>
-                  <span class="text-sm text-n-slate-10">
-                    ({{ linha.grupo.rows.length }})
-                  </span>
-                </button>
-              </td>
-            </tr>
+              </label>
+            </div>
+          </div>
+        </OnClickOutside>
+      </div>
 
-            <tr
-              v-else
-              class="border-b border-n-weak last:border-b-0 cursor-pointer hover:bg-n-slate-2"
-              @click="openTicket(linha.ticket)"
-            >
-              <td class="px-3 py-2 text-n-slate-10 whitespace-nowrap">
-                #{{ linha.ticket.display_id }}
-              </td>
-              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-                {{
-                  new Date(linha.ticket.created_at * 1000).toLocaleDateString()
-                }}
-              </td>
-              <td
-                class="px-3 py-2 text-n-slate-12 font-medium max-w-xs truncate"
+      <div class="flex-1 min-h-0 overflow-auto rounded-xl border border-n-weak">
+        <table class="w-full text-sm table-fixed">
+          <colgroup>
+            <col
+              v-for="column in visibleColumns"
+              :key="column.key"
+              :style="{ width: `${columnWidth(column.key)}px` }"
+            />
+          </colgroup>
+          <thead class="sticky top-0 bg-n-solid-1 border-b border-n-weak">
+            <tr class="text-left text-xs text-n-slate-10">
+              <th
+                v-for="column in visibleColumns"
+                :key="column.key"
+                class="relative px-3 py-2 font-medium select-none"
+                :aria-sort="
+                  sortBy === column.key
+                    ? sortOrder === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : 'none'
+                "
               >
-                {{ linha.ticket.title }}
-              </td>
-              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-                {{ linha.ticket.company_name || '—' }}
-              </td>
-              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-                {{ linha.ticket.requester_name || '—' }}
-              </td>
-              <td class="px-3 py-2">
-                <WootLabel
-                  :label="
-                    t(`TICKET.STATUS.${linha.ticket.status.toUpperCase()}`)
-                  "
-                  :color="statusColor(linha.ticket.status)"
-                  compact
+                <component
+                  :is="podeOrdenar(column.key) ? 'button' : 'span'"
+                  :type="podeOrdenar(column.key) ? 'button' : null"
+                  class="flex items-center w-full gap-1 overflow-hidden font-medium transition-colors"
+                  :class="[
+                    podeOrdenar(column.key)
+                      ? 'hover:text-n-slate-12'
+                      : 'cursor-default',
+                    sortBy === column.key ? 'text-n-slate-12' : '',
+                  ]"
+                  @click="sortByColumn(column.key)"
+                >
+                  <span class="truncate">
+                    {{ t(`TICKET.LIST.COLUMNS.${column.label}`) }}
+                  </span>
+                  <!-- A seta so aparece na coluna que esta ordenando, para nao
+                       sugerir que todas estao ativas ao mesmo tempo. -->
+                  <span
+                    v-if="sortBy === column.key"
+                    :class="
+                      sortOrder === 'asc'
+                        ? 'i-lucide-arrow-up'
+                        : 'i-lucide-arrow-down'
+                    "
+                    class="flex-shrink-0 size-3"
+                  />
+                </component>
+                <!-- Alca de redimensionar: arrasta a largura desta coluna.
+                     Fora do botao de ordenar, com seu proprio mousedown, para
+                     arrastar no canto nao disparar a ordenacao por engano. -->
+                <div
+                  class="absolute top-0 bottom-0 z-10 w-1.5 -right-0.5 cursor-col-resize hover:bg-n-brand/50"
+                  @mousedown.prevent.stop="onResizeStart(column.key, $event)"
+                  @click.stop
                 />
-              </td>
-              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-                {{ linha.ticket.team_name || '—' }}
-              </td>
-              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-                {{ linha.ticket.ticket_column_name || '—' }}
-              </td>
-              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-                {{ linha.ticket.assignee_name || '—' }}
-              </td>
-              <td class="px-3 py-2 text-n-slate-11 whitespace-nowrap">
-                {{
-                  props.complexityColumn === 'due_date'
-                    ? formatDueDate(linha.ticket.due_date)
-                    : linha.ticket.ticket_complexity_name || '—'
-                }}
-              </td>
+              </th>
             </tr>
-          </template>
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            <template v-for="linha in linhasVisiveis" :key="linha.chave">
+              <!-- O Estagio. Clicar na faixa inteira recolhe ou abre: e um alvo
+                   muito maior que o sinal de mais, e o cliente vai usar isso para
+                   esconder o que nao quer acompanhar. -->
+              <tr v-if="linha.tipo === 'grupo'" class="bg-n-alpha-black2">
+                <td
+                  :colspan="visibleColumns.length"
+                  class="p-0 border-b border-n-weak"
+                >
+                  <button
+                    type="button"
+                    class="flex items-center w-full gap-2 px-3 py-2 text-left transition-colors hover:bg-n-slate-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-n-brand"
+                    :aria-expanded="!estaRecolhido(linha.grupo.id)"
+                    @click="alternarGrupo(linha.grupo.id)"
+                  >
+                    <span
+                      class="size-3.5 text-n-slate-10"
+                      :class="
+                        estaRecolhido(linha.grupo.id)
+                          ? 'i-lucide-plus'
+                          : 'i-lucide-minus'
+                      "
+                    />
+                    <span class="text-sm font-medium text-n-slate-12">
+                      {{ linha.grupo.name }}
+                    </span>
+                    <span class="text-sm text-n-slate-10">
+                      ({{ linha.grupo.rows.length }})
+                    </span>
+                  </button>
+                </td>
+              </tr>
+
+              <tr
+                v-else
+                class="border-b border-n-weak last:border-b-0 cursor-pointer hover:bg-n-slate-2"
+                @click="openTicket(linha.ticket)"
+              >
+                <td
+                  v-for="column in visibleColumns"
+                  :key="column.key"
+                  class="px-3 py-2 truncate"
+                  :class="
+                    column.key === 'title'
+                      ? 'text-n-slate-12 font-medium'
+                      : 'text-n-slate-11'
+                  "
+                >
+                  <template v-if="column.key === 'display_id'">
+                    #{{ linha.ticket.display_id }}
+                  </template>
+                  <template v-else-if="column.key === 'created_at'">
+                    {{
+                      new Date(
+                        linha.ticket.created_at * 1000
+                      ).toLocaleDateString()
+                    }}
+                  </template>
+                  <template v-else-if="column.key === 'title'">
+                    {{ linha.ticket.title }}
+                  </template>
+                  <template v-else-if="column.key === 'company'">
+                    {{ linha.ticket.company_name || '—' }}
+                  </template>
+                  <template v-else-if="column.key === 'contact'">
+                    {{ linha.ticket.requester_name || '—' }}
+                  </template>
+                  <WootLabel
+                    v-else-if="column.key === 'status'"
+                    :label="
+                      t(`TICKET.STATUS.${linha.ticket.status.toUpperCase()}`)
+                    "
+                    :color="statusColor(linha.ticket.status)"
+                    compact
+                  />
+                  <template v-else-if="column.key === 'team'">
+                    {{ linha.ticket.team_name || '—' }}
+                  </template>
+                  <template v-else-if="column.key === 'ticket_column'">
+                    {{ linha.ticket.ticket_column_name || '—' }}
+                  </template>
+                  <template v-else-if="column.key === 'assignee'">
+                    {{ linha.ticket.assignee_name || '—' }}
+                  </template>
+                  <template v-else>
+                    {{
+                      props.complexityColumn === 'due_date'
+                        ? formatDueDate(linha.ticket.due_date)
+                        : linha.ticket.ticket_complexity_name || '—'
+                    }}
+                  </template>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
 
     <PaginationFooter
       v-if="listMeta.count > PER_PAGE"
