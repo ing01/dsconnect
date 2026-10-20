@@ -116,8 +116,9 @@ const resolveTarget = step => {
   if (step.routeName) {
     try {
       const href = router.resolve({ name: step.routeName }).href;
-      return document.querySelector(
-        `aside a[href="${CSS.escape(href)}"]`
+      const links = document.querySelectorAll('aside a');
+      return (
+        Array.from(links).find(a => a.getAttribute('href') === href) || null
       );
     } catch {
       return null;
