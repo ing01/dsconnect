@@ -9,6 +9,15 @@
 // card, então os dois precisam ficar em sincronia.
 export const PRINCIPAL_ENTRIES = [
   {
+    id: 'client-mobile-chat-history',
+    date: '19 de outubro de 2026',
+    isoDate: '2026-10-19',
+    type: 'feature',
+    title: 'App Android: histórico de conversas do Chat',
+    description:
+      'No app Android, a aba Chat agora tem o botão "Histórico" que lista todas as conversas encerradas com a equipe — cada uma com data, resumo e o histórico completo de mensagens. Se o chat travar, um botão de recarregar aparece direto na tela de erro.',
+  },
+  {
     id: 'client-delete-account',
     date: '19 de outubro de 2026',
     isoDate: '2026-10-19',

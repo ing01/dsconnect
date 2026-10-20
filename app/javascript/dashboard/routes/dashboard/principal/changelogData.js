@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-development-tab-create-link',
+    date: '19 de outubro de 2026',
+    isoDate: '2026-10-19',
+    type: 'feature',
+    platform: 'web',
+    title: 'Aba Desenvolvimento: criar e vincular tickets de dev direto do chamado',
+    description:
+      'A aba Desenvolvimento do detalhe do chamado ganhou o botão "Criar / Vincular". Criar: abre um formulário pré-filtrado pela Mesa de Desenvolvimento (categorias limitadas a Erro e Tarefa, responsáveis só da mesa), com suporte a anexos — o ticket criado já nasce vinculado como filho do chamado atual. Vincular: busca entre tickets existentes da Mesa Dev e os vincula como filho. Os tickets filhos listados na aba abrem em nova aba ao clicar, e cada um tem botões de Desvincular e Excluir com confirmação inline.',
+  },
+  {
     id: 'client-delete-account-self-service',
     date: '19 de outubro de 2026',
     isoDate: '2026-10-19',
