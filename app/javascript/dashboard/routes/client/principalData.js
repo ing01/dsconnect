@@ -9,6 +9,15 @@
 // card, então os dois precisam ficar em sincronia.
 export const PRINCIPAL_ENTRIES = [
   {
+    id: 'client-delete-account',
+    date: '19 de outubro de 2026',
+    isoDate: '2026-10-19',
+    type: 'feature',
+    title: 'Agora você pode excluir sua conta',
+    description:
+      'Adicionamos o botão "Excluir minha conta" no menu do Portal (canto superior direito). Basta confirmar com sua senha — seus dados pessoais são removidos imediatamente. O histórico de chamados fica guardado sem nenhum dado seu vinculado.',
+  },
+  {
     id: 'client-tutorial-first-access',
     date: '6 de outubro de 2026',
     isoDate: '2026-10-06',
