@@ -10,6 +10,7 @@ import AutomationPage from './AutomationPage.vue';
 import AttendanceSchedulePage from './AttendanceSchedulePage.vue';
 import ClientPortalRoutingPage from './ClientPortalRoutingPage.vue';
 import ImportTicketsPage from './ImportTicketsPage.vue';
+import ApiKeyPage from './ApiKeyPage.vue';
 
 // One page per subject rather than a single scrolling screen: Estagios and
 // Categorias belong to a Mesa, the Catalogo is account-wide, and mixing them
@@ -101,6 +102,14 @@ export default {
             permissions: ['administrator'],
           },
           component: ImportTicketsPage,
+        },
+        {
+          path: 'api-key',
+          name: 'ticket_api_key_settings',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: ApiKeyPage,
         },
       ],
     },

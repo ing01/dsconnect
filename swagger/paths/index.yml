@@ -527,6 +527,36 @@
     $ref: ./application/teams/update.yml
   delete:
     $ref: ./application/teams/delete.yml
+# Ticket Routing Integration API - para um sistema externo (nao accounts/:account_id,
+# a conta vem da chave de API)
+/api/v1/integrations/tickets:
+  get:
+    $ref: ./integrations/tickets/index.yml
+/api/v1/integrations/tickets/{id}:
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: number
+  get:
+    $ref: ./integrations/tickets/show.yml
+/api/v1/integrations/tickets/{id}/route:
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: number
+  patch:
+    $ref: ./integrations/tickets/route.yml
+/api/v1/integrations/teams:
+  get:
+    $ref: ./integrations/teams/index.yml
+/api/v1/integrations/ticket_categories:
+  get:
+    $ref: ./integrations/ticket_categories/index.yml
+
 /api/v1/accounts/{account_id}/teams/{team_id}/team_members:
   parameters:
     - $ref: '#/components/parameters/account_id'

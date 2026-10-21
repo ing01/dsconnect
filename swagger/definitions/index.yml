@@ -72,6 +72,10 @@ platform_account:
   $ref: ./resource/platform_account.yml
 team:
   $ref: ./resource/team.yml
+ticket_integration:
+  $ref: ./resource/ticket_integration.yml
+ticket_integration_list_item:
+  $ref: ./resource/ticket_integration_list_item.yml
 label:
   $ref: ./resource/label.yml
 integrations_app:

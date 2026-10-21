@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-integration-api',
+    date: '21 de outubro de 2026',
+    isoDate: '2026-10-21',
+    type: 'feature',
+    platform: 'web',
+    title: 'API de Integração de Tickets',
+    description:
+      'Nova API para um sistema externo ler e rotear tickets - pensada para conectar uma IA de triagem. Em Configurações > Tickets > API de Tickets, um administrador gera a chave de acesso (uma por conta, revogável). A documentação completa (Swagger) ficou disponível em /swagger, protegida por usuário e senha fora do ambiente de desenvolvimento.',
+  },
+  {
     id: 'ticket-kanban-performance-n-plus-one',
     date: '20 de outubro de 2026',
     isoDate: '2026-10-20',

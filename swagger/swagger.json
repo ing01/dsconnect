@@ -7831,6 +7831,382 @@
         }
       }
     },
+    "/api/v1/integrations/tickets": {
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-tickets-for-integration",
+        "summary": "List tickets",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "Lists tickets for the account the API key belongs to, paginated, newest first. Use `team_id`/`status`/`created_after` to narrow the search.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "resolved",
+                "closed",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "team_id",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "created_after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number"
+                        },
+                        "current_page": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ticket_integration_list_item"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/tickets/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "show-ticket-for-integration",
+        "summary": "Get a ticket",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "Returns the full payload a triage AI needs to analyse and route the ticket - content, classification, company/requester and the customer-facing communication thread. Never includes the team's internal comments.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ticket_integration"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/tickets/{id}/route": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "patch": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "route-ticket",
+        "summary": "Apply a routing decision",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "Moves the ticket to the given Mesa/Estagio and, optionally, sets its classification - meant to be called once the AI has decided where a ticket belongs. `team_id` is required; everything else is optional. `note` is posted as a visible activity on the ticket for the team's awareness.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "team_id"
+                ],
+                "properties": {
+                  "team_id": {
+                    "type": "number",
+                    "description": "The Mesa (team) to move the ticket into"
+                  },
+                  "ticket_column_id": {
+                    "type": "number",
+                    "description": "The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted."
+                  },
+                  "service_catalog_item_id": {
+                    "type": "number",
+                    "description": "The Catalogo > Area > Item classification, if the AI determined one"
+                  },
+                  "ticket_category_id": {
+                    "type": "number",
+                    "description": "Must belong to the target Mesa"
+                  },
+                  "ticket_complexity_id": {
+                    "type": "number"
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "A short note explaining the routing decision, posted as a visible activity on the ticket"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ticket_integration"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid routing (e.g. the stage does not belong to the given Mesa)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/teams": {
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-teams-for-integration",
+        "summary": "List valid routing targets (Mesas/Estagios)",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "The Mesas (teams) and their Estagios (stages) this account has - the valid `team_id`/`ticket_column_id` values for the routing endpoint.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "ticket_columns": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "number"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/ticket_categories": {
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-ticket-categories-for-integration",
+        "summary": "List valid classification targets (Categorias), grouped by Mesa",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "Ticket categories, grouped by the Mesa (team) that owns them - the valid `ticket_category_id` values for the routing endpoint.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "team_id": {
+                        "type": "number"
+                      },
+                      "team_name": {
+                        "type": "string"
+                      },
+                      "ticket_categories": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "number"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/accounts/{account_id}/teams/{team_id}/team_members": {
       "parameters": [
         {
@@ -11241,6 +11617,246 @@
           "is_member": {
             "type": "boolean",
             "description": "This field shows whether the current user is a part of the team"
+          }
+        }
+      },
+      "ticket_integration": {
+        "type": "object",
+        "description": "O payload de um ticket para a API de Integracao - pensado para uma IA externa analisar e decidir o roteamento.",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "display_id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "resolved",
+              "closed",
+              "cancelled"
+            ]
+          },
+          "priority": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "urgent",
+              null
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "due_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "team": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "ticket_column": {
+            "type": "object",
+            "description": "O Estagio atual do ticket no Kanban",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "ticket_category": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "ticket_complexity": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "company": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "requester": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "O contato que abriu o chamado",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "customer_communications": {
+            "type": "array",
+            "description": "A conversa com o cliente sobre este ticket (nunca inclui notas internas da equipe)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "outbound",
+                    "inbound"
+                  ]
+                },
+                "body": {
+                  "type": "string"
+                },
+                "sent_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "author_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "content_type": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ticket_integration_list_item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "display_id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "priority": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "team_id": {
+            "type": "number"
+          },
+          "team_name": {
+            "type": "string"
+          },
+          "ticket_category_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ticket_category_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "company_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "company_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -16293,6 +16909,12 @@
         "in": "header",
         "name": "api_access_token",
         "description": "This token can be obtained by the system admin after creating a platformApp. This token should be used to provision agent bots, accounts, users and their roles."
+      },
+      "ticketApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Ticket-Api-Key",
+        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, read + routing access to tickets only - unrelated to any user's access_token."
       }
     }
   },
@@ -16408,6 +17030,10 @@
     {
       "name": "CSAT Survey Page",
       "description": "Customer satisfaction survey"
+    },
+    {
+      "name": "Ticket Routing",
+      "description": "Read tickets and apply routing decisions - built for an external triage AI to consume, authenticated by its own account-scoped API key"
     }
   ],
   "x-tagGroups": [
@@ -16459,6 +17085,12 @@
       "name": "Others",
       "tags": [
         "CSAT Survey Page"
+      ]
+    },
+    {
+      "name": "Ticket Routing API",
+      "tags": [
+        "Ticket Routing"
       ]
     }
   ]

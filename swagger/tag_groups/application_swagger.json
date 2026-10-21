@@ -9751,6 +9751,246 @@
           }
         }
       },
+      "ticket_integration": {
+        "type": "object",
+        "description": "O payload de um ticket para a API de Integracao - pensado para uma IA externa analisar e decidir o roteamento.",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "display_id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "resolved",
+              "closed",
+              "cancelled"
+            ]
+          },
+          "priority": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "urgent",
+              null
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "due_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "team": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "ticket_column": {
+            "type": "object",
+            "description": "O Estagio atual do ticket no Kanban",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "ticket_category": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "ticket_complexity": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "company": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "requester": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "O contato que abriu o chamado",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "customer_communications": {
+            "type": "array",
+            "description": "A conversa com o cliente sobre este ticket (nunca inclui notas internas da equipe)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "outbound",
+                    "inbound"
+                  ]
+                },
+                "body": {
+                  "type": "string"
+                },
+                "sent_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "author_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "content_type": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ticket_integration_list_item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "display_id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "priority": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "team_id": {
+            "type": "number"
+          },
+          "team_name": {
+            "type": "string"
+          },
+          "ticket_category_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ticket_category_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "company_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "company_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "label": {
         "type": "object",
         "properties": {
@@ -14800,6 +15040,12 @@
         "in": "header",
         "name": "api_access_token",
         "description": "This token can be obtained by the system admin after creating a platformApp. This token should be used to provision agent bots, accounts, users and their roles."
+      },
+      "ticketApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Ticket-Api-Key",
+        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, read + routing access to tickets only - unrelated to any user's access_token."
       }
     }
   },
@@ -14934,6 +15180,12 @@
       "name": "Others",
       "tags": [
         "CSAT Survey Page"
+      ]
+    },
+    {
+      "name": "Ticket Routing API",
+      "tags": [
+        "Ticket Routing"
       ]
     }
   ]

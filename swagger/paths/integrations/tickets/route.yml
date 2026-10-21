@@ -1,0 +1,52 @@
+tags:
+  - Ticket Routing
+operationId: route-ticket
+summary: Apply a routing decision
+security:
+  - ticketApiKey: []
+description: Moves the ticket to the given Mesa/Estagio and, optionally, sets its classification - meant to be called once the AI has decided where a ticket belongs. `team_id` is required; everything else is optional. `note` is posted as a visible activity on the ticket for the team's awareness.
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - team_id
+        properties:
+          team_id:
+            type: number
+            description: The Mesa (team) to move the ticket into
+          ticket_column_id:
+            type: number
+            description: The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted.
+          service_catalog_item_id:
+            type: number
+            description: The Catalogo > Area > Item classification, if the AI determined one
+          ticket_category_id:
+            type: number
+            description: Must belong to the target Mesa
+          ticket_complexity_id:
+            type: number
+          note:
+            type: string
+            description: A short note explaining the routing decision, posted as a visible activity on the ticket
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ticket_integration'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '422':
+    description: Invalid routing (e.g. the stage does not belong to the given Mesa)
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

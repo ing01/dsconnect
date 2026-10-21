@@ -1,0 +1,26 @@
+tags:
+  - Ticket Routing
+operationId: show-ticket-for-integration
+summary: Get a ticket
+security:
+  - ticketApiKey: []
+description: Returns the full payload a triage AI needs to analyse and route the ticket - content, classification, company/requester and the customer-facing communication thread. Never includes the team's internal comments.
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ticket_integration'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '404':
+    description: Ticket not found
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

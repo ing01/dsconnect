@@ -1,0 +1,37 @@
+type: object
+properties:
+  id:
+    type: number
+  display_id:
+    type: number
+  title:
+    type: string
+  status:
+    type: string
+  priority:
+    type:
+      - string
+      - 'null'
+  team_id:
+    type: number
+  team_name:
+    type: string
+  ticket_category_id:
+    type:
+      - number
+      - 'null'
+  ticket_category_name:
+    type:
+      - string
+      - 'null'
+  company_id:
+    type:
+      - number
+      - 'null'
+  company_name:
+    type:
+      - string
+      - 'null'
+  created_at:
+    type: string
+    format: date-time

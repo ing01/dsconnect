@@ -856,6 +856,30 @@
           }
         }
       },
+      "API_KEY": {
+        "TITLE": "API de Tickets",
+        "DESCRIPTION": "Uma chave para um sistema externo ler e rotear os tickets desta conta - pensada para conectar uma IA de triagem. A documentação completa (Swagger) fica em /swagger.",
+        "STATUS_LABEL": "Status",
+        "ACTIVE": "Ativa",
+        "INACTIVE": "Nenhuma chave gerada ainda",
+        "LAST_USED_AT": "Último uso: {date}",
+        "LAST_USED_NEVER": "Ainda não foi usada",
+        "GENERATE": "Gerar chave",
+        "REGENERATE": "Gerar nova chave",
+        "CONFIRM_REGENERATE": "Confirmar - substitui a atual",
+        "CONFIRM_REGENERATE_HINT": "A chave antiga deixa de funcionar imediatamente. Qualquer sistema usando-a precisa ser atualizado com a nova.",
+        "REVOKE": "Revogar",
+        "CONFIRM_REVOKE": "Confirmar revogação",
+        "CONFIRM_REVOKE_HINT": "Remove o acesso imediatamente - qualquer sistema usando esta chave para de funcionar.",
+        "COPY": "Copiar",
+        "COPY_SUCCESS": "Chave copiada",
+        "REVEAL_NOTICE": "Copie agora - essa é a única vez que a chave completa aparece.",
+        "API": {
+          "GENERATE_SUCCESS": "Chave gerada com sucesso.",
+          "REVOKE_SUCCESS": "Chave revogada.",
+          "ERROR": "Não foi possível completar a operação."
+        }
+      },
       "COMPLEXITY": {
         "TITLE": "Complexidade",
         "DESCRIPTION": "Os níveis de complexidade do ticket e quais Mesas oferecem cada um. Marque a célula para disponibilizar o nível naquela Mesa.",

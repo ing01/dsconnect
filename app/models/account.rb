@@ -191,6 +191,9 @@ class Account < ApplicationRecord
   has_many :teams, dependent: :destroy_async
   has_many :queues, class_name: 'ServiceQueue', dependent: :destroy_async
   has_many :ticket_imports, dependent: :destroy_async
+  # A API de Integracao de Tickets (ver Api::V1::Integrations) - uma chave por
+  # conta, gerada em Configuracoes > Integracoes.
+  has_one :ticket_api_key, dependent: :destroy
   has_many :ticket_routing_rules, dependent: :destroy_async
   # A Complexidade e da CONTA, e nao da Mesa: o nome e o mesmo em toda a empresa,
   # e quais Mesas oferecem cada nivel mora em `ticket_complexity_teams`.

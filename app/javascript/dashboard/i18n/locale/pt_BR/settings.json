@@ -466,6 +466,7 @@
     "TICKET_ATTENDANCE_SCHEDULE": "Configuração de Atendimento",
     "TICKET_ROUTING": "Roteamento do Portal",
     "TICKET_IMPORT": "Importar",
+    "TICKET_API_KEY": "API de Tickets",
     "PROJECT_SETTINGS": "Projetos",
     "PROJECT_MODULES": "Módulos",
     "PROJECT_TASKS": "Tarefas",

@@ -334,6 +334,14 @@ class Rack::Attack
     "#{user_identifier}:#{match_data[:account_id]}" if user_identifier.present?
   end
 
+  ## A API de Integracao de Tickets e' chamada por um sistema EXTERNO com uma
+  ## chave fixa (nao um IP de usuario variando) - sem isto, o throttle generico
+  ## de 'req/ip' seria o unico limite, compartilhado com qualquer outra coisa
+  ## vindo do mesmo IP.
+  throttle('/api/v1/integrations', limit: ENV.fetch('RATE_LIMIT_INTEGRATIONS_API', '120').to_i, period: 1.minute) do |req|
+    req.get_header('HTTP_X_TICKET_API_KEY') if req.path.start_with?('/api/v1/integrations')
+  end
+
   ## ----------------------------------------------- ##
 end
 

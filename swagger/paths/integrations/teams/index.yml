@@ -1,0 +1,36 @@
+tags:
+  - Ticket Routing
+operationId: list-teams-for-integration
+summary: List valid routing targets (Mesas/Estagios)
+security:
+  - ticketApiKey: []
+description: The Mesas (teams) and their Estagios (stages) this account has - the valid `team_id`/`ticket_column_id` values for the routing endpoint.
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              name:
+                type: string
+              ticket_columns:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

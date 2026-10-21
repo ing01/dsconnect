@@ -1,0 +1,55 @@
+tags:
+  - Ticket Routing
+operationId: list-tickets-for-integration
+summary: List tickets
+security:
+  - ticketApiKey: []
+description: Lists tickets for the account the API key belongs to, paginated, newest first. Use `team_id`/`status`/`created_after` to narrow the search.
+parameters:
+  - name: page
+    in: query
+    schema:
+      type: number
+  - name: per_page
+    in: query
+    schema:
+      type: number
+  - name: status
+    in: query
+    schema:
+      type: string
+      enum: [open, resolved, closed, cancelled]
+  - name: team_id
+    in: query
+    schema:
+      type: number
+  - name: created_after
+    in: query
+    schema:
+      type: string
+      format: date-time
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            meta:
+              type: object
+              properties:
+                count:
+                  type: number
+                current_page:
+                  type: number
+            payload:
+              type: array
+              items:
+                $ref: '#/components/schemas/ticket_integration_list_item'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

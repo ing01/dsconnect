@@ -802,6 +802,30 @@
           "ROW_MESSAGE": "Row {row}: {message}"
         }
       },
+      "API_KEY": {
+        "TITLE": "Ticket API",
+        "DESCRIPTION": "A key for an external system to read and route this account's tickets - meant for connecting a triage AI. Full documentation (Swagger) lives at /swagger.",
+        "STATUS_LABEL": "Status",
+        "ACTIVE": "Active",
+        "INACTIVE": "No key generated yet",
+        "LAST_USED_AT": "Last used: {date}",
+        "LAST_USED_NEVER": "Not used yet",
+        "GENERATE": "Generate key",
+        "REGENERATE": "Generate new key",
+        "CONFIRM_REGENERATE": "Confirm - replaces the current one",
+        "CONFIRM_REGENERATE_HINT": "The old key stops working immediately. Any system using it needs to be updated with the new one.",
+        "REVOKE": "Revoke",
+        "CONFIRM_REVOKE": "Confirm revoke",
+        "CONFIRM_REVOKE_HINT": "Removes access immediately - any system using this key stops working.",
+        "COPY": "Copy",
+        "COPY_SUCCESS": "Key copied",
+        "REVEAL_NOTICE": "Copy it now - this is the only time the full key is shown.",
+        "API": {
+          "GENERATE_SUCCESS": "Key generated successfully.",
+          "REVOKE_SUCCESS": "Key revoked.",
+          "ERROR": "Could not complete the operation."
+        }
+      },
       "COMPLEXITY": {
         "TITLE": "Complexidade",
         "DESCRIPTION": "Os níveis de complexidade do ticket e quais Mesas oferecem cada um. Marque a célula para disponibilizar o nível naquela Mesa.",

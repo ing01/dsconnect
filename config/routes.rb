@@ -92,6 +92,18 @@ Rails.application.routes.draw do
         resource :account, only: [:destroy], controller: 'accounts'
       end
 
+      # A API de Integracao de Tickets - para um sistema EXTERNO (ex: a IA de
+      # triagem de outro time) ler/rotear tickets. Fora de `accounts/:account_id`
+      # pela mesma razao do `client` acima: a conta vem da chave de API
+      # (header `X-Ticket-Api-Key`), nunca da URL.
+      namespace :integrations do
+        resources :tickets, only: [:index, :show] do
+          patch :route, on: :member
+        end
+        resources :teams, only: [:index]
+        resources :ticket_categories, only: [:index]
+      end
+
       # ----------------------------------
       # start of account scoped api routes
       resources :accounts, only: [:create, :show, :update] do
@@ -612,6 +624,9 @@ Rails.application.routes.draw do
           # Os niveis de Complexidade do ticket. Lista da CONTA, como o catalogo -
           # quais Mesas oferecem cada nivel vai no proprio registro.
           resources :ticket_complexities, only: [:index, :create, :update, :destroy]
+          # A chave usada pela API de Integracao de Tickets (ver
+          # Api::V1::Integrations) - singular de proposito, uma por conta.
+          resource :ticket_api_key, only: [:show, :create, :destroy]
           # O SAC do lado da equipe. `convert` cria o ticket pelo mecanismo
           # existente e guarda o vinculo - uma acao propria porque nao e uma
           # alteracao da manifestacao, e sim a criacao de outro registro.

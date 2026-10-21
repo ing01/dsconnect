@@ -867,6 +867,12 @@ const menuItems = computed(() => {
               activeOn: ['ticket_import_settings'],
               to: accountScopedRoute('ticket_import_settings'),
             },
+            {
+              name: 'Settings Ticket API Key',
+              label: t('SIDEBAR.TICKET_API_KEY'),
+              activeOn: ['ticket_api_key_settings'],
+              to: accountScopedRoute('ticket_api_key_settings'),
+            },
           ],
         },
         {
