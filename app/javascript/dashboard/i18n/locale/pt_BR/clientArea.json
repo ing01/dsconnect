@@ -143,7 +143,7 @@
         "BEST": "Muito satisfeito"
       },
       "QUESTIONS": {
-        "erp_overall": "Como você avalia o ERP Duesoft de forma geral?",
+        "erp_overall": "Como você avalia o ERP DS Connect de forma geral?",
         "erp_meets_needs": "O ERP atende às necessidades da sua empresa?",
         "erp_ease_of_use": "Como você avalia a facilidade de utilização do ERP?",
         "erp_practicality": "Como você avalia a praticidade do sistema no dia a dia?",
@@ -152,7 +152,7 @@
         "support_clarity": "Como você avalia a clareza das orientações recebidas pelo suporte?",
         "support_response_time": "Como você avalia o tempo de resposta do atendimento?",
         "product_evolution": "Como você avalia a evolução e as melhorias realizadas no sistema?",
-        "overall_experience": "De forma geral, qual nota você daria para a experiência com a Duesoft?"
+        "overall_experience": "De forma geral, qual nota você daria para a experiência com a DS Connect?"
       }
     },
     "DETAIL": {
