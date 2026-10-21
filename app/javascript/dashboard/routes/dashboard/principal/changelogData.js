@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-kanban-performance-n-plus-one',
+    date: '20 de outubro de 2026',
+    isoDate: '2026-10-20',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Kanban de tickets bem mais rápido',
+    description:
+      'O quadro de tickets (e a listagem/busca detalhada) fazia uma consulta extra ao banco para CADA cartão, só para ler os itens de checklist e as conversas vinculadas - numa coluna com algumas centenas de tickets isso virava algumas centenas de consultas a mais, só para desenhar a tela. Corrigido para usar os dados já carregados numa única consulta. Também foi removido o recarregamento completo do quadro a cada vez que um ticket é arrastado entre colunas - agora só o cartão movido é atualizado, igual já acontecia quando outro atendente move um ticket em tempo real.',
+  },
+  {
     id: 'client-area-notifications-badge-and-bigger-remove-button',
     date: '20 de outubro de 2026',
     isoDate: '2026-10-20',

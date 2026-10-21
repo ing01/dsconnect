@@ -23,8 +23,13 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
   end
 
   # `_ticket` reads all of these; without the preload the board fires a query per
-  # association per ticket.
-  BOARD_TICKET_INCLUDES = [:team, :ticket_column, :ticket_category, :company, :contact,
+  # association per ticket. `ticket_conversations` and `ticket_checklist_items`
+  # matter most: a column with a few hundred cards turned into a few hundred
+  # extra queries just for those two (the partial used `.pluck`/`.ordered`,
+  # which hit the database even when the association is preloaded - fixed
+  # alongside this in `_ticket.json.jbuilder`).
+  BOARD_TICKET_INCLUDES = [:team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact,
+                           :project, :blocked_by, :ticket_conversations, :ticket_checklist_items,
                            *AssigneeLeveled.assignee_associations,
                            { conversations: :contact }].freeze
 

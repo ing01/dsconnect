@@ -216,6 +216,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   # association per record.
   DETAIL_INCLUDES = [
     :team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact,
+    :project, :blocked_by, :ticket_checklist_items,
     *AssigneeLeveled.assignee_associations,
     { ticket_attachments: [{ file_attachment: :blob }, :user] },
     { ticket_activities: :user },

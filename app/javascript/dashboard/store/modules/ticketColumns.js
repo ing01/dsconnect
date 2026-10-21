@@ -152,31 +152,44 @@ export const actions = {
     const response = await TicketColumnsAPI.reorder(teamId, columnIds);
     commit(types.SET_TICKET_KANBAN_BOARD, response.data);
   },
-  createTicket: async ({ dispatch }, { teamId, ...data }) => {
-    await TicketsAPI.create({ team_id: teamId, ...data });
-    await dispatch('fetchBoard', teamId);
+  // Estas cinco atualizam o quadro pelo MESMO caminho que o tempo real ja usa
+  // para refletir a acao de outro agente (`UPSERT_TICKET_IN_KANBAN_BOARD`) -
+  // o endpoint ja devolve o ticket com o formato completo do board (via
+  // `_ticket_detail`, que comeca justamente pelo partial `_ticket`). Antes,
+  // cada uma recarregava o quadro INTEIRO (todas as colunas, ate 300 tickets
+  // cada) so para refletir a mudanca de UM ticket - um arrastar-e-soltar no
+  // Kanban virava a chamada mais pesada da tela, repetida a cada carta movida.
+  createTicket: async ({ commit }, { teamId, ...data }) => {
+    const response = await TicketsAPI.create({ team_id: teamId, ...data });
+    commit(types.UPSERT_TICKET_IN_KANBAN_BOARD, response.data);
+    return response.data;
   },
-  updateTicket: async ({ dispatch }, { teamId, id, ...data }) => {
-    await TicketsAPI.update(id, { ticket: data });
-    await dispatch('fetchBoard', teamId);
+  updateTicket: async ({ commit }, { id, ...data }) => {
+    const response = await TicketsAPI.update(id, { ticket: data });
+    commit(types.UPSERT_TICKET_IN_KANBAN_BOARD, response.data);
+    return response.data;
   },
-  moveTicket: async (
-    { dispatch },
-    { teamId, id, ticketColumnId, position }
-  ) => {
-    await TicketsAPI.move(id, { ticketColumnId, position });
-    await dispatch('fetchBoard', teamId);
+  // Reindexa os IRMAOS de coluna no servidor (posicoes 0,1,2...), mas nao
+  // devolve-os - so o cartao movido. O proprio arrastar-e-soltar ja reflete a
+  // ordem na tela sem depender disso; a `position` exata dos outros cartoes
+  // so fica desatualizada no estado local ate o quadro recarregar por outro
+  // motivo, o que nunca chega a ficar visivel.
+  moveTicket: async ({ commit }, { id, ticketColumnId, position }) => {
+    const response = await TicketsAPI.move(id, { ticketColumnId, position });
+    commit(types.UPSERT_TICKET_IN_KANBAN_BOARD, response.data);
+    return response.data;
   },
-  deleteTicket: async ({ dispatch }, { teamId, id }) => {
+  deleteTicket: async ({ commit }, { id }) => {
     await TicketsAPI.delete(id);
-    await dispatch('fetchBoard', teamId);
+    commit(types.REMOVE_TICKET_FROM_KANBAN_BOARD, id);
   },
-  linkConversation: async (
-    { dispatch },
-    { teamId, ticketId, conversationId }
-  ) => {
-    await TicketsAPI.linkConversation(ticketId, conversationId);
-    await dispatch('fetchBoard', teamId);
+  linkConversation: async ({ commit }, { ticketId, conversationId }) => {
+    const response = await TicketsAPI.linkConversation(
+      ticketId,
+      conversationId
+    );
+    commit(types.UPSERT_TICKET_IN_KANBAN_BOARD, response.data);
+    return response.data;
   },
   unlinkConversation: async (
     { dispatch },

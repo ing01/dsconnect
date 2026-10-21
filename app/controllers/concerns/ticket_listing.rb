@@ -9,7 +9,14 @@ module TicketListing
 
   DEFAULT_PER_PAGE = 25
 
+  # `ticket_conversations` e `ticket_checklist_items` entraram aqui porque o
+  # partial do ticket (`_ticket.json.jbuilder`) le os dois em toda listagem -
+  # sem isso, cada ticket da coluna do Kanban disparava mais duas consultas
+  # (uma por `.pluck`, que sempre vai ao banco mesmo com a associacao
+  # carregada), e uma coluna com algumas centenas de cartoes virava algumas
+  # centenas de consultas extras so' para isso.
   LIST_INCLUDES = [:team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact,
+                   :project, :blocked_by, :ticket_conversations, :ticket_checklist_items,
                    *AssigneeLeveled.assignee_associations,
                    { conversations: :contact }].freeze
 

@@ -67,8 +67,14 @@ json.parent_id resource.parent_id
 json.merged_into_id resource.merged_into_id
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
-json.conversation_ids resource.ticket_conversations.pluck(:conversation_id)
-json.checklist_items resource.ticket_checklist_items.ordered do |item|
+# `.map` em vez de `.pluck`: `pluck` sempre vai ao banco, mesmo com a
+# associacao pre-carregada pelo `includes` da listagem - usar o array ja em
+# memoria e o que evita uma consulta por ticket.
+json.conversation_ids resource.ticket_conversations.map(&:conversation_id)
+# Sem `.ordered` aqui: chamar um scope sobre a associacao pre-carregada
+# dispara uma consulta nova, ignorando o preload. A associacao ja vem
+# ordenada por `position, id` (e' a ordem padrao declarada no `has_many`).
+json.checklist_items resource.ticket_checklist_items do |item|
   json.id item.id
   json.title item.title
   json.completed item.completed
