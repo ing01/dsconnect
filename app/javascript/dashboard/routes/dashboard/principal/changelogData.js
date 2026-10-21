@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'brand-logo-update-2026-10',
+    date: '21 de outubro de 2026',
+    isoDate: '2026-10-21',
+    type: 'design',
+    platform: 'web',
+    title: 'Nova logo do DSConnect',
+    description:
+      'Atualizada a logo usada no login, no favicon e nas demais telas da marca, com fundo transparente. As versões antigas ficaram guardadas como backup (logo_old.png etc.) em public/brand-assets. O app mobile (ícone, ícone adaptativo do Android, tela de abertura, e também macOS/PWA web) foi atualizado com a mesma logo.',
+  },
+  {
     id: 'ticket-integration-api',
     date: '21 de outubro de 2026',
     isoDate: '2026-10-21',
