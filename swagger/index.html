@@ -17,7 +17,17 @@
     </style>
   </head>
   <body>
-    <redoc spec-url='/swagger/swagger.json'></redoc>
+    <%# Fora de dev/test, so' a secao de Ticket Routing fica visivel - esta
+        pagina serve pro time EXTERNO que consome a API de Integracao de
+        Tickets, e ele nao tem porque ver o mapa inteiro da API interna
+        (agentes, contatos, conversas...) so' porque a senha do /swagger
+        tambem abre essa doc. Em desenvolvimento continua mostrando tudo,
+        que e' util pra quem mexe no resto da API. %>
+    <% if Rails.env.development? || Rails.env.test? %>
+      <redoc spec-url='/swagger/swagger.json'></redoc>
+    <% else %>
+      <redoc spec-url='/swagger/tag_groups/ticket_routing_api_swagger.json'></redoc>
+    <% end %>
     <script src="https://cdn.jsdelivr.net/npm/redoc@2.1.5/bundles/redoc.standalone.js"> </script>
   </body>
 </html>

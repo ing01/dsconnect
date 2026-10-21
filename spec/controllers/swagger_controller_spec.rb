@@ -32,6 +32,15 @@ describe '/swagger', type: :request do
         get '/swagger', headers: { 'HTTP_AUTHORIZATION' => ActionController::HttpAuthentication::Basic.encode_credentials('docs', 'secret') }
         expect(response).to have_http_status(:success)
       end
+
+      # O time externo que consome a API de Integracao de Tickets nao tem
+      # porque ver o mapa inteiro da API interna (agentes, contatos,
+      # conversas...) so' porque a mesma senha abre esta doc.
+      it 'scopes the documentation to Ticket Routing only, not the full API' do
+        get '/swagger', headers: { 'HTTP_AUTHORIZATION' => ActionController::HttpAuthentication::Basic.encode_credentials('docs', 'secret') }
+        expect(response.body).to include('/swagger/tag_groups/ticket_routing_api_swagger.json')
+        expect(response.body).not_to include("spec-url='/swagger/swagger.json'")
+      end
     end
   end
 end
