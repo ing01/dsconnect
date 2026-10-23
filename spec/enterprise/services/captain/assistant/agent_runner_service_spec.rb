@@ -20,7 +20,8 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
         'response_parts' => [{ 'text' => 'Test response', 'citation_indexes' => [] }],
         'reasoning' => 'Test reasoning'
       },
-      context: nil
+      context: nil,
+      error: nil
     )
   end
 
@@ -272,7 +273,8 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
             'response_parts' => [{ 'text' => 'Let me connect you', 'citation_indexes' => [] }],
             'reasoning' => 'A human is needed'
           },
-          context: runner_context
+          context: runner_context,
+          error: nil
         )
       end
 
@@ -305,7 +307,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
     end
 
     context 'when agent result is a string' do
-      let(:mock_result) { instance_double(Agents::RunResult, output: 'Simple string response', context: nil) }
+      let(:mock_result) { instance_double(Agents::RunResult, output: 'Simple string response', context: nil, error: nil) }
 
       it 'formats string response correctly' do
         result = service.generate_response(message_history: message_history)
@@ -334,7 +336,8 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
             ],
             'reasoning' => 'Test reasoning'
           },
-          context: nil
+          context: nil,
+          error: nil
         )
       end
 
@@ -359,7 +362,8 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
             'response_parts' => [{ 'text' => 'FAQ-backed response', 'citation_indexes' => [1] }],
             'reasoning' => 'Test reasoning'
           },
-          context: nil
+          context: nil,
+          error: nil
         )
       end
 

@@ -203,6 +203,11 @@ gem 'ai-agents', '>= 0.12.0'
 # TODO: Move this gem as a dependency of ai-agents
 gem 'ruby_llm', '>= 1.14.1'
 gem 'ruby_llm-schema'
+# Cliente MCP (Model Context Protocol) para o RubyLLM - fica na linha 1.x de
+# proposito: nem esta gem nem `ai-agents` (acima) ainda suportam o RubyLLM 2.x
+# (ambas travam em `ruby_llm ~> 1.14`/`~> 1.9`), entao atualizar o RubyLLM
+# para a 2.x quebraria a integracao MCP antes mesmo dela existir.
+gem 'ruby_llm-mcp'
 
 gem 'cld3', '~> 3.7'
 
