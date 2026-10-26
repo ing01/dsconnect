@@ -19,6 +19,18 @@ export function ticketMatchesFilters(ticket, filters = {}) {
   if (filters.status && ticket.status !== filters.status) {
     return false;
   }
+  // Usado pela tela de Sprint ativo (Modulo de Desenvolvimento): o MESMO
+  // quadro da Mesa, so' escondendo visualmente quem nao e' deste Sprint -
+  // arrastar entre Estagios continua funcionando normalmente, porque a lista
+  // por tras do Draggable nao muda de tamanho.
+  if (filters.sprintId !== undefined && ticket.sprint_id !== filters.sprintId) {
+    return false;
+  }
+  // Estagio - usado pelo filtro do Backlog/Sprint do Modulo de
+  // Desenvolvimento, do mesmo jeito que os demais campos aqui.
+  if (filters.columnId && ticket.ticket_column_id !== filters.columnId) {
+    return false;
+  }
   if (filters.query) {
     const query = filters.query.trim().toLowerCase();
     if (query) {

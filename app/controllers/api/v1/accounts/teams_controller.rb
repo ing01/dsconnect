@@ -29,7 +29,7 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
   # which hit the database even when the association is preloaded - fixed
   # alongside this in `_ticket.json.jbuilder`).
   BOARD_TICKET_INCLUDES = [:team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact,
-                           :project, :blocked_by, :ticket_conversations, :ticket_checklist_items,
+                           :project, :blocked_by, :ticket_conversations, :ticket_checklist_items, :sprint,
                            *AssigneeLeveled.assignee_associations,
                            { conversations: :contact }].freeze
 
@@ -47,7 +47,8 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
   def team_params
     params.require(:team).permit(:name, :description, :allow_auto_assign, :icon, :icon_color, :manager_id, :active,
                                  :assignee_levels_enabled, :assignee_levels_count,
-                                 :handles_conversations, :handles_projects, :visible_in_portal)
+                                 :handles_conversations, :handles_projects, :visible_in_portal,
+                                 :development_module_enabled, :default_checklist_id)
   end
 
   # TeamPolicy#update? checks the team's manager, so authorization must run

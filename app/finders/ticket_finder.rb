@@ -13,6 +13,7 @@ class TicketFinder
     priority: :priority,
     ticket_category_id: :ticket_category_id,
     ticket_complexity_id: :ticket_complexity_id,
+    sprint_id: :sprint_id,
     display_id: :display_id
   }.freeze
 
@@ -28,6 +29,7 @@ class TicketFinder
   def perform
     result = filter_by_ownership(scope)
     result = filter_by_attributes(result)
+    result = filter_by_sprint(result)
     result = filter_by_conversation(result)
     result = filter_by_contact(result)
     result = filter_by_impediment(result)
@@ -73,6 +75,15 @@ class TicketFinder
     end
     relation = relation.where('tickets.title ILIKE :q', q: "%#{params[:title]}%") if params[:title].present?
     relation
+  end
+
+  # O Backlog do Modulo de Desenvolvimento: tickets da Mesa sem sprint. Nao
+  # entra em DIRECT_ATTRIBUTE_FILTERS porque "nenhum sprint" nao e um valor
+  # para comparar - e a ausencia de um.
+  def filter_by_sprint(relation)
+    return relation if params[:without_sprint].blank?
+
+    ActiveModel::Type::Boolean.new.cast(params[:without_sprint]) ? relation.where(sprint_id: nil) : relation
   end
 
   def filter_by_conversation(relation)

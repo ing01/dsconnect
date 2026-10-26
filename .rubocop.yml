@@ -20,6 +20,7 @@ Metrics/ClassLength:
     - 'app/models/conversation.rb'
     - 'app/models/contact.rb'
     - 'app/models/account.rb'
+    - 'app/models/ticket.rb'
     - 'app/controllers/api/v1/accounts/tickets_controller.rb'
     - 'config/initializers/rack_attack.rb'
 

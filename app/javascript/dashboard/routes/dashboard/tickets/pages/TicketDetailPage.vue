@@ -50,9 +50,12 @@ const {
   categories,
   complexities,
   mesaAgents,
+  sprints,
   usesAssigneeLevels,
   assigneeLevels,
+  isDevMesa,
   updateProperty,
+  updateCustomAttribute,
   moveToColumn,
   changeStatus,
   transfer,
@@ -341,13 +344,16 @@ const submitContact = contactId =>
         :categories="categories"
         :complexities="complexities"
         :agents="mesaAgents"
+        :sprints="sprints"
         :uses-assignee-levels="usesAssigneeLevels"
         :assignee-levels="assigneeLevels"
+        :is-dev-mesa="isDevMesa"
         :can-update="canUpdate"
         :is-saving-description="isSavingDescription"
         @edit-catalog="handleAction('editCatalog')"
         @save-description="saveDescription"
         @update-property="updateProperty"
+        @update-custom-attribute="updateCustomAttribute"
         @move-to-column="moveToColumn"
         @change-status="changeStatus"
         @edit-company="handleAction('editCompany')"

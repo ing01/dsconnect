@@ -29,6 +29,21 @@ export function useTicketCreation(context) {
     // A Complexidade. Opcional ao abrir - a exigencia e no fechamento -, e
     // filtrada pela Mesa.
     ticketComplexityId: null,
+    // Modulo de Desenvolvimento - so' aparecem/valem quando `isDevMesa` e'
+    // verdadeiro; em qualquer outra Mesa ficam `null`/vazios e nunca chegam
+    // ao payload por conta propria (`toPayload` abaixo decide).
+    // Vem do contexto quando o ticket nasce de dentro de um Sprint (tela de
+    // Sprint ativo) - nulo (Backlog) em qualquer outra origem.
+    sprintId: null,
+    developmentType: null,
+    devFeature: '',
+    devRetrabalho: false,
+    devResolucao: null,
+    devDetalhesOcultos: '',
+    devEstimativaHoras: null,
+    devTempoTesteHoras: null,
+    devDataLimite: '',
+    devFeitoTriagem: false,
   });
 
   const files = ref([]);
@@ -53,6 +68,13 @@ export function useTicketCreation(context) {
     () => store.getters['teamMembers/getTeamMembers'](form.value.teamId) || []
   );
 
+  // Sprints nao-concluidos da Mesa - so' usados quando `isDevMesa`, mas a
+  // lista e' buscada do mesmo jeito que Categorias/Complexidade, sem
+  // condicional: uma Mesa sem o modulo simplesmente nunca tem nenhum.
+  const sprints = computed(
+    () => store.getters['ticketColumns/getSprints'](form.value.teamId) || []
+  );
+
   // Se a Mesa deste ticket usa niveis de responsavel. Vem da Mesa, e nao de
   // nenhum estado proprio: e configuracao dela, a mesma fonte que
   // `useTicketDetail.js` ja le para a tela de detalhe.
@@ -69,6 +91,14 @@ export function useTicketCreation(context) {
   const assigneeLevels = computed(
     () =>
       store.getters['teams/getTeam'](form.value.teamId)?.assignee_levels || []
+  );
+
+  // So' essa Mesa (configurada pelo admin, nunca por nome) ganha os campos do
+  // Modulo de Desenvolvimento no formulario.
+  const isDevMesa = computed(
+    () =>
+      store.getters['teams/getTeam'](form.value.teamId)
+        ?.development_module_enabled === true
   );
 
   // Quem pode ser responsavel de um nivel. Mesma regra do
@@ -89,6 +119,7 @@ export function useTicketCreation(context) {
     if (!teamId) return;
     store.dispatch('ticketColumns/fetchColumns', teamId);
     store.dispatch('ticketColumns/fetchCategories', teamId);
+    store.dispatch('ticketColumns/fetchSprints', teamId);
     // A lista e da conta, entao uma leitura serve a todas as Mesas: o `fetch`
     // so acontece uma vez por visita.
     store.dispatch('ticketComplexities/fetch');
@@ -116,6 +147,16 @@ export function useTicketCreation(context) {
       description: source.description ?? '',
       followerIds: source.followerIds ?? [],
       parentId: source.parentId ?? null,
+      sprintId: source.sprintId ?? null,
+      developmentType: null,
+      devFeature: '',
+      devRetrabalho: false,
+      devResolucao: null,
+      devDetalhesOcultos: '',
+      devEstimativaHoras: null,
+      devTempoTesteHoras: null,
+      devDataLimite: '',
+      devFeitoTriagem: false,
     };
     files.value = [];
     loadMesaContext(form.value.teamId);
@@ -145,6 +186,20 @@ export function useTicketCreation(context) {
       // nao responde pela nova, em nivel nenhum.
       form.value.assignees = {};
       form.value.followerIds = [];
+      // Os campos do Modulo de Desenvolvimento nao valem fora de uma Mesa com
+      // o modulo ligado - trocar de Mesa descarta qualquer valor deles. O
+      // Sprint tambem e' de uma Mesa so' - o de uma Mesa anterior nunca serve
+      // para a nova.
+      form.value.sprintId = null;
+      form.value.developmentType = null;
+      form.value.devFeature = '';
+      form.value.devRetrabalho = false;
+      form.value.devResolucao = null;
+      form.value.devDetalhesOcultos = '';
+      form.value.devEstimativaHoras = null;
+      form.value.devTempoTesteHoras = null;
+      form.value.devDataLimite = '';
+      form.value.devFeitoTriagem = false;
       // Applied here rather than left to the `columns` watcher below: when the
       // new Mesa's list is already cached both run in the same tick, and the
       // clearing above would land last.
@@ -204,6 +259,35 @@ export function useTicketCreation(context) {
     }, {});
   };
 
+  // Lista separada por virgula -> array, descartando espacos e itens vazios -
+  // o jeito mais simples de digitar uma lista curta sem montar um seletor novo.
+  const toList = text =>
+    String(text || '')
+      .split(',')
+      .map(item => item.trim())
+      .filter(Boolean);
+
+  // Vazio em branco no formulario nunca grava string vazia/zero no jsonb -
+  // fica de fora da chave, que e' o mesmo que "sem valor" pra quem le depois.
+  const devCustomAttributes = () => {
+    const attrs = {};
+    if (form.value.devFeature) attrs.feature = toList(form.value.devFeature);
+    attrs.retrabalho = form.value.devRetrabalho;
+    if (form.value.devResolucao) attrs.resolucao = form.value.devResolucao;
+    if (form.value.devDetalhesOcultos) {
+      attrs.detalhes_ocultos = toList(form.value.devDetalhesOcultos);
+    }
+    if (form.value.devEstimativaHoras) {
+      attrs.estimativa_original_horas = Number(form.value.devEstimativaHoras);
+    }
+    if (form.value.devTempoTesteHoras) {
+      attrs.tempo_teste_horas = Number(form.value.devTempoTesteHoras);
+    }
+    if (form.value.devDataLimite) attrs.data_limite = form.value.devDataLimite;
+    attrs.feito_triagem = form.value.devFeitoTriagem;
+    return attrs;
+  };
+
   // Snake case, because this is what the tickets endpoint expects.
   const toPayload = () => ({
     title: form.value.title.trim(),
@@ -221,6 +305,15 @@ export function useTicketCreation(context) {
     ...assigneePayload(),
     follower_ids: form.value.followerIds,
     parent_id: form.value.parentId || null,
+    // So' uma Mesa com o Modulo de Desenvolvimento ligado manda esses dois -
+    // nas demais eles nem aparecem no payload, exatamente como hoje.
+    ...(isDevMesa.value
+      ? {
+          sprint_id: form.value.sprintId || null,
+          development_type: form.value.developmentType || null,
+          custom_attributes: devCustomAttributes(),
+        }
+      : {}),
   });
 
   // "Criar e abrir outro" keeps the context the agent would otherwise retype -
@@ -234,6 +327,15 @@ export function useTicketCreation(context) {
       ticketCategoryId: null,
       followerIds: [],
       parentId: null,
+      developmentType: null,
+      devFeature: '',
+      devRetrabalho: false,
+      devResolucao: null,
+      devDetalhesOcultos: '',
+      devEstimativaHoras: null,
+      devTempoTesteHoras: null,
+      devDataLimite: '',
+      devFeitoTriagem: false,
     };
     files.value = [];
   };
@@ -248,10 +350,12 @@ export function useTicketCreation(context) {
     categories,
     complexities,
     mesaMembers,
+    sprints,
     usesAssigneeLevels,
     assigneeLevels,
     membersForLevel,
     requiresAttachment,
+    isDevMesa,
     isValid,
     toPayload,
     resetForNext,

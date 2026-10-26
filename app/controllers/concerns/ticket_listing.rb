@@ -16,7 +16,7 @@ module TicketListing
   # carregada), e uma coluna com algumas centenas de cartoes virava algumas
   # centenas de consultas extras so' para isso.
   LIST_INCLUDES = [:team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact,
-                   :project, :blocked_by, :ticket_conversations, :ticket_checklist_items,
+                   :project, :blocked_by, :ticket_conversations, :ticket_checklist_items, :sprint,
                    *AssigneeLeveled.assignee_associations,
                    { conversations: :contact }].freeze
 

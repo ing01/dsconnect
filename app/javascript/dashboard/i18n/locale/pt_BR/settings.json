@@ -473,7 +473,8 @@
     "CHECKLISTS": "Checklists",
     "INTERNAL_CHAT": "Chat interno",
     "TICKET_TRIAGE": "Triagem",
-    "TICKET_COMPLEXITY": "Complexidade"
+    "TICKET_COMPLEXITY": "Complexidade",
+    "DEVELOPMENT_BACKLOG": "Backlog"
   },
   "DATA_IMPORTS": {
     "HEADER": "Dados",

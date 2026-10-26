@@ -466,6 +466,15 @@ Rails.application.routes.draw do
               end
             end
             resources :ticket_categories, only: [:index, :create, :update, :destroy]
+            # Sprints do Modulo de Desenvolvimento - so' existem/aparecem em
+            # Mesas com `development_module_enabled`, mas a rota e' igual a
+            # qualquer outra configuracao aninhada na Mesa.
+            resources :sprints, only: [:index, :create, :update] do
+              member do
+                post :activate
+                post :conclude
+              end
+            end
             # A matriz Mesa x Prioridade dos prazos de atendimento e solucao.
             # Aninhada na Mesa porque e o que ela e: configuracao da Mesa.
             resources :ticket_sla_policies, only: [:index, :create, :update, :destroy]

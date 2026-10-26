@@ -39,6 +39,11 @@ const props = defineProps({
   // Oferece uma opção para esvaziar o campo, como "Nenhuma empresa".
   clearable: { type: Boolean, default: false },
   clearLabel: { type: String, default: '' },
+  // O menu abre pra baixo por padrão. Quando o campo está perto do fim de um
+  // container que rola (ex.: o último campo de um modal), abrir pra baixo
+  // corta a lista na borda - esta opção vira o menu pra cima, sem mudar
+  // nenhum uso existente.
+  openUpward: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:modelValue', 'search', 'select']);
@@ -177,7 +182,8 @@ defineExpose({ close });
       :is-searching="isSearching"
       :search-placeholder="searchPlaceholder"
       :empty-state-message="emptyMessage"
-      class="mt-1 top-full ltr:left-0 rtl:right-0 w-full max-h-72"
+      class="ltr:left-0 rtl:right-0 w-full max-h-72"
+      :class="openUpward ? 'mb-1 bottom-full' : 'mt-1 top-full'"
       @search="value => emit('search', value)"
       @action="handleAction"
     />

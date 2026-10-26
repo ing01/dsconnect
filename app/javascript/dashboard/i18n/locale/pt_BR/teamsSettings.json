@@ -134,6 +134,11 @@
       "VISIBLE_IN_PORTAL": {
         "LABEL": "Aparece no Portal do Cliente (o cliente pode abrir ticket para esta Mesa)"
       },
+      "DEVELOPMENT_MODULE": {
+        "LABEL": "Módulo de Desenvolvimento (Backlog e Sprints para esta Mesa)",
+        "DEFAULT_CHECKLIST_LABEL": "Checklist padrão (anexado automaticamente a cada ticket novo)",
+        "DEFAULT_CHECKLIST_NONE": "Nenhum"
+      },
       "SUBMIT_CREATE": "Criar novo time",
       "ASSIGNEE_LEVELS": {
         "LABEL": "Utilizar níveis de responsáveis no ticket",

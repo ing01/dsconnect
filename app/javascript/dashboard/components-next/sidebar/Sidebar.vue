@@ -510,6 +510,16 @@ const menuItems = computed(() => {
       },
     },
     {
+      // Backlog + Sprints do Modulo de Desenvolvimento. A entrada existe para
+      // toda conta, igual a Triagem - quem nao tem Mesa com o modulo ligado so'
+      // ve a tela vazia, sem nenhum item novo aparecer so' por isso.
+      name: 'Backlog',
+      label: t('SIDEBAR.DEVELOPMENT_BACKLOG'),
+      icon: 'i-lucide-list-checks',
+      to: accountScopedRoute('tickets_backlog'),
+      activeOn: ['tickets_backlog'],
+    },
+    {
       name: 'Projects',
       label: t('SIDEBAR.PROJECTS'),
       icon: 'i-lucide-kanban',

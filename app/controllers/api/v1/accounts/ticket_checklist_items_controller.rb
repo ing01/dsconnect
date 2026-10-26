@@ -30,18 +30,7 @@ class Api::V1::Accounts::TicketChecklistItemsController < Api::V1::Accounts::Bas
   # as extra work comes up).
   def attach_checklist
     checklist = Current.account.checklists.find(params[:checklist_id])
-    base_position = @ticket.ticket_checklist_items.maximum(:position) || -1
-
-    @checklist_items = ActiveRecord::Base.transaction do
-      Array(checklist.items).filter_map.with_index do |item, index|
-        attrs = item_attributes_from(item)
-        next if attrs[:title].blank?
-
-        @ticket.ticket_checklist_items.create!(
-          attrs.merge(account: Current.account, position: base_position + index + 1)
-        )
-      end
-    end
+    @checklist_items = checklist.attach_to!(@ticket)
   end
 
   def destroy
@@ -61,19 +50,5 @@ class Api::V1::Accounts::TicketChecklistItemsController < Api::V1::Accounts::Bas
 
   def checklist_item_params
     params.require(:checklist_item).permit(:title, :completed, :position, :item_type, :required, :value, options: [])
-  end
-
-  # A Checklist's `items` jsonb array holds plain hashes (string keys, since
-  # they round-trip through JSON) - `{ title:, type:, required:, options: }`.
-  # `type` is renamed to `item_type` here because `type` on an ActiveRecord
-  # attribute is reserved for single-table inheritance.
-  def item_attributes_from(item)
-    item = item.is_a?(Hash) ? item.with_indifferent_access : {}
-    {
-      title: item[:title].to_s,
-      item_type: TicketChecklistItem::ITEM_TYPES.include?(item[:type]) ? item[:type] : 'checkbox',
-      required: ActiveModel::Type::Boolean.new.cast(item[:required]) || false,
-      options: item[:options].is_a?(Array) ? item[:options] : []
-    }
   end
 end

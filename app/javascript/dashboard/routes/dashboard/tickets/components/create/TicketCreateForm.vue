@@ -39,16 +39,20 @@ const {
   categories,
   complexities,
   mesaMembers,
+  sprints,
   usesAssigneeLevels,
   assigneeLevels,
   membersForLevel,
   requiresAttachment,
+  isDevMesa,
   isValid,
   toPayload,
   resetForNext,
 } = useTicketCreation(context);
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
+const DEVELOPMENT_TYPES = ['bug', 'task'];
+const RESOLUCOES = ['Definitiva', 'Paliativa'];
 
 // As listas no formato do TicketSelect, o seletor padrao do modulo.
 const toOptions = records =>
@@ -59,6 +63,7 @@ const columnOptions = computed(() => toOptions(columns.value));
 const categoryOptions = computed(() => toOptions(categories.value));
 const complexityOptions = computed(() => toOptions(complexities.value));
 const memberOptions = computed(() => toOptions(mesaMembers.value));
+const sprintOptions = computed(() => toOptions(sprints.value));
 
 // Um campo de responsavel por nivel quando a Mesa usa niveis; um so quando
 // nao usa - a MESMA condicao que a tela de detalhe usa
@@ -279,6 +284,135 @@ defineExpose({ resetForNext });
           :aria-label="t('TICKET.COMPLEXITY.LABEL')"
         />
       </label>
+    </div>
+
+    <!-- So' aparece quando a Mesa escolhida tem o Modulo de Desenvolvimento
+         ligado - em qualquer outra Mesa este bloco nao existe, nenhum campo
+         novo chega ao servidor por conta propria. -->
+    <div
+      v-if="isDevMesa"
+      class="flex flex-col gap-3 rounded-lg border border-n-weak p-3"
+    >
+      <span class="text-sm font-medium text-n-slate-12">
+        {{ t('TICKET.DEVELOPMENT_FIELDS.TITLE') }}
+      </span>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 min-w-0">
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DEVELOPMENT_FIELDS.TYPE.LABEL') }}
+          </span>
+          <select v-model="form.developmentType" class="mb-0">
+            <option :value="null">
+              {{ t('TICKET.DEVELOPMENT_FIELDS.TYPE.NONE') }}
+            </option>
+            <option v-for="type in DEVELOPMENT_TYPES" :key="type" :value="type">
+              {{ t(`TICKET.DEVELOPMENT_FIELDS.TYPE.${type.toUpperCase()}`) }}
+            </option>
+          </select>
+        </label>
+
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DEVELOPMENT_FIELDS.SPRINT.LABEL') }}
+          </span>
+          <select v-model="form.sprintId" class="mb-0">
+            <option :value="null">
+              {{ t('TICKET.DEVELOPMENT_FIELDS.SPRINT.BACKLOG') }}
+            </option>
+            <option
+              v-for="sprint in sprintOptions"
+              :key="sprint.value"
+              :value="sprint.value"
+            >
+              {{ sprint.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DEVELOPMENT_FIELDS.RESOLUCAO.LABEL') }}
+          </span>
+          <select v-model="form.devResolucao" class="mb-0">
+            <option :value="null">
+              {{ t('TICKET.DEVELOPMENT_FIELDS.RESOLUCAO.NONE') }}
+            </option>
+            <option v-for="opcao in RESOLUCOES" :key="opcao" :value="opcao">
+              {{ opcao }}
+            </option>
+          </select>
+        </label>
+
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DEVELOPMENT_FIELDS.FEATURE.LABEL') }}
+          </span>
+          <input
+            v-model="form.devFeature"
+            type="text"
+            class="w-full mb-0"
+            :placeholder="t('TICKET.DEVELOPMENT_FIELDS.FEATURE.PLACEHOLDER')"
+          />
+        </label>
+
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DEVELOPMENT_FIELDS.DETALHES_OCULTOS.LABEL') }}
+          </span>
+          <input
+            v-model="form.devDetalhesOcultos"
+            type="text"
+            class="w-full mb-0"
+            :placeholder="
+              t('TICKET.DEVELOPMENT_FIELDS.DETALHES_OCULTOS.PLACEHOLDER')
+            "
+          />
+        </label>
+
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DEVELOPMENT_FIELDS.ESTIMATIVA_HORAS') }}
+          </span>
+          <input
+            v-model="form.devEstimativaHoras"
+            type="number"
+            min="0"
+            step="0.5"
+            class="w-full mb-0"
+          />
+        </label>
+
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DEVELOPMENT_FIELDS.TEMPO_TESTE_HORAS') }}
+          </span>
+          <input
+            v-model="form.devTempoTesteHoras"
+            type="number"
+            min="0"
+            step="0.5"
+            class="w-full mb-0"
+          />
+        </label>
+
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.DEVELOPMENT_FIELDS.DATA_LIMITE') }}
+          </span>
+          <input v-model="form.devDataLimite" type="date" class="w-full mb-0" />
+        </label>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+          <input v-model="form.devRetrabalho" type="checkbox" :value="true" />
+          <label>{{ t('TICKET.DEVELOPMENT_FIELDS.RETRABALHO') }}</label>
+        </div>
+        <div class="flex items-center gap-2">
+          <input v-model="form.devFeitoTriagem" type="checkbox" :value="true" />
+          <label>{{ t('TICKET.DEVELOPMENT_FIELDS.FEITO_TRIAGEM') }}</label>
+        </div>
+      </div>
     </div>
 
     <label class="flex flex-col gap-1 min-w-0">

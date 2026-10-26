@@ -57,6 +57,8 @@ export default {
       handles_conversations: handlesConversations = true,
       handles_projects: handlesProjects = true,
       visible_in_portal: visibleInPortal = false,
+      development_module_enabled: developmentModuleEnabled = false,
+      default_checklist_id: defaultChecklistId = null,
     } = formData;
 
     const state = reactive({
@@ -72,6 +74,8 @@ export default {
       handlesConversations,
       handlesProjects,
       visibleInPortal,
+      developmentModuleEnabled,
+      defaultChecklistId,
     });
 
     const isIconPickerOpen = ref(false);
@@ -81,7 +85,10 @@ export default {
     return { state, v$, isIconPickerOpen };
   },
   computed: {
-    ...mapGetters({ agents: 'agents/getAgents' }),
+    ...mapGetters({
+      agents: 'agents/getAgents',
+      checklists: 'checklists/getChecklists',
+    }),
     // Do minimo ao teto que o servidor sabe guardar (AssigneeLeveled::MAX_LEVEL):
     // uma Mesa "com niveis" de um nivel so seria a Mesa sem niveis.
     LEVEL_COUNTS() {
@@ -90,6 +97,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch('agents/get');
+    this.$store.dispatch('checklists/get');
   },
   methods: {
     onSelectIcon({ type, value, color }) {
@@ -123,6 +131,10 @@ export default {
         handles_conversations: this.state.handlesConversations,
         handles_projects: this.state.handlesProjects,
         visible_in_portal: this.state.visibleInPortal,
+        development_module_enabled: this.state.developmentModuleEnabled,
+        default_checklist_id: this.state.developmentModuleEnabled
+          ? this.state.defaultChecklistId || null
+          : null,
       });
     },
   },
@@ -234,14 +246,56 @@ export default {
       <!-- Desmarcado por padrao: a Mesa so aparece no Portal do Cliente depois
            de alguem marcar isso de proposito. -->
       <div class="w-full flex items-center gap-2">
-        <input
-          v-model="state.visibleInPortal"
-          type="checkbox"
-          :value="true"
-        />
+        <input v-model="state.visibleInPortal" type="checkbox" :value="true" />
         <label for="visible_in_portal">
           {{ $t('TEAMS_SETTINGS.FORM.VISIBLE_IN_PORTAL.LABEL') }}
         </label>
+      </div>
+      <!-- Desligado, nenhuma tela ou campo novo do Modulo de Desenvolvimento
+           aparece para esta Mesa - comportamento idêntico ao de hoje. -->
+      <div class="w-full flex flex-col gap-1">
+        <div class="flex items-center gap-2">
+          <input
+            v-model="state.developmentModuleEnabled"
+            type="checkbox"
+            :value="true"
+          />
+          <label for="development_module_enabled">
+            {{ $t('TEAMS_SETTINGS.FORM.DEVELOPMENT_MODULE.LABEL') }}
+          </label>
+        </div>
+        <div
+          v-if="state.developmentModuleEnabled"
+          class="flex flex-col gap-1 mt-1 ltr:ml-6 rtl:mr-6 max-w-xs"
+        >
+          <label for="default_checklist_id" class="text-sm">
+            {{
+              $t(
+                'TEAMS_SETTINGS.FORM.DEVELOPMENT_MODULE.DEFAULT_CHECKLIST_LABEL'
+              )
+            }}
+          </label>
+          <select
+            id="default_checklist_id"
+            v-model="state.defaultChecklistId"
+            class="mb-0 text-sm"
+          >
+            <option :value="null">
+              {{
+                $t(
+                  'TEAMS_SETTINGS.FORM.DEVELOPMENT_MODULE.DEFAULT_CHECKLIST_NONE'
+                )
+              }}
+            </option>
+            <option
+              v-for="checklist in checklists"
+              :key="checklist.id"
+              :value="checklist.id"
+            >
+              {{ checklist.name }}
+            </option>
+          </select>
+        </div>
       </div>
       <!-- Desligado, a Mesa segue com um responsavel so, como sempre foi. -->
       <div class="w-full flex flex-col gap-1">
@@ -275,7 +329,11 @@ export default {
             class="mb-0 text-sm"
           >
             <option v-for="count in LEVEL_COUNTS" :key="count" :value="count">
-              {{ $t('TEAMS_SETTINGS.FORM.ASSIGNEE_LEVELS.COUNT_OPTION', { count }) }}
+              {{
+                $t('TEAMS_SETTINGS.FORM.ASSIGNEE_LEVELS.COUNT_OPTION', {
+                  count,
+                })
+              }}
             </option>
           </select>
           <p class="text-sm text-n-slate-10">

@@ -100,6 +100,15 @@ export default {
         ? format(parseISO(this.ticket.scheduled_at), 'dd/MM HH:mm')
         : '';
     },
+    // So aparece quando o ticket tem o tipo preenchido - nenhuma Mesa fora do
+    // Modulo de Desenvolvimento envia esse campo, entao o card dela nunca
+    // ganha esse icone.
+    developmentTypeIcon() {
+      if (this.ticket.development_type === 'bug') return 'i-lucide-bug';
+      if (this.ticket.development_type === 'task')
+        return 'i-lucide-square-check';
+      return '';
+    },
     menuItems() {
       // The operational actions, all of them already implemented elsewhere in
       // the module - the card only names them and the page wires them up.
@@ -234,6 +243,11 @@ export default {
     />
     <div class="flex items-start justify-between gap-2">
       <p class="text-sm font-medium text-n-slate-12 line-clamp-2">
+        <Icon
+          v-if="developmentTypeIcon"
+          :icon="developmentTypeIcon"
+          class="inline-block size-3.5 ltr:mr-0.5 rtl:ml-0.5 text-n-slate-10 align-text-top"
+        />
         <span v-if="ticket.display_id" class="text-n-slate-10 font-normal">
           #{{ ticket.display_id }}
         </span>
@@ -272,6 +286,16 @@ export default {
       :title="ticket.company_name"
     >
       {{ ticket.company_name }}
+    </p>
+
+    <!-- So aparece em tickets com sprint - Backlog/Mesas fora do Modulo de
+         Desenvolvimento nunca tem sprint_name. -->
+    <p v-if="ticket.sprint_name" class="text-xs text-n-slate-10 truncate">
+      <Icon
+        icon="i-lucide-rocket"
+        class="inline-block size-3 ltr:mr-0.5 rtl:ml-0.5 align-text-top"
+      />
+      {{ ticket.sprint_name }}
     </p>
 
     <div class="flex items-center flex-wrap gap-1.5">

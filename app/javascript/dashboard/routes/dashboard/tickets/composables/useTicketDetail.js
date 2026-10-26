@@ -74,6 +74,20 @@ export function useTicketDetail(ticketId) {
       store.getters['teamMembers/getTeamMembers'](ticket.value?.team_id) || []
   );
 
+  // Sprints nao-concluidos da Mesa deste ticket - para o seletor de Sprint na
+  // tela de detalhe reatribuir o ticket sem precisar ir ao Backlog arrastar.
+  const sprints = computed(
+    () => store.getters['ticketColumns/getSprints'](ticket.value?.team_id) || []
+  );
+
+  // So' a Mesa deste ticket ligou o Modulo de Desenvolvimento e' que os campos
+  // extras aparecem na tela de detalhe - a mesma condicao usada na criacao.
+  const isDevMesa = computed(
+    () =>
+      store.getters['teams/getTeam'](ticket.value?.team_id)
+        ?.development_module_enabled === true
+  );
+
   const loadTicket = async () => {
     const loaded = await store.dispatch('tickets/fetchTicket', ticketId.value);
     return loaded;
@@ -84,6 +98,7 @@ export function useTicketDetail(ticketId) {
     store.dispatch('teamMembers/get', { teamId });
     store.dispatch('ticketColumns/fetchColumns', teamId);
     store.dispatch('ticketColumns/fetchCategories', teamId);
+    store.dispatch('ticketColumns/fetchSprints', teamId);
     // Lista da conta: uma leitura serve a qualquer Mesa.
     store.dispatch('ticketComplexities/fetch');
   };
@@ -110,6 +125,18 @@ export function useTicketDetail(ticketId) {
 
   const updateProperty = data =>
     runUpdate('tickets/updateTicket', { id: ticketId.value, ...data });
+
+  // O servidor substitui o jsonb inteiro a cada PATCH (nao faz merge, como o
+  // de Conversation) - por isso toda troca de UM campo do Modulo de
+  // Desenvolvimento manda o objeto `custom_attributes` COMPLETO, com o que ja
+  // estava la' mais a troca, ou o valor anterior se perderia.
+  const updateCustomAttribute = (key, value) =>
+    updateProperty({
+      custom_attributes: {
+        ...(ticket.value?.custom_attributes || {}),
+        [key]: value,
+      },
+    });
 
   // Stage changes go through `move`; `update` strips ticket_column_id. Position
   // is deliberately omitted so the server slots the ticket in by ticket number.
@@ -244,9 +271,12 @@ export function useTicketDetail(ticketId) {
     categories,
     complexities,
     mesaAgents,
+    sprints,
     usesAssigneeLevels,
     assigneeLevels,
+    isDevMesa,
     updateProperty,
+    updateCustomAttribute,
     moveToColumn,
     changeStatus,
     transfer,

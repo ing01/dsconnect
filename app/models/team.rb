@@ -30,6 +30,10 @@ class Team < ApplicationRecord
 
   belongs_to :account
   belongs_to :manager, class_name: 'User', optional: true
+  # O checklist anexado sozinho a todo ticket criado nesta Mesa, quando o
+  # Modulo de Desenvolvimento esta ativo (`development_module_enabled`) e um
+  # checklist padrao foi escolhido. `nil` (o padrao) e' "nao anexa nada".
+  belongs_to :default_checklist, class_name: 'Checklist', optional: true
   has_many :team_members, dependent: :destroy_async
   has_many :members, through: :team_members, source: :user
   has_many :queues, class_name: 'ServiceQueue', dependent: :destroy
@@ -44,6 +48,11 @@ class Team < ApplicationRecord
   # meaningless without it.
   has_many :ticket_categories, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :team
   has_many :tickets, dependent: :restrict_with_error
+  # Sprints do Modulo de Desenvolvimento - so' tem sentido enquanto a Mesa
+  # existir, por isso somem junto (um ticket num sprint apagado so' perde a
+  # referencia, ver `Ticket belongs_to :sprint, optional: true` + `dependent:
+  # :nullify` em `Sprint#tickets`).
+  has_many :sprints, dependent: :destroy
   has_many :calendar_events, dependent: :destroy
   # A matriz Mesa x Prioridade dos prazos de atendimento e solucao.
   has_many :ticket_sla_policies, dependent: :destroy
@@ -142,7 +151,9 @@ class Team < ApplicationRecord
       manager_id: manager_id,
       handles_conversations: handles_conversations,
       handles_projects: handles_projects,
-      visible_in_portal: visible_in_portal
+      visible_in_portal: visible_in_portal,
+      development_module_enabled: development_module_enabled,
+      default_checklist_id: default_checklist_id
     }
   end
 

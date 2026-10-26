@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'development-module-phase-2-backlog',
+    date: '23 de outubro de 2026',
+    isoDate: '2026-10-23',
+    type: 'feature',
+    platform: 'web',
+    title: 'Backlog, Sprints e Sprint ativo do Módulo de Desenvolvimento',
+    description:
+      'Segunda e terceira parte do Módulo de Desenvolvimento: uma nova tela "Backlog" (menu lateral) para a Mesa com o módulo ligado, com o botão "Criar sprint", arrastar-e-soltar de tickets entre os Sprints e o Backlog, e uma visão "Sprint ativo" que reaproveita o próprio Kanban da Mesa mostrando só os tickets daquele Sprint, com um botão "Concluir sprint" (o que ainda não chegou no Estágio final vai automaticamente para o próximo Sprint; o que já chegou fica registrado no Sprint concluído). Os campos extras do módulo (tipo, resolução, feature, horas, sprint, etc.) agora também podem ser editados na tela de detalhe do ticket, não só na criação.',
+  },
+  {
+    id: 'development-module-phase-1',
+    date: '22 de outubro de 2026',
+    isoDate: '2026-10-22',
+    type: 'feature',
+    platform: 'web',
+    title: 'Módulo de Desenvolvimento (fase 1) na aba de Tickets',
+    description:
+      'Primeira parte do Módulo de Desenvolvimento, pensado para trazer o fluxo do time de dev (hoje no Jira) para dentro do DSConnect. Em Configurações > Times, a Mesa ganha um checkbox "Módulo de Desenvolvimento" e um checklist padrão (anexado automaticamente a cada ticket novo dela); com o módulo ligado, a abertura de ticket ganha os campos extras do módulo (tipo Bug/Tarefa, feature, resolução, retrabalho, estimativa, etc.) e o cartão do Kanban mostra o ícone do tipo. Nenhuma outra Mesa muda de comportamento.',
+  },
+  {
     id: 'brand-logo-update-2026-10',
     date: '21 de outubro de 2026',
     isoDate: '2026-10-21',

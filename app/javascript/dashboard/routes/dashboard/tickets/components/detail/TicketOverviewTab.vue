@@ -17,6 +17,8 @@ defineProps({
   assigneeLevels: { type: Array, default: () => [] },
   categories: { type: Array, default: () => [] },
   complexities: { type: Array, default: () => [] },
+  sprints: { type: Array, default: () => [] },
+  isDevMesa: { type: Boolean, default: false },
   canUpdate: { type: Boolean, default: true },
   isSavingDescription: { type: Boolean, default: false },
 });
@@ -25,6 +27,7 @@ defineEmits([
   'editCatalog',
   'saveDescription',
   'updateProperty',
+  'updateCustomAttribute',
   'moveToColumn',
   'changeStatus',
   'editCompany',
@@ -101,11 +104,16 @@ defineEmits([
           :columns="columns"
           :categories="categories"
           :complexities="complexities"
+          :sprints="sprints"
           :agents="agents"
           :uses-assignee-levels="usesAssigneeLevels"
           :assignee-levels="assigneeLevels"
+          :is-dev-mesa="isDevMesa"
           :can-update="canUpdate"
           @update-property="$emit('updateProperty', $event)"
+          @update-custom-attribute="
+            (...args) => $emit('updateCustomAttribute', ...args)
+          "
           @move-to-column="$emit('moveToColumn', $event)"
           @change-status="$emit('changeStatus', $event)"
         />

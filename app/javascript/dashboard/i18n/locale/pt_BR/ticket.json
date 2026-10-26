@@ -1239,6 +1239,69 @@
       "NONE": "Sem complexidade",
       "EMPTY_FOR_MESA": "Esta Mesa não tem complexidades habilitadas.",
       "CLEARED_BY_MESA": "A Mesa mudou e a complexidade anterior não é oferecida por ela. Escolha uma nova."
+    },
+    "BACKLOG": {
+      "TITLE": "Backlog",
+      "CREATE_SPRINT": "Criar sprint",
+      "SAVE_SPRINT": "Salvar",
+      "SPRINT_NAME": "Nome",
+      "SPRINT_NAME_PLACEHOLDER": "Ex.: OUT26 S3",
+      "SPRINT_STARTS_ON": "Início",
+      "SPRINT_ENDS_ON": "Fim",
+      "BACKLOG_BUCKET": "Backlog (sem sprint)",
+      "NO_DEV_MESA": "Nenhuma Mesa com o Módulo de Desenvolvimento ligado. Ative em Configurações > Times.",
+      "VIEW_BACKLOG": "Backlog",
+      "VIEW_BOARD": "Sprint ativo",
+      "CONCLUDE_SPRINT": "Concluir sprint",
+      "CONCLUDE_SPRINT_CONFIRM": "Confirmar?",
+      "NO_SPRINT_SELECTED": "Esta Mesa ainda não tem nenhum Sprint. Crie um na aba Backlog.",
+      "FILTER_SEARCH_PLACEHOLDER": "Buscar por número ou título",
+      "FILTER_ALL_PRIORITIES": "Todas Prioridades",
+      "FILTER_ALL_STAGES": "Todos Estágios",
+      "BULK_SELECTED_COUNT": "{count} selecionado(s)",
+      "BULK_CLEAR_SELECTION": "Limpar seleção",
+      "BULK_EDIT_FIELDS": "Editar campos",
+      "BULK_MOVE_TO_SPRINT": "Sprint",
+      "BULK_PARTIAL_ERROR": "{count} de {total} ticket(s) não puderam ser alterados.",
+      "ESTIMATE_HOURS_SHORT": "{hours}h",
+      "BULK_EDIT": {
+        "TITLE": "Edição em massa",
+        "DESCRIPTION": "Altere qualquer um dos campos abaixo para os {count} ticket(s) selecionados. Campos deixados como \"Manter como está\" não são alterados.",
+        "CONFIRM": "Salvar",
+        "KEEP": "Manter como está"
+      }
+    },
+    "DEVELOPMENT_FIELDS": {
+      "TITLE": "Módulo de Desenvolvimento",
+      "TYPE": {
+        "LABEL": "Tipo",
+        "BUG": "Bug",
+        "TASK": "Tarefa",
+        "NONE": "Não definido"
+      },
+      "SPRINT": {
+        "LABEL": "Sprint",
+        "BACKLOG": "Backlog (sem sprint)"
+      },
+      "FEATURE": {
+        "LABEL": "Feature",
+        "PLACEHOLDER": "Separe por vírgula, ex.: Login, Faturamento"
+      },
+      "RETRABALHO": "Retrabalho",
+      "RESOLUCAO": {
+        "LABEL": "Resolução",
+        "NONE": "Não definida",
+        "DEFINITIVA": "Definitiva",
+        "PALIATIVA": "Paliativa"
+      },
+      "DETALHES_OCULTOS": {
+        "LABEL": "Detalhes ocultos",
+        "PLACEHOLDER": "Separe por vírgula"
+      },
+      "ESTIMATIVA_HORAS": "Estimativa original (horas)",
+      "TEMPO_TESTE_HORAS": "Tempo de teste (horas)",
+      "DATA_LIMITE": "Data limite",
+      "FEITO_TRIAGEM": "Feito na triagem"
     }
   }
 }

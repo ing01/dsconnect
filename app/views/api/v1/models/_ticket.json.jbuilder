@@ -19,6 +19,12 @@ json.assignee_name resource.assignee&.name
 end
 json.team_id resource.team_id
 json.team_name resource.team.name
+# Modulo de Desenvolvimento - `nil` quando a Mesa nao usa o modulo, ou quando
+# o ticket ainda esta no Backlog (sem sprint).
+json.sprint_id resource.sprint_id
+json.sprint_name resource.sprint&.name
+json.development_type resource.development_type
+json.custom_attributes resource.custom_attributes
 # Solicitante still comes from a linked Conversation's Contact - there is no
 # ticket->contact FK. Empresa, in contrast, is now a real association on the
 # ticket, so it is read straight from it.

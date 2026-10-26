@@ -4,6 +4,7 @@ import TicketColumnsAPI from '../../api/ticketColumns';
 import TicketCategoriesAPI from '../../api/ticketCategories';
 import TicketSlaPoliciesAPI from '../../api/ticketSlaPolicies';
 import TicketsAPI from '../../api/tickets';
+import SprintsAPI from '../../api/sprints';
 
 // The Kanban is the operational board: only tickets still being worked on. A
 // resolved, closed or cancelled ticket leaves it - it is not deleted, and the
@@ -27,6 +28,10 @@ export const state = {
   // Mesa que os Estagios e as Categorias - por isso vivem neste modulo.
   slaPoliciesByTeam: {},
   workingHoursByTeam: {},
+  // Sprints do Modulo de Desenvolvimento - so' tem conteudo nas Mesas que
+  // ligaram a flag, mas vive aqui pelo mesmo motivo que Categorias e SLA:
+  // e' configuracao/estado por Mesa, igual ao resto deste modulo.
+  sprintsByTeam: {},
   uiFlags: {
     isFetching: false,
     isUpdating: false,
@@ -51,6 +56,9 @@ export const getters = {
   },
   getCategories: _state => teamId => {
     return _state.categoriesByTeam[teamId] || [];
+  },
+  getSprints: _state => teamId => {
+    return _state.sprintsByTeam[teamId] || [];
   },
 };
 
@@ -98,6 +106,30 @@ export const actions = {
     return dispatch('fetchCategories', teamId);
   },
 
+  fetchSprints: async ({ commit }, teamId) => {
+    if (!teamId) return [];
+
+    const response = await SprintsAPI.get(teamId);
+    commit(types.SET_SPRINTS_BY_TEAM, { teamId, sprints: response.data });
+    return response.data;
+  },
+  createSprint: async ({ dispatch }, { teamId, ...data }) => {
+    await SprintsAPI.create(teamId, data);
+    return dispatch('fetchSprints', teamId);
+  },
+  updateSprint: async ({ dispatch }, { teamId, sprintId, ...data }) => {
+    await SprintsAPI.update(teamId, sprintId, data);
+    return dispatch('fetchSprints', teamId);
+  },
+  activateSprint: async ({ dispatch }, { teamId, sprintId }) => {
+    await SprintsAPI.activate(teamId, sprintId);
+    return dispatch('fetchSprints', teamId);
+  },
+  concludeSprint: async ({ dispatch }, { teamId, sprintId }) => {
+    await SprintsAPI.conclude(teamId, sprintId);
+    return dispatch('fetchSprints', teamId);
+  },
+
   fetchSlaPolicies: async ({ commit }, teamId) => {
     if (!teamId) return;
 
@@ -126,11 +158,20 @@ export const actions = {
     if (!teamId) return;
 
     const response = await TicketSlaPoliciesAPI.getWorkingHours(teamId);
-    commit(types.SET_TEAM_WORKING_HOURS, { teamId, workingHours: response.data });
+    commit(types.SET_TEAM_WORKING_HOURS, {
+      teamId,
+      workingHours: response.data,
+    });
   },
   updateWorkingHours: async ({ commit }, { teamId, ...data }) => {
-    const response = await TicketSlaPoliciesAPI.updateWorkingHours(teamId, data);
-    commit(types.SET_TEAM_WORKING_HOURS, { teamId, workingHours: response.data });
+    const response = await TicketSlaPoliciesAPI.updateWorkingHours(
+      teamId,
+      data
+    );
+    commit(types.SET_TEAM_WORKING_HOURS, {
+      teamId,
+      workingHours: response.data,
+    });
   },
   createColumn: async ({ dispatch }, { teamId, ...data }) => {
     await TicketColumnsAPI.create(teamId, data);
@@ -240,6 +281,9 @@ export const mutations = {
       ..._state.categoriesByTeam,
       [teamId]: categories,
     };
+  },
+  [types.SET_SPRINTS_BY_TEAM](_state, { teamId, sprints }) {
+    _state.sprintsByTeam = { ..._state.sprintsByTeam, [teamId]: sprints };
   },
   [types.SET_TICKET_KANBAN_BOARD](_state, board) {
     _state.records = {

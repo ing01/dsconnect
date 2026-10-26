@@ -59,6 +59,11 @@ module TicketActionParams
                                    :ticket_column_id, :company_id, :contact_id, :ticket_category_id,
                                    :ticket_complexity_id,
                                    :parent_id, :project_id, :due_date, :scheduled_at, :next_project_stage,
-                                   *ASSIGNEE_PARAMS, follower_ids: [])
+                                   # Modulo de Desenvolvimento - `sprint_id`/`development_type` so' tem
+                                   # sentido pra uma Mesa com o modulo ativo, mas permitir aqui sempre e'
+                                   # mais simples que duplicar `ticket_params` por tipo de Mesa; uma Mesa
+                                   # comum simplesmente nunca envia esses campos pela UI.
+                                   :sprint_id, :development_type,
+                                   *ASSIGNEE_PARAMS, follower_ids: [], custom_attributes: {})
   end
 end

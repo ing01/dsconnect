@@ -4,6 +4,7 @@ import TicketsWorkspaceRouteView from './pages/TicketsWorkspaceRouteView.vue';
 import TicketsPage from './pages/TicketsPage.vue';
 import TicketDetailPage from './pages/TicketDetailPage.vue';
 import TicketTriagePage from './pages/TicketTriagePage.vue';
+import BacklogPage from './pages/BacklogPage.vue';
 
 const meta = {
   permissions: ['administrator', 'agent', 'ticket_manage'],
@@ -24,12 +25,21 @@ const ticketsRoutes = {
           meta,
           component: TicketsPage,
         },
-        // Antes de `:ticketId`: senao "triage" seria lido como um id de ticket.
+        // Antes de `:ticketId`: senao "triage"/"backlog" seriam lidos como um id
+        // de ticket.
         {
           path: 'triage',
           name: 'tickets_triage',
           meta,
           component: TicketTriagePage,
+        },
+        // O Backlog do Modulo de Desenvolvimento - a rota existe sempre, igual
+        // a Triagem; so' tem conteudo nas Mesas com `development_module_enabled`.
+        {
+          path: 'backlog',
+          name: 'tickets_backlog',
+          meta,
+          component: BacklogPage,
         },
         {
           path: ':ticketId',

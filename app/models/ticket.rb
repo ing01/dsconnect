@@ -31,6 +31,11 @@ class Ticket < ApplicationRecord
   # continua valido sem ela, e a exigencia aparece apenas no fechamento - ver
   # TicketClosing#missing_close_requirements.
   belongs_to :ticket_complexity, optional: true
+  # Modulo de Desenvolvimento (Backlog + Sprints). `nil` = Backlog, ou uma
+  # Mesa que nao usa o modulo (toda Mesa pode, em tese, ter um ticket
+  # apontando pra um sprint - quem decide se isso aparece em alguma tela e'
+  # o frontend, olhando `team.development_module_enabled`).
+  belongs_to :sprint, optional: true
 
   has_many :ticket_conversations, dependent: :destroy, inverse_of: :ticket
   has_many :conversations, through: :ticket_conversations
@@ -68,6 +73,9 @@ class Ticket < ApplicationRecord
   # why a ticket left the open state (e.g. 'merged') without needing a global
   # status per reason.
   enum status: { open: 0, resolved: 1, closed: 2, cancelled: 3 }
+  # So' usado pelo Modulo de Desenvolvimento - `nil` em qualquer ticket de uma
+  # Mesa comum.
+  enum development_type: { bug: 0, task: 1 }
 
   # What the Kanban shows. Everything except `open` is a terminal state: the
   # ticket was dealt with (resolved/closed) or never will be (cancelled), so it
@@ -107,6 +115,12 @@ class Ticket < ApplicationRecord
   # would leave between releasing the lock and persisting the row.
   before_create :set_display_id
 
+  # Depois do `_commit`, e nao junto com ele: `attach_to!` grava
+  # TicketChecklistItem (outra tabela), e um `after_create` comum ja roda
+  # dentro da MESMA transacao do INSERT do ticket - sem isso, criar um ticket
+  # fora da Mesa com checklist padrao (o caso comum) pagaria uma transacao a
+  # mais por ticket so para o commit separado nao ganhar nada.
+  after_create :attach_default_checklist
   after_create_commit :log_created_activity, :dispatch_ticket_created_event
   after_update_commit :log_changes_activity, :dispatch_ticket_updated_event
   # Sem isto o card apagado por outra pessoa fica no quadro de todo mundo ate
@@ -241,6 +255,15 @@ class Ticket < ApplicationRecord
   end
 
   private
+
+  # Roda em TODO caminho que cria um ticket (criacao normal, ticket filho,
+  # duplicar, Projetos) - nao so' na tela de criacao - porque a regra e' da
+  # Mesa, e nao de uma unica tela. `default_checklist` so' existe quando um
+  # admin configurou um, entao uma Mesa sem isso continua sem ganhar nada
+  # sozinha.
+  def attach_default_checklist
+    team&.default_checklist&.attach_to!(self)
+  end
 
   def set_default_position
     return if position.present? && position != 0
