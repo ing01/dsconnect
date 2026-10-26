@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: ^3.13.5
@@ -61,23 +61,26 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.8
 
-# A logo real do DSConnect (`public/brand-assets/logo.png` no repo principal)
-# - mesmo arquivo usado no painel web (login, favicon) - gerada aqui pro
-# icone do app e pra tela de splash via flutter_launcher_icons/flutter_native_splash.
+# Identidade visual oficial (DSConnect_Assets/img):
+# - icon.png: icone com fundo (iOS + Android legado)
+# - logo.png: logotipo sem fundo (tela de login)
+# - icon_foreground.png: logotipo com margem (icone adaptativo do Android)
+# - splash.png: logotipo com margem segura (splash, inclusive Android 12)
+# Regerar: dart run flutter_launcher_icons && dart run flutter_native_splash:create
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo.png"
-  adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/images/logo.png"
+  image_path: "assets/images/icon.png"
+  adaptive_icon_background: "#001233"
+  adaptive_icon_foreground: "assets/images/icon_foreground.png"
   remove_alpha_ios: true
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image: assets/images/logo.png
+  image: assets/images/splash.png
   android_12:
     color: "#FFFFFF"
-    image: assets/images/logo.png
+    image: assets/images/splash.png
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
