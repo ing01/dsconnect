@@ -268,7 +268,7 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
 <template>
   <Dialog
     ref="dialogRef"
-    width="md"
+    width="2xl"
     overflow-y-auto
     :title="t('TICKET.DETAIL.DEVELOPMENT.DIALOG_TITLE')"
     :confirm-button-label="
@@ -357,8 +357,8 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           </label>
           <textarea
             v-model="form.description"
-            rows="3"
-            class="w-full rounded-xl border px-3 py-2 text-sm bg-transparent outline-none resize-none transition-colors"
+            rows="8"
+            class="w-full rounded-xl border px-3 py-2 text-sm bg-transparent outline-none resize-y transition-colors"
             :class="
               errors.description
                 ? 'border-red-400 focus:border-red-500'
@@ -420,12 +420,15 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
             {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.CATEGORY_LABEL') }}
             <span class="text-red-500">*</span>
           </label>
-          <div class="flex gap-2">
+          <div
+            class="grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-2"
+          >
             <button
               v-for="cat in categories"
               :key="cat.id"
               type="button"
-              class="flex-1 py-2 px-3 text-sm rounded-xl border transition-colors font-medium"
+              class="py-2 px-3 text-sm rounded-xl border transition-colors font-medium truncate"
+              :title="cat.name"
               :class="
                 form.ticketCategoryId === cat.id
                   ? 'border-n-brand bg-n-brand/10 text-n-brand'
@@ -447,8 +450,8 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           </p>
         </div>
 
-        <!-- Assignee + Priority side by side -->
-        <div class="flex gap-3">
+        <!-- Assignee + Priority side by side (stack on narrow viewports) -->
+        <div class="flex flex-col sm:flex-row gap-3">
           <!-- Assignee -->
           <div class="flex flex-col gap-1 flex-1 min-w-0">
             <label class="text-sm font-medium text-n-slate-12">
