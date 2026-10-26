@@ -100,14 +100,24 @@ export function useBacklog() {
       // `status: 'open'` pelo mesmo motivo do Kanban: um ticket resolvido,
       // fechado ou cancelado sai do fluxo operacional - aqui tambem, nao so'
       // nas colunas do quadro.
+      // `with_parent`/`exclude_finalized_stage`: o Backlog so' lista o ticket
+      // FILHO que o suporte manda pra aba Desenvolvimento - um ticket sem pai
+      // nao veio desse fluxo, e um ja' concluido so' ocupa espaco ali.
       const [backlogResponse, ...sprintResponses] = await Promise.all([
         TicketsAPI.get({
           team_id: state.selectedTeamId,
           without_sprint: true,
           status: 'open',
+          with_parent: true,
+          exclude_finalized_stage: true,
         }),
         ...sprints.value.map(sprint =>
-          TicketsAPI.get({ sprint_id: sprint.id, status: 'open' })
+          TicketsAPI.get({
+            sprint_id: sprint.id,
+            status: 'open',
+            with_parent: true,
+            exclude_finalized_stage: true,
+          })
         ),
       ]);
 
@@ -134,22 +144,31 @@ export function useBacklog() {
   const loadTeamData = async () => {
     if (!state.selectedTeamId) return;
 
-    await Promise.all([
-      store.dispatch('ticketColumns/fetchSprints', state.selectedTeamId),
-      store.dispatch('ticketColumns/fetchColumns', state.selectedTeamId),
-      store.dispatch('teamMembers/get', { teamId: state.selectedTeamId }),
-    ]);
-    await loadBucketTickets();
+    // Cobre o fetch inteiro (Sprints/Estagios/membros + os baldes de
+    // ticket), nao so' a parte de dentro de `loadBucketTickets` - sem isso o
+    // Spinner so' aparecia depois que os Sprints/Estagios ja tinham chegado.
+    state.isLoading = true;
+    try {
+      await Promise.all([
+        store.dispatch('ticketColumns/fetchSprints', state.selectedTeamId),
+        store.dispatch('ticketColumns/fetchColumns', state.selectedTeamId),
+        store.dispatch('teamMembers/get', { teamId: state.selectedTeamId }),
+      ]);
+      await loadBucketTickets();
 
-    // So' redefine o Sprint do quadro quando o escolhido nao existe mais
-    // (Mesa trocada, ou aquele Sprint foi concluido e saiu da lista) - trocar
-    // sempre que a lista chega de novo tiraria a pessoa do Sprint que estava
-    // olhando a cada acao (criar outro Sprint, mover um ticket...).
-    const stillExists = sprints.value.some(
-      sprint => sprint.id === state.boardSprintId
-    );
-    if (!stillExists) {
-      state.boardSprintId = currentSprint.value?.id || null;
+      // So' redefine o Sprint do quadro quando o escolhido nao existe mais
+      // (Mesa trocada, ou aquele Sprint foi concluido e saiu da lista) -
+      // trocar sempre que a lista chega de novo tiraria a pessoa do Sprint
+      // que estava olhando a cada acao (criar outro Sprint, mover um
+      // ticket...).
+      const stillExists = sprints.value.some(
+        sprint => sprint.id === state.boardSprintId
+      );
+      if (!stillExists) {
+        state.boardSprintId = currentSprint.value?.id || null;
+      }
+    } finally {
+      state.isLoading = false;
     }
   };
 
@@ -322,8 +341,17 @@ export function useBacklog() {
     }
   };
 
+  // `restoreLastTeam` roda sincrono (o `immediate: true` abaixo chama o
+  // callback na hora, dentro do proprio `watch(devTeams, ...)`) - se as
+  // Mesas ja' estiverem na Vuex (caso comum, carregadas antes desta tela
+  // montar), `state.selectedTeamId` muda ANTES deste segundo `watch` nem
+  // existir ainda, e a troca passava batido: nenhum `loadTeamData` disparava,
+  // o Backlog ficava vazio até trocar de aba e voltar (o que chama `reload()`
+  // por outro motivo, mascarando o problema). `immediate: true` aqui tambem
+  // faz este `watch` ler o valor JA atualizado no instante em que e' criado,
+  // cobrindo exatamente esse caso.
   watch(devTeams, restoreLastTeam, { immediate: true });
-  watch(() => state.selectedTeamId, loadTeamData);
+  watch(() => state.selectedTeamId, loadTeamData, { immediate: true });
 
   return {
     devTeams,

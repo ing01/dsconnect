@@ -30,6 +30,8 @@ class TicketFinder
     result = filter_by_ownership(scope)
     result = filter_by_attributes(result)
     result = filter_by_sprint(result)
+    result = filter_by_parent(result)
+    result = filter_by_finalized_stage(result)
     result = filter_by_conversation(result)
     result = filter_by_contact(result)
     result = filter_by_impediment(result)
@@ -84,6 +86,27 @@ class TicketFinder
     return relation if params[:without_sprint].blank?
 
     ActiveModel::Type::Boolean.new.cast(params[:without_sprint]) ? relation.where(sprint_id: nil) : relation
+  end
+
+  # O Backlog do Modulo de Desenvolvimento so' lista ticket FILHO - o time de
+  # suporte abre o chamado (o pai, com prints e detalhes) e e' da aba
+  # "Desenvolvimento" dele que nasce o ticket que vai pro Backlog. Um ticket
+  # sem pai nesta Mesa nao veio desse fluxo, entao nao aparece la'.
+  def filter_by_parent(relation)
+    return relation if params[:with_parent].blank?
+
+    ActiveModel::Type::Boolean.new.cast(params[:with_parent]) ? relation.where.not(parent_id: nil) : relation
+  end
+
+  # Idem, pro Estagio: uma vez no Estagio final da Mesa (`kind: completed`,
+  # o "Concluido" do fluxo), o ticket sai da listagem do Backlog - ele
+  # continua existindo e acessivel pelo numero/Busca detalhada, so' nao
+  # ocupa mais espaco ali.
+  def filter_by_finalized_stage(relation)
+    return relation if params[:exclude_finalized_stage].blank?
+    return relation unless ActiveModel::Type::Boolean.new.cast(params[:exclude_finalized_stage])
+
+    relation.joins(:ticket_column).where.not(ticket_columns: { kind: 'completed' })
   end
 
   def filter_by_conversation(relation)

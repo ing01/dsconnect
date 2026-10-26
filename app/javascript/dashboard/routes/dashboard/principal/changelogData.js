@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'development-module-backlog-jira-layout',
+    date: '26 de outubro de 2026',
+    isoDate: '2026-10-26',
+    type: 'feature',
+    platform: 'web',
+    title: 'Backlog e Sprints: layout no estilo Jira, filtros e edição em massa',
+    description:
+      'As listagens de Backlog e Sprint ativo agora mostram os tickets em linhas compactas (número, título, prioridade, foto do responsável e estimativa de horas), com filtros de busca, responsável, prioridade e estágio. Também é possível selecionar vários tickets e usar "Editar campos" para alterar Estágio, Sprint, Prioridade e Responsável de todos de uma vez. Além disso, a listagem do Backlog passou a mostrar somente tickets filhos (criados pela aba "Desenvolvimento" de um chamado) que ainda não chegaram ao Estágio final da Mesa - tickets concluídos ou sem vínculo com um chamado pai não aparecem mais ali. Corrigido também um caso em que os tickets não apareciam ao abrir a aba Backlog pela primeira vez (só vinham depois de trocar para o Sprint ativo e voltar); agora o ícone de carregamento cobre toda a busca, do começo ao fim.',
+  },
+  {
     id: 'development-module-phase-2-backlog',
     date: '23 de outubro de 2026',
     isoDate: '2026-10-23',

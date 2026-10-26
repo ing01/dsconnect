@@ -96,6 +96,31 @@ RSpec.describe 'Tickets API - Modulo de Desenvolvimento', type: :request do
 
       expect(response.parsed_body['payload'].pluck('sprint_id')).to eq([nil])
     end
+
+    it 'com with_parent, so mostra ticket filho (criado a partir da aba Desenvolvimento)' do
+      criar_ticket
+      pai = Ticket.find(response.parsed_body['id'])
+      criar_ticket(parent_id: pai.id)
+      criar_ticket # sem pai - ticket comum, nao veio desse fluxo
+
+      get "/api/v1/accounts/#{account.id}/tickets",
+          params: { team_id: team.id, with_parent: true },
+          headers: agent.create_new_auth_token, as: :json
+
+      expect(response.parsed_body['payload'].pluck('parent_id')).to eq([pai.id])
+    end
+
+    it 'com exclude_finalized_stage, esconde ticket cujo Estagio e o Concluido (kind: completed) da Mesa' do
+      coluna_concluida = team.ticket_columns.find_by!(kind: 'completed')
+      criar_ticket
+      criar_ticket(ticket_column_id: coluna_concluida.id)
+
+      get "/api/v1/accounts/#{account.id}/tickets",
+          params: { team_id: team.id, exclude_finalized_stage: true },
+          headers: agent.create_new_auth_token, as: :json
+
+      expect(response.parsed_body['payload'].pluck('ticket_column_id')).to eq([ticket_column.id])
+    end
   end
 
   describe 'Mesa sem o modulo ativado continua igual' do
