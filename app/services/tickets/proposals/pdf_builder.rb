@@ -7,7 +7,7 @@ require 'prawn'
 class Tickets::Proposals::PdfBuilder
   pattr_initialize [:proposal!]
 
-  LOGO_PATH = Rails.public_path.join('brand-assets/logo.png').freeze
+  LOGO_PATH = Rails.public_path.join('brand-assets/duesoft_logo.png').freeze
   BRAND_COLOR = '1B5FD6'.freeze
   MUTED_COLOR = '666666'.freeze
   MONTHS = %w[janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro].freeze
