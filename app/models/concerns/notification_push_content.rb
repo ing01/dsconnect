@@ -27,6 +27,7 @@ module NotificationPushContent
       'ticket_triage_pending' => 'notifications.notification_title.ticket_triage_pending',
       'suggestion_created' => 'notifications.notification_title.suggestion_created',
       'ticket_customer_communication_received' => 'notifications.notification_title.ticket_customer_communication_received',
+      'ticket_proposal_answered' => 'notifications.notification_title.ticket_proposal_answered',
       'article_published' => 'notifications.notification_title.article_published',
       'portal_created' => 'notifications.notification_title.portal_created'
     }
@@ -71,6 +72,10 @@ module NotificationPushContent
       internal_chat_interpolations
     when 'ticket_triage_pending', 'ticket_customer_communication_received'
       { display_id: primary_actor.display_id, company_name: primary_actor.company&.name.to_s }
+    when 'ticket_proposal_answered'
+      { display_id: primary_actor.display_id,
+        company_name: secondary_actor.company_name,
+        decision: I18n.t("notifications.proposal_decision.#{secondary_actor.status}") }
     when 'suggestion_created'
       { user_name: primary_actor.user&.name.to_s }
     when 'article_published'
@@ -119,6 +124,7 @@ module NotificationPushContent
     return primary_actor.title if %w[suggestion_created article_published ticket_triage_pending].include?(notification_type)
     return primary_actor.name if notification_type == 'portal_created'
     return ticket_customer_communication_preview if notification_type == 'ticket_customer_communication_received'
+    return primary_actor.title if notification_type == 'ticket_proposal_answered'
 
     ''
   end

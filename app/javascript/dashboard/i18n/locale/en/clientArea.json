@@ -161,8 +161,33 @@
       "TABS": {
         "OVERVIEW": "Overview",
         "COMMUNICATION": "Communication",
+        "VALUATION": "Valuation",
         "APPOINTMENTS": "Appointments",
         "CHECKLIST": "Checklist"
+      },
+      "PROPOSALS": {
+        "EMPTY": "No proposal sent for this ticket.",
+        "STATUS": {
+          "PENDING": "Awaiting your answer",
+          "APPROVED": "Approved",
+          "REFUSED": "Refused"
+        },
+        "EXPIRED": "Expired",
+        "DEADLINE": "Delivery deadline",
+        "DEADLINE_VALUE": "{days} days",
+        "VALID_UNTIL": "Proposal validity",
+        "PAYMENT_TERMS": "Payment terms",
+        "DOWNLOAD_PDF": "Download proposal (PDF)",
+        "APPROVE": "Approve proposal",
+        "REFUSE": "Refuse proposal",
+        "SURE_APPROVE": "Are you sure you want to APPROVE? This cannot be undone.",
+        "SURE_REFUSE": "Are you sure you want to REFUSE? This cannot be undone.",
+        "CONFIRM": "Yes, I'm sure",
+        "CANCEL": "Back",
+        "DONE_APPROVE": "Proposal approved. Thank you!",
+        "DONE_REFUSE": "Proposal refused.",
+        "DECIDE_ERROR": "Could not record your answer.",
+        "PDF_ERROR": "Could not download the proposal."
       },
       "FIELDS": {
         "STATUS": "Status",

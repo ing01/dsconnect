@@ -20,6 +20,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Label from 'dashboard/components-next/label/Label.vue';
+import { downloadBlob } from 'dashboard/helper/downloadHelper';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import TicketFileInput from 'dashboard/routes/dashboard/tickets/components/create/TicketFileInput.vue';
 import {
@@ -39,7 +40,13 @@ const resposta = ref('');
 const arquivos = ref([]);
 const isSending = ref(false);
 
-const TABS = ['overview', 'communication', 'appointments', 'checklist'];
+const TABS = [
+  'overview',
+  'communication',
+  'valuation',
+  'appointments',
+  'checklist',
+];
 
 const dataHora = segundos =>
   segundos ? new Date(segundos * 1000).toLocaleString() : '—';
@@ -48,6 +55,7 @@ const data = segundos =>
   segundos ? new Date(segundos * 1000).toLocaleDateString() : '—';
 
 const communications = computed(() => ticket.value?.communications || []);
+const proposals = computed(() => ticket.value?.proposals || []);
 const appointments = computed(() => ticket.value?.appointments || []);
 const checklistItems = computed(() => ticket.value?.checklist_items || []);
 
@@ -55,6 +63,7 @@ const checklistItems = computed(() => ticket.value?.checklist_items || []);
 // vazia.
 const tabCount = tab => {
   if (tab === 'communication') return communications.value.length;
+  if (tab === 'valuation') return proposals.value.length;
   if (tab === 'appointments') return appointments.value.length;
   if (tab === 'checklist') return checklistItems.value.length;
   return null;
@@ -72,7 +81,10 @@ const infoRows = computed(() => {
       label: t('CLIENT_AREA.DETAIL.FIELDS.STAGE'),
       value: ticket.value.ticket_column_name,
     },
-    { label: t('CLIENT_AREA.DETAIL.FIELDS.TEAM'), value: ticket.value.team_name },
+    {
+      label: t('CLIENT_AREA.DETAIL.FIELDS.TEAM'),
+      value: ticket.value.team_name,
+    },
     {
       label: t('CLIENT_AREA.DETAIL.FIELDS.CATEGORY'),
       value: ticket.value.category_name || '—',
@@ -144,6 +156,68 @@ const enviar = async () => {
   }
 };
 
+const dinheiro = valor =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+    Number(valor)
+  );
+
+// "2026-10-27" vira "27/10/2026" sem passar por Date, que deslocaria o dia pelo
+// fuso do navegador.
+const diaSimples = valor => valor.split('-').reverse().join('/');
+
+const PROPOSAL_STATUS_COLOR = {
+  pending: 'amber',
+  approved: 'teal',
+  refused: 'ruby',
+};
+
+// O "Certeza?": o primeiro clique só pede confirmação, e é o segundo que
+// decide. `confirmando` guarda qual proposta e qual decisão aguardam.
+const confirmando = ref(null);
+const decidindo = ref(false);
+
+const pedirConfirmacao = (proposal, decision) => {
+  confirmando.value = { id: proposal.id, decision };
+};
+
+const baixarProposta = async proposal => {
+  try {
+    const pdf = await ClientAreaAPI.proposalPdf(
+      route.params.ticketId,
+      proposal.id
+    );
+    downloadBlob(
+      pdf.data,
+      `proposta-${proposal.id}.pdf`,
+      pdf.headers?.['content-disposition']
+    );
+  } catch {
+    useAlert(t('CLIENT_AREA.DETAIL.PROPOSALS.PDF_ERROR'));
+  }
+};
+
+// A decisão vale uma única vez: o servidor recusa a segunda (409) e a tela
+// relê o chamado em qualquer caso, para mostrar o que ficou gravado.
+const decidir = async () => {
+  if (!confirmando.value || decidindo.value) return;
+
+  decidindo.value = true;
+  const { id, decision } = confirmando.value;
+  try {
+    await ClientAreaAPI.decideProposal(route.params.ticketId, id, decision);
+    useAlert(t(`CLIENT_AREA.DETAIL.PROPOSALS.DONE_${decision.toUpperCase()}`));
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error ||
+        t('CLIENT_AREA.DETAIL.PROPOSALS.DECIDE_ERROR')
+    );
+  } finally {
+    confirmando.value = null;
+    decidindo.value = false;
+    await carregar();
+  }
+};
+
 const voltar = () => router.push({ name: 'client_tickets' });
 
 onMounted(carregar);
@@ -171,7 +245,9 @@ onMounted(carregar);
             {{ ticket.title }}
           </h1>
         </div>
-        <div class="flex flex-wrap items-center gap-1.5 ltr:ml-auto rtl:mr-auto">
+        <div
+          class="flex flex-wrap items-center gap-1.5 ltr:ml-auto rtl:mr-auto"
+        >
           <!-- Aguardando triagem: o Estágio mostrado é provisório até a equipe
                aceitar o chamado. -->
           <Label
@@ -347,6 +423,144 @@ onMounted(carregar);
         </article>
       </section>
 
+      <!-- VALORIZAÇÃO: as propostas que a equipe liberou. O cliente lê o PDF e
+           decide uma única vez - aprovada ou recusada, não há como voltar. -->
+      <section
+        v-else-if="activeTab === 'valuation'"
+        class="flex flex-col flex-1 min-h-0 gap-3 overflow-y-auto"
+      >
+        <p
+          v-if="!proposals.length"
+          class="py-8 m-0 text-sm text-center text-n-slate-11"
+        >
+          {{ t('CLIENT_AREA.DETAIL.PROPOSALS.EMPTY') }}
+        </p>
+        <article
+          v-for="proposal in proposals"
+          :key="proposal.id"
+          class="flex flex-col gap-3 p-4 border rounded-lg border-n-weak"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <Icon icon="i-lucide-file-text" class="size-4 text-n-slate-10" />
+            <h3 class="flex-1 m-0 text-sm font-medium text-n-slate-12">
+              {{ dinheiro(proposal.amount) }}
+            </h3>
+            <Label
+              :label="
+                t(
+                  `CLIENT_AREA.DETAIL.PROPOSALS.STATUS.${proposal.status.toUpperCase()}`
+                )
+              "
+              :color="PROPOSAL_STATUS_COLOR[proposal.status]"
+              size="small"
+            />
+            <Label
+              v-if="proposal.expired && proposal.status === 'pending'"
+              :label="t('CLIENT_AREA.DETAIL.PROPOSALS.EXPIRED')"
+              color="ruby"
+              size="small"
+            />
+          </div>
+
+          <p class="m-0 text-sm whitespace-pre-line text-n-slate-11">
+            {{ proposal.description }}
+          </p>
+
+          <dl class="grid grid-cols-1 gap-2 m-0 sm:grid-cols-2">
+            <div class="flex flex-col gap-0.5">
+              <dt class="text-xs text-n-slate-10">
+                {{ t('CLIENT_AREA.DETAIL.PROPOSALS.DEADLINE') }}
+              </dt>
+              <dd class="m-0 text-sm text-n-slate-12">
+                {{
+                  t('CLIENT_AREA.DETAIL.PROPOSALS.DEADLINE_VALUE', {
+                    days: proposal.deadline_days,
+                  })
+                }}
+              </dd>
+            </div>
+            <div class="flex flex-col gap-0.5">
+              <dt class="text-xs text-n-slate-10">
+                {{ t('CLIENT_AREA.DETAIL.PROPOSALS.VALID_UNTIL') }}
+              </dt>
+              <dd class="m-0 text-sm text-n-slate-12">
+                {{ diaSimples(proposal.valid_until) }}
+              </dd>
+            </div>
+            <div class="flex flex-col gap-0.5 sm:col-span-2">
+              <dt class="text-xs text-n-slate-10">
+                {{ t('CLIENT_AREA.DETAIL.PROPOSALS.PAYMENT_TERMS') }}
+              </dt>
+              <dd class="m-0 text-sm text-n-slate-12">
+                {{ proposal.payment_terms }}
+              </dd>
+            </div>
+          </dl>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <Button
+              size="sm"
+              slate
+              faded
+              icon="i-lucide-download"
+              :label="t('CLIENT_AREA.DETAIL.PROPOSALS.DOWNLOAD_PDF')"
+              @click="baixarProposta(proposal)"
+            />
+
+            <!-- Só quem ainda pode decidir vê os botões. Depois da resposta
+                 (ou do vencimento) eles deixam de existir, e o servidor
+                 também recusa uma segunda tentativa. -->
+            <template v-if="proposal.status === 'pending' && !proposal.expired">
+              <template v-if="confirmando?.id !== proposal.id">
+                <Button
+                  size="sm"
+                  teal
+                  icon="i-lucide-check"
+                  class="ltr:ml-auto rtl:mr-auto"
+                  :label="t('CLIENT_AREA.DETAIL.PROPOSALS.APPROVE')"
+                  @click="pedirConfirmacao(proposal, 'approve')"
+                />
+                <Button
+                  size="sm"
+                  ruby
+                  icon="i-lucide-x"
+                  :label="t('CLIENT_AREA.DETAIL.PROPOSALS.REFUSE')"
+                  @click="pedirConfirmacao(proposal, 'refuse')"
+                />
+              </template>
+              <div
+                v-else
+                class="flex flex-wrap items-center gap-2 ltr:ml-auto rtl:mr-auto"
+              >
+                <span class="text-sm font-medium text-n-slate-12">
+                  {{
+                    t(
+                      `CLIENT_AREA.DETAIL.PROPOSALS.SURE_${confirmando.decision.toUpperCase()}`
+                    )
+                  }}
+                </span>
+                <Button
+                  size="sm"
+                  :teal="confirmando.decision === 'approve'"
+                  :ruby="confirmando.decision === 'refuse'"
+                  :label="t('CLIENT_AREA.DETAIL.PROPOSALS.CONFIRM')"
+                  :is-loading="decidindo"
+                  @click="decidir"
+                />
+                <Button
+                  size="sm"
+                  slate
+                  faded
+                  :label="t('CLIENT_AREA.DETAIL.PROPOSALS.CANCEL')"
+                  :disabled="decidindo"
+                  @click="confirmando = null"
+                />
+              </div>
+            </template>
+          </div>
+        </article>
+      </section>
+
       <!-- COMPROMISSOS: somente leitura -->
       <section
         v-else-if="activeTab === 'appointments'"
@@ -388,7 +602,10 @@ onMounted(carregar);
       </section>
 
       <!-- CHECKLIST: somente leitura, sem caixa clicável -->
-      <section v-else class="flex flex-col flex-1 min-h-0 gap-3 overflow-y-auto">
+      <section
+        v-else
+        class="flex flex-col flex-1 min-h-0 gap-3 overflow-y-auto"
+      >
         <p
           v-if="!checklistItems.length"
           class="py-8 m-0 text-sm text-center text-n-slate-11"

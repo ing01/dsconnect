@@ -63,7 +63,10 @@ class Notification < ApplicationRecord
     # Artigo da Central de Ajuda publicado, ou Portal novo criado - avisa os
     # colaboradores da conta (ver HelpCenter::ContentNotificationBuilder).
     article_published: 15,
-    portal_created: 16
+    portal_created: 16,
+    # O cliente aprovou ou recusou uma proposta pela Area do Cliente - avisa so'
+    # o responsavel do ticket (ver Tickets::ProposalNotificationBuilder).
+    ticket_proposal_answered: 17
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES

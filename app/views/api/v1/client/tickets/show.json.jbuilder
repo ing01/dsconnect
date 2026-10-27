@@ -12,6 +12,12 @@ json.communications @ticket.ticket_customer_communications.order(created_at: :de
   json.partial! 'api/v1/client/models/communication', resource: com
 end
 
+# VALORIZACAO. As propostas que a equipe liberou ao cliente; as demais nao saem
+# do servidor. O cliente le e decide - a decisao tem rota propria.
+json.proposals @ticket.ticket_proposals.visible_to_client.ordered do |proposal|
+  json.partial! 'api/v1/client/models/proposal', resource: proposal
+end
+
 # COMPROMISSOS. Somente leitura: o cliente ve o que foi agendado no atendimento
 # dele, e nao ha nada aqui que ele possa criar ou mexer.
 json.appointments @ticket.calendar_events.order(:start_at) do |evento|

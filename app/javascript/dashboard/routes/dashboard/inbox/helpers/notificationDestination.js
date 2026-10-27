@@ -36,10 +36,20 @@ export const notificationDestinationFor = (notificationItem, accountId) => {
     };
   }
 
-  // A resposta do cliente leva direto a aba de Comunicacao daquele ticket;
-  // os demais avisos de Ticket (hoje so' a Triagem) levam pra fila, sem um
-  // ticket especifico pra abrir.
+  // A resposta do cliente leva direto a aba de Comunicacao daquele ticket, e a
+  // decisao sobre a proposta, a aba Valorizacao; os demais avisos de Ticket
+  // (hoje so' a Triagem) levam pra fila, sem um ticket especifico pra abrir.
   if (primaryActorType === 'Ticket') {
+    if (notificationType === 'ticket_proposal_answered') {
+      if (!primaryActor?.id) return null;
+
+      return {
+        name: 'ticket_detail',
+        params: { accountId, ticketId: primaryActor.id },
+        query: { tab: 'valuation' },
+      };
+    }
+
     if (notificationType === 'ticket_customer_communication_received') {
       if (!primaryActor?.id) return null;
 

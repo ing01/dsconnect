@@ -115,6 +115,24 @@ export default {
     });
   },
 
+  // O PDF da proposta liberada pela equipe. Arquivo, nao JSON.
+  proposalPdf(ticketId, proposalId) {
+    return cliente.get(
+      `${BASE}/tickets/${ticketId}/proposals/${proposalId}/pdf`,
+      { headers: headers(), responseType: 'blob' }
+    );
+  },
+
+  // `decision` e 'approve' ou 'refuse'. A decisao vale uma unica vez: o servidor
+  // responde 409 a qualquer tentativa depois da primeira.
+  decideProposal(ticketId, proposalId, decision) {
+    return cliente.post(
+      `${BASE}/tickets/${ticketId}/proposals/${proposalId}/${decision}`,
+      {},
+      { headers: headers() }
+    );
+  },
+
   // O que a equipe escreveu nos chamados dele, do mais recente ao mais antigo.
   notifications() {
     return cliente.get(`${BASE}/notifications`, { headers: headers() });

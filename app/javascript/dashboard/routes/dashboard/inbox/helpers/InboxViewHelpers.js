@@ -24,4 +24,5 @@ export const NOTIFICATION_TYPES_MAPPING = {
     'i-lucide-message-circle-reply',
     'text-n-blue-11',
   ],
+  TICKET_PROPOSAL_ANSWERED: ['i-lucide-file-check', 'text-n-teal-11'],
 };

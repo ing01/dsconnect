@@ -56,12 +56,13 @@ const abas = wrapper =>
   wrapper.findAll('button').filter(b => b.text().includes('CLIENT_AREA'));
 
 describe('ClientTicketDetailPage', () => {
-  it('shows the four tabs', async () => {
+  it('shows the five tabs', async () => {
     const wrapper = await montar();
 
     expect(abas(wrapper).map(b => b.text())).toEqual([
       expect.stringContaining('TABS.OVERVIEW'),
       expect.stringContaining('TABS.COMMUNICATION'),
+      expect.stringContaining('TABS.VALUATION'),
       expect.stringContaining('TABS.APPOINTMENTS'),
       expect.stringContaining('TABS.CHECKLIST'),
     ]);

@@ -28,6 +28,10 @@ module NotificationTarget
         # mesmo chamado sao o MESMO assunto, a segunda substitui o aviso da
         # primeira em vez de empilhar.
         "ticket_communication_#{primary_actor_id}"
+      elsif notification_type == 'ticket_proposal_answered'
+        # Por proposta, e nao por ticket: duas propostas respondidas no mesmo
+        # chamado sao decisoes diferentes, e uma nao pode apagar o aviso da outra.
+        "ticket_proposal_#{secondary_actor_id}"
       else
         # Agrupado pela TELA, e nao pelo ticket: a triagem se lê de uma vez, e
         # um aviso por chamado empilharia a bandeja num dia movimentado.
@@ -63,6 +67,9 @@ module NotificationTarget
         # Leva direto pro chamado, ja na aba de Comunicacao - e' ali que a
         # resposta do cliente esta.
         "/app/accounts/#{account_id}/tickets/#{primary_actor_id}?tab=communication"
+      elsif notification_type == 'ticket_proposal_answered'
+        # Direto na aba Valorizacao, onde esta a proposta que o cliente decidiu.
+        "/app/accounts/#{account_id}/tickets/#{primary_actor_id}?tab=valuation"
       else
         # Leva a fila, e nao ao chamado: o que se faz com ele e aceitar e
         # encaminhar, e isso acontece na Triagem.

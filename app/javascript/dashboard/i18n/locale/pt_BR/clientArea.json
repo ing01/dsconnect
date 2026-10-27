@@ -161,8 +161,33 @@
       "TABS": {
         "OVERVIEW": "Informações gerais",
         "COMMUNICATION": "Comunicação",
+        "VALUATION": "Valorização",
         "APPOINTMENTS": "Compromissos",
         "CHECKLIST": "Checklist"
+      },
+      "PROPOSALS": {
+        "EMPTY": "Nenhuma proposta enviada para este chamado.",
+        "STATUS": {
+          "PENDING": "Aguardando sua resposta",
+          "APPROVED": "Aprovada",
+          "REFUSED": "Recusada"
+        },
+        "EXPIRED": "Vencida",
+        "DEADLINE": "Prazo de entrega",
+        "DEADLINE_VALUE": "{days} dias",
+        "VALID_UNTIL": "Validade da proposta",
+        "PAYMENT_TERMS": "Condição de pagamento",
+        "DOWNLOAD_PDF": "Baixar proposta (PDF)",
+        "APPROVE": "Aprovar proposta",
+        "REFUSE": "Recusar proposta",
+        "SURE_APPROVE": "Certeza que deseja APROVAR? Não poderá ser desfeito.",
+        "SURE_REFUSE": "Certeza que deseja RECUSAR? Não poderá ser desfeito.",
+        "CONFIRM": "Sim, tenho certeza",
+        "CANCEL": "Voltar",
+        "DONE_APPROVE": "Proposta aprovada. Obrigado!",
+        "DONE_REFUSE": "Proposta recusada.",
+        "DECIDE_ERROR": "Não foi possível registrar sua resposta.",
+        "PDF_ERROR": "Não foi possível baixar a proposta."
       },
       "FIELDS": {
         "STATUS": "Status",

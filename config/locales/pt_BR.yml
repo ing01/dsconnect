@@ -182,6 +182,8 @@ pt_BR:
       column_mismatch: o estágio escolhido não pertence a esta Mesa
     attachments:
       required_by_category: esta categoria exige pelo menos um arquivo ou imagem no chamado
+    proposals:
+      already_decided: Esta proposta já foi aprovada ou recusada e não pode mais ser alterada.
     assignee_levels:
       not_enabled: não pode ser definido porque esta Mesa não usa níveis de responsável
       not_allowed: não está habilitado a atuar no nível %{level} desta Mesa
@@ -510,8 +512,12 @@ pt_BR:
       ticket_triage_pending: 'Novo chamado de %{company_name} (#%{display_id}) aguardando triagem'
       suggestion_created: 'Nova sugestão de melhoria de %{user_name}'
       ticket_customer_communication_received: 'Nova resposta de %{company_name} no chamado #%{display_id}'
+      ticket_proposal_answered: '%{company_name} %{decision} a proposta do chamado #%{display_id}'
       article_published: 'Novo artigo publicado: %{article_title}'
       portal_created: 'Novo Portal criado: %{portal_name}'
+    proposal_decision:
+      approved: 'aprovou'
+      refused: 'recusou'
     unknown_contact: 'Contato sem nome'
     attachment: 'Anexo'
     no_content: 'Sem conteúdo'
@@ -616,6 +622,9 @@ pt_BR:
   client_area:
     communication:
       empty: Escreva uma mensagem antes de enviar.
+    proposal:
+      proposal_decided: Esta proposta já foi respondida e não pode ser alterada.
+      proposal_expired: Esta proposta está vencida. Fale com a equipe para receber uma nova.
     ticket_communication:
       push_title: 'Nova resposta no chamado #%{display_id}'
       push_action_open: Abrir chamado

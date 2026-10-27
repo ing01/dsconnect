@@ -48,6 +48,7 @@ class Ticket < ApplicationRecord
   has_many :calendar_events, through: :calendar_event_tickets
   has_many :ticket_checklist_items, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :ticket
   has_many :ticket_time_entries, -> { order(worked_on: :desc, id: :desc) }, dependent: :destroy, inverse_of: :ticket
+  has_many :ticket_proposals, dependent: :destroy, inverse_of: :ticket
 
   validates :title, presence: true
   validates :custom_attributes, jsonb_attributes_length: true

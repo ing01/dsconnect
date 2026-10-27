@@ -42,6 +42,7 @@
       "PORTAL_CREATED": "Novo portal",
       "TICKET_TRIAGE_PENDING": "Chamado em triagem",
       "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "Cliente respondeu",
+      "TICKET_PROPOSAL_ANSWERED": "Proposta respondida",
       "SNOOZED_UNTIL": "Adiado para {time}",
       "SNOOZED_ENDS": "Adiamento encerrado"
     },

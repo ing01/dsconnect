@@ -173,6 +173,8 @@ en:
       column_mismatch: the chosen stage does not belong to this Mesa
     attachments:
       required_by_category: this category requires at least one file or image on the ticket
+    proposals:
+      already_decided: This proposal was already approved or refused and can no longer be changed.
     assignee_levels:
       not_enabled: cannot be set because this service desk does not use assignee levels
       not_allowed: is not allowed to act at level %{level} on this service desk
@@ -502,6 +504,10 @@ en:
       ticket_triage_pending: 'New ticket from %{company_name} (#%{display_id}) waiting for triage'
       suggestion_created: 'New improvement suggestion from %{user_name}'
       ticket_customer_communication_received: 'New reply from %{company_name} on ticket #%{display_id}'
+      ticket_proposal_answered: '%{company_name} %{decision} the proposal on ticket #%{display_id}'
+    proposal_decision:
+      approved: 'approved'
+      refused: 'refused'
     unknown_contact: 'Unnamed contact'
     attachment: 'Attachment'
     no_content: 'No content'
@@ -606,6 +612,9 @@ en:
   client_area:
     communication:
       empty: Write a message before sending.
+    proposal:
+      proposal_decided: This proposal was already answered and cannot be changed.
+      proposal_expired: This proposal has expired. Contact the team for a new one.
     chat:
       empty: Write a message before sending.
       not_started: Open the chat tab before sending a message.

@@ -269,6 +269,7 @@
         "CHECKLISTS": "Checklists",
         "TIME_ENTRIES": "Time log",
         "DEVELOPMENT": "Development",
+        "VALUATION": "Valuation",
         "HISTORY": "History"
       },
       "ACTIONS": {
@@ -378,6 +379,43 @@
         "ADD_ERROR": "Failed to add checklist item",
         "TOGGLE_ERROR": "Failed to update checklist item",
         "DELETE_ERROR": "Failed to remove checklist item"
+      },
+      "PROPOSALS": {
+        "TITLE": "Improvement proposals",
+        "BUTTON": "Proposal",
+        "EMPTY": "No proposal created for this ticket.",
+        "FORM_TITLE": "New proposal",
+        "FIELDS": {
+          "COMPANY_NAME": "Company",
+          "COMPANY_CNPJ": "CNPJ",
+          "COMPANY_ADDRESS": "Address",
+          "DESCRIPTION": "Improvement description",
+          "AMOUNT": "Development amount (R$)",
+          "DEADLINE_DAYS": "Deadline (days)",
+          "PROPOSAL_DATE": "Proposal date",
+          "VALID_UNTIL": "Proposal validity",
+          "LOCATION": "Place",
+          "SIGNER_NAME": "Signer (Duesoft)",
+          "PAYMENT_TERMS": "Payment terms"
+        },
+        "SAVE": "Create proposal",
+        "CANCEL": "Cancel",
+        "STATUS": {
+          "PENDING": "Awaiting answer",
+          "APPROVED": "Approved",
+          "REFUSED": "Refused"
+        },
+        "EXPIRED": "Expired",
+        "SUMMARY": "Issued on {from} · valid until {to} · {days}-day deadline",
+        "DECIDED_BY": "Answered by {name}",
+        "SHOW_TO_CLIENT": "Show to the client?",
+        "DOWNLOAD_PDF": "Download PDF",
+        "DELETE": "Remove proposal",
+        "LOAD_ERROR": "Failed to load proposals",
+        "DEFAULTS_ERROR": "Could not prefill the company data",
+        "SAVE_ERROR": "Failed to save the proposal",
+        "PDF_ERROR": "Failed to generate the PDF",
+        "DELETE_ERROR": "Failed to remove the proposal"
       },
       "TIME_ENTRIES": {
         "TITLE": "Apontamento",

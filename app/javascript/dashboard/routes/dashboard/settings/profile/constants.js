@@ -52,6 +52,10 @@ export const NOTIFICATION_TYPES = [
     value: 'ticket_customer_communication_received',
   },
   {
+    label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.TICKET_PROPOSAL_ANSWERED',
+    value: 'ticket_proposal_answered',
+  },
+  {
     label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.ARTICLE_PUBLISHED',
     value: 'article_published',
   },

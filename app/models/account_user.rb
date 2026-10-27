@@ -97,9 +97,11 @@ class AccountUser < ApplicationRecord
     # Resposta do cliente num ticket entra ligada por padrao pelo mesmo
     # motivo: so chega a quem e responsavel/segue o chamado (ver
     # Tickets::CustomerCommunicationNotificationBuilder), entao nao ha risco
-    # de lotar a bandeja de quem nao tem nada a ver com aquele ticket.
+    # de lotar a bandeja de quem nao tem nada a ver com aquele ticket. O mesmo
+    # vale para a decisao do cliente sobre uma proposta: so' o responsavel recebe.
     setting.selected_push_flags = %i[
       push_conversation_assignment push_internal_chat_message push_ticket_customer_communication_received
+      push_ticket_proposal_answered
     ]
     setting.save!
   end

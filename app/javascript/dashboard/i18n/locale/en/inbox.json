@@ -40,6 +40,7 @@
       "SUGGESTION_CREATED": "New suggestion",
       "TICKET_TRIAGE_PENDING": "Ticket waiting for triage",
       "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "Customer replied",
+      "TICKET_PROPOSAL_ANSWERED": "Proposal answered",
       "SNOOZED_UNTIL": "Snoozed for {time}",
       "SNOOZED_ENDS": "Snooze ended"
     },

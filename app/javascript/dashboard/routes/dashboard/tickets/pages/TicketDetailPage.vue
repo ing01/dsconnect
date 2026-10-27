@@ -15,6 +15,7 @@ import TicketAppointmentsTab from '../components/detail/TicketAppointmentsTab.vu
 import TicketChecklistsTab from '../components/detail/TicketChecklistsTab.vue';
 import TicketTimeEntriesTab from '../components/detail/TicketTimeEntriesTab.vue';
 import TicketDevelopmentTab from '../components/detail/TicketDevelopmentTab.vue';
+import TicketProposalsTab from '../components/detail/TicketProposalsTab.vue';
 import TicketHistoryTab from '../components/detail/TicketHistoryTab.vue';
 import TicketTitleDialog from '../components/detail/actions/TicketTitleDialog.vue';
 import TicketCompanyDialog from '../components/detail/actions/TicketCompanyDialog.vue';
@@ -142,6 +143,7 @@ const VALID_TAB_VALUES = [
   'appointments',
   'checklists',
   'time_entries',
+  'valuation',
   'development',
   'history',
 ];
@@ -160,6 +162,7 @@ const tabs = computed(() => [
   { value: 'appointments', label: t('TICKET.DETAIL.TABS.APPOINTMENTS') },
   { value: 'checklists', label: t('TICKET.DETAIL.TABS.CHECKLISTS') },
   { value: 'time_entries', label: t('TICKET.DETAIL.TABS.TIME_ENTRIES') },
+  { value: 'valuation', label: t('TICKET.DETAIL.TABS.VALUATION') },
   { value: 'development', label: t('TICKET.DETAIL.TABS.DEVELOPMENT') },
   { value: 'history', label: t('TICKET.DETAIL.TABS.HISTORY') },
 ]);
@@ -375,6 +378,10 @@ const submitContact = contactId =>
         v-else-if="activeTab === 'time_entries'"
         :ticket-id="ticket.id"
         :level-assignees="levelAssignees"
+      />
+      <TicketProposalsTab
+        v-else-if="activeTab === 'valuation'"
+        :ticket-id="ticket.id"
       />
       <TicketDevelopmentTab
         v-else-if="activeTab === 'development'"

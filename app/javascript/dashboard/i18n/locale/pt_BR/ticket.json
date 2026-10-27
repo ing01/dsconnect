@@ -269,7 +269,8 @@
         "CHECKLISTS": "Checklists",
         "DEVELOPMENT": "Desenvolvimento",
         "HISTORY": "Histórico",
-        "TIME_ENTRIES": "Apontamentos"
+        "TIME_ENTRIES": "Apontamentos",
+        "VALUATION": "Valorização"
       },
       "ACTIONS": {
         "LABEL": "Ações do ticket",
@@ -378,6 +379,43 @@
         "ADD_ERROR": "Erro ao adicionar item ao checklist",
         "TOGGLE_ERROR": "Erro ao atualizar item do checklist",
         "DELETE_ERROR": "Erro ao remover item do checklist"
+      },
+      "PROPOSALS": {
+        "TITLE": "Propostas de melhoria",
+        "BUTTON": "Proposta",
+        "EMPTY": "Nenhuma proposta criada para este ticket.",
+        "FORM_TITLE": "Nova proposta",
+        "FIELDS": {
+          "COMPANY_NAME": "Empresa",
+          "COMPANY_CNPJ": "CNPJ",
+          "COMPANY_ADDRESS": "Endereço",
+          "DESCRIPTION": "Descrição da melhoria",
+          "AMOUNT": "Valor do desenvolvimento (R$)",
+          "DEADLINE_DAYS": "Prazo (dias)",
+          "PROPOSAL_DATE": "Data da proposta",
+          "VALID_UNTIL": "Validade da proposta",
+          "LOCATION": "Local",
+          "SIGNER_NAME": "Responsável pela assinatura (Duesoft)",
+          "PAYMENT_TERMS": "Condição de pagamento"
+        },
+        "SAVE": "Criar proposta",
+        "CANCEL": "Cancelar",
+        "STATUS": {
+          "PENDING": "Aguardando resposta",
+          "APPROVED": "Aprovada",
+          "REFUSED": "Recusada"
+        },
+        "EXPIRED": "Vencida",
+        "SUMMARY": "Emitida em {from} · válida até {to} · prazo de {days} dias",
+        "DECIDED_BY": "Respondida por {name}",
+        "SHOW_TO_CLIENT": "Exibir para o cliente?",
+        "DOWNLOAD_PDF": "Baixar PDF",
+        "DELETE": "Remover proposta",
+        "LOAD_ERROR": "Erro ao carregar as propostas",
+        "DEFAULTS_ERROR": "Não foi possível preencher os dados da empresa",
+        "SAVE_ERROR": "Erro ao salvar a proposta",
+        "PDF_ERROR": "Erro ao gerar o PDF",
+        "DELETE_ERROR": "Erro ao remover a proposta"
       },
       "TIME_ENTRIES": {
         "TITLE": "Apontamento",

@@ -53,6 +53,15 @@ Rails.application.routes.draw do
         resources :tickets, only: [:index, :show, :create] do
           # A resposta do cliente entra na conversa do ticket.
           resources :communications, only: [:create]
+          # As propostas liberadas pela equipe. Sem `update`/`destroy`: o cliente
+          # so' le o PDF e decide - e a decisao e' unica.
+          resources :proposals, only: [] do
+            member do
+              get :pdf
+              post :approve
+              post :refuse
+            end
+          end
         end
         # O chat com a equipe: um item proprio do menu, sem relacao com ticket
         # nenhum - uma Conversation de verdade, visivel na tela de Conversas
@@ -571,6 +580,12 @@ Rails.application.routes.draw do
               end
             end
             resources :time_entries, controller: 'ticket_time_entries', only: [:index, :create, :update, :destroy]
+            # Aba Valorizacao: propostas comerciais de melhoria. `defaults` traz o
+            # formulario preenchido com a Empresa do ticket; `pdf` entrega o documento.
+            resources :proposals, controller: 'ticket_proposals', only: [:index, :create, :update, :destroy] do
+              get :defaults, on: :collection
+              get :pdf, on: :member
+            end
           end
 
           # Importacao de tickets de outro sistema, via CSV - Configuracoes >

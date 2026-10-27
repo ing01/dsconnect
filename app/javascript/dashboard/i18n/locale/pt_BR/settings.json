@@ -177,6 +177,7 @@
           "SUGGESTION_CREATED": "Uma nova sugestão é enviada",
           "TICKET_TRIAGE_PENDING": "Um chamado aberto pelo cliente entra na fila de Triagem",
           "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "O cliente responde um ticket que você é responsável ou segue",
+          "TICKET_PROPOSAL_ANSWERED": "O cliente aprova ou recusa uma proposta de um ticket pelo qual você é responsável",
           "ARTICLE_PUBLISHED": "Um artigo é publicado na Central de Ajuda",
           "PORTAL_CREATED": "Um novo Portal é criado na Central de Ajuda"
         },
