@@ -8,6 +8,19 @@ class SendReplyJob < ApplicationJob
   MAX_ORDER_WAIT_ATTEMPTS = 20
   ORDER_WAIT_DELAY = 1.second
 
+  # Antes de reagendar, espera a vez DENTRO do job, de 0,2 em 0,2s. Reagendar com
+  # `set(wait: 1.second)` parece 1s mas nao e: o Sidekiq so olha a fila de
+  # agendados a cada ~5s em media, entao cada espera custava ~5s - a mensagem do
+  # agente, atras de uma mensagem do bot que sai em ~1s, chegava segundos depois.
+  # So o que passa deste tempo cai no reagendamento de sempre.
+  INLINE_WAIT = 5.0
+  INLINE_POLL = 0.2
+
+  # Canais que nunca gravam `source_id` (a entrega e um e-mail ou um webhook, e
+  # nao uma chamada ao provedor): nenhuma mensagem deles chega a ser "despachada"
+  # pelo criterio abaixo, entao esperar a vez so atrasaria, sem ordenar nada.
+  UNORDERED_CHANNELS = %w[Channel::WebWidget Channel::Api].freeze
+
   CHANNEL_SERVICES = {
     'Channel::TwitterProfile' => ::Twitter::SendOnTwitterService,
     'Channel::TwilioSms' => ::Twilio::SendOnTwilioService,
@@ -26,7 +39,7 @@ class SendReplyJob < ApplicationJob
     message = Message.find_by(id: message_id)
     return if message.blank?
 
-    if attempt <= MAX_ORDER_WAIT_ATTEMPTS && awaiting_earlier_message?(message)
+    if attempt <= MAX_ORDER_WAIT_ATTEMPTS && still_awaiting_earlier_message?(message, attempt)
       self.class.set(wait: ORDER_WAIT_DELAY).perform_later(message_id, attempt + 1)
       return
     end
@@ -63,8 +76,26 @@ class SendReplyJob < ApplicationJob
   # ninguem.
   def awaiting_earlier_message?(message)
     return false unless dispatchable?(message)
+    return false if UNORDERED_CHANNELS.include?(message.conversation.inbox.channel.class.to_s)
 
     earlier_undispatched_siblings(message).exists?
+  end
+
+  # O caso comum (nenhuma anterior pendente) responde na primeira checagem, sem
+  # esperar nada. Havendo uma pendente, a PRIMEIRA tentativa aguarda ate
+  # `INLINE_WAIT` segundos aqui dentro; as seguintes so reagendam, como sempre -
+  # com o provedor lento, esperar em todas prenderia as threads do Sidekiq.
+  def still_awaiting_earlier_message?(message, attempt)
+    return false unless awaiting_earlier_message?(message)
+    return true unless attempt == 1
+
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + INLINE_WAIT
+    while Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
+      sleep INLINE_POLL
+      return false unless awaiting_earlier_message?(message)
+    end
+
+    true
   end
 
   def dispatchable?(message)

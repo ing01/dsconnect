@@ -60,13 +60,21 @@ class AutomationRules::Flow::RunnerService
     # Serializado por execucao: duas mensagens que chegam juntas disparam dois
     # runners sobre a mesma linha, e sem a trava os dois caminhariam pelo fluxo
     # ao mesmo tempo - o bot responderia em dobro e a etapa pularia uma casa.
-    run.with_lock do
+    # Sem transacao em volta (ver `AutomationFlowRun#with_exclusive_pass`): cada
+    # mensagem do bot sai assim que e criada, e a conversa nao fica travada
+    # durante as chamadas de IA.
+    run.with_exclusive_pass do
       return unless run.live?
       # A mesma mensagem so e consumida uma vez, mesmo que o evento chegue
       # duplicado: a trava ordena os dois, e este teste descarta o segundo.
       return if @message.present? && run.last_message_id == @message.id
 
-      run.update!(status: :running, last_message_id: @message&.id || run.last_message_id)
+      # O status NAO vira `running` aqui: `Dispatcher#resume` so procura
+      # execucoes `waiting`, e e' isso que faz uma segunda mensagem do cliente,
+      # chegando no meio desta passada, entrar na fila do lock em vez de ser
+      # descartada. Toda saida da passada grava o status final (esperando,
+      # encerrada ou falha).
+      run.update!(last_message_id: @message&.id || run.last_message_id)
       walk
     end
   end

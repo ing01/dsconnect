@@ -33,6 +33,11 @@ class AutomationRuleListener < BaseListener
     # ("Ola, voce esta no canal...") como se fosse uma conversa nova.
     return if ::AutomationRules::Flow::DispatcherService.resume(message: message)
 
+    # Um atendente que responde assume a conversa: a triagem viva termina, e as
+    # regras abaixo seguem como sempre. Depois do `resume` de proposito - a
+    # mensagem do cliente que retoma o fluxo nunca chega aqui.
+    ::AutomationRules::Flow::DispatcherService.yield_to_human(message: message)
+
     account = message.try(:account)
     changed_attributes = event.data[:changed_attributes]
 

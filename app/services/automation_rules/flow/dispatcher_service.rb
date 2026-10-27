@@ -83,6 +83,41 @@ class AutomationRules::Flow::DispatcherService
       true
     end
 
+    # Um atendente respondeu ao cliente enquanto a triagem ainda estava viva: a
+    # conversa ja e' dele. A execucao termina aqui, como um handoff - sem isso o
+    # bot seguia conduzindo o cliente por cima do atendente (perguntando, criando
+    # ticket, avisando que o "encaminhava para a fila") e, no fim, sobrescrevia
+    # Mesa, prioridade e Fila que o atendimento humano ja tinha definido.
+    #
+    # So' a MENSAGEM de um atendente conta: atribuir a conversa sozinho nao
+    # encerra a triagem, porque contas com atribuicao automatica ja nascem com
+    # responsavel e a triagem tem de rodar do mesmo jeito.
+    #
+    # So' enfileira: o encerramento espera a passada em andamento terminar (o
+    # mesmo lock do runner), e isso nao pode segurar o job de eventos - ele ainda
+    # tem de entregar o push ao cliente e as notificacoes da mesma mensagem.
+    def yield_to_human(message:)
+      return unless human_reply?(message)
+      return unless AutomationFlowRun.live.exists?(conversation_id: message.conversation_id)
+
+      AutomationRules::YieldToHumanJob.perform_later(message.id)
+    end
+
+    # O que o job faz: encerra as execucoes vivas da conversa.
+    def hand_off_to_human(message:)
+      AutomationFlowRun.live.where(conversation_id: message.conversation_id).find_each do |run|
+        run.with_exclusive_pass do
+          next unless run.live?
+
+          run.update!(status: :handed_off, current_step_id: nil, waiting_until: nil)
+          run.events.create!(
+            account_id: run.account_id, step_type: 'human_took_over', outcome: :ok,
+            result: { message_id: message.id }, created_at: Time.zone.now
+          )
+        end
+      end
+    end
+
     # Execucoes que ficaram esperando alem do prazo. A conversa nao pode ficar
     # presa num bot que espera para sempre.
     def expire_stale
@@ -97,6 +132,13 @@ class AutomationRules::Flow::DispatcherService
     end
 
     private
+
+    # Resposta de um atendente ao cliente: de saida, publica (nota interna nao
+    # conta), de um usuario e nao de uma automacao.
+    def human_reply?(message)
+      message.outgoing? && !message.private? && message.sender_type == 'User' &&
+        message.content_attributes['automation_rule_id'].blank?
+    end
 
     # Marcado por `Api::V1::Accounts::ConversationsController#mark_as_agent_initiated`
     # quando a conversa comeca pelo botao "Nova Conversa" do dashboard.
