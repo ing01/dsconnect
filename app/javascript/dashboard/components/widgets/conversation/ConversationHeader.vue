@@ -72,6 +72,21 @@ const currentContact = computed(() =>
   store.getters['contacts/getContact'](props.chat.meta.sender.id)
 );
 
+// Mesmo padrao do item da lista de conversas (`ConversationCard.vue`): o
+// contato carrega a lista de empresas vinculadas e aqui mostramos a
+// primeira, pra identificar de qual empresa e' o chamado direto no
+// cabecalho, sem precisar abrir a aba de detalhes do contato.
+const currentContactCompanyName = computed(
+  () => currentContact.value?.companies?.[0]?.name
+);
+
+const contactDisplayName = computed(() => {
+  const name = currentContact.value.name;
+  return currentContactCompanyName.value
+    ? `${name} | ${currentContactCompanyName.value}`
+    : name;
+});
+
 const isSnoozed = computed(
   () => currentChat.value.status === wootConstants.STATUS_TYPE.SNOOZED
 );
@@ -131,8 +146,9 @@ const copyConversationId = async () => {
         <div class="flex flex-row items-center max-w-full gap-1 p-0 m-0">
           <span
             class="text-sm font-medium truncate leading-tight text-n-slate-12"
+            :title="contactDisplayName"
           >
-            {{ currentContact.name }}
+            {{ contactDisplayName }}
           </span>
           <fluent-icon
             v-if="!isHMACVerified"
