@@ -95,7 +95,7 @@ const generateImage = async () => {
     );
 
     const logo = new Image();
-    logo.src = '/brand-assets/logo.png?v=3';
+    logo.src = '/brand-assets/logo.png?v=4';
     await new Promise(resolve => {
       logo.onload = resolve;
     });
