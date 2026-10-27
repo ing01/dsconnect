@@ -29,6 +29,7 @@ import {
   getClientSession,
   setMonthlySurveyDismissed,
 } from 'dashboard/helper/clientSession';
+import Button from 'dashboard/components-next/button/Button.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
@@ -142,12 +143,40 @@ defineExpose({ open });
         ? t('CLIENT_AREA.MONTHLY_SURVEY.LATER')
         : t('CLIENT_AREA.MONTHLY_SURVEY.CLOSE')
     "
+    :show-cancel-button="etapa !== 'perguntas'"
     :show-confirm-button="etapa === 'perguntas'"
     :disable-confirm-button="isInvalid"
     :is-loading="isSubmitting"
     @confirm="submit"
     @close="onDialogClose"
   >
+    <!-- Fecha sem precisar rolar até o rodapé. `order-first` põe a barra acima
+         do título (o slot do Dialog vem depois dele) e `sticky` a mantém no
+         topo enquanto as dez perguntas rolam. Nas perguntas, "Responder
+         depois" mora aqui em cima e some do rodapé. -->
+    <div
+      class="sticky top-0 z-10 flex items-center justify-end gap-2 -mx-2 -mt-2 p-2 rounded-lg order-first bg-n-solid-2"
+    >
+      <Button
+        v-if="etapa === 'perguntas'"
+        faded
+        slate
+        size="sm"
+        type="button"
+        :label="t('CLIENT_AREA.MONTHLY_SURVEY.LATER')"
+        @click="close"
+      />
+      <button
+        type="button"
+        class="flex items-center justify-center rounded-lg size-8 text-n-slate-11 hover:bg-n-alpha-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+        :aria-label="t('CLIENT_AREA.MONTHLY_SURVEY.CLOSE')"
+        :title="t('CLIENT_AREA.MONTHLY_SURVEY.CLOSE')"
+        @click="close"
+      >
+        <Icon icon="i-lucide-x" class="size-4" />
+      </button>
+    </div>
+
     <div v-if="etapa === 'perguntas'" class="flex flex-col gap-5 min-w-0">
       <div
         v-for="(chave, indice) in questionKeys"

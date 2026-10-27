@@ -122,6 +122,13 @@
         "ERROR_EMPTY_INPUT": "Write or record something before generating the draft."
       }
     },
+    "MOBILE_APP_PROMPT": {
+      "TITLE": "Use the DSConnect app",
+      "DESCRIPTION": "Download the app to follow your tickets and get notifications on your phone.",
+      "PLAY_STORE": "Get it on Google Play",
+      "APP_STORE": "Download on the App Store",
+      "CONTINUE_WEB": "Continue on the web"
+    },
     "MONTHLY_SURVEY": {
       "OPEN_BUTTON": "Monthly Survey",
       "TITLE": "Monthly Survey",

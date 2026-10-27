@@ -78,6 +78,33 @@ export const setSidebarCollapsed = valor => {
 };
 
 /**
+ * Se a pessoa ja escolheu "Continuar na Web" no aviso do app mobile.
+ *
+ * Em `localStorage`: quem prefere o navegador nao quer ser perguntado a cada
+ * visita. Vale para o aparelho, e nao para o contato - o aviso aparece ate no
+ * login, quando ainda nao ha contato.
+ */
+const CHAVE_AVISO_APP = 'cw_mobile_app_prompt_dismissed';
+
+export const hasDismissedMobileAppPrompt = () => {
+  try {
+    return window.localStorage.getItem(CHAVE_AVISO_APP) === 'true';
+  } catch {
+    // Armazenamento bloqueado: nao da para lembrar, entao o aviso volta a cada
+    // visita - melhor do que nunca mostrar.
+    return false;
+  }
+};
+
+export const setMobileAppPromptDismissed = () => {
+  try {
+    window.localStorage.setItem(CHAVE_AVISO_APP, 'true');
+  } catch {
+    // Nao poder lembrar a escolha nao pode derrubar a tela.
+  }
+};
+
+/**
  * Se o contato ja viu o tutorial guiado do Portal (primeiro acesso).
  *
  * Guardado por CONTATO (nao so' por navegador) dentro de uma unica chave -

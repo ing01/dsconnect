@@ -122,6 +122,13 @@
         "ERROR_EMPTY_INPUT": "Escreva ou grave algo antes de gerar o rascunho."
       }
     },
+    "MOBILE_APP_PROMPT": {
+      "TITLE": "Use o app DSConnect",
+      "DESCRIPTION": "Baixe o aplicativo para acompanhar seus chamados e receber avisos no celular.",
+      "PLAY_STORE": "Baixar na Google Play",
+      "APP_STORE": "Baixar na App Store",
+      "CONTINUE_WEB": "Continuar na Web"
+    },
     "MONTHLY_SURVEY": {
       "OPEN_BUTTON": "Avaliação Mensal",
       "TITLE": "Avaliação Mensal",

@@ -74,7 +74,8 @@ const montar = () =>
 
 const confirmar = wrapper => wrapper.find('.confirmar');
 const cancelar = wrapper => wrapper.find('.cancelar');
-const notas = wrapper => wrapper.findAll('button[aria-label]');
+// Só os botões de nota: o X do topo também tem `aria-label`, mas não `aria-pressed`.
+const notas = wrapper => wrapper.findAll('button[aria-pressed]');
 
 // Clica na nota `valor` da pergunta de índice `indicePergunta` (0 a 9) -
 // cada pergunta tem cinco botões (1 a 5) seguidos.

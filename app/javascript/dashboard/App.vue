@@ -14,6 +14,7 @@ import { useRouter } from 'vue-router';
 import { useStore } from 'dashboard/composables/store';
 import WootSnackbarBox from './components/SnackbarContainer.vue';
 import InAppNotifications from './components/InAppNotifications.vue';
+import MobileAppPrompt from './components/app/MobileAppPrompt.vue';
 import {
   applyColorScheme,
   setColorTheme,
@@ -41,6 +42,7 @@ export default {
     PaymentPendingBanner,
     WootSnackbarBox,
     InAppNotifications,
+    MobileAppPrompt,
     PendingEmailVerificationBanner,
     LowBackupCodesBanner,
     MoodCheckInBanner,
@@ -76,6 +78,11 @@ export default {
     }),
     hideOnOnboardingView() {
       return !isOnOnboardingView(this.$route);
+    },
+    // So' o Portal do Cliente convida a baixar o app; o painel dos atendentes
+    // nao muda.
+    isClientArea() {
+      return isClientArea();
     },
   },
 
@@ -189,6 +196,7 @@ export default {
     </router-view>
     <WootSnackbarBox />
     <InAppNotifications />
+    <MobileAppPrompt v-if="isClientArea" />
     <NetworkNotification />
   </div>
   <LoadingState v-else />

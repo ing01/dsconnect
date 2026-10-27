@@ -1,5 +1,6 @@
 <script>
 import SnackbarContainer from './components/SnackBar/Container.vue';
+import MobileAppPrompt from 'dashboard/components/app/MobileAppPrompt.vue';
 import {
   isOSOnDarkMode,
   preferredColorScheme,
@@ -7,7 +8,7 @@ import {
 } from 'dashboard/helper/themeHelper';
 
 export default {
-  components: { SnackbarContainer },
+  components: { SnackbarContainer, MobileAppPrompt },
   data() {
     return { theme: 'light' };
   },
@@ -49,6 +50,7 @@ export default {
   <div class="h-full min-h-screen w-full antialiased" :class="theme">
     <router-view />
     <SnackbarContainer />
+    <MobileAppPrompt />
   </div>
 </template>
 
