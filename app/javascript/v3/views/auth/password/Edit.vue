@@ -6,11 +6,14 @@ import FormInput from '../../../components/Form/Input.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import { DEFAULT_REDIRECT_URL } from 'dashboard/constants/globals';
 import { setNewPassword } from '../../../api/auth';
+import { isValidPassword } from 'shared/helpers/Validators';
+import PasswordRequirements from '../signup/components/Signup/PasswordRequirements.vue';
 
 export default {
   components: {
     FormInput,
     NextButton,
+    PasswordRequirements,
   },
   props: {
     resetPasswordToken: { type: String, default: '' },
@@ -31,6 +34,7 @@ export default {
         showLoading: false,
       },
       error: '',
+      isPasswordFocused: false,
     };
   },
   mounted() {
@@ -45,6 +49,7 @@ export default {
       password: {
         required,
         minLength: minLength(6),
+        isValidPassword,
       },
       confirmPassword: {
         required,
@@ -100,16 +105,35 @@ export default {
       </h1>
 
       <div class="space-y-5">
-        <FormInput
-          v-model="credentials.password"
-          class="mt-3"
-          name="password"
-          type="password"
-          :has-error="v$.credentials.password.$error"
-          :error-message="$t('SET_NEW_PASSWORD.PASSWORD.ERROR')"
-          :placeholder="$t('SET_NEW_PASSWORD.PASSWORD.PLACEHOLDER')"
-          @blur="v$.credentials.password.$touch"
-        />
+        <div class="relative">
+          <FormInput
+            v-model="credentials.password"
+            class="mt-3"
+            name="password"
+            type="password"
+            :has-error="v$.credentials.password.$error"
+            :error-message="$t('SET_NEW_PASSWORD.PASSWORD.ERROR')"
+            :placeholder="$t('SET_NEW_PASSWORD.PASSWORD.PLACEHOLDER')"
+            @focus="isPasswordFocused = true"
+            @blur="
+              isPasswordFocused = false;
+              v$.credentials.password.$touch();
+            "
+          />
+          <Transition
+            enter-active-class="transition duration-200 ease-out origin-left"
+            enter-from-class="opacity-0 scale-90 translate-x-1"
+            enter-to-class="opacity-100 scale-100 translate-x-0"
+            leave-active-class="transition duration-150 ease-in origin-left"
+            leave-from-class="opacity-100 scale-100 translate-x-0"
+            leave-to-class="opacity-0 scale-90 translate-x-1"
+          >
+            <PasswordRequirements
+              v-if="isPasswordFocused"
+              :password="credentials.password"
+            />
+          </Transition>
+        </div>
         <FormInput
           v-model="credentials.confirmPassword"
           class="mt-3"
