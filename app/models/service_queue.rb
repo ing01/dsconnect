@@ -5,6 +5,10 @@
 #  id                     :bigint           not null, primary key
 #  active                 :boolean          default(TRUE), not null
 #  description            :text
+#  inactivity_close_after    :integer
+#  inactivity_close_message  :text
+#  inactivity_nudge_after    :integer
+#  inactivity_nudge_message  :text
 #  distribution_strategy  :integer          default("manual"), not null
 #  name                   :string           not null
 #  priority_boost         :integer
@@ -46,6 +50,15 @@ class ServiceQueue < ApplicationRecord
   validate :team_belongs_to_account
 
   scope :active, -> { where(active: true) }
+  # Menor intervalo aceito: o job que aplica essas regras roda a cada 5 minutos.
+  MIN_INACTIVITY_MINUTES = 5
+
+  validates :inactivity_nudge_after, :inactivity_close_after,
+            numericality: { only_integer: true, greater_than_or_equal_to: MIN_INACTIVITY_MINUTES }, allow_nil: true
+  validates :inactivity_nudge_message, presence: true, if: -> { inactivity_nudge_after.present? }
+  validates :inactivity_close_message, presence: true, if: -> { inactivity_close_after.present? }
+
+  scope :with_inactivity_rules, -> { where.not(inactivity_nudge_after: nil).or(where.not(inactivity_close_after: nil)) }
 
   def push_event_data
     {

@@ -7,3 +7,7 @@ json.priority_boost resource.priority_boost
 json.default_sla_policy_id resource.default_sla_policy_id
 json.team_id resource.team_id
 json.account_id resource.account_id
+json.inactivity_nudge_after resource.inactivity_nudge_after
+json.inactivity_nudge_message resource.inactivity_nudge_message
+json.inactivity_close_after resource.inactivity_close_after
+json.inactivity_close_message resource.inactivity_close_message

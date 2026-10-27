@@ -2,10 +2,12 @@
 import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import QueueInactivityFields from './QueueInactivityFields.vue';
 
 export default {
   components: {
     NextButton,
+    QueueInactivityFields,
   },
   props: {
     selectedQueue: {
@@ -23,6 +25,12 @@ export default {
       priorityBoost: this.selectedQueue.priority_boost,
       defaultSlaPolicyId: this.selectedQueue.default_sla_policy_id,
       active: this.selectedQueue.active,
+      inactivity: {
+        nudgeAfter: this.selectedQueue.inactivity_nudge_after ?? null,
+        nudgeMessage: this.selectedQueue.inactivity_nudge_message ?? '',
+        closeAfter: this.selectedQueue.inactivity_close_after ?? null,
+        closeMessage: this.selectedQueue.inactivity_close_message ?? '',
+      },
     };
   },
   computed: {
@@ -31,6 +39,14 @@ export default {
       teams: 'teams/getTeams',
       slaPolicies: 'sla/getSLA',
     }),
+    isInactivityInvalid() {
+      const { nudgeAfter, nudgeMessage, closeAfter, closeMessage } =
+        this.inactivity;
+      return (
+        (nudgeAfter !== null && !nudgeMessage.trim()) ||
+        (closeAfter !== null && !closeMessage.trim())
+      );
+    },
     isNameEmpty() {
       return !this.name.trim();
     },
@@ -55,6 +71,16 @@ export default {
           priority_boost: this.priorityBoost,
           default_sla_policy_id: this.defaultSlaPolicyId,
           active: this.active,
+          inactivity_nudge_after: this.inactivity.nudgeAfter,
+          inactivity_nudge_message:
+            this.inactivity.nudgeAfter === null
+              ? null
+              : this.inactivity.nudgeMessage,
+          inactivity_close_after: this.inactivity.closeAfter,
+          inactivity_close_message:
+            this.inactivity.closeAfter === null
+              ? null
+              : this.inactivity.closeMessage,
         });
         useAlert(this.$t('QUEUES_SETTINGS.EDIT.API.SUCCESS_MESSAGE'));
         this.onClose();
@@ -154,6 +180,8 @@ export default {
         </label>
       </div>
 
+      <QueueInactivityFields v-model="inactivity" />
+
       <div class="flex items-center w-full gap-2">
         <input v-model="active" type="checkbox" :value="true" />
         <label for="queue_active">
@@ -172,7 +200,9 @@ export default {
         <NextButton
           type="submit"
           :label="$t('QUEUES_SETTINGS.FORM.UPDATE')"
-          :disabled="isNameEmpty || !teamId || uiFlags.isUpdating"
+          :disabled="
+            isNameEmpty || isInactivityInvalid || !teamId || uiFlags.isUpdating
+          "
           :is-loading="uiFlags.isUpdating"
         />
       </div>

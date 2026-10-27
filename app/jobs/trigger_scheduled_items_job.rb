@@ -17,6 +17,9 @@ class TriggerScheduledItemsJob < ApplicationJob
     # Job to auto-resolve conversations
     Account::ConversationsResolutionSchedulerJob.perform_later
 
+    # Aviso/encerramento por inatividade do chat do Portal, por Fila
+    Queues::InactivityJob.perform_later
+
     # Job to sync whatsapp templates
     Channels::Whatsapp::TemplatesSyncSchedulerJob.perform_later
 

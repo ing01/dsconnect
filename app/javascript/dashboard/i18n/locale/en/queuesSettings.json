@@ -49,6 +49,23 @@
         "HIGH": "High",
         "URGENT": "Urgent"
       },
+      "INACTIVITY": {
+        "TITLE": "Inactivity (Portal and app chat)",
+        "DESCRIPTION": "Only applies when the last message was sent by the team, that is, when we are waiting for the customer. Minimum of 5 minutes.",
+        "NUDGE": {
+          "ENABLE": "Send a reminder when the customer stops answering",
+          "AFTER": "Minutes after the team's last message",
+          "MESSAGE": "Reminder message",
+          "PLACEHOLDER": "Hi, is anyone there?"
+        },
+        "CLOSE": {
+          "ENABLE": "Close the conversation due to inactivity",
+          "AFTER_NUDGE": "Minutes after the reminder",
+          "AFTER_MESSAGE": "Minutes after the team's last message",
+          "MESSAGE": "Closing message",
+          "PLACEHOLDER": "Closed due to inactivity. Send a new message whenever you need."
+        }
+      },
       "ACTIVE": {
         "LABEL": "Active queue"
       },

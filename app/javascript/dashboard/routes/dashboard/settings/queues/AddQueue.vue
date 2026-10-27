@@ -2,10 +2,12 @@
 import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import QueueInactivityFields from './QueueInactivityFields.vue';
 
 export default {
   components: {
     NextButton,
+    QueueInactivityFields,
   },
   emits: ['close'],
   data() {
@@ -17,6 +19,12 @@ export default {
       priorityBoost: null,
       defaultSlaPolicyId: null,
       active: true,
+      inactivity: {
+        nudgeAfter: null,
+        nudgeMessage: '',
+        closeAfter: null,
+        closeMessage: '',
+      },
     };
   },
   computed: {
@@ -25,6 +33,14 @@ export default {
       teams: 'teams/getTeams',
       slaPolicies: 'sla/getSLA',
     }),
+    isInactivityInvalid() {
+      const { nudgeAfter, nudgeMessage, closeAfter, closeMessage } =
+        this.inactivity;
+      return (
+        (nudgeAfter !== null && !nudgeMessage.trim()) ||
+        (closeAfter !== null && !closeMessage.trim())
+      );
+    },
     isNameEmpty() {
       return !this.name.trim();
     },
@@ -48,6 +64,16 @@ export default {
           priority_boost: this.priorityBoost,
           default_sla_policy_id: this.defaultSlaPolicyId,
           active: this.active,
+          inactivity_nudge_after: this.inactivity.nudgeAfter,
+          inactivity_nudge_message:
+            this.inactivity.nudgeAfter === null
+              ? null
+              : this.inactivity.nudgeMessage,
+          inactivity_close_after: this.inactivity.closeAfter,
+          inactivity_close_message:
+            this.inactivity.closeAfter === null
+              ? null
+              : this.inactivity.closeMessage,
         });
         useAlert(this.$t('QUEUES_SETTINGS.ADD.API.SUCCESS_MESSAGE'));
         this.onClose();
@@ -150,6 +176,8 @@ export default {
         </label>
       </div>
 
+      <QueueInactivityFields v-model="inactivity" />
+
       <div class="flex items-center w-full gap-2">
         <input v-model="active" type="checkbox" :value="true" />
         <label for="queue_active">
@@ -168,7 +196,9 @@ export default {
         <NextButton
           type="submit"
           :label="$t('QUEUES_SETTINGS.FORM.CREATE')"
-          :disabled="isNameEmpty || !teamId || uiFlags.isCreating"
+          :disabled="
+            isNameEmpty || isInactivityInvalid || !teamId || uiFlags.isCreating
+          "
           :is-loading="uiFlags.isCreating"
         />
       </div>

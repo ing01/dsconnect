@@ -49,6 +49,23 @@
         "HIGH": "Alta",
         "URGENT": "Urgente"
       },
+      "INACTIVITY": {
+        "TITLE": "Inatividade (chat do Portal e do app)",
+        "DESCRIPTION": "Só vale quando a última mensagem foi da equipe, ou seja, quando estamos esperando o cliente. Mínimo de 5 minutos.",
+        "NUDGE": {
+          "ENABLE": "Enviar um aviso quando o cliente parar de responder",
+          "AFTER": "Minutos após a última mensagem da equipe",
+          "MESSAGE": "Mensagem do aviso",
+          "PLACEHOLDER": "Oi, alguém aí?"
+        },
+        "CLOSE": {
+          "ENABLE": "Encerrar a conversa por inatividade",
+          "AFTER_NUDGE": "Minutos após o aviso",
+          "AFTER_MESSAGE": "Minutos após a última mensagem da equipe",
+          "MESSAGE": "Mensagem de encerramento",
+          "PLACEHOLDER": "Encerrado por inatividade. Envie uma nova mensagem quando precisar."
+        }
+      },
       "ACTIVE": {
         "LABEL": "Fila ativa"
       },

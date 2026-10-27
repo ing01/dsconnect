@@ -8,6 +8,12 @@ module ActivityMessageHandler
   include TeamActivityMessageHandler
   include QueueActivityMessageHandler
 
+  included do
+    # Minutos de inatividade que levaram a Fila a encerrar a conversa (so em memoria,
+    # para o texto da atividade - ver Queues::InactivityService).
+    attr_accessor :inactivity_resolved_after
+  end
+
   private
 
   def create_activity
@@ -94,7 +100,7 @@ module ActivityMessageHandler
     elsif Current.contact.present? && resolved?
       I18n.t('conversations.activity.status.contact_resolved', contact_name: Current.contact.name.capitalize)
     elsif resolved?
-      message_data = auto_resolve_message_key(auto_resolve_after || 0)
+      message_data = auto_resolve_message_key(inactivity_resolved_after || auto_resolve_after || 0)
       I18n.t("conversations.activity.status.#{message_data[:key]}", count: message_data[:count])
     end
   end
