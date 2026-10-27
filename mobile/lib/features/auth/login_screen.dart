@@ -6,6 +6,7 @@ import '../../core/auth/auth_providers.dart';
 import '../../core/auth/auth_repository.dart';
 import '../../core/auth/biometric_lock.dart';
 import '../../core/theme/app_theme.dart';
+import 'forgot_password_sheet.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -161,6 +162,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                             validator: (value) => (value == null || value.isEmpty) ? 'Informe a senha' : null,
                             onFieldSubmitted: (_) => _submit(),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: _isSubmitting
+                                  ? null
+                                  : () => showForgotPasswordSheet(context, initialEmail: _emailController.text.trim()),
+                              child: const Text('Esqueci minha senha'),
+                            ),
                           ),
                           if (_errorMessage != null) ...[
                             const SizedBox(height: 16),

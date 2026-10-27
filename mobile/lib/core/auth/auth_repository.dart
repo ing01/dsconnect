@@ -52,6 +52,30 @@ class AuthRepository {
     }
   }
 
+  // Pede o e-mail de redefinição de senha (`POST /auth/password`). Um só pedido
+  // serve colaborador e cliente: o servidor procura primeiro o colaborador e,
+  // se não achar, o cliente - e responde 200 sempre, sem dizer se o e-mail
+  // existe (por isso a tela também não diz). O link do e-mail abre a
+  // redefinição no navegador; o app só pede.
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      await _dio.post<void>('/auth/password', data: {'email': email});
+    } on DioException catch (error) {
+      throw AuthException(_describePasswordResetError(error));
+    }
+  }
+
+  // Diferente do login, aqui não vale o diagnóstico cru do servidor: quem
+  // esqueceu a senha precisa saber o que fazer, não o corpo da resposta.
+  String _describePasswordResetError(DioException error) {
+    final status = error.response?.statusCode;
+    if (status == null) {
+      return 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
+    }
+    if (status == 429) return 'Muitas tentativas. Aguarde alguns minutos e tente de novo.';
+    return 'Não foi possível enviar o e-mail agora. Tente novamente em instantes.';
+  }
+
   // Mensagem com o que o servidor respondeu de verdade - usada so' quando o
   // caso NAO e' o simples "e-mail ou senha incorretos" de sempre, pra dar um
   // diagnostico de verdade em vez de uma mensagem generica demais pra agir.
