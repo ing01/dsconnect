@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../core/auth/auth_providers.dart';
 import '../../core/auth/auth_repository.dart';
+import '../../core/auth/biometric_lock.dart';
 import '../../core/theme/app_theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -28,7 +29,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
+  Future<void> _submit({bool enableBiometric = false}) async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -37,10 +38,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     try {
+      // Confirma a biometria antes de logar, pra não entrar numa sessão
+      // quando a pessoa cancelou a ativação.
+      if (enableBiometric &&
+          !await ref.read(biometricLockProvider.notifier).authenticate('Confirme para ativar o acesso por biometria')) {
+        setState(() => _errorMessage = 'Não foi possível confirmar sua identidade.');
+        return;
+      }
       await ref.read(sessionProvider.notifier).login(
             email: _emailController.text.trim(),
             password: _passwordController.text,
+            enableBiometric: enableBiometric,
           );
+    } on AuthException catch (error) {
+      setState(() => _errorMessage = error.message);
+    } catch (_) {
+      setState(() {
+        _errorMessage = 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
+      });
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _submitWithBiometrics() async {
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await ref.read(sessionProvider.notifier).loginWithBiometrics();
     } on AuthException catch (error) {
       setState(() => _errorMessage = error.message);
     } catch (_) {
@@ -54,6 +82,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final biometricEnabled = ref.watch(biometricLockProvider).value?.enabled ?? false;
+    final biometricAvailable = ref.watch(biometricAvailableProvider).value ?? false;
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -150,6 +181,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   )
                                 : const Text('Entrar'),
                           ),
+                          if (biometricEnabled) ...[
+                            const SizedBox(height: 12),
+                            OutlinedButton.icon(
+                              onPressed: _isSubmitting ? null : _submitWithBiometrics,
+                              icon: const Icon(Icons.fingerprint),
+                              label: const Text('Entrar com biometria'),
+                            ),
+                          ] else if (biometricAvailable) ...[
+                            const SizedBox(height: 12),
+                            OutlinedButton.icon(
+                              onPressed: _isSubmitting ? null : () => _submit(enableBiometric: true),
+                              icon: const Icon(Icons.fingerprint),
+                              label: const Text('Entrar e ativar biometria'),
+                            ),
+                          ],
                         ],
                       ),
                     ),

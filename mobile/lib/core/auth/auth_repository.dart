@@ -8,8 +8,10 @@ import 'session_storage.dart';
 // outras exceções (timeout, servidor fora do ar) o chamador trata com uma
 // mensagem genérica.
 class AuthException implements Exception {
-  AuthException(this.message);
+  AuthException(this.message, {this.invalidCredentials = false});
   final String message;
+  // Servidor recusou o e-mail/senha (e não uma falha de rede ou servidor).
+  final bool invalidCredentials;
 }
 
 // Um só formulário de login: tenta autenticar como colaborador primeiro
@@ -44,7 +46,7 @@ class AuthRepository {
       // Os DOIS lados recusaram com "credencial errada" - agora sim e'
       // seguro dizer que e' senha errada.
       if (agentError.response?.statusCode == 401 && error.response?.statusCode == 401) {
-        throw AuthException('E-mail ou senha incorretos.');
+        throw AuthException('E-mail ou senha incorretos.', invalidCredentials: true);
       }
       throw AuthException(_describeError(error));
     }

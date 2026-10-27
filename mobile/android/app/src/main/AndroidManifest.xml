@@ -15,6 +15,8 @@
          firebase_messaging) pra poder mostrar notificacao - sem ela no
          manifest o pedido nem aparece pro usuario. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Digital / reconhecimento facial como trava de acesso (local_auth). -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <application
         android:label="DSConnect"
         android:name="${applicationName}"

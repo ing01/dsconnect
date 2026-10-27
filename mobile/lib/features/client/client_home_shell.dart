@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_providers.dart';
+import '../../core/auth/biometric_lock.dart';
+import '../../core/auth/biometric_menu_item.dart';
 import 'client_chat_screen.dart';
 import 'client_notifications_screen.dart';
 import 'client_tickets_list_screen.dart';
 import 'providers/client_providers.dart';
 
-enum _AppBarAction { logout, deleteAccount }
+enum _AppBarAction { biometric, logout, deleteAccount }
 
 // Fase 3 - modo cliente: chamados, chat com a equipe e notificações. O
 // colaborador fica em segundo plano por enquanto (pedido da Ingrid).
@@ -129,6 +131,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final biometricEnabled = ref.watch(biometricLockProvider).value?.enabled ?? false;
     final notificationsAsync = ref.watch(clientNotificationsProvider);
     final dismissed = ref.watch(dismissedNotificationsProvider).value ?? const {};
     final hasUnreadChat = (notificationsAsync.value ?? const [])
@@ -143,6 +146,8 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
             tooltip: 'Mais opções',
             onSelected: (action) {
               switch (action) {
+                case _AppBarAction.biometric:
+                  ref.read(biometricLockProvider.notifier).disable();
                 case _AppBarAction.logout:
                   ref.read(sessionProvider.notifier).logout();
                 case _AppBarAction.deleteAccount:
@@ -150,6 +155,8 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
               }
             },
             itemBuilder: (context) => [
+              if (biometricEnabled)
+                const PopupMenuItem(value: _AppBarAction.biometric, child: BiometricMenuTile()),
               const PopupMenuItem(
                 value: _AppBarAction.logout,
                 child: ListTile(

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_client.dart';
 import '../push/push_notification_service.dart';
 import 'auth_repository.dart';
+import 'biometric_lock.dart';
 import 'session.dart';
 import 'session_storage.dart';
 
@@ -48,7 +49,7 @@ class SessionNotifier extends AsyncNotifier<Session?> {
   // tela de login - aí quando o erro chegasse, não haveria mais tela pra
   // mostrar a mensagem (e o app quebrava tentando atualizar um widget morto).
   // A própria tela de login já mostra seu loading local no botão.
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({required String email, required String password, bool enableBiometric = false}) async {
     final result = await AsyncValue.guard(
       () => ref.read(authRepositoryProvider).login(email: email, password: password),
     );
@@ -56,12 +57,41 @@ class SessionNotifier extends AsyncNotifier<Session?> {
     // só na tela (via exceção relançada abaixo), não deve derrubar uma sessão
     // válida que porventura já existisse.
     if (result.hasValue) {
+      // Antes de publicar a sessão: o gate não pode ver sessão + trava
+      // antiga e mostrar a tela de biometria logo após um login válido.
+      final biometric = ref.read(biometricLockProvider.notifier);
+      if (enableBiometric) {
+        await biometric.enable(email, password);
+      } else {
+        biometric.markUnlocked();
+      }
       state = result;
       _maybeRegisterPush(result.value);
     }
     // `AsyncValue.guard` só guarda o erro no resultado - não relança. Sem
     // isso, a tela de login nunca saberia que algo deu errado.
     if (result.hasError) Error.throwWithStackTrace(result.error!, result.stackTrace!);
+  }
+
+  // Entra com a credencial guardada, depois de uma leitura biométrica. Se o
+  // servidor recusar a senha (trocada em outro lugar), apaga a credencial
+  // pra o usuário voltar ao login normal e reativar.
+  Future<void> loginWithBiometrics() async {
+    final biometric = ref.read(biometricLockProvider.notifier);
+    final credentials = await biometric.credentials();
+    if (credentials == null) throw AuthException('Biometria não está ativada neste aparelho.');
+    if (!await biometric.authenticate('Confirme sua identidade para entrar')) {
+      throw AuthException('Não foi possível confirmar sua identidade.');
+    }
+    try {
+      await login(email: credentials.email, password: credentials.password);
+    } on AuthException catch (error) {
+      if (error.invalidCredentials) {
+        await biometric.disable();
+        throw AuthException('Sua senha mudou. Entre com a nova senha para ativar a biometria de novo.');
+      }
+      rethrow;
+    }
   }
 
   Future<void> selectAccount(int accountId) async {

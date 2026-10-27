@@ -37,6 +37,7 @@ dependencies:
   flutter_riverpod: ^3.4.3
   dio: ^5.11.1
   flutter_secure_storage: ^11.2.0
+  local_auth: ^3.0.0
   web_socket_channel: ^3.0.3
   intl: ^0.20.3
   image_picker: ^1.2.4
@@ -71,7 +72,7 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/images/icon.png"
-  adaptive_icon_background: "#001233"
+  adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/images/icon_foreground.png"
   remove_alpha_ios: true
 

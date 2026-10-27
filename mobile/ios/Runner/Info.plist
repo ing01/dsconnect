@@ -32,6 +32,8 @@
 		<string>Usado para tirar foto e anexar num chamado.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Usado para anexar uma foto da galeria num chamado.</string>
+		<key>NSFaceIDUsageDescription</key>
+		<string>Usado para confirmar sua identidade ao abrir o app.</string>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>Usado para gravar um áudio e enviar no chat com a equipe.</string>
 		<key>UIApplicationSceneManifest</key>
