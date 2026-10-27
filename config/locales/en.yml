@@ -175,6 +175,7 @@ en:
       required_by_category: this category requires at least one file or image on the ticket
     proposals:
       already_decided: This proposal was already approved or refused and can no longer be changed.
+      different_company: must all belong to the same company
     assignee_levels:
       not_enabled: cannot be set because this service desk does not use assignee levels
       not_allowed: is not allowed to act at level %{level} on this service desk

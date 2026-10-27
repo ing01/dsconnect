@@ -1,5 +1,10 @@
 json.id resource.id
 json.ticket_id resource.ticket_id
+json.tickets resource.tickets do |ticket|
+  json.id ticket.id
+  json.display_id ticket.display_id
+  json.title ticket.title
+end
 json.company_name resource.company_name
 json.company_cnpj resource.company_cnpj
 json.company_address resource.company_address

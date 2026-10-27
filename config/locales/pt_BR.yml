@@ -184,6 +184,7 @@ pt_BR:
       required_by_category: esta categoria exige pelo menos um arquivo ou imagem no chamado
     proposals:
       already_decided: Esta proposta já foi aprovada ou recusada e não pode mais ser alterada.
+      different_company: devem ser todos da mesma empresa
     assignee_levels:
       not_enabled: não pode ser definido porque esta Mesa não usa níveis de responsável
       not_allowed: não está habilitado a atuar no nível %{level} desta Mesa

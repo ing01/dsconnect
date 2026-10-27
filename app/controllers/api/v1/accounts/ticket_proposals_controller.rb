@@ -10,7 +10,7 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
   before_action :reject_decided, only: [:update, :destroy]
 
   def index
-    @ticket_proposals = @ticket.ticket_proposals.ordered.includes(:decided_by_contact)
+    @ticket_proposals = @ticket.ticket_proposals.ordered.includes(:decided_by_contact, :tickets)
   end
 
   # O que o formulario traz preenchido: os dados da Empresa do ticket e os
@@ -18,6 +18,7 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
   def defaults
     company = @ticket.company
     render json: {
+      company_id: @ticket.company_id,
       summary: @ticket.title,
       items: [{ title: "#{@ticket.display_id} - #{@ticket.title}", description: '', amount: '' }],
       company_name: company&.name,
@@ -31,9 +32,9 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
   end
 
   def create
-    @ticket_proposal = @ticket.ticket_proposals.create!(
-      proposal_params.merge(account: Current.account, user: Current.user)
-    )
+    @ticket_proposal = TicketProposal.new(proposal_params.merge(account: Current.account, user: Current.user, ticket: @ticket))
+    @ticket_proposal.tickets = linked_tickets
+    @ticket_proposal.save!
     render 'show'
   end
 
@@ -72,6 +73,14 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
     return unless @ticket_proposal.decided?
 
     render json: { error: I18n.t('tickets.proposals.already_decided'), code: 'proposal_decided' }, status: :unprocessable_entity
+  end
+
+  # Os tickets a que a proposta pertence: o de origem sempre, mais os que o
+  # agente vinculou. Buscados na conta - um id de outra conta e' simplesmente
+  # ignorado.
+  def linked_tickets
+    ids = Array(params.dig(:ticket_proposal, :linked_ticket_ids)).map(&:to_i) | [@ticket.id]
+    Current.account.tickets.where(id: ids)
   end
 
   def proposal_params

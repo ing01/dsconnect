@@ -48,7 +48,12 @@ class Ticket < ApplicationRecord
   has_many :calendar_events, through: :calendar_event_tickets
   has_many :ticket_checklist_items, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :ticket
   has_many :ticket_time_entries, -> { order(worked_on: :desc, id: :desc) }, dependent: :destroy, inverse_of: :ticket
-  has_many :ticket_proposals, dependent: :destroy, inverse_of: :ticket
+  # Uma proposta pode valer para varios tickets; esta e' a lista das que
+  # aparecem neste. `created_ticket_proposals` sao as que nasceram aqui - sem
+  # elas, excluir o ticket falharia pela chave estrangeira de `ticket_id`.
+  has_many :ticket_proposal_links, dependent: :destroy
+  has_many :ticket_proposals, through: :ticket_proposal_links
+  has_many :created_ticket_proposals, class_name: 'TicketProposal', dependent: :destroy, inverse_of: :ticket
 
   validates :title, presence: true
   validates :custom_attributes, jsonb_attributes_length: true

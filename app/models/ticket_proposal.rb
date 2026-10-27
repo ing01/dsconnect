@@ -19,11 +19,17 @@ class TicketProposal < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :decided_by_contact, class_name: 'Contact', optional: true
 
+  # `ticket` e' onde a proposta foi criada; `tickets` sao todos a que ela
+  # pertence (o de origem inclusive) e e' por eles que ela aparece nas abas.
+  has_many :ticket_proposal_links, dependent: :destroy
+  has_many :tickets, through: :ticket_proposal_links
+
   validates :company_name, :summary, :location, :payment_terms, :proposal_date, :valid_until, presence: true
   validates :items, presence: true
   validates :deadline_days, numericality: { only_integer: true, greater_than: 0 }
   validates :status, inclusion: { in: STATUSES }
   validate :items_complete
+  validate :tickets_share_company
   validate :valid_until_not_before_proposal_date
 
   before_validation :ensure_account_id
@@ -86,6 +92,15 @@ class TicketProposal < ApplicationRecord
     return if items.blank?
 
     errors.add(:items, :invalid) if items.any? { |item| item['title'].blank? || item['amount'].to_d <= 0 }
+  end
+
+  # A proposta e' de uma empresa so': ela aparece no portal de quem enxerga
+  # qualquer um dos tickets, e vincular um ticket de outra empresa a entregaria a
+  # quem nao e' o cliente dela.
+  def tickets_share_company
+    return if tickets.map(&:company_id).uniq.size <= 1
+
+    errors.add(:tickets, I18n.t('tickets.proposals.different_company'))
   end
 
   def valid_until_not_before_proposal_date

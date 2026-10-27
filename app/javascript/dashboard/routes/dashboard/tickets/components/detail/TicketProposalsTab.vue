@@ -167,6 +167,19 @@ watch(
           {{ proposal.summary }}
         </p>
 
+        <span
+          v-if="proposal.tickets.length > 1"
+          class="text-xs text-n-slate-10"
+        >
+          {{
+            t('TICKET.DETAIL.PROPOSALS.LINKED_TICKETS', {
+              tickets: proposal.tickets
+                .map(linked => `#${linked.display_id}`)
+                .join(', '),
+            })
+          }}
+        </span>
+
         <span class="text-xs text-n-slate-10">
           {{
             t('TICKET.DETAIL.PROPOSALS.SUMMARY', {
