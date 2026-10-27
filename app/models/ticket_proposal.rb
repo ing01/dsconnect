@@ -1,12 +1,17 @@
 # A proposta comercial de uma melhoria, montada pela equipe a partir de um ticket
 # e, quando liberada, aprovada ou recusada pelo cliente na Area do Cliente.
 #
+# Segue o modelo comercial da Duesoft: um RESUMO e uma lista de itens
+# (REQUISITOS), cada um com titulo, descricao e valor. `amount` e' o TOTAL dos
+# itens, calculado aqui - nunca digitado.
+#
 # A resposta do cliente e DEFINITIVA: `decide!` so grava enquanto a proposta esta
 # `pending`, e o faz numa unica instrucao SQL - dois cliques ao mesmo tempo nao
 # conseguem ambos vencer.
 class TicketProposal < ApplicationRecord
   STATUSES = %w[pending approved refused].freeze
   DECISIONS = %w[approved refused].freeze
+  ITEM_KEYS = %w[title description amount].freeze
 
   belongs_to :account
   belongs_to :ticket
@@ -14,16 +19,24 @@ class TicketProposal < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :decided_by_contact, class_name: 'Contact', optional: true
 
-  validates :company_name, :description, :location, :payment_terms, :proposal_date, :valid_until, presence: true
-  validates :amount, numericality: { greater_than: 0 }
+  validates :company_name, :summary, :location, :payment_terms, :proposal_date, :valid_until, presence: true
+  validates :items, presence: true
   validates :deadline_days, numericality: { only_integer: true, greater_than: 0 }
   validates :status, inclusion: { in: STATUSES }
+  validate :items_complete
   validate :valid_until_not_before_proposal_date
 
   before_validation :ensure_account_id
+  before_validation :compute_total
 
   scope :ordered, -> { order(created_at: :desc, id: :desc) }
   scope :visible_to_client, -> { where(visible_to_client: true) }
+
+  # Aceita o que vem do formulario (Parameters) ou do banco (Hash): guarda so as
+  # tres chaves conhecidas, com o valor como texto.
+  def items=(value)
+    super(Array(value).map { |item| item.to_h.stringify_keys.slice(*ITEM_KEYS).transform_values(&:to_s) })
+  end
 
   def decided?
     status != 'pending'
@@ -31,6 +44,11 @@ class TicketProposal < ApplicationRecord
 
   def expired?
     valid_until < Time.zone.today
+  end
+
+  # Quantos dias a proposta vale, contados da data em que foi feita.
+  def validity_days
+    (valid_until - proposal_date).to_i
   end
 
   # Grava a decisao uma unica vez. Devolve false quando a proposta ja foi
@@ -58,6 +76,16 @@ class TicketProposal < ApplicationRecord
 
   def ensure_account_id
     self.account_id ||= ticket&.account_id
+  end
+
+  def compute_total
+    self.amount = items.sum { |item| item['amount'].to_d }
+  end
+
+  def items_complete
+    return if items.blank?
+
+    errors.add(:items, :invalid) if items.any? { |item| item['title'].blank? || item['amount'].to_d <= 0 }
   end
 
   def valid_until_not_before_proposal_date

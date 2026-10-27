@@ -2,7 +2,8 @@
 # controles de exibicao da equipe.
 json.id resource.id
 json.company_name resource.company_name
-json.description resource.description
+json.summary resource.summary
+json.items resource.items
 json.amount resource.amount
 json.proposal_date resource.proposal_date
 json.valid_until resource.valid_until

@@ -163,8 +163,8 @@ watch(
           </span>
         </div>
 
-        <p class="m-0 text-xs whitespace-pre-line text-n-slate-11 line-clamp-3">
-          {{ proposal.description }}
+        <p class="m-0 text-xs text-n-slate-11 line-clamp-3">
+          {{ proposal.summary }}
         </p>
 
         <span class="text-xs text-n-slate-10">

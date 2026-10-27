@@ -3,7 +3,8 @@ json.ticket_id resource.ticket_id
 json.company_name resource.company_name
 json.company_cnpj resource.company_cnpj
 json.company_address resource.company_address
-json.description resource.description
+json.summary resource.summary
+json.items resource.items
 json.amount resource.amount
 json.proposal_date resource.proposal_date
 json.valid_until resource.valid_until

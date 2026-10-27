@@ -462,9 +462,32 @@ onMounted(carregar);
             />
           </div>
 
-          <p class="m-0 text-sm whitespace-pre-line text-n-slate-11">
-            {{ proposal.description }}
+          <p class="m-0 text-sm font-medium text-n-slate-12">
+            {{ proposal.summary }}
           </p>
+
+          <ul class="flex flex-col gap-2 m-0">
+            <li
+              v-for="(item, index) in proposal.items"
+              :key="index"
+              class="flex items-start justify-between gap-3 p-3 list-none rounded-lg bg-n-alpha-1"
+            >
+              <div class="flex flex-col min-w-0 gap-1">
+                <span class="text-sm font-medium text-n-slate-12">
+                  {{ item.title }}
+                </span>
+                <p
+                  v-if="item.description"
+                  class="m-0 text-xs whitespace-pre-line text-n-slate-11"
+                >
+                  {{ item.description }}
+                </p>
+              </div>
+              <span class="flex-shrink-0 text-sm text-n-slate-12">
+                {{ dinheiro(item.amount) }}
+              </span>
+            </li>
+          </ul>
 
           <dl class="grid grid-cols-1 gap-2 m-0 sm:grid-cols-2">
             <div class="flex flex-col gap-0.5">

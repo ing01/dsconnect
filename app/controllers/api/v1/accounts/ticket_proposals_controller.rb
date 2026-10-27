@@ -1,5 +1,5 @@
 class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseController
-  DEFAULT_LOCATION = 'Presidente Prudente - SP'.freeze
+  DEFAULT_LOCATION = 'Presidente Prudente'.freeze
   DEFAULT_PAYMENT_TERMS = '50% na aprovação da proposta e 50% na entrega da melhoria'.freeze
 
   before_action :fetch_ticket
@@ -18,6 +18,8 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
   def defaults
     company = @ticket.company
     render json: {
+      summary: @ticket.title,
+      items: [{ title: "#{@ticket.display_id} - #{@ticket.title}", description: '', amount: '' }],
       company_name: company&.name,
       company_cnpj: company&.cnpj,
       company_address: company_address(company),
@@ -74,8 +76,9 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
 
   def proposal_params
     params.require(:ticket_proposal).permit(
-      :company_name, :company_cnpj, :company_address, :description, :amount, :proposal_date, :valid_until,
-      :location, :payment_terms, :deadline_days, :signer_name, :visible_to_client
+      :company_name, :company_cnpj, :company_address, :summary, :proposal_date, :valid_until,
+      :location, :payment_terms, :deadline_days, :signer_name, :visible_to_client,
+      items: [:title, :description, :amount]
     )
   end
 

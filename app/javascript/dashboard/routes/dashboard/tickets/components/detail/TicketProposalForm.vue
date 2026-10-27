@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
@@ -23,8 +23,7 @@ const form = reactive({
   company_name: '',
   company_cnpj: '',
   company_address: '',
-  description: '',
-  amount: '',
+  summary: '',
   proposal_date: '',
   valid_until: '',
   location: '',
@@ -32,7 +31,22 @@ const form = reactive({
   deadline_days: '',
   signer_name: '',
 });
+const items = ref([{ title: '', description: '', amount: '' }]);
 const isSubmitting = ref(false);
+
+const total = computed(() =>
+  items.value.reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+);
+
+const currency = value =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+    value
+  );
+
+const addItem = () =>
+  items.value.push({ title: '', description: '', amount: '' });
+
+const removeItem = index => items.value.splice(index, 1);
 
 onMounted(async () => {
   try {
@@ -40,6 +54,7 @@ onMounted(async () => {
     Object.keys(form).forEach(key => {
       if (data[key] !== undefined && data[key] !== null) form[key] = data[key];
     });
+    if (data.items?.length) items.value = data.items;
   } catch (error) {
     useAlert(t('TICKET.DETAIL.PROPOSALS.DEFAULTS_ERROR'));
   }
@@ -50,7 +65,10 @@ const submit = async () => {
 
   isSubmitting.value = true;
   try {
-    await TicketProposalsAPI.createProposal(props.ticketId, { ...form });
+    await TicketProposalsAPI.createProposal(props.ticketId, {
+      ...form,
+      items: items.value,
+    });
     emit('saved');
   } catch (error) {
     useAlert(
@@ -85,26 +103,72 @@ const submit = async () => {
     </label>
 
     <label class="flex flex-col gap-1 text-xs sm:col-span-2 text-n-slate-11">
-      {{ t('TICKET.DETAIL.PROPOSALS.FIELDS.DESCRIPTION') }}
-      <textarea
-        v-model="form.description"
-        required
-        rows="5"
-        :class="TEXTAREA_CLASS"
-      />
+      {{ t('TICKET.DETAIL.PROPOSALS.FIELDS.SUMMARY') }}
+      <input v-model="form.summary" required :class="INPUT_CLASS" />
     </label>
 
-    <label class="flex flex-col gap-1 text-xs text-n-slate-11">
-      {{ t('TICKET.DETAIL.PROPOSALS.FIELDS.AMOUNT') }}
-      <input
-        v-model="form.amount"
-        required
-        type="number"
-        min="0.01"
-        step="0.01"
-        :class="INPUT_CLASS"
-      />
-    </label>
+    <!-- Os itens da proposta (REQUISITOS no PDF): cada um com titulo, descricao
+         e valor. O total e' a soma, e o servidor o recalcula. -->
+    <div class="flex flex-col gap-2 sm:col-span-2">
+      <span class="text-xs font-medium text-n-slate-12">
+        {{ t('TICKET.DETAIL.PROPOSALS.ITEMS_TITLE') }}
+      </span>
+      <div
+        v-for="(item, index) in items"
+        :key="index"
+        class="flex flex-col gap-2 p-3 rounded-lg bg-n-alpha-1"
+      >
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs text-n-slate-10">
+            {{ t('TICKET.DETAIL.PROPOSALS.ITEM_LABEL', { number: index + 1 }) }}
+          </span>
+          <button
+            v-if="items.length > 1"
+            type="button"
+            class="text-xs text-n-slate-10 hover:text-n-ruby-11"
+            @click="removeItem(index)"
+          >
+            {{ t('TICKET.DETAIL.PROPOSALS.REMOVE_ITEM') }}
+          </button>
+        </div>
+        <input
+          v-model="item.title"
+          required
+          :class="INPUT_CLASS"
+          :placeholder="t('TICKET.DETAIL.PROPOSALS.FIELDS.ITEM_TITLE')"
+        />
+        <textarea
+          v-model="item.description"
+          rows="4"
+          :class="TEXTAREA_CLASS"
+          :placeholder="t('TICKET.DETAIL.PROPOSALS.FIELDS.ITEM_DESCRIPTION')"
+        />
+        <input
+          v-model="item.amount"
+          required
+          type="number"
+          min="0.01"
+          step="0.01"
+          :class="INPUT_CLASS"
+          :placeholder="t('TICKET.DETAIL.PROPOSALS.FIELDS.ITEM_AMOUNT')"
+        />
+      </div>
+      <div class="flex items-center justify-between gap-2">
+        <NextButton
+          size="xs"
+          slate
+          faded
+          type="button"
+          icon="i-lucide-plus"
+          :label="t('TICKET.DETAIL.PROPOSALS.ADD_ITEM')"
+          @click="addItem"
+        />
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ t('TICKET.DETAIL.PROPOSALS.TOTAL') }}: {{ currency(total) }}
+        </span>
+      </div>
+    </div>
+
     <label class="flex flex-col gap-1 text-xs text-n-slate-11">
       {{ t('TICKET.DETAIL.PROPOSALS.FIELDS.DEADLINE_DAYS') }}
       <input
@@ -115,6 +179,10 @@ const submit = async () => {
         step="1"
         :class="INPUT_CLASS"
       />
+    </label>
+    <label class="flex flex-col gap-1 text-xs text-n-slate-11">
+      {{ t('TICKET.DETAIL.PROPOSALS.FIELDS.LOCATION') }}
+      <input v-model="form.location" required :class="INPUT_CLASS" />
     </label>
 
     <label class="flex flex-col gap-1 text-xs text-n-slate-11">
@@ -137,11 +205,7 @@ const submit = async () => {
       />
     </label>
 
-    <label class="flex flex-col gap-1 text-xs text-n-slate-11">
-      {{ t('TICKET.DETAIL.PROPOSALS.FIELDS.LOCATION') }}
-      <input v-model="form.location" required :class="INPUT_CLASS" />
-    </label>
-    <label class="flex flex-col gap-1 text-xs text-n-slate-11">
+    <label class="flex flex-col gap-1 text-xs sm:col-span-2 text-n-slate-11">
       {{ t('TICKET.DETAIL.PROPOSALS.FIELDS.SIGNER_NAME') }}
       <input v-model="form.signer_name" :class="INPUT_CLASS" />
     </label>
