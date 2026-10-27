@@ -9,6 +9,24 @@
 // card, então os dois precisam ficar em sincronia.
 export const PRINCIPAL_ENTRIES = [
   {
+    id: 'client-mobile-biometric-login',
+    date: '27 de outubro de 2026',
+    isoDate: '2026-10-27',
+    type: 'feature',
+    title: 'App: entre com Face ID ou digital',
+    description:
+      'No app, o botão "Entrar e ativar biometria" na tela de login guarda seu acesso com segurança no aparelho. Depois, é só tocar em "Entrar com biometria" - sem digitar e-mail e senha, mesmo se você sair da conta. Para desligar, use o menu (três pontinhos) > "Desativar biometria".',
+  },
+  {
+    id: 'client-brand-logo-update',
+    date: '27 de outubro de 2026',
+    isoDate: '2026-10-27',
+    type: 'design',
+    title: 'Nova logo do DSConnect',
+    description:
+      'Atualizamos a logo no Portal e no app (ícone, tela de abertura e login). Se o ícone antigo ainda aparecer no seu celular, atualize o app.',
+  },
+  {
     id: 'client-mobile-chat-history',
     date: '19 de outubro de 2026',
     isoDate: '2026-10-19',

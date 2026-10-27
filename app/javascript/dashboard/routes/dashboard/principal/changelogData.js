@@ -8,12 +8,33 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'brand-logo-update-2026-10-27',
+    date: '27 de outubro de 2026',
+    isoDate: '2026-10-27',
+    type: 'design',
+    platform: 'web',
+    title: 'Nova logo do DSConnect (versão final)',
+    description:
+      'Trocamos a logo por uma nova no login, nos favicons, na barra lateral e na Política de Privacidade, e no app mobile (ícone, tela de abertura e login). As logos antigas foram removidas do sistema.',
+  },
+  {
+    id: 'mobile-biometric-login',
+    date: '27 de outubro de 2026',
+    isoDate: '2026-10-27',
+    type: 'feature',
+    platform: 'mobile',
+    title: 'App: entrar com Face ID ou digital',
+    description:
+      'Na tela de login do app, o botão "Entrar e ativar biometria" guarda seu acesso com segurança no aparelho. Depois disso, mesmo que você saia da conta, basta tocar em "Entrar com biometria". O app também pede a biometria ao ser aberto e depois de ficar um tempo em segundo plano. Para desligar, use o menu (três pontinhos) > "Desativar biometria".',
+  },
+  {
     id: 'development-module-backlog-jira-layout',
     date: '26 de outubro de 2026',
     isoDate: '2026-10-26',
     type: 'feature',
     platform: 'web',
-    title: 'Backlog e Sprints: layout no estilo Jira, filtros e edição em massa',
+    title:
+      'Backlog e Sprints: layout no estilo Jira, filtros e edição em massa',
     description:
       'As listagens de Backlog e Sprint ativo agora mostram os tickets em linhas compactas (número, título, prioridade, foto do responsável e estimativa de horas), com filtros de busca, responsável, prioridade e estágio. Também é possível selecionar vários tickets e usar "Editar campos" para alterar Estágio, Sprint, Prioridade e Responsável de todos de uma vez. Além disso, a listagem do Backlog passou a mostrar somente tickets filhos (criados pela aba "Desenvolvimento" de um chamado) que ainda não chegaram ao Estágio final da Mesa - tickets concluídos ou sem vínculo com um chamado pai não aparecem mais ali. Corrigido também um caso em que os tickets não apareciam ao abrir a aba Backlog pela primeira vez (só vinham depois de trocar para o Sprint ativo e voltar); agora o ícone de carregamento cobre toda a busca, do começo ao fim.',
   },
@@ -45,7 +66,7 @@ export const CHANGELOG_ENTRIES = [
     platform: 'web',
     title: 'Nova logo do DSConnect',
     description:
-      'Atualizada a logo usada no login, no favicon e nas demais telas da marca, com fundo transparente. As versões antigas ficaram guardadas como backup (logo_old.png etc.) em public/brand-assets. O app mobile (ícone, ícone adaptativo do Android, tela de abertura, e também macOS/PWA web) foi atualizado com a mesma logo.',
+      'Atualizada a logo usada no login, no favicon e nas demais telas da marca, com fundo transparente. O app mobile (ícone, ícone adaptativo do Android, tela de abertura, e também macOS/PWA web) foi atualizado com a mesma logo.',
   },
   {
     id: 'ticket-integration-api',

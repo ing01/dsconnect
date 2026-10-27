@@ -35,3 +35,7 @@
 # Kotlin
 -keep class kotlin.** { *; }
 -dontwarn kotlin.**
+
+# Flutter referencia o Play Core (deferred components), que este app não usa -
+# sem isso o R8 falha o build de release com "Missing class".
+-dontwarn com.google.android.play.core.**
