@@ -235,7 +235,7 @@ class _AppVersionLabel extends StatelessWidget {
         final info = snapshot.data;
         if (info == null) return const SizedBox.shrink();
         return Text(
-          'Versão ${info.version} (${info.buildNumber})',
+          'Versão ${info.version}',
           style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.outline),
         );
       },
