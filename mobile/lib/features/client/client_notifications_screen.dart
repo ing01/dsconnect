@@ -56,6 +56,8 @@ String _headline(ClientNotification notification) {
   final author = notification.authorName?.trim();
   final who = (author == null || author.isEmpty) ? 'A equipe' : author;
 
+  if (notification.isTicketMoved) return 'Chamado #${notification.ticketDisplayId} foi encaminhado';
+
   return notification.type == 'ticket'
       ? '$who respondeu no chamado #${notification.ticketDisplayId}'
       : '$who respondeu no chat';
@@ -68,7 +70,7 @@ class _NotificationTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isTicket = notification.type == 'ticket';
+    final isTicket = notification.isTicketRelated;
     final colorScheme = Theme.of(context).colorScheme;
 
     return BorderedCard(

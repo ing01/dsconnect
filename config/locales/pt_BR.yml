@@ -636,6 +636,8 @@ pt_BR:
       push_body_fallback: Você recebeu uma nova mensagem no chat.
       push_attachment_body: Enviou um arquivo no chat.
       push_action_open: Abrir conversa
+    notifications:
+      moved_to_team: 'Agora com a equipe: %{team}'
     unauthorized: Sessão inválida ou acesso à Área do Cliente desativado.
     invalid_credentials: E-mail ou senha inválidos.
     wrong_password: Senha incorreta. Verifique e tente novamente.

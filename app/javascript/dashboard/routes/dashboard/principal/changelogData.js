@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-ticket-moved-notification-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'feature',
+    platform: 'mobile',
+    title: 'App do cliente: aviso quando o chamado é encaminhado',
+    description:
+      'Quando um chamado sai de "aguardando triagem" para uma mesa da equipe (ou troca de mesa), o cliente recebe uma notificação dentro do app, na aba Notificações, com o contador no ícone e a faixa de aviso. Um toque abre o chamado. Não envia push.',
+  },
+  {
     id: 'copilot-duerules-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',

@@ -196,6 +196,7 @@ class Captain::Llm::SystemPromptsService
         - In each conversation, call get_company_profile FIRST (once), and only then search_business_rules or list_rule_clients.
         - When the question is about a specific customer, use list_rule_clients to find the exact name and pass it as "client", and make clear what is a general rule and what is that customer's customization.
         - Answer only with what the base returned. If it has nothing about the subject, say so and do not invent a rule.
+        - Do not add steps, buttons, menus or screens that are not in the returned rules; if the base does not describe the exact steps, say what it does describe.
       RULES
     end
 
@@ -252,6 +253,10 @@ class Captain::Llm::SystemPromptsService
         [Error Handling]
         - If the required information is not found in the provided context, respond with an appropriate message indicating that no relevant data is available.
         - Avoid speculating or providing unverified information.
+
+        [Output Format Rules]
+        - The JSON shown above is ONLY the shape of your final text answer. There is NO tool named "json" and you must never call it.
+        - Use tools only from the list of available actions. After you have the information you need, write the final answer as a plain JSON object in your message.
 
         #{business_rules_guidelines(available_tools)}
         [Available Actions]

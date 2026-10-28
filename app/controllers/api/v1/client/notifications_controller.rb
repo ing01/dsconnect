@@ -10,6 +10,10 @@
 # Message sem misturar o que e' do agente com o que e' do contato.
 class Api::V1::Client::NotificationsController < Api::V1::Client::BaseController
   LIMIT = 50
+  # Triagem aprovada ou chamado levado a outra Mesa. So' o recente: sem a
+  # janela, a primeira carga traria todo o historico de movimentacao.
+  MOVE_TYPES = %w[triaged team_changed transferred].freeze
+  MOVE_WINDOW = 7.days
 
   def index
     @items = visible_items
@@ -36,7 +40,7 @@ class Api::V1::Client::NotificationsController < Api::V1::Client::BaseController
   end
 
   def all_items
-    @all_items ||= (communication_items + chat_items).sort_by { |item| -item[:created_at] }
+    @all_items ||= (communication_items + move_items + chat_items).sort_by { |item| -item[:created_at] }
   end
 
   def dismissed_keys
@@ -85,6 +89,39 @@ class Api::V1::Client::NotificationsController < Api::V1::Client::BaseController
       author_name: com.user&.name,
       closing: com.closing,
       created_at: (com.sent_at || com.created_at).to_i
+    }
+  end
+
+  # O chamado saiu de "aguardando triagem" (ou trocou de Mesa): o cliente
+  # fica sabendo que alguem pegou. Transferencia que so' mudou o Estagio ou o
+  # responsavel nao muda a Mesa e nao avisa nada.
+  def move_items
+    activities = TicketActivity
+                 .where(ticket_id: visible_tickets.select(:id), activity_type: MOVE_TYPES)
+                 .where(created_at: MOVE_WINDOW.ago..)
+                 .includes(:ticket)
+                 .order(created_at: :desc)
+                 .limit(LIMIT)
+                 .reject { |activity| activity.previous_value == activity.new_value }
+    team_ids = activities.reject(&:triaged?).map(&:new_value)
+    team_names = Current.account.teams.where(id: team_ids).pluck(:id, :name).to_h { |id, name| [id.to_s, name] }
+
+    activities.map { |activity| move_item(activity, team_names) }
+  end
+
+  # `triaged` guarda "Mesa / Estagio" num texto so'; as demais guardam o id da Mesa.
+  def move_item(activity, team_names)
+    team = activity.triaged? ? activity.new_value.to_s.split(' / ').first : team_names[activity.new_value]
+    {
+      type: 'ticket_moved',
+      id: "activity_#{activity.id}",
+      ticket_id: activity.ticket_id,
+      ticket_display_id: activity.ticket.display_id,
+      ticket_title: activity.ticket.title,
+      preview: I18n.t('client_area.notifications.moved_to_team', team: team),
+      author_name: nil,
+      closing: false,
+      created_at: activity.created_at.to_i
     }
   end
 

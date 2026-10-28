@@ -96,16 +96,19 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
     if (firstLoad || fresh.isEmpty || !mounted) return;
 
     // Dentro do Chat a conversa ja esta a vista.
-    final visible = fresh.where((item) => item.type == 'ticket' || _currentIndex != _chatTabIndex).toList();
+    final visible = fresh.where((item) => !item.isChat || _currentIndex != _chatTabIndex).toList();
     if (visible.isEmpty) return;
 
     visible.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     final latest = visible.first;
     final extra = visible.length - 1;
-    final isTicket = latest.type == 'ticket';
+    final isTicket = latest.isTicketRelated;
     final who = latest.authorName?.trim().isNotEmpty == true ? latest.authorName!.trim() : 'A equipe';
     final where = isTicket ? 'no chamado #${latest.ticketDisplayId}' : 'no chat';
     final preview = latest.preview.isEmpty ? '' : ': ${latest.preview}';
+    final text = latest.isTicketMoved
+        ? 'Chamado #${latest.ticketDisplayId} encaminhado$preview'
+        : '$who respondeu $where$preview';
 
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
@@ -114,7 +117,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 6),
         content: Text(
-          '$who respondeu $where$preview${extra > 0 ? '  (+$extra)' : ''}',
+          '$text${extra > 0 ? '  (+$extra)' : ''}',
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
         ),
@@ -213,7 +216,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
         .toList();
     // Dentro do Chat as mensagens ja estao na tela - nao contam como pendentes.
     final unreadChat =
-        _currentIndex == _chatTabIndex ? 0 : unread.where((item) => item.type != 'ticket').length;
+        _currentIndex == _chatTabIndex ? 0 : unread.where((item) => item.isChat).length;
     final unreadTotal = unread.length;
 
     return Scaffold(

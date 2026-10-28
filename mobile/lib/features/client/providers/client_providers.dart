@@ -259,7 +259,7 @@ class DismissedNotificationsNotifier extends AsyncNotifier<Set<String>> {
   Future<void> dismissChatNotifications() async {
     final all = ref.read(clientNotificationsProvider).value ?? const [];
     for (final item in all) {
-      if (item.type != 'ticket') await dismiss(item.id);
+      if (item.isChat) await dismiss(item.id);
     }
   }
 }
