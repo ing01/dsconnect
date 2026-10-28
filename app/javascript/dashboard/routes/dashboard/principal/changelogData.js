@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-notifications-realtime-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'improvement',
+    platform: 'mobile',
+    title: 'App do cliente: notificações em tempo real',
+    description:
+      'Respostas da equipe no chat ou no chamado e chamados encaminhados para uma mesa agora aparecem na hora nas abas Chat e Notificações, com o contador e a faixa de aviso, sem esperar a próxima atualização.',
+  },
+  {
     id: 'triage-stage-select-fix-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',

@@ -13,6 +13,7 @@ class ClientPortalChatListener < BaseListener
     message, = extract_message_and_account(event)
     return unless relevant?(message)
 
+    ClientNotificationsChannel.ping(message.conversation.contact)
     Client::ChatPushNotificationService.new(message: message).perform
     ClientChatMailer.new_message(message).deliver_later if first_outgoing_message?(message)
   end

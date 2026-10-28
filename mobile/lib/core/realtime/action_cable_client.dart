@@ -39,7 +39,13 @@ class ActionCableClient {
     final params = <String, dynamic>{'channel': 'RoomChannel', 'pubsub_token': pubsubToken};
     if (userId != null) params['user_id'] = userId;
     if (accountId != null) params['account_id'] = accountId;
-    _identifier = jsonEncode(params);
+    subscribe(params);
+  }
+
+  // Assina qualquer canal pelos parametros dele (`channel` incluso) - o
+  // `connect` acima e' o atalho do `RoomChannel`.
+  void subscribe(Map<String, dynamic> channelParams) {
+    _identifier = jsonEncode(channelParams);
 
     _open();
   }

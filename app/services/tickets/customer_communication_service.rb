@@ -88,6 +88,7 @@ class Tickets::CustomerCommunicationService
   # `register_only`) - a mesma regra que ja vale pro e-mail: quando o agente
   # marca "nao notificar", nada sai por nenhum canal.
   def notify_customer_by_push(communication)
+    ClientNotificationsChannel.ping(communication.contact || communication.ticket.requester_contact)
     Client::TicketCommunicationPushNotificationJob.perform_later(communication.id)
   end
 

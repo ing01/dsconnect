@@ -12,7 +12,7 @@ class Api::V1::Client::NotificationsController < Api::V1::Client::BaseController
   LIMIT = 50
   # Triagem aprovada ou chamado levado a outra Mesa. So' o recente: sem a
   # janela, a primeira carga traria todo o historico de movimentacao.
-  MOVE_TYPES = %w[triaged team_changed transferred].freeze
+  MOVE_TYPES = TicketActivity::CLIENT_MOVE_TYPES
   MOVE_WINDOW = 7.days
 
   def index

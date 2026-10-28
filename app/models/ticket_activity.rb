@@ -70,6 +70,12 @@ class TicketActivity < ApplicationRecord
     checklist_item_reopened: 43
   }
 
+  # Mudancas de Mesa que o cliente ve como notificacao (ver
+  # Api::V1::Client::NotificationsController).
+  CLIENT_MOVE_TYPES = %w[triaged team_changed transferred].freeze
+
+  after_create_commit :ping_client, if: -> { CLIENT_MOVE_TYPES.include?(activity_type) }
+
   def push_event_data
     labels = Tickets::ActivityLabeler.new([self]).labels_for(self)
     {
@@ -85,5 +91,11 @@ class TicketActivity < ApplicationRecord
       user: user ? { id: user.id, name: user.name, email: user.email } : nil,
       created_at: created_at.to_i
     }
+  end
+
+  private
+
+  def ping_client
+    ClientNotificationsChannel.ping(ticket.requester_contact)
   end
 end
