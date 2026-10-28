@@ -80,6 +80,11 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
     tools << Captain::Tools::Copilot::SearchArticlesService.new(@assistant, user: @user)
     tools << Captain::Tools::Copilot::SearchContactsService.new(@assistant, user: @user)
     tools << Captain::Tools::Copilot::SearchLinearIssuesService.new(@assistant, user: @user)
+    # Base de regras do ERP (DueRules). So' entram quando o DueRules esta
+    # configurado - ver Duerules::Client.
+    tools << Captain::Tools::Copilot::GetCompanyProfileService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::SearchBusinessRulesService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::ListRuleClientsService.new(@assistant, user: @user)
 
     tools.select(&:active?)
   end

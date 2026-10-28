@@ -183,6 +183,22 @@ class Captain::Llm::SystemPromptsService
     end
 
     # rubocop:disable Metrics/MethodLength
+    # So' aparece quando a base de regras (DueRules) esta ligada. O Copiloto
+    # precisa saber que perguntas sobre o ERP se respondem por ela, em que ordem
+    # chamar as ferramentas e que nao pode inventar regra.
+    def business_rules_guidelines(available_tools)
+      return '' unless available_tools.to_s.include?('search_business_rules')
+
+      <<~RULES
+        [Business Rules Base]
+        You can consult the ERP Duesoft business rules base (DueRules) with the tools get_company_profile, search_business_rules and list_rule_clients.
+        - For any question about the ERP, its modules, screens, routines, registers, fiscal behavior or how the system works, consult the base before answering.
+        - In each conversation, call get_company_profile FIRST (once), and only then search_business_rules or list_rule_clients.
+        - When the question is about a specific customer, use list_rule_clients to find the exact name and pass it as "client", and make clear what is a general rule and what is that customer's customization.
+        - Answer only with what the base returned. If it has nothing about the subject, say so and do not invent a rule.
+      RULES
+    end
+
     def copilot_response_generator(product_name, available_tools, config = {})
       citation_guidelines = if config['feature_citation']
                               <<~CITATION_TEXT
@@ -237,6 +253,7 @@ class Captain::Llm::SystemPromptsService
         - If the required information is not found in the provided context, respond with an appropriate message indicating that no relevant data is available.
         - Avoid speculating or providing unverified information.
 
+        #{business_rules_guidelines(available_tools)}
         [Available Actions]
         You have the following actions available to assist support agents:
         - summarize_conversation: Summarize the conversation

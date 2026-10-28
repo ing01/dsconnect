@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'copilot-duerules-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'feature',
+    platform: 'web',
+    title: 'Copiloto consulta a base de regras do ERP (DueRules)',
+    description:
+      'Na aba Copiloto do ticket e da conversa, você pode perguntar sobre o ERP Duesoft (telas, rotinas, cadastros, fiscal e customizações de clientes) e o Copiloto responde com base na base de regras DueRules, sem inventar. Para ver as regras de um cliente específico, cite o nome dele na pergunta.',
+  },
+  {
     id: 'client-chat-notifications-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',
