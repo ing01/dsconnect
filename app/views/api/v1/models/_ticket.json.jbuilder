@@ -8,6 +8,7 @@ json.position resource.position
 json.account_id resource.account_id
 json.ticket_column_id resource.ticket_column_id
 json.ticket_column_name resource.ticket_column.name
+json.ticket_column_kind resource.ticket_column.kind
 json.assignee_id resource.assignee_id
 json.assignee_name resource.assignee&.name
 # Os responsaveis do Nivel 2 em diante, so os niveis que a Mesa deste ticket usa.

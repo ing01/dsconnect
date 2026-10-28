@@ -134,15 +134,6 @@ RSpec.describe 'Ticket complexity', type: :request do
       expect(ticket.ticket_complexity_id).to be_nil
     end
 
-    # E o fechamento passa a cobrar a escolha nova - e assim que o pedido "exigir
-    # que o usuario selecione uma nova" se realiza.
-    it 'then demands a new one before the ticket can be closed' do
-      ticket = ticket_em(suporte, coluna_suporte, ticket_complexity: alto)
-      transferir(ticket, { team_id: comercial.id, ticket_column_id: coluna_comercial.id })
-
-      expect(ticket.reload.missing_close_requirements).to include('ticket_complexity')
-    end
-
     # O nivel que a Mesa nova TAMBEM oferece sobrevive a troca.
     it 'keeps a complexity both Mesas offer' do
       ticket = ticket_em(suporte, coluna_suporte, ticket_complexity: baixo)
@@ -166,78 +157,31 @@ RSpec.describe 'Ticket complexity', type: :request do
   end
 
   describe 'fechamento' do
-    # Fechar exige mais do que Complexidade: Categoria, Catalogo e a comunicacao de
-    # encerramento. Estes exemplos ISOLAM a Complexidade deixando o resto
-    # satisfeito - a Categoria vem da fabrica, o Catalogo entra aqui, e a
-    # comunicacao usa a propria valvula do produto (`customer_email_deliverable?`),
-    # que dispensa o envio onde nao ha como enviar.
-    def ticket_pronto_para_fechar(complexity: nil)
-      ticket = ticket_em(suporte, coluna_suporte, ticket_complexity: complexity)
+    # A Complexidade deixou de ser requisito de fechamento: o que segue exigido e
+    # a classificacao no Catalogo e a comunicacao de encerramento.
+    def ticket_pronto_para_fechar
+      ticket = ticket_em(suporte, coluna_suporte)
       ticket.update!(service_catalog_item: create(:service_catalog_item))
       allow_any_instance_of(Ticket).to receive(:customer_email_deliverable?).and_return(false) # rubocop:disable RSpec/AnyInstance
       ticket
     end
 
-    it 'blocks the close while there is no complexity' do
+    it 'does not require a complexity to close, even when the Mesa offers levels' do
       ticket = ticket_pronto_para_fechar
-
-      expect(ticket.missing_close_requirements).to include('ticket_complexity')
-      expect(ticket.closeable?).to be(false)
-      expect { ticket.close! }.to raise_error(TicketClosing::NotAllowed)
-    end
-
-    it 'closes once the complexity is set' do
-      ticket = ticket_pronto_para_fechar(complexity: alto)
 
       expect(ticket.missing_close_requirements).not_to include('ticket_complexity')
       expect { ticket.close! }.not_to raise_error
       expect(ticket.reload.status).to eq('closed')
     end
 
-    # A recusa tem de vir do SERVIDOR, e nao so da tela.
-    it 'refuses the close over the API, with the reason' do
+    it 'accepts the close over the API without a complexity' do
       ticket = ticket_pronto_para_fechar
-
-      patch "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/close",
-            headers: administrator.create_new_auth_token, as: :json
-
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.parsed_body['missing']).to include('ticket_complexity')
-      expect(ticket.reload.status).to eq('open')
-    end
-
-    it 'accepts the close over the API once it is set' do
-      ticket = ticket_pronto_para_fechar(complexity: alto)
 
       patch "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/close",
             headers: administrator.create_new_auth_token, as: :json
 
       expect(response).to have_http_status(:success)
       expect(ticket.reload.status).to eq('closed')
-    end
-
-    # Compatibilidade com o que existia: numa Mesa que nao oferece nivel nenhum,
-    # exigir Complexidade trancaria o ticket sem que exista acao capaz de
-    # destranca-lo.
-    it 'does not require it in a Mesa that offers no complexity at all' do
-      baixo.replace_teams!([suporte])
-      outra = create(:team, account: account)
-      ticket = ticket_em(outra, create(:ticket_column, team: outra))
-      ticket.update!(service_catalog_item: create(:service_catalog_item))
-      allow_any_instance_of(Ticket).to receive(:customer_email_deliverable?).and_return(false) # rubocop:disable RSpec/AnyInstance
-
-      expect(ticket.missing_close_requirements).not_to include('ticket_complexity')
-      expect { ticket.close! }.not_to raise_error
-    end
-
-    it 'requires it again as soon as the Mesa offers a level' do
-      outra = create(:team, account: account)
-      ticket = ticket_em(outra, create(:ticket_column, team: outra))
-      expect(ticket.missing_close_requirements).not_to include('ticket_complexity')
-
-      baixo.replace_teams!([suporte, comercial, outra])
-
-      expect(ticket.reload.missing_close_requirements).to include('ticket_complexity')
     end
   end
 

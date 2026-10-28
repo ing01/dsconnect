@@ -94,7 +94,7 @@
       "SCHEDULED_AT": "Agendado",
       "OVERDUE": "Vencido",
       "MENU": {
-        "CLOSE": "Finalizar",
+        "CLOSE": "Fechar",
         "REOPEN": "Reabrir",
         "ASSIGN_TO_ME": "Assumir ticket",
         "SEND_COMMUNICATION": "Enviar comunicação",
@@ -1210,9 +1210,7 @@
       "TO": "Para",
       "SUBJECT": "Assunto",
       "MESSAGE": "Mensagem",
-      "MESSAGE_PLACEHOLDER": "Escreva a mensagem que será enviada ao cliente",
-      "MISSING_COMPLEXITY": "Defina a complexidade do ticket antes de encerrá-lo.",
-      "STEP_COMPLEXITY": "Complexidade"
+      "MESSAGE_PLACEHOLDER": "Escreva a mensagem que será enviada ao cliente"
     },
     "COMMUNICATION": {
       "TAB": {

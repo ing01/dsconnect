@@ -45,12 +45,6 @@ const needsCommunication = computed(() =>
 // informational: the agent fixes it from the Checklist/Apontamentos tabs, not
 // from this dialog.
 const needsChecklist = computed(() => missing.value.includes('checklist'));
-// Complexidade em falta. Como o checklist, e informativo: quem resolve e o campo
-// na aba de Informacoes gerais do ticket, nao este modal - trazer o seletor para
-// ca duplicaria um campo que ja existe, e as duas copias divergiriam.
-const needsComplexity = computed(() =>
-  missing.value.includes('ticket_complexity')
-);
 // A requester with no address cannot be told anything, so this is reported on
 // its own instead of failing at send time.
 const missingEmail = computed(() => missing.value.includes('contact_email'));
@@ -69,10 +63,7 @@ const communicationReady = computed(
 );
 const canSubmit = computed(
   () =>
-    catalogReady.value &&
-    communicationReady.value &&
-    !needsChecklist.value &&
-    !needsComplexity.value
+    catalogReady.value && communicationReady.value && !needsChecklist.value
 );
 
 const open = () => {
@@ -193,23 +184,6 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
       </section>
 
       <div v-if="needsChecklist" class="h-px bg-n-weak" />
-
-      <!-- Complexidade: informativo, como o checklist. O campo vive na aba de
-           Informacoes gerais, e o texto diz onde resolver. -->
-      <section v-if="needsComplexity" class="flex flex-col gap-2 min-w-0">
-        <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
-          <Icon
-            icon="i-lucide-circle-alert"
-            class="flex-shrink-0 size-4 text-n-amber-11"
-          />
-          {{ t('TICKET.CLOSE.STEP_COMPLEXITY') }}
-        </h3>
-        <p class="p-3 text-sm rounded-lg text-n-amber-11 bg-n-amber-3">
-          {{ t('TICKET.CLOSE.MISSING_COMPLEXITY') }}
-        </p>
-      </section>
-
-      <div v-if="needsComplexity" class="h-px bg-n-weak" />
 
       <!-- Step 2: the closing message. -->
       <section class="flex flex-col gap-3 min-w-0">

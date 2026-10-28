@@ -148,16 +148,20 @@ export default {
             action: 'transfer',
             value: 'transfer',
             icon: 'i-lucide-arrow-right-left',
-          },
-          // `action: 'delete'` is what DropdownMenu paints in ruby, which is how
-          // the closing entry reads as the end of the attendance.
-          {
+          }
+        );
+
+        // `action: 'delete'` is what DropdownMenu paints in ruby, which is how
+        // the closing entry reads as the end of the attendance. Ausente no
+        // estagio Pendente: ainda nao ha atendimento a encerrar.
+        if (this.ticket.ticket_column_kind !== 'pending') {
+          items.push({
             label: this.$t('TICKET.CARD.MENU.CLOSE'),
             action: 'delete',
             value: 'close',
             icon: 'i-lucide-circle-x',
-          }
-        );
+          });
+        }
       } else {
         // A terminal ticket is off the operational board; reopening is all that
         // is left to do with it.

@@ -23,7 +23,6 @@ module TicketClosing
   end
 
   MISSING_CATEGORY = 'ticket_category'.freeze
-  MISSING_COMPLEXITY = 'ticket_complexity'.freeze
   MISSING_CATALOG = 'service_catalog'.freeze
   MISSING_COMMUNICATION = 'customer_communication'.freeze
   MISSING_CONTACT_EMAIL = 'contact_email'.freeze
@@ -91,7 +90,6 @@ module TicketClosing
     # Categoria and Catalogo de Servicos are different classifications; both are
     # required and neither substitutes the other.
     missing << MISSING_CATEGORY if ticket_category_id.blank?
-    missing << MISSING_COMPLEXITY if complexity_required?
     missing << MISSING_CATALOG unless classified?
     missing.concat(missing_communication_requirements)
     # Same rule as `ensure_checklist_completed!`: a linked Apontamento
@@ -109,20 +107,6 @@ module TicketClosing
     missing = [MISSING_COMMUNICATION]
     missing << MISSING_CONTACT_EMAIL if customer_email.blank?
     missing
-  end
-
-  # A Complexidade e obrigatoria para fechar - mas so onde existe o que escolher.
-  #
-  # Mesma razao de `customer_email_deliverable?` logo acima: exigir um campo que
-  # a Mesa nao tem como preencher trancaria o ticket sem que exista acao capaz de
-  # destranca-lo. Numa Mesa sem nenhuma Complexidade habilitada - e e assim que
-  # toda conta comeca antes de alguem configurar a matriz - o fechamento segue
-  # como sempre foi. A regra volta sozinha quando a Mesa passar a oferecer algum
-  # nivel: nao ha chave para lembrar de ligar depois.
-  def complexity_required?
-    return false if ticket_complexity_id.present?
-
-    TicketComplexity.available_for_team(team_id).exists?
   end
 
   def closeable?

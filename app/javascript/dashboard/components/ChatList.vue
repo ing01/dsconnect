@@ -482,6 +482,14 @@ function fetchFilteredConversations(payload) {
 }
 
 function fetchSavedFilteredConversations(payload) {
+  // Aba de E-mails (pasta sintetica por tipo de canal): sem nenhuma caixa de
+  // e-mail nao ha o que buscar, e o filtro com `values: []` so' resulta em erro.
+  // A lista fica vazia, sem aviso.
+  if (props.channelType && !channelTypeInboxIds.value.length) {
+    emitConversationLoaded();
+    return;
+  }
+
   payload = useSnakeCase(payload);
   let page = currentFiltersPage.value + 1;
   store
@@ -489,7 +497,12 @@ function fetchSavedFilteredConversations(payload) {
       queryData: payload,
       page,
     })
-    .catch(() => useAlert(t('CHAT_LIST.FETCH_ERROR')))
+    .catch(() => {
+      // O e-mail ainda nao esta em funcionamento: falhar aqui deixa a lista
+      // vazia em vez de repetir o aviso a cada nova tentativa da tela.
+      if (props.channelType) return;
+      useAlert(t('CHAT_LIST.FETCH_ERROR'));
+    })
     .finally(emitConversationLoaded);
 }
 

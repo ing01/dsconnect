@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'email-tab-error-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'fix',
+    platform: 'web',
+    title: 'Aba de E-mails: fim do aviso de erro repetido',
+    description:
+      'Ao abrir a aba de E-mails, o aviso "Não foi possível carregar as conversas" aparecia várias vezes seguidas. Agora a lista simplesmente fica vazia enquanto o e-mail não estiver em funcionamento, sem o aviso.',
+  },
+  {
+    id: 'ticket-close-rules-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Fechar ticket: menos exigências e regra para o estágio Pendente',
+    description:
+      'A complexidade deixou de ser obrigatória para fechar um ticket; continuam valendo a classificação no catálogo de serviços e a comunicação com o cliente. Além disso, a opção "Fechar ticket" não aparece mais para tickets que estão no estágio Pendente. No menu (três pontinhos) do card do Kanban, "Finalizar" agora se chama "Fechar", igual ao de dentro do ticket.',
+  },
+  {
     id: 'brand-logo-update-2026-10-27',
     date: '27 de outubro de 2026',
     isoDate: '2026-10-27',

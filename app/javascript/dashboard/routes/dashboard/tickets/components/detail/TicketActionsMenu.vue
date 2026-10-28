@@ -139,7 +139,12 @@ const slaItems = computed(() =>
 const closingItems = computed(() => {
   const items = [];
 
-  if (props.ticket.status !== 'closed') {
+  // No estagio Pendente o ticket ainda nao foi iniciado: nao ha atendimento a
+  // encerrar, entao a acao nem aparece.
+  if (
+    props.ticket.status !== 'closed' &&
+    props.ticket.ticket_column_kind !== 'pending'
+  ) {
     items.push({
       label: label('CLOSE'),
       value: 'close',
