@@ -1,0 +1,34 @@
+#!/bin/sh
+# Sobe a versao do app mobile (mobile/pubspec.yaml) a cada commit: o numero da
+# versao (patch) e o numero do build (o que vem depois do "+") crescem de 1 em 1.
+# Assim cada commit gera um APK com versao propria, e a Play Store nunca recebe
+# um build repetido.
+#
+# Se o commit ja traz uma mudanca na versao do pubspec (alguem subiu a mao, ou
+# um numero maior que o proximo), nada e alterado.
+#
+# Ativar neste clone: git config core.hooksPath .githooks
+
+PUBSPEC="mobile/pubspec.yaml"
+[ -f "$PUBSPEC" ] || exit 0
+
+# Versao ja mexida neste commit: respeita.
+if git diff --cached --name-only | grep -qx "$PUBSPEC"; then
+  if git diff --cached -U0 "$PUBSPEC" | grep -q '^+version:'; then
+    exit 0
+  fi
+fi
+
+CURRENT=$(sed -n -E 's/^version:[[:space:]]*([0-9]+)\.([0-9]+)\.([0-9]+)\+([0-9]+).*/\1 \2 \3 \4/p' "$PUBSPEC" | head -n 1)
+[ -n "$CURRENT" ] || exit 0
+
+set -- $CURRENT
+MAJOR=$1
+MINOR=$2
+PATCH=$(($3 + 1))
+BUILD=$(($4 + 1))
+NEW="$MAJOR.$MINOR.$PATCH+$BUILD"
+
+sed -i -E "s/^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+/version: $NEW/" "$PUBSPEC"
+git add "$PUBSPEC"
+echo "pre-commit: versao do app -> $NEW"

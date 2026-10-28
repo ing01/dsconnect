@@ -5,3 +5,5 @@
 # checkout platform - CRLF or a missing +x bit breaks them under WSL/Linux
 # (e.g. bin/wsl_exec.sh got "Permission denied" from a Windows checkout).
 *.sh text eol=lf
+
+.githooks/* text eol=lf
