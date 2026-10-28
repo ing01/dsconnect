@@ -90,17 +90,33 @@ class Api::V1::Client::NotificationsController < Api::V1::Client::BaseController
 
   # So existe conversa de chat depois que o cliente abre a aba pela primeira
   # vez - por isso `find_existing`, e nao o servico que cria.
+  #
+  # TODAS as conversas do contato nessa caixa, e nao uma so': o chat abre uma
+  # conversa NOVA a cada sessao resolvida (`Client::ChatConversationResolver`),
+  # entao o contato acumula varias. Ler apenas "a" conversa pegava uma qualquer
+  # (a mais antiga, na pratica) e a resposta da equipe na sessao atual nunca
+  # aparecia aqui - sem item na lista, a bolinha do Chat nao acendia.
   def chat_items
     inbox = ::Inboxes::EnsureClientPortalInboxService.find_existing(Current.account)
     return [] if inbox.blank?
 
-    conversation = Current.account.conversations.find_by(inbox_id: inbox.id, contact_id: current_contact.id)
-    return [] if conversation.blank?
+    conversation_ids = Current.account.conversations
+                              .where(inbox_id: inbox.id, contact_id: current_contact.id).select(:id)
 
-    conversation.messages.chat.outgoing
-                .order(created_at: :desc)
-                .limit(LIMIT)
-                .map { |message| chat_item(message) }
+    Message.chat.outgoing
+           .where(account_id: Current.account.id, conversation_id: conversation_ids)
+           .includes(:attachments, :sender)
+           .order(created_at: :desc)
+           .limit(LIMIT)
+           .map { |message| chat_item(message) }
+  end
+
+  # Mensagem so com arquivo (foto, audio) nao tem texto: sem isto a notificacao
+  # apareceria em branco e o cliente nao entenderia o que chegou.
+  def chat_preview(message)
+    return message.content.to_s.truncate(160) if message.content.present?
+
+    message.attachments.any? ? I18n.t('client_area.chat.push_attachment_body') : ''
   end
 
   def chat_item(message)
@@ -110,9 +126,10 @@ class Api::V1::Client::NotificationsController < Api::V1::Client::BaseController
       ticket_id: nil,
       ticket_display_id: nil,
       ticket_title: nil,
-      preview: message.content.to_s.truncate(160),
+      preview: chat_preview(message),
       author_name: message.sender.is_a?(User) ? message.sender.name : nil,
       closing: false,
+      conversation_id: message.conversation_id,
       created_at: message.created_at.to_i
     }
   end

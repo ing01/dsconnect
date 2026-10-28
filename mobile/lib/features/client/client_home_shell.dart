@@ -10,6 +10,8 @@ import '../../core/push/push_notification_service.dart';
 import 'client_account_screen.dart';
 import 'client_chat_screen.dart';
 import 'client_notifications_screen.dart';
+import 'client_ticket_detail_screen.dart';
+import 'models/client_notification.dart';
 import 'client_tickets_list_screen.dart';
 import 'providers/chat_notifier.dart';
 import 'providers/client_providers.dart';
@@ -42,6 +44,10 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
   final _visited = <int>{0};
   StreamSubscription<void>? _pushSubscription;
   Timer? _notificationsTimer;
+  // Ids ja vistos na lista de notificacoes. A primeira lista so popula; dai em
+  // diante, o que aparece e' novidade e merece um aviso dentro do app.
+  final _knownNotificationIds = <String>{};
+  bool _notificationsLoadedOnce = false;
   // Guardado aqui porque `ref` nao serve dentro do `dispose`.
   late final PushNotificationService _push;
 
@@ -61,6 +67,72 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
     // `build`, que vale para qualquer caminho que traga dados novos (push,
     // WebSocket do chat, relogio, volta do segundo plano).
     _pushSubscription = _push.onMessageReceived.listen((_) => _refreshNotifications());
+  }
+
+  // O numero no icone diz QUANTAS coisas novas esperam; so a bolinha nao diz
+  // se e' uma ou dez. O Chat conta as respostas da equipe ainda nao vistas, e
+  // Notificacoes conta tudo o que ainda nao foi aberto.
+  Widget _tabIcon(int index, {required int unreadChat, required int unreadTotal}) {
+    final count = index == _chatTabIndex
+        ? unreadChat
+        : index == _notificationsTabIndex
+            ? unreadTotal
+            : 0;
+    final icon = Icon(_tabs[index].icon);
+    if (count == 0) return icon;
+
+    return Badge(label: Text(count > 9 ? '9+' : '$count'), child: icon);
+  }
+
+  // Chegou algo novo com o app aberto: alem do aviso do sistema, uma faixa
+  // dentro do app diz QUEM respondeu, ONDE e O QUE - e um toque leva la. Sem
+  // isto, quem esta em outra aba so ficava sabendo olhando o icone.
+  void _announceNewNotifications(List<ClientNotification> items) {
+    final fresh = items.where((item) => !_knownNotificationIds.contains(item.id)).toList();
+    final firstLoad = !_notificationsLoadedOnce;
+    _knownNotificationIds.addAll(items.map((item) => item.id));
+    _notificationsLoadedOnce = true;
+
+    if (firstLoad || fresh.isEmpty || !mounted) return;
+
+    // Dentro do Chat a conversa ja esta a vista.
+    final visible = fresh.where((item) => item.type == 'ticket' || _currentIndex != _chatTabIndex).toList();
+    if (visible.isEmpty) return;
+
+    visible.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final latest = visible.first;
+    final extra = visible.length - 1;
+    final isTicket = latest.type == 'ticket';
+    final who = latest.authorName?.trim().isNotEmpty == true ? latest.authorName!.trim() : 'A equipe';
+    final where = isTicket ? 'no chamado #${latest.ticketDisplayId}' : 'no chat';
+    final preview = latest.preview.isEmpty ? '' : ': ${latest.preview}';
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 6),
+        content: Text(
+          '$who respondeu $where$preview${extra > 0 ? '  (+$extra)' : ''}',
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+        action: SnackBarAction(
+          label: 'Ver',
+          onPressed: () {
+            if (isTicket && latest.ticketId != null) {
+              ref.read(dismissedNotificationsProvider.notifier).dismiss(latest.id);
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => ClientTicketDetailScreen(ticketId: latest.ticketId!)),
+              );
+            } else {
+              _selectTab(_chatTabIndex);
+            }
+          },
+        ),
+      ),
+    );
   }
 
   void _refreshNotifications() {
@@ -111,20 +183,38 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
     final biometricEnabled = ref.watch(biometricLockProvider).value?.enabled ?? false;
     final notificationsAsync = ref.watch(clientNotificationsProvider);
 
+    // A primeira lista que o app ve so popula o que ja existia: nao vira aviso.
+    // Feito aqui tambem (e nao so no listen) porque a lista pode ja estar
+    // carregada quando a tela monta, e entao o listen nunca dispara por ela.
+    final loadedItems = notificationsAsync.value;
+    if (!_notificationsLoadedOnce && loadedItems != null) {
+      _knownNotificationIds.addAll(loadedItems.map((item) => item.id));
+      _notificationsLoadedOnce = true;
+    }
+
     // Dentro do Chat a mensagem ja esta na tela: a bolinha de "mensagem nova"
     // nao deve acender (so a do ticket, que nao esta a vista). Vale para toda
     // lista nova que chegar com o Chat aberto, nao so para a do push - antes
     // so o push dispensava, e uma mensagem trazida por outro caminho acendia a
     // bolinha em cima do proprio Chat.
     ref.listen(clientNotificationsProvider, (_, next) {
-      if (_currentIndex == _chatTabIndex && next.hasValue) {
+      final items = next.value;
+      if (items == null) return;
+
+      _announceNewNotifications(items);
+
+      if (_currentIndex == _chatTabIndex) {
         ref.read(dismissedNotificationsProvider.notifier).dismissChatNotifications();
       }
     });
     final dismissed = ref.watch(dismissedNotificationsProvider).value ?? const {};
-    final hasUnreadChat = (notificationsAsync.value ?? const [])
-        .any((item) => item.type != 'ticket' && !dismissed.contains(item.id)) &&
-        _currentIndex != _chatTabIndex;
+    final unread = (notificationsAsync.value ?? const <ClientNotification>[])
+        .where((item) => !dismissed.contains(item.id))
+        .toList();
+    // Dentro do Chat as mensagens ja estao na tela - nao contam como pendentes.
+    final unreadChat =
+        _currentIndex == _chatTabIndex ? 0 : unread.where((item) => item.type != 'ticket').length;
+    final unreadTotal = unread.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -181,9 +271,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
         destinations: [
           for (var i = 0; i < _tabs.length; i++)
             NavigationDestination(
-              icon: i == _chatTabIndex
-                  ? Badge(isLabelVisible: hasUnreadChat, child: Icon(_tabs[i].icon))
-                  : Icon(_tabs[i].icon),
+              icon: _tabIcon(i, unreadChat: unreadChat, unreadTotal: unreadTotal),
               label: _tabs[i].title,
             ),
         ],

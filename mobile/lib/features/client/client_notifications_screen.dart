@@ -50,6 +50,17 @@ class ClientNotificationsScreen extends ConsumerWidget {
   }
 }
 
+// "Maria respondeu no chat" / "Maria respondeu no chamado #12": quem, o que e
+// onde numa frase so. Sem autor (mensagem de bot, usuario removido), "A equipe".
+String _headline(ClientNotification notification) {
+  final author = notification.authorName?.trim();
+  final who = (author == null || author.isEmpty) ? 'A equipe' : author;
+
+  return notification.type == 'ticket'
+      ? '$who respondeu no chamado #${notification.ticketDisplayId}'
+      : '$who respondeu no chat';
+}
+
 class _NotificationTile extends ConsumerWidget {
   const _NotificationTile({required this.notification});
 
@@ -85,18 +96,34 @@ class _NotificationTile extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // O titulo diz o que aconteceu - "respondeu" - e onde, para o
+                // cliente entender de relance que a equipe falou com ele.
                 Text(
-                  isTicket ? '#${notification.ticketDisplayId} ${notification.ticketTitle}' : 'Chat com a equipe',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  notification.preview,
+                  _headline(notification),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: colorScheme.outline),
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                ),
+                if (isTicket && notification.ticketTitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    notification.ticketTitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: colorScheme.primary),
+                  ),
+                ],
+                const SizedBox(height: 4),
+                Text(
+                  notification.preview.isEmpty ? 'Toque para ver' : notification.preview,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13, color: colorScheme.onSurface),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  isTicket ? 'Toque para abrir o chamado' : 'Toque para abrir o chat',
+                  style: TextStyle(fontSize: 11, color: colorScheme.outline),
                 ),
               ],
             ),

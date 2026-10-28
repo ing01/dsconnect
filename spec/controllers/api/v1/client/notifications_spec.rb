@@ -55,6 +55,41 @@ RSpec.describe 'Client notifications', type: :request do
     end
   end
 
+  describe 'GET index - chat do Portal' do
+    let(:inbox) { Inboxes::EnsureClientPortalInboxService.new(account: account).perform }
+    let(:contact_inbox) { ContactInboxBuilder.new(contact: cliente, inbox: inbox).perform }
+
+    def conversa(status:)
+      create(:conversation, account: account, inbox: inbox, contact: cliente,
+                            contact_inbox: contact_inbox, status: status)
+    end
+
+    def resposta_em(conversation, texto)
+      create(:message, account: account, inbox: inbox, conversation: conversation,
+                       message_type: :outgoing, content: texto, sender: agente)
+    end
+
+    # O chat abre uma conversa nova a cada sessao resolvida: a resposta da
+    # sessao ATUAL tem que aparecer, nao so a da primeira conversa.
+    it 'lists the team reply from the current conversation even when an older resolved one exists' do
+      resposta_em(conversa(status: :resolved), 'Resposta da sessao antiga')
+      resposta_em(conversa(status: :open), 'Resposta da sessao atual')
+
+      listar(cabecalho)
+
+      previews = response.parsed_body.select { |item| item['type'] == 'chat' }.pluck('preview')
+      expect(previews).to contain_exactly('Resposta da sessao antiga', 'Resposta da sessao atual')
+    end
+
+    it 'names who answered' do
+      resposta_em(conversa(status: :open), 'Oi')
+
+      listar(cabecalho)
+
+      expect(response.parsed_body.first['author_name']).to eq(agente.name)
+    end
+  end
+
   describe 'POST dismiss' do
     it 'removes the dismissed item from the next listing' do
       comunicacao = comunicacao_em(ticket_da)

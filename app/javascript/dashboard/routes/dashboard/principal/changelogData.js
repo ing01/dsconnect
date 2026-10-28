@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-chat-notifications-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'fix',
+    platform: 'mobile',
+    title: 'App do cliente: resposta do chat sempre avisada',
+    description:
+      'Corrigimos o caso em que a resposta da equipe no chat não aparecia nas Notificações nem acendia o aviso no ícone do Chat (acontecia quando o cliente já tinha uma conversa antiga encerrada). Agora o ícone do Chat e o de Notificações mostram quantas novidades esperam, uma faixa dentro do app diz quem respondeu e o que disse (com um toque em "Ver"), e a notificação do celular mostra "Nome: mensagem". Respostas só com arquivo também são avisadas.',
+  },
+  {
     id: 'mobile-notifications-tab-refresh-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',
