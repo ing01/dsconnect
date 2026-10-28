@@ -4,16 +4,21 @@ import CalendarEventFormDialog from '../CalendarEventFormDialog.vue';
 vi.mock('dashboard/composables/store', async () => {
   const { ref } = await import('vue');
   const teamMembersRef = ref(() => []);
-  const allTicketsRef = ref([]);
   return {
     useStore: () => ({ dispatch: vi.fn(() => Promise.resolve()) }),
-    useMapGetter: name =>
-      name === 'tickets/getTicketsList' ? allTicketsRef : teamMembersRef,
+    useMapGetter: () => teamMembersRef,
   };
 });
 
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
+// A lista de tickets pra "vincular" agora vem direto da API (nao mais do
+// Vuex, que sobrescrevia a lista global usada pela pagina de detalhe do
+// ticket - ver comentario no onMounted do componente). Mockado aqui pra nao
+// bater no `axios` de verdade.
+vi.mock('dashboard/api/tickets', () => ({
+  default: { get: vi.fn(() => Promise.resolve({ data: { payload: [] } })) },
+}));
 
 // Um evento ja existente, com titulo preenchido - usado nos testes de envio,
 // pra nao depender de digitar no `woot-input` (stubado, sem input de

@@ -7,6 +7,7 @@ import { format, parseISO, addMinutes } from 'date-fns';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import { colorForAgent } from './helpers/agentColorHelper';
+import TicketsAPI from 'dashboard/api/tickets';
 
 const props = defineProps({
   event: {
@@ -37,7 +38,13 @@ const store = useStore();
 
 const isEditing = computed(() => !!props.event);
 const teamMembers = useMapGetter('teamMembers/getTeamMembers');
-const allTickets = useMapGetter('tickets/getTicketsList');
+// Busca so' os tickets da Mesa, direto da API, numa lista LOCAL deste
+// dialogo - nao pelo `tickets/fetchTickets` do Vuex, que SUBSTITUI a lista
+// global inteira (a mesma que a pagina de detalhe do ticket le pra montar a
+// tela). Ja' aconteceu de abrir "Novo compromisso" de dentro de um ticket e
+// a pagina ficar em branco por causa disso - o ticket aberto sumia da lista
+// global assim que esse fetch sem filtro a sobrescrevia.
+const teamTickets = ref([]);
 
 const toLocalInputValue = date => format(date, "yyyy-MM-dd'T'HH:mm");
 
@@ -99,9 +106,6 @@ const titleError = ref('');
 const isSubmitting = ref(false);
 const ticketSearchQuery = ref('');
 
-const teamTickets = computed(() =>
-  allTickets.value.filter(ticket => ticket.team_id === Number(props.teamId))
-);
 const filteredTickets = computed(() => {
   const query = ticketSearchQuery.value.trim().toLowerCase();
   if (!query) return teamTickets.value;
@@ -183,7 +187,8 @@ const handleSubmit = () => {
 
 onMounted(async () => {
   await store.dispatch('teamMembers/get', { teamId: props.teamId });
-  await store.dispatch('tickets/fetchTickets');
+  const { data } = await TicketsAPI.get({ team_id: props.teamId });
+  teamTickets.value = data.payload;
 });
 </script>
 
