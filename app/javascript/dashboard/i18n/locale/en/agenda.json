@@ -39,6 +39,11 @@
         "LABEL": "Description",
         "PLACEHOLDER": "e.g. Discuss project X with the client"
       },
+      "TEAM": {
+        "LABEL": "Calendar",
+        "PLACEHOLDER": "Select a calendar...",
+        "REQUIRED_ERROR": "Choose which calendar this event belongs to."
+      },
       "ALL_DAY": "All day",
       "START_AT": "Start",
       "END_AT": "End",

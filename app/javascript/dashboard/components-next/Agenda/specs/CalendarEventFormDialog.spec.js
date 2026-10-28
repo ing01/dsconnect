@@ -6,7 +6,13 @@ vi.mock('dashboard/composables/store', async () => {
   const teamMembersRef = ref(() => []);
   return {
     useStore: () => ({ dispatch: vi.fn(() => Promise.resolve()) }),
-    useMapGetter: () => teamMembersRef,
+    useMapGetter: name =>
+      name === 'teams/getTeams'
+        ? ref([
+            { id: 1, name: 'Suporte' },
+            { id: 2, name: 'Implantacao' },
+          ])
+        : teamMembersRef,
   };
 });
 
@@ -150,5 +156,52 @@ describe('CalendarEventFormDialog recorrencia', () => {
     expect(enviado.recurrence_interval).toBeNull();
     expect(enviado.recurrence_end_at).toBeNull();
     expect(enviado.recurrence_count).toBeNull();
+  });
+});
+
+describe('CalendarEventFormDialog agenda (time) obrigatoria', () => {
+  const teamSelect = wrapper => wrapper.findAll('select')[0];
+  const montarNovo = (props = {}) =>
+    montar({ event: null, teamId: null, ...props });
+
+  it('ao criar, o campo de agenda vem vazio', () => {
+    const wrapper = montarNovo();
+
+    expect(teamSelect(wrapper).element.value).toBe('');
+    expect(teamSelect(wrapper).findAll('option')).toHaveLength(3);
+  });
+
+  it('nao salva sem escolher a agenda', async () => {
+    const wrapper = montarNovo();
+
+    await salvar(wrapper).trigger('click');
+
+    expect(wrapper.emitted('submit')).toBeUndefined();
+    expect(wrapper.text()).toContain('AGENDA.FORM.TEAM.REQUIRED_ERROR');
+  });
+
+  it('envia o time escolhido', async () => {
+    const wrapper = montarNovo();
+    await teamSelect(wrapper).setValue(2);
+    wrapper.vm.$.setupState.form.title = 'Reuniao';
+
+    await salvar(wrapper).trigger('click');
+
+    expect(wrapper.emitted('submit')[0][0].team_id).toBe(2);
+  });
+
+  it('ao editar, nao mostra o seletor e mantem o time', async () => {
+    const wrapper = montar({ teamId: 1 });
+
+    expect(wrapper.text()).not.toContain('AGENDA.FORM.TEAM.LABEL');
+    await salvar(wrapper).trigger('click');
+
+    expect(wrapper.emitted('submit')[0][0].team_id).toBe(1);
+  });
+
+  it('criar de dentro de um ticket mantem o time do ticket, sem seletor', () => {
+    const wrapper = montarNovo({ teamId: 1, presetTicketIds: [10] });
+
+    expect(wrapper.text()).not.toContain('AGENDA.FORM.TEAM.LABEL');
   });
 });

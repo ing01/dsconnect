@@ -210,6 +210,10 @@ export default {
         }
         useAlert(this.$t('AGENDA.API.SUCCESS_MESSAGE'));
         this.closeEventForm();
+        // Criado em outra agenda: vai pra ela, senao o compromisso "some".
+        if (payload.team_id && payload.team_id !== this.selectedTeamId) {
+          this.selectedTeamId = payload.team_id;
+        }
         // Um escopo com `scope` pode trocar varias ocorrencias de uma vez so
         // (nova serie, excecoes indo/vindo) - recarregar a janela visivel e'
         // mais simples e mais correto do que tentar remendar a lista local.
@@ -327,7 +331,7 @@ export default {
     >
       <CalendarEventFormDialog
         :event="selectedEvent"
-        :team-id="selectedTeamId"
+        :team-id="selectedEvent ? selectedTeamId : null"
         :initial-start="initialStart"
         @close="closeEventForm"
         @submit="submitEvent"
@@ -352,9 +356,6 @@ export default {
       @confirm="confirmRecurrenceScope"
     />
 
-    <AgendaReminderToast
-      :events="events"
-      @open="openEditEvent"
-    />
+    <AgendaReminderToast :events="events" @open="openEditEvent" />
   </div>
 </template>

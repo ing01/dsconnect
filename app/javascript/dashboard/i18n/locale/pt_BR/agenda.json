@@ -39,6 +39,11 @@
         "LABEL": "Descrição",
         "PLACEHOLDER": "Ex.: Falar com o cliente sobre o projeto X"
       },
+      "TEAM": {
+        "LABEL": "Agenda",
+        "PLACEHOLDER": "Selecione a agenda...",
+        "REQUIRED_ERROR": "Escolha em qual agenda este compromisso vai ficar."
+      },
       "ALL_DAY": "Dia inteiro",
       "START_AT": "Início",
       "END_AT": "Fim",

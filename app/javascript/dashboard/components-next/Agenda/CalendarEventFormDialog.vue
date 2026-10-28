@@ -14,9 +14,12 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  // Na edicao (e ao criar de dentro de um Ticket) o time ja vem definido. Ao
+  // criar pela Agenda fica vazio de proposito: a pessoa precisa escolher em
+  // qual agenda (Suporte, Implantacao...) o compromisso vai - ver `form.team_id`.
   teamId: {
     type: [Number, String],
-    required: true,
+    default: null,
   },
   initialStart: {
     type: Date,
@@ -38,6 +41,12 @@ const store = useStore();
 
 const isEditing = computed(() => !!props.event);
 const teamMembers = useMapGetter('teamMembers/getTeamMembers');
+const teams = useMapGetter('teams/getTeams');
+// So' escolhe a agenda quem esta criando um compromisso novo "solto"; editar
+// ou criar a partir de um Ticket mantem o time que ja existe.
+const canPickTeam = computed(
+  () => !props.event && !props.presetTicketIds.length
+);
 // Busca so' os tickets da Mesa, direto da API, numa lista LOCAL deste
 // dialogo - nao pelo `tickets/fetchTickets` do Vuex, que SUBSTITUI a lista
 // global inteira (a mesma que a pagina de detalhe do ticket le pra montar a
@@ -60,6 +69,7 @@ const recurrenceEndTypeFor = event => {
 const buildInitialForm = () => {
   if (props.event) {
     return {
+      team_id: props.teamId,
       event_type: props.event.event_type || 'event',
       title: props.event.title,
       description: props.event.description || '',
@@ -83,6 +93,7 @@ const buildInitialForm = () => {
   const start = props.initialStart || new Date();
   const end = addMinutes(start, 30);
   return {
+    team_id: canPickTeam.value ? '' : props.teamId,
     event_type: 'event',
     title: '',
     description: '',
@@ -103,13 +114,17 @@ const buildInitialForm = () => {
 
 const form = reactive(buildInitialForm());
 const titleError = ref('');
+const teamError = ref('');
+const attendeesError = ref('');
 const isSubmitting = ref(false);
 const ticketSearchQuery = ref('');
 
 const filteredTickets = computed(() => {
   const query = ticketSearchQuery.value.trim().toLowerCase();
   if (!query) return teamTickets.value;
-  return teamTickets.value.filter(ticket => ticket.title.toLowerCase().includes(query));
+  return teamTickets.value.filter(ticket =>
+    ticket.title.toLowerCase().includes(query)
+  );
 });
 
 const toggleAttendee = id => {
@@ -126,7 +141,6 @@ const toggleTicket = id => {
 };
 
 const isTimeOff = computed(() => form.event_type === 'time_off');
-const attendeesError = ref('');
 
 // Trocar pra "Folga" assume dia inteiro de cara (o caso comum) - o agente
 // ainda pode desmarcar se for so' meio periodo. O contrario (voltando pra
@@ -150,7 +164,33 @@ watch(
   }
 );
 
+const loadTeamData = async teamId => {
+  teamTickets.value = [];
+  if (!teamId) return;
+  await store.dispatch('teamMembers/get', { teamId });
+  const { data } = await TicketsAPI.get({ team_id: teamId });
+  teamTickets.value = data.payload;
+};
+
+// Trocar a agenda muda quem pode participar e quais tickets existem: o que
+// foi marcado antes deixa de valer.
+watch(
+  () => form.team_id,
+  (teamId, previousTeamId) => {
+    teamError.value = '';
+    if (previousTeamId) {
+      form.attendee_ids = [];
+      form.ticket_ids = [];
+    }
+    loadTeamData(teamId);
+  }
+);
+
 const handleSubmit = () => {
+  if (!form.team_id) {
+    teamError.value = t('AGENDA.FORM.TEAM.REQUIRED_ERROR');
+    return;
+  }
   if (!form.title.trim()) {
     titleError.value = t('AGENDA.FORM.TITLE.REQUIRED_ERROR');
     return;
@@ -159,7 +199,9 @@ const handleSubmit = () => {
   // sentido existir sem isso, diferente de um compromisso comum (onde
   // participante e' so' informativo).
   if (isTimeOff.value && !form.attendee_ids.length) {
-    attendeesError.value = t('AGENDA.FORM.ATTENDEES_REQUIRED_FOR_TIME_OFF_ERROR');
+    attendeesError.value = t(
+      'AGENDA.FORM.ATTENDEES_REQUIRED_FOR_TIME_OFF_ERROR'
+    );
     return;
   }
   if (new Date(form.end_at) < new Date(form.start_at)) {
@@ -172,13 +214,23 @@ const handleSubmit = () => {
   const payload = {
     ...form,
     title: form.title.trim(),
-    team_id: Number(props.teamId),
+    team_id: Number(form.team_id),
     start_at: new Date(form.start_at).toISOString(),
     end_at: new Date(form.end_at).toISOString(),
-    recurrence_interval: form.recurrence_frequency === 'single' ? null : Number(form.recurrence_interval),
-    recurrence_end_at: form.recurrence_frequency !== 'single' && form.recurrence_end_type === 'on_date' ? form.recurrence_end_at : null,
+    recurrence_interval:
+      form.recurrence_frequency === 'single'
+        ? null
+        : Number(form.recurrence_interval),
+    recurrence_end_at:
+      form.recurrence_frequency !== 'single' &&
+      form.recurrence_end_type === 'on_date'
+        ? form.recurrence_end_at
+        : null,
     recurrence_count:
-      form.recurrence_frequency !== 'single' && form.recurrence_end_type === 'after_count' ? Number(form.recurrence_count) : null,
+      form.recurrence_frequency !== 'single' &&
+      form.recurrence_end_type === 'after_count'
+        ? Number(form.recurrence_count)
+        : null,
   };
   delete payload.recurrence_end_type;
 
@@ -186,23 +238,28 @@ const handleSubmit = () => {
 };
 
 onMounted(async () => {
-  await store.dispatch('teamMembers/get', { teamId: props.teamId });
-  const { data } = await TicketsAPI.get({ team_id: props.teamId });
-  teamTickets.value = data.payload;
+  if (canPickTeam.value) await store.dispatch('teams/get');
+  await loadTeamData(form.team_id);
 });
 </script>
 
 <template>
   <div class="flex flex-col h-auto max-h-[85vh] overflow-hidden">
     <woot-modal-header
-      :header-title="isEditing ? t('AGENDA.FORM.EDIT_TITLE') : t('AGENDA.FORM.ADD_TITLE')"
+      :header-title="
+        isEditing ? t('AGENDA.FORM.EDIT_TITLE') : t('AGENDA.FORM.ADD_TITLE')
+      "
     />
     <div class="px-8 pb-4 flex-1 overflow-y-auto">
       <div class="flex gap-1 p-1 mb-4 rounded-lg bg-n-alpha-1 w-fit">
         <button
           type="button"
           class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-          :class="!isTimeOff ? 'bg-n-solid-2 text-n-slate-12 shadow-sm' : 'text-n-slate-11 hover:text-n-slate-12'"
+          :class="
+            !isTimeOff
+              ? 'bg-n-solid-2 text-n-slate-12 shadow-sm'
+              : 'text-n-slate-11 hover:text-n-slate-12'
+          "
           @click="form.event_type = 'event'"
         >
           {{ t('AGENDA.FORM.EVENT_TYPE.EVENT') }}
@@ -210,13 +267,43 @@ onMounted(async () => {
         <button
           type="button"
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-          :class="isTimeOff ? 'bg-n-solid-2 text-n-slate-12 shadow-sm' : 'text-n-slate-11 hover:text-n-slate-12'"
+          :class="
+            isTimeOff
+              ? 'bg-n-solid-2 text-n-slate-12 shadow-sm'
+              : 'text-n-slate-11 hover:text-n-slate-12'
+          "
           @click="form.event_type = 'time_off'"
         >
           <span class="i-lucide-palmtree size-3.5" />
           {{ t('AGENDA.FORM.EVENT_TYPE.TIME_OFF') }}
         </button>
       </div>
+
+      <label
+        v-if="canPickTeam"
+        class="block p-3 mb-4 border rounded-lg"
+        :class="
+          teamError
+            ? 'border-n-ruby-8 bg-n-ruby-3'
+            : 'border-n-blue-6 bg-n-blue-2'
+        "
+      >
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ t('AGENDA.FORM.TEAM.LABEL') }}
+          <span class="text-n-ruby-11">*</span>
+        </span>
+        <select v-model="form.team_id" class="w-full mt-1 mb-0" required>
+          <option value="" disabled>
+            {{ t('AGENDA.FORM.TEAM.PLACEHOLDER') }}
+          </option>
+          <option v-for="team in teams" :key="team.id" :value="team.id">
+            {{ team.name }}
+          </option>
+        </select>
+        <p v-if="teamError" class="mt-1 text-xs text-n-ruby-11">
+          {{ teamError }}
+        </p>
+      </label>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
         <div class="flex flex-col gap-4">
@@ -230,7 +317,9 @@ onMounted(async () => {
 
           <div class="flex gap-3">
             <label class="w-1/2">
-              <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.START_AT') }}</span>
+              <span class="text-sm text-n-slate-11">{{
+                t('AGENDA.FORM.START_AT')
+              }}</span>
               <input
                 v-model="form.start_at"
                 :type="form.all_day ? 'date' : 'datetime-local'"
@@ -238,7 +327,9 @@ onMounted(async () => {
               />
             </label>
             <label class="w-1/2">
-              <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.END_AT') }}</span>
+              <span class="text-sm text-n-slate-11">{{
+                t('AGENDA.FORM.END_AT')
+              }}</span>
               <input
                 v-model="form.end_at"
                 :type="form.all_day ? 'date' : 'datetime-local'"
@@ -254,30 +345,59 @@ onMounted(async () => {
 
           <div class="flex flex-col gap-2 pt-2 border-t border-n-weak">
             <label>
-              <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.RECURRENCE.LABEL') }}</span>
+              <span class="text-sm text-n-slate-11">{{
+                t('AGENDA.FORM.RECURRENCE.LABEL')
+              }}</span>
               <select v-model="form.recurrence_frequency" class="w-full">
-                <option value="single">{{ t('AGENDA.FORM.RECURRENCE.NONE') }}</option>
-                <option value="daily">{{ t('AGENDA.FORM.RECURRENCE.DAILY') }}</option>
-                <option value="weekly">{{ t('AGENDA.FORM.RECURRENCE.WEEKLY') }}</option>
-                <option value="monthly">{{ t('AGENDA.FORM.RECURRENCE.MONTHLY') }}</option>
-                <option value="yearly">{{ t('AGENDA.FORM.RECURRENCE.YEARLY') }}</option>
+                <option value="single">
+                  {{ t('AGENDA.FORM.RECURRENCE.NONE') }}
+                </option>
+                <option value="daily">
+                  {{ t('AGENDA.FORM.RECURRENCE.DAILY') }}
+                </option>
+                <option value="weekly">
+                  {{ t('AGENDA.FORM.RECURRENCE.WEEKLY') }}
+                </option>
+                <option value="monthly">
+                  {{ t('AGENDA.FORM.RECURRENCE.MONTHLY') }}
+                </option>
+                <option value="yearly">
+                  {{ t('AGENDA.FORM.RECURRENCE.YEARLY') }}
+                </option>
               </select>
             </label>
 
             <template v-if="form.recurrence_frequency !== 'single'">
               <label>
-                <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.RECURRENCE.INTERVAL') }}</span>
-                <input v-model.number="form.recurrence_interval" type="number" min="1" class="w-full" />
+                <span class="text-sm text-n-slate-11">{{
+                  t('AGENDA.FORM.RECURRENCE.INTERVAL')
+                }}</span>
+                <input
+                  v-model.number="form.recurrence_interval"
+                  type="number"
+                  min="1"
+                  class="w-full"
+                />
               </label>
 
               <div class="flex flex-col gap-1.5">
-                <span class="block text-sm text-n-slate-11">{{ t('AGENDA.FORM.RECURRENCE.ENDS') }}</span>
+                <span class="block text-sm text-n-slate-11">{{
+                  t('AGENDA.FORM.RECURRENCE.ENDS')
+                }}</span>
                 <label class="flex items-center gap-2 text-sm text-n-slate-12">
-                  <input v-model="form.recurrence_end_type" type="radio" value="never" />
+                  <input
+                    v-model="form.recurrence_end_type"
+                    type="radio"
+                    value="never"
+                  />
                   {{ t('AGENDA.FORM.RECURRENCE.NEVER') }}
                 </label>
                 <label class="flex items-center gap-2 text-sm text-n-slate-12">
-                  <input v-model="form.recurrence_end_type" type="radio" value="on_date" />
+                  <input
+                    v-model="form.recurrence_end_type"
+                    type="radio"
+                    value="on_date"
+                  />
                   {{ t('AGENDA.FORM.RECURRENCE.ON_DATE') }}
                   <input
                     v-model="form.recurrence_end_at"
@@ -287,7 +407,11 @@ onMounted(async () => {
                   />
                 </label>
                 <label class="flex items-center gap-2 text-sm text-n-slate-12">
-                  <input v-model="form.recurrence_end_type" type="radio" value="after_count" />
+                  <input
+                    v-model="form.recurrence_end_type"
+                    type="radio"
+                    value="after_count"
+                  />
                   {{ t('AGENDA.FORM.RECURRENCE.AFTER_COUNT') }}
                   <input
                     v-model.number="form.recurrence_count"
@@ -309,20 +433,39 @@ onMounted(async () => {
           />
 
           <label v-if="!form.all_day">
-            <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.REMINDER.LABEL') }}</span>
-            <select v-model.number="form.reminder_minutes_before" class="w-full">
-              <option :value="null">{{ t('AGENDA.FORM.REMINDER.NONE') }}</option>
-              <option :value="5">{{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 5 }) }}</option>
-              <option :value="10">{{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 10 }) }}</option>
-              <option :value="15">{{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 15 }) }}</option>
-              <option :value="30">{{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 30 }) }}</option>
+            <span class="text-sm text-n-slate-11">{{
+              t('AGENDA.FORM.REMINDER.LABEL')
+            }}</span>
+            <select
+              v-model.number="form.reminder_minutes_before"
+              class="w-full"
+            >
+              <option :value="null">
+                {{ t('AGENDA.FORM.REMINDER.NONE') }}
+              </option>
+              <option :value="5">
+                {{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 5 }) }}
+              </option>
+              <option :value="10">
+                {{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 10 }) }}
+              </option>
+              <option :value="15">
+                {{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 15 }) }}
+              </option>
+              <option :value="30">
+                {{ t('AGENDA.FORM.REMINDER.MINUTES', { n: 30 }) }}
+              </option>
               <option :value="60">{{ t('AGENDA.FORM.REMINDER.HOUR') }}</option>
-              <option :value="120">{{ t('AGENDA.FORM.REMINDER.HOURS', { n: 2 }) }}</option>
+              <option :value="120">
+                {{ t('AGENDA.FORM.REMINDER.HOURS', { n: 2 }) }}
+              </option>
             </select>
           </label>
 
           <label>
-            <span class="text-sm text-n-slate-11">{{ t('AGENDA.FORM.DESCRIPTION.LABEL') }}</span>
+            <span class="text-sm text-n-slate-11">{{
+              t('AGENDA.FORM.DESCRIPTION.LABEL')
+            }}</span>
             <textarea
               v-model="form.description"
               rows="3"
@@ -333,14 +476,20 @@ onMounted(async () => {
         </div>
 
         <div class="flex flex-col gap-4">
-          <div v-if="teamMembers(teamId).length">
+          <div v-if="form.team_id && teamMembers(form.team_id).length">
             <span class="block mb-1 text-sm text-n-slate-11">
-              {{ isTimeOff ? t('AGENDA.FORM.ATTENDEES_TIME_OFF_LABEL') : t('AGENDA.FORM.ATTENDEES') }}
+              {{
+                isTimeOff
+                  ? t('AGENDA.FORM.ATTENDEES_TIME_OFF_LABEL')
+                  : t('AGENDA.FORM.ATTENDEES')
+              }}
             </span>
-            <p class="mb-1.5 text-xs text-n-slate-10">{{ t('AGENDA.FORM.ATTENDEES_COLOR_HINT') }}</p>
+            <p class="mb-1.5 text-xs text-n-slate-10">
+              {{ t('AGENDA.FORM.ATTENDEES_COLOR_HINT') }}
+            </p>
             <div class="flex flex-wrap gap-2">
               <button
-                v-for="member in teamMembers(teamId)"
+                v-for="member in teamMembers(form.team_id)"
                 :key="member.id"
                 type="button"
                 class="flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full border text-sm transition-colors"
@@ -351,22 +500,37 @@ onMounted(async () => {
                 "
                 @click="toggleAttendee(member.id)"
               >
-                <span class="shrink-0 size-2 rounded-full" :style="{ backgroundColor: colorForAgent(member.id) }" />
-                <Avatar :name="member.name" :src="member.thumbnail || member.avatar_url" :size="20" rounded-full />
+                <span
+                  class="shrink-0 size-2 rounded-full"
+                  :style="{ backgroundColor: colorForAgent(member.id) }"
+                />
+                <Avatar
+                  :name="member.name"
+                  :src="member.thumbnail || member.avatar_url"
+                  :size="20"
+                  rounded-full
+                />
                 {{ member.name }}
               </button>
             </div>
-            <p v-if="attendeesError" class="mt-1 text-xs text-n-ruby-11">{{ attendeesError }}</p>
+            <p v-if="attendeesError" class="mt-1 text-xs text-n-ruby-11">
+              {{ attendeesError }}
+            </p>
           </div>
 
           <div v-if="!isTimeOff" class="flex flex-col flex-1 min-h-0">
-            <span class="block mb-1 text-sm text-n-slate-11">{{ t('AGENDA.FORM.TICKETS') }}</span>
+            <span class="block mb-1 text-sm text-n-slate-11">{{
+              t('AGENDA.FORM.TICKETS')
+            }}</span>
             <woot-input
               v-model="ticketSearchQuery"
               class="w-full"
               :placeholder="t('AGENDA.FORM.TICKETS_SEARCH_PLACEHOLDER')"
             />
-            <div v-if="filteredTickets.length" class="mt-2 max-h-56 overflow-y-auto flex flex-col gap-1">
+            <div
+              v-if="filteredTickets.length"
+              class="mt-2 max-h-56 overflow-y-auto flex flex-col gap-1"
+            >
               <label
                 v-for="ticket in filteredTickets"
                 :key="ticket.id"
@@ -378,16 +542,22 @@ onMounted(async () => {
                   :checked="form.ticket_ids.includes(ticket.id)"
                   @change="toggleTicket(ticket.id)"
                 />
-                <span class="truncate">#{{ ticket.display_id }} {{ ticket.title }}</span>
+                <span class="truncate"
+                  >#{{ ticket.display_id }} {{ ticket.title }}</span
+                >
               </label>
             </div>
-            <p v-else class="mt-2 text-sm text-n-slate-11">{{ t('AGENDA.FORM.NO_TICKETS') }}</p>
+            <p v-else class="mt-2 text-sm text-n-slate-11">
+              {{ t('AGENDA.FORM.NO_TICKETS') }}
+            </p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="flex items-center justify-between gap-2 px-8 py-4 border-t border-n-weak flex-shrink-0">
+    <div
+      class="flex items-center justify-between gap-2 px-8 py-4 border-t border-n-weak flex-shrink-0"
+    >
       <NextButton
         v-if="isEditing"
         color="ruby"
@@ -396,8 +566,17 @@ onMounted(async () => {
         @click="emit('delete', event)"
       />
       <div class="flex items-center gap-2 ml-auto">
-        <NextButton variant="ghost" color="slate" :label="t('AGENDA.FORM.CANCEL')" @click="emit('close')" />
-        <NextButton :is-loading="isSubmitting" :label="t('AGENDA.FORM.SAVE')" @click="handleSubmit" />
+        <NextButton
+          variant="ghost"
+          color="slate"
+          :label="t('AGENDA.FORM.CANCEL')"
+          @click="emit('close')"
+        />
+        <NextButton
+          :is-loading="isSubmitting"
+          :label="t('AGENDA.FORM.SAVE')"
+          @click="handleSubmit"
+        />
       </div>
     </div>
   </div>
