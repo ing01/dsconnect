@@ -21,6 +21,11 @@ class ClientNotificationsScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(clientNotificationsProvider.future),
         child: notificationsAsync.when(
+          // A lista se atualiza sozinha de tempos em tempos: sem isto cada
+          // atualizacao piscaria o indicador de carregamento no meio da leitura.
+          skipLoadingOnReload: true,
+          skipLoadingOnRefresh: true,
+          skipError: true,
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => ListView(
             children: const [SizedBox(height: 80), Center(child: Text('Não foi possível carregar.'))],

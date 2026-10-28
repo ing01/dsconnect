@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'mobile-notifications-tab-refresh-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'fix',
+    platform: 'mobile',
+    title: 'App: aba Notificações sempre atualizada',
+    description:
+      'Os avisos que chegavam no celular com o app fechado ou em segundo plano não apareciam na aba Notificações. Agora a lista se atualiza ao voltar para o app, ao entrar na aba e a cada 30 segundos, sem precisar puxar a tela. A bolinha vermelha do Chat também acende quando a mensagem chega pela conexão em tempo real, mesmo que o aviso demore.',
+  },
+  {
+    id: 'mobile-delete-account-hidden-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'improvement',
+    platform: 'mobile',
+    title: 'App: excluir conta mais protegido',
+    description:
+      'A opção "Excluir minha conta" saiu do menu de três pontinhos, onde ficava ao lado de "Sair". Agora ela está em "Minha conta", no fim da tela, e só libera depois de digitar EXCLUIR e a senha. Assim ninguém perde os dados por um toque sem querer.',
+  },
+  {
     id: 'mobile-biometric-switch-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',

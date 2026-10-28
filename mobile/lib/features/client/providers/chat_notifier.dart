@@ -51,7 +51,12 @@ class ClientChatNotifier extends AsyncNotifier<ChatState> {
     _cable = ActionCableClient()..connect(pubsubToken: pubsubToken);
     _cable!.events.listen((event) {
       final name = event['event'];
-      if (name == 'message.created' || name == ActionCableClient.restoredEvent) refresh();
+      if (name == 'message.created' || name == ActionCableClient.restoredEvent) {
+        refresh();
+        // A bolinha do Chat nao pode depender so do push: se ele atrasar ou nao
+        // vier, a mensagem que chegou por aqui ainda acende a bolinha.
+        ref.invalidate(clientNotificationsProvider);
+      }
     });
   }
 
