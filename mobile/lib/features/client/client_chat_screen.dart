@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,11 +20,43 @@ class ClientChatScreen extends ConsumerStatefulWidget {
   ConsumerState<ClientChatScreen> createState() => _ClientChatScreenState();
 }
 
-class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
+class _ClientChatScreenState extends ConsumerState<ClientChatScreen> with WidgetsBindingObserver {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
   final _recorder = AudioRecorder();
   bool _isRecording = false;
+  Timer? _pollTimer;
+
+  // Rede de seguranca: se o push e o WebSocket falharem os dois, o chat ainda
+  // se atualiza sozinho em poucos segundos. Roda so com o app em primeiro plano.
+  static const _pollInterval = Duration(seconds: 20);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _startPolling();
+  }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(_pollInterval, (_) {
+      if (_isRecording) return;
+      ref.read(clientChatProvider.notifier).refresh();
+    });
+  }
+
+  // Voltar do segundo plano - inclusive ao abrir o app pela notificacao - e
+  // o momento em que o chat mais costuma estar desatualizado.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _startPolling();
+      ref.read(clientChatProvider.notifier).resync();
+    } else {
+      _pollTimer?.cancel();
+    }
+  }
 
   // Marcar como "vista" ao abrir o chat fica a cargo de quem troca de aba
   // (ClientHomeShell) - esta tela e' montada uma unica vez pelo `IndexedStack`
@@ -31,6 +65,8 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pollTimer?.cancel();
     _controller.dispose();
     _scrollController.dispose();
     _recorder.dispose();

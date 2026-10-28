@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'mobile-biometric-switch-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'improvement',
+    platform: 'mobile',
+    title: 'App: interruptor de biometria no login',
+    description:
+      'Na tela de login do app, os dois botões de biometria deram lugar a um interruptor "Entrar com biometria". Ligado, o botão Entrar pede a biometria e entra (na primeira vez, use e-mail e senha para ativar). Desligado, o login pede e-mail e senha como antes. A escolha fica salva no aparelho.',
+  },
+  {
+    id: 'mobile-chat-always-updated-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'fix',
+    platform: 'mobile',
+    title: 'App: o chat sempre atualiza',
+    description:
+      'Ao abrir o chat pela notificação, ou ao voltar para o app, as mensagens novas agora aparecem na hora, sem precisar fechar e abrir o aplicativo. A conexão em tempo real também se refaz sozinha se cair, e o chat se atualiza periodicamente enquanto está aberto.',
+  },
+  {
     id: 'sidebar-unread-chat-counters-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',

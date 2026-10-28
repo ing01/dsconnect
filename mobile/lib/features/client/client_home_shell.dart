@@ -10,6 +10,7 @@ import '../../core/push/push_notification_service.dart';
 import 'client_chat_screen.dart';
 import 'client_notifications_screen.dart';
 import 'client_tickets_list_screen.dart';
+import 'providers/chat_notifier.dart';
 import 'providers/client_providers.dart';
 
 enum _AppBarAction { biometric, logout, deleteAccount }
@@ -136,6 +137,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
     // Com a aba do Chat aberta, o push de conversa nao e' mostrado (ver
     // `PushNotificationService.chatTabOpen`).
     _push.chatTabOpen = index == _chatTabIndex;
+    final chatAlreadyOpened = _visited.contains(_chatTabIndex);
     setState(() {
       _currentIndex = index;
       _visited.add(index);
@@ -144,6 +146,9 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
     // bolinha vermelha do icone.
     if (index == _chatTabIndex) {
       ref.read(dismissedNotificationsProvider.notifier).dismissChatNotifications();
+      // Voltar para a aba traz o que chegou enquanto estava em outra. Na primeira
+      // visita a tela acabou de montar e ja busca o historico sozinha.
+      if (chatAlreadyOpened) ref.read(clientChatProvider.notifier).resync();
     }
   }
 

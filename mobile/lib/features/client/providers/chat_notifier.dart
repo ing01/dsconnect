@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/auth/auth_providers.dart';
 import '../../../core/realtime/action_cable_client.dart';
+import '../models/chat_message.dart';
 import 'client_providers.dart';
 
 // O Chat do Portal com a equipe, com tempo real: ao abrir, busca o
@@ -11,14 +15,28 @@ import 'client_providers.dart';
 // mensagem a partir do payload do evento - mais simples e sempre bate com
 // o que a tela de detalhe/comunicacao ja mostra.
 //
+// O WebSocket sozinho nao basta: em segundo plano o sistema o derruba sem
+// avisar, e a mensagem que chega nesse intervalo nunca e entregue por ele.
+// Por isso o historico tambem e buscado quando o push chega com o app aberto,
+// quando o socket volta a conectar, quando o app volta do segundo plano e,
+// como rede de seguranca, de tempos em tempos (ver `ClientChatScreen`).
+//
 // `autoDispose`: a conexao WebSocket fecha sozinha quando a tela de chat
 // sai da arvore (ninguem mais observando este provider).
 class ClientChatNotifier extends AsyncNotifier<ChatState> {
   ActionCableClient? _cable;
+  StreamSubscription<void>? _pushSubscription;
 
   @override
   Future<ChatState> build() async {
-    ref.onDispose(() => _cable?.dispose());
+    ref.onDispose(() {
+      _pushSubscription?.cancel();
+      _cable?.dispose();
+    });
+
+    // Chegou push com o app aberto: a mensagem nova ja esta no servidor, mesmo
+    // que o socket nao a tenha entregue.
+    _pushSubscription = ref.read(pushNotificationServiceProvider).onMessageReceived.listen((_) => refresh());
 
     final session = await ref.read(clientRepositoryProvider).fetchChat();
     // Sem conversa ainda (primeiro acesso, antes de qualquer mensagem):
@@ -32,12 +50,30 @@ class ClientChatNotifier extends AsyncNotifier<ChatState> {
     _cable?.dispose();
     _cable = ActionCableClient()..connect(pubsubToken: pubsubToken);
     _cable!.events.listen((event) {
-      if (event['event'] == 'message.created') refresh();
+      final name = event['event'];
+      if (name == 'message.created' || name == ActionCableClient.restoredEvent) refresh();
     });
   }
 
+  // Ao voltar do segundo plano o socket pode estar morto sem ninguem saber:
+  // religa e busca o que chegou enquanto o app estava fora.
+  Future<void> resync() async {
+    _cable?.reconnect();
+    await refresh();
+  }
+
   Future<void> refresh() async {
-    final session = await ref.read(clientRepositoryProvider).fetchChat();
+    final ChatSession session;
+    try {
+      session = await ref.read(clientRepositoryProvider).fetchChat();
+    } catch (_) {
+      // Sem rede agora: mantem o que ja esta na tela. A proxima tentativa
+      // (push, socket religado, volta do app ou o relogio) busca de novo.
+      final current = state.value;
+      if (current != null && current.isSending) state = AsyncData(current.copyWith(isSending: false));
+      return;
+    }
+
     // A sessao de chat pode trocar de conversa (sessao anterior resolvida
     // vira uma nova, ou foi criada agora pelo primeiro envio) - se o
     // pubsub_token mudou (inclusive de null para um token real), reconecta.

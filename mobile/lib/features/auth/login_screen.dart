@@ -22,6 +22,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _isSubmitting = false;
   bool _obscurePassword = true;
   String? _errorMessage;
+  // O que a pessoa escolheu no interruptor nesta visita. Nulo = acompanha o que
+  // esta salvo no aparelho (ha credencial guardada = biometria ligada).
+  bool? _biometricChoice;
 
   @override
   void dispose() {
@@ -62,6 +65,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  // Ligado: se ja ha credencial guardada, o botao pede a biometria e entra, sem
+  // digitar nada; se e a primeira vez, entra com e-mail e senha e deixa a
+  // biometria ativada para as proximas. Desligado: e-mail e senha, como sempre.
+  Future<void> _enter(bool biometricOn, bool biometricSaved) {
+    if (biometricOn && biometricSaved) return _submitWithBiometrics();
+    return _submit(enableBiometric: biometricOn);
+  }
+
+  // Desligar apaga a credencial guardada: o aparelho volta a pedir e-mail e
+  // senha, e o app deixa de abrir trancado pela biometria.
+  Future<void> _toggleBiometric(bool value, bool biometricSaved) async {
+    setState(() {
+      _biometricChoice = value;
+      _errorMessage = null;
+    });
+    if (!value && biometricSaved) {
+      await ref.read(biometricLockProvider.notifier).disable();
+    }
+  }
+
   Future<void> _submitWithBiometrics() async {
     setState(() {
       _isSubmitting = true;
@@ -85,6 +108,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final biometricEnabled = ref.watch(biometricLockProvider).value?.enabled ?? false;
     final biometricAvailable = ref.watch(biometricAvailableProvider).value ?? false;
+    final biometricOn = _biometricChoice ?? biometricEnabled;
+    // Com a biometria ja guardada nao ha o que digitar: o botao entra direto.
+    final usesSavedBiometric = biometricOn && biometricEnabled;
 
     return Scaffold(
       body: SafeArea(
@@ -138,7 +164,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               prefixIcon: Icon(Icons.mail_outline),
                             ),
                             validator: (value) =>
-                                (value == null || value.trim().isEmpty) ? 'Informe o e-mail' : null,
+                                (!usesSavedBiometric && (value == null || value.trim().isEmpty)) ? 'Informe o e-mail' : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -160,8 +186,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                               ),
                             ),
-                            validator: (value) => (value == null || value.isEmpty) ? 'Informe a senha' : null,
-                            onFieldSubmitted: (_) => _submit(),
+                            validator: (value) => (!usesSavedBiometric && (value == null || value.isEmpty)) ? 'Informe a senha' : null,
+                            onFieldSubmitted: (_) => _enter(biometricOn, biometricEnabled),
                           ),
                           Align(
                             alignment: Alignment.centerRight,
@@ -180,9 +206,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               textAlign: TextAlign.center,
                             ),
                           ],
-                          const SizedBox(height: 24),
+                          if (biometricAvailable || biometricEnabled)
+                            SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              secondary: const Icon(Icons.fingerprint),
+                              title: const Text('Entrar com biometria'),
+                              value: biometricOn,
+                              onChanged: _isSubmitting ? null : (value) => _toggleBiometric(value, biometricEnabled),
+                            ),
+                          const SizedBox(height: 16),
                           GradientButton(
-                            onPressed: _isSubmitting ? null : _submit,
+                            onPressed: _isSubmitting ? null : () => _enter(biometricOn, biometricEnabled),
                             child: _isSubmitting
                                 ? const SizedBox(
                                     height: 20,
@@ -191,21 +225,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   )
                                 : const Text('Entrar'),
                           ),
-                          if (biometricEnabled) ...[
-                            const SizedBox(height: 12),
-                            OutlinedButton.icon(
-                              onPressed: _isSubmitting ? null : _submitWithBiometrics,
-                              icon: const Icon(Icons.fingerprint),
-                              label: const Text('Entrar com biometria'),
-                            ),
-                          ] else if (biometricAvailable) ...[
-                            const SizedBox(height: 12),
-                            OutlinedButton.icon(
-                              onPressed: _isSubmitting ? null : () => _submit(enableBiometric: true),
-                              icon: const Icon(Icons.fingerprint),
-                              label: const Text('Entrar e ativar biometria'),
-                            ),
-                          ],
                         ],
                       ),
                     ),
