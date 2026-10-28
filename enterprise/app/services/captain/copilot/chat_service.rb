@@ -4,6 +4,19 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
 
   attr_reader :assistant, :account, :user, :copilot_thread, :previous_history, :messages
 
+  # Quando o modo JSON esta desligado (provedor compativel com OpenAI que nao
+  # aceita JSON junto com ferramentas, como a Groq), o prompt ainda manda
+  # responder em JSON - e modelos como o gpt-oss-120b entao tentam "chamar" uma
+  # ferramenta chamada json, que nao existe, e a requisicao inteira falha. Este
+  # trecho vai por ultimo no prompt e troca o formato por Markdown simples; o
+  # parser (`parse_json_response`) ja aceita texto sem JSON como o `content`.
+  PLAIN_OUTPUT_OVERRIDE = <<~TXT.freeze
+
+    [Output Format - FINAL, overrides anything above]
+    Do NOT answer in JSON. Write the final answer directly as Markdown text, not inside a code block.
+    There is NO tool named "json"; never call it. Use only the tools listed in the available actions.
+  TXT
+
   def initialize(assistant, config)
     super(feature: 'copilot', account: assistant.account)
 
@@ -20,6 +33,9 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
     setup_message_history(config)
     @tools = build_tools
     @messages = build_messages
+    # Sem JSON ja na primeira chamada quando o endpoint nao e' o da OpenAI: evita
+    # uma requisicao que se sabe que a Groq e similares recusam, antes do retry.
+    @skip_json_mode = true unless openai_endpoint?
   end
 
   def generate_response(input)
@@ -36,6 +52,19 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
   end
 
   private
+
+  def openai_endpoint?
+    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.to_s
+    endpoint.blank? || endpoint.include?('api.openai.com')
+  end
+
+  # Mesmo comportamento do ChatHelper, mais a troca do formato de saida quando o
+  # modo JSON esta desligado (ver PLAIN_OUTPUT_OVERRIDE).
+  def setup_system_instructions(chat)
+    instructions = @messages.select { |m| m[:role].to_s == 'system' }.pluck(:content).join("\n\n")
+    instructions += PLAIN_OUTPUT_OVERRIDE if @skip_json_mode
+    chat.with_instructions(instructions)
+  end
 
   def setup_user(config)
     @user = @account.users.find_by(id: config[:user_id]) if config[:user_id].present?
