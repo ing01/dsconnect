@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/auth/biometric_lock.dart';
 import '../../core/auth/biometric_menu_item.dart';
+import '../../core/push/push_notification_service.dart';
 import 'client_chat_screen.dart';
 import 'client_notifications_screen.dart';
 import 'client_tickets_list_screen.dart';
@@ -37,21 +38,35 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
   // do colaborador só porque o cliente logou.
   final _visited = <int>{0};
   StreamSubscription<void>? _pushSubscription;
+  // Guardado aqui porque `ref` nao serve dentro do `dispose`.
+  late final PushNotificationService _push;
 
   @override
   void initState() {
     super.initState();
+    _push = ref.read(pushNotificationServiceProvider);
     // Chegou push com o app aberto - recarrega a lista pra bolinha do Chat
     // (e a aba Notificações) refletirem na hora, sem esperar o proximo
     // reload manual.
-    _pushSubscription = ref.read(pushNotificationServiceProvider).onMessageReceived.listen((_) {
+    _pushSubscription = _push.onMessageReceived.listen((_) async {
       ref.invalidate(clientNotificationsProvider);
+
+      // Dentro do Chat a mensagem ja esta na tela: a bolinha de "mensagem
+      // nova" nao deve acender (so a do ticket, que nao esta a vista).
+      if (_currentIndex != _chatTabIndex) return;
+      await ref.read(clientNotificationsProvider.future);
+      if (mounted && _currentIndex == _chatTabIndex) {
+        await ref.read(dismissedNotificationsProvider.notifier).dismissChatNotifications();
+      }
     });
   }
 
   @override
   void dispose() {
     _pushSubscription?.cancel();
+    // Sair desta tela (ex.: logout) nao pode deixar o aviso de conversa
+    // suprimido para o proximo login.
+    _push.chatTabOpen = false;
     super.dispose();
   }
 
@@ -118,6 +133,9 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> {
   }
 
   void _selectTab(int index) {
+    // Com a aba do Chat aberta, o push de conversa nao e' mostrado (ver
+    // `PushNotificationService.chatTabOpen`).
+    _push.chatTabOpen = index == _chatTabIndex;
     setState(() {
       _currentIndex = index;
       _visited.add(index);

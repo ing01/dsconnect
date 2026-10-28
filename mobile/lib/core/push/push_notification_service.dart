@@ -10,6 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../auth/auth_mode.dart';
 import '../auth/session.dart';
+import 'push_filter.dart';
 
 const _androidChannel = AndroidNotificationChannel(
   'default_channel',
@@ -46,6 +47,11 @@ class PushNotificationService {
   // e voltar da tela pra recarregar a lista de notificacoes.
   final _messageController = StreamController<void>.broadcast();
   Stream<void> get onMessageReceived => _messageController.stream;
+
+  // Ligado pela tela do cliente enquanto a aba do Chat esta aberta: nesse caso
+  // o aviso de CONVERSA nao e' mostrado (ela ja esta na tela), e o de ticket
+  // continua aparecendo (ver `shouldShowForegroundPush`).
+  bool chatTabOpen = false;
 
   Future<void> registerForSession(Session session) async {
     try {
@@ -87,6 +93,8 @@ class PushNotificationService {
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {
     _messageController.add(null);
+
+    if (!shouldShowForegroundPush(message.data, chatTabOpen: chatTabOpen)) return;
 
     final notification = message.notification;
     if (notification == null) return;
