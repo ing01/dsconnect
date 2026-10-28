@@ -108,7 +108,10 @@ describe('TicketActionsMenu', () => {
       expect(items).not.toContain('close');
     });
 
-    it('drops cancel once the ticket is already cancelled', async () => {
+    // Cancelar foi removido do menu (fluxo do sistema so' usa Fechar), mas um
+    // ticket que ja esta `cancelled` (dado legado, de antes dessa remocao)
+    // ainda precisa poder ser reaberto.
+    it('never offers cancel, but still offers reopen for a legacy cancelled ticket', async () => {
       const items = values(
         await open(mountMenu({ ticket: ticket({ status: 'cancelled' }) }))
       );
@@ -160,7 +163,7 @@ describe('TicketActionsMenu', () => {
     it('disables the mutating actions without permission', async () => {
       const wrapper = await open(mountMenu({ canUpdate: false }));
 
-      ['transfer', 'setParent', 'close', 'cancel'].forEach(value =>
+      ['transfer', 'setParent', 'close'].forEach(value =>
         expect(item(wrapper, value).attributes('data-disabled')).toBe('true')
       );
     });
@@ -188,10 +191,9 @@ describe('TicketActionsMenu', () => {
 
   // `action: 'delete'` is what DropdownMenu paints in ruby; without it the
   // destructive block reads like any other entry.
-  it('marks cancel and close as destructive', async () => {
+  it('marks close as destructive', async () => {
     const wrapper = await open(mountMenu());
 
-    expect(item(wrapper, 'cancel').attributes('data-action')).toBe('delete');
     expect(item(wrapper, 'close').attributes('data-action')).toBe('delete');
     expect(item(wrapper, 'transfer').attributes('data-action')).not.toBe(
       'delete'

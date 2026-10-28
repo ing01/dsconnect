@@ -13,9 +13,6 @@ const props = defineProps({
   // separately rather than inferring it from `canUpdate`.
   canAddSlaHours: { type: Boolean, default: false },
   currentUserId: { type: [Number, String], default: null },
-  // TicketPolicy#destroy? is administrator-only - a separate prop rather than
-  // folding into `canUpdate`, same reasoning as `canAddSlaHours`.
-  canDelete: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['action']);
@@ -142,15 +139,6 @@ const slaItems = computed(() =>
 const closingItems = computed(() => {
   const items = [];
 
-  if (props.ticket.status !== 'cancelled') {
-    items.push({
-      label: label('CANCEL'),
-      value: 'cancel',
-      action: 'delete',
-      icon: 'i-lucide-ban',
-      disabled: !props.canUpdate,
-    });
-  }
   if (props.ticket.status !== 'closed') {
     items.push({
       label: label('CLOSE'),
@@ -174,22 +162,6 @@ const closingItems = computed(() => {
   return items;
 });
 
-// Its own section, separate from `closingItems`: cancel/close/reopen are
-// reversible workflow states, deleting is permanent - blending them under one
-// divider would undersell how different the two are.
-const dangerItems = computed(() =>
-  props.canDelete
-    ? [
-        {
-          label: label('DELETE'),
-          value: 'delete',
-          action: 'delete',
-          icon: 'i-lucide-trash-2',
-        },
-      ]
-    : []
-);
-
 // Section titles are omitted on purpose: DropdownMenu already draws a divider
 // between sections, and four headings for ten entries makes the menu heavier
 // than the grouping is worth.
@@ -199,7 +171,6 @@ const menuSections = computed(() =>
     { items: operationItems.value },
     { items: slaItems.value },
     { items: closingItems.value },
-    { items: dangerItems.value },
   ].filter(section => section.items.length > 0)
 );
 

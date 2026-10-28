@@ -9,7 +9,6 @@ import {
 
 import ChatListHeader from './ChatListHeader.vue';
 import ConversationList from './ConversationList.vue';
-import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import ConversationFilter from 'next/filter/ConversationFilter.vue';
 import SaveCustomView from 'next/filter/SaveCustomView.vue';
 import ChatTypeTabs from './widgets/ChatTypeTabs.vue';
@@ -152,34 +151,61 @@ const hasAppliedFilters = computed(() => {
   return appliedFilters.value.length !== 0;
 });
 
+// `inboxesList` e' um getter Vuex que devolve um array NOVO a cada leitura -
+// ele recalcula (e dispara os computeds abaixo) toda vez que QUALQUER campo
+// de QUALQUER inbox muda, incluindo coisas sem nada a ver com a lista de
+// e-mails (status de presenca via websocket, por exemplo, que chega o tempo
+// todo). Guardamos so' os ids, numa string estavel, pra comparar por
+// conteudo em vez de referencia.
 const channelTypeInboxIds = computed(() => {
   if (!props.channelType) return [];
   return inboxesList.value
     .filter(ibx => ibx.channel_type === props.channelType)
     .map(ibx => ibx.id);
 });
+const channelTypeInboxIdsKey = computed(() =>
+  channelTypeInboxIds.value.join(',')
+);
 
 // Mesmo formato que filterQueryGenerator produz pra uma CustomView de
 // verdade (ver helper/filterQueryGenerator.js), so que montado na hora em
 // vez de vir salvo no banco - permite reaproveitar fetchSavedFilteredConversations
 // sem precisar criar uma Pasta real pra cada tipo de canal.
-const channelTypeFolder = computed(() => {
-  if (!props.channelType) return undefined;
-  return {
-    id: `channel-type-${props.channelType}`,
-    name: t(`CHAT_LIST.CHANNEL_TYPE_VIEWS.${props.channelType}`),
-    query: {
-      payload: [
-        {
-          attribute_key: 'inbox_id',
-          filter_operator: 'equal_to',
-          values: channelTypeInboxIds.value,
-          query_operator: undefined,
-        },
-      ],
-    },
-  };
-});
+//
+// Guardado numa ref (nao e' so' um computed comum) porque o watcher que le
+// isto (`watch(activeFolder, ...)` abaixo) refaz a busca toda vez que o
+// OBJETO muda de referencia - um computed que monta `{ ... }` de novo a
+// cada reavaliacao dispararia a busca de novo a cada reavaliacao tambem,
+// mesmo com o MESMO conteudo. Isso causava um loop de erro sem fim na aba
+// de E-mails: a lista de inboxes recalculava por qualquer motivo, o filtro
+// "mudava" (so' de referencia), a busca repetia, e se ela falhasse (ex.:
+// nenhuma inbox de e-mail ainda carregada, filtro com `values: []`) o aviso
+// de erro repetia junto, pra sempre.
+const channelTypeFolder = ref(undefined);
+watch(
+  [() => props.channelType, channelTypeInboxIdsKey],
+  ([type, idsKey]) => {
+    if (!type) {
+      channelTypeFolder.value = undefined;
+      return;
+    }
+    channelTypeFolder.value = {
+      id: `channel-type-${type}`,
+      name: t(`CHAT_LIST.CHANNEL_TYPE_VIEWS.${type}`),
+      query: {
+        payload: [
+          {
+            attribute_key: 'inbox_id',
+            filter_operator: 'equal_to',
+            values: idsKey ? idsKey.split(',').map(Number) : [],
+            query_operator: undefined,
+          },
+        ],
+      },
+    };
+  },
+  { immediate: true }
+);
 
 const activeFolder = computed(() => {
   if (channelTypeFolder.value) {
@@ -898,26 +924,6 @@ onMounted(() => {
   }
 });
 
-const deleteConversationDialogRef = ref(null);
-const selectedConversationId = ref(null);
-
-async function deleteConversation() {
-  try {
-    await store.dispatch('deleteConversation', selectedConversationId.value);
-    redirectToConversationList();
-    selectedConversationId.value = null;
-    deleteConversationDialogRef.value.close();
-    useAlert(t('CONVERSATION.SUCCESS_DELETE_CONVERSATION'));
-  } catch (error) {
-    useAlert(t('CONVERSATION.FAIL_DELETE_CONVERSATION'));
-  }
-}
-
-const handleDelete = conversationId => {
-  selectedConversationId.value = conversationId;
-  deleteConversationDialogRef.value.open();
-};
-
 provide('selectConversation', selectConversation);
 provide('deSelectConversation', deSelectConversation);
 provide('assignAgent', onAssignAgent);
@@ -929,7 +935,6 @@ provide('markAsUnread', markAsUnread);
 provide('markAsRead', markAsRead);
 provide('assignPriority', assignPriority);
 provide('isConversationSelected', isConversationSelected);
-provide('deleteConversation', handleDelete);
 
 watch(activeTeam, () => resetAndFetchData());
 
@@ -1063,19 +1068,6 @@ watch(conversationFilters, (newVal, oldVal) => {
       :show-assignee="showAssigneeInConversationCard"
       :is-on-expanded-layout="isOnExpandedLayout"
       @load-more="loadMoreConversations"
-    />
-    <Dialog
-      ref="deleteConversationDialogRef"
-      type="alert"
-      :title="
-        $t('CONVERSATION.DELETE_CONVERSATION.TITLE', {
-          conversationId: selectedConversationId,
-        })
-      "
-      :description="$t('CONVERSATION.DELETE_CONVERSATION.DESCRIPTION')"
-      :confirm-button-label="$t('CONVERSATION.DELETE_CONVERSATION.CONFIRM')"
-      @confirm="deleteConversation"
-      @close="selectedConversationId = null"
     />
     <TeleportWithDirection
       v-if="showAdvancedFilters"

@@ -33,7 +33,6 @@ const markAsUnread = inject('markAsUnread');
 const markAsRead = inject('markAsRead');
 const assignPriority = inject('assignPriority');
 const isConversationSelected = inject('isConversationSelected');
-const deleteConversation = inject('deleteConversation');
 
 // --- Context menu state (shared by both layouts) ---
 const showContextMenu = ref(false);
@@ -171,11 +170,6 @@ const onAssignPriority = priority => {
   assignPriority(priority, props.source.id);
   closeContextMenu();
 };
-
-const onDeleteConversation = () => {
-  deleteConversation(props.source.id);
-  closeContextMenu();
-};
 </script>
 
 <template>
@@ -237,7 +231,6 @@ const onDeleteConversation = () => {
       @mark-as-unread="onMarkAsUnread"
       @mark-as-read="onMarkAsRead"
       @assign-priority="onAssignPriority"
-      @delete-conversation="onDeleteConversation"
       @close="closeContextMenu"
     />
   </ContextMenu>
