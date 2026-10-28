@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'triage-stage-select-fix-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'fix',
+    platform: 'web',
+    title: 'Triagem: o campo Estágio voltou a listar as opções',
+    description:
+      'Ao encaminhar um ticket na Triagem, o campo Estágio mostrava "Nenhum resultado encontrado" mesmo com a Mesa escolhida. Agora os estágios e as categorias da Mesa aparecem normalmente.',
+  },
+  {
     id: 'client-ticket-moved-notification-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',

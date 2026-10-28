@@ -88,7 +88,21 @@ const escolherMesa = async teamId => {
   destino.value.teamId = teamId;
   destino.value.columnId = null;
   destino.value.categoryId = null;
-  if (teamId) await store.dispatch('ticketColumns/fetchBoard', teamId);
+  if (!teamId) return;
+
+  // As listas de Estágios e Categorias vêm de `fetchColumns`/`fetchCategories`
+  // (é o que os getters acima leem, e o que o formulário de criação usa).
+  // `fetchBoard` guarda outra coisa - o quadro do Kanban, com os tickets - e
+  // por isso deixava o seletor de Estágio sempre vazio ("Nenhum resultado
+  // encontrado").
+  try {
+    await Promise.all([
+      store.dispatch('ticketColumns/fetchColumns', teamId),
+      store.dispatch('ticketColumns/fetchCategories', teamId),
+    ]);
+  } catch (error) {
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.API.ERROR_MESSAGE'));
+  }
 };
 
 const abrirEncaminhamento = async ticket => {
