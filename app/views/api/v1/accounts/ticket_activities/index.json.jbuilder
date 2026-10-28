@@ -1,3 +1,4 @@
+labeler = Tickets::ActivityLabeler.new(@ticket_activities)
 json.array! @ticket_activities do |ticket_activity|
-  json.partial! 'api/v1/models/ticket_activity', formats: [:json], resource: ticket_activity
+  json.partial! 'api/v1/models/ticket_activity', formats: [:json], resource: ticket_activity, labeler: labeler
 end

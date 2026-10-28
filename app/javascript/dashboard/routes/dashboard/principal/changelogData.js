@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'sidebar-unread-chat-counters-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Contador de não lidas no menu lateral',
+    description:
+      'Conversas e Chat Interno agora mostram no menu lateral quantas mensagens ainda não foram vistas, igual às Notificações e à Triagem. O número aparece em qualquer tela e some quando você abre a conversa ou a sala.',
+  },
+  {
+    id: 'ticket-history-details-2026-10-28',
+    date: '28 de outubro de 2026',
+    isoDate: '2026-10-28',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Histórico do ticket mais completo',
+    description:
+      'Ao trocar o responsável (e Mesa, estágio, empresa, solicitante, categoria e prioridade), o Histórico agora mostra os nomes em vez de números. Também passaram a ser registrados data de entrega, agendamento, descrição, complexidade, responsáveis de nível 2 a 5, anexos, apontamentos, itens do checklist e conversas vinculadas, sempre com quem fez e o antes/depois. Transferências e a criação do ticket mostram cada campo em detalhe.',
+  },
+  {
     id: 'email-tab-error-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',

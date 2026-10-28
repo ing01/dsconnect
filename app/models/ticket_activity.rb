@@ -53,16 +53,34 @@ class TicketActivity < ApplicationRecord
     # e `imported` ja rodaram em producao e tem linhas com 30 e 31; a triagem so
     # existia em banco de desenvolvimento, onde o remanejamento e uma linha de
     # UPDATE.
-    triaged: 32
+    triaged: 32,
+    # Campos que ate aqui mudavam sem deixar rastro. Numeros novos no fim: o
+    # valor fica GRAVADO na linha, nunca se renumera o que ja existe.
+    due_date_changed: 33,
+    scheduled_at_changed: 34,
+    description_changed: 35,
+    complexity_changed: 36,
+    # Responsavel dos Niveis 2 a 5 (`meta.level`); o Nivel 1 e `assignee_changed`.
+    assignee_level_changed: 37,
+    attachment_added: 38,
+    attachment_removed: 39,
+    time_entry_added: 40,
+    time_entry_removed: 41,
+    checklist_item_completed: 42,
+    checklist_item_reopened: 43
   }
 
   def push_event_data
+    labels = Tickets::ActivityLabeler.new([self]).labels_for(self)
     {
       id: id,
       ticket_id: ticket_id,
       activity_type: activity_type,
       previous_value: previous_value,
       new_value: new_value,
+      previous_label: labels[:previous_label],
+      new_label: labels[:new_label],
+      details: labels[:details],
       meta: meta,
       user: user ? { id: user.id, name: user.name, email: user.email } : nil,
       created_at: created_at.to_i

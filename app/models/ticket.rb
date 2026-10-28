@@ -145,7 +145,15 @@ class Ticket < ApplicationRecord
     'ticket_column_id' => :column_changed,
     'priority' => :priority_changed,
     'assignee_id' => :assignee_changed,
-    'team_id' => :team_changed
+    'team_id' => :team_changed,
+    'due_date' => :due_date_changed,
+    'scheduled_at' => :scheduled_at_changed,
+    'description' => :description_changed,
+    'ticket_complexity_id' => :complexity_changed,
+    'assignee_2_id' => :assignee_level_changed,
+    'assignee_3_id' => :assignee_level_changed,
+    'assignee_4_id' => :assignee_level_changed,
+    'assignee_5_id' => :assignee_level_changed
   }.freeze
 
   # Moves the ticket to another column and/or position, re-indexing the
@@ -260,6 +268,16 @@ class Ticket < ApplicationRecord
     @created_by_user = ticket_activities.to_a.find { |activity| activity.activity_type == 'created' }&.user
   end
 
+  # Um so lugar para os registros auxiliares (anexo, apontamento, checklist,
+  # vinculo de conversa) escreverem no Historico. `details` e o que a pessoa le
+  # no "Informacoes" da entrada ({ rotulo => valor }).
+  def log_activity!(activity_type, details: {}, user: Current.user, **attributes)
+    ticket_activities.create!(
+      account_id: account_id, user: user, activity_type: activity_type,
+      meta: details.present? ? { details: details } : {}, **attributes
+    )
+  end
+
   private
 
   # Roda em TODO caminho que cria um ticket (criacao normal, ticket filho,
@@ -345,9 +363,28 @@ class Ticket < ApplicationRecord
         account_id: account_id,
         user: Current.user,
         activity_type: activity_type,
-        previous_value: previous_value&.to_s,
-        new_value: new_value&.to_s
+        previous_value: activity_value(attribute, previous_value),
+        new_value: activity_value(attribute, new_value),
+        meta: change_meta(attribute)
       )
     end
+  end
+
+  # Datas vao em ISO 8601 (o Historico formata na leitura) e a descricao e
+  # cortada: o texto inteiro mora no ticket, e a auditoria so precisa mostrar o
+  # que mudou sem despejar um documento na linha do tempo.
+  def activity_value(attribute, value)
+    return nil if value.nil?
+    return value.iso8601 if value.respond_to?(:iso8601)
+    return value.to_s.truncate(500) if attribute == 'description'
+
+    value.to_s
+  end
+
+  # O nivel do responsavel (2 a 5) vai na atividade, para o Historico dizer em
+  # qual nivel a pessoa entrou ou saiu.
+  def change_meta(attribute)
+    level = attribute[/\Aassignee_(\d)_id\z/, 1]
+    level ? { level: level.to_i } : {}
   end
 end

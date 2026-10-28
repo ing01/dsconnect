@@ -10,8 +10,17 @@ class TicketConversation < ApplicationRecord
 
   after_create_commit :dispatch_conversation_updated_event
   after_destroy_commit :dispatch_conversation_updated_event
+  after_create_commit { log_activity(:conversation_linked) }
+  after_destroy_commit { log_activity(:conversation_unlinked) unless destroyed_by_association }
 
   private
+
+  def log_activity(type)
+    ticket.log_activity!(
+      type, new_value: "##{conversation.display_id}",
+      details: { 'Conversa' => "##{conversation.display_id}", 'Caixa de entrada' => conversation.inbox&.name }.compact
+    )
+  end
 
   def ensure_account_id
     self.account_id ||= ticket&.account_id

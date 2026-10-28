@@ -39,7 +39,21 @@ RSpec.describe TicketActivity do
         customer_communication_sent: 26,
         category_changed: 27,
         blocked: 28,
-        unblocked: 29
+        unblocked: 29,
+        automation_note: 30,
+        imported: 31,
+        triaged: 32,
+        due_date_changed: 33,
+        scheduled_at_changed: 34,
+        description_changed: 35,
+        complexity_changed: 36,
+        assignee_level_changed: 37,
+        attachment_added: 38,
+        attachment_removed: 39,
+        time_entry_added: 40,
+        time_entry_removed: 41,
+        checklist_item_completed: 42,
+        checklist_item_reopened: 43
       )
     }
   end

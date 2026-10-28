@@ -29,6 +29,34 @@ const ACTIVITY_ICONS = {
   unblocked: 'i-lucide-play',
   automation_note: 'i-lucide-zap',
   imported: 'i-lucide-file-input',
+  transferred: 'i-lucide-arrow-right-left',
+  due_date_changed: 'i-lucide-calendar-clock',
+  scheduled_at_changed: 'i-lucide-calendar',
+  description_changed: 'i-lucide-text',
+  complexity_changed: 'i-lucide-gauge',
+  assignee_level_changed: 'i-lucide-user-cog',
+  attachment_added: 'i-lucide-paperclip',
+  attachment_removed: 'i-lucide-paperclip',
+  time_entry_added: 'i-lucide-timer',
+  time_entry_removed: 'i-lucide-timer-off',
+  checklist_item_completed: 'i-lucide-list-checks',
+  checklist_item_reopened: 'i-lucide-list-todo',
+  classified: 'i-lucide-tags',
+  customer_communication_sent: 'i-lucide-mail',
+  sla_hours_added: 'i-lucide-clock-plus',
+  cancelled: 'i-lucide-ban',
+  category_changed: 'i-lucide-folder',
+  title_changed: 'i-lucide-type',
+  company_changed: 'i-lucide-building-2',
+  contact_changed: 'i-lucide-user-round',
+  parent_changed: 'i-lucide-corner-left-up',
+  child_created: 'i-lucide-git-branch-plus',
+  merged_ticket: 'i-lucide-combine',
+  merged_into: 'i-lucide-combine',
+  duplicated: 'i-lucide-copy',
+  follower_added: 'i-lucide-user-plus',
+  follower_removed: 'i-lucide-user-minus',
+  triaged: 'i-lucide-filter',
 };
 
 // `te` diz se a chave existe. Sem ele, `t` de uma chave ausente devolve o
@@ -90,8 +118,16 @@ const campo = activity => {
   return te(alvo) ? t(alvo) : '';
 };
 
+// O valor bruto e um id ou nome interno; `*_label` e o que a pessoa le (nome do
+// agente, da Mesa, do Estagio...). Sem rotulo - registro apagado, atividade
+// antiga de um tipo nao mapeado - cai no valor gravado.
+const antes = activity => activity.previous_label || activity.previous_value;
+const depois = activity => activity.new_label || activity.new_value;
+
+const detalhes = activity => activity.details || [];
+
 const temValores = activity =>
-  Boolean(activity.previous_value || activity.new_value);
+  !detalhes(activity).length && Boolean(antes(activity) || depois(activity));
 
 const vazio = () => t('TICKET.ACTIVITY.EMPTY_VALUE');
 
@@ -242,21 +278,45 @@ onMounted(() => store.dispatch('tickets/fetchActivities', props.ticketId));
                   <span v-if="campo(activity)" class="font-medium">
                     {{ campo(activity) }}:
                   </span>
-                  <s v-if="activity.previous_value" class="text-n-slate-10">
-                    {{ activity.previous_value }}
+                  <s v-if="antes(activity)" class="text-n-slate-10">
+                    {{ antes(activity) }}
                   </s>
                   <Icon
-                    v-if="activity.previous_value && activity.new_value"
+                    v-if="antes(activity) && depois(activity)"
                     icon="i-lucide-arrow-right"
                     class="inline-block mx-1 align-middle size-3.5 text-n-slate-10 rtl:rotate-180"
                   />
-                  <span v-if="activity.new_value">
-                    {{ activity.new_value }}
+                  <span v-if="depois(activity)">
+                    {{ depois(activity) }}
                   </span>
-                  <span v-else-if="!activity.previous_value">
+                  <span v-else-if="!antes(activity)">
                     {{ vazio() }}
                   </span>
                 </p>
+
+                <!-- Transferencia e criacao carregam varios campos de uma vez:
+                     cada linha mostra o que era e o que passou a ser. -->
+                <ul
+                  v-if="detalhes(activity).length"
+                  class="flex flex-col gap-1 m-0 p-0 list-none"
+                >
+                  <li
+                    v-for="(linha, indice) in detalhes(activity)"
+                    :key="indice"
+                    class="text-sm break-words text-n-slate-12"
+                  >
+                    <span class="font-medium">{{ linha.label }}:</span>
+                    <s v-if="linha.previous" class="text-n-slate-10">
+                      {{ linha.previous }}
+                    </s>
+                    <Icon
+                      v-if="linha.previous && linha.new"
+                      icon="i-lucide-arrow-right"
+                      class="inline-block mx-1 align-middle size-3.5 text-n-slate-10 rtl:rotate-180"
+                    />
+                    <span>{{ linha.new || vazio() }}</span>
+                  </li>
+                </ul>
 
                 <p class="m-0 text-sm text-n-slate-11">
                   <span class="font-medium text-n-slate-12">

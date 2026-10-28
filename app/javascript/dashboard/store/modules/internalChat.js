@@ -144,7 +144,14 @@ export const actions = {
     { channelId, message }
   ) => {
     const room = _state.rooms.find(item => item.id === channelId);
-    if (!room) return;
+    if (!room) {
+      // Sala que esta pessoa ainda nao conhecia (acabou de ser criada ou de
+      // incluir ela): busca a lista, que ja traz o nao lido contado no servidor.
+      if (message.userId !== _state.currentUserId) {
+        dispatch('fetchRooms').catch(() => {});
+      }
+      return;
+    }
 
     const isKnown = room.messages.some(item => item.id === message.id);
     if (isKnown) {

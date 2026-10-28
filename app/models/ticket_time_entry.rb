@@ -13,10 +13,23 @@ class TicketTimeEntry < ApplicationRecord
 
   before_validation :set_defaults, on: :create
 
+  after_create_commit { log_activity(:time_entry_added) }
+  after_destroy_commit { log_activity(:time_entry_removed) unless destroyed_by_association }
+
   scope :ordered, -> { order(worked_on: :desc, id: :desc) }
   scope :for_level, ->(level) { where(level: level) }
 
   private
+
+  def log_activity(type)
+    ticket.log_activity!(
+      type, user: Current.user || user, new_value: "#{hours}h",
+      details: {
+        'Categoria' => category, 'Horas' => hours.to_s, 'Data' => worked_on&.strftime('%d/%m/%Y'),
+        'Apontado por' => user&.name, 'Nível' => level&.to_s, 'Observação' => note.presence
+      }.compact
+    )
+  end
 
   def set_defaults
     self.worked_on ||= Time.zone.today

@@ -242,6 +242,11 @@ onMounted(() => {
   store.dispatch('inboxes/get');
   store.dispatch('notifications/unReadCount');
   store.dispatch('tickets/fetchTriageCount');
+  // As salas do Chat Interno precisam estar carregadas para o contador do menu
+  // existir fora da tela do Chat - antes elas so eram buscadas ao abri-la, e
+  // enquanto isso o contador ficava em zero e as mensagens novas eram ignoradas.
+  store.dispatch('internalChat/setDirectory');
+  store.dispatch('internalChat/fetchRooms').catch(() => {});
   store.dispatch('teams/get');
   store.dispatch('queues/get');
   store.dispatch('attributes/get');
@@ -348,6 +353,11 @@ const menuItems = computed(() => {
       name: 'Conversation',
       label: t('SIDEBAR.CONVERSATIONS'),
       icon: 'i-lucide-message-circle',
+      // O total de nao lidas fica no proprio item, com o grupo fechado: quem so
+      // olha o menu lateral ve que chegou mensagem sem abrir a lista.
+      getterKeys: {
+        count: 'conversationUnreadCounts/getAllUnreadCount',
+      },
       children: [
         {
           name: 'All',

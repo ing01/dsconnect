@@ -15,6 +15,10 @@ class TicketChecklistItem < ApplicationRecord
   before_validation :set_default_position, on: :create
   before_save :sync_completed_from_value, unless: :checkbox?
 
+  # So a conclusao e a reabertura contam: editar o texto ou reordenar nao muda o
+  # andamento do ticket.
+  after_update_commit :log_completion_activity, if: :saved_change_to_completed?
+
   scope :ordered, -> { order(:position, :id) }
 
   def checkbox?
@@ -30,6 +34,14 @@ class TicketChecklistItem < ApplicationRecord
   end
 
   private
+
+  def log_completion_activity
+    ticket.log_activity!(
+      completed? ? :checklist_item_completed : :checklist_item_reopened,
+      user: completed_by || Current.user, new_value: title,
+      details: { 'Item' => title, 'Resposta' => (value.presence unless checkbox?) }.compact
+    )
+  end
 
   def sync_completed_from_value
     was_completed = completed?
