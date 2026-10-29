@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-back-to-origin-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'fix',
+    platform: 'web',
+    title: 'Ticket: "Voltar" retorna para a tela de onde você veio',
+    description:
+      'Ao abrir um ticket pelo Backlog / Sprint ativo (ou pela Triagem) e clicar em "Voltar para tickets", você volta para essa mesma tela, com os filtros que estavam aplicados, em vez de cair sempre no Kanban.',
+  },
+  {
     id: 'duebot-conversations-2026-10-29',
     date: '29 de outubro de 2026',
     isoDate: '2026-10-29',

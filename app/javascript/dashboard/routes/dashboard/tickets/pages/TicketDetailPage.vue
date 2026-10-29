@@ -7,6 +7,7 @@ import { frontendURL } from 'dashboard/helper/URLHelper';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import { useTicketDetail } from '../composables/useTicketDetail';
+import { lastTicketListFor } from '../helpers/lastTicketList';
 import TicketDetailHeader from '../components/detail/TicketDetailHeader.vue';
 import TicketOverviewTab from '../components/detail/TicketOverviewTab.vue';
 import TicketCommunicationTab from '../components/detail/TicketCommunicationTab.vue';
@@ -164,8 +165,13 @@ const onTabChange = tab => {
   activeTab.value = tab.value;
 };
 
+// Volta para a lista de onde o ticket foi aberto (Kanban, Backlog/Sprint ativo
+// ou Triagem); sem histórico - link de notificação, F5 - cai no Kanban.
 const goBack = () => {
-  router.push(frontendURL(`accounts/${route.params.accountId}/tickets`));
+  router.push(
+    lastTicketListFor(route.params.accountId) ||
+      frontendURL(`accounts/${route.params.accountId}/tickets`)
+  );
 };
 
 const saveDescription = async description => {

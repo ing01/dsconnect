@@ -1,5 +1,15 @@
 <script setup>
+import { watch } from 'vue';
+import { useRoute } from 'vue-router';
 import TicketWorkspaceTabs from '../components/workspace/TicketWorkspaceTabs.vue';
+import { rememberTicketList } from '../helpers/lastTicketList';
+
+// Guarda a última lista aberta (Kanban, Backlog/Sprint ou Triagem) para o
+// "Voltar" do ticket saber para onde ir.
+const route = useRoute();
+watch(() => route.fullPath, () => rememberTicketList(route), {
+  immediate: true,
+});
 </script>
 
 <template>
