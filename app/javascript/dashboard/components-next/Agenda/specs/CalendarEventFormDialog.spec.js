@@ -62,7 +62,7 @@ const montar = (props = {}) =>
     },
   });
 
-const frequencySelect = wrapper => wrapper.find('select');
+const frequencySelect = wrapper => wrapper.findAll('select')[1];
 const radios = wrapper => wrapper.findAll('input[type="radio"]');
 const salvar = wrapper =>
   wrapper.findAll('button').find(b => b.text() === 'AGENDA.FORM.SAVE');
@@ -190,13 +190,17 @@ describe('CalendarEventFormDialog agenda (time) obrigatoria', () => {
     expect(wrapper.emitted('submit')[0][0].team_id).toBe(2);
   });
 
-  it('ao editar, nao mostra o seletor e mantem o time', async () => {
+  it('ao editar, mostra a agenda atual e permite trocar', async () => {
     const wrapper = montar({ teamId: 1 });
 
-    expect(wrapper.text()).not.toContain('AGENDA.FORM.TEAM.LABEL');
+    expect(teamSelect(wrapper).element.value).toBe('1');
     await salvar(wrapper).trigger('click');
-
     expect(wrapper.emitted('submit')[0][0].team_id).toBe(1);
+
+    const outro = montar({ teamId: 1 });
+    await teamSelect(outro).setValue(2);
+    await salvar(outro).trigger('click');
+    expect(outro.emitted('submit')[0][0].team_id).toBe(2);
   });
 
   it('criar de dentro de um ticket mantem o time do ticket, sem seletor', () => {

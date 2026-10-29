@@ -34,13 +34,21 @@ export const mutations = {
   },
 
   [EDIT_CALENDAR_EVENT]($state, event) {
+    // Trocou de agenda: tira o compromisso da lista do time antigo.
+    $state.records = Object.fromEntries(
+      Object.entries($state.records).map(([teamId, records]) => [
+        teamId,
+        Number(teamId) === event.team_id
+          ? records
+          : records.filter(record => record.id !== event.id),
+      ])
+    );
     const existing = $state.records[event.team_id] || [];
     const index = existing.findIndex(record => record.id === event.id);
-    const updated = index === -1 ? [...existing, event] : [
-      ...existing.slice(0, index),
-      event,
-      ...existing.slice(index + 1),
-    ];
+    const updated =
+      index === -1
+        ? [...existing, event]
+        : [...existing.slice(0, index), event, ...existing.slice(index + 1)];
     $state.records = {
       ...$state.records,
       [event.team_id]: updated,
