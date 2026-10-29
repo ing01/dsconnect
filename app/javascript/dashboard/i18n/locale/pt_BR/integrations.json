@@ -495,6 +495,11 @@
         "FOUR": "Só mais um instante"
       },
       "HISTORY": {
+        "DELETE": "Excluir esta conversa",
+        "DELETE_CONFIRM": "Excluir esta conversa do histórico?",
+        "DELETE_YES": "Excluir",
+        "DELETE_NO": "Cancelar",
+        "DELETE_ERROR": "Não foi possível excluir a conversa.",
         "ORIGIN_CONVERSATION": "Chat aberto na conversa #{id}",
         "ORIGIN_TICKET": "Chat aberto no ticket #{id}",
         "TITLE": "Histórico de conversas",

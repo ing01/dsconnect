@@ -68,6 +68,7 @@ const emit = defineEmits([
   'toggleHistory',
   'selectThread',
   'loadMoreHistory',
+  'deleteThread',
 ]);
 
 const { t } = useI18n();
@@ -175,6 +176,7 @@ watch(
           :can-load-more="canLoadMoreHistory"
           @select="$event => emit('selectThread', $event)"
           @load-more="emit('loadMoreHistory')"
+          @delete="$event => emit('deleteThread', $event)"
         />
       </div>
       <div

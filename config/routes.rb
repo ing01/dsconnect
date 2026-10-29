@@ -173,7 +173,7 @@ Rails.application.routes.draw do
             end
             resources :message_reports, only: [:create]
             resources :bulk_actions, only: [:create]
-            resources :copilot_threads, only: [:index, :create] do
+            resources :copilot_threads, only: [:index, :create, :destroy] do
               resources :copilot_messages, only: [:index, :create]
             end
             resources :custom_tools do

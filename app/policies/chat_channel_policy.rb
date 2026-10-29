@@ -30,11 +30,12 @@ class ChatChannelPolicy < ApplicationPolicy
   end
 
   # Excluir o canal e mexer em quem participa dele e' coisa de quem o criou ou
-  # de um Administrador - nao de qualquer membro. Uma conversa privada (`direct`)
-  # nunca passa por aqui: nao tem essas acoes na tela, e o controller sempre
-  # busca via `for_user`/`visible_to_admin`, entao so' chegaria um `record` de
-  # canal mesmo.
+  # de um Administrador - nao de qualquer membro. Ja a conversa privada
+  # (`direct`) pode ser excluida por quem participa dela (ela some para os
+  # dois): e' o caso de quem abriu com a pessoa errada ou quer limpar a lista.
   def destroy?
+    return direct_participant? if record.is_a?(ChatChannel) && record.direct?
+
     channel_manager?
   end
 
@@ -47,6 +48,10 @@ class ChatChannelPolicy < ApplicationPolicy
   end
 
   private
+
+  def direct_participant?
+    record.chat_channel_members.exists?(user_id: user.id)
+  end
 
   def channel_manager?
     return false unless record.is_a?(ChatChannel) && record.channel?

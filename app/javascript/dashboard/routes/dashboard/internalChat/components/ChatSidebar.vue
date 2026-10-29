@@ -21,6 +21,7 @@ const emit = defineEmits([
   'newConversation',
   'createChannel',
   'editChannel',
+  'deleteRoom',
 ]);
 
 const { t } = useI18n();
@@ -31,16 +32,31 @@ const query = ref('');
 // ali, e nao num canto fixo da tela.
 const contextMenu = ref(null);
 
-const openContextMenu = (event, channel) => {
-  if (!props.canEdit) return;
+// Canal: editar e excluir sao do administrador. Conversa privada: quem participa
+// pode excluir (some para os dois).
+const canDeleteRoom = room => (room.userId ? true : props.canEdit);
 
-  contextMenu.value = { channel, x: event.clientX, y: event.clientY };
+const openContextMenu = (event, room) => {
+  if (!room.userId && !props.canEdit) return;
+
+  contextMenu.value = {
+    channel: room,
+    isDirect: Boolean(room.userId),
+    x: event.clientX,
+    y: event.clientY,
+  };
 };
 
 const editFromContextMenu = () => {
   const channel = contextMenu.value?.channel;
   contextMenu.value = null;
   if (channel) emit('editChannel', channel);
+};
+
+const deleteFromContextMenu = () => {
+  const room = contextMenu.value?.channel;
+  contextMenu.value = null;
+  if (room && canDeleteRoom(room)) emit('deleteRoom', room);
 };
 
 const userFor = userId => props.users.find(user => user.id === userId);
@@ -138,6 +154,7 @@ const visibleChannels = computed(() =>
               : 'hover:bg-n-alpha-1'
           "
           @click="emit('select', direct.id)"
+          @contextmenu.prevent="openContextMenu($event, direct)"
         >
           <span class="relative flex-shrink-0">
             <Avatar
@@ -251,12 +268,25 @@ const visibleChannels = computed(() =>
         :style="{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }"
       >
         <button
+          v-if="!contextMenu.isDirect"
           type="button"
           class="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-start text-n-slate-12 hover:bg-n-alpha-1"
           @click="editFromContextMenu"
         >
           <Icon icon="i-lucide-settings-2" class="size-4" />
           {{ t('INTERNAL_CHAT.SIDEBAR.EDIT_CHANNEL') }}
+        </button>
+        <button
+          type="button"
+          class="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-start text-n-ruby-11 hover:bg-n-alpha-1"
+          @click="deleteFromContextMenu"
+        >
+          <Icon icon="i-lucide-trash-2" class="size-4" />
+          {{
+            contextMenu.isDirect
+              ? t('INTERNAL_CHAT.SIDEBAR.DELETE_CONVERSATION')
+              : t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL')
+          }}
         </button>
       </div>
     </OnClickOutside>

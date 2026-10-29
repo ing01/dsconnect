@@ -248,6 +248,31 @@ RSpec.describe 'Chat channels API', type: :request do
       expect(channel.reload.pinned).to be(false)
     end
 
+    it 'lets a participant delete a conversation between two people, messages included' do
+      conversa = create(:chat_direct, account: account)
+      entrar(conversa, agent)
+      create(:chat_message, chat_channel: conversa, user: agent, content: 'oi')
+
+      expect do
+        delete "/api/v1/accounts/#{account.id}/chat_channels/#{conversa.id}",
+               headers: agent.create_new_auth_token, as: :json
+      end.to change(ChatChannel, :count).by(-1).and change(ChatMessage, :count).by(-1)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'does not let someone outside the conversation delete it' do
+      conversa = create(:chat_direct, account: account)
+      entrar(conversa, administrator)
+
+      expect do
+        delete "/api/v1/accounts/#{account.id}/chat_channels/#{conversa.id}",
+               headers: agent.create_new_auth_token, as: :json
+      end.not_to change(ChatChannel, :count)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
     it 'refuses to touch a conversation between two people' do
       conversa = create(:chat_direct, account: account)
       entrar(conversa, administrator)

@@ -239,25 +239,45 @@ const togglePin = messageId =>
     messageId,
   });
 
-const askDeleteChannel = () => {
-  if (!activeRoom.value) return;
+// A sala que espera confirmacao de exclusao: o canal/conversa aberto (menu do
+// cabecalho) ou o que recebeu o botao direito na lista, aberto ou nao.
+const pendingDeleteRoom = ref(null);
+const isDeletingDirect = computed(() =>
+  Boolean(pendingDeleteRoom.value?.userId)
+);
 
+const askDeleteRoom = room => {
+  if (!room) return;
+
+  pendingDeleteRoom.value = room;
   deleteChannelDialog.value?.open();
 };
 
+const askDeleteChannel = () => askDeleteRoom(activeRoom.value);
+
 const deleteChannel = async () => {
-  const room = activeRoom.value;
+  const room = pendingDeleteRoom.value;
+  pendingDeleteRoom.value = null;
   // Fecha antes de esperar a rede, como o dialogo da mensagem.
   deleteChannelDialog.value?.close();
   if (!room) return;
 
   try {
     await store.dispatch('internalChat/deleteChannel', room.id);
+    // Se nao era a sala aberta, a pessoa continua onde estava.
+    if (activeRoomId.value !== room.id) return;
+
     activeRoomId.value = '';
     const next = directs.value[0]?.id || channels.value[0]?.id;
     if (next) await openRoom(next);
   } catch (error) {
-    useAlert(t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL_ERROR'));
+    useAlert(
+      t(
+        room.userId
+          ? 'INTERNAL_CHAT.SIDEBAR.DELETE_CONVERSATION_ERROR'
+          : 'INTERNAL_CHAT.HEADER.DELETE_CHANNEL_ERROR'
+      )
+    );
   }
 };
 
@@ -338,6 +358,7 @@ const unreadDividerIndex = computed(() => {
         @new-conversation="newConversationDialog?.open()"
         @create-channel="createChannelDialog?.open()"
         @edit-channel="channel => editChannelDialog?.open(channel)"
+        @delete-room="askDeleteRoom"
       />
     </div>
 
@@ -520,9 +541,21 @@ const unreadDividerIndex = computed(() => {
       ref="deleteChannelDialog"
       type="alert"
       width="sm"
-      :title="t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL')"
-      :description="t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL_CONFIRM')"
-      :confirm-button-label="t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL')"
+      :title="
+        isDeletingDirect
+          ? t('INTERNAL_CHAT.SIDEBAR.DELETE_CONVERSATION')
+          : t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL')
+      "
+      :description="
+        isDeletingDirect
+          ? t('INTERNAL_CHAT.SIDEBAR.DELETE_CONVERSATION_CONFIRM')
+          : t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL_CONFIRM')
+      "
+      :confirm-button-label="
+        isDeletingDirect
+          ? t('INTERNAL_CHAT.SIDEBAR.DELETE_CONVERSATION')
+          : t('INTERNAL_CHAT.HEADER.DELETE_CHANNEL')
+      "
       @confirm="deleteChannel"
     />
 

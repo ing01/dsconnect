@@ -10,6 +10,9 @@
       "PINNED": "Canal fixo",
       "READ_ONLY": "Somente leitura para você",
       "ATTACHMENT_PREVIEW": "Enviou um anexo",
+      "DELETE_CONVERSATION": "Delete conversation",
+      "DELETE_CONVERSATION_CONFIRM": "Delete this conversation? All messages are removed for both people and this cannot be undone.",
+      "DELETE_CONVERSATION_ERROR": "Could not delete the conversation.",
       "EDIT_CHANNEL": "Editar canal"
     },
     "HEADER": {

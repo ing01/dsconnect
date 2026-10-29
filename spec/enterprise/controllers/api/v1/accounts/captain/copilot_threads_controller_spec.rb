@@ -222,4 +222,36 @@ RSpec.describe 'Api::V1::Accounts::Captain::CopilotThreads', type: :request do
       expect(json_response[:conversation_display_id]).to be_nil
     end
   end
+
+  describe 'DELETE /api/v1/accounts/{account.id}/captain/copilot_threads/{id}' do
+    it 'requires authentication' do
+      thread = create(:captain_copilot_thread, account: account, user: agent)
+
+      delete "/api/v1/accounts/#{account.id}/captain/copilot_threads/#{thread.id}", as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it 'deletes the thread of the current user' do
+      thread = create(:captain_copilot_thread, account: account, user: agent)
+
+      expect do
+        delete "/api/v1/accounts/#{account.id}/captain/copilot_threads/#{thread.id}",
+               headers: agent.create_new_auth_token, as: :json
+      end.to change(CopilotThread, :count).by(-1)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'does not delete the thread of another user' do
+      thread = create(:captain_copilot_thread, account: account, user: admin)
+
+      expect do
+        delete "/api/v1/accounts/#{account.id}/captain/copilot_threads/#{thread.id}",
+               headers: agent.create_new_auth_token, as: :json
+      end.not_to change(CopilotThread, :count)
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 end

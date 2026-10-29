@@ -1,6 +1,7 @@
 import { nextTick, ref } from 'vue';
 import { flushPromises, shallowMount } from '@vue/test-utils';
 import CopilotContainer from './CopilotContainer.vue';
+import CopilotThreadsAPI from 'dashboard/api/captain/copilotThreads';
 
 const testState = vi.hoisted(() => ({
   dispatch: vi.fn(),
@@ -9,6 +10,25 @@ const testState = vi.hoisted(() => ({
 }));
 
 vi.mock('vue-router', () => ({ useRoute: () => testState.route }));
+vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
+vi.mock('dashboard/api/captain/copilotThreads', () => ({
+  default: {
+    get: vi.fn(() =>
+      Promise.resolve({
+        data: {
+          payload: [
+            { id: 5, title: 'A' },
+            { id: 6, title: 'B' },
+          ],
+        },
+      })
+    ),
+    delete: vi.fn(() => Promise.resolve()),
+  },
+}));
+vi.mock('dashboard/api/captain/copilotMessages', () => ({
+  default: { get: vi.fn(() => Promise.resolve({ data: { payload: [] } })) },
+}));
 
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
 vi.mock('dashboard/composables/useConfig', () => ({
@@ -59,7 +79,7 @@ const mountComponent = () =>
       stubs: {
         Copilot: {
           name: 'Copilot',
-          props: ['messages'],
+          props: ['messages', 'threads'],
           template: '<div />',
         },
       },
@@ -72,6 +92,32 @@ describe('CopilotContainer', () => {
     testState.dispatch.mockResolvedValue(undefined);
     testState.refs.getSelectedChat.value = { id: 1 };
     testState.route = { name: 'inbox_conversation', params: { accountId: 1 } };
+  });
+
+  it('deletes a chat from the history and drops it from the list', async () => {
+    const wrapper = mountComponent();
+    const copilot = wrapper.findComponent({ name: 'Copilot' });
+    copilot.vm.$emit('toggleHistory');
+    await flushPromises();
+
+    copilot.vm.$emit('deleteThread', { id: 5 });
+    await flushPromises();
+
+    expect(CopilotThreadsAPI.delete).toHaveBeenCalledWith(5);
+    expect(copilot.props('threads').map(thread => thread.id)).toEqual([6]);
+  });
+
+  it('keeps the chat in the list when the server refuses to delete it', async () => {
+    CopilotThreadsAPI.delete.mockRejectedValueOnce(new Error('boom'));
+    const wrapper = mountComponent();
+    const copilot = wrapper.findComponent({ name: 'Copilot' });
+    copilot.vm.$emit('toggleHistory');
+    await flushPromises();
+
+    copilot.vm.$emit('deleteThread', { id: 5 });
+    await flushPromises();
+
+    expect(copilot.props('threads')).toHaveLength(2);
   });
 
   it('sends the conversation the chat was opened in', async () => {

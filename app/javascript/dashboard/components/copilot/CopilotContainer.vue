@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
 import Copilot from 'dashboard/components-next/copilot/Copilot.vue';
@@ -23,6 +24,7 @@ defineProps({
 
 const store = useStore();
 const route = useRoute();
+const { t } = useI18n();
 const { uiSettings, updateUISettings } = useUISettings();
 const { isEnterprise } = useConfig();
 const { width: windowWidth } = useWindowSize();
@@ -163,6 +165,22 @@ const openThread = async thread => {
   }
 };
 
+const deleteThread = async thread => {
+  try {
+    await CopilotThreadsAPI.delete(thread.id);
+    historyThreads.value = historyThreads.value.filter(
+      item => item.id !== thread.id
+    );
+    // Excluiu a que estava aberta: volta para uma conversa em branco.
+    if (selectedCopilotThreadId.value === thread.id) {
+      selectedCopilotThreadId.value = null;
+      selectedThread.value = null;
+    }
+  } catch (error) {
+    useAlert(t('CAPTAIN.COPILOT.HISTORY.DELETE_ERROR'));
+  }
+};
+
 const handleReset = () => {
   selectedCopilotThreadId.value = null;
   selectedThread.value = null;
@@ -240,6 +258,7 @@ onMounted(() => {
       @toggle-history="toggleHistory"
       @select-thread="openThread"
       @load-more-history="loadMoreHistory"
+      @delete-thread="deleteThread"
     />
   </div>
   <template v-else />

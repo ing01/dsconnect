@@ -107,6 +107,44 @@ describe('Copilot (DueBot)', () => {
     expect(wrapper.find('a').attributes('href')).toContain('/conversations/5');
   });
 
+  it('exclui uma conversa do historico so depois de confirmar', async () => {
+    const wrapper = montar({
+      showHistory: true,
+      threads: [{ id: 5, title: 'A', created_at: 1790000000 }],
+    });
+    const lixeira = wrapper.find(
+      'button[aria-label="CAPTAIN.COPILOT.HISTORY.DELETE"]'
+    );
+
+    await lixeira.trigger('click');
+    expect(wrapper.emitted('deleteThread')).toBeUndefined();
+    expect(wrapper.text()).toContain('DELETE_CONFIRM');
+
+    const sim = wrapper
+      .findAll('button')
+      .find(button => button.text() === 'CAPTAIN.COPILOT.HISTORY.DELETE_YES');
+    await sim.trigger('click');
+
+    expect(wrapper.emitted('deleteThread')[0][0].id).toBe(5);
+  });
+
+  it('cancelar a exclusao nao apaga nada', async () => {
+    const wrapper = montar({
+      showHistory: true,
+      threads: [{ id: 5, title: 'A', created_at: 1790000000 }],
+    });
+    await wrapper
+      .find('button[aria-label="CAPTAIN.COPILOT.HISTORY.DELETE"]')
+      .trigger('click');
+    await wrapper
+      .findAll('button')
+      .find(button => button.text() === 'CAPTAIN.COPILOT.HISTORY.DELETE_NO')
+      .trigger('click');
+
+    expect(wrapper.emitted('deleteThread')).toBeUndefined();
+    expect(wrapper.text()).not.toContain('DELETE_CONFIRM');
+  });
+
   it('mostra o historico no lugar da conversa e esconde o campo de envio', async () => {
     const wrapper = montar({
       showHistory: true,

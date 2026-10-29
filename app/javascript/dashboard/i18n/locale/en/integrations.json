@@ -495,6 +495,11 @@
         "FOUR": "Just a moment"
       },
       "HISTORY": {
+        "DELETE": "Delete this chat",
+        "DELETE_CONFIRM": "Delete this chat from the history?",
+        "DELETE_YES": "Delete",
+        "DELETE_NO": "Cancel",
+        "DELETE_ERROR": "Could not delete the chat.",
         "ORIGIN_CONVERSATION": "Chat opened in conversation #{id}",
         "ORIGIN_TICKET": "Chat opened in ticket #{id}",
         "TITLE": "Chat history",

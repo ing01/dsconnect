@@ -32,6 +32,13 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
     end
   end
 
+  # So' o historico da propria pessoa: a conversa de outro usuario nem e'
+  # encontrada. As mensagens saem junto (dependent: :destroy_async).
+  def destroy
+    Current.account.copilot_threads.find_by!(id: params[:id], user_id: Current.user.id).destroy!
+    head :ok
+  end
+
   private
 
   def build_copilot_response(copilot_message)
