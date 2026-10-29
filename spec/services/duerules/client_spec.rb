@@ -46,6 +46,30 @@ RSpec.describe Duerules::Client do
       expect(client.call_tool('buscar_regras', pergunta: 'oi', cliente: nil)).to eq('ok')
     end
 
+    it 'uses the support token by default and the service token for the atendimento profile' do
+      allow(GlobalConfigService).to receive(:load).with('DUERULES_TOKEN_ATENDIMENTO', nil).and_return('dsrag_cliente')
+      support = stub_request(:post, url).with(headers: { 'Authorization' => 'Bearer dsrag_teste' })
+                                        .to_return(status: 200, body: sse('suporte'))
+      service = stub_request(:post, url).with(headers: { 'Authorization' => 'Bearer dsrag_cliente' })
+                                        .to_return(status: 200, body: sse('atendimento'))
+
+      expect(client.call_tool('perfil_da_empresa')).to eq('suporte')
+      expect(described_class.new(profile: :atendimento).call_tool('perfil_da_empresa')).to eq('atendimento')
+      expect(support).to have_been_requested.once
+      expect(service).to have_been_requested.once
+    end
+
+    it 'is not configured for a profile whose token is empty' do
+      allow(GlobalConfigService).to receive(:load).with('DUERULES_TOKEN_ATENDIMENTO', nil).and_return(nil)
+
+      expect(described_class.configured?).to be(true)
+      expect(described_class.configured?(profile: :atendimento)).to be(false)
+    end
+
+    it 'rejects an unknown profile' do
+      expect { described_class.new(profile: :outro) }.to raise_error(ArgumentError)
+    end
+
     it 'turns a refused token into an error' do
       stub_request(:post, url).to_return(status: 401, body: '')
 

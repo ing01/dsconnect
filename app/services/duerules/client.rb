@@ -8,20 +8,36 @@
 #
 # Configuracao, por variavel de ambiente (ou InstallationConfig):
 #   DUERULES_URL         - ex.: https://192.168.0.3:8090/mcp
-#   DUERULES_TOKEN       - token `dsrag_...` deste servidor. NUNCA no repositorio.
+#   DUERULES_TOKEN       - token `dsrag_...` do perfil SUPORTE/implantacao (o do
+#                          Copiloto). NUNCA no repositorio.
+#   DUERULES_TOKEN_ATENDIMENTO - token do perfil ATENDIMENTO aos clientes.
 #   DUERULES_VERIFY_SSL  - 'false' quando o servidor usa certificado emitido por
 #                          ele mesmo (e' o caso hoje, na rede interna da Duesoft).
 #   DUERULES_TIMEOUT     - segundos (padrao 20).
 #
-# Sem URL e token, `configured?` e' falso e as ferramentas do Copiloto nem
-# aparecem: a funcionalidade liga sozinha quando alguem configura.
+# Cada perfil e' um token diferente no DueRules, com escopo de fichas proprio;
+# quem chama escolhe o perfil (`Duerules::Client.new(profile: :atendimento)`) e o
+# padrao e' o suporte. Os dois se configuram em Super Admin > DueRules.
+#
+# Sem URL e token do perfil, `configured?` e' falso e as ferramentas do Copiloto
+# nem aparecem: a funcionalidade liga sozinha quando alguem configura.
 class Duerules::Client
   class Error < StandardError; end
 
   DEFAULT_TIMEOUT = 20
+  DEFAULT_PROFILE = :suporte
+  TOKEN_KEYS = {
+    suporte: 'DUERULES_TOKEN',
+    atendimento: 'DUERULES_TOKEN_ATENDIMENTO'
+  }.freeze
 
-  def self.configured?
-    new.configured?
+  def self.configured?(profile: DEFAULT_PROFILE)
+    new(profile: profile).configured?
+  end
+
+  def initialize(profile: DEFAULT_PROFILE)
+    @profile = profile.to_sym
+    raise ArgumentError, "Perfil do DueRules desconhecido: #{profile}" unless TOKEN_KEYS.key?(@profile)
   end
 
   def configured?
@@ -32,7 +48,7 @@ class Duerules::Client
   # responde em JSON dentro do texto). Levanta `Duerules::Error` em qualquer
   # falha, para quem chama decidir o que dizer ao atendente.
   def call_tool(name, arguments = {})
-    raise Error, 'DueRules nao esta configurado' unless configured?
+    raise Error, "DueRules nao esta configurado (perfil #{@profile})" unless configured?
 
     body = { jsonrpc: '2.0', id: SecureRandom.random_number(1_000_000), method: 'tools/call',
              params: { name: name, arguments: arguments.compact } }
@@ -46,7 +62,7 @@ class Duerules::Client
   end
 
   def token
-    @token ||= GlobalConfigService.load('DUERULES_TOKEN', nil).presence
+    @token ||= GlobalConfigService.load(TOKEN_KEYS.fetch(@profile), nil).presence
   end
 
   def verify_ssl?

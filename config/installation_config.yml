@@ -401,6 +401,36 @@
   type: secret
 ## ------ End of Configs added for Linear ------ ##
 
+## ------ Configs added for DueRules ------ ##
+- name: DUERULES_URL
+  display_title: 'URL do DueRules'
+  value:
+  locked: false
+  description: 'Endereço MCP do DueRules, a base de regras de negócio do ERP. Ex.: https://192.168.0.3:8090/mcp'
+- name: DUERULES_TOKEN
+  display_title: 'Token do Suporte / Implantação'
+  value:
+  locked: false
+  description: 'Token (dsrag_...) do perfil de suporte e implantação. É o usado pelo Copiloto dos tickets e conversas.'
+  type: secret
+- name: DUERULES_TOKEN_ATENDIMENTO
+  display_title: 'Token do Atendimento aos clientes'
+  value:
+  locked: false
+  description: 'Token (dsrag_...) do perfil de atendimento aos clientes.'
+  type: secret
+- name: DUERULES_VERIFY_SSL
+  display_title: 'Validar certificado (true/false)'
+  value:
+  locked: false
+  description: 'Use false quando o DueRules usa certificado emitido por ele mesmo (caso da rede interna da Duesoft). Padrão: true.'
+- name: DUERULES_TIMEOUT
+  display_title: 'Tempo limite (segundos)'
+  value:
+  locked: false
+  description: 'Quanto esperar a resposta do DueRules. Padrão: 20.'
+## ------ End of Configs added for DueRules ------ ##
+
 ## ------ Configs added for Notion ------ ##
 - name: NOTION_CLIENT_ID
   display_title: 'Notion Client ID'

@@ -126,6 +126,12 @@ linear:
   enabled: true
   icon: 'icon-linear'
   config_key: 'linear'
+duerules:
+  name: 'DueRules'
+  description: 'URL e tokens (Suporte e Atendimento) da base de regras de negócio do ERP.'
+  enabled: true
+  icon: 'icon-book-2-line'
+  config_key: 'duerules'
 notion:
   name: 'Notion'
   description: 'Configuration for setting up Notion Integration'

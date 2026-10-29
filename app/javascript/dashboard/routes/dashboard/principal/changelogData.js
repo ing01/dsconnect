@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'duerules-tokens-config-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'improvement',
+    platform: 'web',
+    title: 'DueRules: tokens de Suporte e de Atendimento configuráveis',
+    description:
+      'No Super Admin, em DueRules, agora é possível informar a URL e os dois tokens (Suporte/Implantação e Atendimento aos clientes) sem mexer no servidor. O Copiloto continua usando o token do Suporte.',
+  },
+  {
     id: 'client-notifications-realtime-2026-10-28',
     date: '28 de outubro de 2026',
     isoDate: '2026-10-28',
