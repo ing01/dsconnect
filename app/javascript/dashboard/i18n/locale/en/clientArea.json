@@ -237,6 +237,7 @@
       "TOGGLE": "Menu"
     },
     "CHAT": {
+      "BLOCKED": "You do not have permission to use the support chat. Please call (18) 3916-7600.",
       "FLOATING_BUTTON": "Talk to the team",
       "TITLE": "Chat",
       "DESCRIPTION": "Talk directly to the team.",

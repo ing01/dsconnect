@@ -140,6 +140,7 @@
       }
     },
     "CONTRACTS": {
+      "VIEW_CONTRACTS": "View contracts",
       "HEADER": "Contracts",
       "DESCRIPTION": "Upload templates (.docx with [[like-this]] markers) and generate the filled-in PDF for a client.",
       "ERROR": "Could not load the contracts.",

@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 import '../../core/theme/app_theme.dart';
+import 'chat_blocked.dart';
 import 'client_chat_history_screen.dart';
 import 'models/chat_message.dart';
 import 'providers/chat_notifier.dart';
@@ -176,7 +177,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> with Widget
     return Scaffold(
       body: chatAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
+        error: (error, _) => chatBlockedMessage(error) != null
+            ? _BlockedNotice(message: chatBlockedMessage(error)!)
+            : Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -419,6 +422,42 @@ class _AudioAttachmentPlayerState extends State<_AudioAttachmentPlayer> {
         const SizedBox(width: 6),
         const Text('Mensagem de áudio'),
       ],
+    );
+  }
+}
+
+// Aviso no lugar do chat quando o contato esta bloqueado (ver `chat_blocked.dart`).
+class _BlockedNotice extends StatelessWidget {
+  const _BlockedNotice({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: scheme.errorContainer,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.phone_in_talk_outlined, size: 36, color: scheme.onErrorContainer),
+              const SizedBox(height: 12),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: scheme.onErrorContainer, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -43,6 +43,14 @@ class Api::V1::Client::BaseController < ApplicationController
 
   attr_reader :current_contact
 
+  # O chat com a equipe e' vetado a contato bloqueado. O codigo vai junto para
+  # as telas (portal e app) mostrarem o aviso em vez de uma mensagem generica.
+  def ensure_chat_allowed
+    return if current_contact.client_chat_allowed?
+
+    render json: { error: I18n.t('client_area.chat_blocked'), code: 'chat_blocked' }, status: :forbidden
+  end
+
   def render_client_unauthorized
     render json: { error: I18n.t('client_area.unauthorized') }, status: :unauthorized
   end

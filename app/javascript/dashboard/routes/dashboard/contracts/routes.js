@@ -5,7 +5,13 @@ import { INSTALLATION_TYPES } from 'dashboard/constants/installationTypes';
 
 const commonMeta = {
   featureFlag: FEATURE_FLAGS.COMPANIES,
-  permissions: ['administrator', 'agent', 'company_manage'],
+  // 'commercial_manage': a lista abre por um botao em Comercial > Contratos.
+  permissions: [
+    'administrator',
+    'agent',
+    'company_manage',
+    'commercial_manage',
+  ],
   installationTypes: [INSTALLATION_TYPES.CLOUD, INSTALLATION_TYPES.ENTERPRISE],
 };
 

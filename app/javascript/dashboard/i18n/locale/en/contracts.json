@@ -1,6 +1,7 @@
 {
   "CONTRACTS": {
     "HEADER": "Contracts",
+    "BACK_TO_COMMERCIAL": "Commercial",
     "SEARCH_PLACEHOLDER": "Search by description, company or responsible...",
     "LOADING": "Loading contracts...",
     "EMPTY_STATE": "No contracts yet.",

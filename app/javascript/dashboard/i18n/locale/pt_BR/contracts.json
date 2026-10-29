@@ -1,7 +1,8 @@
 {
   "CONTRACTS": {
     "HEADER": "Contratos",
-    "SEARCH_PLACEHOLDER": "Buscar por descrição, empresa ou responsável...",
+    "BACK_TO_COMMERCIAL": "Comercial",
+    "SEARCH_PLACEHOLDER": "Buscar por cliente, descrição ou responsável...",
     "LOADING": "Carregando contratos...",
     "EMPTY_STATE": "Nenhum contrato cadastrado ainda.",
     "NO_COMPANIES": "Nenhuma empresa vinculada",

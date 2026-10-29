@@ -10,6 +10,7 @@
  */
 import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import CrmContractTemplatesAPI from 'dashboard/api/crmContractTemplates';
 import CrmGeneratedContractsAPI from 'dashboard/api/crmGeneratedContracts';
@@ -96,6 +97,16 @@ const cityStateToken = token =>
   )?.[0];
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+
+// A lista dos contratos fechados (busca por cliente, valores...) mora numa
+// tela propria, aberta por este botao.
+const openContractsList = () =>
+  router.push({
+    name: 'contracts_dashboard_index',
+    params: { accountId: route.params.accountId },
+  });
 
 // Mesmo espacamento/tipografia do rotulo do componente `Input` - usado nos
 // poucos campos que aqui sao `Select` em vez de `Input` (o `Select` do
@@ -297,18 +308,24 @@ onMounted(fetchAll);
 
 <template>
   <div class="flex-1 overflow-y-auto p-4 sm:p-6">
-    <div
-      class="flex flex-wrap items-start justify-between gap-3 mb-1"
-    >
+    <div class="flex flex-wrap items-start justify-between gap-3 mb-1">
       <ReportHeader :header-title="t('CRM.CONTRACTS.HEADER')" />
-      <Button
-        faded
-        slate
-        size="sm"
-        icon="i-lucide-circle-help"
-        :label="t('CRM.CONTRACTS.TOKEN_HELP.BUTTON')"
-        @click="openTokenHelp"
-      />
+      <div class="flex flex-wrap items-center gap-2">
+        <Button
+          faded
+          slate
+          size="sm"
+          icon="i-lucide-circle-help"
+          :label="t('CRM.CONTRACTS.TOKEN_HELP.BUTTON')"
+          @click="openTokenHelp"
+        />
+        <Button
+          size="sm"
+          icon="i-lucide-files"
+          :label="t('CRM.CONTRACTS.VIEW_CONTRACTS')"
+          @click="openContractsList"
+        />
+      </div>
     </div>
     <p class="mb-5 text-sm text-n-slate-11 max-w-3xl">
       {{ t('CRM.CONTRACTS.DESCRIPTION') }}
@@ -339,9 +356,7 @@ onMounted(fetchAll);
               :key="token"
               class="border-b border-n-weak align-top"
             >
-              <td
-                class="py-2 pr-3 font-mono whitespace-nowrap text-n-slate-12"
-              >
+              <td class="py-2 pr-3 font-mono whitespace-nowrap text-n-slate-12">
                 [[{{ token }}]]
               </td>
               <td class="py-2 text-n-slate-11">{{ meaning }}</td>
@@ -493,7 +508,9 @@ onMounted(fetchAll);
                 `${crmContractTokenLabel(token)} (${token})`
               }}</span>
               <div class="flex items-center gap-4 h-9">
-                <label class="flex items-center gap-2 text-sm text-n-slate-12 cursor-pointer">
+                <label
+                  class="flex items-center gap-2 text-sm text-n-slate-12 cursor-pointer"
+                >
                   <input
                     type="checkbox"
                     class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
@@ -502,7 +519,9 @@ onMounted(fetchAll);
                   />
                   {{ t('CRM.CONTRACTS.GENERATE.YES') }}
                 </label>
-                <label class="flex items-center gap-2 text-sm text-n-slate-12 cursor-pointer">
+                <label
+                  class="flex items-center gap-2 text-sm text-n-slate-12 cursor-pointer"
+                >
                   <input
                     type="checkbox"
                     class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
@@ -549,7 +568,9 @@ onMounted(fetchAll);
               />
               <datalist :id="`crm-contract-cities-${token}`">
                 <option
-                  v-for="cidade in citiesByUf[tokenValues[cityStateToken(token)]] || []"
+                  v-for="cidade in citiesByUf[
+                    tokenValues[cityStateToken(token)]
+                  ] || []"
                   :key="cidade"
                   :value="cidade"
                 />
@@ -646,7 +667,7 @@ onMounted(fetchAll);
                 <a
                   :href="contract.pdf_url"
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   class="text-n-brand hover:underline"
                 >
                   {{ t('CRM.CONTRACTS.LIST.DOWNLOAD') }}
@@ -657,7 +678,7 @@ onMounted(fetchAll);
                   v-if="contract.docx_url"
                   :href="contract.docx_url"
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   class="text-n-brand hover:underline"
                 >
                   {{ t('CRM.CONTRACTS.LIST.DOWNLOAD_WORD') }}

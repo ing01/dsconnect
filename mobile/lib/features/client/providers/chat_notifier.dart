@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/auth/auth_providers.dart';
 import '../../../core/realtime/action_cable_client.dart';
 import '../models/chat_message.dart';
+import '../chat_blocked.dart';
 import 'client_providers.dart';
 
 // O Chat do Portal com a equipe, com tempo real: ao abrir, busca o
@@ -103,8 +104,11 @@ class ClientChatNotifier extends AsyncNotifier<ChatState> {
             isVoiceMessage: isVoiceMessage,
           );
       await refresh();
-    } catch (_) {
-      state = AsyncData(current.copyWith(isSending: false, error: 'Não foi possível enviar a mensagem.'));
+    } catch (error) {
+      state = AsyncData(current.copyWith(
+        isSending: false,
+        error: chatBlockedMessage(error) ?? 'Não foi possível enviar a mensagem.',
+      ));
     }
   }
 }

@@ -237,6 +237,7 @@
       "TOGGLE": "Menu"
     },
     "CHAT": {
+      "BLOCKED": "Você não tem permissão para acessar o suporte via chat, ligue no telefone (18) 3916-7600.",
       "FLOATING_BUTTON": "Falar com a equipe",
       "TITLE": "Chat",
       "DESCRIPTION": "Fale diretamente com a equipe.",

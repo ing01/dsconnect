@@ -140,6 +140,7 @@
       }
     },
     "CONTRACTS": {
+      "VIEW_CONTRACTS": "Visualizar contratos",
       "HEADER": "Contratos",
       "DESCRIPTION": "Suba os modelos (.docx com marcadores [[assim]]) e gere o PDF preenchido para um cliente.",
       "ERROR": "Nao foi possivel carregar os contratos.",

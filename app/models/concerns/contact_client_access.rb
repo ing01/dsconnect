@@ -58,8 +58,17 @@ module ContactClientAccess
 
   # Pode entrar? Reune tudo que o login exige, para a resposta ser uma so - e a
   # mesma pergunta vale na tela, na sessao e a cada requisicao seguinte.
+  #
+  # Contato bloqueado ENTRA no Portal (chamados, propostas...), mas nao usa o
+  # chat com a equipe - ver `client_chat_allowed?`.
   def client_access?
-    client_access_enabled? && email.present? && encrypted_password.present? && !blocked?
+    client_access_enabled? && email.present? && encrypted_password.present?
+  end
+
+  # O chat com a equipe e' a unica parte do Portal que o bloqueio fecha: quem
+  # foi bloqueado nao deve abrir conversa com os atendentes.
+  def client_chat_allowed?
+    !blocked?
   end
 
   # Liga o acesso. A senha e opcional numa reativacao: quem ja tinha credencial

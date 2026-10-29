@@ -13,6 +13,8 @@
 # dela como roda em qualquer conversa: `message_created`/`conversation_created`
 # disparam normalmente.
 class Api::V1::Client::ChatsController < Api::V1::Client::BaseController
+  before_action :ensure_chat_allowed
+
   # So devolve a conversa existente - nao cria uma nova. A conversa nasce
   # apenas quando o cliente envia a primeira mensagem
   # (`Api::V1::Client::ChatMessagesController`). Assim a conversa nunca

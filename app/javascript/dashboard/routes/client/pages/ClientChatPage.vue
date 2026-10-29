@@ -44,6 +44,10 @@ const { t } = useI18n();
 const router = useRouter();
 
 const isLoading = ref(true);
+// Contato bloqueado nao usa o chat: o servidor responde 403 com o codigo
+// `chat_blocked` (e o aviso com o telefone) em vez de abrir a conversa.
+const isChatBlocked = ref(false);
+const blockedMessage = ref('');
 const isSending = ref(false);
 const messages = ref([]);
 const draft = ref('');
@@ -62,9 +66,6 @@ let tempIdCounter = 0;
 const podeAtivarPush = computed(
   () => clientPushSupported() && pushPermission.value === 'default'
 );
-
-const dataHora = segundos =>
-  segundos ? new Date(segundos * 1000).toLocaleString() : '';
 
 const rolarParaFinal = () => {
   nextTick(() => {
@@ -124,6 +125,15 @@ const assinar = pubsubToken => {
   );
 };
 
+const marcarBloqueado = error => {
+  if (error?.response?.data?.code !== 'chat_blocked') return false;
+  isChatBlocked.value = true;
+  blockedMessage.value =
+    error.response.data.error || t('CLIENT_AREA.CHAT.BLOCKED');
+  desconectar();
+  return true;
+};
+
 const carregar = async () => {
   isLoading.value = true;
   try {
@@ -132,8 +142,8 @@ const carregar = async () => {
     conversationDisplayId.value = data.conversation_id;
     if (data.pubsub_token) assinar(data.pubsub_token);
     rolarParaFinal();
-  } catch {
-    useAlert(t('CLIENT_AREA.CHAT.ERROR'));
+  } catch (error) {
+    if (!marcarBloqueado(error)) useAlert(t('CLIENT_AREA.CHAT.ERROR'));
   } finally {
     isLoading.value = false;
   }
@@ -237,7 +247,10 @@ const enviar = async () => {
     } else {
       adicionar(data);
     }
-  } catch {
+  } catch (error) {
+    // Foi bloqueado com a tela ja aberta: troca o chat pelo aviso.
+    if (marcarBloqueado(error)) return;
+
     // A mensagem otimista fica marcada como falha em vez de desaparecer - o
     // cliente sabe o que tentou mandar e pode tentar de novo.
     const falha = messages.value.find(item => item.id === tempId);
@@ -263,7 +276,9 @@ onBeforeUnmount(desconectar);
 
 <template>
   <div class="flex flex-col w-full h-full min-h-0 gap-3 p-4 sm:p-6">
-    <header class="flex flex-wrap items-start justify-between flex-shrink-0 gap-2">
+    <header
+      class="flex flex-wrap items-start justify-between flex-shrink-0 gap-2"
+    >
       <div>
         <h1 class="text-xl font-medium text-n-slate-12">
           {{ t('CLIENT_AREA.CHAT.TITLE') }}
@@ -300,6 +315,17 @@ onBeforeUnmount(desconectar);
       <Spinner />
     </div>
 
+    <div
+      v-else-if="isChatBlocked"
+      role="alert"
+      class="flex flex-col items-center gap-3 px-6 py-10 text-center border rounded-xl border-n-amber-6 bg-n-amber-2"
+    >
+      <Icon icon="i-lucide-phone-call" class="size-8 text-n-amber-11" />
+      <p class="max-w-md m-0 text-sm font-medium text-n-amber-12">
+        {{ blockedMessage }}
+      </p>
+    </div>
+
     <template v-else>
       <div
         ref="listRef"
@@ -319,7 +345,9 @@ onBeforeUnmount(desconectar);
         />
       </div>
 
-      <div class="flex flex-col flex-shrink-0 gap-2 pt-2 border-t border-n-weak">
+      <div
+        class="flex flex-col flex-shrink-0 gap-2 pt-2 border-t border-n-weak"
+      >
         <div
           v-if="isRecordingAudio"
           class="flex flex-col gap-1 p-2 border rounded-lg border-n-weak"
@@ -338,7 +366,11 @@ onBeforeUnmount(desconectar);
               />
             </span>
             <span class="font-medium">
-              {{ t('CLIENT_AREA.CHAT.RECORDING', { duration: recordingAudioDurationText }) }}
+              {{
+                t('CLIENT_AREA.CHAT.RECORDING', {
+                  duration: recordingAudioDurationText,
+                })
+              }}
             </span>
           </div>
           <AudioRecorder
@@ -350,7 +382,10 @@ onBeforeUnmount(desconectar);
           />
         </div>
 
-        <div v-if="recordedAudioFile" class="flex items-center gap-2 text-xs text-n-slate-11">
+        <div
+          v-if="recordedAudioFile"
+          class="flex items-center gap-2 text-xs text-n-slate-11"
+        >
           <Icon icon="i-lucide-mic" class="size-3.5" />
           {{ t('CLIENT_AREA.CHAT.RECORDED') }}
           <button
@@ -385,7 +420,11 @@ onBeforeUnmount(desconectar);
             ruby
             size="sm"
             icon="i-lucide-square"
-            :title="t('CLIENT_AREA.CHAT.STOP_RECORDING', { duration: recordingAudioDurationText })"
+            :title="
+              t('CLIENT_AREA.CHAT.STOP_RECORDING', {
+                duration: recordingAudioDurationText,
+              })
+            "
             @click="stopRecording"
           />
           <Button

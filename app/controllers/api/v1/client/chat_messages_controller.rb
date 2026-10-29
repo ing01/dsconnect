@@ -9,6 +9,7 @@
 # `Channel::Api` (valida em `MessageBuilder#message_type`) - exatamente o
 # canal do chat do Portal.
 class Api::V1::Client::ChatMessagesController < Api::V1::Client::BaseController
+  before_action :ensure_chat_allowed, only: [:create]
   before_action :fetch_conversation, only: [:create]
   before_action :fetch_csat_message, only: [:update]
 

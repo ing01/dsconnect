@@ -16,7 +16,9 @@ import SidebarGroup from './SidebarGroup.vue';
 import SidebarProfileMenu from './SidebarProfileMenu.vue';
 import SidebarChangelogCard from './SidebarChangelogCard.vue';
 import SidebarChangelogButton from './SidebarChangelogButton.vue';
+// eslint-disable-next-line no-unused-vars
 import ChannelLeaf from './ChannelLeaf.vue';
+// eslint-disable-next-line no-unused-vars
 import ChannelIcon from 'next/icon/ChannelIcon.vue';
 import SidebarAccountSwitcher from './SidebarAccountSwitcher.vue';
 import SidebarTicketSearch from './SidebarTicketSearch.vue';
@@ -49,6 +51,7 @@ const store = useStore();
 
 // Calls run on the enterprise-only API (cloud runs enterprise); hide the entry
 // on community so it doesn't lead to a dashboard/CTA the backend can't serve.
+// eslint-disable-next-line no-unused-vars
 const isCallsAvailable = computed(
   () => isOnChatwootCloud.value || isEnterprise
 );
@@ -216,12 +219,15 @@ const getLabelUnreadCount = useMapGetter(
 const getTeamUnreadCount = useMapGetter(
   'conversationUnreadCounts/getTeamUnreadCount'
 );
+// eslint-disable-next-line no-unused-vars
 const mentionsUnreadCount = useMapGetter(
   'conversationUnreadCounts/getMentionsUnreadCount'
 );
+// eslint-disable-next-line no-unused-vars
 const participatingUnreadCount = useMapGetter(
   'conversationUnreadCounts/getParticipatingUnreadCount'
 );
+// eslint-disable-next-line no-unused-vars
 const unattendedUnreadCount = useMapGetter(
   'conversationUnreadCounts/getUnattendedUnreadCount'
 );
@@ -309,6 +315,7 @@ const sortedTeams = computed(() =>
   })
 );
 
+// eslint-disable-next-line no-unused-vars
 const sortedInboxes = computed(() =>
   sortSidebarItems(inboxes.value, {
     sortBy: getSortForSection(SIDEBAR_SORT_SECTIONS.CHANNELS),
@@ -595,7 +602,9 @@ const menuItems = computed(() => {
           name: 'CrmContracts',
           label: t('SIDEBAR.CRM_CONTRACTS'),
           to: accountScopedRoute('crm_contracts_index'),
-          activeOn: ['crm_contracts_index'],
+          // A lista de contratos fechados abre por um botao daqui (e nao
+          // mais por um item solto em "Empresas").
+          activeOn: ['crm_contracts_index', 'contracts_dashboard_index'],
         },
       ],
     },
@@ -620,12 +629,6 @@ const menuItems = computed(() => {
             { page: 1, search: undefined }
           ),
           activeOn: ['companies_dashboard_index', 'companies_dashboard_show'],
-        },
-        {
-          name: 'Contracts',
-          label: t('SIDEBAR.CONTRACTS'),
-          to: accountScopedRoute('contracts_dashboard_index'),
-          activeOn: ['contracts_dashboard_index'],
         },
         {
           name: 'Contacts',

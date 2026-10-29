@@ -625,6 +625,7 @@ en:
       push_action_open: Open conversation
     notifications:
       moved_to_team: 'Now with the team: %{team}'
+    chat_blocked: You do not have permission to use the support chat. Please call (18) 3916-7600.
     unauthorized: Invalid session or Client Area access is disabled.
     invalid_credentials: Invalid e-mail or password.
     password:

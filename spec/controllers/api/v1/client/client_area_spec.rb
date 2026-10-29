@@ -270,13 +270,45 @@ RSpec.describe 'Client Area', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'drops an open session when the contact is blocked' do
+    # Bloqueio fecha so' o chat com a equipe: o resto do Portal segue aberto.
+    it 'keeps a blocked contact signed in for tickets' do
       token = entrar
       cliente.update!(blocked: true)
 
       get '/api/v1/client/tickets', headers: cabecalho(token), as: :json
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'still lets a blocked contact sign in' do
+      cliente.update!(blocked: true)
+
+      post '/api/v1/client/session', params: { email: 'cliente@exemplo.com.br', password: 'SenhaDoCliente@01' }, as: :json
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'refuses the chat to a blocked contact with the phone notice' do
+      token = entrar
+      cliente.update!(blocked: true)
+
+      get '/api/v1/client/chat', headers: cabecalho(token), as: :json
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['code']).to eq('chat_blocked')
+      expect(response.parsed_body['error']).to include('(18) 3916-7600')
+    end
+
+    it 'refuses sending a chat message from a blocked contact and creates no conversation' do
+      token = entrar
+      cliente.update!(blocked: true)
+
+      expect do
+        post '/api/v1/client/chat/messages', params: { content: 'oi' }, headers: cabecalho(token), as: :json
+      end.not_to change(Conversation, :count)
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['code']).to eq('chat_blocked')
     end
 
     it 'invalidates the token on sign out' do
