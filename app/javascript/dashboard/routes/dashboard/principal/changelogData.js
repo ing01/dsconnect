@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'global-workspace-tabs-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'feature',
+    platform: 'web',
+    title: 'Abas no topo para qualquer tela do sistema',
+    description:
+      'Toda tela aberta pelo menu (Kanban, Backlog, Projetos, Chat Interno, Empresas e as demais) agora vira uma aba no topo, junto com os tickets abertos. O Kanban também pode ser fechado. Ao fechar a última aba você vai para a tela Principal, e as abas abertas ficam guardadas para a próxima vez.',
+  },
+  {
     id: 'ticket-back-to-origin-2026-10-29',
     date: '29 de outubro de 2026',
     isoDate: '2026-10-29',

@@ -4,7 +4,7 @@
       "KANBAN": "Kanban",
       "CLOSE_TAB": "Fechar aba",
       "ALL_TABS": "Ver todas as abas",
-      "ALL_TABS_COUNT": "{count} chamado(s) aberto(s)"
+      "ALL_TABS_COUNT": "{count} aba(s) aberta(s)"
     },
     "HEADER": "Tickets",
     "DESCRIPTION": "Organize os tickets em um quadro Kanban por Mesa de Serviço e vincule-os às conversas relacionadas.",

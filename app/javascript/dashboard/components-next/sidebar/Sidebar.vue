@@ -22,6 +22,8 @@ import ChannelLeaf from './ChannelLeaf.vue';
 import ChannelIcon from 'next/icon/ChannelIcon.vue';
 import SidebarAccountSwitcher from './SidebarAccountSwitcher.vue';
 import SidebarTicketSearch from './SidebarTicketSearch.vue';
+import { useWorkspacePages } from '../workspace-tabs/useWorkspacePages';
+import { flattenMenu } from '../workspace-tabs/workspacePages';
 import Logo from 'next/icon/Logo.vue';
 import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 import {
@@ -45,6 +47,7 @@ const emit = defineEmits([
   'closeMobileSidebar',
 ]);
 
+const { setCatalog: setPageCatalog } = useWorkspacePages();
 const { accountScopedRoute, isOnChatwootCloud } = useAccount();
 const { isEnterprise } = useConfig();
 const store = useStore();
@@ -1146,6 +1149,12 @@ const menuItems = computed(() => {
       ],
     },
   ];
+});
+
+// A barra de abas do sistema não mantém uma lista própria de telas: o que está
+// neste menu é o que pode virar aba (nome, ícone e rotas já estão aqui).
+watch(menuItems, items => setPageCatalog(flattenMenu(items)), {
+  immediate: true,
 });
 </script>
 

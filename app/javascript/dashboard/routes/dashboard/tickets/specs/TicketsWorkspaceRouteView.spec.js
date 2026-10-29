@@ -67,7 +67,6 @@ const montar = async () => {
   const wrapper = mount(TicketsWorkspaceRouteView, {
     global: {
       plugins: [router],
-      stubs: { TicketWorkspaceTabs: true },
     },
   });
   return { wrapper, router };

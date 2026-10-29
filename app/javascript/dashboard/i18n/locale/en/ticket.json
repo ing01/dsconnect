@@ -4,7 +4,7 @@
       "KANBAN": "Kanban",
       "CLOSE_TAB": "Close tab",
       "ALL_TABS": "See every tab",
-      "ALL_TABS_COUNT": "{count} ticket(s) open"
+      "ALL_TABS_COUNT": "{count} tab(s) open"
     },
     "HEADER": "Tickets",
     "DESCRIPTION": "Organize tickets on a Kanban board per Mesa (Team) and link them to their related conversations.",
