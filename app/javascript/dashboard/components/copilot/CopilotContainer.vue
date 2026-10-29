@@ -10,7 +10,8 @@ import { useWindowSize } from '@vueuse/core';
 import { vOnClickOutside } from '@vueuse/components';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import wootConstants from 'dashboard/constants/globals';
-import { MESSAGE_TYPE } from 'shared/constants/messages';
+import CopilotThreadsAPI from 'dashboard/api/captain/copilotThreads';
+import CopilotMessagesAPI from 'dashboard/api/captain/copilotMessages';
 
 defineProps({
   conversationInboxType: {
@@ -29,11 +30,6 @@ const assistants = useMapGetter('captainAssistants/getRecords');
 const uiFlags = useMapGetter('captainAssistants/getUIFlags');
 const inboxAssistant = useMapGetter('getCopilotAssistant');
 const currentChat = useMapGetter('getSelectedChat');
-const lastPublicMessage = useMapGetter('getLastEmailInSelectedChat');
-
-const canSuggestReply = computed(
-  () => lastPublicMessage.value?.message_type === MESSAGE_TYPE.INCOMING
-);
 
 const isSmallScreen = computed(
   () => windowWidth.value < wootConstants.SMALL_SCREEN_BREAKPOINT
@@ -102,8 +98,58 @@ const shouldShowCopilotPanel = computed(() => {
   return isCaptainEnabled && isCopilotPanelOpen && !uiFlags.value.fetchingList;
 });
 
+// Historico: as conversas do proprio usuario com o DueBot ficam salvas no
+// servidor (CopilotThread); aqui so' listamos e reabrimos uma delas.
+const HISTORY_PAGE_SIZE = 20;
+const showHistory = ref(false);
+const historyThreads = ref([]);
+const historyPage = ref(1);
+const canLoadMoreHistory = ref(false);
+const isHistoryLoading = ref(false);
+const hasHistoryError = ref(false);
+
+const loadHistory = async (page = 1) => {
+  isHistoryLoading.value = true;
+  hasHistoryError.value = false;
+  try {
+    const { data } = await CopilotThreadsAPI.get({ page });
+    const threads = data.payload || [];
+    historyThreads.value =
+      page === 1 ? threads : [...historyThreads.value, ...threads];
+    historyPage.value = page;
+    canLoadMoreHistory.value = threads.length >= HISTORY_PAGE_SIZE;
+  } catch (error) {
+    hasHistoryError.value = true;
+  } finally {
+    isHistoryLoading.value = false;
+  }
+};
+
+const toggleHistory = () => {
+  showHistory.value = !showHistory.value;
+  if (showHistory.value) loadHistory(1);
+};
+
+const loadMoreHistory = () => loadHistory(historyPage.value + 1);
+
+const openThread = async thread => {
+  try {
+    const { data } = await CopilotMessagesAPI.get(thread.id);
+    await Promise.all(
+      (data.payload || []).map(message =>
+        store.dispatch('copilotMessages/upsert', message)
+      )
+    );
+    selectedCopilotThreadId.value = thread.id;
+    showHistory.value = false;
+  } catch (error) {
+    useAlert(error.message);
+  }
+};
+
 const handleReset = () => {
   selectedCopilotThreadId.value = null;
+  showHistory.value = false;
 };
 
 watch(() => currentChat.value?.id, handleReset);
@@ -163,10 +209,17 @@ onMounted(() => {
       :conversation-inbox-type="conversationInboxType"
       :assistants="assistants"
       :active-assistant="activeAssistant"
-      :can-suggest-reply="canSuggestReply"
+      :show-history="showHistory"
+      :threads="historyThreads"
+      :is-history-loading="isHistoryLoading"
+      :has-history-error="hasHistoryError"
+      :can-load-more-history="canLoadMoreHistory"
       @set-assistant="setAssistant"
       @send-message="sendMessage"
       @reset="handleReset"
+      @toggle-history="toggleHistory"
+      @select-thread="openThread"
+      @load-more-history="loadMoreHistory"
     />
   </div>
   <template v-else />

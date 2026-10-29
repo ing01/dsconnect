@@ -8,9 +8,10 @@ import CopilotInput from './CopilotInput.vue';
 import CopilotLoader from './CopilotLoader.vue';
 import CopilotAgentMessage from './CopilotAgentMessage.vue';
 import CopilotAssistantMessage from './CopilotAssistantMessage.vue';
-import CopilotThinkingGroup from './CopilotThinkingGroup.vue';
 import ToggleCopilotAssistant from './ToggleCopilotAssistant.vue';
 import CopilotEmptyState from './CopilotEmptyState.vue';
+import CopilotHistory from './CopilotHistory.vue';
+import DueBotName from './DueBotName.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import { useI18n } from 'vue-i18n';
 
@@ -31,13 +32,37 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
-  canSuggestReply: {
+  // Historico de conversas do proprio usuario com o DueBot.
+  showHistory: {
     type: Boolean,
-    default: true,
+    default: false,
+  },
+  threads: {
+    type: Array,
+    default: () => [],
+  },
+  isHistoryLoading: {
+    type: Boolean,
+    default: false,
+  },
+  hasHistoryError: {
+    type: Boolean,
+    default: false,
+  },
+  canLoadMoreHistory: {
+    type: Boolean,
+    default: false,
   },
 });
 
-const emit = defineEmits(['sendMessage', 'reset', 'setAssistant']);
+const emit = defineEmits([
+  'sendMessage',
+  'reset',
+  'setAssistant',
+  'toggleHistory',
+  'selectThread',
+  'loadMoreHistory',
+]);
 
 const { t } = useI18n();
 
@@ -55,39 +80,18 @@ const scrollToBottom = async () => {
   }
 };
 
-const groupedMessages = computed(() => {
-  const result = [];
-  let thinkingGroup = [];
-  props.messages.forEach(message => {
-    if (message.message_type === 'assistant_thinking') {
-      thinkingGroup.push(message);
-    } else {
-      if (thinkingGroup.length > 0) {
-        result.push({
-          id: thinkingGroup[0].id,
-          message_type: 'thinking_group',
-          messages: thinkingGroup,
-        });
-        thinkingGroup = [];
-      }
-      result.push(message);
-    }
-  });
-  if (thinkingGroup.length > 0) {
-    result.push({
-      id: thinkingGroup[0].id,
-      message_type: 'thinking_group',
-      messages: thinkingGroup,
-    });
-  }
-  return result;
-});
+// As etapas internas da IA (`assistant_thinking`: ferramentas consultadas,
+// raciocinio) nao sao mostradas. Enquanto a resposta nao chega, so' o
+// CopilotLoader com frases de espera.
+const visibleMessages = computed(() =>
+  props.messages.filter(
+    message => message.message_type !== 'assistant_thinking'
+  )
+);
 
 const isLastMessageFromAssistant = computed(() => {
-  return (
-    groupedMessages.value[groupedMessages.value.length - 1].message_type ===
-    'assistant'
-  );
+  const last = props.messages[props.messages.length - 1];
+  return last?.message_type === 'assistant';
 });
 
 const { updateUISettings } = useUISettings();
@@ -103,21 +107,31 @@ const handleSidebarAction = action => {
   if (action === 'reset') {
     emit('reset');
   }
+  if (action === 'history') {
+    emit('toggleHistory');
+  }
 };
 
 const hasAssistants = computed(() => props.assistants.length > 0);
 const hasMessages = computed(() => props.messages.length > 0);
 const copilotButtons = computed(() => {
-  if (hasMessages.value) {
-    return [
-      {
-        key: 'reset',
-        icon: 'i-lucide-refresh-ccw',
-        tooltip: t('CAPTAIN.COPILOT.RESET'),
-      },
-    ];
+  const buttons = [
+    {
+      key: 'history',
+      icon: props.showHistory ? 'i-lucide-message-square' : 'i-lucide-history',
+      tooltip: props.showHistory
+        ? t('CAPTAIN.COPILOT.HISTORY.BACK')
+        : t('CAPTAIN.COPILOT.HISTORY.OPEN'),
+    },
+  ];
+  if (hasMessages.value || props.showHistory) {
+    buttons.push({
+      key: 'reset',
+      icon: 'i-lucide-square-pen',
+      tooltip: t('CAPTAIN.COPILOT.NEW_CHAT'),
+    });
   }
-  return [];
+  return buttons;
 });
 watch(
   [() => props.messages],
@@ -135,13 +149,33 @@ watch(
       :buttons="copilotButtons"
       @click="handleSidebarAction"
       @close="closeCopilotPanel"
-    />
+    >
+      <template #title>
+        <DueBotName />
+      </template>
+    </SidebarActionsHeader>
     <div
       ref="chatContainer"
       class="flex-1 flex px-4 py-4 overflow-y-auto items-start"
     >
-      <div v-if="hasMessages" class="space-y-6 flex-1 flex flex-col w-full">
-        <template v-for="(item, index) in groupedMessages" :key="item.id">
+      <div v-if="showHistory" class="flex-1 flex flex-col w-full">
+        <h3 class="mb-3 text-sm font-medium text-n-slate-12">
+          {{ $t('CAPTAIN.COPILOT.HISTORY.TITLE') }}
+        </h3>
+        <CopilotHistory
+          :threads="threads"
+          :is-loading="isHistoryLoading"
+          :has-error="hasHistoryError"
+          :can-load-more="canLoadMoreHistory"
+          @select="$event => emit('selectThread', $event)"
+          @load-more="emit('loadMoreHistory')"
+        />
+      </div>
+      <div
+        v-else-if="hasMessages"
+        class="space-y-6 flex-1 flex flex-col w-full"
+      >
+        <template v-for="(item, index) in visibleMessages" :key="item.id">
           <CopilotAgentMessage
             v-if="item.message_type === 'user'"
             :message="item.message"
@@ -149,24 +183,14 @@ watch(
           <CopilotAssistantMessage
             v-else-if="item.message_type === 'assistant'"
             :message="item.message"
-            :is-last-message="index === groupedMessages.length - 1"
+            :is-last-message="index === visibleMessages.length - 1"
             :conversation-inbox-type="conversationInboxType"
-          />
-          <CopilotThinkingGroup
-            v-else
-            :messages="item.messages"
-            :default-collapsed="isLastMessageFromAssistant"
           />
         </template>
 
         <CopilotLoader v-if="!isLastMessageFromAssistant" />
       </div>
-      <CopilotEmptyState
-        v-else
-        :has-assistants="hasAssistants"
-        :can-suggest-reply="canSuggestReply"
-        @use-suggestion="sendMessage"
-      />
+      <CopilotEmptyState v-else :has-assistants="hasAssistants" />
     </div>
 
     <div class="mx-3 mt-px mb-2">
@@ -180,7 +204,7 @@ watch(
         <div v-else />
       </div>
       <CopilotInput
-        v-if="hasAssistants"
+        v-if="hasAssistants && !showHistory"
         class="mb-1 w-full"
         @send="sendMessage"
       />

@@ -481,13 +481,29 @@
       "EMPTY_LIST": "No assistants found, please create one to get started"
     },
     "COPILOT": {
-      "TITLE": "Copilot",
-      "TRY_THESE_PROMPTS": "Try these prompts",
-      "PANEL_TITLE": "Get started with Copilot",
-      "KICK_OFF_MESSAGE": "Need a quick summary, want to check past conversations, or draft a better reply? Copilot’s here to speed things up.",
+      "TITLE": "DueBot",
+      "PANEL_TITLE": "Hi, I'm DueBot",
+      "KICK_OFF_MESSAGE": "Ask questions about the system and help your customers: screens, routines and ERP rules, or get help understanding a conversation.",
+      "KICK_OFF_MESSAGE_CLIENT": "Get quick answers about the system.",
       "SEND_MESSAGE": "Send message...",
       "EMPTY_MESSAGE": "There was an error generating the response. Please try again.",
-      "LOADER": "Captain is thinking",
+      "LOADER": "Thinking about your answer",
+      "LOADER_PHRASES": {
+        "ONE": "Thinking about your answer",
+        "TWO": "Checking the knowledge base",
+        "THREE": "Organizing the reply",
+        "FOUR": "Just a moment"
+      },
+      "HISTORY": {
+        "TITLE": "Chat history",
+        "OPEN": "View history",
+        "BACK": "Back",
+        "EMPTY": "You haven't chatted with DueBot yet.",
+        "LOADING": "Loading history...",
+        "LOAD_ERROR": "Could not load the history.",
+        "LOAD_MORE": "Show more chats"
+      },
+      "NEW_CHAT": "New chat",
       "YOU": "You",
       "USE": "Use this",
       "RESET": "Reset",

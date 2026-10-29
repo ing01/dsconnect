@@ -3,17 +3,28 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import ButtonGroup from 'dashboard/components-next/buttonGroup/ButtonGroup.vue';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { computed } from 'vue';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
+import { useMapGetter } from 'dashboard/composables/store';
 import { useKeyboardEvents } from 'dashboard/composables/useKeyboardEvents';
 
 const { updateUISettings } = useUISettings();
 
-// Botao do Copiloto removido de proposito (pedido da Ingrid: agentes nao
-// devem usar IA nas Conversas por enquanto) - mantido so' o icone de
-// contato. `is_copilot_panel_open` continua existindo em `uiSettings` (nao
-// vale a pena migrar quem ja tinha isso salvo), mas nada aqui volta a liga-lo.
+const currentAccountId = useMapGetter('getCurrentAccountId');
+const isFeatureEnabledonAccount = useMapGetter(
+  'accounts/isFeatureEnabledonAccount'
+);
+
+// Painel do DueBot (antigo Copiloto), de volta nas Conversas.
+const showCopilotTab = computed(() =>
+  isFeatureEnabledonAccount.value(currentAccountId.value, FEATURE_FLAGS.CAPTAIN)
+);
+
 const { uiSettings } = useUISettings();
 const isContactSidebarOpen = computed(
   () => uiSettings.value.is_contact_sidebar_open
+);
+const isCopilotPanelOpen = computed(
+  () => uiSettings.value.is_copilot_panel_open
 );
 
 const toggleConversationSidebarToggle = () => {
@@ -27,6 +38,13 @@ const handleConversationSidebarToggle = () => {
   updateUISettings({
     is_contact_sidebar_open: true,
     is_copilot_panel_open: false,
+  });
+};
+
+const handleCopilotSidebarToggle = () => {
+  updateUISettings({
+    is_contact_sidebar_open: false,
+    is_copilot_panel_open: true,
   });
 };
 
@@ -53,6 +71,20 @@ useKeyboardEvents(keyboardEvents);
       }"
       icon="i-ph-user-bold"
       @click="handleConversationSidebarToggle"
+    />
+    <Button
+      v-if="showCopilotTab"
+      v-tooltip.bottom="$t('CONVERSATION.SIDEBAR.COPILOT')"
+      ghost
+      slate
+      sm
+      class="!rounded-full transition-all duration-[250ms] ease-out active:!scale-95 active:duration-75"
+      :class="{
+        'bg-n-alpha-2 !text-n-teal-9 active:!brightness-105 active:shadow-sm':
+          isCopilotPanelOpen,
+      }"
+      icon="i-lucide-sparkles"
+      @click="handleCopilotSidebarToggle"
     />
   </ButtonGroup>
 </template>

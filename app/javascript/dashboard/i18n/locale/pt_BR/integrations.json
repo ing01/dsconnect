@@ -481,13 +481,29 @@
       "EMPTY_LIST": "Nenhum assistente encontrado. Crie um para começar"
     },
     "COPILOT": {
-      "TITLE": "Copiloto",
-      "TRY_THESE_PROMPTS": "Experimente estes comandos",
-      "PANEL_TITLE": "Comece a usar o Copiloto",
-      "KICK_OFF_MESSAGE": "Precisa de um resumo rápido, quer verificar conversas passadas ou redigir uma resposta melhor? O Copiloto está aqui para acelerar as coisas.",
+      "TITLE": "DueBot",
+      "PANEL_TITLE": "Olá, eu sou o DueBot",
+      "KICK_OFF_MESSAGE": "Tire dúvidas sobre o sistema e auxilie seus clientes: pergunte sobre telas, rotinas e regras do ERP, ou peça ajuda para entender uma conversa.",
+      "KICK_OFF_MESSAGE_CLIENT": "Tire dúvidas rápidas sobre o sistema.",
       "SEND_MESSAGE": "Enviar mensagem...",
       "EMPTY_MESSAGE": "Houve um erro ao gerar a resposta. Por favor, tente novamente.",
-      "LOADER": "Dua está pensando",
+      "LOADER": "Pensando para te responder",
+      "LOADER_PHRASES": {
+        "ONE": "Pensando para te responder",
+        "TWO": "Consultando a base de conhecimento",
+        "THREE": "Organizando a resposta",
+        "FOUR": "Só mais um instante"
+      },
+      "HISTORY": {
+        "TITLE": "Histórico de conversas",
+        "OPEN": "Ver histórico",
+        "BACK": "Voltar",
+        "EMPTY": "Você ainda não conversou com o DueBot.",
+        "LOADING": "Carregando histórico...",
+        "LOAD_ERROR": "Não foi possível carregar o histórico.",
+        "LOAD_MORE": "Ver mais conversas"
+      },
+      "NEW_CHAT": "Nova conversa",
       "YOU": "Você",
       "USE": "Use isto",
       "RESET": "Reiniciar",

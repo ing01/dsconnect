@@ -10,7 +10,7 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
                               .includes(:user, :assistant)
                               .order(created_at: :desc)
                               .page(permitted_params[:page] || 1)
-                              .per(5)
+                              .per(20)
   end
 
   def create

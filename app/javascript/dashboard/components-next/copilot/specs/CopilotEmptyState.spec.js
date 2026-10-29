@@ -2,12 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 
 import CopilotEmptyState from '../CopilotEmptyState.vue';
 
-vi.mock('vue-i18n', () => ({
-  useI18n: () => ({ t: key => key }),
-}));
-
 vi.mock('vue-router', () => ({
-  useRoute: () => ({ path: '/app/accounts/1/conversations/1' }),
+  useRoute: () => ({ params: { accountId: 1 } }),
 }));
 
 const mountComponent = (props = {}) =>
@@ -20,35 +16,23 @@ const mountComponent = (props = {}) =>
   });
 
 describe('CopilotEmptyState', () => {
-  it('marks only the reply suggestion prompt with its request type', async () => {
+  it('nao mostra mais a lista de comandos prontos', () => {
     const wrapper = mountComponent();
-    const prompts = wrapper.findAll('button');
 
-    await prompts[1].trigger('click');
-
-    expect(wrapper.emitted('useSuggestion')[0][0]).toEqual({
-      message: 'CAPTAIN.COPILOT.PROMPTS.SUGGEST.CONTENT',
-      requestType: 'reply_suggestion',
-    });
+    expect(wrapper.findAll('button')).toHaveLength(0);
+    expect(wrapper.text()).not.toContain('TRY_THESE_PROMPTS');
   });
 
-  it('keeps other Copilot prompts unchanged', async () => {
+  it('usa o texto de colaborador por padrao', () => {
     const wrapper = mountComponent();
-    const prompts = wrapper.findAll('button');
 
-    await prompts[0].trigger('click');
-
-    expect(wrapper.emitted('useSuggestion')[0][0]).toBe(
-      'CAPTAIN.COPILOT.PROMPTS.SUMMARIZE.CONTENT'
-    );
+    expect(wrapper.text()).toContain('CAPTAIN.COPILOT.KICK_OFF_MESSAGE');
+    expect(wrapper.text()).not.toContain('KICK_OFF_MESSAGE_CLIENT');
   });
 
-  it('hides the reply suggestion when the latest message is not incoming', () => {
-    const wrapper = mountComponent({ canSuggestReply: false });
+  it('usa o texto de cliente quando o perfil e cliente', () => {
+    const wrapper = mountComponent({ audience: 'client' });
 
-    expect(wrapper.findAll('button')).toHaveLength(2);
-    expect(wrapper.text()).not.toContain(
-      'CAPTAIN.COPILOT.PROMPTS.SUGGEST.LABEL'
-    );
+    expect(wrapper.text()).toContain('CAPTAIN.COPILOT.KICK_OFF_MESSAGE_CLIENT');
   });
 });

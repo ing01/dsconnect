@@ -232,7 +232,7 @@
       "MESSAGING_RESTRICTED_ASSIGNED": "Esta conversa está atribuída a {name}. Atribua a você mesmo para responder.",
       "MESSAGING_RESTRICTED_RESOLVED": "Esta conversa está resolvida. Reabra-a para responder.",
       "MESSAGE_SIGNATURE_NOT_CONFIGURED": "A assinatura da mensagem não está configurada. Por favor, configure-a nas configurações do perfil.",
-      "COPILOT_MSG_INPUT": "Forneça instruções adicionais ao Copiloto ou pergunte algo mais... Pressione Enter para enviar",
+      "COPILOT_MSG_INPUT": "Pergunte algo ao DueBot... Pressione Enter para enviar",
       "CLICK_HERE": "Clique aqui para atualizar",
       "WHATSAPP_TEMPLATES": "Modelos do Whatsapp"
     },
@@ -254,7 +254,7 @@
       "IMAGE_UPLOAD_SUCCESS": "Imagem enviada com sucesso",
       "START_AUDIO_RECORDING": "Iniciar gravação de áudio",
       "STOP_AUDIO_RECORDING": "Parar gravação de áudio",
-      "COPILOT_THINKING": "O Copiloto está pensando",
+      "COPILOT_THINKING": "DueBot pensando para te responder",
       "EMAIL_HEAD": {
         "TO": "Para",
         "ADD_BCC": "Adicionar cco",
@@ -346,7 +346,7 @@
     },
     "SIDEBAR": {
       "CONTACT": "Contatos",
-      "COPILOT": "Copiloto"
+      "COPILOT": "DueBot"
     },
     "VOICE_WIDGET": {
       "INCOMING_CALL": "Chamada recebida",
