@@ -56,8 +56,10 @@ class TicketsAPI extends ApiClient {
     return axios.patch(`${this.url}/${id}/reopen`);
   }
 
-  close(id) {
-    return axios.patch(`${this.url}/${id}/close`);
+  // `resolution` e' a Resolucao escrita por quem fecha; vai junto, e o servidor
+  // so' a grava se o fechamento for aceito.
+  close(id, params = {}) {
+    return axios.patch(`${this.url}/${id}/close`, params);
   }
 
   summarizeConversation(id, signal) {

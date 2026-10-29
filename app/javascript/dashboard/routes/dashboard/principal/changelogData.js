@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-resolution-required-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Fechar ticket agora pede a Resolução',
+    description:
+      'Ao fechar um ticket, além da classificação e da comunicação com o cliente, é preciso descrever o que foi feito para resolver. Esse texto fica no ticket e no Histórico, e vai alimentar o DueRules e a documentação.',
+  },
+  {
     id: 'client-portal-ticket-filters-2026-10-29',
     date: '29 de outubro de 2026',
     isoDate: '2026-10-29',

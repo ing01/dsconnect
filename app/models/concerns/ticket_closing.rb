@@ -1,5 +1,7 @@
 # What a ticket needs before an agent may close it: a service catalogue
-# classification, and a closing message that actually reached the customer.
+# classification, a closing message that actually reached the customer, and the
+# Resolucao - o que foi feito para resolver, que alimenta o DueRules e a
+# documentacao.
 #
 # Enforced in the model rather than in the controller, so every path that closes
 # a ticket on an agent's behalf goes through it - the detail page, the Kanban
@@ -27,6 +29,7 @@ module TicketClosing
   MISSING_COMMUNICATION = 'customer_communication'.freeze
   MISSING_CONTACT_EMAIL = 'contact_email'.freeze
   MISSING_CHECKLIST = 'checklist'.freeze
+  MISSING_RESOLUTION = 'resolution'.freeze
 
   included do
     belongs_to :service_catalog_item, optional: true
@@ -91,6 +94,7 @@ module TicketClosing
     # required and neither substitutes the other.
     missing << MISSING_CATEGORY if ticket_category_id.blank?
     missing << MISSING_CATALOG unless classified?
+    missing << MISSING_RESOLUTION if resolution.blank?
     missing.concat(missing_communication_requirements)
     # Same rule as `ensure_checklist_completed!`: a linked Apontamento
     # (calendar_event) bypasses pending checklist items.

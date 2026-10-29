@@ -15,9 +15,13 @@ RSpec.describe 'Ticket closing requirements', type: :request do
   let(:area) { create(:service_catalog_area, service_catalog: catalog, name: 'Movimentações') }
   let(:item) { create(:service_catalog_item, service_catalog_area: area, name: 'Notas Fiscais de Mercadorias') }
 
+  # Com Resolucao de saida: as regras abaixo falam de Categoria, Catalogo e
+  # comunicacao, e cada uma isola o seu requisito. A Resolucao tem o proprio
+  # bloco no fim do arquivo, onde ela e' retirada.
   let(:ticket) do
     create(:ticket, account: account, ticket_column: column, team: team,
-                    company: company, contact: contact)
+                    company: company, contact: contact,
+                    resolution: 'Ajustado o cadastro e reprocessada a nota.')
   end
 
   def auth
@@ -159,6 +163,83 @@ RSpec.describe 'Ticket closing requirements', type: :request do
       close_ticket
 
       expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
+  # A Resolucao: o que foi feito para resolver. Alimenta o DueRules e a
+  # documentacao, por isso fechar sem ela nao pode.
+  describe 'the Resolucao requirement' do
+    before do
+      ticket.update!(service_catalog_item: item)
+      record_sent_communication
+    end
+
+    it 'refuses to close a ticket without a Resolucao' do
+      ticket.update_column(:resolution, nil) # rubocop:disable Rails/SkipsModelValidations
+
+      close_ticket
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body['missing']).to eq(['resolution'])
+      expect(ticket.reload.status).to eq('open')
+    end
+
+    it 'treats a blank Resolucao as missing' do
+      ticket.update_column(:resolution, '   ') # rubocop:disable Rails/SkipsModelValidations
+
+      close_ticket
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'closes when the Resolucao comes with the close request, and saves it' do
+      ticket.update_column(:resolution, nil) # rubocop:disable Rails/SkipsModelValidations
+
+      patch "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/close",
+            params: { resolution: '  Trocado o certificado e reprocessada a nota.  ' },
+            headers: auth, as: :json
+
+      expect(response).to have_http_status(:success)
+      ticket.reload
+      expect(ticket.status).to eq('closed')
+      expect(ticket.resolution).to eq('Trocado o certificado e reprocessada a nota.')
+    end
+
+    it 'does not keep the text when the close is refused for another reason' do
+      ticket.update_column(:resolution, nil) # rubocop:disable Rails/SkipsModelValidations
+      ticket.ticket_customer_communications.destroy_all
+
+      patch "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/close",
+            params: { resolution: 'Texto que nao deve ficar.' },
+            headers: auth, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(ticket.reload.resolution).to be_nil
+    end
+
+    it 'records the Resolucao in the history' do
+      ticket.update_column(:resolution, nil) # rubocop:disable Rails/SkipsModelValidations
+
+      patch "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/close",
+            params: { resolution: 'Trocado o certificado.' },
+            headers: auth, as: :json
+
+      activity = ticket.ticket_activities.find_by(activity_type: :resolution_changed)
+      expect(activity.new_value).to eq('Trocado o certificado.')
+      expect(activity.user).to eq(administrator)
+    end
+
+    it 'exposes the Resolucao on the ticket detail' do
+      get "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}", headers: auth, as: :json
+
+      expect(response.parsed_body['resolution']).to eq('Ajustado o cadastro e reprocessada a nota.')
+    end
+
+    # Agrupar e' um fechamento administrativo, nao um atendimento concluido.
+    it 'does not ask for it on an administrative close (grouping)' do
+      ticket.update_column(:resolution, nil) # rubocop:disable Rails/SkipsModelValidations
+
+      expect { ticket.close!(administrator, skip_requirements: true) }.not_to raise_error
     end
   end
 

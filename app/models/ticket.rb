@@ -149,6 +149,7 @@ class Ticket < ApplicationRecord
     'due_date' => :due_date_changed,
     'scheduled_at' => :scheduled_at_changed,
     'description' => :description_changed,
+    'resolution' => :resolution_changed,
     'ticket_complexity_id' => :complexity_changed,
     'assignee_2_id' => :assignee_level_changed,
     'assignee_3_id' => :assignee_level_changed,
@@ -184,9 +185,14 @@ class Ticket < ApplicationRecord
 
   # `skip_requirements` is for administrative closes only - grouping a ticket
   # into another is not a finished attendance. See TicketClosing.
-  def close!(user = Current.user, skip_requirements: false)
+  #
+  # `resolution` e' a Resolucao escrita por quem fecha. Entra ANTES da checagem,
+  # para ela contar como cumprida, e so' e' gravada junto com o fechamento: se a
+  # checagem recusar, o texto nao fica a meio caminho no ticket.
+  def close!(user = Current.user, skip_requirements: false, resolution: nil)
     return if closed?
 
+    self.resolution = resolution.to_s.strip if resolution.present?
     ensure_checklist_completed! unless skip_requirements
     ensure_closeable!(skip_requirements: skip_requirements)
 
@@ -376,7 +382,7 @@ class Ticket < ApplicationRecord
   def activity_value(attribute, value)
     return nil if value.nil?
     return value.iso8601 if value.respond_to?(:iso8601)
-    return value.to_s.truncate(500) if attribute == 'description'
+    return value.to_s.truncate(500) if %w[description resolution].include?(attribute)
 
     value.to_s
   end

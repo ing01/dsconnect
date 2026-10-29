@@ -226,7 +226,7 @@ RSpec.describe Tickets::CustomerCommunicationService do
     it 'lets the ticket be closed' do
       # A Categoria ja vem da fabrica (a Mesa provisiona a lista padrao); o
       # Catalogo e o que falta para o ticket poder fechar.
-      ticket.update!(service_catalog_item: create(:service_catalog_item))
+      ticket.update!(service_catalog_item: create(:service_catalog_item), resolution: 'Ajustado o cadastro.')
       with_smtp { perform(notify_customer: false) }
 
       expect(ticket.reload.closeable?).to be(true)

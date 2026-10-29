@@ -143,4 +143,5 @@ end
 json.display_subject resource.display_subject
 
 json.missing_close_requirements resource.missing_close_requirements
+json.resolution resource.resolution
 json.customer_email resource.customer_email

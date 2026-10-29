@@ -25,6 +25,9 @@ const catalogId = ref(null);
 const areaId = ref(null);
 const itemId = ref(null);
 const body = ref('');
+// O que foi feito para resolver. Alimenta o DueRules e a documentacao - por isso
+// e' obrigatoria, e nao um campo opcional de observacao.
+const resolution = ref('');
 // Mesma escolha da aba Comunicacao: desmarcado, a mensagem de encerramento e
 // REGISTRADA sem e-mail. Ela continua valendo para fechar o ticket - o cliente
 // ve o texto na Area do Cliente -, e serve para quando a equipe ja avisou por
@@ -37,6 +40,7 @@ const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
 // verdict rather than re-deriving the rules here.
 const missing = computed(() => props.ticket.missing_close_requirements || []);
 const needsCatalog = computed(() => missing.value.includes('service_catalog'));
+const needsResolution = computed(() => missing.value.includes('resolution'));
 const needsCommunication = computed(() =>
   missing.value.includes('customer_communication')
 );
@@ -52,6 +56,9 @@ const missingEmail = computed(() => missing.value.includes('contact_email'));
 const classification = computed(() => props.ticket.service_catalog_item);
 
 const catalogReady = computed(() => !needsCatalog.value || !!itemId.value);
+const resolutionReady = computed(
+  () => !needsResolution.value || !!resolution.value.trim()
+);
 // The subject is not the agent's to write: the server titles every customer
 // message with the ticket header, the closing notice included. Shown here so
 // what will be sent is visible.
@@ -63,7 +70,10 @@ const communicationReady = computed(
 );
 const canSubmit = computed(
   () =>
-    catalogReady.value && communicationReady.value && !needsChecklist.value
+    catalogReady.value &&
+    resolutionReady.value &&
+    communicationReady.value &&
+    !needsChecklist.value
 );
 
 const open = () => {
@@ -71,6 +81,7 @@ const open = () => {
   areaId.value = null;
   itemId.value = null;
   body.value = '';
+  resolution.value = '';
   notificarCliente.value = true;
   store.dispatch('serviceCatalogs/fetch');
   dialogRef.value?.open();
@@ -102,7 +113,12 @@ const submit = async () => {
       });
     }
 
-    await store.dispatch('tickets/closeTicket', props.ticket.id);
+    // A Resolucao vai no proprio fechamento: o servidor so' a grava se o ticket
+    // fechar, entao uma recusa nao deixa texto solto no ticket.
+    await store.dispatch('tickets/closeTicket', {
+      id: props.ticket.id,
+      resolution: needsResolution.value ? resolution.value.trim() : undefined,
+    });
     dialogRef.value?.close();
     emit('closed');
   } catch (error) {
@@ -120,6 +136,7 @@ watch(
     catalogId.value = null;
     areaId.value = null;
     itemId.value = null;
+    resolution.value = '';
   }
 );
 
@@ -163,6 +180,46 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           v-model:item-id="itemId"
           :catalogs="catalogs"
         />
+      </section>
+
+      <div class="h-px bg-n-weak" />
+
+      <!-- Step 2: a Resolucao. Obrigatoria: e' o que a equipe realmente fez, e e'
+           a partir dela que o DueRules e a documentacao aprendem. Ja registrada,
+           aparece como feita em vez de pedir de novo. -->
+      <section class="flex flex-col gap-3 min-w-0">
+        <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
+          <Icon
+            :icon="
+              needsResolution ? 'i-lucide-circle-alert' : 'i-lucide-circle-check'
+            "
+            class="flex-shrink-0 size-4"
+            :class="needsResolution ? 'text-n-amber-11' : 'text-n-teal-11'"
+          />
+          {{ t('TICKET.CLOSE.STEP_RESOLUTION') }}
+        </h3>
+
+        <p
+          v-if="!needsResolution"
+          class="text-sm whitespace-pre-line text-n-slate-11"
+        >
+          {{ ticket.resolution }}
+        </p>
+
+        <label v-else class="flex flex-col gap-1 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.CLOSE.RESOLUTION') }}<span class="text-n-ruby-11">*</span>
+          </span>
+          <span class="text-xs text-n-slate-10">
+            {{ t('TICKET.CLOSE.RESOLUTION_HINT') }}
+          </span>
+          <textarea
+            v-model="resolution"
+            rows="5"
+            class="resolucao w-full mb-0 text-sm resize-y min-h-[8rem]"
+            :placeholder="t('TICKET.CLOSE.RESOLUTION_PLACEHOLDER')"
+          />
+        </label>
       </section>
 
       <div class="h-px bg-n-weak" />

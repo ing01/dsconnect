@@ -67,7 +67,9 @@ class TicketActivity < ApplicationRecord
     time_entry_added: 40,
     time_entry_removed: 41,
     checklist_item_completed: 42,
-    checklist_item_reopened: 43
+    checklist_item_reopened: 43,
+    # A Resolucao do ticket (o que foi feito para resolver), registrada ao fechar.
+    resolution_changed: 44
   }
 
   # Mudancas de Mesa que o cliente ve como notificacao (ver

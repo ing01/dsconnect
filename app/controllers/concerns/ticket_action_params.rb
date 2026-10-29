@@ -22,7 +22,8 @@ module TicketActionParams
   ASSIGNEE_PARAMS = AssigneeLeveled::ALL_LEVELS.map { |level| AssigneeLeveled.assignee_column(level) }.freeze
 
   def transfer_params
-    params.require(:ticket).permit(:team_id, :ticket_column_id, :status, :priority, *ASSIGNEE_PARAMS).to_h.symbolize_keys
+    params.require(:ticket).permit(:team_id, :ticket_column_id, :status, :priority, :resolution,
+                                   *ASSIGNEE_PARAMS).to_h.symbolize_keys
   end
 
   # Which parts of the parent to copy server-side. The form is authoritative for
@@ -57,7 +58,7 @@ module TicketActionParams
   def ticket_params
     params.require(:ticket).permit(:title, :description, :priority, :team_id,
                                    :ticket_column_id, :company_id, :contact_id, :ticket_category_id,
-                                   :ticket_complexity_id,
+                                   :ticket_complexity_id, :resolution,
                                    :parent_id, :project_id, :due_date, :scheduled_at, :next_project_stage,
                                    # Modulo de Desenvolvimento - `sprint_id`/`development_type` so' tem
                                    # sentido pra uma Mesa com o modulo ativo, mas permitir aqui sempre e'

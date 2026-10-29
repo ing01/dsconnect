@@ -92,6 +92,25 @@ defineEmits([
           :is-saving="isSavingDescription"
           @save="$emit('saveDescription', $event)"
         />
+        <!-- O que foi feito para resolver, escrito ao fechar. So aparece quando
+             existe: um ticket aberto ainda nao tem resolucao para mostrar. -->
+        <section
+          v-if="ticket.resolution"
+          class="flex flex-col gap-2 p-4 border rounded-lg border-n-weak"
+        >
+          <h3
+            class="flex items-center gap-2 m-0 text-sm font-medium text-n-slate-12"
+          >
+            <Icon
+              icon="i-lucide-check-check"
+              class="flex-shrink-0 size-4 text-n-teal-11"
+            />
+            {{ $t('TICKET.DETAIL.RESOLUTION') }}
+          </h3>
+          <p class="m-0 text-sm whitespace-pre-line text-n-slate-11">
+            {{ ticket.resolution }}
+          </p>
+        </section>
         <TicketAttachmentsAccordion
           :ticket-id="ticket.id"
           :can-update="canUpdate"

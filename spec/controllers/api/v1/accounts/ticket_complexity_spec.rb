@@ -161,7 +161,7 @@ RSpec.describe 'Ticket complexity', type: :request do
     # a classificacao no Catalogo e a comunicacao de encerramento.
     def ticket_pronto_para_fechar
       ticket = ticket_em(suporte, coluna_suporte)
-      ticket.update!(service_catalog_item: create(:service_catalog_item))
+      ticket.update!(service_catalog_item: create(:service_catalog_item), resolution: 'Ajustado o cadastro.')
       allow_any_instance_of(Ticket).to receive(:customer_email_deliverable?).and_return(false) # rubocop:disable RSpec/AnyInstance
       ticket
     end

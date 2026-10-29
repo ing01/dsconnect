@@ -102,6 +102,60 @@ describe('TicketCloseDialog', () => {
     expect(wrapper.find('.editor').exists()).toBe(false);
   });
 
+  // A Resolucao alimenta o DueRules e a documentacao: sem ela nao se fecha, e o
+  // texto vai no proprio pedido de fechamento.
+  describe('a Resolucao', () => {
+    const semResolucao = () =>
+      ticket({
+        missing_close_requirements: ['resolution', 'customer_communication'],
+      });
+
+    const fecharCom = async (wrapper, texto) => {
+      await escrever(wrapper);
+      if (texto !== undefined) {
+        await wrapper.find('textarea.resolucao').setValue(texto);
+      }
+      await wrapper.find('button.confirmar').trigger('click');
+      await flushPromises();
+    };
+
+    const fechamento = () =>
+      dispatch.mock.calls.find(([acao]) => acao === 'tickets/closeTicket')?.[1];
+
+    it('asks for it when the ticket has none', async () => {
+      const wrapper = await montar({ ticket: semResolucao() });
+
+      expect(wrapper.find('textarea.resolucao').exists()).toBe(true);
+    });
+
+    it('does not close while it is empty or only blanks', async () => {
+      const wrapper = await montar({ ticket: semResolucao() });
+      await fecharCom(wrapper, '   ');
+
+      expect(fechamento()).toBeUndefined();
+    });
+
+    it('sends it, trimmed, with the close', async () => {
+      const wrapper = await montar({ ticket: semResolucao() });
+      await fecharCom(wrapper, '  Preenchido o NCM e reenviada a nota.  ');
+
+      expect(fechamento()).toEqual({
+        id: 1,
+        resolution: 'Preenchido o NCM e reenviada a nota.',
+      });
+    });
+
+    // Ja registrada, mostra o que foi escrito em vez de pedir de novo.
+    it('shows the saved one instead of asking again', async () => {
+      const wrapper = await montar({
+        ticket: ticket({ resolution: 'Ajustado o cadastro.' }),
+      });
+
+      expect(wrapper.find('textarea.resolucao').exists()).toBe(false);
+      expect(wrapper.text()).toContain('Ajustado o cadastro.');
+    });
+  });
+
   describe('o flag de e-mail', () => {
     it('comes checked, so the usual case sends the e-mail', async () => {
       const wrapper = await montar();
@@ -129,7 +183,10 @@ describe('TicketCloseDialog', () => {
       await wrapper.find('input.notificar').trigger('change');
       await fechar(wrapper);
 
-      expect(dispatch).toHaveBeenCalledWith('tickets/closeTicket', 1);
+      expect(dispatch).toHaveBeenCalledWith('tickets/closeTicket', {
+        id: 1,
+        resolution: undefined,
+      });
     });
 
     // Sem envio nao ha destinatario nem assunto, e mostra-los descreveria uma

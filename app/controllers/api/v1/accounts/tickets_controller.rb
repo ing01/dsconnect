@@ -89,7 +89,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   # Refuses with the list of what is missing, so the UI can say which of the two
   # requirements the agent still owes rather than showing a generic error.
   def close
-    @ticket.close!(Current.user)
+    @ticket.close!(Current.user, resolution: params[:resolution])
     render 'show'
   rescue TicketClosing::NotAllowed => e
     render json: { error: I18n.t('tickets.close.blocked'), code: 'close_requirements_missing', missing: e.missing },

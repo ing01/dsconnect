@@ -38,7 +38,7 @@ class Tickets::TransferService
 
     case target.to_s
     when 'resolved' then ticket.resolve!(user)
-    when 'closed' then ticket.close!(user)
+    when 'closed' then ticket.close!(user, resolution: attributes[:resolution])
     when 'cancelled' then ticket.cancel!(user)
     else ticket.reopen!(user)
     end

@@ -105,8 +105,15 @@ export const actions = {
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },
-  closeTicket: async ({ commit }, id) => {
-    const response = await TicketsAPI.close(id);
+  // Aceita o id solto (cartao, mudanca de status) ou `{ id, resolution }`, que e'
+  // o que o modal de fechamento manda.
+  closeTicket: async ({ commit }, payload) => {
+    const { id, resolution } =
+      typeof payload === 'object' ? payload : { id: payload };
+    const response = await TicketsAPI.close(
+      id,
+      resolution ? { resolution } : {}
+    );
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },

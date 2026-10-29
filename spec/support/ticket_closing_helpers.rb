@@ -1,13 +1,23 @@
-# Closing a ticket now requires a service catalogue classification and a closing
-# message that actually reached the customer. Specs whose subject is something
+# Closing a ticket now requires a service catalogue classification, a closing
+# message that actually reached the customer and a Resolucao. Specs whose subject is something
 # else - the Kanban scope, duplication, a transfer - state that setup through
 # this helper instead of repeating it, and keep exercising the real close path
 # rather than bypassing the rules.
 module TicketClosingHelpers
-  # Gives the ticket both requirements. Returns the ticket so it can be chained.
+  # Gives the ticket every requirement. Returns the ticket so it can be chained.
   def make_ticket_closeable!(ticket, user: nil)
     classify_ticket!(ticket)
     record_closing_communication!(ticket, user: user)
+    write_resolution!(ticket)
+    ticket
+  end
+
+  # Straight to the column: the Resolucao is a requirement here, not the subject,
+  # and going through `update!` would add a history entry the specs do not expect.
+  def write_resolution!(ticket)
+    return ticket if ticket.resolution.present?
+
+    ticket.update_column(:resolution, 'Reprocessada a nota após ajustar o cadastro.') # rubocop:disable Rails/SkipsModelValidations
     ticket
   end
 
