@@ -67,6 +67,31 @@ describe('clientArea API', () => {
     });
   });
 
+  // Os filtros da lista saem com o nome que o servidor le, e o que esta vazio
+  // nem vai na requisicao - sem `status` o servidor mostra so os abertos.
+  it('sends only the filled list filters, with the server parameter names', async () => {
+    const api = await carregar();
+    await api.board(7, {
+      teamId: 2,
+      ticketColumnId: 15,
+      assigneeId: null,
+      status: 'closed',
+      createdAfter: '2026-10-01',
+      createdBefore: '',
+    });
+
+    expect(get).toHaveBeenCalledWith('/api/v1/client/tickets', {
+      headers: { api_access_token: 'token-do-cliente' },
+      params: {
+        company_id: 7,
+        team_id: 2,
+        ticket_column_id: 15,
+        status: 'closed',
+        created_after: '2026-10-01',
+      },
+    });
+  });
+
   // A conta nunca vai na URL: ela é a do contato autenticado, resolvida no
   // servidor. Sem id de conta na requisição não há id de conta para trocar.
   it('never puts an account id in the path', async () => {

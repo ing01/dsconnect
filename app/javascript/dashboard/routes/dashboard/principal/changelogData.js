@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-portal-ticket-filters-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'feature',
+    platform: 'web',
+    title: 'Portal do cliente: filtros na lista de tickets',
+    description:
+      'No portal web, a lista de tickets agora filtra por Mesa, Estágio (da Mesa escolhida), Responsável, Status e período de abertura, igual ao aplicativo. Sem escolher um status, aparecem só os chamados abertos.',
+  },
+  {
     id: 'backlog-sprint-board-taller-2026-10-29',
     date: '29 de outubro de 2026',
     isoDate: '2026-10-29',

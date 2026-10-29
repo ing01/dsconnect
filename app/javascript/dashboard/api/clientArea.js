@@ -23,6 +23,16 @@ const cliente = axios.create({ baseURL: `${apiHost}/` });
 
 const BASE = '/api/v1/client';
 
+// Filtro da tela -> parâmetro que o servidor lê (Api::V1::Client::TicketsController).
+const BOARD_FILTER_PARAMS = {
+  teamId: 'team_id',
+  ticketColumnId: 'ticket_column_id',
+  assigneeId: 'assignee_id',
+  status: 'status',
+  createdAfter: 'created_after',
+  createdBefore: 'created_before',
+};
+
 // Sessão morta não pode virar tela quebrada.
 //
 // O token do cookie deixa de valer em situações normais: a equipe desliga o
@@ -87,14 +97,19 @@ export default {
 
   // A lista: Empresas e os tickets que este contato pode ver, de todas as
   // Mesas juntas. `companyId` só estreita quando o contato tem mais de uma
-  // Empresa.
-  board(companyId) {
-    return cliente.get(`${BASE}/tickets`, {
-      headers: headers(),
-      params: {
-        ...(companyId ? { company_id: companyId } : {}),
-      },
+  // Empresa. `filters` são os mesmos do app (Mesa, Estágio, Responsável, status
+  // e período de abertura); o que vem vazio nem sai na requisição, e sem
+  // `status` o servidor devolve só os chamados abertos.
+  board(companyId, filters = {}) {
+    const params = { ...(companyId ? { company_id: companyId } : {}) };
+    Object.entries(BOARD_FILTER_PARAMS).forEach(([chave, parametro]) => {
+      const valor = filters[chave];
+      if (valor !== null && valor !== undefined && valor !== '') {
+        params[parametro] = valor;
+      }
     });
+
+    return cliente.get(`${BASE}/tickets`, { headers: headers(), params });
   },
 
   // O chamado aberto: o cabeçalho mais o que as abas mostram.

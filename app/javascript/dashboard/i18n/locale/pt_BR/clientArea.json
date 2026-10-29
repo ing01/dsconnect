@@ -80,6 +80,19 @@
       "SHOW_COMPLETED": "Mostrar finalizados",
       "STATUS": "Status",
       "PRIORITY": "Prioridade",
+      "FILTERS": {
+        "TEAM": "Mesa",
+        "ALL_TEAMS": "Todas as mesas",
+        "COLUMN": "Estágio",
+        "ALL_COLUMNS": "Todos os estágios",
+        "PICK_TEAM_FIRST": "Escolha uma Mesa para filtrar por Estágio",
+        "ASSIGNEE": "Responsável",
+        "ALL_ASSIGNEES": "Todos os responsáveis",
+        "STATUS_DEFAULT": "Abertos (padrão)",
+        "OPENED_FROM": "Aberto de",
+        "OPENED_UNTIL": "até",
+        "NO_MATCH": "Nenhum chamado encontrado com esses filtros."
+      },
       "DESCRIPTION": "Acompanhe os chamados da sua empresa e abra novos."
     },
     "NEW_TICKET": {

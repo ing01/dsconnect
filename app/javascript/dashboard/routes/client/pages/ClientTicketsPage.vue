@@ -16,7 +16,7 @@
  * Quando o painel mudar, esta tela muda junto - que é o motivo de ela não ter
  * componentes próprios.
  */
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
@@ -29,15 +29,38 @@ import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TicketListView from 'dashboard/routes/dashboard/tickets/components/TicketListView.vue';
 import { ticketMatchesFilters } from 'dashboard/routes/dashboard/tickets/helpers/ticketFilters';
 import ClientTicketDialog from '../components/ClientTicketDialog.vue';
+import ClientTicketFilters from '../components/ClientTicketFilters.vue';
 
 const { t } = useI18n();
 const router = useRouter();
 
 const isLoading = ref(true);
-const board = ref({ companies: [], tickets: [] });
+const board = ref({
+  companies: [],
+  teams: [],
+  ticket_columns: [],
+  assignees: [],
+  tickets: [],
+});
 const categorias = ref([]);
 const selectedCompanyId = ref(null);
 const quickSearch = ref('');
+
+// Os filtros que o servidor aplica (Mesa, Estagio, Responsavel, status e periodo
+// de abertura) - os mesmos do app. A busca rapida abaixo e' a unica que roda no
+// navegador, em cima do que ja chegou.
+const emptyFilters = () => ({
+  teamId: null,
+  ticketColumnId: null,
+  assigneeId: null,
+  status: null,
+  createdAfter: null,
+  createdBefore: null,
+});
+const serverFilters = ref(emptyFilters());
+const hasServerFilters = computed(() =>
+  Object.values(serverFilters.value).some(valor => valor !== null)
+);
 const novoTicketDialog = ref(null);
 
 const contact = computed(() => getClientSession()?.contact || {});
@@ -63,16 +86,31 @@ const grupos = computed(() => [
   },
 ]);
 
+// Cada mudanca de filtro refaz o pedido; uma resposta antiga que chega depois
+// de uma mais nova (filtro trocado rapido) nao pode sobrescrever a lista.
+let ultimoPedido = 0;
+
 const carregar = async () => {
+  ultimoPedido += 1;
+  const pedido = ultimoPedido;
   isLoading.value = true;
   try {
-    const { data } = await ClientAreaAPI.board(selectedCompanyId.value);
-    board.value = data;
+    const { data } = await ClientAreaAPI.board(
+      selectedCompanyId.value,
+      serverFilters.value
+    );
+    if (pedido === ultimoPedido) board.value = data;
   } catch {
-    useAlert(t('CLIENT_AREA.BOARD.ERROR'));
+    if (pedido === ultimoPedido) useAlert(t('CLIENT_AREA.BOARD.ERROR'));
   } finally {
-    isLoading.value = false;
+    if (pedido === ultimoPedido) isLoading.value = false;
   }
+};
+
+watch(serverFilters, carregar);
+
+const limparFiltros = () => {
+  serverFilters.value = emptyFilters();
 };
 
 const selectCompany = event => {
@@ -162,6 +200,14 @@ onMounted(() => carregar());
           @click="abrirNovoTicket"
         />
       </div>
+
+      <ClientTicketFilters
+        v-model="serverFilters"
+        :teams="board.teams"
+        :ticket-columns="board.ticket_columns"
+        :assignees="board.assignees"
+        @clear="limparFiltros"
+      />
     </header>
 
     <div
@@ -177,7 +223,11 @@ onMounted(() => carregar());
     >
       <Icon icon="i-lucide-inbox" class="size-6 text-n-slate-10" />
       <p class="m-0 text-sm text-n-slate-11">
-        {{ t('CLIENT_AREA.BOARD.EMPTY') }}
+        {{
+          hasServerFilters
+            ? t('CLIENT_AREA.BOARD.FILTERS.NO_MATCH')
+            : t('CLIENT_AREA.BOARD.EMPTY')
+        }}
       </p>
     </div>
 

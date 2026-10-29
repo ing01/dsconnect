@@ -80,6 +80,19 @@
       "SHOW_COMPLETED": "Show finished",
       "STATUS": "Status",
       "PRIORITY": "Priority",
+      "FILTERS": {
+        "TEAM": "Service desk",
+        "ALL_TEAMS": "All service desks",
+        "COLUMN": "Stage",
+        "ALL_COLUMNS": "All stages",
+        "PICK_TEAM_FIRST": "Pick a service desk to filter by stage",
+        "ASSIGNEE": "Assignee",
+        "ALL_ASSIGNEES": "All assignees",
+        "STATUS_DEFAULT": "Open (default)",
+        "OPENED_FROM": "Opened from",
+        "OPENED_UNTIL": "to",
+        "NO_MATCH": "No tickets match these filters."
+      },
       "DESCRIPTION": "Follow your company tickets and open new ones."
     },
     "NEW_TICKET": {
