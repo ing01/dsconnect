@@ -1,7 +1,6 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import Button from 'dashboard/components-next/button/Button.vue';
 import ButtonGroup from 'dashboard/components-next/buttonGroup/ButtonGroup.vue';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useMapGetter } from 'dashboard/composables/store';
@@ -61,13 +60,18 @@ const toggleSidebar = () => {
     <ButtonGroup
       class="rounded-full bg-n-alpha-2 backdrop-blur-lg p-1 shadow hover:shadow-md"
     >
-      <Button
-        icon="i-woot-captain"
-        no-animation
-        class="!rounded-full !bg-n-solid-3 dark:!bg-n-alpha-2 !text-n-slate-12 text-xl transition-all duration-200 ease-out hover:brightness-110"
-        lg
+      <button
+        type="button"
+        :aria-label="$t('CONVERSATION.SIDEBAR.COPILOT')"
+        class="flex items-center justify-center size-12 p-1.5 rounded-full bg-n-solid-3 dark:bg-n-alpha-2 transition-all duration-200 ease-out hover:brightness-110 hover:scale-105 active:scale-95"
         @click="toggleSidebar"
-      />
+      >
+        <img
+          src="/brand-assets/duebot.webp"
+          alt=""
+          class="size-full object-contain"
+        />
+      </button>
     </ButtonGroup>
   </div>
   <template v-else />

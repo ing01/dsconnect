@@ -80,11 +80,16 @@ useKeyboardEvents(keyboardEvents);
       sm
       class="!rounded-full transition-all duration-[250ms] ease-out active:!scale-95 active:duration-75"
       :class="{
-        'bg-n-alpha-2 !text-n-teal-9 active:!brightness-105 active:shadow-sm':
+        'bg-n-alpha-2 active:!brightness-105 active:shadow-sm':
           isCopilotPanelOpen,
       }"
-      icon="i-lucide-sparkles"
       @click="handleCopilotSidebarToggle"
-    />
+    >
+      <img
+        src="/brand-assets/duebot.webp"
+        alt=""
+        class="size-5 object-contain"
+      />
+    </Button>
   </ButtonGroup>
 </template>

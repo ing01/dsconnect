@@ -17,9 +17,11 @@ const BOT_NAME = 'DueBot';
     class="duebot-name inline-flex items-center gap-1.5 font-semibold tracking-wide"
     :class="size === 'lg' ? 'text-xl' : 'text-sm'"
   >
-    <span
-      class="i-lucide-sparkles shrink-0 text-n-teal-9"
-      :class="size === 'lg' ? 'size-5' : 'size-4'"
+    <img
+      src="/brand-assets/duebot.webp"
+      alt=""
+      class="shrink-0 object-contain"
+      :class="size === 'lg' ? 'size-12' : 'size-6'"
     />
     <span class="duebot-name__text">{{ BOT_NAME }}</span>
   </span>
