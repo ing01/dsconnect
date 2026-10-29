@@ -173,6 +173,12 @@
       "ATLEAST_ONE_CONDITION_REQUIRED": "Pelo menos uma condição é necessária",
       "ATLEAST_ONE_ACTION_REQUIRED": "Pelo menos uma ação é necessária"
     },
+    "STAGES": {
+      "TRIGGER": "Gatilho",
+      "CONDITIONS": "Condições",
+      "FLOW": "Fluxo de conversa",
+      "ACTIONS": "Ações"
+    },
     "NONE_OPTION": "Nenhuma",
     "LAST_RESPONDING_AGENT": "Último Agente que Respondeu",
     "EVENTS": {
@@ -242,12 +248,25 @@
       "ADD_STEP": "Adicionar etapa...",
       "EMPTY": "Sem etapas. A automação executa apenas as ações acima.",
       "NEXT_STEP": "Próxima etapa",
+      "NEXT_STEP_SHORT": "Seguir",
       "END": "Encerrar fluxo",
       "HANDOFF": "Encaminhar para atendimento",
       "NOT_SET": "Não definido",
-      "MOVE_UP": "Mover para cima",
-      "MOVE_DOWN": "Mover para baixo",
       "REMOVE": "Remover etapa",
+      "CANVAS": {
+        "TRIGGER_TITLE": "Cliente inicia a conversa",
+        "TRIGGER_DESCRIPTION": "O evento que aciona esta automação",
+        "DISCONNECT": "Desconectar",
+        "REORGANIZE": "Reorganizar automaticamente",
+        "CONNECT_HINT": "Arraste uma linha no diagrama pra conectar, ou escolha o destino aqui:",
+        "CATEGORY": {
+          "MESSAGE": "Mensagens",
+          "DATA": "Busca de dados",
+          "DECISION": "Decisões",
+          "ACTION": "Ações",
+          "AI": "Inteligência artificial"
+        }
+      },
       "WIZARD": {
         "TITLE": "Modelo de triagem de atendimento",
         "DESCRIPTION": "Responda algumas perguntas e isso monta o fluxo completo pra você - escolha WhatsApp ou o widget do site (os dois pedem CNPJ pra identificar a empresa). Ele identifica a empresa, checa bloqueios, verifica se já existe um ticket aberto, cria o ticket e faz uma triagem por IA - só para classificar a prioridade - antes de encaminhar para um atendente humano.",

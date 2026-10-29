@@ -7,14 +7,34 @@
 //
 // `field.kind` diz como desenhar: text, textarea, number, select ou variable.
 // `branches` sao as saidas alem da proxima etapa - os caminhos do "e se nao?".
+//
+// `category` e `icon` so para o canvas visual (FlowCanvas): agrupam a etapa na
+// paleta e escolhem a cor do card e das conexoes. Nao tem nenhum efeito no
+// runner - vide FLOW_STEP_CATEGORIES para a cor de cada categoria.
+
+export const FLOW_STEP_CATEGORIES = [
+  { key: 'message', color: 'blue', icon: 'i-lucide-message-square' },
+  { key: 'data', color: 'indigo', icon: 'i-lucide-search' },
+  { key: 'decision', color: 'amber', icon: 'i-lucide-git-branch' },
+  { key: 'action', color: 'teal', icon: 'i-lucide-ticket' },
+  { key: 'ai', color: 'violet', icon: 'i-lucide-sparkles' },
+];
+
+export const findCategory = key =>
+  FLOW_STEP_CATEGORIES.find(category => category.key === key) ||
+  FLOW_STEP_CATEGORIES[0];
 
 export const FLOW_STEP_TYPES = [
   {
     type: 'send_message',
+    category: 'message',
+    icon: 'i-lucide-message-square',
     fields: [{ key: 'content', kind: 'textarea', required: true }],
   },
   {
     type: 'ask',
+    category: 'message',
+    icon: 'i-lucide-circle-help',
     fields: [
       { key: 'content', kind: 'textarea', required: true },
       { key: 'save_as', kind: 'text', required: true, placeholder: 'nome' },
@@ -30,16 +50,22 @@ export const FLOW_STEP_TYPES = [
   },
   {
     type: 'find_company',
+    category: 'data',
+    icon: 'i-lucide-search',
     fields: [{ key: 'cnpj_from', kind: 'variable', default: 'resposta.cnpj' }],
     branches: ['not_found'],
   },
   {
     type: 'find_contact',
+    category: 'data',
+    icon: 'i-lucide-user',
     fields: [{ key: 'name_from', kind: 'variable', default: 'resposta.nome' }],
     branches: ['not_found'],
   },
   {
     type: 'condition',
+    category: 'decision',
+    icon: 'i-lucide-git-branch',
     fields: [
       { key: 'variable', kind: 'variable', required: true },
       {
@@ -63,6 +89,8 @@ export const FLOW_STEP_TYPES = [
   },
   {
     type: 'create_ticket',
+    category: 'action',
+    icon: 'i-lucide-ticket',
     fields: [
       { key: 'title', kind: 'text', required: true },
       { key: 'description', kind: 'textarea' },
@@ -79,39 +107,66 @@ export const FLOW_STEP_TYPES = [
   },
   {
     type: 'handoff',
+    category: 'action',
+    icon: 'i-lucide-user-round',
     fields: [{ key: 'content', kind: 'textarea' }],
   },
   {
     type: 'check_company_blocked',
+    category: 'decision',
+    icon: 'i-lucide-shield-check',
     fields: [],
     branches: ['blocked'],
   },
   {
     type: 'check_problem_clarity',
+    category: 'decision',
+    icon: 'i-lucide-circle-help',
     fields: [],
     branches: ['unclear'],
   },
   {
     type: 'find_open_ticket_by_number',
+    category: 'data',
+    icon: 'i-lucide-ticket',
     fields: [
-      { key: 'number_from', kind: 'variable', default: 'resposta.numero_ticket' },
+      {
+        key: 'number_from',
+        kind: 'variable',
+        default: 'resposta.numero_ticket',
+      },
     ],
     branches: ['not_found', 'not_owned'],
   },
   {
     type: 'find_open_ticket_for_customer',
-    fields: [{ key: 'team_id', kind: 'select', source: 'teams', required: true }],
+    category: 'data',
+    icon: 'i-lucide-ticket',
+    fields: [
+      { key: 'team_id', kind: 'select', source: 'teams', required: true },
+    ],
     branches: ['found'],
   },
   {
     type: 'list_companies',
-    fields: [{ key: 'save_as', kind: 'text', default: 'resposta.empresa_escolhida' }],
+    category: 'message',
+    icon: 'i-lucide-list',
+    fields: [
+      { key: 'save_as', kind: 'text', default: 'resposta.empresa_escolhida' },
+    ],
     branches: ['no_companies', 'not_selected'],
   },
   {
     type: 'ai_resolve',
+    category: 'ai',
+    icon: 'i-lucide-sparkles',
     fields: [
-      { key: 'assistant_id', kind: 'select', source: 'captainAssistants', required: true },
+      {
+        key: 'assistant_id',
+        kind: 'select',
+        source: 'captainAssistants',
+        required: true,
+      },
       { key: 'max_turns', kind: 'number', default: 6 },
       // So usados se nenhum `create_ticket` rodou antes desta etapa - o
       // ticket entao e criado so no final (resolvido ou encaminhado).
@@ -126,6 +181,8 @@ export const FLOW_STEP_TYPES = [
   },
   {
     type: 'ai_triage',
+    category: 'ai',
+    icon: 'i-lucide-sparkles',
     fields: [
       { key: 'team_id', kind: 'select', source: 'teams', required: true },
       { key: 'content', kind: 'textarea' },
@@ -134,6 +191,8 @@ export const FLOW_STEP_TYPES = [
   },
   {
     type: 'link_contact_to_company',
+    category: 'data',
+    icon: 'i-lucide-link-2',
     fields: [],
     branches: ['inconsistent'],
   },
@@ -205,7 +264,8 @@ export const buildWhatsappTriageTemplate = ({
         'Olá! Você está no atendimento da Duesoft.\n\nPara começarmos, me informe o CNPJ da empresa.',
       save_as: 'resposta.cnpj',
       answer_type: 'cnpj',
-      retry_message: 'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
+      retry_message:
+        'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
     },
     next: 's2',
     branches: {},
@@ -333,7 +393,8 @@ export const buildWidgetTriageTemplate = ({
         'Olá! Você está no atendimento da Duesoft.\n\nPara começarmos, me informe o CNPJ da empresa.',
       save_as: 'resposta.cnpj',
       answer_type: 'cnpj',
-      retry_message: 'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
+      retry_message:
+        'Esse CNPJ não parece válido. Pode conferir e enviar de novo?',
     },
     next: 's2',
     branches: {},

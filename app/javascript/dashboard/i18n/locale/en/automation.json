@@ -174,6 +174,12 @@
       "ATLEAST_ONE_CONDITION_REQUIRED": "At least one condition is required",
       "ATLEAST_ONE_ACTION_REQUIRED": "At least one action is required"
     },
+    "STAGES": {
+      "TRIGGER": "Trigger",
+      "CONDITIONS": "Conditions",
+      "FLOW": "Conversation flow",
+      "ACTIONS": "Actions"
+    },
     "NONE_OPTION": "None",
     "LAST_RESPONDING_AGENT": "Last Responding Agent",
     "EVENTS": {
@@ -243,12 +249,25 @@
       "ADD_STEP": "Add step...",
       "EMPTY": "No steps. The automation only runs the actions above.",
       "NEXT_STEP": "Next step",
+      "NEXT_STEP_SHORT": "Continue",
       "END": "End flow",
       "HANDOFF": "Hand off to an agent",
       "NOT_SET": "Not set",
-      "MOVE_UP": "Move up",
-      "MOVE_DOWN": "Move down",
       "REMOVE": "Remove step",
+      "CANVAS": {
+        "TRIGGER_TITLE": "Customer starts the conversation",
+        "TRIGGER_DESCRIPTION": "The event that triggers this automation",
+        "DISCONNECT": "Disconnect",
+        "REORGANIZE": "Auto-arrange",
+        "CONNECT_HINT": "Drag a line on the diagram to connect, or pick the target here:",
+        "CATEGORY": {
+          "MESSAGE": "Messages",
+          "DATA": "Data lookup",
+          "DECISION": "Decisions",
+          "ACTION": "Actions",
+          "AI": "Artificial intelligence"
+        }
+      },
       "WIZARD": {
         "TITLE": "Support triage template",
         "DESCRIPTION": "Answer a few questions and this builds the full step-by-step flow for you - pick WhatsApp or the website widget (both ask for a CNPJ to identify the company). It identifies the company, checks for blocks, checks for an existing ticket, creates the ticket and runs an AI triage - classifying priority only - before routing to a human agent.",

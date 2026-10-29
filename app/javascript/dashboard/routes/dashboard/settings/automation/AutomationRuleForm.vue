@@ -6,6 +6,7 @@ import { useAccount } from 'dashboard/composables/useAccount';
 import { useOperators } from 'dashboard/components-next/filter/operators';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import SidePanel from 'dashboard/components-next/side-panel/SidePanel.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 import {
   generateAutomationPayload,
   getActionIcon,
@@ -356,6 +357,42 @@ defineExpose({ open, close });
 <template>
   <SidePanel ref="panelRef" width="3xl" :title="$t(titleKey)">
     <div v-if="automation" class="flex flex-col w-full gap-6">
+      <!-- So uma bussola visual - "isto aqui monta estas 4 coisas, nesta
+           ordem" - amarrando o resto da tela ao mesmo vocabulario do canvas
+           do fluxo (mesmos icones). Nao e clicavel nem precisa ser: a tela
+           ja rola em ordem. -->
+      <div
+        class="flex items-center gap-1.5 pb-1 overflow-x-auto text-xs font-medium text-n-slate-10"
+      >
+        <span class="flex items-center gap-1.5 shrink-0">
+          <Icon icon="i-lucide-play" class="size-3.5" />
+          {{ $t('AUTOMATION.STAGES.TRIGGER') }}
+        </span>
+        <Icon
+          icon="i-lucide-chevron-right"
+          class="size-3 shrink-0 text-n-slate-7"
+        />
+        <span class="flex items-center gap-1.5 shrink-0">
+          <Icon icon="i-lucide-filter" class="size-3.5" />
+          {{ $t('AUTOMATION.STAGES.CONDITIONS') }}
+        </span>
+        <Icon
+          icon="i-lucide-chevron-right"
+          class="size-3 shrink-0 text-n-slate-7"
+        />
+        <span class="flex items-center gap-1.5 shrink-0">
+          <Icon icon="i-lucide-git-branch" class="size-3.5" />
+          {{ $t('AUTOMATION.STAGES.FLOW') }}
+        </span>
+        <Icon
+          icon="i-lucide-chevron-right"
+          class="size-3 shrink-0 text-n-slate-7"
+        />
+        <span class="flex items-center gap-1.5 shrink-0">
+          <Icon icon="i-lucide-zap" class="size-3.5" />
+          {{ $t('AUTOMATION.STAGES.ACTIONS') }}
+        </span>
+      </div>
       <div class="flex flex-col">
         <woot-input
           v-model="automation.name"

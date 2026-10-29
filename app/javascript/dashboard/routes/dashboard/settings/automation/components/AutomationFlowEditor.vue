@@ -1,14 +1,28 @@
 <script setup>
-import { computed } from 'vue';
+import '@vue-flow/core/dist/style.css';
+import '@vue-flow/core/dist/theme-default.css';
+import '@vue-flow/controls/dist/style.css';
+
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import Icon from 'dashboard/components-next/icon/Icon.vue';
+import { VueFlow, Panel } from '@vue-flow/core';
+import { Background } from '@vue-flow/background';
+import { Controls } from '@vue-flow/controls';
+import Button from 'dashboard/components-next/button/Button.vue';
 import WhatsappTriageWizard from './WhatsappTriageWizard.vue';
+import FlowStepNode from './flow-canvas/FlowStepNode.vue';
+import FlowTriggerNode from './flow-canvas/FlowTriggerNode.vue';
+import FlowConnector from './flow-canvas/FlowConnector.vue';
+import FlowStepPalette from './flow-canvas/FlowStepPalette.vue';
+import FlowStepInspector from './flow-canvas/FlowStepInspector.vue';
 import {
-  FLOW_STEP_TYPES,
-  findStepType,
-  buildStep,
-  variablesFor,
-} from '../flowSteps';
+  autoLayoutPositions,
+  buildNodes,
+  buildEdges,
+  DEFAULT_HANDLE_ID,
+  TRIGGER_NODE_ID,
+} from './flow-canvas/flowGraph';
+import { findStepType, buildStep, variablesFor } from '../flowSteps';
 
 const props = defineProps({
   modelValue: { type: Array, default: () => [] },
@@ -29,91 +43,132 @@ const variables = computed(() => variablesFor(steps.value));
 
 const update = next => emit('update:modelValue', next);
 
-const label = key => t(`AUTOMATION.FLOW.STEP.${key.toUpperCase()}`);
-const description = key =>
-  t(`AUTOMATION.FLOW.STEP_DESCRIPTION.${key.toUpperCase()}`);
+const selectedStepId = ref(null);
+const selectedStep = computed(
+  () => steps.value.find(step => step.id === selectedStepId.value) || null
+);
+const selectedDefinition = computed(
+  () => findStepType(selectedStep.value?.type) || { fields: [], branches: [] }
+);
 
-const fieldsFor = step => findStepType(step.type)?.fields || [];
-const branchesFor = step => findStepType(step.type)?.branches || [];
-
-// Toda etapa pode apontar para qualquer outra, menos para si mesma - o caminho
-// mais curto para um laco infinito.
-const targetsFor = step =>
+// Todo passo pode apontar pra qualquer outro, menos pra si mesmo - o caminho
+// mais curto pra um laco infinito.
+const targets = computed(() =>
   steps.value
-    .filter(candidate => candidate.id !== step.id)
-    .map(candidate => ({
-      value: candidate.id,
-      label: `${candidate.id} · ${label(candidate.type)}`,
-    }));
+    .filter(step => step.id !== selectedStepId.value)
+    .map(step => ({
+      value: step.id,
+      label: `${step.id} · ${t(`AUTOMATION.FLOW.STEP.${step.type.toUpperCase()}`)}`,
+    }))
+);
 
-const optionsFor = field => {
-  if (field.source) return props[field.source] || [];
+const autoPositions = computed(() => autoLayoutPositions(steps.value));
+const nodes = computed(() =>
+  buildNodes(steps.value, {
+    autoPositions: autoPositions.value,
+    selectedId: selectedStepId.value,
+  })
+);
+const edges = computed(() => buildEdges(steps.value));
 
-  return (field.options || []).map(option => ({
-    value: option,
-    label: t(`AUTOMATION.FLOW.OPTION.${option.toUpperCase()}`),
-  }));
+const isValidConnection = connection => connection.source !== connection.target;
+
+const patchStep = (id, changes) => {
+  update(
+    steps.value.map(step => (step.id === id ? { ...step, ...changes } : step))
+  );
 };
 
-const addStep = type => {
-  if (!type) return;
+const patchParam = (id, key, value) => {
+  const step = steps.value.find(candidate => candidate.id === id);
+  if (!step) return;
+  patchStep(id, { params: { ...(step.params || {}), [key]: value } });
+};
 
+const patchNext = (id, value) => patchStep(id, { next: value || null });
+
+const patchBranch = (id, branch, value) => {
+  const step = steps.value.find(candidate => candidate.id === id);
+  if (!step) return;
+  patchStep(id, {
+    branches: { ...(step.branches || {}), [branch]: value || null },
+  });
+};
+
+// A nova etapa encadeia na selecionada (se ela ainda nao seguir pra lugar
+// nenhum) ou na ultima da lista - o caso comum e uma etapa depois da outra, e
+// quem quiser outro caminho conecta a mao no diagrama.
+const addStep = type => {
   const next = [...steps.value];
   const created = buildStep(type, next);
-  // Encadeia na ultima: o caso comum e uma etapa depois da outra, e quem quiser
-  // outro caminho muda o destino no proprio campo.
-  const last = next[next.length - 1];
-  if (last && !last.next && !branchesFor(last).length) last.next = created.id;
+
+  const chainFrom =
+    (selectedStep.value && !selectedStep.value.next
+      ? selectedStep.value
+      : null) || (!next.length ? null : next[next.length - 1]);
+
+  if (chainFrom && !chainFrom.next) {
+    const index = next.findIndex(step => step.id === chainFrom.id);
+    next[index] = { ...chainFrom, next: created.id };
+  }
 
   update([...next, created]);
+  selectedStepId.value = created.id;
 };
 
-const removeStep = index => {
-  const removed = steps.value[index];
+const removeStep = id => {
   const next = steps.value
-    .filter((_, position) => position !== index)
-    // Quem apontava para a etapa removida fica sem destino, e nao apontando
-    // para o vazio: um `next` para um id inexistente derruba a execucao.
+    .filter(step => step.id !== id)
+    // Quem apontava pra etapa removida fica sem destino, e nao apontando pro
+    // vazio: um `next` pra um id inexistente derruba a execucao.
     .map(step => ({
       ...step,
-      next: step.next === removed.id ? null : step.next,
+      next: step.next === id ? null : step.next,
       branches: Object.fromEntries(
         Object.entries(step.branches || {}).map(([key, value]) => [
           key,
-          value === removed.id ? null : value,
+          value === id ? null : value,
         ])
       ),
     }));
 
+  if (selectedStepId.value === id) selectedStepId.value = null;
   update(next);
 };
 
-const moveStep = (index, offset) => {
-  const target = index + offset;
-  if (target < 0 || target >= steps.value.length) return;
+const onConnect = connection => {
+  const { source, sourceHandle, target } = connection;
+  if (source === TRIGGER_NODE_ID) return; // o gatilho nao e editavel
 
-  const next = [...steps.value];
-  [next[index], next[target]] = [next[target], next[index]];
-  update(next);
+  if (sourceHandle === DEFAULT_HANDLE_ID) {
+    patchNext(source, target);
+  } else if (sourceHandle?.startsWith('branch__')) {
+    patchBranch(source, sourceHandle.replace('branch__', ''), target);
+  }
 };
 
-const patch = (index, changes) => {
-  const next = steps.value.map((step, position) =>
-    position === index ? { ...step, ...changes } : step
+const onNodeDragStop = ({ node }) => {
+  if (node.type !== 'step') return;
+  patchStep(node.id, { ui_position: node.position });
+};
+
+const disconnectEdge = edgeId => {
+  const edge = edges.value.find(candidate => candidate.id === edgeId);
+  if (!edge?.data) return;
+
+  if (edge.data.kind === 'next') patchNext(edge.data.stepId, null);
+  else if (edge.data.kind === 'branch') {
+    patchBranch(edge.data.stepId, edge.data.branch, null);
+  }
+};
+
+// Reorganiza tudo pelo layout automatico - util depois de um monte de ajustes
+// manuais, ou pra desfazer uma etapa que alguem arrastou pra um canto ruim.
+const reorganize = () => {
+  const positions = autoPositions.value;
+  update(
+    steps.value.map(step => ({ ...step, ui_position: positions[step.id] }))
   );
-  update(next);
-};
-
-const setParam = (index, key, value) => {
-  const step = steps.value[index];
-  patch(index, { params: { ...(step.params || {}), [key]: value } });
-};
-
-const setBranch = (index, key, value) => {
-  const step = steps.value[index];
-  patch(index, {
-    branches: { ...(step.branches || {}), [key]: value || null },
-  });
 };
 </script>
 
@@ -128,186 +183,83 @@ const setBranch = (index, key, value) => {
           {{ t('AUTOMATION.FLOW.DESCRIPTION') }}
         </p>
       </div>
-      <select
-        class="mb-0 text-sm w-52"
-        value=""
-        @change="
-          addStep($event.target.value);
-          $event.target.value = '';
-        "
-      >
-        <option value="">{{ t('AUTOMATION.FLOW.ADD_STEP') }}</option>
-        <option
-          v-for="definition in FLOW_STEP_TYPES"
-          :key="definition.type"
-          :value="definition.type"
-          :title="description(definition.type)"
-        >
-          {{ label(definition.type) }}
-        </option>
-      </select>
     </div>
 
     <WhatsappTriageWizard :steps-count="steps.length" @apply="update" />
 
-    <p v-if="!steps.length" class="text-sm text-n-slate-10">
-      {{ t('AUTOMATION.FLOW.EMPTY') }}
-    </p>
+    <!-- Com zero etapas o canvas nao aparece - mas a paleta de etapas
+         continua disponivel aqui, senao nao haveria nenhum jeito manual de
+         criar a primeira. -->
+    <div v-if="!steps.length" class="flex items-center gap-3">
+      <p class="text-sm text-n-slate-10">{{ t('AUTOMATION.FLOW.EMPTY') }}</p>
+      <FlowStepPalette @add="addStep" />
+    </div>
 
     <div
-      v-for="(step, index) in steps"
-      :key="step.id"
-      class="flex flex-col gap-3 p-3 border rounded-lg border-n-weak bg-n-alpha-black2"
+      v-else
+      class="relative overflow-hidden border rounded-xl border-n-weak h-[32rem]"
     >
-      <div class="flex items-start gap-2">
-        <span
-          class="px-1.5 py-0.5 text-xs rounded bg-n-alpha-2 text-n-slate-11 font-medium mt-0.5"
-        >
-          {{ step.id }}
-        </span>
-        <div class="flex flex-col min-w-0">
-          <span class="text-sm font-medium text-n-slate-12">
-            {{ label(step.type) }}
-          </span>
-          <span class="text-xs text-n-slate-10">
-            {{ description(step.type) }}
-          </span>
-        </div>
-        <div class="flex items-center gap-1 ml-auto shrink-0">
-          <button
-            type="button"
-            class="p-1 rounded text-n-slate-11 hover:bg-n-alpha-2"
-            :title="t('AUTOMATION.FLOW.MOVE_UP')"
-            @click="moveStep(index, -1)"
-          >
-            <Icon icon="i-lucide-arrow-up" class="size-4" />
-          </button>
-          <button
-            type="button"
-            class="p-1 rounded text-n-slate-11 hover:bg-n-alpha-2"
-            :title="t('AUTOMATION.FLOW.MOVE_DOWN')"
-            @click="moveStep(index, 1)"
-          >
-            <Icon icon="i-lucide-arrow-down" class="size-4" />
-          </button>
-          <button
-            type="button"
-            class="p-1 rounded text-n-ruby-11 hover:bg-n-alpha-2"
-            :title="t('AUTOMATION.FLOW.REMOVE')"
-            @click="removeStep(index)"
-          >
-            <Icon icon="i-lucide-trash-2" class="size-4" />
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label
-          v-for="field in fieldsFor(step)"
-          :key="field.key"
-          class="flex flex-col gap-1 min-w-0"
-          :class="field.kind === 'textarea' ? 'sm:col-span-2' : ''"
-        >
-          <span class="text-xs font-medium text-n-slate-11">
-            {{ t(`AUTOMATION.FLOW.FIELD.${field.key.toUpperCase()}`) }}
-            <span v-if="field.required" class="text-n-ruby-11">*</span>
-          </span>
-
-          <textarea
-            v-if="field.kind === 'textarea'"
-            rows="2"
-            class="w-full mb-0 text-sm"
-            :value="step.params?.[field.key] || ''"
-            @input="setParam(index, field.key, $event.target.value)"
+      <VueFlow
+        :nodes="nodes"
+        :edges="edges"
+        :min-zoom="0.3"
+        :max-zoom="1.5"
+        :delete-key-code="null"
+        :edges-updatable="false"
+        :is-valid-connection="isValidConnection"
+        default-marker-color="#64748b"
+        fit-view-on-init
+        @connect="onConnect"
+        @node-drag-stop="onNodeDragStop"
+        @pane-click="selectedStepId = null"
+      >
+        <template #node-step="nodeProps">
+          <FlowStepNode
+            v-bind="nodeProps"
+            @open="selectedStepId = $event"
+            @remove="removeStep"
           />
-          <select
-            v-else-if="field.kind === 'select'"
-            class="w-full mb-0 text-sm"
-            :value="step.params?.[field.key] ?? ''"
-            @change="setParam(index, field.key, $event.target.value)"
-          >
-            <option value="">
-              {{ t('AUTOMATION.FLOW.NOT_SET') }}
-            </option>
-            <option
-              v-for="option in optionsFor(field)"
-              :key="option.value ?? option.id"
-              :value="option.value ?? option.id"
-            >
-              {{ option.label ?? option.name }}
-            </option>
-          </select>
-          <!-- Lista as variaveis que o proprio fluxo produz, para ninguem ter
-               de decorar o nome nem descobrir por tentativa. -->
-          <select
-            v-else-if="field.kind === 'variable'"
-            class="w-full mb-0 text-sm"
-            :value="step.params?.[field.key] || ''"
-            @change="setParam(index, field.key, $event.target.value)"
-          >
-            <option value="">{{ t('AUTOMATION.FLOW.NOT_SET') }}</option>
-            <option v-for="name in variables" :key="name" :value="name">
-              {{ name }}
-            </option>
-          </select>
-          <input
-            v-else
-            :type="field.kind === 'number' ? 'number' : 'text'"
-            class="w-full mb-0 text-sm"
-            :placeholder="field.placeholder || ''"
-            :value="step.params?.[field.key] ?? ''"
-            @input="setParam(index, field.key, $event.target.value)"
+        </template>
+        <template #node-trigger="nodeProps">
+          <FlowTriggerNode v-bind="nodeProps" />
+        </template>
+        <template #edge-flowConnector="edgeProps">
+          <FlowConnector v-bind="edgeProps" @remove="disconnectEdge" />
+        </template>
+
+        <Background :gap="24" pattern-color="#9ca3af" />
+        <Controls :show-interactive="false" />
+        <Panel position="top-right" class="flex gap-2">
+          <Button
+            v-tooltip="t('AUTOMATION.FLOW.CANVAS.REORGANIZE')"
+            icon="i-lucide-layout-grid"
+            size="sm"
+            variant="faded"
+            color="slate"
+            @click="reorganize"
           />
-        </label>
-      </div>
+          <FlowStepPalette @add="addStep" />
+        </Panel>
+      </VueFlow>
 
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label class="flex flex-col gap-1 min-w-0">
-          <span class="text-xs font-medium text-n-slate-11">
-            {{ t('AUTOMATION.FLOW.NEXT_STEP') }}
-          </span>
-          <select
-            class="w-full mb-0 text-sm"
-            :value="step.next || ''"
-            @change="patch(index, { next: $event.target.value || null })"
-          >
-            <option value="">{{ t('AUTOMATION.FLOW.END') }}</option>
-            <option
-              v-for="target in targetsFor(step)"
-              :key="target.value"
-              :value="target.value"
-            >
-              {{ target.label }}
-            </option>
-          </select>
-        </label>
-
-        <!-- Os caminhos alternativos. Sem um destino aqui, o fluxo entrega o
-             atendimento a uma pessoa em vez de seguir com dado faltando. -->
-        <label
-          v-for="branch in branchesFor(step)"
-          :key="branch"
-          class="flex flex-col gap-1 min-w-0"
-        >
-          <span class="text-xs font-medium text-n-slate-11">
-            {{ t(`AUTOMATION.FLOW.BRANCH.${branch.toUpperCase()}`) }}
-          </span>
-          <select
-            class="w-full mb-0 text-sm"
-            :value="step.branches?.[branch] || ''"
-            @change="setBranch(index, branch, $event.target.value)"
-          >
-            <option value="">{{ t('AUTOMATION.FLOW.HANDOFF') }}</option>
-            <option
-              v-for="target in targetsFor(step)"
-              :key="target.value"
-              :value="target.value"
-            >
-              {{ target.label }}
-            </option>
-          </select>
-        </label>
-      </div>
+      <FlowStepInspector
+        v-if="selectedStep"
+        :step="selectedStep"
+        :definition="selectedDefinition"
+        :teams="teams"
+        :columns="columns"
+        :categories="categories"
+        :captain-assistants="captainAssistants"
+        :variables="variables"
+        :targets="targets"
+        @update-param="(key, value) => patchParam(selectedStep.id, key, value)"
+        @update-next="value => patchNext(selectedStep.id, value)"
+        @update-branch="
+          (branch, value) => patchBranch(selectedStep.id, branch, value)
+        "
+        @remove="removeStep(selectedStep.id)"
+        @close="selectedStepId = null"
+      />
     </div>
   </section>
 </template>
