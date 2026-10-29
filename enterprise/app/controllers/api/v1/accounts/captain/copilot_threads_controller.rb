@@ -18,7 +18,9 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
       @copilot_thread = Current.account.copilot_threads.create!(
         title: copilot_thread_params[:message],
         user: Current.user,
-        assistant: assistant
+        assistant: assistant,
+        conversation_display_id: context_conversation&.display_id,
+        ticket_id: context_ticket&.id
       )
 
       copilot_message = @copilot_thread.copilot_messages.create!(
@@ -58,6 +60,22 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
     )
   end
 
+  # Onde o chat foi aberto. So' vale se a pessoa pode ver a conversa / o ticket
+  # (ou eles existem na conta): nunca guardamos referencia a algo alheio.
+  def context_conversation
+    return if copilot_thread_params[:conversation_id].blank?
+
+    @context_conversation ||= accessible_conversation(
+      account: Current.account, user: Current.user, display_id: copilot_thread_params[:conversation_id]
+    )
+  end
+
+  def context_ticket
+    return if copilot_thread_params[:ticket_id].blank?
+
+    @context_ticket ||= Current.account.tickets.find_by(id: copilot_thread_params[:ticket_id])
+  end
+
   def ensure_message
     return render_could_not_create_error(I18n.t('captain.copilot_message_required')) if copilot_thread_params[:message].blank?
   end
@@ -82,7 +100,7 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
   end
 
   def copilot_thread_params
-    params.permit(:message, :assistant_id, :conversation_id, :request_type)
+    params.permit(:message, :assistant_id, :conversation_id, :ticket_id, :request_type)
   end
 
   def permitted_params

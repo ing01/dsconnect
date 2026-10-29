@@ -175,4 +175,51 @@ RSpec.describe 'Api::V1::Accounts::Captain::CopilotThreads', type: :request do
       end
     end
   end
+
+  describe 'POST /api/v1/accounts/{account.id}/captain/copilot_threads (context)' do
+    let(:assistant) { create(:captain_assistant, account: account) }
+    let(:path) { "/api/v1/accounts/#{account.id}/captain/copilot_threads" }
+
+    before do
+      account.limits = { captain_responses: 2 }
+      account.custom_attributes = { captain_responses_usage: 2 }
+      account.save!
+    end
+
+    it 'remembers the conversation the chat was opened in' do
+      post path, params: { message: 'Oi', assistant_id: assistant.id, conversation_id: conversation.display_id },
+                 headers: admin.create_new_auth_token, as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(json_response[:conversation_display_id]).to eq(conversation.display_id)
+      expect(json_response[:ticket][:id]).to be_nil
+    end
+
+    it 'remembers the ticket the chat was opened in' do
+      ticket = create(:ticket, ticket_column: create(:ticket_column, account: account))
+
+      post path, params: { message: 'Oi', assistant_id: assistant.id, ticket_id: ticket.id },
+                 headers: admin.create_new_auth_token, as: :json
+
+      expect(json_response[:ticket]).to include(id: ticket.id, display_id: ticket.display_id)
+      expect(json_response[:conversation_display_id]).to be_nil
+    end
+
+    it 'ignores a ticket from another account' do
+      other_ticket = create(:ticket)
+
+      post path, params: { message: 'Oi', assistant_id: assistant.id, ticket_id: other_ticket.id },
+                 headers: admin.create_new_auth_token, as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(json_response[:ticket][:id]).to be_nil
+    end
+
+    it 'does not store a conversation the user cannot access' do
+      post path, params: { message: 'Oi', assistant_id: assistant.id, conversation_id: conversation.display_id },
+                 headers: agent.create_new_auth_token, as: :json
+
+      expect(json_response[:conversation_display_id]).to be_nil
+    end
+  end
 end

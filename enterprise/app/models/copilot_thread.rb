@@ -22,6 +22,13 @@ class CopilotThread < ApplicationRecord
   belongs_to :assistant, class_name: 'Captain::Assistant'
   has_many :copilot_messages, dependent: :destroy_async
 
+  # Referencia solta (sem FK, ver a migration): se o ticket sumir, vira nil.
+  def ticket
+    return if ticket_id.blank?
+
+    account.tickets.find_by(id: ticket_id)
+  end
+
   validates :title, presence: true
 
   def push_event_data

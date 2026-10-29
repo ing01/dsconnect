@@ -11,6 +11,7 @@ import CopilotAssistantMessage from './CopilotAssistantMessage.vue';
 import ToggleCopilotAssistant from './ToggleCopilotAssistant.vue';
 import CopilotEmptyState from './CopilotEmptyState.vue';
 import CopilotHistory from './CopilotHistory.vue';
+import CopilotThreadOrigin from './CopilotThreadOrigin.vue';
 import DueBotName from './DueBotName.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import { useI18n } from 'vue-i18n';
@@ -31,6 +32,11 @@ const props = defineProps({
   activeAssistant: {
     type: Object,
     default: () => ({}),
+  },
+  // A conversa aberta (para mostrar onde ela foi iniciada).
+  thread: {
+    type: Object,
+    default: null,
   },
   // Historico de conversas do proprio usuario com o DueBot.
   showHistory: {
@@ -175,6 +181,7 @@ watch(
         v-else-if="hasMessages"
         class="space-y-6 flex-1 flex flex-col w-full"
       >
+        <CopilotThreadOrigin v-if="thread" :thread="thread" />
         <template v-for="(item, index) in visibleMessages" :key="item.id">
           <CopilotAgentMessage
             v-if="item.message_type === 'user'"

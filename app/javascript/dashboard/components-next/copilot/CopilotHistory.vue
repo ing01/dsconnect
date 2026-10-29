@@ -1,5 +1,6 @@
 <script setup>
 import { format, fromUnixTime } from 'date-fns';
+import CopilotThreadOrigin from './CopilotThreadOrigin.vue';
 
 defineProps({
   threads: {
@@ -38,20 +39,25 @@ const formatDate = createdAt =>
       {{ $t('CAPTAIN.COPILOT.HISTORY.EMPTY') }}
     </p>
 
-    <button
+    <div
       v-for="thread in threads"
       :key="thread.id"
-      type="button"
-      class="flex flex-col gap-0.5 w-full px-3 py-2 text-left rounded-lg border border-n-weak bg-n-slate-2 hover:bg-n-slate-3 transition-colors"
-      @click="emit('select', thread)"
+      class="flex flex-col gap-1.5 w-full px-3 py-2 rounded-lg border border-n-weak bg-n-slate-2 hover:bg-n-slate-3 transition-colors"
     >
-      <span class="text-sm text-n-slate-12 line-clamp-2">{{
-        thread.title
-      }}</span>
-      <span class="text-xs text-n-slate-10">{{
-        formatDate(thread.created_at)
-      }}</span>
-    </button>
+      <button
+        type="button"
+        class="flex flex-col gap-0.5 w-full text-left"
+        @click="emit('select', thread)"
+      >
+        <span class="text-sm text-n-slate-12 line-clamp-2">{{
+          thread.title
+        }}</span>
+        <span class="text-xs text-n-slate-10">{{
+          formatDate(thread.created_at)
+        }}</span>
+      </button>
+      <CopilotThreadOrigin :thread="thread" />
+    </div>
 
     <button
       v-if="canLoadMore"

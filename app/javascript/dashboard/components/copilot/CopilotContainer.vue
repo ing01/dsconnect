@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
 import Copilot from 'dashboard/components-next/copilot/Copilot.vue';
@@ -21,6 +22,7 @@ defineProps({
 });
 
 const store = useStore();
+const route = useRoute();
 const { uiSettings, updateUISettings } = useUISettings();
 const { isEnterprise } = useConfig();
 const { width: windowWidth } = useWindowSize();
@@ -36,6 +38,19 @@ const isSmallScreen = computed(
 );
 
 const selectedCopilotThreadId = ref(null);
+// A conversa do DueBot aberta agora (para mostrar de onde ela foi aberta).
+const selectedThread = ref(null);
+
+// De onde a pessoa esta falando com o DueBot: numa Conversa ou num Ticket. Vem
+// da rota (e nao do `getSelectedChat`, que fica guardado ao sair da conversa).
+const currentTicketId = computed(() =>
+  route?.name === 'ticket_detail' ? route.params.ticketId : null
+);
+const currentConversationId = computed(() =>
+  String(route?.name || '').includes('conversation')
+    ? currentChat.value?.id
+    : null
+);
 const messages = computed(() =>
   store.getters['copilotMessages/getMessagesByThreadId'](
     selectedCopilotThreadId.value
@@ -141,6 +156,7 @@ const openThread = async thread => {
       )
     );
     selectedCopilotThreadId.value = thread.id;
+    selectedThread.value = thread;
     showHistory.value = false;
   } catch (error) {
     useAlert(error.message);
@@ -149,6 +165,7 @@ const openThread = async thread => {
 
 const handleReset = () => {
   selectedCopilotThreadId.value = null;
+  selectedThread.value = null;
   showHistory.value = false;
 };
 
@@ -163,20 +180,22 @@ const sendMessage = async payload => {
     if (selectedCopilotThreadId.value) {
       await store.dispatch('copilotMessages/create', {
         assistant_id: activeAssistant.value.id,
-        conversation_id: currentChat.value?.id,
+        conversation_id: currentConversationId.value,
         threadId: selectedCopilotThreadId.value,
         message,
       });
     } else {
-      const conversationId = currentChat.value?.id;
+      const conversationId = currentConversationId.value;
       const response = await store.dispatch('copilotThreads/create', {
         assistant_id: activeAssistant.value.id,
         conversation_id: conversationId,
+        ...(currentTicketId.value && { ticket_id: currentTicketId.value }),
         message,
         ...(requestType && { request_type: requestType }),
       });
-      if (currentChat.value?.id === conversationId) {
+      if (currentConversationId.value === conversationId) {
         selectedCopilotThreadId.value = response.id;
+        selectedThread.value = response;
       }
     }
   } catch (error) {
@@ -209,6 +228,7 @@ onMounted(() => {
       :conversation-inbox-type="conversationInboxType"
       :assistants="assistants"
       :active-assistant="activeAssistant"
+      :thread="selectedThread"
       :show-history="showHistory"
       :threads="historyThreads"
       :is-history-loading="isHistoryLoading"

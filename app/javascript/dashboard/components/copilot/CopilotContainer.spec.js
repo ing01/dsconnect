@@ -5,7 +5,10 @@ import CopilotContainer from './CopilotContainer.vue';
 const testState = vi.hoisted(() => ({
   dispatch: vi.fn(),
   refs: {},
+  route: { name: 'inbox_conversation', params: { accountId: 1 } },
 }));
+
+vi.mock('vue-router', () => ({ useRoute: () => testState.route }));
 
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
 vi.mock('dashboard/composables/useConfig', () => ({
@@ -68,6 +71,39 @@ describe('CopilotContainer', () => {
     testState.dispatch.mockReset();
     testState.dispatch.mockResolvedValue(undefined);
     testState.refs.getSelectedChat.value = { id: 1 };
+    testState.route = { name: 'inbox_conversation', params: { accountId: 1 } };
+  });
+
+  it('sends the conversation the chat was opened in', async () => {
+    const wrapper = mountComponent();
+    const copilot = wrapper.findComponent({ name: 'Copilot' });
+
+    copilot.vm.$emit('sendMessage', 'Oi');
+    await flushPromises();
+
+    const [, payload] = testState.dispatch.mock.calls.find(
+      ([action]) => action === 'copilotThreads/create'
+    );
+    expect(payload.conversation_id).toBe(1);
+    expect(payload).not.toHaveProperty('ticket_id');
+  });
+
+  it('sends the ticket (and no stale conversation) when opened in a ticket', async () => {
+    testState.route = {
+      name: 'ticket_detail',
+      params: { accountId: 1, ticketId: '42' },
+    };
+    const wrapper = mountComponent();
+    const copilot = wrapper.findComponent({ name: 'Copilot' });
+
+    copilot.vm.$emit('sendMessage', 'Oi');
+    await flushPromises();
+
+    const [, payload] = testState.dispatch.mock.calls.find(
+      ([action]) => action === 'copilotThreads/create'
+    );
+    expect(payload.ticket_id).toBe('42');
+    expect(payload.conversation_id).toBeNull();
   });
 
   it('clears the selected thread when the conversation changes', async () => {

@@ -30,7 +30,7 @@ const montar = (props = {}) =>
         CopilotInput: true,
         CopilotAssistantMessage: { template: '<p class="resposta" />' },
         CopilotAgentMessage: { template: '<p class="pergunta" />' },
-        RouterLink: true,
+        RouterLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
       },
     },
   });
@@ -60,6 +60,51 @@ describe('Copilot (DueBot)', () => {
 
     expect(wrapper.find('.resposta').exists()).toBe(true);
     expect(wrapper.text()).not.toContain('LOADER_PHRASES');
+  });
+
+  it('mostra de onde cada chat do historico foi aberto, com link', () => {
+    const wrapper = montar({
+      showHistory: true,
+      threads: [
+        {
+          id: 1,
+          title: 'A',
+          created_at: 1790000000,
+          conversation_display_id: 12,
+          ticket: { id: null, display_id: null },
+        },
+        {
+          id: 2,
+          title: 'B',
+          created_at: 1790000000,
+          conversation_display_id: null,
+          ticket: { id: 7, display_id: 31 },
+        },
+        {
+          id: 3,
+          title: 'C',
+          created_at: 1790000000,
+          conversation_display_id: null,
+          ticket: { id: null, display_id: null },
+        },
+      ],
+    });
+
+    const links = wrapper.findAll('a');
+    expect(links).toHaveLength(2);
+    expect(links[0].attributes('href')).toContain('/conversations/12');
+    expect(links[0].text()).toContain('ORIGIN_CONVERSATION');
+    expect(links[1].attributes('href')).toContain('/tickets/7');
+    expect(links[1].text()).toContain('ORIGIN_TICKET');
+  });
+
+  it('mostra a origem na conversa aberta', () => {
+    const wrapper = montar({
+      messages: [mensagem(1, 'user', 'oi'), mensagem(2, 'assistant', 'ola')],
+      thread: { id: 9, conversation_display_id: 5, ticket: { id: null } },
+    });
+
+    expect(wrapper.find('a').attributes('href')).toContain('/conversations/5');
   });
 
   it('mostra o historico no lugar da conversa e esconde o campo de envio', async () => {
