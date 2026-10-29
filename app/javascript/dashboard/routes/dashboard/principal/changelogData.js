@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'backlog-sprint-board-taller-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Sprint ativo: o quadro ocupa a tela e a página rola',
+    description:
+      'No Backlog, na aba Sprint ativo, o quadro do desenvolvimento estava com as colunas muito baixas. Agora ele tem a altura da tela: role a página até o quadro para ver muito mais tickets de uma vez, e cada coluna continua rolando por dentro.',
+  },
+  {
     id: 'global-workspace-tabs-2026-10-29',
     date: '29 de outubro de 2026',
     isoDate: '2026-10-29',

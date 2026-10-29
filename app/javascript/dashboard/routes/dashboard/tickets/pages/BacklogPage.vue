@@ -400,7 +400,11 @@ const closeTicketCreateForm = () => {
         />
       </template>
 
-      <div v-else class="flex-1 min-h-0">
+      <!-- Altura de quase a tela toda, em vez do que sobra depois do cabecalho e
+           dos filtros (`flex-1 min-h-0` deixava as colunas com ~300px): a PAGINA
+           rola ate o quadro, e as colunas rolam por dentro. A margem cobre a
+           barra de abas e o respiro da pagina. -->
+      <div v-else class="flex-shrink-0 min-w-0 h-[calc(100vh-9rem)] min-h-[28rem]">
         <p
           v-if="!board || !state.boardSprintId"
           class="text-sm text-n-slate-10"
