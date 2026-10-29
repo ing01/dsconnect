@@ -418,11 +418,8 @@
       "EDIT_DETAILS_FORM": {
         "TITLE": "Alterar detalhes do contato",
         "FORM": {
-          "FIRST_NAME": {
-            "PLACEHOLDER": "Digite o primeiro nome"
-          },
-          "LAST_NAME": {
-            "PLACEHOLDER": "Digite o sobrenome"
+          "NAME": {
+            "PLACEHOLDER": "Digite o nome do contato"
           },
           "EMAIL_ADDRESS": {
             "PLACEHOLDER": "Digite o endereço de e-mail",
@@ -431,15 +428,6 @@
           "PHONE_NUMBER": {
             "PLACEHOLDER": "Digite o número de telefone",
             "DUPLICATE": "Este número de telefone está em uso para outro contato."
-          },
-          "CITY": {
-            "PLACEHOLDER": "Digite o nome da cidade"
-          },
-          "COUNTRY": {
-            "PLACEHOLDER": "Selecione o país"
-          },
-          "BIO": {
-            "PLACEHOLDER": "Digite uma biografia"
           },
           "COMPANY_NAME": {
             "PLACEHOLDER": "Digite o nome da empresa"
@@ -506,7 +494,20 @@
       }
     },
     "SIDEBAR": {
+      "SUMMARY": {
+        "TITLE": "Resumo",
+        "CONVERSATIONS": "Conversas",
+        "OPEN_CONVERSATIONS": "Em aberto",
+        "NOTES": "Notas",
+        "COMPANIES": "Empresas",
+        "IDENTIFIER": "Identificador",
+        "EMAIL": "E-mail",
+        "PHONE": "Telefone",
+        "NONE": "Não informado",
+        "SECTIONS_CONTACT": "Dados do contato"
+      },
       "TABS": {
+        "PROFILE": "Perfil",
         "ATTRIBUTES": "Atributos",
         "HISTORY": "Histórico",
         "NOTES": "Notas",

@@ -22,7 +22,7 @@ const router = useRouter();
 const contact = useMapGetter('contacts/getContactById');
 const uiFlags = useMapGetter('contacts/getUIFlags');
 
-const activeTab = ref('attributes');
+const activeTab = ref('profile');
 const contactMergeRef = ref(null);
 
 const isFetchingItem = computed(() => uiFlags.value.isFetchingItem);
@@ -38,6 +38,7 @@ const showSpinner = computed(
 const { t } = useI18n();
 
 const CONTACT_TABS_OPTIONS = [
+  { key: 'PROFILE', value: 'profile' },
   { key: 'ATTRIBUTES', value: 'attributes' },
   { key: 'HISTORY', value: 'history' },
   { key: 'NOTES', value: 'notes' },
@@ -45,11 +46,26 @@ const CONTACT_TABS_OPTIONS = [
   { key: 'MERGE', value: 'merge' },
 ];
 
+const conversationsByContact = useMapGetter(
+  'contactConversations/getAllConversationsByContactId'
+);
+const notesByContact = useMapGetter('contactNotes/getAllNotesByContactId');
+
+// Abas de lista mostram quantos itens tem, pra nao precisar abrir pra saber.
+const tabCounts = computed(() => ({
+  history: (conversationsByContact.value(route.params.contactId) || []).length,
+  notes: (notesByContact.value(route.params.contactId) || []).length,
+}));
+
 const tabs = computed(() => {
-  return CONTACT_TABS_OPTIONS.map(tab => ({
-    label: t(`CONTACTS_LAYOUT.SIDEBAR.TABS.${tab.key}`),
-    value: tab.value,
-  }));
+  return CONTACT_TABS_OPTIONS.map(tab => {
+    const label = t(`CONTACTS_LAYOUT.SIDEBAR.TABS.${tab.key}`);
+    const count = tabCounts.value[tab.value];
+    return {
+      label: count === undefined ? label : `${label} (${count})`,
+      value: tab.value,
+    };
+  });
 });
 
 const activeTabIndex = computed(() => {
@@ -146,29 +162,22 @@ onMounted(() => {
       >
         <Spinner />
       </div>
-      <ContactDetails
-        v-else-if="selectedContact"
-        :selected-contact="selectedContact"
-        @go-to-contacts-list="goToContactsList"
-      />
-      <template #sidebarHeader>
-        <div class="px-6 pt-6 pb-3">
-          <TabBar
-            :tabs="tabs"
-            :initial-active-tab="activeTabIndex"
-            class="w-full [&>button]:w-full bg-n-alpha-black2"
-            @tab-changed="handleTabChange"
-          />
-        </div>
-      </template>
-      <template #sidebar>
-        <div
-          v-if="isFetchingItem"
-          class="flex items-center justify-center py-10 text-n-slate-11"
-        >
-          <Spinner />
-        </div>
-        <template v-else>
+      <div v-else-if="selectedContact" class="flex flex-col gap-6">
+        <TabBar
+          :tabs="tabs"
+          :initial-active-tab="activeTabIndex"
+          size="lg"
+          @tab-changed="handleTabChange"
+        />
+
+        <ContactDetails
+          v-if="activeTab === 'profile'"
+          :selected-contact="selectedContact"
+          @go-to-contacts-list="goToContactsList"
+        />
+        <!-- Os componentes das abas trazem um recuo proprio (px-6), pensado
+             pra coluna lateral antiga; aqui ele e' anulado. -->
+        <div v-else class="-mx-6">
           <ContactCustomAttributes
             v-if="activeTab === 'attributes'"
             :selected-contact="selectedContact"
@@ -183,8 +192,8 @@ onMounted(() => {
             @go-to-contacts-list="goToContactsList"
             @reset-tab="handleTabChange(CONTACT_TABS_OPTIONS[0])"
           />
-        </template>
-      </template>
+        </div>
+      </div>
     </ContactsDetailsLayout>
   </div>
 </template>

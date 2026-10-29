@@ -419,11 +419,8 @@
       "EDIT_DETAILS_FORM": {
         "TITLE": "Edit contact details",
         "FORM": {
-          "FIRST_NAME": {
-            "PLACEHOLDER": "Enter the first name"
-          },
-          "LAST_NAME": {
-            "PLACEHOLDER": "Enter the last name"
+          "NAME": {
+            "PLACEHOLDER": "Enter the contact name"
           },
           "EMAIL_ADDRESS": {
             "PLACEHOLDER": "Enter the email address",
@@ -432,15 +429,6 @@
           "PHONE_NUMBER": {
             "PLACEHOLDER": "Enter the phone number",
             "DUPLICATE": "This phone number is in use for another contact."
-          },
-          "CITY": {
-            "PLACEHOLDER": "Enter the city name"
-          },
-          "COUNTRY": {
-            "PLACEHOLDER": "Select country"
-          },
-          "BIO": {
-            "PLACEHOLDER": "Enter the bio"
           },
           "COMPANY_NAME": {
             "PLACEHOLDER": "Enter the company name"
@@ -507,7 +495,20 @@
       }
     },
     "SIDEBAR": {
+      "SUMMARY": {
+        "TITLE": "Summary",
+        "CONVERSATIONS": "Conversations",
+        "OPEN_CONVERSATIONS": "Open",
+        "NOTES": "Notes",
+        "COMPANIES": "Companies",
+        "IDENTIFIER": "Identifier",
+        "EMAIL": "Email",
+        "PHONE": "Phone",
+        "NONE": "Not provided",
+        "SECTIONS_CONTACT": "Contact details"
+      },
       "TABS": {
+        "PROFILE": "Profile",
         "ATTRIBUTES": "Attributes",
         "HISTORY": "History",
         "NOTES": "Notes",

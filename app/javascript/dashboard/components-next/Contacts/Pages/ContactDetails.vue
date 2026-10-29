@@ -7,6 +7,7 @@ import { dynamicTime } from 'shared/helpers/timeHelper';
 
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
+import ContactProfileSummary from 'dashboard/components-next/Contacts/Pages/ContactProfileSummary.vue';
 import ContactLabels from 'dashboard/components-next/Contacts/ContactLabels/ContactLabels.vue';
 import ContactsForm from 'dashboard/components-next/Contacts/ContactsForm/ContactsForm.vue';
 import ConfirmContactDeleteDialog from 'dashboard/components-next/Contacts/ContactsForm/ConfirmContactDeleteDialog.vue';
@@ -121,7 +122,7 @@ const handleAvatarDelete = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col items-start gap-8 pb-6">
+  <div class="flex flex-col items-start w-full gap-8 pb-6">
     <div class="flex flex-col items-start gap-3">
       <Avatar
         :src="avatarSrc || ''"
@@ -160,7 +161,8 @@ const handleAvatarDelete = async () => {
       </div>
       <ContactLabels :contact-id="selectedContact?.id" />
     </div>
-    <div class="flex flex-col items-start gap-6">
+    <ContactProfileSummary :selected-contact="selectedContact" />
+    <div class="flex flex-col items-start w-full gap-6">
       <ContactsForm
         ref="contactsFormRef"
         :contact-data="contactData"

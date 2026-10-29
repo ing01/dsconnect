@@ -3,12 +3,9 @@ import { computed, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { required, email } from '@vuelidate/validators';
 import { useVuelidate } from '@vuelidate/core';
-import { splitName } from '@chatwoot/utils';
-import countries from 'shared/constants/countries.js';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useAccount } from 'dashboard/composables/useAccount';
 import Input from 'dashboard/components-next/input/Input.vue';
-import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import ContactCompaniesField from 'dashboard/components-next/Contacts/ContactCompaniesField.vue';
 import PhoneNumberInput from 'dashboard/components-next/phonenumberinput/PhoneNumberInput.vue';
 
@@ -33,13 +30,9 @@ const { t } = useI18n();
 const { currentAccount, isCloudFeatureEnabled } = useAccount();
 
 const FORM_CONFIG = {
-  FIRST_NAME: { field: 'firstName' },
-  LAST_NAME: { field: 'lastName' },
+  NAME: { field: 'name' },
   EMAIL_ADDRESS: { field: 'email' },
   PHONE_NUMBER: { field: 'phoneNumber' },
-  CITY: { field: 'additionalAttributes.city' },
-  COUNTRY: { field: 'additionalAttributes.countryCode' },
-  BIO: { field: 'additionalAttributes.description' },
   COMPANY_NAME: { field: 'additionalAttributes.companyName' },
 };
 
@@ -48,8 +41,6 @@ const defaultState = {
   name: '',
   email: '',
   companyIds: [],
-  firstName: '',
-  lastName: '',
   phoneNumber: '',
   additionalAttributes: {
     description: '',
@@ -65,8 +56,10 @@ const state = reactive({ ...defaultState });
 // is the id-only field that actually gets sent to the API.
 const selectedCompanies = ref([]);
 
+// Sobrenome, pais, cidade e biografia nao sao mais editados na tela, mas seguem
+// no state (vindos do contato) para nao serem apagados ao salvar.
 const validationRules = {
-  firstName: { required },
+  name: { required },
   email: { email },
 };
 
@@ -88,8 +81,7 @@ const emitContactUpdate = async () => {
   const isFormValid = await v$.value.$validate();
   if (!isFormValid) return;
 
-  const { firstName, lastName, ...stateWithoutNames } = state;
-  emit('update', stateWithoutNames);
+  emit('update', state);
 };
 
 const prepareStateBasedOnProps = () => {
@@ -105,7 +97,6 @@ const prepareStateBasedOnProps = () => {
     companies = [],
     additionalAttributes = {},
   } = props.contactData || {};
-  const { firstName, lastName } = splitName(name || '');
   const {
     description = '',
     companyName = '',
@@ -119,8 +110,6 @@ const prepareStateBasedOnProps = () => {
     id,
     name,
     companyIds: (companies || []).map(company => Number(company.id)),
-    firstName,
-    lastName,
     email: emailAddress,
     phoneNumber,
     additionalAttributes: {
@@ -133,10 +122,6 @@ const prepareStateBasedOnProps = () => {
   });
 };
 
-const countryOptions = computed(() =>
-  countries.map(({ name, id }) => ({ label: name, value: id }))
-);
-
 const editDetailsForm = computed(() =>
   Object.keys(FORM_CONFIG).map(key => ({
     key,
@@ -148,7 +133,7 @@ const editDetailsForm = computed(() =>
 
 const isValidationField = key => {
   const field = FORM_CONFIG[key]?.field;
-  return ['firstName', 'email'].includes(field);
+  return ['name', 'email'].includes(field);
 };
 
 const getValidationKey = key => {
@@ -162,11 +147,6 @@ const getFormBinding = key => {
 
   return computed({
     get: () => {
-      // Handle firstName/lastName fields
-      if (field === 'firstName' || field === 'lastName') {
-        return state[field]?.toString() || '';
-      }
-
       // Handle nested vs non-nested fields
       const [base, nested] = field.split('.');
       // Example: 'email' → state.email
@@ -175,21 +155,13 @@ const getFormBinding = key => {
     },
 
     set: async value => {
-      // Handle name fields specially to maintain the combined 'name' field
-      if (field === 'firstName' || field === 'lastName') {
-        state[field] = value;
-        // Example: firstName="John", lastName="Doe" → name="John Doe"
-        state.name = `${state.firstName} ${state.lastName}`.trim();
+      // Handle nested vs non-nested fields
+      const [base, nested] = field.split('.');
+      if (nested) {
+        state[base][nested] = value;
       } else {
-        // Handle nested vs non-nested fields
-        const [base, nested] = field.split('.');
-        if (nested) {
-          // Example: additionalAttributes.city = "New York"
-          state[base][nested] = value;
-        } else {
-          // Example: email = "test@example.com"
-          state[base] = value;
-        }
+        // Example: email = "test@example.com"
+        state[base] = value;
       }
 
       await emitContactUpdate();
@@ -201,12 +173,6 @@ const getMessageType = key => {
   return isValidationField(key) && v$.value[getValidationKey(key)]?.$error
     ? 'error'
     : 'info';
-};
-
-const handleCountrySelection = value => {
-  const selectedCountry = countries.find(option => option.id === value);
-  state.additionalAttributes.country = selectedCountry?.name || '';
-  emit('update', state);
 };
 
 const handleCompaniesUpdate = async companies => {
@@ -249,21 +215,8 @@ defineExpose({
       </span>
       <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
         <template v-for="item in editDetailsForm" :key="item.key">
-          <ComboBox
-            v-if="item.key === 'COUNTRY'"
-            v-model="state.additionalAttributes.countryCode"
-            :options="countryOptions"
-            :placeholder="item.placeholder"
-            class="[&>div>button]:h-8"
-            :class="{
-              '[&>div>button]:bg-n-alpha-black2 [&>div>button:not(.focused)]:!outline-transparent':
-                !isDetailsView,
-              '[&>div>button]:!bg-n-alpha-black2': isDetailsView,
-            }"
-            @update:model-value="handleCountrySelection"
-          />
           <PhoneNumberInput
-            v-else-if="item.key === 'PHONE_NUMBER'"
+            v-if="item.key === 'PHONE_NUMBER'"
             v-model="getFormBinding(item.key).value"
             :placeholder="item.placeholder"
             :show-border="isDetailsView"
