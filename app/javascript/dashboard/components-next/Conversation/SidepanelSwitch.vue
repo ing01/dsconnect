@@ -1,4 +1,5 @@
 <script setup>
+import DueBotLogo from 'dashboard/components-next/copilot/DueBotLogo.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import ButtonGroup from 'dashboard/components-next/buttonGroup/ButtonGroup.vue';
 import { useUISettings } from 'dashboard/composables/useUISettings';
@@ -85,11 +86,7 @@ useKeyboardEvents(keyboardEvents);
       }"
       @click="handleCopilotSidebarToggle"
     >
-      <img
-        src="/brand-assets/duebot.webp"
-        alt=""
-        class="size-5 object-contain"
-      />
+      <DueBotLogo class="size-5" />
     </Button>
   </ButtonGroup>
 </template>
