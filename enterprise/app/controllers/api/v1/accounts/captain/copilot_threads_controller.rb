@@ -67,14 +67,15 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
     )
   end
 
-  # Onde o chat foi aberto. So' vale se a pessoa pode ver a conversa / o ticket
-  # (ou eles existem na conta): nunca guardamos referencia a algo alheio.
+  # Onde o chat foi aberto. Basta existir na conta: e' so' o numero do link de
+  # volta, e quem abre o link continua passando pela permissao normal da tela.
+  # (Nao usa `accessible_conversation`: ele so' enxerga conversas de inbox/time
+  # da pessoa, e o agente que abriu a conversa por outro caminho - atribuida a
+  # ele, por exemplo - ficava sem origem.)
   def context_conversation
     return if copilot_thread_params[:conversation_id].blank?
 
-    @context_conversation ||= accessible_conversation(
-      account: Current.account, user: Current.user, display_id: copilot_thread_params[:conversation_id]
-    )
+    @context_conversation ||= Current.account.conversations.find_by(display_id: copilot_thread_params[:conversation_id])
   end
 
   def context_ticket

@@ -215,8 +215,15 @@ RSpec.describe 'Api::V1::Accounts::Captain::CopilotThreads', type: :request do
       expect(json_response[:ticket][:id]).to be_nil
     end
 
-    it 'does not store a conversation the user cannot access' do
+    it 'remembers the conversation even when the agent is not in its inbox or team' do
       post path, params: { message: 'Oi', assistant_id: assistant.id, conversation_id: conversation.display_id },
+                 headers: agent.create_new_auth_token, as: :json
+
+      expect(json_response[:conversation_display_id]).to eq(conversation.display_id)
+    end
+
+    it 'ignores a conversation that does not exist in the account' do
+      post path, params: { message: 'Oi', assistant_id: assistant.id, conversation_id: 987_654 },
                  headers: agent.create_new_auth_token, as: :json
 
       expect(json_response[:conversation_display_id]).to be_nil
