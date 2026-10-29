@@ -33,15 +33,16 @@ const query = ref('');
 const contextMenu = ref(null);
 
 // Canal: editar e excluir sao do administrador. Conversa privada: quem participa
-// pode excluir (some para os dois).
-const canDeleteRoom = room => (room.userId ? true : props.canEdit);
+// pode excluir (some so' para quem excluiu).
+const isDirectRoom = room => room.kind === 'direct';
+const canDeleteRoom = room => (isDirectRoom(room) ? true : props.canEdit);
 
 const openContextMenu = (event, room) => {
-  if (!room.userId && !props.canEdit) return;
+  if (!isDirectRoom(room) && !props.canEdit) return;
 
   contextMenu.value = {
     channel: room,
-    isDirect: Boolean(room.userId),
+    isDirect: isDirectRoom(room),
     x: event.clientX,
     y: event.clientY,
   };

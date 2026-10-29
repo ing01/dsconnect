@@ -242,8 +242,8 @@ const togglePin = messageId =>
 // A sala que espera confirmacao de exclusao: o canal/conversa aberto (menu do
 // cabecalho) ou o que recebeu o botao direito na lista, aberto ou nao.
 const pendingDeleteRoom = ref(null);
-const isDeletingDirect = computed(() =>
-  Boolean(pendingDeleteRoom.value?.userId)
+const isDeletingDirect = computed(
+  () => pendingDeleteRoom.value?.kind === 'direct'
 );
 
 const askDeleteRoom = room => {
@@ -273,7 +273,7 @@ const deleteChannel = async () => {
   } catch (error) {
     useAlert(
       t(
-        room.userId
+        room.kind === 'direct'
           ? 'INTERNAL_CHAT.SIDEBAR.DELETE_CONVERSATION_ERROR'
           : 'INTERNAL_CHAT.HEADER.DELETE_CHANNEL_ERROR'
       )

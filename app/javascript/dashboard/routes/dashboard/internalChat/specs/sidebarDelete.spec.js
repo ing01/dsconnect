@@ -44,6 +44,22 @@ describe('ChatSidebar, excluir pelo botao direito', () => {
     expect(wrapper.text()).not.toContain('INTERNAL_CHAT.SIDEBAR.EDIT_CHANNEL');
   });
 
+  // O defeito: a conversa cujo par nao veio (userId nulo, avatar "?") era
+  // tratada como canal e mostrava "Editar canal / Excluir canal".
+  it('trata como conversa, e nunca como canal, a privada sem userId', async () => {
+    const wrapper = montar({
+      canEdit: true,
+      directs: [{ ...DIRECT, id: 6, userId: null }],
+    });
+    await botoesDaLista(wrapper)[0].trigger('contextmenu');
+
+    expect(wrapper.text()).toContain(
+      'INTERNAL_CHAT.SIDEBAR.DELETE_CONVERSATION'
+    );
+    expect(wrapper.text()).not.toContain('INTERNAL_CHAT.SIDEBAR.EDIT_CHANNEL');
+    expect(wrapper.text()).not.toContain('INTERNAL_CHAT.HEADER.DELETE_CHANNEL');
+  });
+
   it('pede a exclusao da conversa ao clicar na opcao', async () => {
     const wrapper = montar({ canEdit: false });
     await botoesDaLista(wrapper)
