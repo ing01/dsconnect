@@ -8,6 +8,56 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'duebot-conversations-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'feature',
+    platform: 'web',
+    title: 'DueBot de volta nas Conversas, com histórico',
+    description:
+      'O assistente voltou ao lado do ícone de contato, agora com o nome DueBot e a nova logo. Tire dúvidas sobre o sistema e peça ajuda com os clientes: enquanto ele responde, aparece só um aviso de espera, sem as ações internas. O ícone de relógio no topo do painel guarda e reabre suas conversas anteriores.',
+  },
+  {
+    id: 'contact-page-redesign-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Contatos: página no mesmo formato de Empresas',
+    description:
+      'A página do contato ganhou abas no centro (Perfil, Atributos, Histórico, Notas, Mídia e Mesclar), com a quantidade de conversas e notas, e um resumo no Perfil. Saíram os campos Sobrenome, País, Cidade e Biografia; o nome agora é um campo só.',
+  },
+  {
+    id: 'contracts-moved-commercial-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Contratos agora só em Comercial',
+    description:
+      'O item "Contratos" saiu do menu Empresas. Em Comercial > Contratos, use o botão "Visualizar contratos" para abrir a lista, com busca por cliente.',
+  },
+  {
+    id: 'agenda-team-required-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Agenda: escolha a agenda ao criar e troque nos já criados',
+    description:
+      'Ao criar um compromisso, o campo "Agenda" (Suporte, Implantação etc.) vem vazio e é obrigatório, para ninguém marcar na agenda errada sem querer. Nos compromissos já criados também dá para trocar de agenda ao editar.',
+  },
+  {
+    id: 'client-chat-blocked-2026-10-29',
+    date: '29 de outubro de 2026',
+    isoDate: '2026-10-29',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Contato bloqueado não usa o chat do Portal',
+    description:
+      'Quem está bloqueado continua entrando no Portal e no app do cliente, mas o chat mostra o aviso para ligar no telefone (18) 3916-7600, e nenhuma conversa é aberta.',
+  },
+  {
     id: 'duerules-tokens-config-2026-10-29',
     date: '29 de outubro de 2026',
     isoDate: '2026-10-29',
