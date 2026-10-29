@@ -22,6 +22,13 @@ class CopilotThread < ApplicationRecord
   belongs_to :assistant, class_name: 'Captain::Assistant'
   has_many :copilot_messages, dependent: :destroy_async
 
+  # Referencia solta (sem FK): se a conversa sumir, vira nil.
+  def conversation
+    return if conversation_display_id.blank?
+
+    account.conversations.includes(:contact).find_by(display_id: conversation_display_id)
+  end
+
   # Referencia solta (sem FK, ver a migration): se o ticket sumir, vira nil.
   def ticket
     return if ticket_id.blank?

@@ -98,6 +98,25 @@ describe('Copilot (DueBot)', () => {
     expect(links[1].text()).toContain('ORIGIN_TICKET');
   });
 
+  it('mostra a tela quando o chat nao foi aberto numa conversa nem ticket', () => {
+    const wrapper = montar({
+      showHistory: true,
+      threads: [
+        {
+          id: 1,
+          title: 'A',
+          created_at: 1790000000,
+          conversation_display_id: null,
+          ticket: { id: null },
+          screen: 'agenda_index',
+        },
+      ],
+    });
+
+    expect(wrapper.find('a').exists()).toBe(false);
+    expect(wrapper.text()).toContain('ORIGIN_SCREEN');
+  });
+
   it('mostra a origem na conversa aberta', () => {
     const wrapper = montar({
       messages: [mensagem(1, 'user', 'oi'), mensagem(2, 'assistant', 'ola')],

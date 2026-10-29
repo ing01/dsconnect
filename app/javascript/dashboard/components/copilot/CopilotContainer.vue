@@ -53,6 +53,12 @@ const currentConversationId = computed(() =>
     ? currentChat.value?.id
     : null
 );
+// Fora de conversa e de ticket, a tela em que a pessoa estava (nome da rota).
+const currentScreen = computed(() =>
+  !currentTicketId.value && !currentConversationId.value
+    ? route?.name || null
+    : null
+);
 const messages = computed(() =>
   store.getters['copilotMessages/getMessagesByThreadId'](
     selectedCopilotThreadId.value
@@ -208,6 +214,7 @@ const sendMessage = async payload => {
         assistant_id: activeAssistant.value.id,
         conversation_id: conversationId,
         ...(currentTicketId.value && { ticket_id: currentTicketId.value }),
+        ...(currentScreen.value && { screen: String(currentScreen.value) }),
         message,
         ...(requestType && { request_type: requestType }),
       });

@@ -20,7 +20,8 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
         user: Current.user,
         assistant: assistant,
         conversation_display_id: context_conversation&.display_id,
-        ticket_id: context_ticket&.id
+        ticket_id: context_ticket&.id,
+        screen: context_screen
       )
 
       copilot_message = @copilot_thread.copilot_messages.create!(
@@ -78,6 +79,15 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
     @context_conversation ||= Current.account.conversations.find_by(display_id: copilot_thread_params[:conversation_id])
   end
 
+  # A tela so' conta quando o chat nao foi aberto numa conversa nem num ticket.
+  # E' o nome da rota do front: so' letras minusculas, numeros e "_".
+  def context_screen
+    return if context_conversation || context_ticket
+
+    name = copilot_thread_params[:screen].to_s.strip
+    name.match?(/\A[a-z0-9_]{1,100}\z/) ? name : nil
+  end
+
   def context_ticket
     return if copilot_thread_params[:ticket_id].blank?
 
@@ -108,7 +118,7 @@ class Api::V1::Accounts::Captain::CopilotThreadsController < Api::V1::Accounts::
   end
 
   def copilot_thread_params
-    params.permit(:message, :assistant_id, :conversation_id, :ticket_id, :request_type)
+    params.permit(:message, :assistant_id, :conversation_id, :ticket_id, :screen, :request_type)
   end
 
   def permitted_params

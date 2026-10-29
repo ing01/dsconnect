@@ -134,6 +134,35 @@ describe('CopilotContainer', () => {
     expect(payload).not.toHaveProperty('ticket_id');
   });
 
+  it('sends the screen when opened outside a conversation and a ticket', async () => {
+    testState.route = { name: 'agenda_index', params: { accountId: 1 } };
+    const wrapper = mountComponent();
+    const copilot = wrapper.findComponent({ name: 'Copilot' });
+
+    copilot.vm.$emit('sendMessage', 'Oi');
+    await flushPromises();
+
+    const [, payload] = testState.dispatch.mock.calls.find(
+      ([action]) => action === 'copilotThreads/create'
+    );
+    expect(payload.screen).toBe('agenda_index');
+    expect(payload.conversation_id).toBeNull();
+    expect(payload).not.toHaveProperty('ticket_id');
+  });
+
+  it('does not send the screen when there is a conversation', async () => {
+    const wrapper = mountComponent();
+    const copilot = wrapper.findComponent({ name: 'Copilot' });
+
+    copilot.vm.$emit('sendMessage', 'Oi');
+    await flushPromises();
+
+    const [, payload] = testState.dispatch.mock.calls.find(
+      ([action]) => action === 'copilotThreads/create'
+    );
+    expect(payload).not.toHaveProperty('screen');
+  });
+
   it('sends the ticket (and no stale conversation) when opened in a ticket', async () => {
     testState.route = {
       name: 'ticket_detail',

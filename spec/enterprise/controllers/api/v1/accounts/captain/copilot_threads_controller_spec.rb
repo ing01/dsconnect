@@ -205,6 +205,35 @@ RSpec.describe 'Api::V1::Accounts::Captain::CopilotThreads', type: :request do
       expect(json_response[:conversation_display_id]).to be_nil
     end
 
+    it 'returns the contact name of the conversation and the ticket title' do
+      post path, params: { message: 'Oi', assistant_id: assistant.id, conversation_id: conversation.display_id },
+                 headers: admin.create_new_auth_token, as: :json
+
+      expect(json_response[:conversation]).to include(display_id: conversation.display_id,
+                                                      contact_name: conversation.contact.name)
+    end
+
+    it 'remembers the screen when the chat was not opened in a conversation or ticket' do
+      post path, params: { message: 'Oi', assistant_id: assistant.id, screen: 'agenda_index' },
+                 headers: agent.create_new_auth_token, as: :json
+
+      expect(json_response[:screen]).to eq('agenda_index')
+    end
+
+    it 'does not keep the screen when there is a conversation' do
+      post path, params: { message: 'Oi', assistant_id: assistant.id, conversation_id: conversation.display_id, screen: 'home' },
+                 headers: admin.create_new_auth_token, as: :json
+
+      expect(json_response[:screen]).to be_nil
+    end
+
+    it 'ignores a screen name with strange characters' do
+      post path, params: { message: 'Oi', assistant_id: assistant.id, screen: '<script>x' },
+                 headers: agent.create_new_auth_token, as: :json
+
+      expect(json_response[:screen]).to be_nil
+    end
+
     it 'ignores a ticket from another account' do
       other_ticket = create(:ticket)
 
