@@ -12,13 +12,13 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
   # As mensagens fixadas da sala, mais recente primeiro - sem paginacao: sao
   # poucas por natureza (fixar exige uma acao deliberada por vez).
   def pinned
-    @chat_messages = @chat_channel.chat_messages.pinned
+    @chat_messages = @chat_channel.messages_visible_to(Current.user).pinned
                                   .includes(:user, :chat_message_reactions, :reply_to)
     render 'index'
   end
 
   def index
-    scope = @chat_channel.chat_messages.includes(:user, :chat_message_reactions, :reply_to)
+    scope = @chat_channel.messages_visible_to(Current.user).includes(:user, :chat_message_reactions, :reply_to)
     # Pagina para tras a partir de uma mensagem: e assim que se sobe o
     # historico sem carregar a sala inteira.
     scope = scope.where(chat_messages: { id: ...params[:before].to_i }) if params[:before].present?

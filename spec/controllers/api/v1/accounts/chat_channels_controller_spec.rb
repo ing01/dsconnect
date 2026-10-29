@@ -248,17 +248,65 @@ RSpec.describe 'Chat channels API', type: :request do
       expect(channel.reload.pinned).to be(false)
     end
 
-    it 'lets a participant delete a conversation between two people, messages included' do
-      conversa = create(:chat_direct, account: account)
-      entrar(conversa, agent)
-      create(:chat_message, chat_channel: conversa, user: agent, content: 'oi')
+    # Excluir uma conversa privada so' some para quem excluiu.
+    describe 'deleting a conversation between two people' do
+      let(:conversa) { create(:chat_direct, account: account) }
 
-      expect do
+      before do
+        entrar(conversa, agent)
+        entrar(conversa, outro_agente)
+        create(:chat_message, chat_channel: conversa, user: outro_agente, content: 'antiga')
+      end
+
+      def excluir(user)
         delete "/api/v1/accounts/#{account.id}/chat_channels/#{conversa.id}",
-               headers: agent.create_new_auth_token, as: :json
-      end.to change(ChatChannel, :count).by(-1).and change(ChatMessage, :count).by(-1)
+               headers: user.create_new_auth_token, as: :json
+      end
 
-      expect(response).to have_http_status(:ok)
+      def mensagens(user)
+        get "/api/v1/accounts/#{account.id}/chat_channels/#{conversa.id}/messages",
+            headers: user.create_new_auth_token, as: :json
+        response.parsed_body['payload'].pluck('body')
+      end
+
+      it 'hides it only for who deleted, keeping the room and its messages' do
+        expect { excluir(agent) }.not_to change(ChatChannel, :count)
+
+        expect(response).to have_http_status(:ok)
+        listar(agent)
+        expect(ids_listados).not_to include(conversa.id)
+        listar(outro_agente)
+        expect(ids_listados).to include(conversa.id)
+        expect(mensagens(outro_agente)).to include('antiga')
+      end
+
+      it 'does not show the old messages to who deleted' do
+        excluir(agent)
+
+        expect(mensagens(agent)).to be_empty
+      end
+
+      it 'brings it back, with only the new messages, when the other person writes again' do
+        excluir(agent)
+        create(:chat_message, chat_channel: conversa, user: outro_agente, content: 'nova')
+
+        listar(agent)
+        expect(ids_listados).to include(conversa.id)
+        expect(mensagens(agent)).to eq(['nova'])
+      end
+
+      it 'zeroes the unread count of who deleted' do
+        excluir(agent)
+        listar(agent)
+
+        expect(response.parsed_body['payload']).to all(include('unread' => 0))
+      end
+
+      it 'wipes the room for real once both people deleted it' do
+        excluir(agent)
+
+        expect { excluir(outro_agente) }.to change(ChatChannel, :count).by(-1).and change(ChatMessage, :count).by(-1)
+      end
     end
 
     it 'does not let someone outside the conversation delete it' do

@@ -41,6 +41,23 @@ class ChatChannel < ApplicationRecord
     where(kind: :channel).or(for_user(user))
   }
 
+  # Conversa privada que esta pessoa excluiu some da lista dela - ate' chegar
+  # mensagem nova (ver ChatChannelMember#clear!). Canal nunca some por aqui.
+  scope :not_cleared_for, lambda { |user|
+    where(<<~SQL.squish, user.id, user.id)
+      chat_channels.kind = 0
+      OR NOT EXISTS (
+        SELECT 1 FROM chat_channel_members m
+         WHERE m.chat_channel_id = chat_channels.id AND m.user_id = ? AND m.cleared_at IS NOT NULL
+      )
+      OR EXISTS (
+        SELECT 1 FROM chat_messages cm
+          JOIN chat_channel_members m ON m.chat_channel_id = cm.chat_channel_id
+         WHERE cm.chat_channel_id = chat_channels.id AND m.user_id = ? AND cm.created_at > m.cleared_at
+      )
+    SQL
+  }
+
   # A conversa entre duas pessoas, se ja existir. Procurada pelos participantes,
   # porque uma conversa privada nao tem nome que a identifique.
   # Escopado pela conta sem uma associacao em Account: aquele modelo ja esta no
@@ -124,6 +141,12 @@ class ChatChannel < ApplicationRecord
     return true if administrator
 
     chat_channel_members.exists?(user_id: user.id, can_post: true)
+  end
+
+  # As mensagens que esta pessoa enxerga: as posteriores ao que ela excluiu.
+  def messages_visible_to(user)
+    cleared_at = chat_channel_members.find_by(user_id: user.id)&.cleared_at
+    cleared_at ? chat_messages.where('chat_messages.created_at > ?', cleared_at) : chat_messages
   end
 
   # A ultima mensagem, para a previa da barra lateral.

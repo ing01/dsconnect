@@ -10,6 +10,7 @@ class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseControl
 
   def index
     @chat_channels = visible_channels
+                     .not_cleared_for(Current.user)
                      .where(account_id: Current.account.id)
                      .includes(:members, :chat_channel_members)
                      .ordered
@@ -58,8 +59,16 @@ class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseControl
     head :ok
   end
 
+  # Canal: exclui de verdade (some para todos). Conversa privada: some so' para
+  # quem excluiu - o outro continua com tudo. So' quando os DOIS excluem e' que
+  # nao sobra ninguem para ver, e ai a sala e as mensagens sao apagadas.
   def destroy
-    @chat_channel.destroy!
+    if @chat_channel.direct?
+      membership(@chat_channel)&.clear!
+      @chat_channel.destroy! if @chat_channel.chat_channel_members.where(cleared_at: nil).none?
+    else
+      @chat_channel.destroy!
+    end
     head :ok
   end
 

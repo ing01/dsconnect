@@ -11,7 +11,7 @@
       "READ_ONLY": "Somente leitura para você",
       "ATTACHMENT_PREVIEW": "Enviou um anexo",
       "DELETE_CONVERSATION": "Delete conversation",
-      "DELETE_CONVERSATION_CONFIRM": "Delete this conversation? All messages are removed for both people and this cannot be undone.",
+      "DELETE_CONVERSATION_CONFIRM": "Delete this conversation? It disappears only for you; the other person keeps their history. If they write again, the conversation comes back with only the new messages.",
       "DELETE_CONVERSATION_ERROR": "Could not delete the conversation.",
       "EDIT_CHANNEL": "Editar canal"
     },

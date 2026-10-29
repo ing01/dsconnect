@@ -13,6 +13,13 @@ class ChatChannelMember < ApplicationRecord
     update!(last_read_at: Time.zone.now)
   end
 
+  # "Excluir" a conversa so' para esta pessoa: corta o historico dela aqui e
+  # zera o nao lido. O outro participante nao e tocado.
+  def clear!
+    now = Time.zone.now
+    update!(cleared_at: now, last_read_at: now)
+  end
+
   private
 
   def ensure_account_id

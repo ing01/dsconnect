@@ -11,7 +11,7 @@
       "READ_ONLY": "Somente leitura para você",
       "ATTACHMENT_PREVIEW": "Enviou um anexo",
       "DELETE_CONVERSATION": "Excluir conversa",
-      "DELETE_CONVERSATION_CONFIRM": "Excluir esta conversa? Todas as mensagens somem para os dois e isso não pode ser desfeito.",
+      "DELETE_CONVERSATION_CONFIRM": "Excluir esta conversa? Ela some só para você; a outra pessoa continua com o histórico dela. Se ela escrever de novo, a conversa volta, só com as mensagens novas.",
       "DELETE_CONVERSATION_ERROR": "Não foi possível excluir a conversa.",
       "EDIT_CHANNEL": "Editar canal"
     },
