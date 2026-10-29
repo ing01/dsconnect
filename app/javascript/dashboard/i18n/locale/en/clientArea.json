@@ -81,6 +81,12 @@
       "STATUS": "Status",
       "PRIORITY": "Priority",
       "FILTERS": {
+        "BUTTON": "Filters",
+        "TITLE": "Filter tickets",
+        "DESCRIPTION": "Choose what should show in the list. Nothing changes until you apply.",
+        "APPLY": "Apply filters",
+        "PERIOD": "Opened between",
+        "REMOVE": "Remove filter {filter}",
         "TEAM": "Service desk",
         "ALL_TEAMS": "All service desks",
         "COLUMN": "Stage",

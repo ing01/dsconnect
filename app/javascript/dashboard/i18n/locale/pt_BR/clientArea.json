@@ -81,6 +81,12 @@
       "STATUS": "Status",
       "PRIORITY": "Prioridade",
       "FILTERS": {
+        "BUTTON": "Filtros",
+        "TITLE": "Filtrar chamados",
+        "DESCRIPTION": "Escolha o que deve aparecer na lista. Nada muda até você aplicar.",
+        "APPLY": "Aplicar filtros",
+        "PERIOD": "Período de abertura",
+        "REMOVE": "Remover filtro {filter}",
         "TEAM": "Mesa",
         "ALL_TEAMS": "Todas as mesas",
         "COLUMN": "Estágio",

@@ -30,6 +30,12 @@ import TicketListView from 'dashboard/routes/dashboard/tickets/components/Ticket
 import { ticketMatchesFilters } from 'dashboard/routes/dashboard/tickets/helpers/ticketFilters';
 import ClientTicketDialog from '../components/ClientTicketDialog.vue';
 import ClientTicketFilters from '../components/ClientTicketFilters.vue';
+import ClientTicketFilterChips from '../components/ClientTicketFilterChips.vue';
+import {
+  countActive,
+  emptyFilters,
+  withoutFilter,
+} from '../clientTicketFilters';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -49,18 +55,8 @@ const quickSearch = ref('');
 // Os filtros que o servidor aplica (Mesa, Estagio, Responsavel, status e periodo
 // de abertura) - os mesmos do app. A busca rapida abaixo e' a unica que roda no
 // navegador, em cima do que ja chegou.
-const emptyFilters = () => ({
-  teamId: null,
-  ticketColumnId: null,
-  assigneeId: null,
-  status: null,
-  createdAfter: null,
-  createdBefore: null,
-});
 const serverFilters = ref(emptyFilters());
-const hasServerFilters = computed(() =>
-  Object.values(serverFilters.value).some(valor => valor !== null)
-);
+const hasServerFilters = computed(() => countActive(serverFilters.value) > 0);
 const novoTicketDialog = ref(null);
 
 const contact = computed(() => getClientSession()?.contact || {});
@@ -111,6 +107,10 @@ watch(serverFilters, carregar);
 
 const limparFiltros = () => {
   serverFilters.value = emptyFilters();
+};
+
+const removerFiltro = chave => {
+  serverFilters.value = withoutFilter(serverFilters.value, chave);
 };
 
 const selectCompany = event => {
@@ -192,6 +192,13 @@ onMounted(() => carregar());
           </template>
         </NextInput>
 
+        <ClientTicketFilters
+          v-model="serverFilters"
+          :teams="board.teams"
+          :ticket-columns="board.ticket_columns"
+          :assignees="board.assignees"
+        />
+
         <NextButton
           icon="i-lucide-plus"
           size="sm"
@@ -201,11 +208,12 @@ onMounted(() => carregar());
         />
       </div>
 
-      <ClientTicketFilters
-        v-model="serverFilters"
+      <ClientTicketFilterChips
+        :filters="serverFilters"
         :teams="board.teams"
         :ticket-columns="board.ticket_columns"
         :assignees="board.assignees"
+        @remove="removerFiltro"
         @clear="limparFiltros"
       />
     </header>
