@@ -355,7 +355,7 @@ defineExpose({ open, close });
 </script>
 
 <template>
-  <SidePanel ref="panelRef" width="3xl" :title="$t(titleKey)">
+  <SidePanel ref="panelRef" centered width="5xl" :title="$t(titleKey)">
     <div v-if="automation" class="flex flex-col w-full gap-6">
       <!-- So uma bussola visual - "isto aqui monta estas 4 coisas, nesta
            ordem" - amarrando o resto da tela ao mesmo vocabulario do canvas
