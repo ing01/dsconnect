@@ -16,11 +16,19 @@ const props = defineProps({
   width: {
     type: String,
     default: 'xl',
-    validator: value => ['md', 'lg', 'xl', '2xl', '3xl'].includes(value),
+    validator: value =>
+      ['md', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'].includes(value),
   },
   closeOnClickOutside: {
     type: Boolean,
     default: true,
+  },
+  // Side panels slide in from the edge; a centered one opens as a large
+  // window in the middle of the screen - better for content that needs
+  // room on both sides, like the automation flow canvas.
+  centered: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -34,6 +42,8 @@ const MAX_WIDTH_CLASSES = {
   xl: 'max-w-xl',
   '2xl': 'max-w-2xl',
   '3xl': 'max-w-3xl',
+  '4xl': 'max-w-4xl',
+  '5xl': 'max-w-5xl',
 };
 
 const isOpen = ref(false);
@@ -43,6 +53,14 @@ const isScrollLocked = useScrollLock(document.body);
 let previousActiveElement = null;
 
 const maxWidthClass = computed(() => MAX_WIDTH_CLASSES[props.width]);
+const positionClass = computed(() =>
+  props.centered ? 'inset-3 m-auto' : 'inset-y-3 end-3'
+);
+const transitionFromClass = computed(() =>
+  props.centered
+    ? 'opacity-0 scale-95'
+    : 'translate-x-[calc(100%+0.75rem)] rtl:translate-x-[calc(-100%-0.75rem)]'
+);
 
 const open = () => {
   if (isOpen.value) return;
@@ -105,10 +123,10 @@ defineExpose({ open, close });
       />
     </Transition>
     <Transition
-      enter-active-class="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
-      enter-from-class="translate-x-[calc(100%+0.75rem)] rtl:translate-x-[calc(-100%-0.75rem)]"
-      leave-active-class="transition-transform duration-200 ease-in"
-      leave-to-class="translate-x-[calc(100%+0.75rem)] rtl:translate-x-[calc(-100%-0.75rem)]"
+      enter-active-class="transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+      :enter-from-class="transitionFromClass"
+      leave-active-class="transition-all duration-200 ease-in"
+      :leave-to-class="transitionFromClass"
       @after-enter="onAfterEnter"
       @after-leave="emit('afterLeave')"
     >
@@ -119,8 +137,12 @@ defineExpose({ open, close });
         aria-modal="true"
         :aria-label="title"
         tabindex="-1"
-        class="fixed z-50 flex flex-col w-[calc(100%-1.5rem)] overflow-hidden rounded-xl shadow-lg outline outline-1 outline-n-container inset-y-3 end-3 bg-n-solid-1 will-change-transform"
-        :class="maxWidthClass"
+        class="fixed z-50 flex flex-col w-[calc(100%-1.5rem)] overflow-hidden rounded-xl shadow-lg outline outline-1 outline-n-container bg-n-solid-1 will-change-transform"
+        :class="[
+          maxWidthClass,
+          positionClass,
+          centered && 'max-h-[calc(100%-1.5rem)]',
+        ]"
       >
         <header
           class="flex justify-between flex-shrink-0 gap-4 px-6 py-5 border-b border-n-weak"

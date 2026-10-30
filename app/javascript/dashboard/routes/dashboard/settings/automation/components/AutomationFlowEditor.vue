@@ -197,7 +197,7 @@ const reorganize = () => {
 
     <div
       v-else
-      class="relative overflow-hidden border rounded-xl border-n-weak h-[32rem]"
+      class="relative overflow-hidden border rounded-xl border-n-weak h-[44rem]"
     >
       <VueFlow
         :nodes="nodes"
