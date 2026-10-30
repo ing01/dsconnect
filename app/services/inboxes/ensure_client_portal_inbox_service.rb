@@ -42,10 +42,14 @@ module Inboxes
     # historico de conversas/CSAT) precisa alcancar o mesmo estado sem
     # depender de ninguem editar isso manualmente em Configuracoes.
     def ensure_settings!(inbox)
-      return inbox if inbox.lock_to_single_conversation == false && inbox.csat_survey_enabled == true
+      return inbox if settings_in_place?(inbox)
 
-      inbox.update!(lock_to_single_conversation: false, csat_survey_enabled: true)
+      inbox.update!(lock_to_single_conversation: false, csat_survey_enabled: true, enable_auto_assignment: false)
       inbox
+    end
+
+    def settings_in_place?(inbox)
+      inbox.lock_to_single_conversation == false && inbox.csat_survey_enabled == true && inbox.enable_auto_assignment == false
     end
 
     def find_channel
@@ -66,7 +70,11 @@ module Inboxes
         # (historico de conversas) e o mesmo gatilho que dispara a pesquisa
         # de satisfacao ao resolver.
         lock_to_single_conversation: false,
-        csat_survey_enabled: true
+        csat_survey_enabled: true,
+        # Quem recebe a conversa do Portal e' decidido pela triagem do bot
+        # (Mesa/Fila), nunca pela distribuicao automatica da caixa - que
+        # entregava ao primeiro agente online antes da triagem rodar.
+        enable_auto_assignment: false
       )
     end
   end
