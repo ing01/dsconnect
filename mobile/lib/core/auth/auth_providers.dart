@@ -102,6 +102,11 @@ class SessionNotifier extends AsyncNotifier<Session?> {
   }
 
   Future<void> logout() async {
+    // Antes de apagar a sessao: e' ela que autentica a desinscricao do push.
+    final session = state.value;
+    if (session != null && !session.needsAccountSelection) {
+      await ref.read(pushNotificationServiceProvider).unregisterForSession(session);
+    }
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncData(null);
   }

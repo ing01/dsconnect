@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'portal-chat-no-auto-assign-2026-10-30',
+    date: '30 de outubro de 2026',
+    isoDate: '2026-10-30',
+    type: 'fix',
+    platform: 'web',
+    title: 'Chat do Portal: conversa não é mais atribuída ao primeiro agente online',
+    description:
+      'As conversas do chat do Portal do Cliente (web e app) deixaram de ser atribuídas automaticamente a agentes online. Quem direciona a conversa agora é a triagem do bot, que define Mesa e Fila.',
+  },
+  {
+    id: 'mobile-logout-stops-push-2026-10-30',
+    date: '30 de outubro de 2026',
+    isoDate: '2026-10-30',
+    type: 'fix',
+    platform: 'mobile',
+    title: 'App: ao sair da conta, o aparelho para de receber notificações dela',
+    description:
+      'Antes, quem saía da conta no app continuava recebendo as notificações no celular. Agora, ao sair, o aparelho deixa de receber os avisos daquela conta e só volta a recebê-los quando entrar de novo.',
+  },
+  {
     id: 'ticket-resolution-required-2026-10-29',
     date: '29 de outubro de 2026',
     isoDate: '2026-10-29',

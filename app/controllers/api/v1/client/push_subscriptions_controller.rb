@@ -3,12 +3,22 @@
 # um usuario. Dois tipos: `browser_push` (VAPID, o Portal no navegador) e
 # `fcm` (o app mobile do cliente final).
 #
-# Sem `destroy`: uma inscricao invalida (navegador desinstalado, app
-# desinstalado, permissao revogada) se auto-limpa quando o envio falha
-# (`Client::PushNotificationDeliverable`), sem precisar de uma rota para isso.
+# `destroy` e' so' do app mobile: ao SAIR da conta o aparelho se desinscreve e
+# para de receber os avisos desse contato. Uma inscricao invalida (navegador ou
+# app desinstalado, permissao revogada) continua se auto-limpando quando o
+# envio falha (`Client::PushNotificationDeliverable`).
 class Api::V1::Client::PushSubscriptionsController < Api::V1::Client::BaseController
   def create
     permitted_params[:subscription_type] == 'fcm' ? create_fcm_subscription : create_browser_subscription
+  end
+
+  # Escopo no contato logado: um aparelho nunca desinscreve o de outra pessoa.
+  def destroy
+    current_contact.client_push_subscriptions.fcm
+                   .where("subscription_attributes ->> 'device_id' = ?", params[:device_id])
+                   .destroy_all
+
+    head :ok
   end
 
   private

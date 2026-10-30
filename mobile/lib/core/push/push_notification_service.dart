@@ -41,6 +41,9 @@ class PushNotificationService {
   final _secureStorage = const FlutterSecureStorage();
   final _localNotifications = FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+  // Sair da conta cancela: um token novo gerado depois nao pode ser registrado
+  // com a sessao que acabou de sair.
+  StreamSubscription<String>? _tokenRefreshSubscription;
 
   // A tela do cliente (bolinha vermelha no icone do Chat) escuta isto pra
   // saber que chegou algo novo enquanto o app esta aberto, sem precisar sair
@@ -63,7 +66,9 @@ class PushNotificationService {
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null) await _sendToken(session, token);
 
-      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) => _sendToken(session, newToken));
+      await _tokenRefreshSubscription?.cancel();
+      _tokenRefreshSubscription =
+          FirebaseMessaging.instance.onTokenRefresh.listen((newToken) => _sendToken(session, newToken));
     } catch (error) {
       // Falha ao registrar push nao pode derrubar o app - o resto continua
       // funcionando normalmente, so sem notificacao.
@@ -127,6 +132,39 @@ class PushNotificationService {
     final id = List.generate(16, (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
     await _secureStorage.write(key: _deviceIdKey, value: id);
     return id;
+  }
+
+  // Sair da conta: este aparelho deixa de receber os avisos dela. Desinscreve
+  // no servidor (precisa rodar ANTES de apagar a sessao, que autentica a
+  // chamada) e invalida o token FCM - assim, mesmo que o servidor nao responda
+  // (sem rede, conta apagada), o token velho nao entrega mais nada; o proximo
+  // login gera um novo e registra de novo (`registerForSession`).
+  Future<void> unregisterForSession(Session session) async {
+    await _tokenRefreshSubscription?.cancel();
+    _tokenRefreshSubscription = null;
+
+    try {
+      final deviceId = await _deviceId();
+      if (session.mode == AuthMode.client) {
+        await _dio.delete<void>('/api/v1/client/push_subscription', queryParameters: {'device_id': deviceId});
+      } else if (session.selectedAccountId != null) {
+        final token = await FirebaseMessaging.instance.getToken();
+        if (token != null) {
+          await _dio.delete<void>(
+            '/api/v1/accounts/${session.selectedAccountId}/notification_subscriptions',
+            queryParameters: {'push_token': token},
+          );
+        }
+      }
+    } catch (error) {
+      debugPrint('Falha ao desinscrever o push no servidor: $error');
+    }
+
+    try {
+      await FirebaseMessaging.instance.deleteToken();
+    } catch (error) {
+      debugPrint('Falha ao invalidar o token de push: $error');
+    }
   }
 
   Future<void> _sendToken(Session session, String token) async {
