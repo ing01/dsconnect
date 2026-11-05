@@ -3,6 +3,9 @@ import { createStore } from 'vuex';
 import InternalChatPage from '../pages/InternalChatPage.vue';
 import internalChat from 'dashboard/store/modules/internalChat';
 import InternalChatAPI from 'dashboard/api/internalChat';
+import TicketsAPI from 'dashboard/api/tickets';
+
+vi.mock('dashboard/api/tickets', () => ({ default: { get: vi.fn() } }));
 
 const { holder } = vi.hoisted(() => ({ holder: { push: null } }));
 
@@ -243,8 +246,21 @@ describe('InternalChatPage', () => {
       .find(button => button.text().includes('#32516'));
     expect(ticketButton.text()).toContain('Erro na emissão da nota');
 
+    // O numero da mensagem (#32516) e o `display_id`; a rota usa o id interno.
+    // Abrir direto por `/tickets/32516` levava a OUTRO ticket.
+    TicketsAPI.get.mockResolvedValueOnce({
+      data: { payload: [{ id: 987, display_id: 32516 }] },
+    });
     await ticketButton.trigger('click');
+    await flushPromises();
+
+    expect(TicketsAPI.get).toHaveBeenCalledWith(
+      expect.objectContaining({ display_id: 32516 })
+    );
     expect(holder.push).toHaveBeenCalledWith(
+      expect.stringContaining('/tickets/987')
+    );
+    expect(holder.push).not.toHaveBeenCalledWith(
       expect.stringContaining('/tickets/32516')
     );
   });
