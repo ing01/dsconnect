@@ -186,16 +186,30 @@ const closeModals = () => {
 // Runs only once the ticket is created/linked, so a failure on that side leaves
 // the conversation exactly as it was. Uses the same `toggleStatus` action the
 // Resolver button uses - no parallel mechanism.
-const onTicketLinked = async () => {
+//
+// `payload` only carries `ticket`/`keepOpen` for the create flow
+// (`TicketCreateDialog`'s `@created`) - linking an existing ticket
+// (`LinkExistingTicket`'s `@linked`) emits nothing, so `ticket` stays
+// undefined and no navigation happens there: the agent searched for that
+// ticket to link it, so they already know where it is. A newly CREATED
+// ticket is the opposite - nobody has seen it yet, so jump straight to it
+// instead of leaving the agent to go search the ticket list for what they
+// just opened. Skipped for "Criar e abrir outro" (`keepOpen`), which keeps
+// the form open on purpose.
+const onTicketLinked = async ({ ticket, keepOpen } = {}) => {
   const shouldResolve = resolveAfterwards.value;
   closeModals();
 
-  if (!shouldResolve) return;
+  if (shouldResolve) {
+    await store.dispatch('toggleStatus', {
+      conversationId: props.conversationId,
+      status: wootConstants.STATUS_TYPE.RESOLVED,
+    });
+  }
 
-  await store.dispatch('toggleStatus', {
-    conversationId: props.conversationId,
-    status: wootConstants.STATUS_TYPE.RESOLVED,
-  });
+  if (ticket && !keepOpen) {
+    openTicket(ticket);
+  }
 };
 
 // The panel always opens on the list; the add menu is somewhere the agent chose
