@@ -217,6 +217,7 @@ class Tickets::ImportService
                            account: account, display_id: display_id,
                            custom_attributes: { 'imported_ticket_number' => original_number }.compact
                          ))
+    skip_triggers!(ticket)
     with_friendly_display_id_error(original_number) { ticket.save! }
     existing_ticket_numbers << original_number if original_number
     post_import_note!(ticket, row)
@@ -232,10 +233,22 @@ class Tickets::ImportService
     attributes = attributes.merge(
       custom_attributes: (ticket.custom_attributes || {}).merge('imported_ticket_number' => original_number).compact
     )
+    skip_triggers!(ticket)
     with_friendly_display_id_error(original_number) do
       ticket.as_administrative_change { ticket.update!(attributes) }
     end
     [ticket, :updated]
+  end
+
+  # Planilha de dezenas de milhares de linhas: notificacao em tempo real e log
+  # de atividade por campo nao servem pra nada aqui (ticket historico, ninguem
+  # esperando ele aparecer ao vivo na tela) e sozinhos ja derrubaram o worker
+  # no meio de uma importacao grande (ver Ticket#skip_realtime_dispatch). O
+  # flag fica setado no objeto em memoria, entao `link_parents!` (que reusa o
+  # mesmo `ticket` dentro do mesmo arquivo) tambem respeita sozinho.
+  def skip_triggers!(ticket)
+    ticket.skip_change_activities = true
+    ticket.skip_realtime_dispatch = true
   end
 
   # O "Numero" da planilha passa a ser o `display_id` do ticket (o "#123" que
