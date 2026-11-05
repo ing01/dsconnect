@@ -21,12 +21,7 @@ import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import AccessToken from './AccessToken.vue';
 import MfaSettingsCard from './MfaSettingsCard.vue';
 import ActiveSessions from './ActiveSessions.vue';
-import Policy from 'dashboard/components/policy.vue';
 import RadioCard from 'dashboard/components-next/radioCard/RadioCard.vue';
-import {
-  ROLES,
-  CONVERSATION_PERMISSIONS,
-} from 'dashboard/constants/permissions.js';
 
 export default {
   components: {
@@ -35,7 +30,6 @@ export default {
     FontSize,
     UserLanguageSelect,
     UserProfilePicture,
-    Policy,
     UserBasicDetails,
     RadioCard,
     ChangePassword,
@@ -93,8 +87,6 @@ export default {
             '/assets/images/dashboard/profile/hot-key-ctrl-enter-dark.svg',
         },
       ],
-      notificationPermissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
-      audioNotificationPermissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
     };
   },
   computed: {
@@ -340,26 +332,22 @@ export default {
     >
       <ActiveSessions />
     </SectionLayout>
-    <Policy :permissions="audioNotificationPermissions">
-      <SectionLayout
-        with-border
-        :title="$t('PROFILE_SETTINGS.FORM.AUDIO_NOTIFICATIONS_SECTION.TITLE')"
-        :description="
-          $t('PROFILE_SETTINGS.FORM.AUDIO_NOTIFICATIONS_SECTION.NOTE')
-        "
-      >
-        <AudioNotifications />
-      </SectionLayout>
-    </Policy>
-    <Policy :permissions="notificationPermissions">
-      <SectionLayout
-        with-border
-        :title="$t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TITLE')"
-        description=""
-      >
-        <NotificationPreferences />
-      </SectionLayout>
-    </Policy>
+    <SectionLayout
+      with-border
+      :title="$t('PROFILE_SETTINGS.FORM.AUDIO_NOTIFICATIONS_SECTION.TITLE')"
+      :description="
+        $t('PROFILE_SETTINGS.FORM.AUDIO_NOTIFICATIONS_SECTION.NOTE')
+      "
+    >
+      <AudioNotifications />
+    </SectionLayout>
+    <SectionLayout
+      with-border
+      :title="$t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TITLE')"
+      description=""
+    >
+      <NotificationPreferences />
+    </SectionLayout>
     <!-- Fica junto das outras preferencias pessoais, e nao so no atalho de
          teclado: num celular nao ha Ctrl+K. -->
     <SectionLayout
