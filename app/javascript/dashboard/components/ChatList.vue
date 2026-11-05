@@ -83,6 +83,7 @@ const store = useStore();
 const resolveAttributesModalRef = ref(null);
 
 const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
+const onlyUnassigned = ref(false);
 const isClaimingNextInQueue = ref(false);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
@@ -106,6 +107,7 @@ const chatLists = useMapGetter('getFilteredConversations');
 const mineChatsList = useMapGetter('getMineChats');
 const allChatList = useMapGetter('getAllStatusChats');
 const queuedChatsList = useMapGetter('getQueuedChats');
+const unassignedChatsList = useMapGetter('getUnAssignedChats');
 const participatingChatsList = useMapGetter('getParticipatingChats');
 const chatListLoading = useMapGetter('getChatListLoadingStatus');
 const activeInbox = useMapGetter('getSelectedInbox');
@@ -266,16 +268,25 @@ const showAssigneeInConversationCard = computed(() => {
   );
 });
 
+// "Sem agente" so' vale dentro da aba Todos; busca/paginacao usam o tipo
+// 'unassigned' da API para nao depender das paginas ja carregadas.
+const fetchAssigneeType = computed(() =>
+  onlyUnassigned.value &&
+  activeAssigneeTab.value === wootConstants.ASSIGNEE_TYPE.ALL
+    ? wootConstants.ASSIGNEE_TYPE.UNASSIGNED
+    : activeAssigneeTab.value
+);
+
 const currentPageFilterKey = computed(() => {
   return hasAppliedFiltersOrActiveFolders.value
     ? 'appliedFilters'
-    : activeAssigneeTab.value;
+    : fetchAssigneeType.value;
 });
 
 const inbox = useFunctionGetter('inboxes/getInbox', activeInbox);
 const currentPage = useFunctionGetter(
   'conversationPage/getCurrentPageFilter',
-  activeAssigneeTab
+  fetchAssigneeType
 );
 const currentFiltersPage = useFunctionGetter(
   'conversationPage/getCurrentPageFilter',
@@ -321,7 +332,7 @@ const conversationListPagination = computed(() => {
 const conversationFilters = computed(() => {
   return {
     inboxId: props.conversationInbox ? props.conversationInbox : undefined,
-    assigneeType: activeAssigneeTab.value,
+    assigneeType: fetchAssigneeType.value,
     status: activeStatus.value,
     sortBy: activeSortBy.value,
     page: conversationListPagination.value,
@@ -404,6 +415,8 @@ const conversationList = computed(() => {
       localConversationList = [...mineChatsList.value(filters)];
     } else if (activeAssigneeTab.value === 'queue') {
       localConversationList = [...queuedChatsList.value(filters)];
+    } else if (onlyUnassigned.value) {
+      localConversationList = [...unassignedChatsList.value(filters)];
     } else {
       localConversationList = [...allChatList.value(filters)];
     }
@@ -701,9 +714,18 @@ function updateAssigneeTab(selectedTab) {
     resetBulkActions();
     emitter.emit('clearSearchInput');
     activeAssigneeTab.value = selectedTab;
+    onlyUnassigned.value = false;
     if (!currentPage.value) {
       fetchConversations();
     }
+  }
+}
+
+function toggleOnlyUnassigned() {
+  resetBulkActions();
+  onlyUnassigned.value = !onlyUnassigned.value;
+  if (!currentPage.value) {
+    fetchConversations();
   }
 }
 
@@ -1038,6 +1060,24 @@ watch(conversationFilters, (newVal, oldVal) => {
       is-compact
       @chat-tab-change="updateAssigneeTab"
     />
+
+    <div
+      v-if="
+        !hasAppliedFiltersOrActiveFolders &&
+        activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.ALL
+      "
+      class="flex px-4 py-2"
+    >
+      <NextButton
+        size="sm"
+        faded
+        :blue="onlyUnassigned"
+        :slate="!onlyUnassigned"
+        icon="i-lucide-user-x"
+        :label="$t('CHAT_LIST.ONLY_UNASSIGNED')"
+        @click="toggleOnlyUnassigned"
+      />
+    </div>
 
     <div
       v-if="activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.QUEUE"

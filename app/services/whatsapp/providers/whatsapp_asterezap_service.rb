@@ -46,8 +46,15 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
   # da Meta (que nao tem esse problema). Por isso todo envio espera um tempo
   # proporcional ao tamanho da mensagem antes de postar, simulando alguem
   # digitando.
-  MIN_TYPING_DELAY_SECONDS = 1.5
-  MAX_TYPING_DELAY_SECONDS = 12.0
+  #
+  # Configuravel por inbox (Configuracoes da caixa de entrada > aba
+  # Configuracoes, `provider_config['typing_delay_min_seconds']` /
+  # `['typing_delay_max_seconds']`) - cada numero tem uma tolerancia
+  # diferente antes de ser sinalizado, e quem administra a conta e' quem
+  # decide o equilibrio entre velocidade e risco de bloqueio, nao o codigo.
+  # Sem configuracao, cai nesses mesmos valores de sempre.
+  DEFAULT_MIN_TYPING_DELAY_SECONDS = 1.5
+  DEFAULT_MAX_TYPING_DELAY_SECONDS = 12.0
   CHARACTERS_TYPED_PER_SECOND = 12.0
 
   def api_base_path
@@ -101,8 +108,18 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
   end
 
   def typing_duration_for(content)
+    min_delay = min_typing_delay_seconds
+    max_delay = [max_typing_delay_seconds, min_delay].max
     variable_part = content.to_s.length / CHARACTERS_TYPED_PER_SECOND
-    (MIN_TYPING_DELAY_SECONDS + rand + variable_part).clamp(MIN_TYPING_DELAY_SECONDS, MAX_TYPING_DELAY_SECONDS)
+    (min_delay + rand + variable_part).clamp(min_delay, max_delay)
+  end
+
+  def min_typing_delay_seconds
+    whatsapp_channel.provider_config['typing_delay_min_seconds'].presence&.to_f || DEFAULT_MIN_TYPING_DELAY_SECONDS
+  end
+
+  def max_typing_delay_seconds
+    whatsapp_channel.provider_config['typing_delay_max_seconds'].presence&.to_f || DEFAULT_MAX_TYPING_DELAY_SECONDS
   end
 
   # Indicador visual de "digitando..." - melhor esforco, so. O formato exato

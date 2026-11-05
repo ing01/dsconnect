@@ -17,7 +17,9 @@ const ticketFor = id => ticketPreview(id);
 </script>
 
 <template>
-  <span class="text-sm leading-relaxed break-words text-n-slate-12">
+  <span
+    class="text-sm leading-relaxed break-words whitespace-pre-wrap text-n-slate-12"
+  >
     <template v-for="(part, index) in parts" :key="index">
       <!-- Uma menção é um destaque, não um link: ninguém "abre" uma pessoa. -->
       <span
