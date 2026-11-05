@@ -271,6 +271,7 @@
       "MESSAGING_RESTRICTED": "You cannot reply to this conversation",
       "MESSAGING_RESTRICTED_WHATSAPP": "You can only reply using a template message due to 24-hour message window restriction",
       "MESSAGING_RESTRICTED_API": "You can only reply using a template message due to message window restriction",
+      "MESSAGING_RESTRICTED_QUEUE": "Conversation in the queue: use \"Pick up next in queue\" to take the first conversation before replying.",
       "MESSAGING_RESTRICTED_ASSIGNED": "This conversation is assigned to {name}. Assign it to yourself to reply.",
       "MESSAGING_RESTRICTED_RESOLVED": "This conversation is resolved. Reopen it to reply.",
       "MESSAGE_SIGNATURE_NOT_CONFIGURED": "Message signature is not configured, please configure it in profile settings.",

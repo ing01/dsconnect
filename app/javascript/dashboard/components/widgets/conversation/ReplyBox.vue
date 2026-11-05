@@ -254,6 +254,13 @@ export default {
 
       return this.assignedAgent.id !== this.currentUser.id;
     },
+    // Conversa na fila, sem atendente, e quem olha nao e Administrador: precisa
+    // "Pegar proximo da fila" ANTES de digitar. Nota privada continua livre.
+    isAwaitingQueueClaim() {
+      if (this.currentRole === 'administrator') return false;
+
+      return !!this.currentChat?.meta?.queue && !this.assignedAgent;
+    },
     isBotOwnedPendingConversation() {
       return (
         this.currentChat?.status === wootConstants.STATUS_TYPE.PENDING &&
@@ -275,6 +282,9 @@ export default {
       if (this.isEditorDisabled) {
         if (this.isConversationResolved) {
           return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_RESOLVED');
+        }
+        if (this.isAwaitingQueueClaim) {
+          return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_QUEUE');
         }
         if (this.isAssignedToAnotherAgent) {
           return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_ASSIGNED', {
@@ -516,6 +526,7 @@ export default {
     isEditorDisabled() {
       if (this.isConversationResolved) return true;
       if (this.isAssignedToAnotherAgent && !this.isOnPrivateNote) return true;
+      if (this.isAwaitingQueueClaim && !this.isOnPrivateNote) return true;
 
       return (
         (this.isAWhatsAppChannel || this.isAPIInbox) &&
