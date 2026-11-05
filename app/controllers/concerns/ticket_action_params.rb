@@ -65,6 +65,9 @@ module TicketActionParams
                                    # mais simples que duplicar `ticket_params` por tipo de Mesa; uma Mesa
                                    # comum simplesmente nunca envia esses campos pela UI.
                                    :sprint_id, :development_type,
+                                   # Chave (DM-123) de um card que ja existe no Jira, informada na aba
+                                   # Desenvolvimento no lugar de abrir um ticket na Mesa de Desenvolvimento.
+                                   :jira_key,
                                    *ASSIGNEE_PARAMS, follower_ids: [], custom_attributes: {})
   end
 end
