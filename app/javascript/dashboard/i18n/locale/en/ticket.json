@@ -449,7 +449,14 @@
       "DEVELOPMENT": {
         "TITLE": "Development",
         "EMPTY": "No development item linked.",
-        "JIRA_KEY_IMPORTED": "Imported Jira key:"
+        "JIRA_KEY_IMPORTED": "Imported Jira key:",
+        "JIRA_LINK": {
+          "LABEL": "Link Jira key",
+          "PLACEHOLDER": "e.g. DM-123",
+          "HELP": "Already have the card in Jira? Enter its key here instead of creating a ticket for the Development desk.",
+          "SAVE": "Save",
+          "SUCCESS": "Jira key updated"
+        }
       },
       "TAB_HISTORY": "History",
       "RELATIONSHIPS": {
@@ -1148,6 +1155,11 @@
     "CLOSE": {
       "TITLE": "Close ticket #{number}",
       "CONFIRM": "Close ticket",
+      "LEAVE_OPEN": "Leave ticket open",
+      "STEP_DETAILS": "Ticket details",
+      "DETAILS_TITLE": "Subject / title",
+      "DETAILS_DESCRIPTION": "Description",
+      "DETAILS_HINT": "You can adjust the subject and description before closing. The change is saved together with the closing.",
       "STEP_CLASSIFICATION": "1. Classification",
       "STEP_RESOLUTION": "2. Resolution",
       "STEP_COMMUNICATION": "3. Customer communication",

@@ -23,6 +23,9 @@ class TriggerScheduledItemsJob < ApplicationJob
     # Encerramento por inatividade configurado por caixa de entrada (Portal e WhatsApp)
     Inboxes::InactivityJob.perform_later
 
+    # Encerra conversas pausadas por inatividade cujo prazo de retomada acabou
+    Inactivity::PauseExpiryJob.perform_later
+
     # Job to sync whatsapp templates
     Channels::Whatsapp::TemplatesSyncSchedulerJob.perform_later
 

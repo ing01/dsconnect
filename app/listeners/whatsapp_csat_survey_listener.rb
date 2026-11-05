@@ -6,6 +6,7 @@ class WhatsappCsatSurveyListener < BaseListener
   def conversation_status_changed(event)
     conversation = extract_conversation_and_account(event)[0]
     return unless conversation.resolved?
+    return if conversation.cancelled?
 
     I18n.with_locale(conversation.account.locale) do
       Whatsapp::CsatDigitSurveyService.new(conversation: conversation).send_survey

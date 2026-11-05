@@ -245,9 +245,14 @@ describe('#URL Helpers', () => {
       expect(timeStampAppendedURL(input)).toBe(expected);
     });
 
-    it('should throw an error for invalid URLs', () => {
+    it('should return the input untouched for invalid URLs instead of throwing', () => {
       const input = 'not a valid url';
-      expect(() => timeStampAppendedURL(input)).toThrow();
+      expect(timeStampAppendedURL(input)).toBe(input);
+    });
+
+    it('should return an empty string when there is no URL yet', () => {
+      expect(timeStampAppendedURL('')).toBe('');
+      expect(timeStampAppendedURL(undefined)).toBe('');
     });
   });
 

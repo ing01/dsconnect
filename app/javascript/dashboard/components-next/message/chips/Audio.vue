@@ -2,8 +2,10 @@
 import {
   computed,
   onMounted,
+  onBeforeUnmount,
   useTemplateRef,
   ref,
+  watch,
   getCurrentInstance,
 } from 'vue';
 import Icon from 'next/icon/Icon.vue';
@@ -72,7 +74,48 @@ const resolveStreamingDuration = () => {
   }
 };
 
+// O primeiro carregamento pode falhar (arquivo ainda sendo gravado, rede
+// instavel) e o <audio> nao tenta de novo sozinho: o audio ficava quebrado ate
+// a pagina ser recarregada. Tenta mais algumas vezes, com espera crescente.
+const MAX_LOAD_RETRIES = 3;
+let loadRetries = 0;
+let retryTimer = null;
+
+// So' aparece depois de esgotar as tentativas automaticas: avisa o agente que o
+// audio nao carregou, em vez de deixar um player mudo que parece funcionar.
+const hasLoadError = ref(false);
+
+const retryLoad = () => {
+  hasLoadError.value = false;
+  loadRetries = 0;
+  audioPlayer.value?.load();
+};
+
+const onLoadError = () => {
+  if (!timeStampURL.value) return;
+  if (loadRetries >= MAX_LOAD_RETRIES) {
+    hasLoadError.value = true;
+    return;
+  }
+  loadRetries += 1;
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(() => audioPlayer.value?.load(), loadRetries * 1500);
+};
+
+// A URL pode chegar depois da bolha (mensagem atualizada em tempo real):
+// recomeca a contagem e carrega o novo arquivo.
+watch(timeStampURL, () => {
+  loadRetries = 0;
+  hasLoadError.value = false;
+  duration.value = 0;
+  currentTime.value = 0;
+});
+
+onBeforeUnmount(() => clearTimeout(retryTimer));
+
 const onLoadedMetadata = () => {
+  loadRetries = 0;
+  hasLoadError.value = false;
   const d = audioPlayer.value?.duration;
   if (!Number.isFinite(d)) {
     resolveStreamingDuration();
@@ -167,12 +210,12 @@ const downloadAudio = async () => {
     controls
     class="hidden"
     playsinline
+    :src="timeStampURL || undefined"
     @loadedmetadata="onLoadedMetadata"
     @timeupdate="onTimeUpdate"
     @ended="onEnd"
-  >
-    <source :src="timeStampURL" />
-  </audio>
+    @error="onLoadError"
+  />
   <div
     v-bind="$attrs"
     class="rounded-xl w-full gap-2 p-1.5 bg-n-alpha-white flex flex-col items-center border border-n-container shadow-[0px_2px_8px_0px_rgba(94,94,94,0.06)]"
@@ -219,6 +262,23 @@ const downloadAudio = async () => {
         @click="downloadAudio"
       >
         <Icon class="size-4" icon="i-lucide-download" />
+      </button>
+    </div>
+
+    <div
+      v-if="hasLoadError"
+      class="flex items-center w-full gap-2 px-2 py-1.5 text-xs rounded-lg text-n-ruby-11 bg-n-ruby-3"
+      role="alert"
+    >
+      <Icon class="flex-shrink-0 size-4" icon="i-lucide-circle-alert" />
+      <span class="flex-1 min-w-0">
+        {{ $t('CONVERSATION.AUDIO_LOAD_ERROR.MESSAGE') }}
+      </span>
+      <button
+        class="p-0 font-medium border-0 bg-transparent text-n-ruby-11 hover:underline"
+        @click="retryLoad"
+      >
+        {{ $t('CONVERSATION.AUDIO_LOAD_ERROR.RETRY') }}
       </button>
     </div>
 

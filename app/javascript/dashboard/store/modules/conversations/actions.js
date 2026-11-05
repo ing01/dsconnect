@@ -225,7 +225,9 @@ const actions = {
         assigneeType,
       });
     } catch (error) {
-      // Handle error
+      // Quem chama precisa saber que falhou (ex.: trava da fila) - antes o
+      // erro era engolido e a tela mostrava "agente alterado" de mentira.
+      throw error;
     }
   },
 
@@ -278,7 +280,13 @@ const actions = {
 
   toggleStatus: async (
     { commit },
-    { conversationId, status, snoozedUntil = null, customAttributes = null }
+    {
+      conversationId,
+      status,
+      snoozedUntil = null,
+      customAttributes = null,
+      cancelled = false,
+    }
   ) => {
     try {
       // Update custom attributes first if provided
@@ -304,6 +312,7 @@ const actions = {
         conversationId,
         status,
         snoozedUntil,
+        cancelled,
       });
       commit(types.CHANGE_CONVERSATION_STATUS, {
         conversationId,

@@ -19,6 +19,7 @@
     "FETCH_ERROR": "Não foi possível carregar as conversas. Por favor, tente novamente.",
     "TAB_HEADING": "Conversas",
     "ONLY_UNASSIGNED": "Sem agente atribuído",
+    "ONLY_PAUSED": "Pausadas",
     "MENTION_HEADING": "Menções",
     "UNATTENDED_HEADING": "Não Atendidas",
     "CHANNEL_TYPE_VIEWS": {
@@ -45,7 +46,7 @@
         "TEXT": "Pendentes"
       },
       "snoozed": {
-        "TEXT": "Adiadas"
+        "TEXT": "Pausadas"
       },
       "all": {
         "TEXT": "Todas"

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
@@ -85,6 +85,38 @@ const executeConfirm = async event => {
   }
 };
 
+// Vincula a chave de um card que ja existe no Jira (ex.: DM-123), para quem nao
+// usa a Mesa de Desenvolvimento. Salva ao sair do campo ou apertar Enter.
+const jiraInput = ref(props.ticket?.jira_key || '');
+const isSavingJira = ref(false);
+
+watch(
+  () => props.ticket?.jira_key,
+  value => {
+    jiraInput.value = value || '';
+  }
+);
+
+const jiraDirty = computed(
+  () => jiraInput.value.trim() !== (props.ticket?.jira_key || '')
+);
+
+const saveJiraKey = async () => {
+  if (isSavingJira.value || !jiraDirty.value) return;
+  isSavingJira.value = true;
+  try {
+    await TicketsAPI.update(props.ticket.id, {
+      ticket: { jira_key: jiraInput.value.trim().toUpperCase() },
+    });
+    useAlert(t('TICKET.DETAIL.DEVELOPMENT.JIRA_LINK.SUCCESS'));
+    emit('refresh');
+  } catch {
+    useAlert(t('TICKET.API.ERROR_MESSAGE'));
+  } finally {
+    isSavingJira.value = false;
+  }
+};
+
 const onCreated = () => emit('refresh');
 const onLinked = () => emit('refresh');
 </script>
@@ -107,14 +139,41 @@ const onLinked = () => emit('refresh');
       />
     </div>
 
-    <!-- Jira key from import -->
-    <p v-if="jiraKey" class="flex items-center gap-2 text-sm text-n-slate-12">
-      <Icon icon="i-lucide-git-branch" class="size-4 flex-shrink-0 text-n-slate-11" />
-      <span class="font-medium">
-        {{ t('TICKET.DETAIL.DEVELOPMENT.JIRA_KEY_IMPORTED') }}
-      </span>
-      {{ jiraKey }}
-    </p>
+    <!-- Vincular key do Jira (card ja criado la, sem abrir ticket na Mesa) -->
+    <div class="flex flex-col gap-1">
+      <label
+        for="ticket-jira-key"
+        class="text-xs font-medium text-n-slate-10 uppercase tracking-wide"
+      >
+        {{ t('TICKET.DETAIL.DEVELOPMENT.JIRA_LINK.LABEL') }}
+      </label>
+      <div class="flex items-center gap-2">
+        <input
+          id="ticket-jira-key"
+          v-model="jiraInput"
+          type="text"
+          maxlength="50"
+          autocomplete="off"
+          :placeholder="t('TICKET.DETAIL.DEVELOPMENT.JIRA_LINK.PLACEHOLDER')"
+          :disabled="isSavingJira"
+          class="!mb-0 flex-1 min-w-0 text-sm"
+          @keydown.enter.prevent="saveJiraKey"
+          @blur="saveJiraKey"
+        />
+        <Button
+          xs
+          slate
+          faded
+          :label="t('TICKET.DETAIL.DEVELOPMENT.JIRA_LINK.SAVE')"
+          :is-loading="isSavingJira"
+          :disabled="!jiraDirty"
+          @click="saveJiraKey"
+        />
+      </div>
+      <p class="text-xs text-n-slate-10 !mb-0">
+        {{ t('TICKET.DETAIL.DEVELOPMENT.JIRA_LINK.HELP') }}
+      </p>
+    </div>
 
     <!-- Linked development children -->
     <div v-if="devChildren.length" class="flex flex-col gap-1">

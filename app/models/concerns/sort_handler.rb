@@ -22,11 +22,13 @@ module SortHandler
       order(generate_sql_query("(waiting_since IS NULL), waiting_since #{sort_direction.to_s.upcase}, created_at ASC"))
     end
 
-    # Aba "Na fila": ordem de chegada pura - quem chamou primeiro (primeira
-    # mensagem = `created_at` da conversa) e o proximo. Nao considera
-    # prioridade, devolucao nem a ultima mensagem do contato.
+    # Aba "Na fila": maior prioridade primeiro (urgente, alta, media, baixa,
+    # sem prioridade) e, dentro da mesma prioridade, quem chamou primeiro
+    # (`created_at` da conversa). Nao considera devolucao, o tempo da primeira
+    # resposta nem a ultima mensagem do contato. Mesmo criterio de
+    # `Queues#claim_next` e do `sortOnQueuePosition` do frontend.
     def sort_on_queue_position(_sort_direction = :asc)
-      order(created_at: :asc, id: :asc)
+      order(generate_sql_query('priority DESC NULLS LAST, created_at ASC, id ASC'))
     end
 
     def last_messaged_conversations

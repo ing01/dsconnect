@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import PauseConfigFields from 'dashboard/components/widgets/PauseConfig/PauseConfigFields.vue';
 
 const props = defineProps({
   modelValue: {
@@ -108,5 +109,10 @@ const toMinutes = event => {
         </label>
       </template>
     </div>
+
+    <PauseConfigFields
+      :model-value="modelValue.pause"
+      @update:model-value="update({ pause: $event })"
+    />
   </div>
 </template>

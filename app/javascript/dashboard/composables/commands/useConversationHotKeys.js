@@ -2,6 +2,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useRoute } from 'vue-router';
+import { useAlert } from 'dashboard/composables';
 import { emitter } from 'shared/helpers/mitt';
 import { useConversationLabels } from 'dashboard/composables/useConversationLabels';
 import { useCaptain } from 'dashboard/composables/useCaptain';
@@ -172,10 +173,16 @@ export function useConversationHotKeys() {
   });
 
   const onChangeAssignee = action => {
-    store.dispatch('assignAgent', {
-      conversationId: currentChat.value.id,
-      agentId: action.agentInfo.id,
-    });
+    store
+      .dispatch('assignAgent', {
+        conversationId: currentChat.value.id,
+        agentId: action.agentInfo.id,
+      })
+      .catch(error => {
+        useAlert(
+          error?.response?.data?.error || t('CONVERSATION.CHANGE_AGENT_FAILED')
+        );
+      });
   };
 
   const onChangePriority = action => {

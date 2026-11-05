@@ -3,6 +3,10 @@ import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import QueueInactivityFields from './QueueInactivityFields.vue';
+import {
+  pauseFromConfig,
+  pauseToConfig,
+} from 'dashboard/components/widgets/PauseConfig/pauseConfig';
 
 export default {
   components: {
@@ -30,6 +34,7 @@ export default {
         nudgeMessage: this.selectedQueue.inactivity_nudge_message ?? '',
         closeAfter: this.selectedQueue.inactivity_close_after ?? null,
         closeMessage: this.selectedQueue.inactivity_close_message ?? '',
+        pause: pauseFromConfig(this.selectedQueue.inactivity_pause_config),
       },
     };
   },
@@ -81,6 +86,7 @@ export default {
             this.inactivity.closeAfter === null
               ? null
               : this.inactivity.closeMessage,
+          inactivity_pause_config: pauseToConfig(this.inactivity.pause),
         });
         useAlert(this.$t('QUEUES_SETTINGS.EDIT.API.SUCCESS_MESSAGE'));
         this.onClose();

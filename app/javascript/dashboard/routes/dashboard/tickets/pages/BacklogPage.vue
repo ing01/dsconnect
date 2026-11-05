@@ -209,6 +209,12 @@ const closeTicketCreateForm = () => {
   showTicketCreateForm.value = false;
   targetColumnId.value = null;
 };
+// Abre direto o ticket recem-criado (a nao ser em "Criar e abrir outro").
+const onTicketCreated = ({ ticket, keepOpen } = {}) => {
+  if (keepOpen) return;
+  closeTicketCreateForm();
+  if (ticket?.id) openTicket(ticket);
+};
 </script>
 
 <template>
@@ -437,7 +443,7 @@ const closeTicketCreateForm = () => {
           sprintId: boardSprint?.id,
         }"
         @close="closeTicketCreateForm"
-        @created="closeTicketCreateForm"
+        @created="onTicketCreated"
       />
     </woot-modal>
 

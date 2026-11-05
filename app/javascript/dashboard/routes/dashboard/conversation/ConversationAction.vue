@@ -66,7 +66,6 @@ export default {
       currentChat: 'getSelectedChat',
       currentUser: 'getCurrentUser',
       currentUserRole: 'getCurrentRole',
-      currentUserEnforceQueueOrder: 'getCurrentUserEnforceQueueOrder',
       teams: 'teams/getTeams',
       queues: 'queues/getQueues',
     }),
@@ -114,19 +113,34 @@ export default {
       set(agent) {
         const agentId = agent ? agent.id : null;
         const assigneeType = agent ? agent.assignee_type || 'User' : null;
+        const previousAgent = this.assignedAgent;
+        const conversationId = this.currentChat.id;
         this.$store.dispatch('setCurrentChatAssignee', {
-          conversationId: this.currentChat.id,
+          conversationId,
           assignee: agent,
           assigneeType,
         });
         this.$store
           .dispatch('assignAgent', {
-            conversationId: this.currentChat.id,
+            conversationId,
             agentId,
             assigneeType,
           })
           .then(() => {
             useAlert(this.$t('CONVERSATION.CHANGE_AGENT'));
+          })
+          .catch(error => {
+            // Recusa do servidor (ex.: so' a primeira da fila): desfaz a
+            // troca otimista e mostra o motivo real.
+            this.$store.dispatch('setCurrentChatAssignee', {
+              conversationId,
+              assignee: previousAgent || null,
+              assigneeType: previousAgent?.assignee_type || null,
+            });
+            useAlert(
+              error?.response?.data?.error ||
+                this.$t('CONVERSATION.CHANGE_AGENT_FAILED')
+            );
           });
       },
     },
@@ -194,15 +208,12 @@ export default {
           });
       },
     },
-    // Atendente com a trava de fila ligada nao escolhe livremente - so pega
-    // a proxima em ordem (botao "Pegar próximo da fila" na lista "Na fila").
-    // Administrador nunca e afetado.
+    // Quem NAO E Administrador nao escolhe atendimento livremente - so pega
+    // a proxima conversa da fila em ordem (botao "Pegar próximo da fila" na
+    // lista "Na fila"). Regra fixa, nao configuravel por atendente nem por
+    // Funcao personalizada - so o cargo Administrador libera a escolha livre.
     isQueueOrderLocked() {
-      return (
-        this.hasAnAssignedQueue &&
-        this.currentUserRole !== 'administrator' &&
-        !!this.currentUserEnforceQueueOrder
-      );
+      return this.hasAnAssignedQueue && this.currentUserRole !== 'administrator';
     },
     showSelfAssign() {
       if (this.isQueueOrderLocked) {

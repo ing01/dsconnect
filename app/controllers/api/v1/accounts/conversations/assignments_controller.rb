@@ -15,7 +15,7 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
   private
 
   def set_agent
-    return reject_out_of_order_self_assign if blocked_self_assign?
+    return reject_out_of_order_assign if blocked_manual_assign?
 
     resource = Conversations::AssignmentService.new(
       conversation: @conversation,
@@ -26,25 +26,31 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
     render_agent(resource)
   end
 
-  # Atendente com a trava de fila ligada nao escolhe livremente - so pega a
-  # proxima em ordem (endpoint `Queues#claim_next`). So se aplica a
-  # AUTO-atribuicao (o proprio atendente se atribuindo) e so a conversas numa
-  # fila; Administrador nunca e afetado, e nada impede um Admin atribuir
-  # OUTRA pessoa livremente.
-  def blocked_self_assign?
-    return false unless self_assignment?
+  # Quem NAO E Administrador nao escolhe atendimento livremente - so pega a
+  # proxima conversa da fila em ordem (endpoint `Queues#claim_next`). Vale
+  # pra se atribuir a si mesmo e pra atribuir a outro colega igual - senao a
+  # trava vira so um convite pra "passar a conversa pra frente" via outra
+  # pessoa -, em qualquer conversa que esteja numa fila. Regra fixa: ignora
+  # completamente qualquer Funcao personalizada (`conversation_manage` e
+  # companhia) e o antigo campo por atendente - so o cargo Administrador de
+  # verdade libera a escolha livre.
+  def blocked_manual_assign?
+    return false if agent_bot_assignment?
+    return false if params[:assignee_id].blank?
     return false if @conversation.queue_id.blank?
-    return false unless Current.account_user.enforce_queue_order?
-    return false if Current.account_user.administrator?
 
-    true
+    !Current.account_user.administrator?
   end
 
-  def self_assignment?
-    params[:assignee_id].present? && !agent_bot_assignment? && params[:assignee_id].to_i == Current.user.id
+  def clearing_queue?(queue_id)
+    !queue_id.positive? && @conversation.queue_id.present? && !Current.account_user.administrator?
   end
 
-  def reject_out_of_order_self_assign
+  def render_clear_queue_not_allowed
+    render_could_not_create_error(I18n.t('errors.queues.clear_queue_not_allowed'))
+  end
+
+  def reject_out_of_order_assign
     render_could_not_create_error(I18n.t('errors.queues.out_of_order_assignment'))
   end
 
@@ -103,7 +109,11 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
 
   def set_queue
     queue_id = params[:queue_id].to_i
-    @queue = queue_id.positive? ? Current.account.queues.find(queue_id) : nil
+    # Tirar a conversa da fila destrava a atribuicao livre (a trava so olha
+    # `queue_id`), entao so' Administrador pode fazer isso.
+    return render_clear_queue_not_allowed if clearing_queue?(queue_id)
+
+    @queue =queue_id.positive? ? Current.account.queues.find(queue_id) : nil
     @conversation.with_lock do
       @conversation.update!(queue: @queue)
     end

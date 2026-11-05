@@ -177,6 +177,15 @@ export default {
       currentUser: 'getCurrentUser',
       currentAccountId: 'getCurrentAccountId',
     }),
+    // Conversa numa fila + quem nao e Administrador: nao ha escolha de agente
+    // (so' "Pegar proximo da fila", a PRIMEIRA da fila).
+    isQueueOrderLocked() {
+      const chat = this.$store.getters.getConversationById(this.chatId);
+      return (
+        !!chat?.meta?.queue &&
+        this.$store.getters.getCurrentRole !== 'administrator'
+      );
+    },
     filteredAgentOnAvailability() {
       const agents = this.$store.getters[
         'inboxAssignableAgents/getAssignableAgents'
@@ -377,7 +386,7 @@ export default {
         </div>
       </MenuItemWithSubmenu>
       <MenuItemWithSubmenu
-        v-if="isAllowed([MENU.AGENT])"
+        v-if="!isQueueOrderLocked && isAllowed([MENU.AGENT])"
         :option="agentMenuConfig"
         :sub-menu-available="!!assignableAgents.length"
       >

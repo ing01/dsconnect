@@ -38,10 +38,6 @@ const props = defineProps({
     type: Number,
     default: null,
   },
-  enforceQueueOrder: {
-    type: Boolean,
-    default: false,
-  },
   lunchStartHour: {
     type: Number,
     default: null,
@@ -71,7 +67,6 @@ const agentName = ref(props.name);
 const agentAvailability = ref(props.availability);
 const selectedRoleId = ref(props.customRoleId || props.type);
 const agentCredentials = ref({ email: props.email });
-const enforceQueueOrder = ref(props.enforceQueueOrder);
 
 // `<input type="time">` fala HH:MM - as 4 colunas (hora/minuto separados)
 // sao so o formato de armazenamento, pensado pra bater com WorkingHour. Os
@@ -182,7 +177,6 @@ const editAgent = async () => {
       id: props.id,
       name: agentName.value,
       availability: agentAvailability.value,
-      enforce_queue_order: enforceQueueOrder.value,
       lunch_start_hour: lunchStartHour,
       lunch_start_minutes: lunchStartMinutes,
       lunch_end_hour: lunchEndHour,
@@ -263,18 +257,6 @@ const resetPassword = async () => {
             {{ $t('AGENT_MGMT.EDIT.FORM.AGENT_AVAILABILITY.ERROR') }}
           </span>
         </label>
-      </div>
-
-      <div class="w-full">
-        <label class="flex items-center gap-2">
-          <input v-model="enforceQueueOrder" type="checkbox" class="!m-0" />
-          <span>{{
-            $t('AGENT_MGMT.EDIT.FORM.ENFORCE_QUEUE_ORDER.LABEL')
-          }}</span>
-        </label>
-        <p class="mb-0 text-xs text-n-slate-11">
-          {{ $t('AGENT_MGMT.EDIT.FORM.ENFORCE_QUEUE_ORDER.HELP') }}
-        </p>
       </div>
 
       <div class="w-full">

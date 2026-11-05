@@ -103,6 +103,10 @@
       "HIDE_LABELS": "Hide labels",
       "LABELS_COUNT": "{count} labels"
     },
+    "AUDIO_LOAD_ERROR": {
+      "MESSAGE": "Could not load the audio. Refresh the page or download the file.",
+      "RETRY": "Try again"
+    },
     "VOICE_CALL": {
       "INCOMING_CALL": "Incoming call",
       "OUTGOING_CALL": "Outgoing call",
@@ -153,6 +157,9 @@
       }
     },
     "RESOLVE_DROPDOWN": {
+      "CANCEL_CONVERSATION": "Cancel conversation",
+      "CANCEL_CONFIRM": "Cancel this conversation? It will be closed without sending a closing message or satisfaction survey to the customer.",
+      "CANCEL_DONE": "Conversation cancelled",
       "MARK_PENDING": "Mark as pending",
       "SNOOZE_UNTIL": "Snooze",
       "SNOOZE": {
@@ -192,6 +199,29 @@
         "ENABLED": "Enabled",
         "DISABLED": "Disabled",
         "YOU_ARE_A_MEMBER": "You are a member of this team"
+      }
+    },
+    "EXTEND_PAUSE": {
+      "BUTTON": "Extend pause",
+      "TITLE": "Extend pause",
+      "PAUSED_UNTIL": "Paused until",
+      "HOURS": "Hours",
+      "MINUTES": "Minutes",
+      "REASON": "Reason for the extension *",
+      "REASON_PLACEHOLDER": "E.g.: The customer is running tests and asked for more time to reply.",
+      "REASON_HELP": "Required. Recorded in the conversation history.",
+      "NOTIFY_CUSTOMER": "Tell the customer the reason in the automatic message",
+      "CANCEL": "Cancel",
+      "CONFIRM": "Extend",
+      "SUCCESS": "Pause deadline extended",
+      "ERRORS": {
+        "generic": "Could not extend the pause.",
+        "reason_required": "Enter the reason for the extension.",
+        "invalid_minutes": "Enter a time greater than zero.",
+        "duration_exceeded": "The time exceeds the maximum allowed per extension.",
+        "limit_reached": "The extension limit for this pause was reached.",
+        "extension_disabled": "Pause extension is turned off for this inbox.",
+        "not_paused": "This conversation is not paused by inactivity."
       }
     },
     "CUSTOM_SNOOZE": {
@@ -271,6 +301,7 @@
       "MESSAGING_RESTRICTED": "You cannot reply to this conversation",
       "MESSAGING_RESTRICTED_WHATSAPP": "You can only reply using a template message due to 24-hour message window restriction",
       "MESSAGING_RESTRICTED_API": "You can only reply using a template message due to message window restriction",
+      "MESSAGING_RESTRICTED_QUEUE": "Conversation in the queue: use \"Pick up next in queue\" to take the first conversation before replying.",
       "MESSAGING_RESTRICTED_ASSIGNED": "This conversation is assigned to {name}. Assign it to yourself to reply.",
       "MESSAGING_RESTRICTED_RESOLVED": "This conversation is resolved. Reopen it to reply.",
       "MESSAGE_SIGNATURE_NOT_CONFIGURED": "Message signature is not configured, please configure it in profile settings.",
@@ -289,6 +320,10 @@
       "TIP_EMOJI_ICON": "Show emoji selector",
       "TIP_ATTACH_ICON": "Attach files",
       "TIP_AUDIORECORDER_ICON": "Record audio",
+      "AUDIO_PAUSE": "Pause",
+      "AUDIO_RESUME": "Resume",
+      "AUDIO_FINISH": "Finish",
+      "AUDIO_CANCEL": "Cancel audio",
       "TIP_AUDIORECORDER_PERMISSION": "Allow access to audio",
       "TIP_AUDIORECORDER_ERROR": "Could not open the audio",
       "AUDIO_CONVERSION_FAILED": "Audio conversion failed. Please try again.",
@@ -331,6 +366,7 @@
     "CHANGE_STATUS": "Conversation status changed",
     "CHANGE_STATUS_FAILED": "Conversation status change failed",
     "CHANGE_AGENT": "Conversation Assignee changed",
+    "QUEUE_ORDER_LOCKED": "This conversation is in the queue. You can only handle the FIRST conversation in the queue - use the \"Pick up next in queue\" button.",
     "CHANGE_AGENT_FAILED": "Assignee change failed",
     "ASSIGN_LABEL_SUCCESFUL": "Label assigned successfully",
     "ASSIGN_LABEL_FAILED": "Label assignment failed",

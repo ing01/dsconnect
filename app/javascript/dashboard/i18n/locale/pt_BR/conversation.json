@@ -89,6 +89,10 @@
       "HIDE_LABELS": "Ocultar as etiquetas",
       "LABELS_COUNT": "{count} etiquetas"
     },
+    "AUDIO_LOAD_ERROR": {
+      "MESSAGE": "Erro ao carregar o áudio. Atualize a página ou baixe o arquivo.",
+      "RETRY": "Tentar novamente"
+    },
     "VOICE_CALL": {
       "INCOMING_CALL": "Chamada recebida",
       "OUTGOING_CALL": "Chamada realizada",
@@ -120,10 +124,10 @@
       "CLOSE": "Fechar",
       "DETAILS": "detalhes",
       "COPY_ID_SUCCESS": "ID da conversa copiado para área de transferência",
-      "SNOOZED_UNTIL": "Adiar até",
-      "SNOOZED_UNTIL_TOMORROW": "Adiado até amanhã",
-      "SNOOZED_UNTIL_NEXT_WEEK": "Adiada até a próxima semana",
-      "SNOOZED_UNTIL_NEXT_REPLY": "Adiado até a próxima resposta",
+      "SNOOZED_UNTIL": "Pausar até",
+      "SNOOZED_UNTIL_TOMORROW": "Pausada até amanhã",
+      "SNOOZED_UNTIL_NEXT_WEEK": "Pausada até a próxima semana",
+      "SNOOZED_UNTIL_NEXT_REPLY": "Pausada até a próxima resposta",
       "WHATSAPP_CALL": "Iniciar chamada no WhatsApp",
       "WHATSAPP_CALL_FAILED": "Não foi possível iniciar a chamada no WhatsApp.",
       "VOICE_CALL": "Iniciar chamada",
@@ -139,10 +143,13 @@
       }
     },
     "RESOLVE_DROPDOWN": {
+      "CANCEL_CONVERSATION": "Cancelar conversa",
+      "CANCEL_CONFIRM": "Cancelar esta conversa? Ela será encerrada sem enviar mensagem de encerramento nem avaliação ao cliente.",
+      "CANCEL_DONE": "Conversa cancelada",
       "MARK_PENDING": "Deixar pendente",
-      "SNOOZE_UNTIL": "Adiar",
+      "SNOOZE_UNTIL": "Pausar",
       "SNOOZE": {
-        "TITLE": "Suspender até",
+        "TITLE": "Pausar até",
         "NEXT_REPLY": "Próxima resposta",
         "TOMORROW": "Amanhã",
         "NEXT_WEEK": "Próxima semana"
@@ -152,9 +159,32 @@
       "AGENTS": "Agentes",
       "TEAMS": "Times"
     },
+    "EXTEND_PAUSE": {
+      "BUTTON": "Estender pausa",
+      "TITLE": "Estender pausa",
+      "PAUSED_UNTIL": "Pausada até",
+      "HOURS": "Horas",
+      "MINUTES": "Minutos",
+      "REASON": "Motivo da extensão *",
+      "REASON_PLACEHOLDER": "Ex.: Cliente está realizando testes e pediu mais tempo para retornar.",
+      "REASON_HELP": "Obrigatório. Fica registrado no histórico do atendimento.",
+      "NOTIFY_CUSTOMER": "Informar o motivo ao cliente na mensagem automática",
+      "CANCEL": "Cancelar",
+      "CONFIRM": "Estender",
+      "SUCCESS": "Prazo da pausa estendido",
+      "ERRORS": {
+        "generic": "Não foi possível estender a pausa.",
+        "reason_required": "Informe o motivo da extensão.",
+        "invalid_minutes": "Informe um tempo maior que zero.",
+        "duration_exceeded": "O tempo ultrapassa o máximo permitido por extensão.",
+        "limit_reached": "O limite de extensões desta pausa foi atingido.",
+        "extension_disabled": "A extensão de pausa está desativada nesta caixa.",
+        "not_paused": "Esta conversa não está pausada por inatividade."
+      }
+    },
     "CUSTOM_SNOOZE": {
-      "TITLE": "Adiar até",
-      "APPLY": "Adiar",
+      "TITLE": "Pausar até",
+      "APPLY": "Pausar",
       "CANCEL": "Cancelar"
     },
     "PRIORITY": {
@@ -186,7 +216,7 @@
       "MARK_AS_READ": "Marcar como lida",
       "REOPEN": "Reabrir conversa",
       "SNOOZE": {
-        "TITLE": "Adiar",
+        "TITLE": "Pausar",
         "NEXT_REPLY": "Até a próxima resposta",
         "TOMORROW": "Até amanhã",
         "NEXT_WEEK": "Até a próxima semana"
@@ -229,6 +259,7 @@
       "MESSAGING_RESTRICTED": "Você não pode responder esta conversa",
       "MESSAGING_RESTRICTED_WHATSAPP": "Você só pode responder usando uma mensagem de modelo devido à restrição da janela de 24 horas",
       "MESSAGING_RESTRICTED_API": "Você só pode responder usando uma mensagem de template devido à restrição da janela de mensagens",
+      "MESSAGING_RESTRICTED_QUEUE": "Conversa na fila: clique em \"Pegar próximo da fila\" para atender a primeira conversa antes de responder.",
       "MESSAGING_RESTRICTED_ASSIGNED": "Esta conversa está atribuída a {name}. Atribua a você mesmo para responder.",
       "MESSAGING_RESTRICTED_RESOLVED": "Esta conversa está resolvida. Reabra-a para responder.",
       "MESSAGE_SIGNATURE_NOT_CONFIGURED": "A assinatura da mensagem não está configurada. Por favor, configure-a nas configurações do perfil.",
@@ -247,6 +278,10 @@
       "TIP_EMOJI_ICON": "Mostrar seletor de emoji",
       "TIP_ATTACH_ICON": "Anexar arquivos",
       "TIP_AUDIORECORDER_ICON": "Gravar áudio",
+      "AUDIO_PAUSE": "Pausar",
+      "AUDIO_RESUME": "Continuar",
+      "AUDIO_FINISH": "Concluir",
+      "AUDIO_CANCEL": "Cancelar áudio",
       "TIP_AUDIORECORDER_PERMISSION": "Permitir acesso ao áudio",
       "TIP_AUDIORECORDER_ERROR": "Não foi possível abrir o áudio",
       "AUDIO_CONVERSION_FAILED": "Falha na conversão do áudio. Tente novamente.",
@@ -289,6 +324,7 @@
     "CHANGE_STATUS": "Estado da conversa mudou",
     "CHANGE_STATUS_FAILED": "Mudança de status da conversa falhou",
     "CHANGE_AGENT": "Novo agente atribuído",
+    "QUEUE_ORDER_LOCKED": "Esta conversa é da fila. Você só pode atender a PRIMEIRA conversa da fila - use o botão \"Pegar próximo da fila\".",
     "CHANGE_AGENT_FAILED": "Falha ao atribuir outro agente",
     "ASSIGN_LABEL_SUCCESFUL": "Etiqueta atribuída com sucesso",
     "ASSIGN_LABEL_FAILED": "Falha ao atribuir etiqueta",

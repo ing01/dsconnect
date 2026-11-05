@@ -480,6 +480,13 @@
         "TITLE": "Desenvolvimento",
         "EMPTY": "Nenhum item de desenvolvimento vinculado.",
         "JIRA_KEY_IMPORTED": "Key do Jira Importado:",
+        "JIRA_LINK": {
+          "LABEL": "Vincular key do Jira",
+          "PLACEHOLDER": "Ex.: DM-123",
+          "HELP": "Já tem o card no Jira? Informe a key aqui e não precisa criar ticket para a Mesa de Desenvolvimento.",
+          "SAVE": "Salvar",
+          "SUCCESS": "Key do Jira atualizada"
+        },
         "ADD_BUTTON": "Criar / Vincular",
         "LINKED_TITLE": "Tickets de desenvolvimento",
         "DIALOG_TITLE": "Ticket de Desenvolvimento",
@@ -1233,6 +1240,11 @@
     "CLOSE": {
       "TITLE": "Fechar ticket #{number}",
       "CONFIRM": "Fechar ticket",
+      "LEAVE_OPEN": "Deixar ticket em aberto",
+      "STEP_DETAILS": "Detalhes do ticket",
+      "DETAILS_TITLE": "Assunto / título",
+      "DETAILS_DESCRIPTION": "Descrição",
+      "DETAILS_HINT": "Você pode ajustar o assunto e a descrição antes de fechar. A alteração é salva junto com o fechamento.",
       "STEP_CLASSIFICATION": "1. Classificação",
       "STEP_RESOLUTION": "2. Resolução",
       "STEP_COMMUNICATION": "3. Comunicação com cliente",

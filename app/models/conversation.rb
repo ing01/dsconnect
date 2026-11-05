@@ -97,7 +97,9 @@ class Conversation < ApplicationRecord
   # que recebe `queue_id` e so serve para a tela de UMA Fila por vez). Só as
   # ainda sem dono - uma vez atribuida ela sai da fila, `queue_id` so fica
   # gravado como historico de qual fila ela veio.
-  scope :queued, -> { where.not(queue_id: nil).where(assignee_id: nil) }
+  # Conversa Pausada (status snoozed, inclusive pausa por inatividade) nao esta
+  # esperando atendente, entao nao conta como "na fila".
+  scope :queued, -> { where.not(queue_id: nil).where(assignee_id: nil).where.not(status: :snoozed) }
   scope :sort_on_unread, lambda { |_direction|
     order(unread_messages_count_arel.desc).sort_on_last_activity_at('desc')
   }
@@ -150,6 +152,7 @@ class Conversation < ApplicationRecord
 
   before_save :apply_queue_defaults
   before_save :ensure_snooze_until_reset
+  before_save :clear_cancelled_flag
   before_save :set_status_changed_at
   before_save :set_requeued_at
   # DIAGNOSTICO TEMPORARIO (remover depois de achar a causa): registra de onde
@@ -187,6 +190,12 @@ class Conversation < ApplicationRecord
 
   def last_incoming_message
     messages.where(account_id: account_id)&.incoming&.last
+  end
+
+  # "Cancelar conversa": resolvida em silencio, sem mensagem de encerramento
+  # nem pesquisa de satisfacao pro cliente. Marca em additional_attributes.
+  def cancelled?
+    additional_attributes.is_a?(Hash) && additional_attributes['cancelled'].present?
   end
 
   def toggle_status
@@ -301,6 +310,7 @@ class Conversation < ApplicationRecord
   # automacao) nao tem `Current.user` e nao envia.
   def send_inbox_resolve_message
     return unless saved_change_to_status? && resolved? && Current.user.present?
+    return if cancelled?
 
     content = inbox.inactivity_config['resolve_message']
     return if content.blank? || !inbox.inactivity_supported? || !can_reply?
@@ -309,6 +319,13 @@ class Conversation < ApplicationRecord
       account_id: account_id, inbox_id: inbox_id, message_type: :outgoing, content: content,
       content_attributes: { Queues::InactivityService::NOTICE_KEY => 'resolve' }
     )
+  end
+
+  # A marca de cancelada so vale enquanto a conversa esta resolvida.
+  def clear_cancelled_flag
+    return unless will_save_change_to_status? && !resolved? && cancelled?
+
+    self.additional_attributes = additional_attributes.except('cancelled')
   end
 
   def trigger_queue_auto_assignment

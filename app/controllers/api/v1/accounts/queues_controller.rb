@@ -25,10 +25,10 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
 
   # "Pegar próximo da fila": sempre a mais antiga/prioritária ainda sem
   # dono, dentre TODAS as filas que o agente atual tem acesso - nunca uma
-  # escolhida a mao. E o unico jeito de pegar uma conversa da fila pra quem
-  # esta com `enforce_queue_order` ligado (ver
-  # Conversations::AssignmentsController#blocked_self_assign?), mas fica
-  # disponivel pra qualquer atendente, travado ou nao.
+  # escolhida a mao. E o unico jeito de um nao-Administrador pegar uma
+  # conversa de uma fila (ver
+  # Conversations::AssignmentsController#blocked_manual_assign?), mas fica
+  # disponivel pra qualquer atendente, Administrador inclusive.
   def claim_next
     @conversation = claim_next_conversation
   end
@@ -44,8 +44,9 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
   # tempo nunca pegam a mesma conversa - quem perde a corrida so encontra a
   # fila com uma conversa a menos, nunca um erro nem duplicidade.
   #
-  # Ordem: sempre quem chamou primeiro (`created_at` da conversa), sem
-  # prioridade nem devolucao (mesmo criterio de `SortHandler#sort_on_queue_position`).
+  # Ordem: maior prioridade primeiro e, na mesma prioridade, quem chamou
+  # primeiro (`created_at` da conversa) - sem devolucao nem tempo de primeira
+  # resposta (mesmo criterio de `SortHandler#sort_on_queue_position`).
   def claim_next_conversation
     queue_ids = Current.account.queues.where(team_id: current_user.teams.ids).ids
     return if queue_ids.empty?
@@ -53,7 +54,7 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
     Conversation.transaction do
       candidate = Current.account.conversations
                          .where(queue_id: queue_ids, assignee_id: nil, status: :open)
-                         .order(created_at: :asc, id: :asc)
+                         .order(Arel.sql('priority DESC NULLS LAST, created_at ASC, id ASC'))
                          .lock('FOR UPDATE SKIP LOCKED')
                          .first
       next if candidate.blank?
@@ -73,7 +74,8 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
 
   def queue_params
     params.require(:queue).permit(:name, :description, :active, :team_id, :distribution_strategy, :default_sla_policy_id, :priority_boost,
-                                  :inactivity_nudge_after, :inactivity_nudge_message, :inactivity_close_after, :inactivity_close_message)
+                                  :inactivity_nudge_after, :inactivity_nudge_message, :inactivity_close_after, :inactivity_close_message,
+                                  { inactivity_pause_config: Inactivity::PauseConfig::PERMITTED_KEYS })
   end
 
   # QueuePolicy checks the queue's owning team, so authorization must run

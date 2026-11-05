@@ -181,6 +181,10 @@ class Inbox < ApplicationRecord
     minutes if minutes.positive?
   end
 
+  def pause_config
+    Inactivity::PauseConfig.new(inactivity_config)
+  end
+
   def twilio_whatsapp?
     channel_type == 'Channel::TwilioSms' && channel.medium == 'whatsapp'
   end

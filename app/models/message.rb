@@ -404,10 +404,33 @@ class Message < ApplicationRecord
   def reopen_conversation
     return if conversation.muted?
     return unless incoming?
+    # Resposta da pesquisa de satisfacao por digito: a conversa resolvida
+    # continua resolvida (a nota e' capturada em CsatDigitSurveyService).
+    return if conversation.resolved? && csat_digit_reply?
+
+    return if resumed_from_inactivity_pause?
 
     conversation.open! if conversation.snoozed?
 
     reopen_resolved_conversation if conversation.resolved?
+  end
+
+  # Conversa pausada por inatividade: o cliente voltou (ou respondeu sim/nao) e
+  # quem decide o que acontece e o fluxo de pausa, nao a reabertura padrao.
+  # Se ele falhar, cai na reabertura padrao pra o cliente nunca ficar sem resposta.
+  def resumed_from_inactivity_pause?
+    return false if private? || !conversation.snoozed?
+
+    Inactivity::PauseService.handle_incoming(self)
+  rescue StandardError => e
+    ChatwootExceptionTracker.new(e, account: conversation.account).capture_exception
+    false
+  end
+
+  def csat_digit_reply?
+    Whatsapp::CsatDigitSurveyService.new(conversation: conversation).csat_reply?(self)
+  rescue StandardError
+    false
   end
 
   def mark_pending_conversation_as_open_for_human_response

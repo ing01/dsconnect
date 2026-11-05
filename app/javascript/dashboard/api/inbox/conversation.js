@@ -49,10 +49,21 @@ class ConversationApi extends ApiClient {
     });
   }
 
-  toggleStatus({ conversationId, status, snoozedUntil = null }) {
+  toggleStatus({ conversationId, status, snoozedUntil = null, cancelled }) {
     return axios.post(`${this.url}/${conversationId}/toggle_status`, {
       status,
       snoozed_until: snoozedUntil,
+      ...(cancelled ? { cancelled: true } : {}),
+    });
+  }
+
+  // Estende o prazo de uma pausa por inatividade (motivo obrigatorio).
+  extendPause({ conversationId, hours, minutes, reason, notifyCustomer }) {
+    return axios.post(`${this.url}/${conversationId}/extend_pause`, {
+      hours,
+      minutes,
+      reason,
+      notify_customer: notifyCustomer,
     });
   }
 

@@ -17,7 +17,7 @@
     "ALL_CONVERSATIONS_SELECTED_ALERT": "Conversas visíveis nesta página só estão selecionadas.",
     "UPDATE": {
       "CHANGE_STATUS": "Alterar status",
-      "SNOOZE_UNTIL": "Adiar",
+      "SNOOZE_UNTIL": "Pausar",
       "UPDATE_SUCCESFUL": "Status da conversa atualizado com sucesso.",
       "UPDATE_FAILED": "Falha ao atualizar conversas. Por favor, tente novamente."
     },

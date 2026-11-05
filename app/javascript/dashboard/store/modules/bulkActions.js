@@ -23,7 +23,11 @@ export const actions = {
     try {
       await BulkActionsAPI.create(payload);
     } catch (error) {
-      throw new Error(error);
+      // Preserves the Axios error (status, `response.data.error`) instead of
+      // wrapping it into a generic `Error` whose message is just the
+      // stringified object - callers (e.g. `onAssignAgent`) read the
+      // server's actual message off `error.response.data.error`.
+      throw error;
     } finally {
       commit(types.SET_BULK_ACTIONS_FLAG, { isUpdating: false });
     }

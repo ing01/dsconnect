@@ -11,3 +11,4 @@ json.inactivity_nudge_after resource.inactivity_nudge_after
 json.inactivity_nudge_message resource.inactivity_nudge_message
 json.inactivity_close_after resource.inactivity_close_after
 json.inactivity_close_message resource.inactivity_close_message
+json.inactivity_pause_config resource.inactivity_pause_config
