@@ -13,7 +13,12 @@ const props = defineProps({
   ticket: { type: Object, required: true },
 });
 
-const emit = defineEmits(['closed']);
+// `cancel` forwards the inner Dialog's own `close` (backdrop click, Escape, or
+// its Cancelar button) - it fires on the success path too, since `submit`
+// below closes the same Dialog once it's done. Callers that care about a real
+// cancellation (nothing was closed) must only act on it when `closed` hasn't
+// already fired for that same attempt.
+const emit = defineEmits(['closed', 'cancel']);
 
 const { t } = useI18n();
 const store = useStore();
@@ -153,6 +158,7 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
     :disable-confirm-button="!canSubmit"
     :is-loading="isWorking"
     @confirm="submit"
+    @close="emit('cancel')"
   >
     <div class="flex flex-col gap-5 min-w-0">
       <!-- Step 1: classification. Already done shows as done rather than

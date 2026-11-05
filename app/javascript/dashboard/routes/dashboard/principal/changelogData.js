@@ -48,6 +48,26 @@ export const CHANGELOG_ENTRIES = [
       'No cabeçalho do ticket, títulos longos agora são cortados com "..." corretamente, sem empurrar o número do ticket ou quebrar o layout.',
   },
   {
+    id: 'whatsapp-auto-ticket-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'feature',
+    platform: 'web',
+    title: 'WhatsApp: toda conversa já abre com um Ticket',
+    description:
+      'Toda conversa nova em uma caixa de entrada de WhatsApp agora cria um Ticket automaticamente, mesmo sem nenhuma Automação configurada para isso.',
+  },
+  {
+    id: 'resolve-gates-open-ticket-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Resolver conversa com Ticket aberto pede o encerramento dele',
+    description:
+      'Ao clicar em "Resolver" numa conversa que tem um Ticket ainda aberto, agora aparece a tela de encerramento do Ticket. Cancelando essa tela, nada muda: o Ticket e a conversa continuam abertos.',
+  },
+  {
     id: 'portal-chat-no-auto-assign-2026-10-30',
     date: '30 de outubro de 2026',
     isoDate: '2026-10-30',

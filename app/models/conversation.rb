@@ -81,6 +81,7 @@ class Conversation < ApplicationRecord
   validates :contact_id, presence: true
   before_validation :validate_additional_attributes
   before_validation :reset_agent_bot_when_assignee_present
+  before_validation :route_to_default_queue_without_automation, on: :create
   validates :additional_attributes, jsonb_attributes_length: true
   validates :custom_attributes, jsonb_attributes_length: true
   validates :uuid, uniqueness: true
@@ -292,6 +293,22 @@ class Conversation < ApplicationRecord
     invalidate_filtered_unread_count_conversation
     notify_conversation_updation
     trigger_queue_auto_assignment
+    send_inbox_resolve_message
+  end
+
+  # Mensagem de encerramento da caixa de entrada (Portal e WhatsApp), enviada
+  # quando um atendente clica em Resolver. Resolver por sistema (inatividade,
+  # automacao) nao tem `Current.user` e nao envia.
+  def send_inbox_resolve_message
+    return unless saved_change_to_status? && resolved? && Current.user.present?
+
+    content = inbox.inactivity_config['resolve_message']
+    return if content.blank? || !inbox.inactivity_supported? || !can_reply?
+
+    messages.create!(
+      account_id: account_id, inbox_id: inbox_id, message_type: :outgoing, content: content,
+      content_attributes: { Queues::InactivityService::NOTICE_KEY => 'resolve' }
+    )
   end
 
   def trigger_queue_auto_assignment
@@ -384,6 +401,18 @@ class Conversation < ApplicationRecord
   def list_of_keys
     %w[team_id queue_id assignee_id assignee_agent_bot_id status snoozed_until custom_attributes label_list waiting_since
        first_reply_created_at priority requeued_at]
+  end
+
+  # Sem nenhuma automacao ativa ninguem encaminha a conversa para a Fila, e ela
+  # ficava solta em "Todos" misturada com as ja atendidas. Com automacao ativa,
+  # quem decide a Fila e' o proprio fluxo (handoff).
+  def route_to_default_queue_without_automation
+    return if queue_id.present? || assignee_id.present?
+
+    default_queue_id = account.helpdesk_default_queue_id
+    return if default_queue_id.blank? || account.automation_rules.active.exists?
+
+    self.queue_id = default_queue_id
   end
 
   def apply_queue_defaults

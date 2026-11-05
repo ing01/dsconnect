@@ -1,5 +1,28 @@
 {
   "INBOX_MGMT": {
+    "INACTIVITY": {
+      "NUDGE_AFTER": {
+        "LABEL": "Enviar aviso após inatividade (minutos)",
+        "HELP": "Envia a mensagem de inatividade quando o cliente não responde por esse tempo após a última mensagem da equipe. Deixe vazio para não avisar.",
+        "PLACEHOLDER": "Ex.: 30"
+      },
+      "INACTIVITY_MESSAGE": {
+        "LABEL": "Mensagem de inatividade (aviso)",
+        "HELP": "Enviada ao cliente como lembrete, antes de encerrar.",
+        "PLACEHOLDER": "Você ainda está aí? Se não tivermos retorno, vamos encerrar esta conversa."
+      },
+      "CLOSE_AFTER": {
+        "LABEL": "Encerrar após o aviso (minutos)",
+        "HELP": "Encerra a conversa se o cliente continuar sem responder esse tempo depois do aviso (sem aviso configurado, conta a partir da última mensagem da equipe). Deixe vazio para nunca encerrar automaticamente.",
+        "PLACEHOLDER": "Ex.: 30"
+      },
+      "RESOLVE_MESSAGE": {
+        "LABEL": "Mensagem de encerramento",
+        "HELP": "Enviada ao encerrar a conversa: quando um atendente clica em Resolver ou automaticamente por inatividade. A avaliação (CSAT) é enviada em seguida, se estiver ativada na caixa.",
+        "PLACEHOLDER": "Sua conversa foi resolvida. Obrigado!"
+      },
+      "SAVE": "Salvar"
+    },
     "HEADER": "Caixas de Entrada",
     "DESCRIPTION": "Um canal é o modo de comunicação que seu cliente escolhe para interagir com você. Uma caixa de entrada é onde você gerencia interações para um canal específico. Pode incluir comunicações de várias fontes, como e-mail, chat ao vivo e mídia social.",
     "LEARN_MORE": "Saiba mais sobre as caixas de entrada",
@@ -675,6 +698,7 @@
       "BOT_CONFIGURATION": "Configuração do Bot",
       "ACCOUNT_HEALTH": "Saúde da conta",
       "CSAT": "CSAT",
+      "INACTIVITY": "Inatividade",
       "VOICE": "Voz",
       "CALLS": "Chamadas"
     },

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { useAlert } from 'dashboard/composables';
 import { useToggle } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
@@ -7,6 +7,7 @@ import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { useEmitter } from 'dashboard/composables/emitter';
 import { useKeyboardEvents } from 'dashboard/composables/useKeyboardEvents';
 import { useConversationRequiredAttributes } from 'dashboard/composables/useConversationRequiredAttributes';
+import TicketsAPI from 'dashboard/api/tickets';
 
 import WootDropdownItem from 'shared/components/ui/dropdown/DropdownItem.vue';
 import WootDropdownMenu from 'shared/components/ui/dropdown/DropdownMenu.vue';
@@ -19,6 +20,7 @@ import {
 import ButtonGroup from 'dashboard/components-next/buttonGroup/ButtonGroup.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import ConversationResolveAttributesModal from 'dashboard/components-next/ConversationWorkflow/ConversationResolveAttributesModal.vue';
+import TicketCloseDialog from 'dashboard/routes/dashboard/tickets/components/detail/actions/TicketCloseDialog.vue';
 
 const store = useStore();
 const getters = useStoreGetters();
@@ -28,6 +30,66 @@ const { checkMissingAttributes } = useConversationRequiredAttributes();
 const arrowDownButtonRef = ref(null);
 const isLoading = ref(false);
 const resolveAttributesModalRef = ref(null);
+
+// Gates "Resolver" behind the ticket closing screen when the conversation has
+// a Ticket still open - closing it is where Catalogo/Area/Item and the
+// Resolucao actually get recorded, and a resolved conversation with its
+// Ticket left open is easy to lose track of. Fetched on demand (full detail,
+// not the lean list row `TicketsAPI.getByConversation` returns) only once an
+// open Ticket is actually found - this component mounts on every
+// conversation header, so it must not fetch anything by default.
+const pendingTicket = ref(null);
+const ticketCloseDialogRef = ref(null);
+// Set right before the fetch so the handlers below know which attempt they're
+// settling.
+let onTicketGateSettled = null;
+// `TicketCloseDialog` emits `cancel` on ANY close of its inner Dialog,
+// including the one `submit()` triggers right after a successful close - so
+// `cancel` only means "nothing happened" when `closed` hasn't already fired
+// for this same attempt.
+let ticketWasClosed = false;
+
+// Resolves `true` once the open Ticket is closed, `false` if the agent backs
+// out instead (Cancelar, Escape, or clicking outside) - in which case the
+// Ticket, and the conversation, both stay exactly as they were.
+const gateOnOpenTicket = async ticketId => {
+  const data = await store.dispatch('tickets/fetchTicket', ticketId);
+  pendingTicket.value = data || null;
+  if (!pendingTicket.value) return true;
+
+  await nextTick();
+  ticketWasClosed = false;
+  return new Promise(resolve => {
+    onTicketGateSettled = resolve;
+    ticketCloseDialogRef.value?.open();
+  });
+};
+
+const onTicketCloseDialogClosed = () => {
+  ticketWasClosed = true;
+  onTicketGateSettled?.(true);
+};
+
+const onTicketCloseDialogCancel = () => {
+  if (ticketWasClosed) return;
+  onTicketGateSettled?.(false);
+};
+
+// Only an open Ticket blocks the resolve - one already closed/cancelled (or
+// resolved on its own) has nothing left for this screen to collect.
+const findOpenLinkedTicketId = async conversationId => {
+  try {
+    const { data } = await TicketsAPI.getByConversation(conversationId);
+    const openTicket = (data?.payload || []).find(
+      ticket => ticket.status === 'open'
+    );
+    return openTicket?.id || null;
+  } catch (error) {
+    // A failed lookup must not block resolving - the ticket panel already
+    // surfaces linked tickets, this is just a gate on top of it.
+    return null;
+  }
+};
 
 const [showActionsDropdown, toggleDropdown] = useToggle();
 const closeDropdown = () => toggleDropdown(false);
@@ -117,7 +179,7 @@ const onCmdOpenConversation = () => {
   toggleStatus(wootConstants.STATUS_TYPE.OPEN);
 };
 
-const onCmdResolveConversation = () => {
+const resolveCurrentConversation = () => {
   const currentCustomAttributes = currentChat.value.custom_attributes || {};
   const { hasMissing, missing } = checkMissingAttributes(
     currentCustomAttributes
@@ -136,6 +198,23 @@ const onCmdResolveConversation = () => {
   } else {
     toggleStatus(wootConstants.STATUS_TYPE.RESOLVED);
   }
+};
+
+const onCmdResolveConversation = async () => {
+  isLoading.value = true;
+  const openTicketId = await findOpenLinkedTicketId(currentChat.value.id);
+
+  if (openTicketId) {
+    const wasClosed = await gateOnOpenTicket(openTicketId);
+    pendingTicket.value = null;
+    isLoading.value = false;
+    // Cancelado: o Ticket - e a conversa - continuam exatamente como estavam.
+    if (!wasClosed) return;
+  } else {
+    isLoading.value = false;
+  }
+
+  resolveCurrentConversation();
 };
 
 const keyboardEvents = {
@@ -258,6 +337,13 @@ useEmitter(CMD_RESOLVE_CONVERSATION, onCmdResolveConversation);
     <ConversationResolveAttributesModal
       ref="resolveAttributesModalRef"
       @submit="handleResolveWithAttributes"
+    />
+    <TicketCloseDialog
+      v-if="pendingTicket"
+      ref="ticketCloseDialogRef"
+      :ticket="pendingTicket"
+      @closed="onTicketCloseDialogClosed"
+      @cancel="onTicketCloseDialogCancel"
     />
   </div>
 </template>

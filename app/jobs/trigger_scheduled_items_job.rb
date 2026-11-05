@@ -20,6 +20,9 @@ class TriggerScheduledItemsJob < ApplicationJob
     # Aviso/encerramento por inatividade do chat do Portal, por Fila
     Queues::InactivityJob.perform_later
 
+    # Encerramento por inatividade configurado por caixa de entrada (Portal e WhatsApp)
+    Inboxes::InactivityJob.perform_later
+
     # Job to sync whatsapp templates
     Channels::Whatsapp::TemplatesSyncSchedulerJob.perform_later
 

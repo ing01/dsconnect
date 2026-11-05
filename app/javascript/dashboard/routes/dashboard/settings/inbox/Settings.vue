@@ -26,6 +26,7 @@ import ConfigurationPage from './settingsPage/ConfigurationPage.vue';
 import VoiceConfigurationPage from './settingsPage/VoiceConfigurationPage.vue';
 import WhatsappCallingPage from './settingsPage/WhatsappCallingPage.vue';
 import CustomerSatisfactionPage from './settingsPage/CustomerSatisfactionPage.vue';
+import InactivityPage from './settingsPage/InactivityPage.vue';
 import CollaboratorsPage from './settingsPage/CollaboratorsPage.vue';
 import BotConfiguration from './components/BotConfiguration.vue';
 import AccountHealth from './components/AccountHealth.vue';
@@ -57,6 +58,7 @@ export default {
     VoiceConfigurationPage,
     WhatsappCallingPage,
     CustomerSatisfactionPage,
+    InactivityPage,
     FacebookReauthorize,
     GreetingsEditor,
     PreChatFormSettings,
@@ -195,6 +197,16 @@ export default {
           name: this.$t('INBOX_MGMT.TABS.CSAT'),
         },
       ];
+
+      if (this.inbox.inactivity_supported) {
+        visibleToAllChannelTabs = [
+          ...visibleToAllChannelTabs,
+          {
+            key: 'inactivity',
+            name: this.$t('INBOX_MGMT.TABS.INACTIVITY'),
+          },
+        ];
+      }
 
       if (this.isAWebWidgetInbox) {
         visibleToAllChannelTabs = [
@@ -1414,6 +1426,9 @@ export default {
           class="mx-6 max-w-4xl"
         >
           <WhatsappCallingPage :inbox="inbox" />
+        </div>
+        <div v-if="selectedTabKey === 'inactivity'">
+          <InactivityPage :inbox="inbox" />
         </div>
         <div v-if="selectedTabKey === 'csat'">
           <CustomerSatisfactionPage :inbox="inbox" />

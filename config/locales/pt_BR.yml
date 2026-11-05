@@ -177,6 +177,9 @@ pt_BR:
       regards: Atenciosamente,
       company_name: Duesoft Sistemas
   tickets:
+    auto_creation:
+      whatsapp_title: "Atendimento WhatsApp #%{id}"
+      whatsapp_title_named: "Atendimento WhatsApp - %{name}"
     triage:
       not_pending: este chamado não está aguardando triagem
       column_mismatch: o estágio escolhido não pertence a esta Mesa
