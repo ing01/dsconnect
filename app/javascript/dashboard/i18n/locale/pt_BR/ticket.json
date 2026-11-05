@@ -1217,6 +1217,7 @@
       "AREA": "Área do Catálogo",
       "ITEM": "Item do Catálogo",
       "SELECT": "Selecione",
+      "SEARCH": "Buscar...",
       "NEEDS_CATALOG": "Selecione um catálogo primeiro",
       "NEEDS_AREA": "Selecione uma área primeiro",
       "UNCLASSIFIED": "Atendimento ainda não classificado.",

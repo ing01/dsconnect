@@ -1133,6 +1133,7 @@
       "AREA": "Catalogue area",
       "ITEM": "Catalogue item",
       "SELECT": "Select",
+      "SEARCH": "Search...",
       "NEEDS_CATALOG": "Select a catalogue first",
       "NEEDS_AREA": "Select an area first",
       "UNCLASSIFIED": "This attendance is not classified yet.",
