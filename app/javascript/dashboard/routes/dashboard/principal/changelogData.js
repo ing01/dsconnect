@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'resolve-leave-ticket-open-fix-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: '"Deixar ticket em aberto" agora resolve a conversa',
+    description:
+      'Ao resolver uma conversa com ticket aberto e escolher "Deixar ticket em aberto", a conversa não era resolvida porque a tela entendia a escolha como cancelamento. Agora a conversa é resolvida e o ticket continua aberto. O mesmo ajuste vale para "Fechar ticket" feito pela conversa.',
+  },
+  {
     id: 'whatsapp-multiple-attachments-fix-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',
