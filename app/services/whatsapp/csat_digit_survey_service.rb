@@ -11,7 +11,9 @@
 # WhatsApp - e desliga sozinha se a pesquisa nativa da caixa ja estiver ativa,
 # pra nunca mandar as duas.
 class Whatsapp::CsatDigitSurveyService
-  RATING_PATTERN = /\A[1-5]\z/
+  # Primeiro numero de 1 a 5 que aparece no texto, sozinho (nao parte de um
+  # numero maior como 10 ou 123): "3", "Obrigada, 3", "nota 5!" valem; "10" nao.
+  RATING_PATTERN = /(?<!\d)[1-5](?!\d)/
   DEFAULT_REPLY_WINDOW_MINUTES = 30
 
   pattr_initialize [:conversation!]
@@ -53,6 +55,17 @@ class Whatsapp::CsatDigitSurveyService
                 .where(csat_survey_responses: { id: nil })
                 .order(created_at: :desc)
                 .first
+  end
+
+  # A mensagem recebida e' a resposta da pesquisa pendente? Usado por
+  # `Message#reopen_conversation` pra NAO reabrir a conversa resolvida quando
+  # o cliente responde com a nota (ex.: "Obrigada, 3").
+  def csat_reply?(message)
+    return false unless whatsapp_channel? && account.whatsapp_csat_survey_enabled
+    return false if parse_rating(message.content).blank?
+
+    survey = pending_survey_message
+    survey.present? && survey.created_at >= self.class.reply_window_minutes(account).minutes.ago
   end
 
   def send_survey
@@ -118,10 +131,10 @@ class Whatsapp::CsatDigitSurveyService
   end
 
   def parse_rating(content)
-    value = content.to_s.strip
-    return nil unless value.match?(RATING_PATTERN)
+    match = content.to_s.match(RATING_PATTERN)
+    return nil if match.blank?
 
-    value.to_i
+    match[0].to_i
   end
 
   # Mesmo padrao de `CsatSurveys::ResponseBuilder#process_csat_response` -

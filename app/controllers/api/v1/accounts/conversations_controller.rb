@@ -173,7 +173,12 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
 
   def set_conversation_status
     @conversation.status = params[:status]
+    mark_as_cancelled if params[:status].to_s == 'resolved' && ActiveModel::Type::Boolean.new.cast(params[:cancelled])
     @conversation.snoozed_until = parse_date_time(params[:snoozed_until].to_s) if params[:snoozed_until]
+  end
+
+  def mark_as_cancelled
+    @conversation.additional_attributes = (@conversation.additional_attributes || {}).merge('cancelled' => true)
   end
 
   def handle_human_open

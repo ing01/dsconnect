@@ -153,6 +153,9 @@
       }
     },
     "RESOLVE_DROPDOWN": {
+      "CANCEL_CONVERSATION": "Cancel conversation",
+      "CANCEL_CONFIRM": "Cancel this conversation? It will be closed without sending a closing message or satisfaction survey to the customer.",
+      "CANCEL_DONE": "Conversation cancelled",
       "MARK_PENDING": "Mark as pending",
       "SNOOZE_UNTIL": "Snooze",
       "SNOOZE": {

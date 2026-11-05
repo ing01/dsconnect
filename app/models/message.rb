@@ -404,10 +404,19 @@ class Message < ApplicationRecord
   def reopen_conversation
     return if conversation.muted?
     return unless incoming?
+    # Resposta da pesquisa de satisfacao por digito: a conversa resolvida
+    # continua resolvida (a nota e' capturada em CsatDigitSurveyService).
+    return if conversation.resolved? && csat_digit_reply?
 
     conversation.open! if conversation.snoozed?
 
     reopen_resolved_conversation if conversation.resolved?
+  end
+
+  def csat_digit_reply?
+    Whatsapp::CsatDigitSurveyService.new(conversation: conversation).csat_reply?(self)
+  rescue StandardError
+    false
   end
 
   def mark_pending_conversation_as_open_for_human_response

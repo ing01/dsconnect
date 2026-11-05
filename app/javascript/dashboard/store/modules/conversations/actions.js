@@ -280,7 +280,13 @@ const actions = {
 
   toggleStatus: async (
     { commit },
-    { conversationId, status, snoozedUntil = null, customAttributes = null }
+    {
+      conversationId,
+      status,
+      snoozedUntil = null,
+      customAttributes = null,
+      cancelled = false,
+    }
   ) => {
     try {
       // Update custom attributes first if provided
@@ -306,6 +312,7 @@ const actions = {
         conversationId,
         status,
         snoozedUntil,
+        cancelled,
       });
       commit(types.CHANGE_CONVERSATION_STATUS, {
         conversationId,

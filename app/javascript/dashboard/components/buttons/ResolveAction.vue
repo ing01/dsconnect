@@ -169,6 +169,30 @@ const toggleStatus = (status, snoozedUntil, customAttributes = null) => {
   });
 };
 
+// "Cancelar conversa": resolve em silencio - sem mensagem de encerramento nem
+// pesquisa de satisfacao pro cliente, e sem passar pelos requisitos de
+// fechamento (ticket, atributos obrigatorios).
+const cancelConversation = () => {
+  closeDropdown();
+  // eslint-disable-next-line no-alert
+  if (!window.confirm(t('CONVERSATION.RESOLVE_DROPDOWN.CANCEL_CONFIRM'))) {
+    return;
+  }
+  isLoading.value = true;
+  store
+    .dispatch('toggleStatus', {
+      conversationId: currentChat.value.id,
+      status: wootConstants.STATUS_TYPE.RESOLVED,
+      cancelled: true,
+    })
+    .then(() => {
+      useAlert(t('CONVERSATION.RESOLVE_DROPDOWN.CANCEL_DONE'));
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
+};
+
 const handleResolveWithAttributes = ({ attributes, context }) => {
   if (context) {
     const currentCustomAttributes = currentChat.value.custom_attributes || {};
@@ -338,6 +362,18 @@ useEmitter(CMD_RESOLVE_CONVERSATION, onCmdResolveConversation);
             icon="i-lucide-circle-dot-dashed"
             class="w-full"
             @click="() => toggleStatus(wootConstants.STATUS_TYPE.PENDING)"
+          />
+        </WootDropdownItem>
+        <WootDropdownItem v-if="isOpen">
+          <Button
+            :label="t('CONVERSATION.RESOLVE_DROPDOWN.CANCEL_CONVERSATION')"
+            ghost
+            ruby
+            sm
+            start
+            icon="i-lucide-ban"
+            class="w-full"
+            @click="cancelConversation"
           />
         </WootDropdownItem>
       </WootDropdownMenu>

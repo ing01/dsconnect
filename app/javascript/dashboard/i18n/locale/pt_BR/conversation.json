@@ -139,6 +139,9 @@
       }
     },
     "RESOLVE_DROPDOWN": {
+      "CANCEL_CONVERSATION": "Cancelar conversa",
+      "CANCEL_CONFIRM": "Cancelar esta conversa? Ela será encerrada sem enviar mensagem de encerramento nem avaliação ao cliente.",
+      "CANCEL_DONE": "Conversa cancelada",
       "MARK_PENDING": "Deixar pendente",
       "SNOOZE_UNTIL": "Adiar",
       "SNOOZE": {
