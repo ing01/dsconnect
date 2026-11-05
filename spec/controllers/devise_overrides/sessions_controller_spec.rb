@@ -218,23 +218,19 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
       end
     end
 
+    # Login nunca fica esperando a pessoa escolher o que encerrar - browser
+    # ou nao, a sessao mais antiga e' descartada sozinha e o login segue.
     context 'when at the limit from a browser with full tracking' do
       before do
         request.env['HTTP_USER_AGENT'] = browser_ua
         session_limit.times { |i| seed_token("c#{i}", expiry_offset_days: 30) }
       end
 
-      it 'returns 409 with the session list (picker)' do
+      it 'evicts the oldest session automatically and lets login proceed' do
         post :create, params: login_params
 
-        expect(response).to have_http_status(:conflict)
-        body = response.parsed_body
-        expect(body['sessions_limit_reached']).to be true
-        expect(body['sessions'].size).to eq(session_limit)
-      end
-
-      it 'does not create a new session row' do
-        expect { post :create, params: login_params }.not_to change(user.user_sessions, :count)
+        expect(response).to have_http_status(:success)
+        expect(user.reload.tokens.keys).not_to include('c0')
       end
     end
 
@@ -260,7 +256,7 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
         (session_limit - 1).times { |i| seed_token("legacy#{i}", expiry_offset_days: 10 + i, with_session: false) }
       end
 
-      it 'silent-evicts instead of showing a partial picker' do
+      it 'silently evicts and lets login proceed' do
         post :create, params: login_params
 
         expect(response).to have_http_status(:success)
@@ -293,39 +289,6 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
         # tracked0 has the oldest last_activity_at
         expect(user.reload.tokens.keys).not_to include('tracked0')
         expect(user.user_sessions.exists?(client_id: 'tracked0')).to be false
-      end
-    end
-
-    context 'with revoke_session_id during login' do
-      before do
-        request.env['HTTP_USER_AGENT'] = browser_ua
-        session_limit.times { |i| seed_token("c#{i}", expiry_offset_days: 30) }
-      end
-
-      it 'revokes the chosen session and proceeds with login' do
-        target = user.user_sessions.find_by(client_id: 'c2')
-
-        post :create, params: login_params.merge(revoke_session_id: target.id)
-
-        expect(response).to have_http_status(:success)
-        expect(user.reload.tokens.keys).not_to include('c2')
-        expect(user.user_sessions.exists?(id: target.id)).to be false
-      end
-    end
-
-    context 'with revoke_all_sessions during login' do
-      before do
-        request.env['HTTP_USER_AGENT'] = browser_ua
-        session_limit.times { |i| seed_token("c#{i}", expiry_offset_days: 30) }
-      end
-
-      it 'wipes all sessions and tokens, then proceeds with login' do
-        post :create, params: login_params.merge(revoke_all_sessions: true)
-
-        expect(response).to have_http_status(:success)
-        expect(user.reload.tokens.keys).not_to include('c0', 'c1', 'c2', 'c3', 'c4')
-        # the new login adds one fresh token
-        expect(user.tokens.keys.size).to eq(1)
       end
     end
 

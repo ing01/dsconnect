@@ -148,9 +148,9 @@ const withinSizeLimit = file => {
   return false;
 };
 
-const onFilesChosen = async event => {
-  const chosen = Array.from(event.target.files || []);
-  event.target.value = '';
+// Usado tanto pelo input de arquivo (menu "+") quanto pelo colar (Ctrl+V) -
+// as duas entradas terminam na mesma validacao e no mesmo upload.
+const attachFiles = async chosen => {
   if (!chosen.length) return;
 
   if (pendingAttachments.value.length + chosen.length > MAXIMUM_FILES) {
@@ -170,6 +170,25 @@ const onFilesChosen = async event => {
   } finally {
     isUploading.value = false;
   }
+};
+
+const onFilesChosen = event => {
+  const chosen = Array.from(event.target.files || []);
+  event.target.value = '';
+  attachFiles(chosen);
+};
+
+// So intercepta quando ha arquivo de verdade no clipboard (imagem copiada,
+// "colar arquivo" do SO) - colar texto comum continua caindo direto no
+// textarea, sem passar por aqui.
+const onPaste = event => {
+  const files = Array.from(event.clipboardData?.files || []).filter(
+    file => file.size > 0
+  );
+  if (!files.length) return;
+
+  event.preventDefault();
+  attachFiles(files);
 };
 
 const removeAttachment = index => {
@@ -192,11 +211,16 @@ const canSend = computed(
     (!!body.value.trim() || pendingAttachments.value.length > 0)
 );
 
-const send = () => {
-  if (!canSend.value) return;
+// `overrideBody` existe so para o Ctrl+Enter abaixo: ele quebra a linha no
+// ponto do cursor e manda JUNTO, na mesma tecla - se essa quebra cair no fim
+// do texto (o caso comum), o `.trim()` normal a apagaria antes de enviar.
+const send = overrideBody => {
+  const outgoing = overrideBody ?? body.value.trim();
+  if (isUploading.value) return;
+  if (!outgoing.trim() && !pendingAttachments.value.length) return;
 
   emit('send', {
-    body: body.value.trim(),
+    body: outgoing,
     attachments: pendingAttachments.value.map(item => item.signedId),
     replyTo: props.replyTo?.id || null,
   });
@@ -206,9 +230,22 @@ const send = () => {
   mentionQuery.value = null;
 };
 
-// Enter envia, Shift+Enter quebra linha - o que se espera de um mensageiro.
+// Enter envia; Shift+Enter quebra linha sem enviar (comportamento nativo do
+// textarea, sem precisar de codigo aqui); Ctrl+Enter (Cmd+Enter no Mac)
+// quebra a linha no ponto do cursor E ja envia com ela, numa tecla so.
 const onKeydown = event => {
-  if (event.key === 'Enter' && !event.shiftKey) {
+  if (event.key !== 'Enter') return;
+
+  if (event.ctrlKey || event.metaKey) {
+    event.preventDefault();
+    const field = textareaRef.value;
+    const at = field?.selectionStart ?? body.value.length;
+    const end = field?.selectionEnd ?? at;
+    send(`${body.value.slice(0, at)}\n${body.value.slice(end)}`);
+    return;
+  }
+
+  if (!event.shiftKey) {
     event.preventDefault();
     send();
   }
@@ -363,6 +400,7 @@ const onKeydown = event => {
           :placeholder="placeholder || t('INTERNAL_CHAT.COMPOSER.PLACEHOLDER')"
           @input="onInput"
           @keydown="onKeydown"
+          @paste="onPaste"
         />
       </div>
 

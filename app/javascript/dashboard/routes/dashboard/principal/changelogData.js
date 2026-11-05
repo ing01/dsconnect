@@ -8,6 +8,46 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-paste-ctrl-enter-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'feature',
+    platform: 'web',
+    title: 'Chat Interno: colar imagem/arquivo e quebrar linha com Ctrl+Enter',
+    description:
+      'No Chat Interno, agora é possível colar (Ctrl+V) imagens e arquivos para enviar, igual já funcionava nas Conversas. Além disso, Ctrl+Enter quebra a linha no texto e já envia a mensagem com essa quebra.',
+  },
+  {
+    id: 'session-limit-auto-evict-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Limite de sessões ativas não trava mais o login',
+    description:
+      'Ao atingir o limite de sessões simultâneas, o login não pergunta mais qual sessão encerrar: a sessão mais antiga é descartada automaticamente e o acesso segue normalmente.',
+  },
+  {
+    id: 'sidebar-conversations-queue-count-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Contador de "Conversas" na barra lateral mostra a fila de abertas',
+    description:
+      'O número ao lado de "Conversas" na barra lateral passou a mostrar a quantidade de conversas abertas na fila, em vez de outra métrica, para refletir melhor o volume de trabalho pendente.',
+  },
+  {
+    id: 'ticket-title-truncate-fix-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'Título do ticket não quebra mais o cabeçalho',
+    description:
+      'No cabeçalho do ticket, títulos longos agora são cortados com "..." corretamente, sem empurrar o número do ticket ou quebrar o layout.',
+  },
+  {
     id: 'portal-chat-no-auto-assign-2026-10-30',
     date: '30 de outubro de 2026',
     isoDate: '2026-10-30',

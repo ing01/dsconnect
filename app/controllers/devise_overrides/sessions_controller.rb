@@ -16,7 +16,8 @@ class DeviseOverrides::SessionsController < DeviseTokenAuth::SessionsController
 
     user = find_user_for_authentication
     return handle_mfa_required(user) if user&.mfa_enabled?
-    return if user && enforce_session_limit_for_password_login(user)
+
+    enforce_session_limit_for_password_login(user) if user
 
     # Only proceed with standard authentication if no MFA is required
     super
@@ -68,7 +69,7 @@ class DeviseOverrides::SessionsController < DeviseTokenAuth::SessionsController
   end
 
   def handle_sso_authentication
-    return if !@impersonation && enforce_session_limit_for_password_login(@resource)
+    enforce_session_limit_for_password_login(@resource) unless @impersonation
 
     authenticate_resource_with_sso_token
     yield @resource if block_given?
@@ -155,48 +156,13 @@ class DeviseOverrides::SessionsController < DeviseTokenAuth::SessionsController
     (user.tokens || {}).count { |_, v| v['expiry'].to_i > now }
   end
 
-  # Returns true when a response has been rendered (e.g., 409 picker). Non-browser clients
-  # auto-evict instead of getting stuck on a UI they can't render.
+  # Login nunca fica bloqueado esperando a pessoa escolher qual sessao
+  # encerrar: ao bater no limite, a sessao mais antiga e' descartada sozinha
+  # e o login segue normalmente.
   def enforce_session_limit_for_password_login(user)
-    if revoking_sessions?
-      revoke_sessions_for_login(user)
-      return false
-    end
+    return unless sessions_limit_reached?(user)
 
-    return false unless sessions_limit_reached?(user)
-
-    # Picker only when every token has a tracked session; partial tracking would
-    # show a misleading count, so fall through to silent eviction instead.
-    if browser_request? && user.user_sessions.count >= user.tokens.size
-      handle_sessions_limit_for_login(user)
-      true
-    else
-      evict_oldest_session(user)
-      false
-    end
-  end
-
-  def browser_request?
-    request.user_agent.to_s.include?('Mozilla')
-  end
-
-  def revoking_sessions?
-    params[:revoke_session_id].present? || params[:revoke_all_sessions].present?
-  end
-
-  def revoke_sessions_for_login(user)
-    if params[:revoke_all_sessions].present?
-      user.tokens = {}
-      user.save!
-      user.user_sessions.destroy_all
-    elsif params[:revoke_session_id].present?
-      session = user.user_sessions.find_by(id: params[:revoke_session_id])
-      return unless session
-
-      user.tokens.delete(session.client_id)
-      user.save!
-      session.destroy!
-    end
+    evict_oldest_session(user)
   end
 
   def evict_oldest_session(user)
@@ -220,14 +186,6 @@ class DeviseOverrides::SessionsController < DeviseTokenAuth::SessionsController
 
     user.tokens.delete(oldest_client_id)
     user.save!
-  end
-
-  PICKER_SESSION_FIELDS = %i[id browser_name browser_version device_name platform_name platform_version
-                             ip_address city country last_activity_at created_at].freeze
-
-  def handle_sessions_limit_for_login(user)
-    sessions = user.user_sessions.order(last_activity_at: :desc).map { |s| s.slice(*PICKER_SESSION_FIELDS) }
-    render json: { sessions_limit_reached: true, sessions: sessions }, status: :conflict
   end
 
   def track_user_session

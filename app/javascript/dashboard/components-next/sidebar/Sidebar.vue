@@ -109,13 +109,13 @@ const fetchConversationUnreadCounts = ([currentAccountId, isEnabled]) => {
   store.dispatch('conversationUnreadCounts/get');
 };
 
-// O numero do item "Conversas"/"Todas as conversas" e' as PENDENTES da
-// conta inteira - pedido deliberadamente diferente do total de nao lidas
-// (ver `conversationPendingCount`), entao busca por fora do feature flag
-// de nao-lidas acima.
-const fetchConversationPendingCount = currentAccountId => {
+// O numero do item "Conversas"/"Todas as conversas" e' o total de ABERTAS
+// NA FILA da conta inteira - pedido deliberadamente diferente do total de
+// nao lidas (ver `conversationQueueCount`), entao busca por fora do feature
+// flag de nao-lidas acima.
+const fetchConversationQueueCount = currentAccountId => {
   if (!currentAccountId) return;
-  store.dispatch('conversationPendingCount/get');
+  store.dispatch('conversationQueueCount/get');
 };
 
 const fetchSidebarSortPreferences = ([currentAccountId, userId]) => {
@@ -243,8 +243,8 @@ const unattendedUnreadCount = useMapGetter(
 const getFolderUnreadCount = useMapGetter(
   'conversationUnreadCounts/getFolderUnreadCount'
 );
-const pendingConversationsCount = useMapGetter(
-  'conversationPendingCount/getPendingCount'
+const queueConversationsCount = useMapGetter(
+  'conversationQueueCount/getQueueCount'
 );
 const teams = useMapGetter('teams/getMyTeams');
 const contactCustomViews = useMapGetter('customViews/getContactCustomViews');
@@ -276,7 +276,7 @@ watch([accountId, hasConversationUnreadCounts], fetchConversationUnreadCounts, {
   immediate: true,
 });
 
-watch(accountId, fetchConversationPendingCount, { immediate: true });
+watch(accountId, fetchConversationQueueCount, { immediate: true });
 
 watch([accountId, currentUserId], fetchSidebarSortPreferences, {
   immediate: true,
@@ -374,19 +374,19 @@ const menuItems = computed(() => {
       name: 'Conversation',
       label: t('SIDEBAR.CONVERSATIONS'),
       icon: 'i-lucide-message-circle',
-      // O total de PENDENTES da conta inteira fica no proprio item, com o
-      // grupo fechado - deliberadamente diferente do total de nao lidas
-      // (ver conversationPendingCount), e tambem diferente do "Todos" da
+      // O total de ABERTAS NA FILA da conta inteira fica no proprio item,
+      // com o grupo fechado - deliberadamente diferente do total de nao
+      // lidas (ver conversationQueueCount), e tambem diferente do "Todos" da
       // tela de Conversas (que conta so' dentro do filtro/status ativo ali).
       getterKeys: {
-        count: 'conversationPendingCount/getPendingCount',
+        count: 'conversationQueueCount/getQueueCount',
       },
       children: [
         {
           name: 'All',
           label: t('SIDEBAR.ALL_CONVERSATIONS'),
           icon: 'i-lucide-inbox',
-          badgeCount: pendingConversationsCount.value,
+          badgeCount: queueConversationsCount.value,
           activeOn: ['inbox_conversation'],
           to: accountScopedRoute('home'),
         },

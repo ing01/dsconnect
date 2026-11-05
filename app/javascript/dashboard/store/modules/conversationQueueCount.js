@@ -2,21 +2,23 @@ import ConversationApi from '../../api/inbox/conversation';
 import types from '../mutation-types';
 
 // O badge de "Conversas"/"Todas as conversas" na barra lateral: o total de
-// conversas PENDENTES na conta inteira (sem filtro de inbox/label/time -
-// `meta` sem inbox_id ja' varre todas as inboxes que o usuario enxerga, do
-// jeito que ConversationFinder#set_up resolve o escopo).
+// conversas ABERTAS NA FILA (aguardando um agente assumir) na conta inteira
+// - sem filtro de inbox/label/time (`meta` sem inbox_id ja' varre todas as
+// inboxes que o usuario enxerga, do jeito que ConversationFinder#set_up
+// resolve o escopo). `queue_count` e' o mesmo campo que a aba "Na fila" da
+// tela de Conversas usa, so' que aqui sem recorte de inbox/label/time.
 //
 // Modulo separado de `conversationUnreadCounts` de proposito: aquele e'
 // usado tambem pelos badges por inbox/label/time (nao-lidas), que nao mudam
 // aqui - misturar os dois estados no mesmo modulo faria uma busca
 // sobrescrever o resultado da outra.
 export const state = {
-  pendingCount: 0,
+  queueCount: 0,
 };
 
 export const getters = {
-  getPendingCount($state) {
-    return $state.pendingCount;
+  getQueueCount($state) {
+    return $state.queueCount;
   },
 };
 
@@ -25,8 +27,8 @@ export const actions = {
     try {
       const {
         data: { meta },
-      } = await ConversationApi.meta({ status: 'pending' });
-      commit(types.SET_CONVERSATION_PENDING_COUNT, meta?.all_count || 0);
+      } = await ConversationApi.meta({ status: 'open' });
+      commit(types.SET_CONVERSATION_QUEUE_COUNT, meta?.queue_count || 0);
     } catch (error) {
       // Ignora - o badge so' fica sem numero, nao impede o resto da barra.
     }
@@ -34,8 +36,8 @@ export const actions = {
 };
 
 export const mutations = {
-  [types.SET_CONVERSATION_PENDING_COUNT]($state, count) {
-    $state.pendingCount = Number(count) || 0;
+  [types.SET_CONVERSATION_QUEUE_COUNT]($state, count) {
+    $state.queueCount = Number(count) || 0;
   },
 };
 

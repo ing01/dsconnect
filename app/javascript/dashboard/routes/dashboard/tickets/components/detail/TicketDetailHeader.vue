@@ -45,21 +45,32 @@ const subject = computed(() =>
     >
       <!-- The title is edited where it is shown: clicking it opens the title
            dialog. The ticket number is not part of the button - it identifies
-           the ticket and is not editable. -->
-      <h1 class="flex-1 min-w-0 text-lg font-medium text-n-slate-12 truncate">
-        <span class="text-n-slate-10 font-normal">
+           the ticket and is not editable.
+
+           `h1` is a real flex row here (not just `truncate` on the whole
+           block): a long subject sitting inside a plain inline-block button
+           has no width of its own for text-overflow to measure against, so
+           it either rendered in full or got clipped with no ellipsis at all
+           - barely anything showed. Giving the button its own `flex-1
+           min-w-0` makes it a sized flex item that can truncate on its own
+           text, the same pattern already used one level up (title vs. the
+           status/actions group). -->
+      <h1
+        class="flex items-baseline gap-1 flex-1 min-w-0 text-lg font-medium text-n-slate-12"
+      >
+        <span class="flex-shrink-0 text-n-slate-10 font-normal">
           #{{ ticket.display_id }}
         </span>
         <button
           v-if="canUpdate"
           type="button"
-          class="max-w-full align-bottom truncate transition-colors rounded hover:text-n-blue-11"
+          class="flex-1 min-w-0 text-left truncate transition-colors rounded hover:text-n-blue-11"
           :title="t('TICKET.ACTIONS.TITLE_DIALOG.EDIT_HINT')"
           @click="emit('editTitle')"
         >
           {{ subject }}
         </button>
-        <span v-else class="align-bottom truncate">{{ subject }}</span>
+        <span v-else class="flex-1 min-w-0 truncate">{{ subject }}</span>
       </h1>
 
       <div class="flex items-center gap-2 flex-shrink-0">

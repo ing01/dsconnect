@@ -44,10 +44,10 @@ RSpec.describe 'Password reset then login', type: :request do
     expect(user.valid_password?('simples')).to be(false)
   end
 
-  # Relato original, mais preciso: resetar a senha funciona (entra direto),
-  # mas ao sair da conta e tentar logar de novo aparecem 409 e depois 401.
-  # Isola o mecanismo do seletor de sessoes (limite de 25) sem depender do
-  # reset em si - testa so' o que acontece quando a conta ja esta no limite.
+  # Relato original: resetar a senha funciona (entra direto), mas ao sair da
+  # conta e tentar logar de novo, batendo no limite de sessoes, o login
+  # nunca pode ficar travado esperando a pessoa escolher o que encerrar - a
+  # mais antiga e' descartada sozinha e o login segue.
   context 'when the account is already at the session limit' do
     before do
       25.times do |i|
@@ -58,37 +58,20 @@ RSpec.describe 'Password reset then login', type: :request do
       user.save!
     end
 
-    it 'shows the picker (409) then logs in successfully after revoking all sessions' do
-      post user_session_path, params: { email: user.email, password: 'OldPass@123' },
-                               headers: browser_headers, as: :json
-      expect(response).to have_http_status(:conflict)
-      expect(JSON.parse(response.body)['sessions_limit_reached']).to be(true)
-
-      post user_session_path, params: { email: user.email, password: 'OldPass@123', revoke_all_sessions: true },
-                               headers: browser_headers, as: :json
-
-      expect(response).to have_http_status(:success)
-    end
-
-    it 'shows the picker (409) then logs in successfully after revoking a single session' do
-      session_id = user.user_sessions.first.id
+    it 'logs in successfully, evicting the oldest session automatically' do
+      oldest_client_id = user.user_sessions.order(:last_activity_at).first.client_id
 
       post user_session_path, params: { email: user.email, password: 'OldPass@123' },
-                               headers: browser_headers, as: :json
-      expect(response).to have_http_status(:conflict)
-
-      post user_session_path, params: { email: user.email, password: 'OldPass@123', revoke_session_id: session_id },
-                               headers: browser_headers, as: :json
+                              headers: browser_headers, as: :json
 
       expect(response).to have_http_status(:success)
+      expect(user.reload.tokens).not_to have_key(oldest_client_id)
+      expect(user.user_sessions.count).to eq(25)
     end
 
     it 'logging out (DELETE auth/sign_out) then logging in again does not get stuck at the limit' do
-      # Entra (dispara a troca de token via sign_in normal, assumindo que ja
-      # passou pelo seletor antes - aqui simulamos so' o "sair e tentar nao
-      # de novo" que o usuario descreveu).
-      post user_session_path, params: { email: user.email, password: 'OldPass@123', revoke_all_sessions: true },
-                               headers: browser_headers, as: :json
+      post user_session_path, params: { email: user.email, password: 'OldPass@123' },
+                              headers: browser_headers, as: :json
       expect(response).to have_http_status(:success)
 
       auth_headers = {
@@ -101,7 +84,7 @@ RSpec.describe 'Password reset then login', type: :request do
       expect(response).to have_http_status(:success)
 
       post user_session_path, params: { email: user.email, password: 'OldPass@123' },
-                               headers: browser_headers, as: :json
+                              headers: browser_headers, as: :json
       expect(response).to have_http_status(:success)
     end
   end
