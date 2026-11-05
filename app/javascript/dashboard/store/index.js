@@ -22,6 +22,7 @@ import conversationLabels from './modules/conversationLabels';
 import conversationMetadata from './modules/conversationMetadata';
 import conversationPage from './modules/conversationPage';
 import conversations from './modules/conversations';
+import conversationPendingCount from './modules/conversationPendingCount';
 import conversationSearch from './modules/conversationSearch';
 import conversationStats from './modules/conversationStats';
 import conversationTypingStatus from './modules/conversationTypingStatus';
@@ -108,6 +109,7 @@ export default createStore({
     conversationLabels,
     conversationMetadata,
     conversationPage,
+    conversationPendingCount,
     conversations,
     conversationSearch,
     conversationStats,
