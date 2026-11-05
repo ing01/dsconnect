@@ -8,6 +8,13 @@ class SendReplyJob < ApplicationJob
   MAX_ORDER_WAIT_ATTEMPTS = 20
   ORDER_WAIT_DELAY = 1.second
 
+  # So espera por mensagens anteriores CRIADAS ha menos que isto. Uma mensagem
+  # que continua sem `source_id` depois disso nao esta 'a caminho', esta travada
+  # (job perdido, resposta do provedor sem id) - e, sem este limite, ela segurava
+  # TODA mensagem nova da conversa por ~2 minutos (20 tentativas de ~5s) antes de
+  # cada uma ser enviada.
+  ORDER_WAIT_WINDOW = 60.seconds
+
   # Antes de reagendar, espera a vez DENTRO do job, de 0,2 em 0,2s. Reagendar com
   # `set(wait: 1.second)` parece 1s mas nao e: o Sidekiq so olha a fila de
   # agendados a cada ~5s em media, entao cada espera custava ~5s - a mensagem do
@@ -112,6 +119,7 @@ class SendReplyJob < ApplicationJob
            .where(message_type: %i[outgoing template], private: false, source_id: nil)
            .where.not(id: message.id)
            .where.not(status: :failed)
+           .where('created_at > ?', ORDER_WAIT_WINDOW.ago)
            .where('created_at < :ts OR (created_at = :ts AND id < :id)', ts: message.created_at, id: message.id)
   end
 
