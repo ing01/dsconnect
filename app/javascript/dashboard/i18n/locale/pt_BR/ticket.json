@@ -1232,6 +1232,7 @@
     "CLOSE": {
       "TITLE": "Fechar ticket #{number}",
       "CONFIRM": "Fechar ticket",
+      "LEAVE_OPEN": "Deixar ticket em aberto",
       "STEP_CLASSIFICATION": "1. Classificação",
       "STEP_RESOLUTION": "2. Resolução",
       "STEP_COMMUNICATION": "3. Comunicação com cliente",

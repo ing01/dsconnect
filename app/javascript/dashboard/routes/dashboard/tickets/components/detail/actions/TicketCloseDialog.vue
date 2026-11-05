@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import Button from 'dashboard/components-next/button/Button.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -14,11 +15,11 @@ const props = defineProps({
 });
 
 // `cancel` forwards the inner Dialog's own `close` (backdrop click, Escape, or
-// its Cancelar button) - it fires on the success path too, since `submit`
-// below closes the same Dialog once it's done. Callers that care about a real
-// cancellation (nothing was closed) must only act on it when `closed` hasn't
-// already fired for that same attempt.
-const emit = defineEmits(['closed', 'cancel']);
+// the Cancelar button below) - it also fires on the `closed`/`left-open` paths,
+// since both call the same Dialog's `close()`. Callers that care about a real
+// cancellation (nothing was decided) must only act on it when neither of those
+// has already fired for that same attempt.
+const emit = defineEmits(['closed', 'left-open', 'cancel']);
 
 const { t } = useI18n();
 const store = useStore();
@@ -135,6 +136,17 @@ const submit = async () => {
   }
 };
 
+// So' resolve a conversa, sem passar pelo fechamento do ticket - a Mesa decide
+// depois, com calma, se aquilo realmente acabou. Nao exige nenhum dos
+// requisitos de fechamento (Catalogo, Resolucao, Comunicacao): o ticket
+// continua aberto exatamente como estava.
+const leaveOpen = () => {
+  if (isWorking.value) return;
+
+  dialogRef.value?.close();
+  emit('left-open');
+};
+
 watch(
   () => props.ticket.id,
   () => {
@@ -154,12 +166,41 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
     width="2xl"
     overflow-y-auto
     :title="t('TICKET.CLOSE.TITLE', { number: ticket.display_id })"
-    :confirm-button-label="t('TICKET.CLOSE.CONFIRM')"
-    :disable-confirm-button="!canSubmit"
     :is-loading="isWorking"
     @confirm="submit"
     @close="emit('cancel')"
   >
+    <template #footer>
+      <div class="flex items-center justify-between w-full gap-3">
+        <Button
+          variant="faded"
+          color="slate"
+          :label="t('DIALOG.BUTTONS.CANCEL')"
+          class="w-full"
+          type="button"
+          :disabled="isWorking"
+          @click="dialogRef?.close()"
+        />
+        <Button
+          variant="faded"
+          color="amber"
+          :label="t('TICKET.CLOSE.LEAVE_OPEN')"
+          class="w-full"
+          type="button"
+          :disabled="isWorking"
+          @click="leaveOpen"
+        />
+        <Button
+          color="blue"
+          :label="t('TICKET.CLOSE.CONFIRM')"
+          class="w-full"
+          :is-loading="isWorking"
+          :disabled="!canSubmit || isWorking"
+          type="submit"
+        />
+      </div>
+    </template>
+
     <div class="flex flex-col gap-5 min-w-0">
       <!-- Step 1: classification. Already done shows as done rather than
            asking again. -->

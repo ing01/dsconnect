@@ -44,21 +44,22 @@ const ticketCloseDialogRef = ref(null);
 // settling.
 let onTicketGateSettled = null;
 // `TicketCloseDialog` emits `cancel` on ANY close of its inner Dialog,
-// including the one `submit()` triggers right after a successful close - so
-// `cancel` only means "nothing happened" when `closed` hasn't already fired
-// for this same attempt.
-let ticketWasClosed = false;
+// including the ones `closed`/`left-open` trigger right after deciding
+// something - so `cancel` only means "nothing happened" when neither of those
+// has already fired for this same attempt.
+let ticketGateDecided = false;
 
-// Resolves `true` once the open Ticket is closed, `false` if the agent backs
-// out instead (Cancelar, Escape, or clicking outside) - in which case the
-// Ticket, and the conversation, both stay exactly as they were.
+// Resolves 'closed' once the open Ticket is closed, 'left-open' if the agent
+// chose to leave it open (only the conversation resolves), or 'cancel' if
+// they backed out instead (Cancelar, Escape, or clicking outside) - in which
+// case the Ticket, and the conversation, both stay exactly as they were.
 const gateOnOpenTicket = async ticketId => {
   const data = await store.dispatch('tickets/fetchTicket', ticketId);
   pendingTicket.value = data || null;
-  if (!pendingTicket.value) return true;
+  if (!pendingTicket.value) return 'closed';
 
   await nextTick();
-  ticketWasClosed = false;
+  ticketGateDecided = false;
   return new Promise(resolve => {
     onTicketGateSettled = resolve;
     ticketCloseDialogRef.value?.open();
@@ -66,13 +67,18 @@ const gateOnOpenTicket = async ticketId => {
 };
 
 const onTicketCloseDialogClosed = () => {
-  ticketWasClosed = true;
-  onTicketGateSettled?.(true);
+  ticketGateDecided = true;
+  onTicketGateSettled?.('closed');
+};
+
+const onTicketCloseDialogLeftOpen = () => {
+  ticketGateDecided = true;
+  onTicketGateSettled?.('left-open');
 };
 
 const onTicketCloseDialogCancel = () => {
-  if (ticketWasClosed) return;
-  onTicketGateSettled?.(false);
+  if (ticketGateDecided) return;
+  onTicketGateSettled?.('cancel');
 };
 
 // Only an open Ticket blocks the resolve - one already closed/cancelled (or
@@ -205,11 +211,13 @@ const onCmdResolveConversation = async () => {
   const openTicketId = await findOpenLinkedTicketId(currentChat.value.id);
 
   if (openTicketId) {
-    const wasClosed = await gateOnOpenTicket(openTicketId);
+    const outcome = await gateOnOpenTicket(openTicketId);
     pendingTicket.value = null;
     isLoading.value = false;
     // Cancelado: o Ticket - e a conversa - continuam exatamente como estavam.
-    if (!wasClosed) return;
+    // Fechado ou deixado em aberto: a conversa resolve do mesmo jeito, o que
+    // muda e' so' o estado em que o Ticket fica.
+    if (outcome === 'cancel') return;
   } else {
     isLoading.value = false;
   }
@@ -343,6 +351,7 @@ useEmitter(CMD_RESOLVE_CONVERSATION, onCmdResolveConversation);
       ref="ticketCloseDialogRef"
       :ticket="pendingTicket"
       @closed="onTicketCloseDialogClosed"
+      @left-open="onTicketCloseDialogLeftOpen"
       @cancel="onTicketCloseDialogCancel"
     />
   </div>
