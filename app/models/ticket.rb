@@ -204,7 +204,11 @@ class Ticket < ApplicationRecord
     ensure_checklist_completed! unless skip_requirements
     ensure_closeable!(skip_requirements: skip_requirements)
 
-    update!(status: :closed, closed_at: Time.zone.now)
+    # Encerrar um chamado que ainda esta na Triagem tambem o tira da fila:
+    # ninguem vai aprovar algo ja resolvido, e deixa-lo la mantinha o contador
+    # e a lista da Triagem apontando para um ticket que nao precisa de decisao.
+    triage_attrs = pending_triage? ? { pending_triage: false, triaged_at: Time.zone.now, triaged_by: user } : {}
+    update!(status: :closed, closed_at: Time.zone.now, **triage_attrs)
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :closed)
     advance_project_stage_if_needed!
   end
