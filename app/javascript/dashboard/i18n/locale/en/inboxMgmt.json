@@ -1,5 +1,28 @@
 {
   "INBOX_MGMT": {
+    "INACTIVITY": {
+      "NUDGE_AFTER": {
+        "LABEL": "Send notice after inactivity (minutes)",
+        "HELP": "Sends the inactivity message when the customer has not replied for this long after the last team message. Leave empty for no notice.",
+        "PLACEHOLDER": "e.g. 30"
+      },
+      "INACTIVITY_MESSAGE": {
+        "LABEL": "Inactivity message (notice)",
+        "HELP": "Sent to the customer as a reminder, before closing.",
+        "PLACEHOLDER": "Are you still there? If we do not hear from you, we will close this conversation."
+      },
+      "CLOSE_AFTER": {
+        "LABEL": "Close after the notice (minutes)",
+        "HELP": "Closes the conversation if the customer still does not reply this long after the notice (without a notice, counts from the last team message). Leave empty to never close automatically.",
+        "PLACEHOLDER": "e.g. 30"
+      },
+      "RESOLVE_MESSAGE": {
+        "LABEL": "Closing message",
+        "HELP": "Sent when the conversation is closed: when an agent clicks Resolve or automatically by inactivity. The satisfaction survey (CSAT) follows if enabled for this inbox.",
+        "PLACEHOLDER": "Your conversation has been resolved. Thank you!"
+      },
+      "SAVE": "Save"
+    },
     "HEADER": "Inboxes",
     "DESCRIPTION": "A channel is the mode of communication your customer chooses to interact with you. An inbox is where you manage interactions for a specific channel. It can include communications from various sources such as email, live chat, and social media.",
     "LEARN_MORE": "Learn more about inboxes",
@@ -676,6 +699,7 @@
       "BOT_CONFIGURATION": "Bot Configuration",
       "ACCOUNT_HEALTH": "Account Health",
       "CSAT": "CSAT",
+      "INACTIVITY": "Inactivity",
       "VOICE": "Voice",
       "CALLS": "Calls"
     },

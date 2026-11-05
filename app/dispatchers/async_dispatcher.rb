@@ -24,7 +24,8 @@ class AsyncDispatcher < BaseDispatcher
       TicketSlaListener.instance,
       TicketStageOnAssignmentListener.instance,
       WebhookListener.instance,
-      WhatsappCsatSurveyListener.instance
+      WhatsappCsatSurveyListener.instance,
+      WhatsappTicketAutoCreationListener.instance
     ]
   end
 end

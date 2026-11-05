@@ -167,6 +167,20 @@ class Inbox < ApplicationRecord
     channel_type == 'Channel::Whatsapp'
   end
 
+  def client_portal?
+    api? && channel.additional_attributes[Inboxes::EnsureClientPortalInboxService::MARKER_KEY] == true
+  end
+
+  # Inatividade e mensagem de encerramento so valem para Portal do Cliente e WhatsApp.
+  def inactivity_supported?
+    whatsapp? || client_portal?
+  end
+
+  def inactivity_minutes(key)
+    minutes = inactivity_config[key].to_i
+    minutes if minutes.positive?
+  end
+
   def twilio_whatsapp?
     channel_type == 'Channel::TwilioSms' && channel.medium == 'whatsapp'
   end

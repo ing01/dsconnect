@@ -293,6 +293,22 @@ class Conversation < ApplicationRecord
     invalidate_filtered_unread_count_conversation
     notify_conversation_updation
     trigger_queue_auto_assignment
+    send_inbox_resolve_message
+  end
+
+  # Mensagem de encerramento da caixa de entrada (Portal e WhatsApp), enviada
+  # quando um atendente clica em Resolver. Resolver por sistema (inatividade,
+  # automacao) nao tem `Current.user` e nao envia.
+  def send_inbox_resolve_message
+    return unless saved_change_to_status? && resolved? && Current.user.present?
+
+    content = inbox.inactivity_config['resolve_message']
+    return if content.blank? || !inbox.inactivity_supported? || !can_reply?
+
+    messages.create!(
+      account_id: account_id, inbox_id: inbox_id, message_type: :outgoing, content: content,
+      content_attributes: { Queues::InactivityService::NOTICE_KEY => 'resolve' }
+    )
   end
 
   def trigger_queue_auto_assignment
