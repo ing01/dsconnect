@@ -41,6 +41,10 @@ const { t } = useI18n();
 const isEditing = ref(false);
 const draft = ref('');
 const isSummarizing = ref(false);
+// O que acabamos de mandar salvar - comparado no watcher la' embaixo contra
+// o que volta no `ticket.description`. Nao e' reativo de proposito: so'
+// precisa ser lido dentro do watcher, nunca disparar um render por si so.
+let justSavedDescription = null;
 // So' vem do "Resumir conversa" (ver summarizeConversation) - uma edicao
 // manual do titulo continua so' pelo dialogo proprio (TicketTitleDialog).
 // `null` em qualquer outro caminho de edicao faz o `save` nao mexer no titulo.
@@ -71,9 +75,11 @@ const cancel = () => {
   isEditing.value = false;
   draft.value = '';
   summarizedTitle.value = null;
+  justSavedDescription = null;
 };
 
 const save = () => {
+  justSavedDescription = draft.value;
   emit('save', { description: draft.value, title: summarizedTitle.value });
 };
 
@@ -99,12 +105,18 @@ const summarizeConversation = async () => {
   }
 };
 
-// Leaving edit mode is driven by the parent: it flips `isSaving` back once the
-// request settles, and the fresh description arrives through the ticket prop.
+// Fecha a edicao quando o que voltou do servidor bate com o que ACABAMOS de
+// mandar - nao com `!props.isSaving`: aquela flag so vira false depois de
+// mais um ou dois microtasks que o commit que atualiza `ticket.description`
+// (store.dispatch resolve -> applyUpdate -> so' entao o finally desliga
+// isSaving), entao este watcher corria ANTES dela virar false e o "Salvar"
+// ficava preso na tela mesmo com o ticket ja salvo. Comparar o texto, em vez
+// da flag, tambem evita fechar a edicao por uma atualizacao de OUTRO agente
+// chegando via tempo real enquanto a pessoa ainda escreve.
 watch(
   () => props.ticket.description,
-  () => {
-    if (isEditing.value && !props.isSaving) cancel();
+  newDescription => {
+    if (isEditing.value && newDescription === justSavedDescription) cancel();
   }
 );
 </script>

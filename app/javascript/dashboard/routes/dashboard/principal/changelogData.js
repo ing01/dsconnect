@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-description-save-stuck-fix-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'Salvar descrição do ticket não ficava mais preso em "editando"',
+    description:
+      'Ao salvar a descrição do ticket (inclusive após "Resumir conversa"), a alteração era salva, mas os botões "Cancelar"/"Salvar" continuavam na tela em vez de voltar para a visualização normal. Corrigido.',
+  },
+  {
     id: 'ticket-summarize-title-and-error-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',

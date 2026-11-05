@@ -74,4 +74,62 @@ describe('TicketDescriptionCard', () => {
       [{ description: TICKET_DESCRIPTION_TEMPLATE, title: null }],
     ]);
   });
+
+  // Regressao: o pai so desliga `isSaving` alguns microtasks DEPOIS do commit
+  // que atualiza `ticket.description` - um watcher baseado em `!isSaving`
+  // corre cedo demais e nunca fecha a edicao, mesmo com o salvamento certo.
+  // Por isso o fechamento compara o texto salvo, nao a flag.
+  it('leaves edit mode once the saved text comes back, even if isSaving is still true', async () => {
+    const wrapper = mountCard({
+      ticket: { id: 1, description: 'Texto atual' },
+      isSaving: true,
+    });
+    await wrapper
+      .find('[data-label="TICKET.DETAIL.DESCRIPTION.EDIT"]')
+      .trigger('click');
+    await wrapper.vm.$nextTick();
+    wrapper.vm.draft = 'Texto novo';
+    await wrapper
+      .find('[data-label="TICKET.DETAIL.DESCRIPTION.SAVE"]')
+      .trigger('click');
+
+    await wrapper.setProps({
+      ticket: { id: 1, description: 'Texto novo' },
+      isSaving: true,
+    });
+
+    expect(wrapper.find('.editor').exists()).toBe(false);
+  });
+
+  it('stays in edit mode when the save fails (description never changes)', async () => {
+    const wrapper = mountCard({
+      ticket: { id: 1, description: 'Texto atual' },
+    });
+    await wrapper
+      .find('[data-label="TICKET.DETAIL.DESCRIPTION.EDIT"]')
+      .trigger('click');
+    await wrapper
+      .find('[data-label="TICKET.DETAIL.DESCRIPTION.SAVE"]')
+      .trigger('click');
+    await wrapper.setProps({ isSaving: false });
+
+    expect(wrapper.find('.editor').exists()).toBe(true);
+  });
+
+  it('does not leave edit mode when another agent changes the description meanwhile', async () => {
+    const wrapper = mountCard({
+      ticket: { id: 1, description: 'Texto atual' },
+    });
+    await wrapper
+      .find('[data-label="TICKET.DETAIL.DESCRIPTION.EDIT"]')
+      .trigger('click');
+    wrapper.vm.draft = 'Rascunho em andamento';
+
+    await wrapper.setProps({
+      ticket: { id: 1, description: 'Mudanca de outro agente' },
+    });
+
+    expect(wrapper.find('.editor').exists()).toBe(true);
+    expect(wrapper.vm.draft).toBe('Rascunho em andamento');
+  });
 });
