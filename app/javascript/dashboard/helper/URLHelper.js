@@ -111,12 +111,18 @@ export const hasValidAvatarUrl = avatarUrl => {
 };
 
 export const timeStampAppendedURL = dataUrl => {
-  const url = new URL(dataUrl);
-  if (!url.searchParams.has('t')) {
-    url.searchParams.append('t', Date.now());
-  }
+  // Uma URL vazia ou relativa (anexo ainda sem arquivo) fazia `new URL` lancar
+  // e derrubava a renderizacao da bolha inteira ate a pagina ser recarregada.
+  try {
+    const url = new URL(dataUrl);
+    if (!url.searchParams.has('t')) {
+      url.searchParams.append('t', Date.now());
+    }
 
-  return url.toString();
+    return url.toString();
+  } catch {
+    return dataUrl || '';
+  }
 };
 
 export const getHostNameFromURL = url => {
