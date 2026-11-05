@@ -58,7 +58,14 @@ class ServiceQueue < ApplicationRecord
   validates :inactivity_nudge_message, presence: true, if: -> { inactivity_nudge_after.present? }
   validates :inactivity_close_message, presence: true, if: -> { inactivity_close_after.present? }
 
-  scope :with_inactivity_rules, -> { where.not(inactivity_nudge_after: nil).or(where.not(inactivity_close_after: nil)) }
+  scope :with_inactivity_rules, lambda {
+    where.not(inactivity_nudge_after: nil).or(where.not(inactivity_close_after: nil))
+         .or(where("inactivity_pause_config ->> 'pause_enabled' = 'true'"))
+  }
+
+  def pause_config
+    Inactivity::PauseConfig.new(inactivity_pause_config)
+  end
 
   def push_event_data
     {

@@ -200,7 +200,7 @@
       "SEND_EMAIL_TO_TEAM": "Enviar um e-mail para o Time",
       "SEND_EMAIL_TRANSCRIPT": "Enviar uma transcrição por e-mail",
       "MUTE_CONVERSATION": "Silenciar Conversa",
-      "SNOOZE_CONVERSATION": "Adiar Conversa",
+      "SNOOZE_CONVERSATION": "Pausar Conversa",
       "RESOLVE_CONVERSATION": "Resolver Conversa",
       "SEND_WEBHOOK_EVENT": "Enviar evento de Webhook",
       "SEND_ATTACHMENT": "Enviar Anexo",

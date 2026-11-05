@@ -107,7 +107,11 @@ const getters = {
   getQueuedChats: _state => activeFilters => {
     return _state.allConversations
       .filter(conversation => {
-        const isQueued = !!conversation.queue_id && !conversation.meta?.assignee;
+        // Pausada (status snoozed) nao esta esperando atendente: nao e' "na fila".
+        const isQueued =
+          !!conversation.queue_id &&
+          !conversation.meta?.assignee &&
+          conversation.status !== 'snoozed';
         const shouldFilter = applyPageFilters(conversation, activeFilters);
         return isQueued && shouldFilter;
       })

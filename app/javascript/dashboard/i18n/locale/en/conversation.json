@@ -103,6 +103,10 @@
       "HIDE_LABELS": "Hide labels",
       "LABELS_COUNT": "{count} labels"
     },
+    "AUDIO_LOAD_ERROR": {
+      "MESSAGE": "Could not load the audio. Refresh the page or download the file.",
+      "RETRY": "Try again"
+    },
     "VOICE_CALL": {
       "INCOMING_CALL": "Incoming call",
       "OUTGOING_CALL": "Outgoing call",
@@ -195,6 +199,29 @@
         "ENABLED": "Enabled",
         "DISABLED": "Disabled",
         "YOU_ARE_A_MEMBER": "You are a member of this team"
+      }
+    },
+    "EXTEND_PAUSE": {
+      "BUTTON": "Extend pause",
+      "TITLE": "Extend pause",
+      "PAUSED_UNTIL": "Paused until",
+      "HOURS": "Hours",
+      "MINUTES": "Minutes",
+      "REASON": "Reason for the extension *",
+      "REASON_PLACEHOLDER": "E.g.: The customer is running tests and asked for more time to reply.",
+      "REASON_HELP": "Required. Recorded in the conversation history.",
+      "NOTIFY_CUSTOMER": "Tell the customer the reason in the automatic message",
+      "CANCEL": "Cancel",
+      "CONFIRM": "Extend",
+      "SUCCESS": "Pause deadline extended",
+      "ERRORS": {
+        "generic": "Could not extend the pause.",
+        "reason_required": "Enter the reason for the extension.",
+        "invalid_minutes": "Enter a time greater than zero.",
+        "duration_exceeded": "The time exceeds the maximum allowed per extension.",
+        "limit_reached": "The extension limit for this pause was reached.",
+        "extension_disabled": "Pause extension is turned off for this inbox.",
+        "not_paused": "This conversation is not paused by inactivity."
       }
     },
     "CUSTOM_SNOOZE": {

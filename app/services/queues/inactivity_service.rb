@@ -22,6 +22,7 @@ class Queues::InactivityService
     inbox = ::Inboxes::EnsureClientPortalInboxService.find_existing(queue.account)
     return if inbox.blank?
 
+    @inbox = inbox
     queue.conversations.where(inbox_id: inbox.id, status: :open).find_each do |conversation|
       process(conversation)
     rescue StandardError => e
@@ -37,14 +38,27 @@ class Queues::InactivityService
     last_message = last_chat_message(conversation)
     return unless last_message&.outgoing?
 
+    pause = pause_service(conversation)
+    final_delay = pause ? pause.config.pause_after : queue.inactivity_close_after
     nudged_at = nudged_at_for(conversation, last_message)
     if nudged_at
-      close(conversation, nudged_at) if close_due?(nudged_at)
+      finish(conversation, pause, nudged_at) if final_delay.present? && elapsed?(nudged_at, final_delay)
     elsif queue.inactivity_nudge_after.present?
       nudge(conversation) if elapsed?(last_message.created_at, queue.inactivity_nudge_after)
-    elsif queue.inactivity_close_after.present? && elapsed?(last_message.created_at, queue.inactivity_close_after)
-      close(conversation, last_message.created_at)
+    elsif final_delay.present? && elapsed?(last_message.created_at, final_delay)
+      finish(conversation, pause, last_message.created_at)
     end
+  end
+
+  # Pausa (se o fluxo esta ligado na Fila e ainda ha pausa disponivel pra esta
+  # conversa) ou encerra direto, como sempre foi.
+  def pause_service(conversation)
+    service = Inactivity::PauseService.new(conversation: conversation, config: queue.pause_config, origin: 'queue', close_tickets: true)
+    service if service.allowed?
+  end
+
+  def finish(conversation, pause, since)
+    pause ? pause.pause! : close(conversation, since)
   end
 
   def last_chat_message(conversation)
@@ -62,12 +76,11 @@ class Queues::InactivityService
     nudged_at if nudged_at && nudged_at > last_message.created_at
   end
 
-  def close_due?(nudged_at)
-    queue.inactivity_close_after.present? && elapsed?(nudged_at, queue.inactivity_close_after)
-  end
-
+  # Com a pausa ligada na Fila, os prazos so correm no horario de atendimento da
+  # caixa do Portal (se a configuracao pedir e a caixa tiver horario ligado).
   def elapsed?(since, minutes)
-    since <= minutes.minutes.ago
+    config = queue.pause_config
+    Inactivity::BusinessTime.new(@inbox, enabled: config.enabled? && config.respect_working_hours?).elapsed?(since, minutes)
   end
 
   def nudge(conversation)

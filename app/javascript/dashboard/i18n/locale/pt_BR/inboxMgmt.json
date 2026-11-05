@@ -21,6 +21,57 @@
         "HELP": "Enviada ao encerrar a conversa: quando um atendente clica em Resolver ou automaticamente por inatividade. A avaliação (CSAT) é enviada em seguida, se estiver ativada na caixa.",
         "PLACEHOLDER": "Sua conversa foi resolvida. Obrigado!"
       },
+      "PAUSE": {
+        "SECTION": "Pausa e retomada",
+        "ENABLED": {
+          "LABEL": "Pausar o atendimento por inatividade",
+          "HELP": "Em vez de encerrar direto, a conversa fica Pausada (o atendente é liberado) e o cliente pode retomá-la. Desligado, vale o encerramento direto acima."
+        },
+        "PAUSE_AFTER": {
+          "LABEL": "Pausar após o aviso (minutos)",
+          "HELP": "Tempo sem resposta depois do aviso (ou da última mensagem da equipe, sem aviso) para pausar. Vazio = 5."
+        },
+        "PAUSE_WINDOW": {
+          "LABEL": "Prazo para retomar (minutos)",
+          "HELP": "Tempo que a conversa fica pausada aguardando o cliente. Depois disso ela é encerrada. Vazio = 120 (2 horas)."
+        },
+        "MAX_PAUSES": {
+          "LABEL": "Pausas por conversa",
+          "HELP": "Quantas vezes a mesma conversa pode ser pausada. Depois disso, a inatividade encerra de uma vez. Vazio = 1."
+        },
+        "RESUME_ONE_CLICK": {
+          "LABEL": "Qualquer mensagem retoma",
+          "HELP": "O cliente retoma enviando qualquer mensagem (ex.: \"oi\"). Desligado, só \"sim\" retoma."
+        },
+        "KEEP_PREVIOUS_AGENT": {
+          "LABEL": "Voltar ao atendente anterior se estiver disponível",
+          "HELP": "Se o atendente anterior estiver online e disponível, a conversa volta para ele; senão vai para a fila."
+        },
+        "RESPECT_WORKING_HOURS": {
+          "LABEL": "Contar os prazos só no horário de atendimento",
+          "HELP": "Aviso, pausa e prazo de retomada só correm dentro do horário de atendimento da caixa. Sem horário de atendimento ligado na caixa, os prazos correm direto."
+        },
+        "EXTENSION_ENABLED": {
+          "LABEL": "Permitir que o analista estenda a pausa",
+          "HELP": "O analista soma tempo ao prazo, com motivo obrigatório registrado no histórico."
+        },
+        "MAX_EXTENSION_MINUTES": {
+          "LABEL": "Duração máxima de cada extensão (minutos)",
+          "HELP": "Vazio = sem limite."
+        },
+        "MAX_EXTENSIONS": {
+          "LABEL": "Máximo de extensões por pausa",
+          "HELP": "Vazio = sem limite."
+        },
+        "MESSAGES_HELP": "Mensagens da pausa. Vazio usa o texto padrão. Variáveis: {'{'}data_hora_limite{'}'}, {'{'}atendente{'}'}, {'{'}motivo{'}'}.",
+        "PAUSE_MESSAGE": "Mensagem de pausa",
+        "RESUME_SAME_AGENT_MESSAGE": "Retomada com o mesmo atendente",
+        "RESUME_QUEUE_MESSAGE": "Retomada pela fila (atendente indisponível)",
+        "RESUME_OUT_OF_HOURS_MESSAGE": "Retomada fora do expediente",
+        "EXTENSION_MESSAGE": "Pausa estendida",
+        "FINALIZE_MESSAGE": "Finalização (prazo acabou)",
+        "DECLINE_MESSAGE": "Cliente respondeu NÃO"
+      },
       "SAVE": "Salvar"
     },
     "HEADER": "Caixas de Entrada",

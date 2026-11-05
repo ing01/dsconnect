@@ -6,6 +6,7 @@ import { useElementSize } from '@vueuse/core';
 import BackButton from '../BackButton.vue';
 import InboxName from '../InboxName.vue';
 import MoreActions from './MoreActions.vue';
+import ExtendPauseModal from './ExtendPauseModal.vue';
 import Avatar from 'next/avatar/Avatar.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import ConversationCallButton from './ConversationCallButton.vue';
@@ -91,7 +92,20 @@ const isSnoozed = computed(
   () => currentChat.value.status === wootConstants.STATUS_TYPE.SNOOZED
 );
 
+// Pausa por inatividade (status "snoozed" + prazo em additional_attributes):
+// mostra ate quando o cliente pode retomar e deixa o analista estender o prazo.
+const pauseDeadline = computed(
+  () => currentChat.value.additional_attributes?.pause_deadline
+);
+const isPausedByInactivity = computed(
+  () => isSnoozed.value && !!pauseDeadline.value
+);
+const showExtendPause = ref(false);
+
 const snoozedDisplayText = computed(() => {
+  if (isPausedByInactivity.value) {
+    return `${t('CONVERSATION.EXTEND_PAUSE.PAUSED_UNTIL')} ${new Date(pauseDeadline.value).toLocaleString()}`;
+  }
   const { snoozed_until: snoozedUntil } = currentChat.value;
   if (snoozedUntil) {
     return `${t('CONVERSATION.HEADER.SNOOZED_UNTIL')} ${snoozedReopenTime(snoozedUntil)}`;
@@ -175,6 +189,14 @@ const copyConversationId = async () => {
           <span v-if="isSnoozed" class="font-medium text-n-amber-10">
             {{ snoozedDisplayText }}
           </span>
+          <button
+            v-if="isPausedByInactivity"
+            type="button"
+            class="font-medium text-n-brand hover:underline !p-0"
+            @click="showExtendPause = true"
+          >
+            {{ t('CONVERSATION.EXTEND_PAUSE.BUTTON') }}
+          </button>
         </div>
       </div>
     </div>
@@ -191,5 +213,10 @@ const copyConversationId = async () => {
       <ConversationCallButton :inbox="inbox" :chat="currentChat" />
       <MoreActions :conversation-id="currentChat.id" />
     </div>
+    <ExtendPauseModal
+      v-if="showExtendPause"
+      :conversation-id="currentChat.id"
+      @close="showExtendPause = false"
+    />
   </div>
 </template>

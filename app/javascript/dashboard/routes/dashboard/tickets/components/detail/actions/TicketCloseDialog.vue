@@ -12,6 +12,10 @@ import TicketCatalogSelect from './TicketCatalogSelect.vue';
 
 const props = defineProps({
   ticket: { type: Object, required: true },
+  // So' quando o fechamento vem pela CONVERSA (Resolver): deixa ajustar o
+  // assunto e a descricao ali mesmo, sem entrar no ticket. Na tela do proprio
+  // ticket isso ja se edita no detalhe.
+  allowEditDetails: { type: Boolean, default: false },
 });
 
 // `cancel` forwards the inner Dialog's own `close` (backdrop click, Escape, or
@@ -39,6 +43,10 @@ const resolution = ref('');
 // ve o texto na Area do Cliente -, e serve para quando a equipe ja avisou por
 // telefone ou WhatsApp.
 const notificarCliente = ref(true);
+// Assunto e descricao editaveis (so' com `allowEditDetails`); partem do que o
+// ticket ja tem e so' sao gravados se mudaram.
+const title = ref('');
+const description = ref('');
 
 const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
 
@@ -74,8 +82,18 @@ const communicationReady = computed(
   () =>
     !needsCommunication.value || (!missingEmail.value && !!body.value.trim())
 );
+const detailsReady = computed(
+  () => !props.allowEditDetails || !!title.value.trim()
+);
+const detailsChanged = computed(
+  () =>
+    props.allowEditDetails &&
+    (title.value.trim() !== (props.ticket.title || '') ||
+      description.value !== (props.ticket.description || ''))
+);
 const canSubmit = computed(
   () =>
+    detailsReady.value &&
     catalogReady.value &&
     resolutionReady.value &&
     communicationReady.value &&
@@ -89,6 +107,8 @@ const open = () => {
   body.value = '';
   resolution.value = '';
   notificarCliente.value = true;
+  title.value = props.ticket.title || '';
+  description.value = props.ticket.description || '';
   store.dispatch('serviceCatalogs/fetch');
   dialogRef.value?.open();
 };
@@ -101,6 +121,16 @@ const submit = async () => {
 
   isWorking.value = true;
   try {
+    // Primeiro o assunto/descricao: a mensagem de encerramento ao cliente usa o
+    // titulo do ticket, entao ele precisa estar gravado antes do envio.
+    if (detailsChanged.value) {
+      await store.dispatch('tickets/updateTicket', {
+        id: props.ticket.id,
+        title: title.value.trim(),
+        description: description.value,
+      });
+    }
+
     if (needsCatalog.value) {
       await store.dispatch('tickets/classifyTicket', {
         id: props.ticket.id,
@@ -202,6 +232,37 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
     </template>
 
     <div class="flex flex-col gap-5 min-w-0">
+      <!-- Assunto e descricao: so' no fechamento feito pela conversa. -->
+      <template v-if="allowEditDetails">
+        <section class="flex flex-col gap-3 min-w-0">
+          <h3 class="text-sm font-medium text-n-slate-12">
+            {{ t('TICKET.CLOSE.STEP_DETAILS') }}
+          </h3>
+          <p class="text-xs text-n-slate-10">
+            {{ t('TICKET.CLOSE.DETAILS_HINT') }}
+          </p>
+          <label class="flex flex-col gap-1 min-w-0">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ t('TICKET.CLOSE.DETAILS_TITLE')
+              }}<span class="text-n-ruby-11">*</span>
+            </span>
+            <input v-model="title" type="text" class="w-full mb-0 text-sm" />
+          </label>
+          <label class="flex flex-col gap-1 min-w-0">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ t('TICKET.CLOSE.DETAILS_DESCRIPTION') }}
+            </span>
+            <textarea
+              v-model="description"
+              rows="4"
+              class="w-full mb-0 text-sm resize-y min-h-[6rem]"
+            />
+          </label>
+        </section>
+
+        <div class="h-px bg-n-weak" />
+      </template>
+
       <!-- Step 1: classification. Already done shows as done rather than
            asking again. -->
       <section class="flex flex-col gap-3 min-w-0">

@@ -736,6 +736,22 @@ function toggleOnlyUnassigned() {
   }
 }
 
+// Botao "Pausadas": alterna o filtro de status entre Pausadas (snoozed) e o
+// status que estava antes.
+const isPausedView = computed(
+  () => activeStatus.value === wootConstants.STATUS_TYPE.SNOOZED
+);
+let statusBeforePausedView = wootConstants.STATUS_TYPE.OPEN;
+
+function togglePausedView() {
+  if (isPausedView.value) {
+    onBasicFilterChange(statusBeforePausedView, 'status');
+    return;
+  }
+  statusBeforePausedView = activeStatus.value;
+  onBasicFilterChange(wootConstants.STATUS_TYPE.SNOOZED, 'status');
+}
+
 function onBasicFilterChange(value, type) {
   if (type === 'status') {
     activeStatus.value = value;
@@ -1072,11 +1088,13 @@ watch(conversationFilters, (newVal, oldVal) => {
     <div
       v-if="
         !hasAppliedFiltersOrActiveFolders &&
-        activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.ALL
+        (activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.ALL ||
+          activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.ME)
       "
-      class="flex px-4 py-2"
+      class="flex flex-wrap gap-2 px-4 py-2"
     >
       <NextButton
+        v-if="activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.ALL"
         size="sm"
         faded
         :blue="onlyUnassigned"
@@ -1084,6 +1102,17 @@ watch(conversationFilters, (newVal, oldVal) => {
         icon="i-lucide-user-x"
         :label="$t('CHAT_LIST.ONLY_UNASSIGNED')"
         @click="toggleOnlyUnassigned"
+      />
+      <!-- Mostra so as conversas Pausadas (status snoozed), pra retomar alguma
+           antes do prazo. Clicar de novo volta pro status anterior. -->
+      <NextButton
+        size="sm"
+        faded
+        :blue="isPausedView"
+        :slate="!isPausedView"
+        icon="i-lucide-pause"
+        :label="$t('CHAT_LIST.ONLY_PAUSED')"
+        @click="togglePausedView"
       />
     </div>
 

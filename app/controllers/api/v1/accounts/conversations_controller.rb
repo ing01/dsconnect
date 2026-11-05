@@ -70,6 +70,21 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     head :ok
   end
 
+  # Estende o prazo de uma pausa por inatividade: soma `hours`/`minutes` ao
+  # prazo final atual, com `reason` obrigatorio (fica na auditoria da conversa).
+  def extend_pause
+    service = Inactivity::PauseService.for_paused(@conversation)
+    return render json: { error: 'not_paused' }, status: :unprocessable_entity if service.nil?
+
+    entry = service.extend!(
+      minutes: (params[:hours].to_i * 60) + params[:minutes].to_i, reason: params[:reason], user: Current.user,
+      notify: ActiveModel::Type::Boolean.new.cast(params.fetch(:notify_customer, true))
+    )
+    render json: entry
+  rescue Inactivity::PauseService::Error => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   def transcript
     render json: { error: 'email param missing' }, status: :unprocessable_entity and return if params[:email].blank?
     return render_payment_required('Email transcript is not available on your plan') unless @conversation.account.email_transcript_enabled?
@@ -84,6 +99,8 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     # FIXME: move this logic into a service object
     if bot_handoff?
       @conversation.bot_handoff!
+    elsif resuming_inactivity_pause?
+      @status = Inactivity::PauseService.for_paused(@conversation).resume_manually!(Current.user)
     elsif params[:status].present?
       set_conversation_status
       @status = @conversation.save!
@@ -91,6 +108,12 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
       @status = @conversation.toggle_status
     end
     handle_human_open if @conversation.open? && Current.user.is_a?(User)
+  end
+
+  # Reabrir uma conversa pausada por inatividade pela interface = retomar o
+  # atendimento (assume quem clicou e avisa o cliente), nao so' mudar o status.
+  def resuming_inactivity_pause?
+    params[:status] == 'open' && Current.user.is_a?(User) && Inactivity::PauseService.paused?(@conversation)
   end
 
   def bot_handoff?

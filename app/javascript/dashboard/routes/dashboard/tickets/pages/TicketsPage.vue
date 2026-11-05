@@ -217,9 +217,14 @@ export default {
 
     // `keepOpen` vem do "Criar e abrir outro": nesse caso o formulario segue
     // aberto para o proximo ticket.
-    onTicketCreated({ keepOpen } = {}) {
+    // Sem `keepOpen`, abre direto o ticket recem-criado: ninguem o viu ainda, e
+    // a pessoa nao precisa procura-lo no quadro.
+    onTicketCreated({ ticket, keepOpen } = {}) {
       this.onTicketChanged();
-      if (!keepOpen) this.closeCreateForm();
+      if (keepOpen) return;
+
+      this.closeCreateForm();
+      if (ticket?.id) this.openTicketDetail(ticket);
     },
     async moveTicket({ ticketId, ticketColumnId, position }) {
       try {

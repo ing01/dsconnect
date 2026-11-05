@@ -1,7 +1,6 @@
 <script>
 import { mapGetters } from 'vuex';
 import LoadingState from './components/widgets/LoadingState.vue';
-import NetworkNotification from './components/NetworkNotification.vue';
 import UpdateBanner from './components/app/UpdateBanner.vue';
 import StatusBanner from './components/app/StatusBanner.vue';
 import PaymentPendingBanner from './components/app/PaymentPendingBanner.vue';
@@ -36,7 +35,6 @@ export default {
 
   components: {
     LoadingState,
-    NetworkNotification,
     UpdateBanner,
     StatusBanner,
     PaymentPendingBanner,
@@ -197,7 +195,9 @@ export default {
     <WootSnackbarBox />
     <InAppNotifications />
     <MobileAppPrompt v-if="isClientArea" />
-    <NetworkNotification />
+    <!-- O aviso "Desconectado"/"Reconectado" (NetworkNotification) foi removido
+         daqui de proposito: ele aparecia a cada oscilacao da conexao e confundia
+         a equipe. O componente continua no repositorio, so' nao e' montado. -->
   </div>
   <LoadingState v-else />
 </template>

@@ -97,7 +97,9 @@ class Conversation < ApplicationRecord
   # que recebe `queue_id` e so serve para a tela de UMA Fila por vez). Só as
   # ainda sem dono - uma vez atribuida ela sai da fila, `queue_id` so fica
   # gravado como historico de qual fila ela veio.
-  scope :queued, -> { where.not(queue_id: nil).where(assignee_id: nil) }
+  # Conversa Pausada (status snoozed, inclusive pausa por inatividade) nao esta
+  # esperando atendente, entao nao conta como "na fila".
+  scope :queued, -> { where.not(queue_id: nil).where(assignee_id: nil).where.not(status: :snoozed) }
   scope :sort_on_unread, lambda { |_direction|
     order(unread_messages_count_arel.desc).sort_on_last_activity_at('desc')
   }

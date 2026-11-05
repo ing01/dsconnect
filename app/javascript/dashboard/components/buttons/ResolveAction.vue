@@ -386,6 +386,7 @@ useEmitter(CMD_RESOLVE_CONVERSATION, onCmdResolveConversation);
       v-if="pendingTicket"
       ref="ticketCloseDialogRef"
       :ticket="pendingTicket"
+      allow-edit-details
       @closed="onTicketCloseDialogClosed"
       @left-open="onTicketCloseDialogLeftOpen"
       @cancel="onTicketCloseDialogCancel"

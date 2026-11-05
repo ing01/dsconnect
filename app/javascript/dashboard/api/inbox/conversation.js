@@ -57,6 +57,16 @@ class ConversationApi extends ApiClient {
     });
   }
 
+  // Estende o prazo de uma pausa por inatividade (motivo obrigatorio).
+  extendPause({ conversationId, hours, minutes, reason, notifyCustomer }) {
+    return axios.post(`${this.url}/${conversationId}/extend_pause`, {
+      hours,
+      minutes,
+      reason,
+      notify_customer: notifyCustomer,
+    });
+  }
+
   togglePriority({ conversationId, priority }) {
     return axios.post(`${this.url}/${conversationId}/toggle_priority`, {
       priority,

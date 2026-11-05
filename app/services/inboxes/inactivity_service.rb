@@ -19,7 +19,8 @@ class Inboxes::InactivityService
   def perform
     nudge_after = inbox.inactivity_minutes('nudge_after')
     close_after = inbox.inactivity_minutes('close_after')
-    threshold = [nudge_after, close_after].compact.min
+    pause_after = inbox.pause_config.enabled? ? inbox.pause_config.pause_after : nil
+    threshold = [nudge_after, close_after, pause_after].compact.min
     return if threshold.blank?
 
     inbox.conversations.open.where('last_activity_at <= ?', threshold.minutes.ago).find_each do |conversation|
@@ -36,14 +37,27 @@ class Inboxes::InactivityService
     last_message = last_chat_message(conversation)
     return unless last_message&.outgoing?
 
+    pause = pause_service(conversation)
+    final_delay = pause ? pause.config.pause_after : close_after
     nudged_at = nudged_at_for(conversation, last_message)
     if nudged_at
-      close(conversation, nudged_at) if close_after && elapsed?(nudged_at, close_after)
+      finish(conversation, pause, nudged_at) if final_delay && elapsed?(nudged_at, final_delay)
     elsif nudge_after
       nudge(conversation) if elapsed?(last_message.created_at, nudge_after)
-    elsif close_after && elapsed?(last_message.created_at, close_after)
-      close(conversation, last_message.created_at)
+    elsif final_delay && elapsed?(last_message.created_at, final_delay)
+      finish(conversation, pause, last_message.created_at)
     end
+  end
+
+  # Pausa (se o fluxo esta ligado e ainda ha pausa disponivel pra esta
+  # conversa) ou encerra direto, como sempre foi.
+  def pause_service(conversation)
+    service = Inactivity::PauseService.new(conversation: conversation, config: inbox.pause_config, origin: 'inbox')
+    service if service.allowed?
+  end
+
+  def finish(conversation, pause, since)
+    pause ? pause.pause! : close(conversation, since)
   end
 
   def last_chat_message(conversation)
@@ -60,8 +74,11 @@ class Inboxes::InactivityService
     nudged_at if nudged_at && nudged_at > last_message.created_at
   end
 
+  # Com a pausa ligada, os prazos so correm no horario de atendimento da caixa
+  # (se a configuracao pedir e a caixa tiver horario ligado).
   def elapsed?(since, minutes)
-    since <= minutes.minutes.ago
+    config = inbox.pause_config
+    Inactivity::BusinessTime.new(inbox, enabled: config.enabled? && config.respect_working_hours?).elapsed?(since, minutes)
   end
 
   def nudge(conversation)

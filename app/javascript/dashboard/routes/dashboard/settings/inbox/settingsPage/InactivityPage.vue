@@ -7,6 +7,11 @@ import { useStore } from 'dashboard/composables/store';
 import SettingsFieldSection from 'dashboard/components-next/Settings/SettingsFieldSection.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import PauseConfigFields from 'dashboard/components/widgets/PauseConfig/PauseConfigFields.vue';
+import {
+  pauseFromConfig,
+  pauseToConfig,
+} from 'dashboard/components/widgets/PauseConfig/pauseConfig';
 
 const props = defineProps({
   inbox: { type: Object, required: true },
@@ -21,6 +26,7 @@ const state = reactive({
   inactivityMessage: '',
   closeAfter: '',
   resolveMessage: '',
+  pause: pauseFromConfig(),
 });
 
 watch(
@@ -31,6 +37,7 @@ watch(
     state.inactivityMessage = config.inactivity_message || '';
     state.closeAfter = config.close_after || '';
     state.resolveMessage = config.resolve_message || '';
+    state.pause = pauseFromConfig(config);
   },
   { immediate: true }
 );
@@ -49,6 +56,7 @@ const save = async () => {
         inactivity_message: state.inactivityMessage,
         close_after: state.closeAfter || null,
         resolve_message: state.resolveMessage,
+        ...pauseToConfig(state.pause),
       },
     });
     useAlert(t('INBOX_MGMT.EDIT.API.SUCCESS_MESSAGE'));
@@ -109,6 +117,10 @@ const save = async () => {
         :placeholder="t('INBOX_MGMT.INACTIVITY.RESOLVE_MESSAGE.PLACEHOLDER')"
       />
     </SettingsFieldSection>
+
+    <div class="mb-6">
+      <PauseConfigFields v-model="state.pause" />
+    </div>
 
     <NextButton
       :is-loading="isUpdating"

@@ -8,6 +8,66 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'inactivity-pause-resume-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'feature',
+    platform: 'web',
+    title: 'Pausa e retomada do atendimento por inatividade',
+    description:
+      'Em vez de encerrar direto, o atendimento sem resposta do cliente agora pode ser PAUSADO: o aviso sai, a conversa fica Pausada (o atendente é liberado) e o cliente pode retomar enviando qualquer mensagem (ou "sim"; "não" encerra) dentro de um prazo. Se o atendente anterior estiver online e fora do almoço, a conversa volta para ele; senão vai para a fila, e o cliente é avisado nos dois casos. Passado o prazo, encerra como a inatividade de sempre. A conversa só pode ser pausada uma vez, e os prazos podem contar só no horário de atendimento. O analista pode estender a pausa (horas e minutos, com motivo obrigatório registrado). Tudo é configurável e vem desligado: em Configurações > Caixas de entrada > Inatividade e no cadastro de cada Fila.',
+  },
+  {
+    id: 'paused-conversations-button-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'feature',
+    platform: 'web',
+    title: 'Botão "Pausadas" e "Adiar" agora se chama "Pausar"',
+    description:
+      'Nas abas Todos e Minhas das Conversas, o novo botão "Pausadas" mostra só as conversas pausadas. Reabrir uma conversa pausada por inatividade antes do prazo retoma o atendimento: quem clicou assume e o cliente é avisado. A opção "Adiar" passou a se chamar "Pausar". Conversa pausada também deixou de contar como "na fila".',
+  },
+  {
+    id: 'queue-arrival-order-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Fila por ordem de chegada',
+    description:
+      'A aba "Na fila" e o botão "Pegar próximo da fila" agora seguem só a ordem de chegada: o próximo é sempre quem está esperando há mais tempo desde a primeira mensagem. Prioridade e "devolvida pelo atendente" deixaram de furar a fila.',
+  },
+  {
+    id: 'ticket-opens-after-create-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Ticket novo abre sozinho também pelo Kanban e Backlog',
+    description:
+      'Ao criar um ticket pelo Kanban ou pelo Backlog, a tela do ticket criado abre automaticamente, como já acontecia ao criar pela conversa. "Criar e abrir outro" continua mantendo o formulário aberto.',
+  },
+  {
+    id: 'resolve-edit-ticket-details-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Editar assunto e descrição do ticket ao resolver pela conversa',
+    description:
+      'Ao resolver a conversa e fechar o ticket vinculado, agora dá para ajustar o assunto e a descrição do ticket na própria tela de fechamento, sem entrar no ticket. A alteração é salva junto com o fechamento, e a mensagem ao cliente já sai com o assunto atualizado.',
+  },
+  {
+    id: 'connection-banner-removed-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Sumiram os avisos "Desconectado" e "Conectado"',
+    description:
+      'O aviso de conexão que aparecia no canto da tela a cada oscilação da internet foi removido, porque confundia a equipe.',
+  },
+  {
     id: 'kanban-new-ticket-visible-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',

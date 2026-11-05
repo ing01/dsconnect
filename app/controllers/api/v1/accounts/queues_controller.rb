@@ -73,7 +73,8 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
 
   def queue_params
     params.require(:queue).permit(:name, :description, :active, :team_id, :distribution_strategy, :default_sla_policy_id, :priority_boost,
-                                  :inactivity_nudge_after, :inactivity_nudge_message, :inactivity_close_after, :inactivity_close_message)
+                                  :inactivity_nudge_after, :inactivity_nudge_message, :inactivity_close_after, :inactivity_close_message,
+                                  { inactivity_pause_config: Inactivity::PauseConfig::PERMITTED_KEYS })
   end
 
   # QueuePolicy checks the queue's owning team, so authorization must run

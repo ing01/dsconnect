@@ -21,6 +21,57 @@
         "HELP": "Sent when the conversation is closed: when an agent clicks Resolve or automatically by inactivity. The satisfaction survey (CSAT) follows if enabled for this inbox.",
         "PLACEHOLDER": "Your conversation has been resolved. Thank you!"
       },
+      "PAUSE": {
+        "SECTION": "Pause and resume",
+        "ENABLED": {
+          "LABEL": "Pause the conversation on inactivity",
+          "HELP": "Instead of closing right away, the conversation is Paused (the agent is released) and the customer can resume it. When off, the direct closing above applies."
+        },
+        "PAUSE_AFTER": {
+          "LABEL": "Pause after the notice (minutes)",
+          "HELP": "Time without a reply after the notice (or the last team message, with no notice) before pausing. Empty = 5."
+        },
+        "PAUSE_WINDOW": {
+          "LABEL": "Time to resume (minutes)",
+          "HELP": "How long the conversation stays paused waiting for the customer. After that it is closed. Empty = 120 (2 hours)."
+        },
+        "MAX_PAUSES": {
+          "LABEL": "Pauses per conversation",
+          "HELP": "How many times the same conversation can be paused. After that, inactivity closes it right away. Empty = 1."
+        },
+        "RESUME_ONE_CLICK": {
+          "LABEL": "Any message resumes",
+          "HELP": "The customer resumes by sending any message (e.g. \"hi\"). When off, only \"yes\" resumes."
+        },
+        "KEEP_PREVIOUS_AGENT": {
+          "LABEL": "Return to the previous agent if available",
+          "HELP": "If the previous agent is online and available the conversation goes back to them; otherwise it goes to the queue."
+        },
+        "RESPECT_WORKING_HOURS": {
+          "LABEL": "Count deadlines only during business hours",
+          "HELP": "Notice, pause and resume deadlines only run within the inbox business hours. If the inbox has no business hours turned on, deadlines run continuously."
+        },
+        "EXTENSION_ENABLED": {
+          "LABEL": "Let the agent extend the pause",
+          "HELP": "The agent adds time to the deadline, with a mandatory reason recorded in the history."
+        },
+        "MAX_EXTENSION_MINUTES": {
+          "LABEL": "Maximum length of each extension (minutes)",
+          "HELP": "Empty = no limit."
+        },
+        "MAX_EXTENSIONS": {
+          "LABEL": "Maximum extensions per pause",
+          "HELP": "Empty = no limit."
+        },
+        "MESSAGES_HELP": "Pause messages. Empty uses the default text. Variables: {'{'}data_hora_limite{'}'}, {'{'}atendente{'}'}, {'{'}motivo{'}'}.",
+        "PAUSE_MESSAGE": "Pause message",
+        "RESUME_SAME_AGENT_MESSAGE": "Resumed with the same agent",
+        "RESUME_QUEUE_MESSAGE": "Resumed through the queue (agent unavailable)",
+        "RESUME_OUT_OF_HOURS_MESSAGE": "Resumed outside business hours",
+        "EXTENSION_MESSAGE": "Pause extended",
+        "FINALIZE_MESSAGE": "Finalization (deadline ended)",
+        "DECLINE_MESSAGE": "Customer replied NO"
+      },
       "SAVE": "Save"
     },
     "HEADER": "Inboxes",
