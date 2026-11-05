@@ -117,7 +117,9 @@ const loadDevTeam = async () => {
 
 const resetForm = () => {
   form.value = {
-    title: '',
+    // Mesmo nome do pai (empresa + solicitante), que e' o que identifica o
+    // chamado de origem - a pessoa so precisa mexer se quiser outro titulo.
+    title: props.ticket?.title || '',
     description: htmlToPlainText(props.ticket?.description),
     ticketCategoryId: null,
     assigneeId: null,
@@ -188,10 +190,14 @@ const submitCreate = async () => {
         parent_id: props.ticket.id,
       },
     });
-    // Upload attachments sequentially after the ticket exists.
+    // Upload attachments sequentially after the ticket exists. Cada um vai
+    // tambem para o ticket pai, de onde o chamado de desenvolvimento nasceu -
+    // assim quem acompanha o pai ve o anexo sem precisar abrir o filho.
     for (const file of files.value) {
       // eslint-disable-next-line no-await-in-loop
       await TicketsAPI.createAttachment(created.id, file);
+      // eslint-disable-next-line no-await-in-loop
+      await TicketsAPI.createAttachment(props.ticket.id, file);
     }
     dialogRef.value?.close();
     emit('created');

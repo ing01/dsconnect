@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-new-ticket-visible-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'Ticket criado pelo "+" da coluna já aparece no Kanban',
+    description:
+      'Um ticket criado direto pelo botão "+" de uma coluna do Kanban ficava invisível até a página ser recarregada. Agora ele aparece na coluna assim que é criado.',
+  },
+  {
+    id: 'dev-ticket-title-and-attachments-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Ticket de Desenvolvimento: título automático e anexo também no pai',
+    description:
+      'Ao criar um Ticket de Desenvolvimento a partir de outro ticket, o título já vem preenchido igual ao do ticket de origem (empresa e solicitante), e qualquer anexo enviado no ticket filho é enviado automaticamente para o ticket pai também.',
+  },
+  {
     id: 'internal-chat-paste-ctrl-enter-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',

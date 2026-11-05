@@ -53,8 +53,15 @@ export default {
     };
   },
   watch: {
+    // `deep` because a new/moved/closed ticket (UPSERT_TICKET_IN_KANBAN_BOARD,
+    // REMOVE_TICKET_FROM_KANBAN_BOARD) mutates `board.ticket_columns[].tickets`
+    // in place instead of replacing `board` itself - without `deep` this
+    // watcher only fires on a full refetch (SET_TICKET_KANBAN_BOARD, which
+    // does swap the object), so a ticket created from the column's "+" button
+    // never reached the local arrays this component actually renders.
     board: {
       immediate: true,
+      deep: true,
       handler(newBoard) {
         this.syncLocalState(newBoard);
       },
