@@ -171,6 +171,7 @@ en:
     auto_creation:
       whatsapp_title: "WhatsApp service #%{id}"
       whatsapp_title_named: "WhatsApp service - %{name}"
+      whatsapp_description: "Ticket opened automatically when the customer started a WhatsApp conversation (#%{id})."
     triage:
       not_pending: this ticket is not waiting for triage
       column_mismatch: the chosen stage does not belong to this Mesa

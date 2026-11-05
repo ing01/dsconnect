@@ -12,8 +12,10 @@ class Tickets::WhatsappAutoCreationService
   def perform
     return if conversation.ticket_conversations.exists?
 
+    # `save!`: uma falha aqui (Mesa sem Estagio/Categoria, por exemplo) precisa
+    # aparecer no log do job - com `save` o ticket simplesmente deixava de existir.
     ticket = account.tickets.new(ticket_attributes)
-    return unless ticket.save
+    ticket.save!
 
     ticket.ticket_conversations.create!(conversation: conversation)
     ticket
@@ -44,8 +46,13 @@ class Tickets::WhatsappAutoCreationService
   def ticket_attributes
     {
       title: ticket_title,
+      description: I18n.t('tickets.auto_creation.whatsapp_description', id: conversation.display_id),
+      priority: 'medium',
       team_id: team.id,
       ticket_column_id: ticket_column.id,
+      # Categoria, descricao e prioridade sao obrigatorias ao abrir. Quem atende
+      # troca a categoria depois; a primeira da Mesa so' destrava a criacao.
+      ticket_category_id: team.ticket_categories.first&.id,
       contact_id: contact&.id,
       company_id: contact&.company_id
     }.compact
