@@ -102,6 +102,14 @@ class TicketsAPI extends ApiClient {
     return axios.delete(`${this.url}/${ticketId}/attachments/${attachmentId}`);
   }
 
+  // `responseType: 'blob'` - the response is a .zip, not JSON; letting axios
+  // parse it as text would corrupt the binary content.
+  downloadAllAttachments(ticketId) {
+    return axios.get(`${this.url}/${ticketId}/attachments/download_all`, {
+      responseType: 'blob',
+    });
+  }
+
   // One entry point for every creation path. `conversationId` links the chat the
   // ticket was opened from; `parentId` is handled by `create_child`, which also
   // carries the copy options the form cannot express.

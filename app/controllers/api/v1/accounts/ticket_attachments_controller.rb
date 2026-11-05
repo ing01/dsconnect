@@ -23,6 +23,16 @@ class Api::V1::Accounts::TicketAttachmentsController < Api::V1::Accounts::BaseCo
     head :ok
   end
 
+  # O .zip de todos os anexos do Ticket de uma vez, pro botao "Baixar todos"
+  # na aba de Arquivos.
+  def download_all
+    return head :not_found unless @ticket.ticket_attachments.exists?
+
+    send_data Tickets::Attachments::ZipBuilder.new(ticket: @ticket).render,
+              filename: "ticket-#{@ticket.display_id}-anexos.zip",
+              type: 'application/zip'
+  end
+
   private
 
   # The policy inspects the uploader, so authorization runs against the loaded

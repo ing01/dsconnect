@@ -1,21 +1,21 @@
 <script>
 import { mapGetters } from 'vuex';
+import camelcaseKeys from 'camelcase-keys';
 import { useAlert } from 'dashboard/composables';
 import {
   DuplicateContactException,
   ExceptionWithMessage,
 } from 'shared/helpers/CustomErrors';
 import { dynamicTime } from 'shared/helpers/timeHelper';
-import { useAdmin } from 'dashboard/composables/useAdmin';
 import ContactInfoRow from './ContactInfoRow.vue';
 import Avatar from 'next/avatar/Avatar.vue';
 import EditContact from './EditContact.vue';
 import ContactMergeModal from 'dashboard/modules/contact/ContactMergeModal.vue';
-import ContactDeleteModal from 'dashboard/modules/contact/ContactDeleteModal.vue';
 import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import VoiceCallButton from 'dashboard/components-next/Contacts/VoiceCallButton.vue';
 import InlineInput from 'dashboard/components-next/inline-input/InlineInput.vue';
+import ClientAccessDialog from 'dashboard/components-next/Companies/CompanyDetail/ClientAccessDialog.vue';
 
 export default {
   components: {
@@ -25,9 +25,9 @@ export default {
     Avatar,
     ComposeConversation,
     ContactMergeModal,
-    ContactDeleteModal,
     VoiceCallButton,
     InlineInput,
+    ClientAccessDialog,
   },
   props: {
     contact: {
@@ -39,16 +39,10 @@ export default {
       default: true,
     },
   },
-  emits: ['panelClose'],
-  setup() {
-    const { isAdmin } = useAdmin();
-    return {
-      isAdmin,
-    };
-  },
   data() {
     return {
       showEditModal: false,
+      showClientAccessModal: false,
       isEditingName: false,
       editName: '',
     };
@@ -60,6 +54,17 @@ export default {
     }),
     contactProfileLink() {
       return `/app/accounts/${this.$route.params.accountId}/contacts/${this.contact.id}`;
+    },
+    // ClientAccessDialog le campos em camelCase (client_access_enabled vira
+    // clientAccessEnabled) - o `contact` desta tela vem direto do getter
+    // `contacts/getContact`, que devolve snake_case como a API manda.
+    clientAccessContact() {
+      return camelcaseKeys(this.contact, { deep: true });
+    },
+    clientAccessTooltip() {
+      return this.clientAccessContact.clientAccessEnabled
+        ? this.$t('CONTACT_PANEL.CLIENT_ACCESS.ENABLED_TOOLTIP')
+        : this.$t('CONTACT_PANEL.CLIENT_ACCESS.BUTTON_LABEL');
     },
     additionalAttributes() {
       return this.contact.additional_attributes || {};
@@ -90,6 +95,13 @@ export default {
     dynamicTime,
     toggleEditModal() {
       this.showEditModal = !this.showEditModal;
+    },
+    async onClientAccessSaved() {
+      this.showClientAccessModal = false;
+      // `client_access` devolve o contato atualizado, mas quem le esse
+      // estado aqui e' o getter do Vuex (nao a resposta da chamada) -
+      // busca de novo pra refletir o novo client_access_enabled/visibility.
+      await this.$store.dispatch('contacts/show', { id: this.contact.id });
     },
     findCountryFlag(countryCode, cityAndCountry) {
       try {
@@ -320,29 +332,32 @@ export default {
             />
           </template>
         </ContactMergeModal>
-        <ContactDeleteModal
-          v-if="isAdmin"
-          :contact="contact"
-          @deleted="$emit('panelClose')"
-        >
-          <template #trigger>
-            <NextButton
-              v-tooltip.top-end="$t('DELETE_CONTACT.BUTTON_LABEL')"
-              icon="i-ph-trash"
-              slate
-              faded
-              sm
-              ruby
-              :disabled="uiFlags.isDeleting"
-            />
-          </template>
-        </ContactDeleteModal>
+        <NextButton
+          v-tooltip.top-end="clientAccessTooltip"
+          icon="i-ph-link"
+          :color="clientAccessContact.clientAccessEnabled ? 'teal' : 'slate'"
+          faded
+          sm
+          @click="showClientAccessModal = true"
+        />
       </div>
       <EditContact
         :show="showEditModal"
         :contact="contact"
         @cancel="toggleEditModal"
       />
+      <woot-modal
+        v-if="showClientAccessModal"
+        show
+        :on-close="() => (showClientAccessModal = false)"
+        size="medium"
+      >
+        <ClientAccessDialog
+          :contact="clientAccessContact"
+          @saved="onClientAccessSaved"
+          @close="showClientAccessModal = false"
+        />
+      </woot-modal>
     </div>
   </div>
 </template>

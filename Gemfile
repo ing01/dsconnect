@@ -232,6 +232,11 @@ gem 'matrix'
 # precisa de uma gem separada.
 gem 'roo'
 
+# "Baixar todos" dos anexos de um Ticket, como um .zip so'. Ja' vem junto
+# (indireta, via caxlsx) mas declarada aqui porque e' usada direto em
+# app/services/tickets/attachments/zip_builder.rb.
+gem 'rubyzip', require: 'zip'
+
 ### Gems required only in specific deployment environments ###
 ##############################################################
 

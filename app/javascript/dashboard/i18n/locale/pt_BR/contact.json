@@ -47,6 +47,10 @@
       }
     },
     "MERGE_CONTACT": "Mesclar contatos",
+    "CLIENT_ACCESS": {
+      "BUTTON_LABEL": "Vincular à Área do Cliente",
+      "ENABLED_TOOLTIP": "Área do Cliente ativa - clique para gerenciar"
+    },
     "CONTACT_ACTIONS": "Ações de contatos",
     "MUTE_CONTACT": "Bloquear Contato",
     "UNMUTE_CONTACT": "Desbloquear Contato",

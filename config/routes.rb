@@ -568,7 +568,9 @@ Rails.application.routes.draw do
             resources :ticket_conversations, only: [:create, :destroy]
             resources :comments, controller: 'ticket_comments', only: [:index, :create, :destroy]
             resources :activities, controller: 'ticket_activities', only: [:index]
-            resources :attachments, controller: 'ticket_attachments', only: [:index, :create, :destroy]
+            resources :attachments, controller: 'ticket_attachments', only: [:index, :create, :destroy] do
+              collection { get :download_all }
+            end
             resources :followers, controller: 'ticket_followers', only: [:index, :create, :destroy]
             resources :customer_communications, controller: 'ticket_customer_communications', only: [:index, :create]
             resources :checklist_items, controller: 'ticket_checklist_items', only: [:index, :create, :update, :destroy] do

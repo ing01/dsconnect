@@ -330,8 +330,18 @@
         "EMPTY": "Nenhum arquivo anexado.",
         "ADD": "Anexar arquivo",
         "DELETE": "Remover arquivo",
+        "DOWNLOAD": "Baixar arquivo",
+        "DOWNLOAD_ALL": "Baixar todos",
+        "DOWNLOAD_ALL_WORKING": "Preparando .zip...",
+        "CLOSE_PREVIEW": "Fechar",
+        "ZOOM_IN": "Aumentar zoom",
+        "ZOOM_OUT": "Diminuir zoom",
+        "ROTATE_LEFT": "Girar para a esquerda",
+        "ROTATE_RIGHT": "Girar para a direita",
         "UPLOAD_ERROR": "Não foi possível enviar o arquivo.",
-        "DELETE_ERROR": "Não foi possível remover o arquivo."
+        "DELETE_ERROR": "Não foi possível remover o arquivo.",
+        "DOWNLOAD_ERROR": "Não foi possível baixar o arquivo.",
+        "DOWNLOAD_ALL_ERROR": "Não foi possível baixar os arquivos."
       },
       "ADDITIONAL": {
         "TITLE": "Informações adicionais",

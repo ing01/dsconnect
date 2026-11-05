@@ -3,6 +3,10 @@ class TicketAttachmentPolicy < ApplicationPolicy
     true
   end
 
+  def download_all?
+    true
+  end
+
   def create?
     true
   end

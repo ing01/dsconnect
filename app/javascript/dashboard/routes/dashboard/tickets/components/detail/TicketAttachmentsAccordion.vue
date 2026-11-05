@@ -4,10 +4,14 @@ import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { formatBytes } from 'shared/helpers/FileHelper';
+import { downloadFile } from '@chatwoot/utils';
+import { downloadBlob } from 'dashboard/helper/downloadHelper';
+import TicketsAPI from 'dashboard/api/tickets';
 import Accordion from 'dashboard/components-next/Accordion/Accordion.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import TicketAttachmentPreviewDialog from './actions/TicketAttachmentPreviewDialog.vue';
 
 const props = defineProps({
   ticketId: { type: [Number, String], required: true },
@@ -19,11 +23,55 @@ const store = useStore();
 
 const fileInput = ref(null);
 const hasLoaded = ref(false);
+const isDownloadingAll = ref(false);
+const previewDialog = ref(null);
 
 const uiFlags = useMapGetter('tickets/getUIFlags');
 const attachments = computed(
   () => store.getters['tickets/getAttachments'](props.ticketId) || []
 );
+
+const isImage = attachment =>
+  (attachment.content_type || '').startsWith('image/');
+
+// Imagem abre em pre-visualizacao; qualquer outro tipo segue o padrao do
+// navegador (abre numa aba nova, que baixa ou mostra conforme o tipo) - so'
+// imagem tem o que uma pre-visualizacao acrescente aqui.
+const openAttachment = attachment => {
+  if (!isImage(attachment)) {
+    window.open(attachment.file_url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  previewDialog.value?.open(attachment);
+};
+
+const download = async attachment => {
+  try {
+    await downloadFile({
+      url: attachment.file_url,
+      type: isImage(attachment) ? 'image' : 'file',
+      extension: attachment.filename?.split('.').pop(),
+    });
+  } catch (error) {
+    useAlert(t('TICKET.DETAIL.ATTACHMENTS.DOWNLOAD_ERROR'));
+  }
+};
+
+const downloadAll = async () => {
+  isDownloadingAll.value = true;
+  try {
+    const response = await TicketsAPI.downloadAllAttachments(props.ticketId);
+    downloadBlob(
+      response.data,
+      `ticket-${props.ticketId}-anexos.zip`,
+      response.headers?.['content-disposition']
+    );
+  } catch (error) {
+    useAlert(t('TICKET.DETAIL.ATTACHMENTS.DOWNLOAD_ALL_ERROR'));
+  } finally {
+    isDownloadingAll.value = false;
+  }
+};
 
 const load = async () => {
   if (hasLoaded.value) return;
@@ -97,18 +145,26 @@ const title = computed(
             icon="i-lucide-paperclip"
             class="size-4 text-n-slate-11 flex-shrink-0"
           />
-          <a
-            :href="attachment.file_url"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex-1 min-w-0 text-sm text-n-slate-12 hover:text-n-blue-11 truncate"
+          <button
+            type="button"
+            class="flex-1 min-w-0 text-sm text-left text-n-slate-12 hover:text-n-blue-11 truncate"
             :title="attachment.filename"
+            @click="openAttachment(attachment)"
           >
             {{ attachment.filename }}
-          </a>
+          </button>
           <span class="text-xs text-n-slate-10 flex-shrink-0">
             {{ formatBytes(attachment.byte_size) }}
           </span>
+          <Button
+            variant="ghost"
+            color="slate"
+            size="xs"
+            icon="i-lucide-download"
+            class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+            :aria-label="t('TICKET.DETAIL.ATTACHMENTS.DOWNLOAD')"
+            @click="download(attachment)"
+          />
           <Button
             v-if="canUpdate"
             variant="ghost"
@@ -122,23 +178,40 @@ const title = computed(
         </li>
       </ul>
 
-      <div v-if="canUpdate">
-        <input
-          ref="fileInput"
-          type="file"
-          class="hidden"
-          @change="onFileSelected"
-        />
+      <div class="flex flex-wrap gap-2">
+        <div v-if="canUpdate">
+          <input
+            ref="fileInput"
+            type="file"
+            class="hidden"
+            @change="onFileSelected"
+          />
+          <Button
+            variant="faded"
+            color="slate"
+            size="sm"
+            icon="i-lucide-upload"
+            :is-loading="uiFlags.isUploadingAttachment"
+            :label="t('TICKET.DETAIL.ATTACHMENTS.ADD')"
+            @click="pickFile"
+          />
+        </div>
         <Button
+          v-if="attachments.length > 1"
           variant="faded"
           color="slate"
           size="sm"
-          icon="i-lucide-upload"
-          :is-loading="uiFlags.isUploadingAttachment"
-          :label="t('TICKET.DETAIL.ATTACHMENTS.ADD')"
-          @click="pickFile"
+          icon="i-lucide-archive"
+          :is-loading="isDownloadingAll"
+          :label="
+            isDownloadingAll
+              ? t('TICKET.DETAIL.ATTACHMENTS.DOWNLOAD_ALL_WORKING')
+              : t('TICKET.DETAIL.ATTACHMENTS.DOWNLOAD_ALL')
+          "
+          @click="downloadAll"
         />
       </div>
     </div>
   </Accordion>
+  <TicketAttachmentPreviewDialog ref="previewDialog" />
 </template>

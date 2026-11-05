@@ -9,6 +9,16 @@ RSpec.describe 'Ticket Attachments API', type: :request do
   let(:ticket) { create(:ticket, account: account, ticket_column: create(:ticket_column, team: team), team: team) }
   let(:file) { fixture_file_upload(Rails.root.join('spec/assets/avatar.png'), 'image/png') }
 
+  def zip_entry_names(body)
+    names = []
+    Zip::InputStream.open(StringIO.new(body)) do |io|
+      while (entry = io.get_next_entry)
+        names << entry.name
+      end
+    end
+    names
+  end
+
   describe 'POST .../tickets/:ticket_id/attachments' do
     it 'is unauthorized without a token' do
       post "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/attachments", params: { file: file }
@@ -70,6 +80,40 @@ RSpec.describe 'Ticket Attachments API', type: :request do
              as: :json
 
       expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe 'GET .../attachments/download_all' do
+    it 'returns a zip with every attachment' do
+      create(:ticket_attachment, ticket: ticket, account: account, user: agent, filename: 'um.png')
+      create(:ticket_attachment, ticket: ticket, account: account, user: agent, filename: 'dois.png')
+
+      get "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/attachments/download_all",
+          headers: agent.create_new_auth_token
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('application/zip')
+      expect(zip_entry_names(response.body)).to contain_exactly('um.png', 'dois.png')
+    end
+
+    # Dois anexos com o mesmo nome original nao podem virar a mesma entrada
+    # no zip - um sobrescreveria o outro silenciosamente ao extrair.
+    it 'disambiguates attachments that share the same filename' do
+      create(:ticket_attachment, ticket: ticket, account: account, user: agent, filename: 'print.png')
+      create(:ticket_attachment, ticket: ticket, account: account, user: agent, filename: 'print.png')
+
+      get "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/attachments/download_all",
+          headers: agent.create_new_auth_token
+
+      entries = zip_entry_names(response.body)
+      expect(entries.uniq.size).to eq(2)
+    end
+
+    it 'is not found when the ticket has no attachments' do
+      get "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/attachments/download_all",
+          headers: agent.create_new_auth_token
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 
