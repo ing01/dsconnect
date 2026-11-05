@@ -42,6 +42,14 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
     !Current.account_user.administrator?
   end
 
+  def clearing_queue?(queue_id)
+    !queue_id.positive? && @conversation.queue_id.present? && !Current.account_user.administrator?
+  end
+
+  def render_clear_queue_not_allowed
+    render_could_not_create_error(I18n.t('errors.queues.clear_queue_not_allowed'))
+  end
+
   def reject_out_of_order_assign
     render_could_not_create_error(I18n.t('errors.queues.out_of_order_assignment'))
   end
@@ -101,7 +109,11 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
 
   def set_queue
     queue_id = params[:queue_id].to_i
-    @queue = queue_id.positive? ? Current.account.queues.find(queue_id) : nil
+    # Tirar a conversa da fila destrava a atribuicao livre (a trava so olha
+    # `queue_id`), entao so' Administrador pode fazer isso.
+    return render_clear_queue_not_allowed if clearing_queue?(queue_id)
+
+    @queue =queue_id.positive? ? Current.account.queues.find(queue_id) : nil
     @conversation.with_lock do
       @conversation.update!(queue: @queue)
     end

@@ -113,19 +113,34 @@ export default {
       set(agent) {
         const agentId = agent ? agent.id : null;
         const assigneeType = agent ? agent.assignee_type || 'User' : null;
+        const previousAgent = this.assignedAgent;
+        const conversationId = this.currentChat.id;
         this.$store.dispatch('setCurrentChatAssignee', {
-          conversationId: this.currentChat.id,
+          conversationId,
           assignee: agent,
           assigneeType,
         });
         this.$store
           .dispatch('assignAgent', {
-            conversationId: this.currentChat.id,
+            conversationId,
             agentId,
             assigneeType,
           })
           .then(() => {
             useAlert(this.$t('CONVERSATION.CHANGE_AGENT'));
+          })
+          .catch(error => {
+            // Recusa do servidor (ex.: so' a primeira da fila): desfaz a
+            // troca otimista e mostra o motivo real.
+            this.$store.dispatch('setCurrentChatAssignee', {
+              conversationId,
+              assignee: previousAgent || null,
+              assigneeType: previousAgent?.assignee_type || null,
+            });
+            useAlert(
+              error?.response?.data?.error ||
+                this.$t('CONVERSATION.CHANGE_AGENT_FAILED')
+            );
           });
       },
     },

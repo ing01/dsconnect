@@ -225,7 +225,9 @@ const actions = {
         assigneeType,
       });
     } catch (error) {
-      // Handle error
+      // Quem chama precisa saber que falhou (ex.: trava da fila) - antes o
+      // erro era engolido e a tela mostrava "agente alterado" de mentira.
+      throw error;
     }
   },
 

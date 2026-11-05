@@ -331,6 +331,7 @@
     "CHANGE_STATUS": "Conversation status changed",
     "CHANGE_STATUS_FAILED": "Conversation status change failed",
     "CHANGE_AGENT": "Conversation Assignee changed",
+    "QUEUE_ORDER_LOCKED": "This conversation is in the queue. You can only handle the FIRST conversation in the queue - use the \"Pick up next in queue\" button.",
     "CHANGE_AGENT_FAILED": "Assignee change failed",
     "ASSIGN_LABEL_SUCCESFUL": "Label assigned successfully",
     "ASSIGN_LABEL_FAILED": "Label assignment failed",

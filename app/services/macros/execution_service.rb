@@ -23,8 +23,18 @@ class Macros::ExecutionService < ActionService
   private
 
   def assign_agent(agent_ids)
+    # Macro nao e' atalho pra furar a fila: quem nao e' Administrador nao
+    # atribui conversa de fila (so' "Pegar proximo da fila").
+    return if queue_locked_for_user?
+
     agent_ids = agent_ids.map { |id| id == 'self' ? @user.id : id }
     super(agent_ids)
+  end
+
+  def queue_locked_for_user?
+    return false if @conversation.queue_id.blank?
+
+    !@user.account_users.find_by(account_id: @account.id)&.administrator?
   end
 
   def add_private_note(message)

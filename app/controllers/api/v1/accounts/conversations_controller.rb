@@ -179,7 +179,7 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   def handle_human_open
     @conversation.with_lock do
       @conversation.assignee_agent_bot = nil
-      @conversation.assignee = Current.user if Current.user.agent? && !manual_queue_conversation?
+      @conversation.assignee = Current.user if Current.user.agent? && !manual_queue_conversation? && !queue_locked_for_current_user?
       @conversation.save!
     end
   end
@@ -197,6 +197,12 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   # o assignee). Mesma corrida ja corrigida em
   # `AutoAssignmentHandler#pending_flow_automation?` - aqui repetida porque e
   # um controller, nao o mesmo modulo.
+  # Conversa numa fila + quem abre nao e' Administrador: abrir/reabrir nunca
+  # atribui - so' o "Pegar proximo da fila" (Queues#claim_next).
+  def queue_locked_for_current_user?
+    @conversation.queue_id.present? && !Current.account_user&.administrator?
+  end
+
   def manual_queue_conversation?
     return true if @conversation.queue_id.present? && @conversation.queue&.manual?
 

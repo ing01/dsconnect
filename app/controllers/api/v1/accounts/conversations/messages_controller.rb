@@ -113,10 +113,18 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
     return if Current.account_user&.administrator?
 
     if @conversation.assignee_id.blank?
+      # Responder NAO pode ser um atalho pra pegar uma conversa da fila fora
+      # de ordem - so' o "Pegar proximo da fila" (Queues#claim_next) atribui.
+      return render_reply_requires_claim if @conversation.queue_id.present?
+
       @conversation.update!(assignee_id: Current.user.id)
     elsif @conversation.assignee_id != Current.user.id
       render json: { error: I18n.t('errors.conversation.must_be_assigned_to_reply') }, status: :forbidden
     end
+  end
+
+  def render_reply_requires_claim
+    render json: { error: I18n.t('errors.queues.reply_requires_claim') }, status: :forbidden
   end
 
   def reply_private?

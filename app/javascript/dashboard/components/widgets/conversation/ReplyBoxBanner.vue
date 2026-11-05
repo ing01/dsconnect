@@ -25,23 +25,15 @@ const { t } = useI18n();
 const currentChat = useMapGetter('getSelectedChat');
 const currentUser = useMapGetter('getCurrentUser');
 
-const assignedAgent = computed({
-  get() {
-    return currentChat.value?.meta?.assignee;
-  },
-  set(agent) {
-    const agentId = agent ? agent.id : null;
-    store.dispatch('setCurrentChatAssignee', {
-      conversationId: currentChat.value?.id,
-      assignee: agent,
-      assigneeType: agent ? 'User' : null,
-    });
-    store.dispatch('assignAgent', {
-      conversationId: currentChat.value?.id,
-      agentId,
-    });
-  },
-});
+const currentRole = useMapGetter('getCurrentRole');
+
+const assignedAgent = computed(() => currentChat.value?.meta?.assignee);
+
+// Conversa numa fila + quem nao e Administrador: nao existe "Atribuir a mim"
+// - so' o botao "Pegar proximo da fila" (a PRIMEIRA da fila).
+const isQueueOrderLocked = computed(
+  () => !!currentChat.value?.meta?.queue && currentRole.value !== 'administrator'
+);
 
 const hasMessage = computed(() => props.message !== '');
 const isUserTyping = computed(() => hasMessage.value && !props.isOnPrivateNote);
@@ -85,7 +77,26 @@ const botAssigneeName = computed(() => {
 
 const selfAssignConversation = async () => {
   const { avatar_url, ...rest } = currentUser.value || {};
-  assignedAgent.value = { ...rest, thumbnail: avatar_url };
+  const conversationId = currentChat.value?.id;
+  const previousAgent = assignedAgent.value;
+  store.dispatch('setCurrentChatAssignee', {
+    conversationId,
+    assignee: { ...rest, thumbnail: avatar_url },
+    assigneeType: 'User',
+  });
+  try {
+    await store.dispatch('assignAgent', {
+      conversationId,
+      agentId: rest.id,
+    });
+  } catch (error) {
+    store.dispatch('setCurrentChatAssignee', {
+      conversationId,
+      assignee: previousAgent || null,
+      assigneeType: previousAgent ? 'User' : null,
+    });
+    throw error;
+  }
 };
 
 const needsAssignmentToCurrentUser = computed(() => {
@@ -97,7 +108,9 @@ const onClickSelfAssign = async () => {
     await selfAssignConversation();
     useAlert(t('CONVERSATION.CHANGE_AGENT'));
   } catch (error) {
-    useAlert(t('CONVERSATION.CHANGE_AGENT_FAILED'));
+    useAlert(
+      error?.response?.data?.error || t('CONVERSATION.CHANGE_AGENT_FAILED')
+    );
   }
 };
 
@@ -121,7 +134,9 @@ const onClickBotHandoff = async () => {
 
     useAlert(t('CONVERSATION.BOT_HANDOFF_SUCCESS'));
   } catch (error) {
-    useAlert(t('CONVERSATION.BOT_HANDOFF_ERROR'));
+    useAlert(
+      error?.response?.data?.error || t('CONVERSATION.BOT_HANDOFF_ERROR')
+    );
   }
 };
 </script>
@@ -132,8 +147,12 @@ const onClickBotHandoff = async () => {
     action-button-variant="ghost"
     color-scheme="secondary"
     class="mx-2 mb-2 rounded-lg !py-2"
-    :banner-message="$t('CONVERSATION.NOT_ASSIGNED_TO_YOU')"
-    has-action-button
+    :banner-message="
+      isQueueOrderLocked
+        ? $t('CONVERSATION.QUEUE_ORDER_LOCKED')
+        : $t('CONVERSATION.NOT_ASSIGNED_TO_YOU')
+    "
+    :has-action-button="!isQueueOrderLocked"
     :action-button-label="$t('CONVERSATION.ASSIGN_TO_ME')"
     @primary-action="onClickSelfAssign"
   />

@@ -228,7 +228,9 @@ en:
     agents:
       password_reset_not_allowed: this agent also belongs to another account, so their password cannot be reset from here
     queues:
-      out_of_order_assignment: "You can't pick this conversation freely - use \"Pick up next in queue\" to grab the next one in order."
+      out_of_order_assignment: "This conversation can't be assigned. You can only handle the FIRST conversation in the queue - use the \"Pick up next in queue\" button."
+      reply_requires_claim: "This conversation is still in the queue with no agent. You can only handle the FIRST conversation in the queue - use the \"Pick up next in queue\" button to take it."
+      clear_queue_not_allowed: "Only an Administrator can remove a conversation from the queue."
     account:
       not_authorized: You are not authorized to access this account
       email_limit_exceeded: The daily email limit for this account has been reached
