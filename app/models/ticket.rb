@@ -108,6 +108,14 @@ class Ticket < ApplicationRecord
   # disconnected ones. See `Tickets::TransferService`.
   attr_accessor :skip_change_activities
 
+  # Set by Tickets::ImportService: uma planilha de milhares de linhas disparava,
+  # por linha, EventDispatcherJob + ActionCableBroadcastJob (broadcast em tempo
+  # real pra toda sessao conectada) - multiplicado por dezenas de milhares de
+  # linhas, isso sozinho derrubava o worker (Sidekiq) no meio da importacao.
+  # Ticket historico importado nao precisa de nenhum dos dois: ninguem esta
+  # olhando a tela esperando aquele ticket especifico aparecer ao vivo.
+  attr_accessor :skip_realtime_dispatch
+
   # Where the ticket was opened from - 'manual', or the channel of the
   # Conversation it was opened from. Set by the caller before saving, because
   # the conversation is only linked after the ticket exists.
@@ -339,6 +347,8 @@ class Ticket < ApplicationRecord
   # One entry carrying the ticket's opening state, rather than a separate event
   # per field the form happened to fill in.
   def log_created_activity
+    return if skip_change_activities
+
     ticket_activities.create!(
       account_id: account_id, user: Current.user, activity_type: :created,
       meta: creation_meta

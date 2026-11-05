@@ -24,10 +24,14 @@ module TicketBroadcastable
   # responsabilidade do payload acima: o que este ticket poe no ar.
 
   def dispatch_ticket_created_event
+    return if skip_realtime_dispatch
+
     dispatcher_dispatch(TICKET_CREATED)
   end
 
   def dispatch_ticket_updated_event
+    return if skip_realtime_dispatch
+
     dispatcher_dispatch(ticket_update_event_name)
   end
 
