@@ -9,6 +9,10 @@ const CONVERSATION_PERMISSIONS = [
   'conversation_manage',
   'conversation_unassigned_manage',
   'conversation_participating_manage',
+  // So' leitura - ver isConversationViewOnly em permissionsHelper.js, que
+  // esconde a caixa de resposta e as acoes do cabecalho para quem so' tem
+  // esta permissao.
+  'conversation_view',
 ];
 
 const isFolderAvailable = async folderId => {

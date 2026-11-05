@@ -17,8 +17,10 @@ module Enterprise::Conversations::PermissionFilterService
 
   def filter_by_permissions(permissions)
     # Permission-based filtering with hierarchy
-    # conversation_manage > conversation_unassigned_manage > conversation_participating_manage
-    if permissions.include?('conversation_manage')
+    # conversation_manage/conversation_view > conversation_unassigned_manage > conversation_participating_manage
+    # `conversation_view` sees the same breadth as `conversation_manage` -
+    # only the frontend keeps it from acting (no reply box, no header actions).
+    if permissions.include?('conversation_manage') || permissions.include?('conversation_view')
       accessible_conversations
     elsif permissions.include?('conversation_unassigned_manage')
       filter_unassigned_and_mine

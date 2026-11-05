@@ -11,7 +11,6 @@ import { vOnClickOutside } from '@vueuse/components';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useWindowSize, useEventListener } from '@vueuse/core';
 
-import Button from 'dashboard/components-next/button/Button.vue';
 import SidebarGroup from './SidebarGroup.vue';
 import SidebarProfileMenu from './SidebarProfileMenu.vue';
 import SidebarChangelogCard from './SidebarChangelogCard.vue';
@@ -25,7 +24,7 @@ import SidebarTicketSearch from './SidebarTicketSearch.vue';
 import { useWorkspacePages } from '../workspace-tabs/useWorkspacePages';
 import { flattenMenu } from '../workspace-tabs/workspacePages';
 import Logo from 'next/icon/Logo.vue';
-import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
+import SidebarComposeMenu from './SidebarComposeMenu.vue';
 import {
   SIDEBAR_SORT_SECTIONS,
   getSidebarSortOptions,
@@ -1229,22 +1228,8 @@ watch(menuItems, items => setPageCatalog(flattenMenu(items)), {
         <!-- Busca de chamado pelo número: digita e abre. Ver
              SidebarTicketSearch.vue. -->
         <SidebarTicketSearch :is-collapsed="isEffectivelyCollapsed" />
-        <ComposeConversation align="start">
-          <template #trigger="{ isOpen }">
-            <Button
-              icon="i-lucide-pen-line"
-              color="slate"
-              size="sm"
-              class="dark:hover:!bg-n-slate-9/30"
-              :class="[
-                isEffectivelyCollapsed
-                  ? '!size-8 !outline-n-weak !text-n-slate-11'
-                  : '!h-7 !outline-n-weak !text-n-slate-11',
-                { '!bg-n-alpha-2 dark:!bg-n-slate-9/30': isOpen },
-              ]"
-            />
-          </template>
-        </ComposeConversation>
+        <!-- "Nova conversa" ou "Novo ticket". Ver SidebarComposeMenu.vue. -->
+        <SidebarComposeMenu :is-collapsed="isEffectivelyCollapsed" />
       </div>
     </section>
     <nav

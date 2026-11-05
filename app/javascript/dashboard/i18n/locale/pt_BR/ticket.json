@@ -504,7 +504,8 @@
           "ASSIGNEE_LABEL": "Responsável (desenvolvedor)",
           "ASSIGNEE_PLACEHOLDER": "Nenhum (opcional)",
           "PRIORITY_LABEL": "Prioridade",
-          "FILES_LABEL": "Anexos"
+          "FILES_LABEL": "Anexos",
+          "FILES_FROM_PARENT_HINT": "Já anexados no ticket de origem"
         },
         "LINK": {
           "SEARCH_PLACEHOLDER": "Buscar tickets de desenvolvimento...",

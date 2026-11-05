@@ -12,9 +12,21 @@ class Api::V1::Accounts::TicketAttachmentsController < Api::V1::Accounts::BaseCo
   # Takes the file as plain multipart rather than going through the generic
   # /upload blob endpoint: that would need two round-trips (blob then attach)
   # and carries no size guard of its own.
+  #
+  # `source_ticket_attachment_id` is the other path in: copying an anexo that
+  # already exists on another Ticket (e.g. o pai, quando um Ticket de
+  # Desenvolvimento nasce dele) attaches the SAME blob instead of uploading
+  # the bytes again.
   def create
     @ticket_attachment = @ticket.ticket_attachments.new(user: Current.user)
-    @ticket_attachment.file.attach(params[:file])
+    if params[:source_ticket_attachment_id].present?
+      source = TicketAttachment.joins(:ticket)
+                               .where(tickets: { account_id: Current.account.id })
+                               .find(params[:source_ticket_attachment_id])
+      @ticket_attachment.file.attach(source.file.blob)
+    else
+      @ticket_attachment.file.attach(params[:file])
+    end
     @ticket_attachment.save!
   end
 

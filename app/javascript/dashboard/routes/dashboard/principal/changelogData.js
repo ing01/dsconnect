@@ -8,6 +8,56 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-multiple-attachments-fix-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'WhatsApp: enviar vários arquivos de uma vez agora chega tudo',
+    description:
+      'Ao anexar vários arquivos numa mensagem só (ex.: vários .zip), apenas o primeiro chegava no WhatsApp do cliente - os demais eram descartados em silêncio. Agora todos são enviados, um por vez, para o número do cliente.',
+  },
+  {
+    id: 'conversation-view-only-role-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'feature',
+    platform: 'web',
+    title: 'Nova função personalizada: visualizar conversas',
+    description:
+      'Em Configurações → Funções personalizadas, agora existe a permissão "Apenas visualizar conversas": quem só tem essa permissão consegue abrir e ler as conversas, mas não responde nem aparecem as ações do cabeçalho.',
+  },
+  {
+    id: 'sidebar-compose-menu-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'feature',
+    platform: 'web',
+    title: 'Botão de "+" da barra lateral também abre Novo ticket',
+    description:
+      'O botão de criar, ao lado da busca por número de ticket, agora abre um menu com "Nova conversa" e "Novo ticket", em vez de ir direto para conversa.',
+  },
+  {
+    id: 'resolve-no-longer-gates-ticket-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'Resolver conversa não pede mais o encerramento do ticket',
+    description:
+      'Resolver uma conversa com um Ticket ainda aberto voltou a apenas resolver a conversa, sem abrir a tela de encerramento do Ticket. O Ticket permanece aberto normalmente.',
+  },
+  {
+    id: 'dev-ticket-parent-attachments-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Ticket de Desenvolvimento: anexos do ticket pai já vêm no filho',
+    description:
+      'Ao criar um Ticket de Desenvolvimento a partir de outro ticket, os anexos que já existiam no ticket de origem aparecem automaticamente na tela de criação e são copiados para o novo ticket.',
+  },
+  {
     id: 'kanban-new-ticket-visible-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',
@@ -93,7 +143,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-10-30',
     type: 'fix',
     platform: 'web',
-    title: 'Chat do Portal: conversa não é mais atribuída ao primeiro agente online',
+    title:
+      'Chat do Portal: conversa não é mais atribuída ao primeiro agente online',
     description:
       'As conversas do chat do Portal do Cliente (web e app) deixaram de ser atribuídas automaticamente a agentes online. Quem direciona a conversa agora é a triagem do bot, que define Mesa e Fila.',
   },
@@ -103,7 +154,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-10-30',
     type: 'fix',
     platform: 'mobile',
-    title: 'App: ao sair da conta, o aparelho para de receber notificações dela',
+    title:
+      'App: ao sair da conta, o aparelho para de receber notificações dela',
     description:
       'Antes, quem saía da conta no app continuava recebendo as notificações no celular. Agora, ao sair, o aparelho deixa de receber os avisos daquela conta e só volta a recebê-los quando entrar de novo.',
   },

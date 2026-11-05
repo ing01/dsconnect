@@ -71,13 +71,26 @@ class Whatsapp::Providers::Whatsapp360DialogService < Whatsapp::Providers::BaseS
     process_response(response, message)
   end
 
+  # A mensagem do Chatwoot pode levar varios anexos de uma vez (ver tela de
+  # composicao), mas a API do 360dialog so aceita UM midia por chamada - sem
+  # este loop, so o primeiro anexo saia e os demais eram descartados em
+  # silencio. O `source_id` gravado na mensagem fica sendo o do primeiro envio
+  # que deu certo, que e' o unico que cabe no campo (uma coluna, um id).
   def send_attachment_message(phone_number, message)
-    attachment = message.attachments.first
+    first_source_id = nil
+    message.attachments.each_with_index do |attachment, index|
+      source_id = send_single_attachment(phone_number, message, attachment, caption: index.zero?)
+      first_source_id ||= source_id
+    end
+    first_source_id
+  end
+
+  def send_single_attachment(phone_number, message, attachment, caption:)
     type = %w[image audio video].include?(attachment.file_type) ? attachment.file_type : 'document'
     type_content = {
       'link': attachment.download_url
     }
-    type_content['caption'] = message.outgoing_content unless %w[audio sticker].include?(type)
+    type_content['caption'] = message.outgoing_content if caption && %w[audio sticker].exclude?(type)
     type_content['filename'] = attachment.file.filename if type == 'document'
 
     response = HTTParty.post(

@@ -102,6 +102,15 @@ class TicketsAPI extends ApiClient {
     return axios.delete(`${this.url}/${ticketId}/attachments/${attachmentId}`);
   }
 
+  // Attaches the SAME blob an anexo on another Ticket already points to,
+  // instead of re-uploading the bytes - used when a Ticket de Desenvolvimento
+  // is created from a Ticket that already has anexos.
+  copyAttachment(ticketId, sourceTicketAttachmentId) {
+    return axios.post(`${this.url}/${ticketId}/attachments`, {
+      source_ticket_attachment_id: sourceTicketAttachmentId,
+    });
+  }
+
   // `responseType: 'blob'` - the response is a .zip, not JSON; letting axios
   // parse it as text would corrupt the binary content.
   downloadAllAttachments(ticketId) {

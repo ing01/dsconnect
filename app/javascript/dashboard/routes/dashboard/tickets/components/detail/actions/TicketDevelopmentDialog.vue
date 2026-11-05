@@ -63,6 +63,11 @@ const form = ref({
 const errors = ref({});
 const files = ref([]);
 const fileInput = ref(null);
+// Anexos que ja existem no ticket pai - vem pre-carregados (igual o Titulo e
+// a Descricao), e ficam listados ate a pessoa tirar algum. Objeto diferente
+// de `files`: aqui e' so o registro do anexo (TicketAttachment), nunca um
+// File local - copiado pro filho pelo blob, sem novo upload.
+const parentAttachments = ref([]);
 
 const addFiles = event => {
   const chosen = Array.from(event.target.files || []);
@@ -72,6 +77,25 @@ const addFiles = event => {
 
 const removeFile = index => {
   files.value = files.value.filter((_, i) => i !== index);
+};
+
+const removeParentAttachment = index => {
+  parentAttachments.value = parentAttachments.value.filter(
+    (_, i) => i !== index
+  );
+};
+
+const loadParentAttachments = async () => {
+  if (!props.ticket?.id) {
+    parentAttachments.value = [];
+    return;
+  }
+  try {
+    const { data } = await TicketsAPI.getAttachments(props.ticket.id);
+    parentAttachments.value = data || [];
+  } catch {
+    parentAttachments.value = [];
+  }
 };
 
 const formatSize = bytes => `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -127,6 +151,7 @@ const resetForm = () => {
   };
   errors.value = {};
   files.value = [];
+  loadParentAttachments();
 };
 
 const resetLink = () => {
@@ -198,6 +223,13 @@ const submitCreate = async () => {
       await TicketsAPI.createAttachment(created.id, file);
       // eslint-disable-next-line no-await-in-loop
       await TicketsAPI.createAttachment(props.ticket.id, file);
+    }
+    // Anexos que ja estavam no pai (pre-carregados ao abrir o dialogo) sao
+    // copiados pro filho pelo mesmo blob - nao precisam ir de volta pro pai,
+    // que e' de onde eles vieram.
+    for (const attachment of parentAttachments.value) {
+      // eslint-disable-next-line no-await-in-loop
+      await TicketsAPI.copyAttachment(created.id, attachment.id);
     }
     dialogRef.value?.close();
     emit('created');
@@ -400,6 +432,31 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
             class="w-fit"
             @click="fileInput?.click()"
           />
+          <ul v-if="parentAttachments.length" class="flex flex-col gap-1 mt-1">
+            <li
+              v-for="(attachment, index) in parentAttachments"
+              :key="`parent-${attachment.id}`"
+              class="flex items-center gap-2 text-xs text-n-slate-11 min-w-0"
+            >
+              <Icon icon="i-lucide-paperclip" class="flex-shrink-0 size-3.5" />
+              <span class="truncate min-w-0" :title="attachment.filename">{{
+                attachment.filename
+              }}</span>
+              <span class="flex-shrink-0 text-n-slate-10">{{
+                formatSize(attachment.byte_size)
+              }}</span>
+              <span class="flex-shrink-0 text-n-slate-10">{{
+                t('TICKET.DETAIL.DEVELOPMENT.CREATE.FILES_FROM_PARENT_HINT')
+              }}</span>
+              <button
+                type="button"
+                class="flex-shrink-0 p-0.5 rounded hover:bg-n-alpha-2"
+                @click="removeParentAttachment(index)"
+              >
+                <Icon icon="i-lucide-x" class="size-3.5" />
+              </button>
+            </li>
+          </ul>
           <ul v-if="files.length" class="flex flex-col gap-1 mt-1">
             <li
               v-for="(file, index) in files"

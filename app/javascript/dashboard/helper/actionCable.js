@@ -319,9 +319,13 @@ class ActionCableConnector extends BaseActionCableConnector {
     }, 30000);
   };
 
-  // eslint-disable-next-line class-methods-use-this
   fetchConversationStats = () => {
     emitter.emit('fetch_conversation_stats');
+    // Mesmo evento que atualiza a aba "Na fila" da lista de conversas - sem
+    // isso o numero da barra lateral so' era buscado uma vez, no login, e
+    // ficava desatualizado (diferente do "Na fila" ao lado, que atualiza a
+    // cada entrada/saida da fila) ate' a pessoa recarregar a pagina.
+    this.app.$store.dispatch('conversationQueueCount/get');
   };
 
   onContactDelete = data => {

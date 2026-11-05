@@ -80,16 +80,29 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
     process_response(response, message)
   end
 
+  # A mensagem do Chatwoot pode levar varios anexos de uma vez (ver tela de
+  # composicao), mas cada chamada ao AstereZap so aceita UM arquivo - sem este
+  # loop, so o primeiro anexo saia e os demais eram descartados em silencio.
+  # O "digitando..." simula so uma vez, antes do primeiro, em vez de repetir
+  # (e somar) o atraso a cada arquivo de uma leva grande. O `source_id`
+  # gravado na mensagem fica sendo o do primeiro envio que deu certo, que e'
+  # o unico que cabe no campo (uma coluna, um id).
   def send_attachment_message(phone_number, message)
-    attachment = message.attachments.first
-    type = attachment_endpoint_type(attachment.file_type)
-
     simulate_typing(phone_number, message.outgoing_content)
 
-    body = { phone: phone_number, type.to_sym => attachment.download_url }
-    if type != 'audio' && message.outgoing_content.present?
-      body['caption'] = outgoing_content_with_agent_name(message)
+    first_source_id = nil
+    message.attachments.each_with_index do |attachment, index|
+      source_id = send_single_attachment(phone_number, message, attachment, caption: index.zero?)
+      first_source_id ||= source_id
     end
+    first_source_id
+  end
+
+  def send_single_attachment(phone_number, message, attachment, caption:)
+    type = attachment_endpoint_type(attachment.file_type)
+
+    body = { :phone => phone_number, type.to_sym => attachment.download_url }
+    body['caption'] = outgoing_content_with_agent_name(message) if caption && type != 'audio' && message.outgoing_content.present?
     body['fileName'] = attachment.file.filename.to_s if type == 'document'
 
     response = HTTParty.post(

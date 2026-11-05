@@ -13,7 +13,9 @@ module Enterprise::ConversationPolicy
   private
 
   def manage_all_conversations?(permissions)
-    permissions.include?('conversation_manage')
+    # `conversation_view` sees the same breadth as `conversation_manage` -
+    # only the frontend keeps it from acting (no reply box, no header actions).
+    permissions.include?('conversation_manage') || permissions.include?('conversation_view')
   end
 
   def permits_unassigned_manage?(permissions)

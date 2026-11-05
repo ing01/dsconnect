@@ -30,6 +30,7 @@ import {
   getReadMessages,
   getUnreadMessages,
 } from 'dashboard/helper/conversationHelper';
+import { isConversationViewOnly } from 'dashboard/helper/permissionsHelper';
 
 // constants
 import { BUS_EVENTS } from 'shared/constants/busEvents';
@@ -95,10 +96,17 @@ export default {
     ...mapGetters({
       currentChat: 'getSelectedChat',
       currentUserId: 'getCurrentUserID',
+      currentUser: 'getCurrentUser',
       listLoadingStatus: 'getAllMessagesLoaded',
       currentAccountId: 'getCurrentAccountId',
       isMetaMessageSendingDisabled: 'globalConfig/isMetaMessageSendingDisabled',
     }),
+    // Funcao personalizada so' com "conversation_view" (sem nenhum dos
+    // "_manage"): pode abrir e ler a conversa, mas nao responder - a caixa de
+    // resposta nem aparece. Ver isConversationViewOnly em permissionsHelper.
+    isReadOnlyConversation() {
+      return isConversationViewOnly(this.currentUser, this.currentAccountId);
+    },
     isOpen() {
       return this.currentChat?.status === wootConstants.STATUS_TYPE.OPEN;
     },
@@ -549,6 +557,7 @@ export default {
         </div>
       </div>
       <ResizableEditorWrapper
+        v-if="!isReadOnlyConversation"
         ref="resizableEditorWrapperRef"
         :container-height="Math.max(0, containerHeight - topBannerHeight)"
       >

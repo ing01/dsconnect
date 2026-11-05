@@ -25,6 +25,26 @@ export const getUserRole = (user, accountId) => {
   return currentAccount.role || 'agent';
 };
 
+const CONVERSATION_MANAGE_PERMISSIONS = [
+  'conversation_manage',
+  'conversation_unassigned_manage',
+  'conversation_participating_manage',
+];
+
+// Uma funcao personalizada com "conversation_view" e nenhum "_manage" pode
+// abrir e ler as conversas que ja enxerga (mesmo alcance de inbox/equipe de
+// sempre), mas nao responder nem agir - a tela esconde a caixa de resposta e
+// as acoes do cabecalho para quem cai neste caso.
+export const isConversationViewOnly = (user, accountId) => {
+  if (getUserRole(user, accountId) !== 'custom_role') return false;
+
+  const permissions = getUserPermissions(user, accountId);
+  const hasManagePermission = CONVERSATION_MANAGE_PERMISSIONS.some(permission =>
+    permissions.includes(permission)
+  );
+  return permissions.includes('conversation_view') && !hasManagePermission;
+};
+
 /**
  * Filters and transforms items based on user permissions.
  *

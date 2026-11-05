@@ -237,6 +237,11 @@ watch(
 );
 
 onMounted(() => resetContacts());
+
+// Permite abrir o popover de fora (ex.: o menu lateral, quando o botao de
+// "+" passa a oferecer "Nova conversa" e "Novo ticket" - o clique que abre
+// deixa de ser no trigger desta Popover e vira um item de menu).
+defineExpose({ show: () => popoverRef.value?.show() });
 </script>
 
 <template>

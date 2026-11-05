@@ -90,6 +90,12 @@ export const applyRoleFilter = (
     return true;
   }
 
+  // So' leitura - mesmo alcance de visibilidade de "conversation_manage",
+  // mas sem nenhuma acao (ver isConversationViewOnly em permissionsHelper.js).
+  if (permissions.includes('conversation_view')) {
+    return true;
+  }
+
   const conversationAssignee = conversation.meta.assignee;
   const isUnassigned = !conversationAssignee;
   const isAssignedToUser = conversationAssignee?.id === currentUserId;

@@ -16,6 +16,7 @@ import { useInbox } from 'dashboard/composables/useInbox';
 import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
 import { copyTextToClipboard } from 'shared/helpers/clipboard';
+import { isConversationViewOnly } from 'dashboard/helper/permissionsHelper';
 
 const props = defineProps({
   chat: {
@@ -37,6 +38,14 @@ const { isAWebWidgetInbox } = useInbox();
 
 const currentChat = computed(() => store.getters.getSelectedChat);
 const accountId = computed(() => store.getters.getCurrentAccountId);
+const currentUser = computed(() => store.getters.getCurrentUser);
+
+// Funcao personalizada so' com "conversation_view": sem acoes no cabecalho
+// (Resolver, Silenciar, Enviar transcricao, etc.) - ver MessagesView.vue para
+// a mesma checagem escondendo a caixa de resposta.
+const isReadOnlyConversation = computed(() =>
+  isConversationViewOnly(currentUser.value, accountId.value)
+);
 
 const chatMetadata = computed(() => props.chat.meta);
 
@@ -188,8 +197,10 @@ const copyConversationId = async () => {
         :parent-width="width"
         class="hidden md:flex"
       />
-      <ConversationCallButton :inbox="inbox" :chat="currentChat" />
-      <MoreActions :conversation-id="currentChat.id" />
+      <template v-if="!isReadOnlyConversation">
+        <ConversationCallButton :inbox="inbox" :chat="currentChat" />
+        <MoreActions :conversation-id="currentChat.id" />
+      </template>
     </div>
   </div>
 </template>
