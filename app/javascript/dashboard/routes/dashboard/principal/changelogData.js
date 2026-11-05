@@ -8,6 +8,36 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-send-button-fix-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'Chat Interno: botão "Enviar" volta a funcionar',
+    description:
+      'O botão "Enviar" do Chat Interno não enviava a mensagem (só o Enter funcionava). Agora o botão e o Enter enviam do mesmo jeito.',
+  },
+  {
+    id: 'internal-chat-ticket-link-fix-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'Chat Interno: número do ticket abre o ticket certo',
+    description:
+      'Ao colar um título com o número do ticket (ex.: #35506) no Chat Interno, o link verde abria outro ticket. Agora ele abre exatamente o ticket com aquele número; se não existir, avisa em vez de abrir outro.',
+  },
+  {
+    id: 'inactivity-nudge-not-repeated-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'Aviso de inatividade não se repete mais',
+    description:
+      'Quando o aviso de inatividade já tinha sido enviado mas o registro dele não era gravado, o sistema reenviava o aviso a cada ciclo e nunca encerrava a conversa. Agora ele reconhece o aviso já enviado e segue para o encerramento (ou a pausa).',
+  },
+  {
     id: 'ticket-summarize-title-and-error-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',
