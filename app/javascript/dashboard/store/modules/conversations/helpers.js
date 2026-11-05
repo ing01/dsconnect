@@ -149,9 +149,13 @@ const sortConfig = {
     return a.created_at - b.created_at;
   },
 
-  // Aba "Na fila": ordem de chegada pura (quem chamou primeiro). Mesmo
-  // criterio do backend (`SortHandler#sort_on_queue_position`).
+  // Aba "Na fila": maior prioridade primeiro; na mesma prioridade, quem
+  // chamou primeiro. Mesmo criterio do backend
+  // (`SortHandler#sort_on_queue_position`).
   sortOnQueuePosition: (a, b) => {
+    const p1 = CONVERSATION_PRIORITY_ORDER[a.priority] || 0;
+    const p2 = CONVERSATION_PRIORITY_ORDER[b.priority] || 0;
+    if (p1 !== p2) return p2 - p1;
     if (a.created_at !== b.created_at) return a.created_at - b.created_at;
     return a.id - b.id;
   },

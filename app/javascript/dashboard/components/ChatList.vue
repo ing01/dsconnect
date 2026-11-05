@@ -431,7 +431,7 @@ const conversationList = computed(() => {
     });
   }
 
-  // Aba "Na fila": ordem travada em chegada pura (`queuedChatsList`, criterio
+  // Aba "Na fila": ordem travada em prioridade e chegada (`queuedChatsList`, criterio
   // `queue_position`) - nenhum outro criterio de ordenacao se aplica aqui,
   // nem o de nao lidas abaixo, senao a trava de atribuicao fora de ordem
   // (AssignmentsController#blocked_manual_assign?) vira so' decoracao: o
