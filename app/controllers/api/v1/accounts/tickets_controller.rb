@@ -182,7 +182,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     if result[:error]
       render json: { error: result[:error] }, status: :unprocessable_entity
     else
-      render json: { message: result[:message] }
+      render json: { message: result[:message], title: result[:title] }
     end
   end
 

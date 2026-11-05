@@ -323,7 +323,8 @@
         "PLACEHOLDER": "Descreva o ticket...",
         "SUMMARIZE": "Resumir conversa",
         "SUMMARIZE_EMPTY": "A IA não retornou nenhum resumo. Tente novamente.",
-        "SUMMARIZE_ERROR": "Não foi possível resumir a conversa."
+        "SUMMARIZE_ERROR": "Não foi possível resumir a conversa.",
+        "SUMMARIZED_TITLE_LABEL": "Título sugerido (salvo junto com a descrição)"
       },
       "ATTACHMENTS": {
         "TITLE": "Arquivos",

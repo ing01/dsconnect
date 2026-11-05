@@ -2,6 +2,7 @@ import { computed, watch } from 'vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 // Everything the detail page needs to read and mutate one ticket, so the page
 // itself stays a layout shell.
@@ -118,7 +119,15 @@ export function useTicketDetail(ticketId) {
       applyUpdate(updated);
       return updated;
     } catch (error) {
-      useAlert(t('TICKET.API.ERROR_MESSAGE'));
+      // O 422 de validacao (ex.: "Title cant' be blank") chega em
+      // `error.response.data.message` - sem isto a pessoa so via um erro
+      // generico, sem pista nenhuma do que precisava corrigir.
+      const apiMessage = parseAPIErrorResponse(error);
+      useAlert(
+        typeof apiMessage === 'string'
+          ? apiMessage
+          : t('TICKET.API.ERROR_MESSAGE')
+      );
       return null;
     }
   };

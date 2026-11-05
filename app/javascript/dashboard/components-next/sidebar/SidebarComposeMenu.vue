@@ -112,16 +112,23 @@ const onTicketCreated = ({ ticket }) => {
       </WootDropdownMenu>
     </div>
 
-    <woot-modal
-      v-model:show="showTicketDialog"
-      :on-close="closeTicketDialog"
-      size="large"
-    >
-      <TicketCreateDialog
-        :context="{}"
-        @close="closeTicketDialog"
-        @created="onTicketCreated"
-      />
-    </woot-modal>
+    <!-- Teleport: `woot-modal` e' `position: fixed`, mas um ancestral do menu
+         lateral tem transform/animação (o painel que recolhe/expande), o que
+         vira o "containing block" de todo `fixed` dentro dele - sem isto o
+         modal ficava preso e espremido na largura da barra lateral, em vez de
+         cobrir a tela inteira. -->
+    <Teleport to="body">
+      <woot-modal
+        v-model:show="showTicketDialog"
+        :on-close="closeTicketDialog"
+        size="large"
+      >
+        <TicketCreateDialog
+          :context="{}"
+          @close="closeTicketDialog"
+          @created="onTicketCreated"
+        />
+      </woot-modal>
+    </Teleport>
   </div>
 </template>

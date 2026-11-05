@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-summarize-title-and-error-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'improvement',
+    platform: 'web',
+    title: '"Resumir conversa" também sugere o título do ticket',
+    description:
+      'Ao usar "Resumir conversa" na descrição do ticket, a IA agora também sugere um título curto, revisável antes de salvar. Além disso, se salvar falhar, a mensagem de erro agora mostra o motivo real, em vez de um aviso genérico.',
+  },
+  {
+    id: 'sidebar-ticket-modal-fullscreen-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'fix',
+    platform: 'web',
+    title: 'Modal de "Novo ticket" na barra lateral não fica mais espremido',
+    description:
+      'Abrir "Novo ticket" pelo botão de "+" da barra lateral abria uma janela comprimida na largura da barra. Agora ela ocupa a tela inteira, como as demais.',
+  },
+  {
     id: 'whatsapp-multiple-attachments-fix-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',

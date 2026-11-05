@@ -41,6 +41,10 @@ const { t } = useI18n();
 const isEditing = ref(false);
 const draft = ref('');
 const isSummarizing = ref(false);
+// So' vem do "Resumir conversa" (ver summarizeConversation) - uma edicao
+// manual do titulo continua so' pelo dialogo proprio (TicketTitleDialog).
+// `null` em qualquer outro caminho de edicao faz o `save` nao mexer no titulo.
+const summarizedTitle = ref(null);
 
 const hasDescription = computed(() =>
   Boolean(props.ticket.description?.trim())
@@ -59,16 +63,18 @@ const renderedDescription = computed(
 
 const startEditing = (seed = null) => {
   draft.value = seed ?? props.ticket.description ?? '';
+  summarizedTitle.value = null;
   isEditing.value = true;
 };
 
 const cancel = () => {
   isEditing.value = false;
   draft.value = '';
+  summarizedTitle.value = null;
 };
 
 const save = () => {
-  emit('save', draft.value);
+  emit('save', { description: draft.value, title: summarizedTitle.value });
 };
 
 const summarizeConversation = async () => {
@@ -80,6 +86,9 @@ const summarizeConversation = async () => {
       return;
     }
     startEditing(data.message);
+    // Depois de `startEditing`, que zera isto por padrao - so' preenche
+    // quando a IA devolveu um titulo de verdade.
+    summarizedTitle.value = data.title || null;
   } catch (error) {
     useAlert(
       error?.response?.data?.error ||
@@ -140,6 +149,22 @@ watch(
     </div>
 
     <template v-if="isEditing">
+      <!-- So' aparece depois de "Resumir conversa": a IA tambem sugere um
+           titulo, revisavel aqui antes de ir junto no mesmo Salvar. -->
+      <label
+        v-if="summarizedTitle !== null"
+        class="flex flex-col gap-1 min-w-0"
+      >
+        <span class="text-xs font-medium text-n-slate-11">
+          {{ t('TICKET.DETAIL.DESCRIPTION.SUMMARIZED_TITLE_LABEL') }}
+        </span>
+        <input
+          v-model="summarizedTitle"
+          type="text"
+          maxlength="255"
+          class="w-full mb-0"
+        />
+      </label>
       <FullEditor
         v-model="draft"
         :editor-id="`ticket-description-${ticket.id}`"

@@ -174,10 +174,12 @@ const goBack = () => {
   );
 };
 
-const saveDescription = async description => {
+// `title` so' vem preenchido quando a descricao veio do "Resumir conversa"
+// (ver TicketDescriptionCard) - os dois vao juntos no mesmo PATCH.
+const saveDescription = async ({ description, title }) => {
   isSavingDescription.value = true;
   try {
-    await updateProperty({ description });
+    await updateProperty({ description, ...(title ? { title } : {}) });
   } finally {
     isSavingDescription.value = false;
   }

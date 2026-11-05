@@ -70,6 +70,8 @@ describe('TicketDescriptionCard', () => {
       .find('[data-label="TICKET.DETAIL.DESCRIPTION.SAVE"]')
       .trigger('click');
 
-    expect(wrapper.emitted('save')).toEqual([[TICKET_DESCRIPTION_TEMPLATE]]);
+    expect(wrapper.emitted('save')).toEqual([
+      [{ description: TICKET_DESCRIPTION_TEMPLATE, title: null }],
+    ]);
   });
 });
