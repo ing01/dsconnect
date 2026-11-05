@@ -49,6 +49,9 @@ export default {
       isUpdatingAllowedDomains: false,
       isSettingDefaults: false,
       isReconfiguring: false,
+      typingDelayMinSeconds: '',
+      typingDelayMaxSeconds: '',
+      isUpdatingTypingDelay: false,
     };
   },
   validations: {
@@ -101,6 +104,10 @@ export default {
         this.inbox.selected_feature_flags || []
       ).includes('allow_mobile_webview');
       this.allowedDomains = this.inbox.allowed_domains || '';
+      this.typingDelayMinSeconds =
+        this.inbox.provider_config?.typing_delay_min_seconds ?? '';
+      this.typingDelayMaxSeconds =
+        this.inbox.provider_config?.typing_delay_max_seconds ?? '';
       this.$nextTick(() => {
         this.isSettingDefaults = false;
       });
@@ -182,6 +189,28 @@ export default {
         useAlert(this.$t('INBOX_MGMT.EDIT.API.SUCCESS_MESSAGE'));
       } catch (error) {
         useAlert(this.$t('INBOX_MGMT.EDIT.API.ERROR_MESSAGE'));
+      }
+    },
+    async updateTypingDelay() {
+      this.isUpdatingTypingDelay = true;
+      try {
+        const payload = {
+          id: this.inbox.id,
+          formData: false,
+          channel: {
+            provider_config: {
+              ...this.inbox.provider_config,
+              typing_delay_min_seconds: this.typingDelayMinSeconds || null,
+              typing_delay_max_seconds: this.typingDelayMaxSeconds || null,
+            },
+          },
+        };
+        await this.$store.dispatch('inboxes/updateInbox', payload);
+        useAlert(this.$t('INBOX_MGMT.EDIT.API.SUCCESS_MESSAGE'));
+      } catch (error) {
+        useAlert(this.$t('INBOX_MGMT.EDIT.API.ERROR_MESSAGE'));
+      } finally {
+        this.isUpdatingTypingDelay = false;
       }
     },
     async reconfigureWhatsApp() {
@@ -471,6 +500,50 @@ export default {
           </div>
         </SettingsFieldSection>
       </template>
+
+      <SettingsFieldSection
+        v-if="inbox.provider === 'astere_zap'"
+        :label="$t('INBOX_MGMT.SETTINGS_POPUP.ASTEREZAP_TYPING_DELAY_TITLE')"
+        :help-text="
+          $t('INBOX_MGMT.SETTINGS_POPUP.ASTEREZAP_TYPING_DELAY_SUBHEADER')
+        "
+      >
+        <div
+          class="flex flex-1 justify-between items-center gap-2 whatsapp-settings--content"
+        >
+          <woot-input
+            v-model="typingDelayMinSeconds"
+            type="number"
+            min="0"
+            step="0.1"
+            class="flex-1 [&>input]:!mb-0"
+            :placeholder="
+              $t(
+                'INBOX_MGMT.SETTINGS_POPUP.ASTEREZAP_TYPING_DELAY_MIN_PLACEHOLDER'
+              )
+            "
+          />
+          <woot-input
+            v-model="typingDelayMaxSeconds"
+            type="number"
+            min="0"
+            step="0.1"
+            class="flex-1 [&>input]:!mb-0"
+            :placeholder="
+              $t(
+                'INBOX_MGMT.SETTINGS_POPUP.ASTEREZAP_TYPING_DELAY_MAX_PLACEHOLDER'
+              )
+            "
+          />
+          <NextButton
+            :is-loading="isUpdatingTypingDelay"
+            @click="updateTypingDelay"
+          >
+            {{ $t('INBOX_MGMT.SETTINGS_POPUP.ASTEREZAP_TYPING_DELAY_BUTTON') }}
+          </NextButton>
+        </div>
+      </SettingsFieldSection>
+
       <WhatsappBusinessManagementToken
         v-if="
           isOnChatwootCloud &&
