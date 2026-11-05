@@ -25,10 +25,10 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
 
   # "Pegar próximo da fila": sempre a mais antiga/prioritária ainda sem
   # dono, dentre TODAS as filas que o agente atual tem acesso - nunca uma
-  # escolhida a mao. E o unico jeito de pegar uma conversa da fila pra quem
-  # esta com `enforce_queue_order` ligado (ver
-  # Conversations::AssignmentsController#blocked_self_assign?), mas fica
-  # disponivel pra qualquer atendente, travado ou nao.
+  # escolhida a mao. E o unico jeito de um nao-Administrador pegar uma
+  # conversa de uma fila (ver
+  # Conversations::AssignmentsController#blocked_manual_assign?), mas fica
+  # disponivel pra qualquer atendente, Administrador inclusive.
   def claim_next
     @conversation = claim_next_conversation
   end

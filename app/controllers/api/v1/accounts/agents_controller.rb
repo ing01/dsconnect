@@ -32,7 +32,7 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   def update
     @agent.update!(agent_params.slice(:name).compact)
     # `.compact` tira os campos ausentes do payload (ex: tela nao manda
-    # `enforce_queue_order` quando nao mudou) - mas os 4 campos de almoco
+    # `availability` quando nao muda) - mas os 4 campos de almoco
     # precisam poder chegar como `nil` de proposito, pra "apagar" um horario
     # ja cadastrado. Por isso saem do `.compact` e entram sempre, se vieram
     # no payload.
@@ -105,12 +105,12 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   end
 
   def account_user_attributes
-    [:role, :availability, :auto_offline, :enforce_queue_order,
+    [:role, :availability, :auto_offline,
      :lunch_start_hour, :lunch_start_minutes, :lunch_end_hour, :lunch_end_minutes]
   end
 
   def allowed_agent_params
-    [:name, :email, :role, :availability, :auto_offline, :enforce_queue_order,
+    [:name, :email, :role, :availability, :auto_offline,
      :lunch_start_hour, :lunch_start_minutes, :lunch_end_hour, :lunch_end_minutes]
   end
 

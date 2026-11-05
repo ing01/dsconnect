@@ -66,7 +66,6 @@ export default {
       currentChat: 'getSelectedChat',
       currentUser: 'getCurrentUser',
       currentUserRole: 'getCurrentRole',
-      currentUserEnforceQueueOrder: 'getCurrentUserEnforceQueueOrder',
       teams: 'teams/getTeams',
       queues: 'queues/getQueues',
     }),
@@ -194,15 +193,12 @@ export default {
           });
       },
     },
-    // Atendente com a trava de fila ligada nao escolhe livremente - so pega
-    // a proxima em ordem (botao "Pegar próximo da fila" na lista "Na fila").
-    // Administrador nunca e afetado.
+    // Quem NAO E Administrador nao escolhe atendimento livremente - so pega
+    // a proxima conversa da fila em ordem (botao "Pegar próximo da fila" na
+    // lista "Na fila"). Regra fixa, nao configuravel por atendente nem por
+    // Funcao personalizada - so o cargo Administrador libera a escolha livre.
     isQueueOrderLocked() {
-      return (
-        this.hasAnAssignedQueue &&
-        this.currentUserRole !== 'administrator' &&
-        !!this.currentUserEnforceQueueOrder
-      );
+      return this.hasAnAssignedQueue && this.currentUserRole !== 'administrator';
     },
     showSelfAssign() {
       if (this.isQueueOrderLocked) {

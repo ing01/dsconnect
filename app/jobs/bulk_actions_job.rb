@@ -27,8 +27,28 @@ class BulkActionsJob < ApplicationJob
     records.each do |conversation|
       bulk_add_labels(conversation)
       bulk_snoozed_until(conversation)
-      conversation.update(params) if params
+      conversation.update(conversation_update_params(params, conversation)) if params
     end
+  end
+
+  # Mesma trava do endpoint de atribuicao individual
+  # (Api::V1::Accounts::Conversations::AssignmentsController#blocked_manual_assign?)
+  # - quem NAO E Administrador nao atribui livremente uma conversa numa fila,
+  # nem em lote nem pelo menu de contexto (os dois caem aqui). So remove o
+  # campo `assignee_id` da atualizacao desta conversa; as outras mudancas do
+  # lote (status, time, labels) continuam valendo normalmente.
+  def conversation_update_params(params, conversation)
+    return params unless params['assignee_id'] || params[:assignee_id]
+    return params if administrator?
+    return params if conversation.queue_id.blank?
+
+    params.except('assignee_id', :assignee_id)
+  end
+
+  def administrator?
+    return @administrator if defined?(@administrator)
+
+    @administrator = @user.account_users.find_by(account_id: @account.id)&.administrator? || false
   end
 
   def bulk_remove_labels
