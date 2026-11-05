@@ -78,7 +78,10 @@ export function useBulkActions() {
         useAlert(t('BULK_ACTION.ASSIGN_SUCCESFUL'));
       }
     } catch (err) {
-      useAlert(t('BULK_ACTION.ASSIGN_FAILED'));
+      // The server explains itself when it refused on purpose (e.g. trying
+      // to assign out of queue order) - that message is more useful than
+      // the generic fallback, so it wins whenever the server sent one.
+      useAlert(err?.response?.data?.error || t('BULK_ACTION.ASSIGN_FAILED'));
     }
   }
 

@@ -2,6 +2,8 @@ class Api::V1::Accounts::BulkActionsController < Api::V1::Accounts::BaseControll
   def create
     case normalized_type
     when 'Conversation'
+      return reject_out_of_order_assign if blocked_conversation_assign?
+
       enqueue_conversation_job
       head :ok
     when 'Contact'
@@ -25,6 +27,27 @@ class Api::V1::Accounts::BulkActionsController < Api::V1::Accounts::BaseControll
       user: current_user,
       params: conversation_params
     )
+  end
+
+  # Mesma trava de Api::V1::Accounts::Conversations::AssignmentsController#blocked_manual_assign?,
+  # so que checada de forma SINCRONA, antes de enfileirar o job - isto roda
+  # em background (ver BulkActionsJob#conversation_update_params), entao um
+  # 422 aqui e o unico jeito do atendente receber um erro de verdade em vez
+  # de um "sucesso" fantasma pra uma atribuicao que nunca aconteceu.
+  def blocked_conversation_assign?
+    assignee_id = params.dig(:fields, :assignee_id)
+    return false if assignee_id.blank?
+    return false if Current.account_user&.administrator?
+
+    target_conversations.where.not(queue_id: nil).exists?
+  end
+
+  def target_conversations
+    Conversation.where(account_id: @current_account.id, display_id: params[:ids])
+  end
+
+  def reject_out_of_order_assign
+    render json: { error: I18n.t('errors.queues.out_of_order_assignment') }, status: :unprocessable_entity
   end
 
   def enqueue_contact_job

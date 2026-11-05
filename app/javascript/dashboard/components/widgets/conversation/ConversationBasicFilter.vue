@@ -14,6 +14,12 @@ defineProps({
     type: Boolean,
     required: true,
   },
+  // Aba "Na fila": ordem travada em chegada pura (ver ChatList.vue) - nao
+  // faz sentido oferecer um "Ordenar por" que a lista simplesmente ignora.
+  hideSort: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['changeFilter']);
@@ -169,7 +175,7 @@ const handleSortChange = value => {
           @update:model-value="handleStatusChange"
         />
       </div>
-      <div class="flex items-center justify-between last:mt-4 gap-2">
+      <div v-if="!hideSort" class="flex items-center justify-between last:mt-4 gap-2">
         <span class="text-sm truncate text-n-slate-12">
           {{ $t('CHAT_LIST.CHAT_SORT.ORDER_BY') }}
         </span>

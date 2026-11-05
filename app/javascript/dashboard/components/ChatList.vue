@@ -431,8 +431,15 @@ const conversationList = computed(() => {
     });
   }
 
+  // Aba "Na fila": ordem travada em chegada pura (`queuedChatsList`, criterio
+  // `queue_position`) - nenhum outro criterio de ordenacao se aplica aqui,
+  // nem o de nao lidas abaixo, senao a trava de atribuicao fora de ordem
+  // (AssignmentsController#blocked_manual_assign?) vira so' decoracao: o
+  // atendente reordenava a lista e enxergava uma conversa "antes" da que
+  // realmente e' a proxima.
   if (
     !hasAppliedFiltersOrActiveFolders.value &&
+    activeAssigneeTab.value !== wootConstants.ASSIGNEE_TYPE.QUEUE &&
     activeSortBy.value === wootConstants.SORT_BY_TYPE.UNREAD
   ) {
     localConversationList = sortByUnreadStatus(localConversationList);
@@ -1025,6 +1032,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       :is-on-expanded-layout="isOnExpandedLayout"
       :conversation-stats="conversationStats"
       :is-list-loading="chatListLoading && !conversationList.length"
+      :is-queue-tab="activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.QUEUE"
       @add-folders="onClickOpenAddFoldersModal"
       @delete-folders="onClickOpenDeleteFoldersModal"
       @filters-modal="onToggleAdvanceFiltersModal"
