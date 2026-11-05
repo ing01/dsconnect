@@ -53,6 +53,7 @@ class Whatsapp::CsatDigitSurveyService
                 .where(content_type: :input_csat)
                 .left_joins(:csat_survey_response)
                 .where(csat_survey_responses: { id: nil })
+                .where("COALESCE(messages.content_attributes ->> 'csat_dismissed', '') <> 'true'")
                 .order(created_at: :desc)
                 .first
   end
@@ -62,7 +63,6 @@ class Whatsapp::CsatDigitSurveyService
   # o cliente responde com a nota (ex.: "Obrigada, 3").
   def csat_reply?(message)
     return false unless whatsapp_channel? && account.whatsapp_csat_survey_enabled
-    return false if parse_rating(message.content).blank?
 
     survey = pending_survey_message
     survey.present? && survey.created_at >= self.class.reply_window_minutes(account).minutes.ago
@@ -92,7 +92,7 @@ class Whatsapp::CsatDigitSurveyService
     return if survey_message_record.blank?
 
     rating = parse_rating(message.content)
-    return if rating.blank?
+    return dismiss_survey_without_rating!(survey_message_record) if rating.blank?
 
     save_response!(survey_message_record, rating)
     send_thank_you!
@@ -147,6 +147,22 @@ class Whatsapp::CsatDigitSurveyService
     )
     response.rating = rating
     response.save!
+  end
+
+  # Resposta sem nenhum numero de 1 a 5 (ex.: so "Obrigada"): nao conta nota, a
+  # conversa continua encerrada e o cliente e' avisado de que, pra falar de
+  # novo, precisa mandar outra mensagem. A pesquisa e' marcada como encerrada
+  # pra que a PROXIMA mensagem abra uma conversa nova (e nao caia aqui de novo).
+  def dismiss_survey_without_rating!(survey_message_record)
+    survey_message_record.update!(
+      content_attributes: (survey_message_record.content_attributes || {}).merge('csat_dismissed' => true)
+    )
+    conversation.messages.create!(
+      account_id: conversation.account_id,
+      inbox_id: conversation.inbox_id,
+      message_type: :outgoing,
+      content: I18n.t('conversations.templates.whatsapp_csat_no_rating')
+    )
   end
 
   def send_thank_you!

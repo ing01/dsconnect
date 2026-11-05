@@ -152,7 +152,21 @@ onUnmounted(() => {
   }
 });
 
-defineExpose({ playPause, stopRecording, record });
+const pauseRecording = () => {
+  if (isRecording.value) record.value.pauseRecording();
+};
+
+const resumeRecording = () => {
+  if (isRecording.value) record.value.resumeRecording();
+};
+
+defineExpose({
+  playPause,
+  stopRecording,
+  pauseRecording,
+  resumeRecording,
+  record,
+});
 </script>
 
 <template>

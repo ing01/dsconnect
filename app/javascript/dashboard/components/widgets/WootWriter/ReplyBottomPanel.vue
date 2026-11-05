@@ -64,6 +64,14 @@ export default {
       type: Function,
       default: () => {},
     },
+    toggleAudioRecorderPause: {
+      type: Function,
+      default: () => {},
+    },
+    isRecordingPaused: {
+      type: Boolean,
+      default: false,
+    },
     isRecordingAudio: {
       type: Boolean,
       default: false,
@@ -236,6 +244,10 @@ export default {
           return 'i-ph-stop';
       }
     },
+    // Ainda gravando (nem concluida nem em reproducao).
+    isRecordingNow() {
+      return this.isRecordingAudio && !this.recordingAudioState;
+    },
     showMessageSignatureButton() {
       if (this.isEditorDisabled) return false;
       return !this.isOnPrivateNote;
@@ -313,32 +325,51 @@ export default {
         />
       </FileUpload>
       <NextButton
-        v-if="showAudioRecorderButton"
+        v-if="showAudioRecorderButton && !isRecordingAudio"
         v-tooltip.top-end="$t('CONVERSATION.REPLYBOX.TIP_AUDIORECORDER_ICON')"
-        :icon="!isRecordingAudio ? 'i-ph-microphone' : 'i-ph-microphone-slash'"
+        icon="i-ph-microphone"
         slate
         faded
         sm
         @click="toggleAudioRecorder"
       />
-      <NextButton
-        v-if="showAudioPlayStopButton"
-        :icon="audioRecorderPlayStopIcon"
-        slate
-        faded
-        sm
-        :label="recordingAudioDurationText"
-        @click="toggleAudioRecorderPlayPause"
-      />
-      <NextButton
-        v-if="showMessageSignatureButton"
-        v-tooltip.top-end="signatureToggleTooltip"
-        icon="i-ph-signature"
-        slate
-        faded
-        sm
-        @click="toggleMessageSignature"
-      />
+      <!-- Gravando: os tres controles ficam com texto, nao so icone, para quem
+           grava nao precisar adivinhar qual botao pausa e qual descarta. -->
+      <template v-if="showAudioPlayStopButton">
+        <NextButton
+          v-if="isRecordingNow"
+          :icon="isRecordingPaused ? 'i-ph-play' : 'i-ph-pause'"
+          amber
+          faded
+          sm
+          :label="
+            isRecordingPaused
+              ? $t('CONVERSATION.REPLYBOX.AUDIO_RESUME')
+              : $t('CONVERSATION.REPLYBOX.AUDIO_PAUSE')
+          "
+          @click="toggleAudioRecorderPause"
+        />
+        <NextButton
+          :icon="audioRecorderPlayStopIcon"
+          slate
+          faded
+          sm
+          :label="
+            isRecordingNow
+              ? `${$t('CONVERSATION.REPLYBOX.AUDIO_FINISH')} ${recordingAudioDurationText}`
+              : recordingAudioDurationText
+          "
+          @click="toggleAudioRecorderPlayPause"
+        />
+        <NextButton
+          icon="i-ph-trash"
+          ruby
+          faded
+          sm
+          :label="$t('CONVERSATION.REPLYBOX.AUDIO_CANCEL')"
+          @click="toggleAudioRecorder"
+        />
+      </template>
       <NextButton
         v-if="showQuotedReplyToggle"
         v-tooltip.top-end="quotedReplyToggleTooltip"

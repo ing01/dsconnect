@@ -125,6 +125,7 @@ export default {
       attachedFiles: [],
       isRecordingAudio: false,
       recordingAudioState: '',
+      isRecordingPaused: false,
       recordingAudioDurationText: '',
       replyType: REPLY_EDITOR_MODES.REPLY,
       draftConversationId: null,
@@ -1113,6 +1114,15 @@ export default {
         this.resetAudioRecorderInput();
       }
     },
+    toggleAudioRecorderPause() {
+      if (!this.$refs.audioRecorderInput) return;
+      if (this.isRecordingPaused) {
+        this.$refs.audioRecorderInput.resumeRecording();
+      } else {
+        this.$refs.audioRecorderInput.pauseRecording();
+      }
+      this.isRecordingPaused = !this.isRecordingPaused;
+    },
     toggleAudioRecorderPlayPause() {
       if (!this.$refs.audioRecorderInput) return;
       if (!this.recordingAudioState) {
@@ -1143,6 +1153,7 @@ export default {
       this.recordingAudioDurationText = duration;
     },
     onFinishRecorder(file) {
+      this.isRecordingPaused = false;
       this.recordingAudioState = 'stopped';
       this.hasRecordedAudio = true;
       // Added a new key isVoiceMessage to the file to identify recorded audio
@@ -1357,6 +1368,7 @@ export default {
       this.recordingAudioDurationText = '00:00';
       this.isRecordingAudio = false;
       this.recordingAudioState = '';
+      this.isRecordingPaused = false;
       this.hasRecordedAudio = false;
       // Only clear the recorded audio when we click toggle button.
       this.attachedFiles = this.attachedFiles.filter(
@@ -1560,6 +1572,8 @@ export default {
         :show-quoted-reply-toggle="shouldShowQuotedReplyToggle"
         :quoted-reply-enabled="quotedReplyPreference"
         :toggle-audio-recorder-play-pause="toggleAudioRecorderPlayPause"
+        :toggle-audio-recorder-pause="toggleAudioRecorderPause"
+        :is-recording-paused="isRecordingPaused"
         :toggle-audio-recorder="toggleAudioRecorder"
         :toggle-emoji-picker="toggleEmojiPicker"
         :message="message"

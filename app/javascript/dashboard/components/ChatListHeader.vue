@@ -192,9 +192,8 @@ const toggleConversationLayout = () => {
           />
         </div>
         <ConversationBasicFilter
-          v-if="!hasAppliedFiltersOrActiveFolders"
+          v-if="!hasAppliedFiltersOrActiveFolders && !isQueueTab"
           :is-on-expanded-layout="isOnExpandedLayout"
-          :hide-sort="isQueueTab"
           @change-filter="onBasicFilterChange"
         />
         <SwitchLayout

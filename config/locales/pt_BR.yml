@@ -610,6 +610,7 @@ pt_BR:
       email_input_box_message_body: 'Seja notificado por e-mail'
       csat_input_message_body: 'Por favor, classifique a conversa'
       whatsapp_csat_thank_you: 'Obrigado pela sua avaliação!'
+      whatsapp_csat_no_rating: 'Não identificamos uma nota (de 1 a 5) na sua resposta, então a avaliação não foi registrada e este atendimento continua encerrado. Se precisar de ajuda, é só enviar uma nova mensagem que iniciaremos outro atendimento.'
     reply:
       email:
         header:

@@ -600,6 +600,7 @@ en:
       email_input_box_message_body: 'Get notified by email'
       csat_input_message_body: 'Please rate the conversation'
       whatsapp_csat_thank_you: 'Thank you for your feedback!'
+      whatsapp_csat_no_rating: "We couldn't find a rating (1 to 5) in your reply, so no rating was recorded and this conversation remains closed. If you need help, just send a new message and we'll start another conversation."
     reply:
       email:
         header:
