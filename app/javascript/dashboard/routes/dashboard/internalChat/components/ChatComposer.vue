@@ -215,7 +215,11 @@ const canSend = computed(
 // ponto do cursor e manda JUNTO, na mesma tecla - se essa quebra cair no fim
 // do texto (o caso comum), o `.trim()` normal a apagaria antes de enviar.
 const send = overrideBody => {
-  const outgoing = overrideBody ?? body.value.trim();
+  // So' texto de verdade vale como `overrideBody`: o botao Enviar chama `send`
+  // direto no clique e o Vue entrega o EVENTO como primeiro argumento, que
+  // quebrava o `.trim()` e fazia o botao nao enviar nada.
+  const outgoing =
+    typeof overrideBody === 'string' ? overrideBody : body.value.trim();
   if (isUploading.value) return;
   if (!outgoing.trim() && !pendingAttachments.value.length) return;
 
@@ -429,7 +433,7 @@ const onKeydown = event => {
       <Button
         :label="t('INTERNAL_CHAT.COMPOSER.SEND')"
         :disabled="!canSend"
-        @click="send"
+        @click="send()"
       />
     </div>
   </div>

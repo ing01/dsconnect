@@ -73,7 +73,21 @@ class Queues::InactivityService
   def nudged_at_for(conversation, last_message)
     value = conversation.additional_attributes&.dig(NUDGED_AT_KEY)
     nudged_at = value && Time.zone.parse(value)
-    nudged_at if nudged_at && nudged_at > last_message.created_at
+    nudged_at = nil unless nudged_at && nudged_at > last_message.created_at
+    nudged_at || nudge_notice_time(conversation, last_message)
+  end
+
+  # Fonte da verdade do aviso ja enviado: o marcador em `additional_attributes`
+  # e, se ele nao foi gravado, a PROPRIA mensagem de aviso. O marcador e' gravado
+  # DEPOIS de criar a mensagem; se algo falhar nesse intervalo (ex.: um listener
+  # levantando erro no commit da mensagem), a mensagem ja saiu mas o marcador
+  # nao existe - e a proxima rodada mandava o aviso de novo, a cada ciclo, e
+  # nunca chegava ao encerramento.
+  def nudge_notice_time(conversation, last_message)
+    conversation.messages
+                .where('created_at > ?', last_message.created_at)
+                .where("content_attributes ->> '#{NOTICE_KEY}' = 'nudge'")
+                .minimum(:created_at)
   end
 
   # Com a pausa ligada na Fila, os prazos so correm no horario de atendimento da

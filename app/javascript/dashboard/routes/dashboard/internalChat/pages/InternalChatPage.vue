@@ -12,6 +12,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { frontendURL } from 'dashboard/helper/URLHelper';
+import TicketsAPI from 'dashboard/api/tickets';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 import ChatSidebar from '../components/ChatSidebar.vue';
@@ -320,10 +321,30 @@ const createChannel = async payload => {
 
 // A referência de Ticket leva ao Ticket de verdade - é a integração que
 // justifica o Chat morar dentro da plataforma em vez de fora dela.
-const openTicket = ticketId =>
-  router.push(
-    frontendURL(`accounts/${route.params.accountId}/tickets/${ticketId}`)
-  );
+//
+// O `#35506` escrito na mensagem e o NUMERO do chamado (`display_id`), nao o id
+// interno que a rota `/tickets/:id` usa - navegar direto com ele abria OUTRO
+// ticket. Esta consulta traduz um no outro, igual a busca do menu lateral.
+const openTicket = async displayId => {
+  try {
+    const { data } = await TicketsAPI.get({
+      display_id: displayId,
+      per_page: 1,
+    });
+    const ticket = (data.payload || [])[0];
+
+    if (!ticket) {
+      useAlert(t('TICKET.SIDEBAR_SEARCH.NOT_FOUND', { number: displayId }));
+      return;
+    }
+
+    router.push(
+      frontendURL(`accounts/${route.params.accountId}/tickets/${ticket.id}`)
+    );
+  } catch {
+    useAlert(t('TICKET.SIDEBAR_SEARCH.ERROR'));
+  }
+};
 
 const isGrouped = index =>
   continuesBlock(
