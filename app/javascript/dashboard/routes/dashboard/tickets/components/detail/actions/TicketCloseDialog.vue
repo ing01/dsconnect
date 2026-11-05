@@ -155,8 +155,10 @@ const submit = async () => {
       id: props.ticket.id,
       resolution: needsResolution.value ? resolution.value.trim() : undefined,
     });
-    dialogRef.value?.close();
+    // Avisa a decisao ANTES de fechar o dialogo: fechar dispara `cancel`, e quem
+    // escuta (ResolveAction) so' ignora esse `cancel` se ja' soube da decisao.
     emit('closed');
+    dialogRef.value?.close();
   } catch (error) {
     // The server explains what went wrong - a refused delivery, a missing
     // address - and the ticket stays exactly as it was.
@@ -173,8 +175,10 @@ const submit = async () => {
 const leaveOpen = () => {
   if (isWorking.value) return;
 
-  dialogRef.value?.close();
+  // Decisao primeiro, fechamento depois: fechar o dialogo dispara `cancel`, que
+  // a conversa trataria como "desisti" e NAO resolveria.
   emit('left-open');
+  dialogRef.value?.close();
 };
 
 watch(
