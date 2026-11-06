@@ -6,13 +6,14 @@ import 'push_notification_service.dart';
 
 // Item do menu de três pontinhos: "Ativar notificações" quando o aparelho ainda
 // não está recebendo avisos, "Desativar notificações" quando está.
-class PushMenuTile extends StatelessWidget {
-  const PushMenuTile({super.key, required this.enabled});
-
-  final bool enabled;
+// Le o estado sozinho (provider) a cada vez que o menu abre: antes o valor vinha
+// de fora e, na tela do cliente, nunca era lido - o item sempre dizia "Ativar".
+class PushMenuTile extends ConsumerWidget {
+  const PushMenuTile({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enabled = ref.watch(pushEnabledProvider).value ?? false;
     return ListTile(
       leading: Icon(enabled ? Icons.notifications_off_outlined : Icons.notifications_active_outlined),
       title: Text(enabled ? 'Desativar notificações' : 'Ativar notificações'),

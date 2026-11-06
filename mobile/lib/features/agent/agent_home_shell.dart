@@ -17,7 +17,6 @@ class AgentHomeShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final biometricEnabled = ref.watch(biometricLockProvider).value?.enabled ?? false;
-    final pushEnabled = ref.watch(pushEnabledProvider).value ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -26,6 +25,7 @@ class AgentHomeShell extends ConsumerWidget {
           PopupMenuButton<_AppBarAction>(
             icon: const Icon(Icons.more_vert),
             tooltip: 'Mais opções',
+            onOpened: () => ref.invalidate(pushEnabledProvider),
             onSelected: (action) {
               switch (action) {
                 case _AppBarAction.biometric:
@@ -39,7 +39,7 @@ class AgentHomeShell extends ConsumerWidget {
             itemBuilder: (context) => [
               if (biometricEnabled)
                 const PopupMenuItem(value: _AppBarAction.biometric, child: BiometricMenuTile()),
-              PopupMenuItem(value: _AppBarAction.push, child: PushMenuTile(enabled: pushEnabled)),
+              const PopupMenuItem(value: _AppBarAction.push, child: PushMenuTile()),
               const PopupMenuItem(
                 value: _AppBarAction.logout,
                 child: ListTile(

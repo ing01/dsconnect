@@ -244,6 +244,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
     return PopupMenuButton<_AppBarAction>(
       icon: const Icon(Icons.more_vert),
       tooltip: 'Mais opções',
+      onOpened: () => ref.invalidate(pushEnabledProvider),
       onSelected: (action) {
         switch (action) {
           case _AppBarAction.biometric:
@@ -268,7 +269,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
             dense: true,
           ),
         ),
-        PopupMenuItem(value: _AppBarAction.push, child: PushMenuTile(enabled: ref.watch(pushEnabledProvider).value ?? false)),
+        const PopupMenuItem(value: _AppBarAction.push, child: PushMenuTile()),
         const PopupMenuItem(
           value: _AppBarAction.logout,
           child: ListTile(
