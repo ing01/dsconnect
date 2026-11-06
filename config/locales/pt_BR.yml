@@ -531,6 +531,8 @@ pt_BR:
     attachment: 'Anexo'
     no_content: 'Sem conteúdo'
   conversations:
+    waiting_in_queue: 'Este cliente já está aguardando na fila de atendimento (conversa #%{id}). Use "Pegar próximo da fila" para atendê-lo na ordem.'
+    in_attendance: 'Este cliente já está em atendimento com %{agent} (conversa #%{id}). Não é possível iniciar outra conversa com ele enquanto esse atendimento estiver aberto.'
     cancel:
       reason_required: Informe o motivo para cancelar a conversa.
     captain:

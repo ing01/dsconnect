@@ -20,6 +20,142 @@ RSpec.describe 'Conversations API', type: :request do
       expect(response).to have_http_status(:success)
       expect(Conversation.last.additional_attributes['agent_initiated']).to be(true)
     end
+
+    # O cliente que ja esta sendo atendido por OUTRA pessoa nao pode ser chamado de
+    # novo: ninguem fala com o mesmo cliente ao mesmo tempo.
+    context 'when the contact is already being attended by another agent' do
+      let(:other_agent) { create(:user, account: account, role: :agent) }
+      let(:other_inbox) { create(:inbox, account: account) }
+      let!(:ongoing) do
+        create(:conversation, account: account, inbox: other_inbox, contact: contact, status: :open).tap do |conversation|
+          conversation.update_columns(assignee_id: other_agent.id) # rubocop:disable Rails/SkipsModelValidations
+        end
+      end
+
+      def start_conversation
+        post "/api/v1/accounts/#{account.id}/conversations",
+             params: { contact_id: contact.id, inbox_id: inbox.id },
+             headers: agent.create_new_auth_token,
+             as: :json
+      end
+
+      it 'blocks it, naming who is attending and which conversation' do
+        expect { start_conversation }.not_to change(Conversation, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['code']).to eq('contact_in_attendance')
+        expect(response.parsed_body['conversation_id']).to eq(ongoing.display_id)
+        expect(response.parsed_body['error']).to include(other_agent.name)
+      end
+
+      it 'lets the agent who is already attending the contact go on' do
+        ongoing.update_columns(assignee_id: agent.id) # rubocop:disable Rails/SkipsModelValidations
+
+        start_conversation
+
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'does not block when the ongoing conversation is already resolved' do
+        ongoing.update_columns(status: Conversation.statuses[:resolved]) # rubocop:disable Rails/SkipsModelValidations
+
+        start_conversation
+
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'does not block when nobody is assigned to the ongoing conversation' do
+        ongoing.update_columns(assignee_id: nil) # rubocop:disable Rails/SkipsModelValidations
+
+        start_conversation
+
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    # Cliente que ja chamou e espera sem agente: quem inicia a conversa PUXA essa
+    # conversa da fila e fica com ela, em vez de abrir uma segunda.
+    context 'when the contact is already waiting without an agent' do
+      let!(:waiting) { create(:conversation, account: account, inbox: inbox, contact: contact, status: :open) }
+
+      def start_conversation(user = agent, extra = {})
+        post "/api/v1/accounts/#{account.id}/conversations",
+             params: { contact_id: contact.id, inbox_id: inbox.id }.merge(extra),
+             headers: user.create_new_auth_token,
+             as: :json
+      end
+
+      it 'pulls the waiting conversation instead of creating another one' do
+        expect { start_conversation }.not_to change(Conversation, :count)
+
+        expect(response).to have_http_status(:success)
+        expect(waiting.reload.assignee_id).to eq(agent.id)
+        expect(response.parsed_body['pulled_from_queue']).to be(true)
+      end
+
+      it 'does not mark a customer-initiated conversation as agent initiated' do
+        start_conversation
+
+        expect(waiting.reload.additional_attributes['agent_initiated']).to be_blank
+      end
+
+      it 'takes a conversation still with the bot and opens it' do
+        waiting.update_columns(status: Conversation.statuses[:pending]) # rubocop:disable Rails/SkipsModelValidations
+
+        start_conversation
+
+        expect(waiting.reload.status).to eq('open')
+        expect(waiting.assignee_id).to eq(agent.id)
+      end
+
+      it 'sends the typed message inside the pulled conversation' do
+        start_conversation(agent, { message: { content: 'Olá, como posso ajudar?' } })
+
+        expect(waiting.reload.messages.pluck(:content)).to include('Olá, como posso ajudar?')
+      end
+
+      context 'when it is in a manual queue' do
+        let(:team) { create(:team, account: account) }
+        let(:queue) { ServiceQueue.create!(account: account, team: team, name: 'Suporte', distribution_strategy: 'manual') }
+
+        before do
+          create(:team_member, team: team, user: agent)
+          waiting.update_columns(queue_id: queue.id) # rubocop:disable Rails/SkipsModelValidations
+        end
+
+        it 'lets a non-administrator pull it when it is the next in line' do
+          start_conversation
+
+          expect(response).to have_http_status(:success)
+          expect(waiting.reload.assignee_id).to eq(agent.id)
+        end
+
+        it 'keeps the queue order: refuses when someone else is ahead of it' do
+          ahead = create(:conversation, account: account, inbox: create(:inbox, account: account),
+                                        status: :open, created_at: 1.hour.ago)
+          ahead.update_columns(queue_id: queue.id) # rubocop:disable Rails/SkipsModelValidations
+
+          expect { start_conversation }.not_to change(Conversation, :count)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.parsed_body['code']).to eq('contact_waiting_in_queue')
+          expect(waiting.reload.assignee_id).to be_nil
+        end
+
+        it 'lets an administrator pull it regardless of the order' do
+          admin = create(:user, account: account, role: :administrator)
+          create(:inbox_member, user: admin, inbox: inbox)
+          ahead = create(:conversation, account: account, inbox: create(:inbox, account: account),
+                                        status: :open, created_at: 1.hour.ago)
+          ahead.update_columns(queue_id: queue.id) # rubocop:disable Rails/SkipsModelValidations
+
+          start_conversation(admin)
+
+          expect(response).to have_http_status(:success)
+          expect(waiting.reload.assignee_id).to eq(admin.id)
+        end
+      end
+    end
   end
 
   describe 'GET /api/v1/accounts/{account.id}/conversations' do

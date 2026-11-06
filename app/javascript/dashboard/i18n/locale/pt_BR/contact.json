@@ -622,6 +622,8 @@
     },
     "FORM": {
       "GO_TO_CONVERSATION": "Visualizar",
+      "OPEN_EXISTING_CONVERSATION": "Abrir a conversa em andamento",
+      "PULLED_FROM_QUEUE": "Este cliente já estava na fila: a conversa dele foi atribuída a você.",
       "SUCCESS_MESSAGE": "Mensagem enviada com sucesso!",
       "ERROR_MESSAGE": "Ocorreu um erro ao criar a conversa. Tente novamente mais tarde.",
       "NO_INBOX_ALERT": "Não há caixas de entrada disponíveis para iniciar uma conversa com este contato.",
