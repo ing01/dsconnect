@@ -6,6 +6,7 @@ import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.v
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import { format, parseISO, isPast } from 'date-fns';
 import { statusColor, priorityColor } from '../helpers/ticketLabels';
+import { ticketSubject } from '../helpers/ticketSubject';
 
 export default {
   components: {
@@ -37,6 +38,12 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Titulo completo (`[EMPRESA] | [SOLICITANTE] | [TITULO]`) em vez de so' o
+    // problema - usado no quadro do Modulo de Desenvolvimento.
+    fullSubject: {
+      type: Boolean,
+      default: false,
+    },
   },
   // The menu now carries its intent in one event: the card names the action,
   // the page decides how to run it.
@@ -57,6 +64,9 @@ export default {
       return this.isCompleted
         ? 'border-n-teal-7 bg-n-teal-4 hover:border-n-teal-8'
         : 'border-n-weak bg-n-solid-1 hover:border-n-slate-6';
+    },
+    subject() {
+      return ticketSubject(this.ticket);
     },
     priorityColor() {
       return priorityColor(this.ticket.priority);
@@ -268,7 +278,7 @@ export default {
         <span v-if="ticket.display_id" class="text-n-slate-10 font-normal">
           #{{ ticket.display_id }}
         </span>
-        {{ ticket.title }}
+        {{ fullSubject ? subject : ticket.title }}
       </p>
       <div v-if="!readOnly" class="flex-shrink-0">
         <NextButton

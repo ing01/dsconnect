@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'dev-full-ticket-title-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Backlog e Sprint ativo mostram o título completo do ticket',
+    description:
+      'Na lista do Backlog e nos cards do Sprint ativo, o ticket agora aparece com o título completo, no formato [EMPRESA] | [SOLICITANTE] | [TÍTULO], igual ao cabeçalho do ticket, e não só o problema.',
+  },
+  {
     id: 'ticket-dev-jira-fields-2026-11-06',
     date: '6 de novembro de 2026',
     isoDate: '2026-11-06',

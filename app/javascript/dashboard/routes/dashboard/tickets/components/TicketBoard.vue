@@ -40,6 +40,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Titulo completo nos cards - ver TicketCard.
+    fullSubject: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['addTicket', 'openTicket', 'moveTicket', 'menuAction'],
   data() {
@@ -132,6 +137,7 @@ export default {
         :filters="filters"
         :is-collapsed="isCollapsed(column.id)"
         :read-only="readOnly"
+        :full-subject="fullSubject"
         @toggle-collapse="toggleColumn"
         @add-ticket="$emit('addTicket', $event)"
         @open-ticket="$emit('openTicket', $event)"

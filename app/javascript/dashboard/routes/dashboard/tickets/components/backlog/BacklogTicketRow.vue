@@ -8,6 +8,7 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 import { priorityColor } from '../../helpers/ticketLabels';
+import { ticketSubject } from '../../helpers/ticketSubject';
 
 const props = defineProps({
   ticket: { type: Object, required: true },
@@ -84,8 +85,11 @@ const onColumnAction = ({ value }) => {
       #{{ ticket.display_id }}
     </span>
 
-    <p class="text-sm text-n-slate-12 truncate min-w-0 flex-1 m-0">
-      {{ ticket.title }}
+    <p
+      class="text-sm text-n-slate-12 truncate min-w-0 flex-1 m-0"
+      :title="ticketSubject(ticket)"
+    >
+      {{ ticketSubject(ticket) }}
     </p>
 
     <!-- Estagio - pilula pequena, igual o seletor de status do Jira. So'

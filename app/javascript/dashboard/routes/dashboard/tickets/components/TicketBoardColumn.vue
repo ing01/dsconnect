@@ -19,6 +19,7 @@ export default {
     // Vide TicketCard: o mesmo Estagio, sem o que e acao do atendimento -
     // arrastar e abrir ticket na coluna. Padrao `false`.
     readOnly: { type: Boolean, default: false },
+    fullSubject: { type: Boolean, default: false },
   },
   emits: [
     'addTicket',
@@ -177,6 +178,7 @@ export default {
             :ticket="element"
             :agents="agents"
             :read-only="readOnly"
+            :full-subject="fullSubject"
             :is-completed="column.kind === 'completed'"
             @click="$emit('openTicket', element)"
             @menu-action="$emit('menuAction', $event)"
