@@ -5,7 +5,10 @@
 class WhatsappTicketAutoCreationListener < BaseListener
   def conversation_created(event)
     conversation, = extract_conversation_and_account(event)
-    return unless conversation.inbox.channel_type == 'Channel::Whatsapp'
+    inbox = conversation.inbox
+    # WhatsApp e Portal do Cliente: sao os dois canais sem outro lugar onde o
+    # atendimento fique registrado se nenhuma Automacao rodar.
+    return unless inbox.channel_type == 'Channel::Whatsapp' || inbox.client_portal?
 
     Tickets::WhatsappAutoCreationService.new(conversation: conversation).perform
   end

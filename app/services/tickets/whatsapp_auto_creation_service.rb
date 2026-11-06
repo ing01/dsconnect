@@ -46,7 +46,7 @@ class Tickets::WhatsappAutoCreationService
   def ticket_attributes
     {
       title: ticket_title,
-      description: I18n.t('tickets.auto_creation.whatsapp_description', id: conversation.display_id),
+      description: I18n.t("tickets.auto_creation.#{channel_key}_description", id: conversation.display_id),
       priority: 'medium',
       team_id: team.id,
       ticket_column_id: ticket_column.id,
@@ -60,8 +60,13 @@ class Tickets::WhatsappAutoCreationService
 
   def ticket_title
     name = contact&.name.presence
-    return I18n.t('tickets.auto_creation.whatsapp_title_named', name: name) if name
+    return I18n.t("tickets.auto_creation.#{channel_key}_title_named", name: name) if name
 
-    I18n.t('tickets.auto_creation.whatsapp_title', id: conversation.display_id)
+    I18n.t("tickets.auto_creation.#{channel_key}_title", id: conversation.display_id)
+  end
+
+  # Chave dos textos: Portal do Cliente (inbox API marcado) ou WhatsApp.
+  def channel_key
+    conversation.inbox.client_portal? ? 'portal' : 'whatsapp'
   end
 end

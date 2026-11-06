@@ -1,0 +1,6 @@
+en:
+  tickets:
+    auto_creation:
+      portal_title: "Portal service #%{id}"
+      portal_title_named: "Portal service - %{name}"
+      portal_description: "Ticket opened automatically when the customer started a conversation in the Client Portal (#%{id})."
