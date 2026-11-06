@@ -24,6 +24,22 @@ RSpec.describe AutomationRules::Flow::DispatcherService do
     end
   end
 
+  # O aviso de fora do horario sai uma vez por dia por conversa. A marca fica em
+  # `content_attributes` (gravado como TEXTO JSON), entao e' lida em Ruby - o `->>`
+  # no SQL devolvia sempre NULL e o aviso saia a cada mensagem do cliente.
+  describe 'aviso de fora do horario' do
+    def avisos_de_offline
+      Message.where(conversation_id: conversation.id).to_a
+             .select { |message| message.content_attributes['attendance_offline_notice'].to_s == 'true' }
+    end
+
+    it 'manda o aviso uma unica vez no dia, mesmo chamado varias vezes' do
+      3.times { described_class.send(:send_offline_notice, account, conversation) }
+
+      expect(avisos_de_offline.size).to eq(1)
+    end
+  end
+
   describe '.resume' do
     let(:run) do
       create(:automation_flow_run, account: account, automation_rule: automation_rule, conversation: conversation,

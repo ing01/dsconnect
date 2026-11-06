@@ -172,13 +172,24 @@ class AutomationRules::Flow::DispatcherService
     end
 
     def send_offline_notice(account, conversation)
-      return if conversation.messages.today.where("content_attributes ->> 'attendance_offline_notice' = 'true'").exists?
+      return if offline_notice_sent_today?(conversation)
 
       Messages::MessageBuilder.new(
         nil, conversation,
         { content: account.attendance_offline_message_or_default, private: false,
           content_attributes: { attendance_offline_notice: true } }
       ).perform
+    end
+
+    # A marca e' lida em Ruby, NUNCA por `content_attributes ->> 'chave'` no SQL:
+    # `Message` grava `content_attributes` como TEXTO JSON (`store ..., coder: JSON`
+    # numa coluna `json`) e nesse formato o `->>` devolve sempre NULL - o aviso
+    # "ja mandei hoje" nunca era achado e saia a cada mensagem do cliente.
+    def offline_notice_sent_today?(conversation)
+      conversation.messages.today.reorder(created_at: :desc).limit(200).any? do |message|
+        attributes = message.content_attributes
+        attributes.respond_to?(:key?) && attributes['attendance_offline_notice'].to_s == 'true'
+      end
     end
 
     def route_to_queue(account, conversation)

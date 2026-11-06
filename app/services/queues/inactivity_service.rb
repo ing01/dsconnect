@@ -13,8 +13,10 @@
 # cliente responder, a ultima mensagem deixa de ser da equipe e tudo recomeca.
 # Ao encerrar, os Tickets vinculados a conversa tambem sao fechados.
 class Queues::InactivityService
-  NOTICE_KEY = 'inactivity_notice'.freeze
-  NUDGED_AT_KEY = 'inactivity_nudged_at'.freeze
+  include Inactivity::NoticeTracking
+
+  NOTICE_KEY = Inactivity::NoticeTracking::NOTICE_KEY
+  NUDGED_AT_KEY = Inactivity::NoticeTracking::NUDGED_AT_KEY
 
   pattr_initialize [:queue!]
 
@@ -39,7 +41,7 @@ class Queues::InactivityService
     return unless last_message&.outgoing?
 
     pause = pause_service(conversation)
-    final_delay = pause ? pause.config.pause_after : queue.inactivity_close_after
+    final_delay = final_delay_for(pause, queue.pause_config, queue.inactivity_close_after)
     nudged_at = nudged_at_for(conversation, last_message)
     if nudged_at
       finish(conversation, pause, nudged_at) if final_delay.present? && elapsed?(nudged_at, final_delay)
@@ -61,35 +63,6 @@ class Queues::InactivityService
     pause ? pause.pause! : close(conversation, since)
   end
 
-  def last_chat_message(conversation)
-    conversation.messages
-                .where(message_type: [:incoming, :outgoing], private: false)
-                .where("COALESCE(content_attributes ->> '#{NOTICE_KEY}', '') = ''")
-                .order(:created_at, :id).last
-  end
-
-  # O aviso so vale se for posterior a ultima mensagem da equipe; um aviso de
-  # uma rodada anterior (o cliente respondeu e a equipe falou de novo) e' ignorado.
-  def nudged_at_for(conversation, last_message)
-    value = conversation.additional_attributes&.dig(NUDGED_AT_KEY)
-    nudged_at = value && Time.zone.parse(value)
-    nudged_at = nil unless nudged_at && nudged_at > last_message.created_at
-    nudged_at || nudge_notice_time(conversation, last_message)
-  end
-
-  # Fonte da verdade do aviso ja enviado: o marcador em `additional_attributes`
-  # e, se ele nao foi gravado, a PROPRIA mensagem de aviso. O marcador e' gravado
-  # DEPOIS de criar a mensagem; se algo falhar nesse intervalo (ex.: um listener
-  # levantando erro no commit da mensagem), a mensagem ja saiu mas o marcador
-  # nao existe - e a proxima rodada mandava o aviso de novo, a cada ciclo, e
-  # nunca chegava ao encerramento.
-  def nudge_notice_time(conversation, last_message)
-    conversation.messages
-                .where('created_at > ?', last_message.created_at)
-                .where("content_attributes ->> '#{NOTICE_KEY}' = 'nudge'")
-                .minimum(:created_at)
-  end
-
   # Com a pausa ligada na Fila, os prazos so correm no horario de atendimento da
   # caixa do Portal (se a configuracao pedir e a caixa tiver horario ligado).
   def elapsed?(since, minutes)
@@ -106,7 +79,7 @@ class Queues::InactivityService
       next unless conversation.open? && last_message&.outgoing? && nudged_at_for(conversation, last_message).nil?
 
       send_notice(conversation, queue.inactivity_nudge_message, 'nudge')
-      conversation.update!(additional_attributes: (conversation.additional_attributes || {}).merge(NUDGED_AT_KEY => Time.current.iso8601))
+      conversation.update!(additional_attributes: (conversation.additional_attributes || {}).merge(nudge_marker))
     end
   end
 

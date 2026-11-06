@@ -1,12 +1,20 @@
 require 'rails_helper'
 
-# Aviso/encerramento por inatividade nao pode sair em duplicidade.
+# Aviso/encerramento/pausa por inatividade nao pode sair em duplicidade nem se repetir.
 #
-# No Portal do Cliente agem DOIS servicos, em jobs paralelos: o da Fila
-# (Queues::InactivityService) e o da caixa (Inboxes::InactivityService). Se os
-# dois cuidassem da mesma conversa, o cliente recebia o aviso duas vezes. Aqui
-# vale: a Fila, quando tem regras, manda; e cada servico trava a conversa e
-# reconfere o estado antes de avisar/encerrar.
+# Dois problemas reais que isto cobre:
+#
+# 1. O aviso era mandado a cada ciclo (5 min) e nunca chegava a pausa/encerramento.
+#    `Message#content_attributes` e' gravado como TEXTO JSON, entao filtrar por
+#    `content_attributes ->> 'inactivity_notice'` no SQL nunca achava nada: o aviso
+#    virava a "ultima mensagem da equipe" e reiniciava o relogio. Agora a marca e'
+#    lida em Ruby (Inactivity::NoticeTracking).
+# 2. No Portal agem DOIS servicos, em jobs paralelos: o da Fila e o da caixa. Se os
+#    dois cuidassem da mesma conversa, o cliente recebia o aviso duas vezes. Vale: a
+#    Fila, quando tem regras, manda; e cada servico trava a conversa e reconfere o
+#    estado antes de avisar/encerrar/pausar.
+#
+# As mensagens sao lidas SEMPRE em Ruby aqui tambem - e' o mesmo caminho do servico.
 describe 'Inatividade: sem mensagem em duplicidade' do
   let!(:account) { create(:account) }
   let!(:team) { create(:team, account: account) }
@@ -38,8 +46,9 @@ describe 'Inatividade: sem mensagem em duplicidade' do
     conversa
   end
 
+  # Le a marca em Ruby, como o servico (nao por SQL, que nao enxerga a coluna).
   def avisos(conversa, tipo)
-    conversa.messages.where("content_attributes ->> 'inactivity_notice' = ?", tipo)
+    Message.where(conversation_id: conversa.id).to_a.select { |m| m.content_attributes['inactivity_notice'] == tipo }
   end
 
   def rodar_caixa
@@ -50,6 +59,80 @@ describe 'Inatividade: sem mensagem em duplicidade' do
     Queues::InactivityService.new(queue: fila).perform
   end
 
+  context 'quando o aviso ja foi enviado' do
+    it 'nao avisa de novo a cada ciclo, mesmo que o marcador da conversa se perca' do
+      conversa = conversa_esperando_cliente(nil)
+
+      rodar_caixa
+      expect(avisos(conversa, 'nudge').size).to eq(1)
+
+      conversa.update!(additional_attributes: {}) # marcador perdido: a propria mensagem de aviso basta
+      travel(11.minutes) { 3.times { rodar_caixa } }
+
+      expect(avisos(conversa, 'nudge').size).to eq(1)
+    end
+
+    it 'o aviso nao conta como mensagem da equipe: depois do prazo encerra, sem novo aviso' do
+      conversa = conversa_esperando_cliente(nil)
+
+      rodar_caixa
+      travel(35.minutes) { 2.times { rodar_caixa } }
+
+      expect(conversa.reload).to be_resolved
+      expect(avisos(conversa, 'nudge').size).to eq(1)
+      expect(avisos(conversa, 'close').map(&:content)).to eq(['Encerrado por inatividade (caixa)'])
+    end
+  end
+
+  context 'com a pausa ligada na caixa' do
+    before do
+      portal_inbox.update!(inactivity_config: regras_da_caixa.merge(
+        'pause_enabled' => true, 'pause_after' => 5, 'pause_window' => 120, 'respect_working_hours' => false
+      ))
+    end
+
+    it 'avisa uma vez, pausa uma vez e nao repete nenhum dos dois' do
+      conversa = conversa_esperando_cliente(nil)
+
+      rodar_caixa
+      rodar_caixa
+      expect(avisos(conversa, 'nudge').size).to eq(1)
+      expect(conversa.reload).to be_open
+
+      travel(6.minutes) { 3.times { rodar_caixa } }
+
+      expect(conversa.reload).to be_snoozed
+      expect(avisos(conversa, 'nudge').size).to eq(1)
+      expect(avisos(conversa, 'pause').size).to eq(1)
+    end
+
+    it 'depois da pausa ja usada, encerra pelo prazo da pausa mesmo sem "encerrar apos" configurado' do
+      portal_inbox.update!(inactivity_config: { 'nudge_after' => 10, 'inactivity_message' => 'Ainda está aí?',
+                                                'resolve_message' => 'Encerrado por inatividade',
+                                                'pause_enabled' => true, 'pause_after' => 5, 'respect_working_hours' => false })
+      conversa = conversa_esperando_cliente(nil)
+      conversa.update!(additional_attributes: { 'pause_count' => 1 })
+
+      rodar_caixa
+      travel(6.minutes) { 2.times { rodar_caixa } }
+
+      expect(conversa.reload).to be_resolved
+      expect(avisos(conversa, 'pause')).to be_empty
+      expect(avisos(conversa, 'close').size).to eq(1)
+    end
+
+    it 'sem aviso configurado, pausa direto uma unica vez' do
+      portal_inbox.update!(inactivity_config: { 'pause_enabled' => true, 'pause_after' => 5, 'respect_working_hours' => false })
+      conversa = conversa_esperando_cliente(nil)
+
+      3.times { rodar_caixa }
+
+      expect(conversa.reload).to be_snoozed
+      expect(avisos(conversa, 'nudge')).to be_empty
+      expect(avisos(conversa, 'pause').size).to eq(1)
+    end
+  end
+
   context 'quando a Fila da conversa tem regras de inatividade' do
     it 'manda um unico aviso, com o texto da Fila, nas duas ordens de execucao' do
       conversa = conversa_esperando_cliente(fila_com_regras)
@@ -58,7 +141,26 @@ describe 'Inatividade: sem mensagem em duplicidade' do
       rodar_fila(fila_com_regras)
       rodar_caixa
 
-      expect(avisos(conversa, 'nudge').pluck(:content)).to eq(['Ainda está aí? (fila)'])
+      expect(avisos(conversa, 'nudge').map(&:content)).to eq(['Ainda está aí? (fila)'])
+    end
+
+    it 'com a pausa ligada na Fila, avisa uma vez e pausa uma vez' do
+      fila = fila_com_regras
+      fila.update!(inactivity_pause_config: { 'pause_enabled' => true, 'pause_after' => 5, 'respect_working_hours' => false })
+      conversa = conversa_esperando_cliente(fila)
+
+      rodar_caixa
+      rodar_fila(fila)
+      travel(6.minutes) do
+        3.times do
+          rodar_fila(fila)
+          rodar_caixa
+        end
+      end
+
+      expect(conversa.reload).to be_snoozed
+      expect(avisos(conversa, 'nudge').size).to eq(1)
+      expect(avisos(conversa, 'pause').size).to eq(1)
     end
 
     it 'encerra uma unica vez, com a mensagem da Fila' do
@@ -70,7 +172,7 @@ describe 'Inatividade: sem mensagem em duplicidade' do
       rodar_caixa
 
       expect(conversa.reload).to be_resolved
-      expect(avisos(conversa, 'close').pluck(:content)).to eq(['Encerrado por inatividade (fila)'])
+      expect(avisos(conversa, 'close').map(&:content)).to eq(['Encerrado por inatividade (fila)'])
     end
   end
 
@@ -81,7 +183,7 @@ describe 'Inatividade: sem mensagem em duplicidade' do
       3.times { rodar_caixa }
       rodar_fila(fila_com_regras)
 
-      expect(avisos(conversa, 'nudge').pluck(:content)).to eq(['Ainda está aí? (caixa)'])
+      expect(avisos(conversa, 'nudge').map(&:content)).to eq(['Ainda está aí? (caixa)'])
     end
   end
 

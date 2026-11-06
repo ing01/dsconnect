@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'inactivity-notice-repeat-fix-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'fix',
+    platform: 'web',
+    title: 'Aviso de inatividade não se repete mais',
+    description:
+      'Corrigimos o aviso de inatividade que era reenviado a cada 5 minutos e nunca chegava à pausa ou ao encerramento. Agora o aviso é enviado uma única vez, a pausa (quando ligada) entra no prazo configurado e, depois de uma pausa já usada, a conversa encerra no prazo definido. Também corrigimos o aviso de fora do horário, que podia repetir a cada mensagem do cliente, e a pesquisa de satisfação por WhatsApp, que não reconhecia a pesquisa já encerrada.',
+  },
+  {
     id: 'api-dev-fields-2026-11-06',
     date: '6 de novembro de 2026',
     isoDate: '2026-11-06',

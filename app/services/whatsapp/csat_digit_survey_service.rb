@@ -49,13 +49,17 @@ class Whatsapp::CsatDigitSurveyService
   # "respondida" separada em Message. Publico (nao privado): reaproveitado por
   # `self.pending_reply_conversation` acima, pra nao duplicar a query.
   def pending_survey_message
+    # `csat_dismissed` e' lido em Ruby, NUNCA por `content_attributes ->> 'chave'`
+    # no SQL: `Message` grava `content_attributes` como TEXTO JSON (`store ...,
+    # coder: JSON` numa coluna `json`) e nesse formato o `->>` devolve sempre NULL
+    # - a pesquisa encerrada nunca era reconhecida como encerrada.
     conversation.messages
                 .where(content_type: :input_csat)
                 .left_joins(:csat_survey_response)
                 .where(csat_survey_responses: { id: nil })
-                .where("COALESCE(messages.content_attributes ->> 'csat_dismissed', '') <> 'true'")
-                .order(created_at: :desc)
-                .first
+                .reorder(created_at: :desc)
+                .limit(20)
+                .find { |message| !survey_dismissed?(message) }
   end
 
   # A mensagem recebida e' a resposta da pesquisa pendente? Usado por
@@ -109,6 +113,11 @@ class Whatsapp::CsatDigitSurveyService
 
   def whatsapp_channel?
     inbox.channel_type == 'Channel::Whatsapp'
+  end
+
+  def survey_dismissed?(message)
+    attributes = message.content_attributes
+    attributes.respond_to?(:key?) && attributes['csat_dismissed'].to_s == 'true'
   end
 
   def csat_already_sent?
