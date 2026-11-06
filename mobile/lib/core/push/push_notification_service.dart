@@ -33,11 +33,17 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
 // (colaborador ou cliente - ver NotificationSubscriptionsController e
 // Api::V1::Client::PushSubscriptionsController) e mostra a notificacao na
 // tela quando o app esta aberto (o sistema so faz isso sozinho em 2o plano).
+// Resultado de "Ativar notificações" pelo menu.
+enum PushEnableResult { enabled, blockedBySystem, failed }
+
 class PushNotificationService {
   PushNotificationService(this._dio);
 
   final Dio _dio;
   static const _deviceIdKey = 'push_device_id';
+  // A pessoa desligou as notificacoes pelo menu: o app nao registra o aparelho de
+  // novo (nem ao abrir, nem ao entrar) ate' ela ligar outra vez.
+  static const _disabledKey = 'push_disabled_by_user';
   final _secureStorage = const FlutterSecureStorage();
   final _localNotifications = FlutterLocalNotificationsPlugin();
   bool _initialized = false;
@@ -56,8 +62,42 @@ class PushNotificationService {
   // continua aparecendo (ver `shouldShowForegroundPush`).
   bool chatTabOpen = false;
 
+  // Notificacoes "ativas": a pessoa nao as desligou e o sistema permite avisos.
+  Future<bool> isActive() async {
+    try {
+      if (await _secureStorage.read(key: _disabledKey) == 'true') return false;
+      final settings = await FirebaseMessaging.instance.getNotificationSettings();
+      return settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional;
+    } catch (error) {
+      debugPrint('Falha ao ler o estado das notificacoes: $error');
+      return false;
+    }
+  }
+
+  Future<PushEnableResult> enable(Session session) async {
+    try {
+      await _secureStorage.delete(key: _disabledKey);
+      await _ensureInitialized();
+      final settings = await FirebaseMessaging.instance.requestPermission();
+      if (settings.authorizationStatus == AuthorizationStatus.denied) return PushEnableResult.blockedBySystem;
+
+      await registerForSession(session);
+      return PushEnableResult.enabled;
+    } catch (error) {
+      debugPrint('Falha ao ativar o push: $error');
+      return PushEnableResult.failed;
+    }
+  }
+
+  Future<void> disable(Session session) async {
+    await _secureStorage.write(key: _disabledKey, value: 'true');
+    await unregisterForSession(session);
+  }
+
   Future<void> registerForSession(Session session) async {
     try {
+      if (await _secureStorage.read(key: _disabledKey) == 'true') return;
       await _ensureInitialized();
 
       final settings = await FirebaseMessaging.instance.requestPermission();

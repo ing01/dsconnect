@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/auth/biometric_lock.dart';
 import '../../core/auth/biometric_menu_item.dart';
+import '../../core/push/push_menu_item.dart';
 import '../tickets/ticket_list_screen.dart';
 
-enum _AppBarAction { biometric, logout }
+enum _AppBarAction { biometric, push, logout }
 
 // Fase 2 - "Meus tickets". Notificações e tempo real ainda faltam (ver o
 // plano do app).
@@ -16,6 +17,7 @@ class AgentHomeShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final biometricEnabled = ref.watch(biometricLockProvider).value?.enabled ?? false;
+    final pushEnabled = ref.watch(pushEnabledProvider).value ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -28,6 +30,8 @@ class AgentHomeShell extends ConsumerWidget {
               switch (action) {
                 case _AppBarAction.biometric:
                   ref.read(biometricLockProvider.notifier).disable();
+                case _AppBarAction.push:
+                  togglePushNotifications(context, ref);
                 case _AppBarAction.logout:
                   ref.read(sessionProvider.notifier).logout();
               }
@@ -35,6 +39,7 @@ class AgentHomeShell extends ConsumerWidget {
             itemBuilder: (context) => [
               if (biometricEnabled)
                 const PopupMenuItem(value: _AppBarAction.biometric, child: BiometricMenuTile()),
+              PopupMenuItem(value: _AppBarAction.push, child: PushMenuTile(enabled: pushEnabled)),
               const PopupMenuItem(
                 value: _AppBarAction.logout,
                 child: ListTile(

@@ -6,18 +6,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/auth/biometric_lock.dart';
 import '../../core/auth/biometric_menu_item.dart';
+import '../../core/push/push_menu_item.dart';
 import '../../core/push/push_notification_service.dart';
 import '../../core/realtime/action_cable_client.dart';
 import 'client_account_screen.dart';
 import 'client_chat_screen.dart';
+import 'client_entry_screen.dart';
 import 'client_notifications_screen.dart';
+import 'client_ticket_create_screen.dart';
 import 'client_ticket_detail_screen.dart';
 import 'models/client_notification.dart';
 import 'client_tickets_list_screen.dart';
 import 'providers/chat_notifier.dart';
 import 'providers/client_providers.dart';
 
-enum _AppBarAction { biometric, account, logout }
+enum _AppBarAction { biometric, account, push, logout }
 
 // Fase 3 - modo cliente: chamados, chat com a equipe e notificações. O
 // colaborador fica em segundo plano por enquanto (pedido da Ingrid).
@@ -29,15 +32,20 @@ class ClientHomeShell extends ConsumerStatefulWidget {
 }
 
 const _tabs = [
-  (title: 'Meus chamados', icon: Icons.confirmation_number_outlined, screen: ClientTicketsListScreen()),
-  (title: 'Chat', icon: Icons.chat_bubble_outline, screen: ClientChatScreen()),
-  (title: 'Notificações', icon: Icons.notifications_none, screen: ClientNotificationsScreen()),
+  (title: 'Meus chamados', icon: Icons.confirmation_number_outlined),
+  (title: 'Chat', icon: Icons.chat_bubble_outline),
+  (title: 'Notificações', icon: Icons.notifications_none),
 ];
 const _chatTabIndex = 1;
 const _notificationsTabIndex = 2;
 
 class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsBindingObserver {
   int _currentIndex = 0;
+  // A cada abertura do app (e a cada login) começa na tela de entrada, com as
+  // três opções. O estado morre junto com o shell, então nada é lembrado de uma
+  // vez para a outra. Escolher qualquer opção - ou uma aba, pelo aviso de
+  // resposta - sai da entrada.
+  bool _showEntry = true;
   // Abas já visitadas pelo usuário nesta sessão. O Chat só é montado (e sua
   // conexão WebSocket + chamada ao servidor só são abertas) quando o usuário
   // toca na aba pela primeira vez — evita disparar "Nova Mensagem" no painel
@@ -204,6 +212,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
     setState(() {
       _currentIndex = index;
       _visited.add(index);
+      _showEntry = false;
     });
     // Entrar na aba do Chat conta como "ver" as mensagens novas - some a
     // bolinha vermelha do icone.
@@ -213,6 +222,64 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
       // visita a tela acabou de montar e ja busca o historico sozinha.
       if (chatAlreadyOpened) ref.read(clientChatProvider.notifier).resync();
     }
+  }
+
+  // Escolher "Abrir chamado" já é sair da entrada: se a pessoa desistir do
+  // formulário, volta para a lista de chamados e não para os botões.
+  void _openTicketFromEntry() {
+    setState(() => _showEntry = false);
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClientTicketCreateScreen()));
+  }
+
+  // As telas das abas. A lista de chamados recebe o atalho "Iniciar chat", que
+  // troca de aba aqui no shell - o Chat só é montado quando a pessoa o escolhe.
+  Widget _screenFor(int index) {
+    if (index == _chatTabIndex) return const ClientChatScreen();
+    if (index == _notificationsTabIndex) return const ClientNotificationsScreen();
+    return ClientTicketsListScreen(onStartChat: () => _selectTab(_chatTabIndex));
+  }
+
+  // O menu de três pontinhos é o mesmo na entrada e nas abas.
+  Widget _buildMenu(bool biometricEnabled) {
+    return PopupMenuButton<_AppBarAction>(
+      icon: const Icon(Icons.more_vert),
+      tooltip: 'Mais opções',
+      onSelected: (action) {
+        switch (action) {
+          case _AppBarAction.biometric:
+            ref.read(biometricLockProvider.notifier).disable();
+          case _AppBarAction.account:
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClientAccountScreen()));
+          case _AppBarAction.push:
+            togglePushNotifications(context, ref);
+          case _AppBarAction.logout:
+            ref.read(sessionProvider.notifier).logout();
+        }
+      },
+      itemBuilder: (context) => [
+        if (biometricEnabled)
+          const PopupMenuItem(value: _AppBarAction.biometric, child: BiometricMenuTile()),
+        const PopupMenuItem(
+          value: _AppBarAction.account,
+          child: ListTile(
+            leading: Icon(Icons.person_outline),
+            title: Text('Minha conta'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+          ),
+        ),
+        PopupMenuItem(value: _AppBarAction.push, child: PushMenuTile(enabled: ref.watch(pushEnabledProvider).value ?? false)),
+        const PopupMenuItem(
+          value: _AppBarAction.logout,
+          child: ListTile(
+            leading: Icon(Icons.logout),
+            title: Text('Sair'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -253,53 +320,27 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
         _currentIndex == _chatTabIndex ? 0 : unread.where((item) => item.isChat).length;
     final unreadTotal = unread.length;
 
+    if (_showEntry) {
+      return ClientEntryScreen(
+        actions: [_buildMenu(biometricEnabled)],
+        onTalkToTeam: () => _selectTab(_chatTabIndex),
+        onOpenTicket: _openTicketFromEntry,
+        onFullPortal: () => setState(() => _showEntry = false),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_tabs[_currentIndex].title),
         actions: [
-          PopupMenuButton<_AppBarAction>(
-            icon: const Icon(Icons.more_vert),
-            tooltip: 'Mais opções',
-            onSelected: (action) {
-              switch (action) {
-                case _AppBarAction.biometric:
-                  ref.read(biometricLockProvider.notifier).disable();
-                case _AppBarAction.account:
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClientAccountScreen()));
-                case _AppBarAction.logout:
-                  ref.read(sessionProvider.notifier).logout();
-              }
-            },
-            itemBuilder: (context) => [
-              if (biometricEnabled)
-                const PopupMenuItem(value: _AppBarAction.biometric, child: BiometricMenuTile()),
-              const PopupMenuItem(
-                value: _AppBarAction.account,
-                child: ListTile(
-                  leading: Icon(Icons.person_outline),
-                  title: Text('Minha conta'),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                ),
-              ),
-              const PopupMenuItem(
-                value: _AppBarAction.logout,
-                child: ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text('Sair'),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                ),
-              ),
-            ],
-          ),
+          _buildMenu(biometricEnabled),
         ],
       ),
       body: IndexedStack(
         index: _currentIndex,
         children: [
           for (var i = 0; i < _tabs.length; i++)
-            _visited.contains(i) ? _tabs[i].screen : const SizedBox.shrink(),
+            _visited.contains(i) ? _screenFor(i) : const SizedBox.shrink(),
         ],
       ),
       bottomNavigationBar: NavigationBar(

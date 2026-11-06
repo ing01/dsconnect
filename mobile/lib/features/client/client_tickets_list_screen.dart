@@ -17,7 +17,10 @@ import 'providers/client_providers.dart';
 enum _TicketViewMode { card, list }
 
 class ClientTicketsListScreen extends ConsumerStatefulWidget {
-  const ClientTicketsListScreen({super.key});
+  const ClientTicketsListScreen({super.key, required this.onStartChat});
+
+  // "Iniciar chat": o shell troca para a aba do Chat.
+  final VoidCallback onStartChat;
 
   @override
   ConsumerState<ClientTicketsListScreen> createState() => _ClientTicketsListScreenState();
@@ -187,7 +190,7 @@ class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScree
                   }
                   return _viewMode == _TicketViewMode.card
                       ? ListView.separated(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 128),
                           itemCount: tickets.length,
                           separatorBuilder: (_, _) => const SizedBox(height: 8),
                           itemBuilder: (context, index) => _TicketTile(ticket: tickets[index]),
@@ -199,32 +202,78 @@ class _ClientTicketsListScreenState extends ConsumerState<ClientTicketsListScree
           ),
         ],
       ),
-      floatingActionButton: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          gradient: brandGradient,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(color: const Color(0xFF2781F6).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 6)),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(24),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ClientTicketCreateScreen()),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _StartChatButton(onTap: widget.onStartChat),
+          const SizedBox(height: 12),
+          Container(
+            height: 48,
+            decoration: BoxDecoration(
+              gradient: brandGradient,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(color: const Color(0xFF2781F6).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 6)),
+              ],
             ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.add, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text('Abrir chamado', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-                ],
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(24),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ClientTicketCreateScreen()),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.add, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text('Abrir chamado', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// "Iniciar chat": o atalho para falar com a equipe, em cima do "Abrir chamado" -
+// quem toca aqui esperando conversar não precisa descobrir a aba Chat.
+class _StartChatButton extends StatelessWidget {
+  const _StartChatButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const color = Color(0xFF2781F6);
+
+    return Material(
+      color: Colors.white,
+      elevation: 3,
+      shadowColor: Colors.black.withValues(alpha: 0.2),
+      shape: const StadiumBorder(side: BorderSide(color: color, width: 1.5)),
+      child: InkWell(
+        customBorder: const StadiumBorder(),
+        onTap: onTap,
+        child: const SizedBox(
+          height: 48,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.chat_bubble_outline, color: color),
+                SizedBox(width: 8),
+                Text('Iniciar chat', style: TextStyle(color: color, fontWeight: FontWeight.w700)),
+              ],
             ),
           ),
         ),
@@ -363,7 +412,7 @@ class _TicketGroupedList extends StatelessWidget {
       });
 
     return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.only(top: 8, bottom: 128),
       children: [
         for (final key in groupKeys)
           ExpansionTile(

@@ -18,6 +18,11 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((ref) 
   return PushNotificationService(ref.watch(apiClientProvider));
 });
 
+// Se este aparelho esta recebendo notificacoes (para o item do menu).
+final pushEnabledProvider = FutureProvider.autoDispose<bool>((ref) {
+  return ref.read(pushNotificationServiceProvider).isActive();
+});
+
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(ref.watch(apiClientProvider), ref.watch(sessionStorageProvider));
 });
