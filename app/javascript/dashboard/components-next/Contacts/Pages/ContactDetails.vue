@@ -4,6 +4,10 @@ import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { dynamicTime } from 'shared/helpers/timeHelper';
+import {
+  DuplicateContactException,
+  ExceptionWithMessage,
+} from 'shared/helpers/CustomErrors';
 
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -78,7 +82,26 @@ const updateContact = async () => {
     );
     useAlert(t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.SUCCESS_MESSAGE'));
   } catch (error) {
-    useAlert(t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.ERROR_MESSAGE'));
+    // Mostra o MOTIVO que o servidor devolveu (e-mail ja em uso, formato
+    // invalido...) em vez de sempre a mesma frase generica: sem ele ninguem
+    // sabe se precisa corrigir o dado ou chamar o suporte.
+    const i18nPrefix = 'CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM';
+    if (error instanceof DuplicateContactException) {
+      if (error.data?.includes('email')) {
+        useAlert(t(`${i18nPrefix}.EMAIL_ADDRESS.DUPLICATE`));
+      } else if (error.data?.includes('phone_number')) {
+        useAlert(t(`${i18nPrefix}.PHONE_NUMBER.DUPLICATE`));
+      } else {
+        useAlert(
+          error.contactErrorDetail ||
+            t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.ERROR_MESSAGE')
+        );
+      }
+    } else if (error instanceof ExceptionWithMessage) {
+      useAlert(error.data);
+    } else {
+      useAlert(t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.ERROR_MESSAGE'));
+    }
   }
 };
 
