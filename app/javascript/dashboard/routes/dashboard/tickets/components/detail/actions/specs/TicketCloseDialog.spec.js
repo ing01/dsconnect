@@ -91,15 +91,27 @@ describe('TicketCloseDialog', () => {
   });
 
   // Sem endereco nao ha mensagem, e sem mensagem nao ha editor - nem input de
-  // arquivo nenhum na tela.
-  it('offers no editor when the requester has no address', async () => {
+  // arquivo nenhum na tela. E o ticket fecha do mesmo jeito: o servidor nem pede
+  // a comunicacao nesse caso.
+  it('offers no editor and does not block the close when the requester has no address', async () => {
     const wrapper = await montar({
-      ticket: ticket({
-        missing_close_requirements: ['customer_communication', 'contact_email'],
-      }),
+      ticket: ticket({ customer_email: null, missing_close_requirements: [] }),
     });
 
     expect(wrapper.find('.editor').exists()).toBe(false);
+    expect(wrapper.text()).toContain('TICKET.CLOSE.NO_EMAIL_CAN_CLOSE');
+
+    await wrapper.find('button.confirmar').trigger('click');
+    await flushPromises();
+
+    expect(
+      dispatch.mock.calls.some(
+        ([acao]) => acao === 'tickets/sendCustomerCommunication'
+      )
+    ).toBe(false);
+    expect(
+      dispatch.mock.calls.some(([acao]) => acao === 'tickets/closeTicket')
+    ).toBe(true);
   });
 
   // A Resolucao alimenta o DueRules e a documentacao: sem ela nao se fecha, e o

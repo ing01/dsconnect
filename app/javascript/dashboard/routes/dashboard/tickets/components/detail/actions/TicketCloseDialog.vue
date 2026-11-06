@@ -63,9 +63,10 @@ const needsCommunication = computed(() =>
 // informational: the agent fixes it from the Checklist/Apontamentos tabs, not
 // from this dialog.
 const needsChecklist = computed(() => missing.value.includes('checklist'));
-// A requester with no address cannot be told anything, so this is reported on
-// its own instead of failing at send time.
-const missingEmail = computed(() => missing.value.includes('contact_email'));
+// Solicitante sem e-mail NAO impede o fechamento: nao ha a quem escrever, entao
+// nenhuma mensagem e' enviada e o ticket fecha normalmente (o servidor tambem nao
+// exige a comunicacao nesse caso).
+const noEmail = computed(() => !props.ticket.customer_email);
 
 const classification = computed(() => props.ticket.service_catalog_item);
 
@@ -79,8 +80,7 @@ const resolutionReady = computed(
 const subject = computed(() => props.ticket.display_subject);
 
 const communicationReady = computed(
-  () =>
-    !needsCommunication.value || (!missingEmail.value && !!body.value.trim())
+  () => !needsCommunication.value || !!body.value.trim()
 );
 const detailsReady = computed(
   () => !props.allowEditDetails || !!title.value.trim()
@@ -369,17 +369,17 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           {{ t('TICKET.CLOSE.STEP_COMMUNICATION') }}
         </h3>
 
-        <p v-if="!needsCommunication" class="text-sm text-n-slate-11">
-          {{ t('TICKET.CLOSE.COMMUNICATION_DONE') }}
+        <!-- Sem e-mail do solicitante: so' avisa que nada sera enviado. Nao
+             bloqueia - o ticket fecha do mesmo jeito. -->
+        <p
+          v-if="noEmail && !needsCommunication"
+          class="p-3 text-sm rounded-lg text-n-slate-11 bg-n-alpha-2"
+        >
+          {{ t('TICKET.CLOSE.NO_EMAIL_CAN_CLOSE') }}
         </p>
 
-        <!-- Nothing can be sent without an address, and saying so beats letting
-             the agent write a message that cannot go out. -->
-        <p
-          v-else-if="missingEmail"
-          class="p-3 text-sm rounded-lg text-n-amber-11 bg-n-amber-3"
-        >
-          {{ t('TICKET.CLOSE.NO_CONTACT_EMAIL') }}
+        <p v-else-if="!needsCommunication" class="text-sm text-n-slate-11">
+          {{ t('TICKET.CLOSE.COMMUNICATION_DONE') }}
         </p>
 
         <template v-else>

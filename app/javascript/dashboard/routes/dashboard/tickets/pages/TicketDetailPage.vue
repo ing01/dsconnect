@@ -277,6 +277,16 @@ const submitBlock = reason => runAction(() => block(reason), blockDialog);
 const submitUnblock = () => runAction(() => unblock(), unblockDialog);
 const submitCancel = reason => runAction(() => cancel(reason), cancelDialog);
 
+// Escolher "Cancelado" no seletor de status nao cancela na hora: o motivo e
+// obrigatorio, entao abre o mesmo dialogo do menu de acoes.
+const onChangeStatus = status => {
+  if (status === 'cancelled') {
+    cancelDialog.value?.open();
+    return;
+  }
+  changeStatus(status);
+};
+
 // Each of these edits one field in place, through the ticket's existing
 // `update` endpoint - there is no generic ticket form any more.
 const submitTitle = title =>
@@ -346,7 +356,7 @@ const submitContact = contactId =>
         @update-property="updateProperty"
         @update-custom-attribute="updateCustomAttribute"
         @move-to-column="moveToColumn"
-        @change-status="changeStatus"
+        @change-status="onChangeStatus"
         @edit-company="handleAction('editCompany')"
         @edit-contact="handleAction('editContact')"
       />

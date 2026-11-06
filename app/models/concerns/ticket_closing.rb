@@ -27,7 +27,6 @@ module TicketClosing
   MISSING_CATEGORY = 'ticket_category'.freeze
   MISSING_CATALOG = 'service_catalog'.freeze
   MISSING_COMMUNICATION = 'customer_communication'.freeze
-  MISSING_CONTACT_EMAIL = 'contact_email'.freeze
   MISSING_CHECKLIST = 'checklist'.freeze
   MISSING_RESOLUTION = 'resolution'.freeze
 
@@ -65,9 +64,9 @@ module TicketClosing
     ticket_customer_communications.closing_registered.exists?
   end
 
-  # The address the closing message would go to. Nil is itself a blocker: a
-  # ticket whose requester has no e-mail cannot be closed, and saying so is more
-  # useful than failing at send time.
+  # The address the closing message would go to. Nil NAO bloqueia o fechamento:
+  # sem e-mail nao ha para quem escrever, entao a comunicacao de encerramento
+  # simplesmente nao e exigida (ver `missing_communication_requirements`).
   def customer_email
     requester_contact&.email.presence
   end
@@ -104,13 +103,14 @@ module TicketClosing
 
   def missing_communication_requirements
     return [] if closing_communication_sent?
+    # Solicitante sem e-mail: nao ha a quem avisar, e o ticket fecha normalmente.
+    # O maximo que acontece e nao sair e-mail nenhum.
+    return [] if customer_email.blank?
     # Sem como enviar, a classificacao continua obrigatoria e a comunicacao nao:
     # o fechamento deixa de depender de algo que o ambiente nao permite fazer.
     return [] unless customer_email_deliverable?
 
-    missing = [MISSING_COMMUNICATION]
-    missing << MISSING_CONTACT_EMAIL if customer_email.blank?
-    missing
+    [MISSING_COMMUNICATION]
   end
 
   def closeable?
