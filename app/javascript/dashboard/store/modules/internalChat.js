@@ -36,10 +36,26 @@ export const state = {
   },
 };
 
+// Quando a sala teve a ultima mensagem (segundos). O que ja esta carregado
+// vale mais que `lastMessage` da lista porque inclui o que chegou pelo tempo real.
+const activityOf = room =>
+  Number(
+    room.messages[room.messages.length - 1]?.createdAt ??
+      room.lastMessage?.createdAt ??
+      0
+  ) || 0;
+
+// Quem falou por ultimo fica em cima, igual as conversas com clientes. O sort e
+// estavel: salas sem mensagem mantem a ordem que o servidor mandou.
+const byRecentActivity = rooms =>
+  [...rooms].sort((a, b) => activityOf(b) - activityOf(a));
+
 export const getters = {
   getUsers: _state => _state.users,
-  getChannels: _state => _state.rooms.filter(room => room.kind === 'channel'),
-  getDirects: _state => _state.rooms.filter(room => room.kind === 'direct'),
+  getChannels: _state =>
+    byRecentActivity(_state.rooms.filter(room => room.kind === 'channel')),
+  getDirects: _state =>
+    byRecentActivity(_state.rooms.filter(room => room.kind === 'direct')),
   getCurrentUserId: _state => _state.currentUserId,
   getActiveRoomId: _state => _state.activeRoomId,
   getUIFlags: _state => _state.uiFlags,
@@ -162,6 +178,12 @@ export const actions = {
       return;
     }
 
+    // Sempre, mesmo com a sala nunca aberta: e' o que sobe a conversa na lista
+    // e atualiza a previa, sem esperar buscar as mensagens.
+    commit(types.SET_INTERNAL_CHAT_LAST_MESSAGE, {
+      roomId: channelId,
+      message,
+    });
     if (room.isLoaded) {
       commit(types.ADD_INTERNAL_CHAT_MESSAGE, { roomId: channelId, message });
     }
@@ -357,6 +379,14 @@ export const mutations = {
     if (room.messages.some(item => item.id === message.id)) return;
 
     room.messages.push(message);
+  },
+
+  [types.SET_INTERNAL_CHAT_LAST_MESSAGE](_state, { roomId, message }) {
+    const room = findRoom(_state, roomId);
+    if (!room) return;
+    if ((room.lastMessage?.createdAt || 0) > (message.createdAt || 0)) return;
+
+    room.lastMessage = message;
   },
 
   [types.UPDATE_INTERNAL_CHAT_MESSAGE](_state, { roomId, message }) {

@@ -62,6 +62,37 @@ describe('internalChat realtime', () => {
     expect(room(store).messages.map(m => m.id)).toEqual([101, 102]);
   });
 
+  it('moves the conversation to the top of the list, even when never opened', () => {
+    const store = buildStore({ isLoaded: false });
+    store.state.internalChat.rooms.push({
+      id: 6,
+      kind: 'direct',
+      userId: 13,
+      unread: 0,
+      isLoaded: false,
+      messages: [],
+      lastMessage: { id: 90, createdAt: 1786999000, body: 'antiga' },
+    });
+    store.state.internalChat.rooms[0].lastMessage = {
+      id: 80,
+      createdAt: 1786000000,
+      body: 'mais antiga',
+    };
+    expect(store.getters['internalChat/getDirects'].map(r => r.id)).toEqual([
+      6, 5,
+    ]);
+
+    store.dispatch('internalChat/applyRealtimeMessage', {
+      channelId: 5,
+      message: incoming(),
+    });
+
+    expect(store.getters['internalChat/getDirects'].map(r => r.id)).toEqual([
+      5, 6,
+    ]);
+    expect(room(store).lastMessage.body).toBe('chegou agora');
+  });
+
   it('counts it as unread when the room is not the open one', () => {
     const store = buildStore({ activeRoomId: 7 });
 

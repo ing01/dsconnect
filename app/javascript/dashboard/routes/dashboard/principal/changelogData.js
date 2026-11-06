@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-recent-first-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Chat Interno: quem acabou de falar sobe para o topo na hora',
+    description:
+      'Ao receber uma mensagem, a conversa (ou canal) vai imediatamente para o primeiro lugar da lista e a prévia mostra a mensagem nova, igual às conversas com clientes. Antes a conversa só subia depois de abrir ou recarregar.',
+  },
+  {
+    id: 'movable-workspace-tabs-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Abas abertas agora podem ser arrastadas',
+    description:
+      'As abas que ficam na barra no topo (Tickets, E-mail, Chat Interno, tickets abertos...) agora podem ser arrastadas para trocar de posição entre si. A ordem escolhida fica guardada neste navegador.',
+  },
+  {
     id: 'translations-pt-br-2026-11-06',
     date: '6 de novembro de 2026',
     isoDate: '2026-11-06',
