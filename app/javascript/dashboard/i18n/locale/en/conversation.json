@@ -156,10 +156,23 @@
         "DUE": "due"
       }
     },
+    "CANCEL_DIALOG": {
+      "TITLE": "Cancel conversation",
+      "DESCRIPTION": "The conversation is closed silently, with no closing message or satisfaction survey to the customer.",
+      "REASON": "Reason for cancelling",
+      "REASON_PLACEHOLDER": "Explain why this conversation is being cancelled",
+      "TICKETS_WARNING": "These tickets, which belong only to this conversation, will also be cancelled, with the same reason:",
+      "SHARED_TICKETS_TITLE": "Tickets with other conversations",
+      "SHARED_TICKETS_HINT": "Tick to cancel the ticket too. Left unticked, only this conversation is cancelled and the ticket stays open.",
+      "OTHER_CONVERSATIONS": "Has {count} other linked conversation | Has {count} other linked conversations",
+      "BACK": "Back",
+      "CONFIRM": "Cancel conversation"
+    },
     "RESOLVE_DROPDOWN": {
       "CANCEL_CONVERSATION": "Cancel conversation",
       "CANCEL_CONFIRM": "Cancel this conversation? It will be closed without sending a closing message or satisfaction survey to the customer.",
       "CANCEL_DONE": "Conversation cancelled",
+      "CANCEL_ERROR": "Could not cancel the conversation. Please try again.",
       "MARK_PENDING": "Mark as pending",
       "SNOOZE_UNTIL": "Snooze",
       "SNOOZE": {

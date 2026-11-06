@@ -286,6 +286,8 @@ const actions = {
       snoozedUntil = null,
       customAttributes = null,
       cancelled = false,
+      cancelReason = '',
+      cancelTicketIds = [],
     }
   ) => {
     try {
@@ -313,6 +315,8 @@ const actions = {
         status,
         snoozedUntil,
         cancelled,
+        cancelReason,
+        cancelTicketIds,
       });
       commit(types.CHANGE_CONVERSATION_STATUS, {
         conversationId,
@@ -320,7 +324,10 @@ const actions = {
         snoozedUntil: updatedSnoozedUntil,
       });
     } catch (error) {
-      // Handle error
+      // Cancelar tem motivo obrigatorio e cancela os tickets vinculados: se o
+      // servidor recusar, quem chamou precisa saber (senao mostraria "Conversa
+      // cancelada" sem ter cancelado nada).
+      if (cancelled) throw error;
     }
   },
 

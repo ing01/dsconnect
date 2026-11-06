@@ -26,6 +26,20 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     @conversations_count = result[:count]
   end
 
+  # Tickets em andamento ligados a conversa, para o dialogo de "Cancelar conversa"
+  # mostrar o que sera cancelado junto. `other_conversations_count` > 0 quer dizer
+  # que o ticket tem OUTRAS conversas: ai quem cancela escolhe se ele tambem vai.
+  def linked_tickets
+    tickets = cancellable_tickets
+    others = other_conversations_counts(tickets)
+    render json: {
+      payload: tickets.map do |ticket|
+        { id: ticket.id, display_id: ticket.display_id, title: ticket.title, status: ticket.status,
+          other_conversations_count: others.fetch(ticket.id, 0) }
+      end
+    }
+  end
+
   def attachments
     @attachments_count = @conversation.attachments.count
     @attachments = @conversation.attachments
@@ -96,8 +110,12 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   end
 
   def toggle_status
+    return render_cancel_reason_required if cancelling? && cancel_reason.blank?
+
     # FIXME: move this logic into a service object
-    if bot_handoff?
+    if cancelling?
+      @status = cancel_with_linked_tickets
+    elsif bot_handoff?
       @conversation.bot_handoff!
     elsif resuming_inactivity_pause?
       @status = Inactivity::PauseService.for_paused(@conversation).resume_manually!(Current.user)
@@ -196,12 +214,64 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
 
   def set_conversation_status
     @conversation.status = params[:status]
-    mark_as_cancelled if params[:status].to_s == 'resolved' && ActiveModel::Type::Boolean.new.cast(params[:cancelled])
+    mark_as_cancelled if cancelling?
     @conversation.snoozed_until = parse_date_time(params[:snoozed_until].to_s) if params[:snoozed_until]
   end
 
   def mark_as_cancelled
-    @conversation.additional_attributes = (@conversation.additional_attributes || {}).merge('cancelled' => true)
+    @conversation.additional_attributes = (@conversation.additional_attributes || {}).merge(
+      'cancelled' => true, 'cancelled_reason' => cancel_reason
+    )
+  end
+
+  def cancelling?
+    params[:status].to_s == 'resolved' && ActiveModel::Type::Boolean.new.cast(params[:cancelled])
+  end
+
+  def cancel_reason
+    params[:cancel_reason].to_s.strip
+  end
+
+  def render_cancel_reason_required
+    render json: { error: I18n.t('conversations.cancel.reason_required') }, status: :unprocessable_entity
+  end
+
+  # Cancelar a conversa cancela, junto e no mesmo passo, os tickets em andamento
+  # ligados a ela - com o mesmo motivo. Se um deles falhar nada fica pela metade.
+  # Ticket ja fechado ou cancelado nao e' tocado.
+  def cancel_with_linked_tickets
+    Conversation.transaction do
+      set_conversation_status
+      saved = @conversation.save!
+      cancel_linked_tickets
+      saved
+    end
+  end
+
+  # Ticket so desta conversa: cancelado junto, sempre. Ticket com OUTRAS conversas
+  # (`other_conversations_count` > 0): so e' cancelado se quem cancelou escolheu
+  # isso (`cancel_ticket_ids`) - a conversa pode ser so um dos assuntos dele.
+  def cancel_linked_tickets
+    actor = Current.user if Current.user.is_a?(User)
+    tickets = cancellable_tickets
+    others = other_conversations_counts(tickets)
+    chosen = Array(params[:cancel_ticket_ids]).map(&:to_i)
+
+    tickets.each do |ticket|
+      next if others.fetch(ticket.id, 0).positive? && chosen.exclude?(ticket.id)
+
+      ticket.cancel!(actor, reason: cancel_reason)
+    end
+  end
+
+  def cancellable_tickets
+    @conversation.tickets.where(status: [:open, :resolved]).order(:id).to_a
+  end
+
+  def other_conversations_counts(tickets)
+    return {} if tickets.empty?
+
+    TicketConversation.where(ticket_id: tickets.map(&:id)).where.not(conversation_id: @conversation.id).group(:ticket_id).count
   end
 
   def handle_human_open

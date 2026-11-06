@@ -142,10 +142,23 @@
         "DUE": "venceu"
       }
     },
+    "CANCEL_DIALOG": {
+      "TITLE": "Cancelar conversa",
+      "DESCRIPTION": "A conversa é encerrada em silêncio, sem mensagem de encerramento nem avaliação ao cliente.",
+      "REASON": "Motivo do cancelamento",
+      "REASON_PLACEHOLDER": "Explique por que esta conversa está sendo cancelada",
+      "TICKETS_WARNING": "Estes tickets, que são só desta conversa, também serão cancelados, com o mesmo motivo:",
+      "SHARED_TICKETS_TITLE": "Tickets com outras conversas",
+      "SHARED_TICKETS_HINT": "Marque para cancelar também o ticket. Sem marcar, só esta conversa é cancelada e o ticket continua aberto.",
+      "OTHER_CONVERSATIONS": "Tem mais {count} conversa vinculada | Tem mais {count} conversas vinculadas",
+      "BACK": "Voltar",
+      "CONFIRM": "Cancelar conversa"
+    },
     "RESOLVE_DROPDOWN": {
       "CANCEL_CONVERSATION": "Cancelar conversa",
       "CANCEL_CONFIRM": "Cancelar esta conversa? Ela será encerrada sem enviar mensagem de encerramento nem avaliação ao cliente.",
       "CANCEL_DONE": "Conversa cancelada",
+      "CANCEL_ERROR": "Não foi possível cancelar a conversa. Tente novamente.",
       "MARK_PENDING": "Deixar pendente",
       "SNOOZE_UNTIL": "Pausar",
       "SNOOZE": {

@@ -325,7 +325,7 @@ class Conversation < ApplicationRecord
   def clear_cancelled_flag
     return unless will_save_change_to_status? && !resolved? && cancelled?
 
-    self.additional_attributes = additional_attributes.except('cancelled')
+    self.additional_attributes = additional_attributes.except('cancelled', 'cancelled_reason')
   end
 
   def trigger_queue_auto_assignment

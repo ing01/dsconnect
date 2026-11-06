@@ -584,6 +584,105 @@ RSpec.describe 'Conversations API', type: :request do
         expect(conversation.reload.status).to eq('resolved')
       end
 
+      # "Cancelar conversa" exige motivo e cancela, junto, os tickets em andamento
+      # ligados a ela - com o mesmo motivo. Ticket ja finalizado nao e' tocado.
+      describe 'cancelling the conversation' do
+        let(:team) { create(:team, account: account) }
+        let(:column) { create(:ticket_column, team: team) }
+        let(:open_ticket) { create(:ticket, account: account, team: team, ticket_column: column) }
+        let(:closed_ticket) do
+          create(:ticket, account: account, team: team, ticket_column: column).tap do |t|
+            t.update_columns(status: Ticket.statuses[:closed]) # rubocop:disable Rails/SkipsModelValidations
+          end
+        end
+
+        def cancel_conversation(params = {})
+          post "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/toggle_status",
+               headers: agent.create_new_auth_token,
+               params: { status: 'resolved', cancelled: true }.merge(params),
+               as: :json
+        end
+
+        before do
+          [open_ticket, closed_ticket].each do |ticket|
+            ticket.ticket_conversations.create!(account_id: account.id, conversation: conversation)
+          end
+        end
+
+        it 'refuses to cancel without a reason, leaving conversation and tickets untouched' do
+          cancel_conversation
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(conversation.reload.status).to eq('open')
+          expect(open_ticket.reload.status).to eq('open')
+        end
+
+        it 'cancels the conversation and the open linked ticket with the same reason' do
+          cancel_conversation(cancel_reason: 'Cliente desistiu')
+
+          expect(response).to have_http_status(:success)
+          expect(conversation.reload.status).to eq('resolved')
+          expect(conversation.additional_attributes['cancelled_reason']).to eq('Cliente desistiu')
+          expect(open_ticket.reload.status).to eq('cancelled')
+          expect(open_ticket.close_reason).to eq('Cliente desistiu')
+        end
+
+        it 'does not touch a ticket that is already closed' do
+          cancel_conversation(cancel_reason: 'Cliente desistiu')
+
+          expect(closed_ticket.reload.status).to eq('closed')
+        end
+
+        # Ticket com mais de uma conversa: a conversa pode ser so' um dos assuntos
+        # dele, entao cancelar a conversa NAO o cancela - so' se quem cancelou
+        # escolheu isso.
+        context 'when the ticket has other conversations too' do
+          let(:other_conversation) { create(:conversation, account: account) }
+          let(:shared_ticket) { create(:ticket, account: account, team: team, ticket_column: column) }
+
+          before do
+            [conversation, other_conversation].each do |c|
+              shared_ticket.ticket_conversations.create!(account_id: account.id, conversation: c)
+            end
+          end
+
+          it 'lists the other conversations count so the agent can be asked' do
+            get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}/linked_tickets",
+                headers: agent.create_new_auth_token,
+                as: :json
+
+            payload = response.parsed_body['payload'].index_by { |t| t['id'] }
+            expect(payload[shared_ticket.id]['other_conversations_count']).to eq(1)
+            expect(payload[open_ticket.id]['other_conversations_count']).to eq(0)
+            expect(payload.keys).not_to include(closed_ticket.id)
+          end
+
+          it 'cancels only the conversation by default, keeping the shared ticket open' do
+            cancel_conversation(cancel_reason: 'Cliente desistiu')
+
+            expect(conversation.reload.status).to eq('resolved')
+            expect(shared_ticket.reload.status).to eq('open')
+            # o ticket so' desta conversa continua sendo cancelado junto
+            expect(open_ticket.reload.status).to eq('cancelled')
+          end
+
+          it 'cancels the shared ticket too when it was chosen' do
+            cancel_conversation(cancel_reason: 'Cliente desistiu', cancel_ticket_ids: [shared_ticket.id])
+
+            expect(shared_ticket.reload.status).to eq('cancelled')
+            expect(shared_ticket.close_reason).to eq('Cliente desistiu')
+          end
+
+          it 'ignores ids of tickets that are not linked to the conversation' do
+            unrelated = create(:ticket, account: account, team: team, ticket_column: column)
+
+            cancel_conversation(cancel_reason: 'Cliente desistiu', cancel_ticket_ids: [unrelated.id])
+
+            expect(unrelated.reload.status).to eq('open')
+          end
+        end
+      end
+
       it 'toggles the conversation status to open from pending' do
         conversation.update!(status: 'pending')
 
