@@ -68,6 +68,11 @@ describe('contactHistoryHelper', () => {
       expect(formatHistoryDate(null, 'pt-BR')).toBe('');
     });
 
+    it('aceita o idioma do app com underline (pt_BR) sem lancar erro', () => {
+      expect(() => formatHistoryDate(1730851200, 'pt_BR')).not.toThrow();
+      expect(() => formatHistoryDate(1730851200, 'invalido_!!')).not.toThrow();
+    });
+
     it('formata dia/mes/ano e hora', () => {
       const text = formatHistoryDate(1730851200, 'pt-BR');
 

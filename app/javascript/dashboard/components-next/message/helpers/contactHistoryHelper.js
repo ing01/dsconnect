@@ -24,11 +24,20 @@ export const startsConversationBlock = (messages, index) =>
 
 export const formatHistoryDate = (timestamp, locale) => {
   if (!timestamp) return '';
-  return new Date(timestamp * 1000).toLocaleString(locale, {
+  const options = {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  };
+  const date = new Date(timestamp * 1000);
+  // O idioma do app vem como "pt_BR" (com underline), que o Intl rejeita com
+  // RangeError - e um erro aqui, na hora de desenhar, derrubava a lista inteira
+  // de mensagens. Troca para "pt-BR" e, se ainda assim falhar, usa o padrao.
+  try {
+    return date.toLocaleString(String(locale || '').replace('_', '-') || undefined, options);
+  } catch (error) {
+    return date.toLocaleString(undefined, options);
+  }
 };
