@@ -97,15 +97,26 @@ class Queues::InactivityService
     Inactivity::BusinessTime.new(@inbox, enabled: config.enabled? && config.respect_working_hours?).elapsed?(since, minutes)
   end
 
+  # O aviso e o marcador saem na mesma transacao, com a conversa TRAVADA e
+  # recarregada: se outra rodada (ou outro job) avisou enquanto esperavamos, o
+  # estado novo ja mostra o aviso e nao mandamos de novo.
   def nudge(conversation)
-    send_notice(conversation, queue.inactivity_nudge_message, 'nudge')
-    conversation.update!(additional_attributes: (conversation.additional_attributes || {}).merge(NUDGED_AT_KEY => Time.current.iso8601))
+    conversation.with_lock do
+      last_message = last_chat_message(conversation)
+      next unless conversation.open? && last_message&.outgoing? && nudged_at_for(conversation, last_message).nil?
+
+      send_notice(conversation, queue.inactivity_nudge_message, 'nudge')
+      conversation.update!(additional_attributes: (conversation.additional_attributes || {}).merge(NUDGED_AT_KEY => Time.current.iso8601))
+    end
   end
 
   # Aviso, resolucao da conversa e fechamento dos tickets vinculados andam
-  # juntos: se qualquer passo falhar, nada fica pela metade.
+  # juntos: se qualquer passo falhar, nada fica pela metade. A conversa fica
+  # travada e so' encerra se ainda estiver aberta e esperando o cliente.
   def close(conversation, since)
-    ActiveRecord::Base.transaction do
+    conversation.with_lock do
+      next unless conversation.open? && last_chat_message(conversation)&.outgoing?
+
       send_notice(conversation, queue.inactivity_close_message, 'close')
       conversation.inactivity_resolved_after = ((Time.current - since) / 60).round
       conversation.update!(status: :resolved)

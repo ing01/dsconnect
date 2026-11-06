@@ -76,7 +76,12 @@ class Inactivity::PauseService
 
   def pause!
     deadline = business_time.add_minutes(Time.current, config.pause_window)
-    ActiveRecord::Base.transaction do
+    paused = false
+    # Conversa travada e recarregada: se outra rodada ja pausou ou encerrou
+    # enquanto esperavamos, nao pausa (nem avisa) de novo.
+    conversation.with_lock do
+      next unless conversation.open?
+
       conversation.update!(
         status: :snoozed, assignee_id: nil,
         additional_attributes: attrs.merge(
@@ -86,8 +91,9 @@ class Inactivity::PauseService
         )
       )
       clear_requeued_flag
+      paused = true
     end
-    send_notice('pause', 'pause', { 'data_hora_limite' => format_time(deadline) }, yes_no_buttons: true)
+    send_notice('pause', 'pause', { 'data_hora_limite' => format_time(deadline) }, yes_no_buttons: true) if paused
   end
 
   # Prazos so no horario de atendimento da caixa (se a configuracao e a caixa

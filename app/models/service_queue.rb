@@ -67,6 +67,11 @@ class ServiceQueue < ApplicationRecord
     Inactivity::PauseConfig.new(inactivity_pause_config)
   end
 
+  # Mesmo criterio do escopo `with_inactivity_rules`.
+  def inactivity_rules?
+    inactivity_nudge_after.present? || inactivity_close_after.present? || pause_config.enabled?
+  end
+
   def push_event_data
     {
       id: id,

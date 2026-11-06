@@ -185,9 +185,28 @@ const createConversation = async ({ payload, isFromWhatsApp }) => {
       message: t('COMPOSE_NEW_CONVERSATION.FORM.GO_TO_CONVERSATION'),
     };
     discardCompose();
-    useAlert(t('COMPOSE_NEW_CONVERSATION.FORM.SUCCESS_MESSAGE'), action);
+    // O cliente ja estava esperando na fila: em vez de abrir outra conversa, a que
+    // ele tinha aberto foi atribuida a quem iniciou - e a pessoa precisa saber.
+    useAlert(
+      data.pulled_from_queue
+        ? t('COMPOSE_NEW_CONVERSATION.FORM.PULLED_FROM_QUEUE')
+        : t('COMPOSE_NEW_CONVERSATION.FORM.SUCCESS_MESSAGE'),
+      action
+    );
     return true; // Return success
   } catch (error) {
+    // Cliente ja em atendimento por outra pessoa: o aviso fica 12 s na tela, com
+    // o nome de quem atende e um link para a conversa - um toast de 2,5 s passava
+    // sem ser lido, e a pessoa tentava de novo achando que tinha sido falha.
+    if (error instanceof ExceptionWithMessage && error.conversationId) {
+      useAlert(error.data, {
+        type: 'link',
+        to: `/app/accounts/${error.accountId}/conversations/${error.conversationId}`,
+        message: t('COMPOSE_NEW_CONVERSATION.FORM.OPEN_EXISTING_CONVERSATION'),
+        duration: 12000,
+      });
+      return false;
+    }
     useAlert(
       error instanceof ExceptionWithMessage
         ? error.data

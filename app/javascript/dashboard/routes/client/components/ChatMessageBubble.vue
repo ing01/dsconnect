@@ -23,6 +23,9 @@ const props = defineProps({
   interactive: { type: Boolean, default: true },
 });
 
+// `retry`: reenviar uma mensagem que falhou (so' as do proprio cliente).
+defineEmits(['retry']);
+
 const { t } = useI18n();
 
 const rating = ref(0);
@@ -59,7 +62,7 @@ const enviarCsat = async () => {
         ? 'self-end bg-n-brand text-white'
         : 'self-start bg-n-alpha-2 text-n-slate-12',
       message.pending ? 'opacity-60' : '',
-      message.failed ? 'ring-2 ring-n-ruby-9' : '',
+      message.failed ? 'ring-2 ring-n-ruby-9 !bg-n-ruby-9 !text-white' : '',
     ]"
   >
     <span
@@ -114,10 +117,7 @@ const enviarCsat = async () => {
           @click="enviarCsat"
         />
       </div>
-      <p
-        v-else-if="interactive"
-        class="m-0 text-xs italic opacity-80"
-      >
+      <p v-else-if="interactive" class="m-0 text-xs italic opacity-80">
         {{ t('CLIENT_AREA.CHAT.CSAT.THANKS') }}
       </p>
     </template>
@@ -160,14 +160,26 @@ const enviarCsat = async () => {
     </div>
 
     <span
+      v-if="message.failed"
+      class="flex items-center gap-2 text-xs font-semibold text-white"
+    >
+      <Icon icon="i-lucide-triangle-alert" class="size-3.5" />
+      {{ t('CLIENT_AREA.CHAT.FAILED_LABEL') }}
+      <button
+        v-if="message.retryPayload"
+        type="button"
+        class="underline retry-message"
+        @click="$emit('retry')"
+      >
+        {{ t('CLIENT_AREA.CHAT.RETRY') }}
+      </button>
+    </span>
+    <span
+      v-else
       class="text-[11px] opacity-70"
       :class="message.from_you ? 'text-white' : 'text-n-slate-10'"
     >
-      {{
-        message.failed
-          ? t('CLIENT_AREA.CHAT.SEND_ERROR')
-          : dataHora(message.created_at)
-      }}
+      {{ dataHora(message.created_at) }}
     </span>
   </div>
 </template>

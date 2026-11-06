@@ -49,6 +49,11 @@ const isLoading = ref(true);
 const isChatBlocked = ref(false);
 const blockedMessage = ref('');
 const isSending = ref(false);
+// A falha do ultimo envio, em destaque ate a pessoa tentar de novo ou fechar:
+// um aviso de 2,5 s no topo passava despercebido e a mensagem so' ficava
+// "vermelha" sem dizer por que.
+const sendError = ref(null);
+const MAX_CONTENT_LENGTH = 150000;
 const messages = ref([]);
 const draft = ref('');
 const attachments = ref([]);
@@ -185,13 +190,38 @@ const ativarPush = async () => {
   if (!concedida) useAlert(t('CLIENT_AREA.CHAT.PUSH_DENIED'));
 };
 
-const enviar = async () => {
-  if (!podeEnviar()) return;
+// Traduz a falha para um motivo que a pessoa entende e sabe como resolver.
+const motivoDoErro = error => {
+  const status = error?.response?.status;
+  const dados = error?.response?.data;
 
-  const conteudo = draft.value.trim();
-  const arquivosEnviados = attachments.value;
-  const audioEnviado = recordedAudioFile.value;
+  // Sem resposta nenhuma: a requisicao nem chegou ao servidor.
+  if (!error?.response) return t('CLIENT_AREA.CHAT.ERRORS.OFFLINE');
+  if (status === 401) return t('CLIENT_AREA.CHAT.ERRORS.SESSION_EXPIRED');
+  if (status === 413) return t('CLIENT_AREA.CHAT.ERRORS.TOO_LARGE');
+  if (status >= 500) return t('CLIENT_AREA.CHAT.ERRORS.SERVER');
 
+  // 4xx com explicacao do servidor (conteudo longo demais, limite de anexos...).
+  const doServidor = dados?.error || dados?.message;
+  if (doServidor) return doServidor;
+
+  return t('CLIENT_AREA.CHAT.ERRORS.UNKNOWN', { status: status || '?' });
+};
+
+const mostrarFalha = (tempId, error, payload) => {
+  const falha = messages.value.find(item => item.id === tempId);
+  if (falha) {
+    falha.failed = true;
+    falha.pending = false;
+    // Guardado para "Tentar novamente" reenviar exatamente o que foi escrito.
+    falha.retryPayload = payload;
+  }
+  const motivo = typeof error === 'string' ? error : motivoDoErro(error);
+  sendError.value = { tempId, motivo };
+  useAlert(t('CLIENT_AREA.CHAT.SEND_ERROR_TOAST', { motivo }));
+};
+
+const enviarMensagem = async ({ conteudo, arquivosEnviados, audioEnviado }) => {
   // Otimista: aparece na hora, com um id temporario que o eco do cable (ou a
   // resposta desta mesma chamada) substitui - sem isso o cliente veria o
   // proprio texto "sumir" por um instante e so voltar depois do round-trip.
@@ -209,10 +239,6 @@ const enviar = async () => {
   messages.value.push(pendente);
   rolarParaFinal();
 
-  draft.value = '';
-  attachments.value = [];
-  recordedAudioFile.value = null;
-
   isSending.value = true;
   try {
     const { data } = await ClientAreaAPI.sendChatMessage({
@@ -220,6 +246,7 @@ const enviar = async () => {
       attachments: arquivosEnviados,
       audio: audioEnviado,
     });
+    sendError.value = null;
 
     if (
       data.conversation_id &&
@@ -252,13 +279,50 @@ const enviar = async () => {
     if (marcarBloqueado(error)) return;
 
     // A mensagem otimista fica marcada como falha em vez de desaparecer - o
-    // cliente sabe o que tentou mandar e pode tentar de novo.
-    const falha = messages.value.find(item => item.id === tempId);
-    if (falha) falha.failed = true;
-    useAlert(t('CLIENT_AREA.CHAT.SEND_ERROR'));
+    // cliente sabe o que tentou mandar e pode tentar de novo - e o motivo
+    // aparece numa faixa vermelha que nao some sozinha.
+    mostrarFalha(tempId, error, { conteudo, arquivosEnviados, audioEnviado });
   } finally {
     isSending.value = false;
   }
+};
+
+const enviar = async () => {
+  if (!podeEnviar()) return;
+
+  const conteudo = draft.value.trim();
+  const arquivosEnviados = attachments.value;
+  const audioEnviado = recordedAudioFile.value;
+
+  // Texto maior que o limite do servidor: avisa AGORA, com o numero, em vez de
+  // esperar a recusa (e sem apagar o que a pessoa escreveu).
+  if (conteudo.length > MAX_CONTENT_LENGTH) {
+    sendError.value = {
+      tempId: null,
+      motivo: t('CLIENT_AREA.CHAT.ERRORS.TOO_LONG', {
+        max: MAX_CONTENT_LENGTH.toLocaleString(),
+        atual: conteudo.length.toLocaleString(),
+      }),
+    };
+    return;
+  }
+
+  draft.value = '';
+  attachments.value = [];
+  recordedAudioFile.value = null;
+  await enviarMensagem({ conteudo, arquivosEnviados, audioEnviado });
+};
+
+// Reenvia uma mensagem que falhou: sai a bolha vermelha e o mesmo conteudo
+// volta a ser enviado (e, se der certo, o aviso some).
+const tentarNovamente = async mensagem => {
+  const payload = mensagem?.retryPayload;
+  if (!payload || isSending.value) return;
+
+  const index = messages.value.findIndex(item => item.id === mensagem.id);
+  if (index !== -1) messages.value.splice(index, 1);
+  sendError.value = null;
+  await enviarMensagem(payload);
 };
 
 const aoPressionarEnter = event => {
@@ -342,12 +406,56 @@ onBeforeUnmount(desconectar);
           v-for="mensagem in messages"
           :key="mensagem.id"
           :message="mensagem"
+          @retry="tentarNovamente(mensagem)"
         />
       </div>
 
       <div
         class="flex flex-col flex-shrink-0 gap-2 pt-2 border-t border-n-weak"
       >
+        <!-- Falha de envio: faixa vermelha, com o motivo, que fica ate a pessoa
+             tentar de novo ou fechar. -->
+        <div
+          v-if="sendError"
+          role="alert"
+          class="flex items-start gap-3 p-3 border-2 rounded-xl border-n-ruby-9 bg-n-ruby-3 send-error"
+        >
+          <Icon
+            icon="i-lucide-triangle-alert"
+            class="flex-shrink-0 mt-0.5 size-5 text-n-ruby-11"
+          />
+          <div class="flex flex-col flex-1 min-w-0 gap-1">
+            <p class="m-0 text-sm font-semibold text-n-ruby-11">
+              {{ t('CLIENT_AREA.CHAT.SEND_FAILED_TITLE') }}
+            </p>
+            <p class="m-0 text-sm break-words text-n-ruby-12">
+              {{ sendError.motivo }}
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <Button
+                v-if="sendError.tempId"
+                ruby
+                size="sm"
+                icon="i-lucide-rotate-cw"
+                :label="t('CLIENT_AREA.CHAT.RETRY')"
+                :is-loading="isSending"
+                @click="
+                  tentarNovamente(
+                    messages.find(item => item.id === sendError.tempId)
+                  )
+                "
+              />
+              <Button
+                faded
+                slate
+                size="sm"
+                :label="t('CLIENT_AREA.CHAT.DISMISS')"
+                @click="sendError = null"
+              />
+            </div>
+          </div>
+        </div>
+
         <div
           v-if="isRecordingAudio"
           class="flex flex-col gap-1 p-2 border rounded-lg border-n-weak"

@@ -2,6 +2,7 @@ import * as types from '../mutation-types';
 import ContactAPI from '../../api/contacts';
 import ConversationApi from '../../api/conversations';
 import camelcaseKeys from 'camelcase-keys';
+import { ExceptionWithMessage } from 'shared/helpers/CustomErrors';
 
 export const createMessagePayload = (payload, message) => {
   const { content, cc_emails, bcc_emails } = message;
@@ -105,6 +106,17 @@ export const actions = {
 
       return data;
     } catch (error) {
+      // Cliente ja em atendimento por outra pessoa: o servidor recusa e diz com
+      // quem e qual conversa. A tela precisa desse texto (e do link) - sem ele
+      // aparecia so' "nao foi possivel criar a conversa".
+      const dados = error?.response?.data;
+      const bloqueios = ['contact_in_attendance', 'contact_waiting_in_queue'];
+      if (bloqueios.includes(dados?.code)) {
+        const bloqueio = new ExceptionWithMessage(dados.error);
+        bloqueio.conversationId = dados.conversation_id;
+        bloqueio.accountId = dados.account_id;
+        throw bloqueio;
+      }
       throw new Error(error);
     } finally {
       commit(types.default.SET_CONTACT_CONVERSATIONS_UI_FLAG, {

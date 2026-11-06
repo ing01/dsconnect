@@ -521,6 +521,8 @@ en:
     attachment: 'Attachment'
     no_content: 'No content'
   conversations:
+    waiting_in_queue: 'This customer is already waiting in the queue (conversation #%{id}). Use "Pick up next in queue" to attend them in order.'
+    in_attendance: 'This customer is already being attended by %{agent} (conversation #%{id}). You cannot start another conversation with them while that one is open.'
     cancel:
       reason_required: Provide the reason to cancel the conversation.
     captain:

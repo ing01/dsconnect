@@ -20,15 +20,11 @@ const props = defineProps({
   isTwilioWhatsAppInbox: { type: Boolean, default: false },
   // eslint-disable-next-line vue/no-unused-properties
   messageTemplates: { type: Array, default: () => [] },
-  channelType: { type: String, default: '' },
   isLoading: { type: Boolean, default: false },
   disableSendButton: { type: Boolean, default: false },
-  hasSelectedInbox: { type: Boolean, default: false },
   hasNoInbox: { type: Boolean, default: false },
   isDropdownActive: { type: Boolean, default: false },
-  messageSignature: { type: String, default: '' },
   inboxId: { type: Number, default: null },
-  voiceEnabled: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
@@ -37,8 +33,6 @@ const emit = defineEmits([
   'sendWhatsappMessage',
   'sendTwilioMessage',
   'insertEmoji',
-  'addSignature',
-  'removeSignature',
   'attachFile',
 ]);
 
@@ -73,7 +67,6 @@ const shouldShowEmojiButton = computed(() => {
 const isRegularMessageMode = computed(() => {
   return !props.isWhatsappInbox && !props.isTwilioWhatsAppInbox;
 });
-
 
 const onClickInsertEmoji = emoji => {
   emit('insertEmoji', emoji);

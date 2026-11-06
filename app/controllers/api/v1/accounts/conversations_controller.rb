@@ -6,6 +6,8 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
 
   before_action :conversation, except: [:index, :meta, :search, :create, :filter]
   before_action :inbox, :contact, :contact_inbox, only: [:create]
+  before_action :ensure_contact_not_in_attendance, only: [:create]
+  before_action :find_waiting_conversation, only: [:create]
 
   ATTACHMENT_RESULTS_PER_PAGE = 100
 
@@ -53,8 +55,8 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
 
   def create
     ActiveRecord::Base.transaction do
-      @conversation = ConversationBuilder.new(params: params, contact_inbox: @contact_inbox).perform
-      mark_as_agent_initiated(@conversation)
+      @conversation = pull_or_build_conversation
+      mark_as_agent_initiated(@conversation) unless @pulled_from_queue
       Messages::MessageBuilder.new(Current.user, @conversation, params[:message]).perform if params[:message].present?
     end
   end
@@ -305,6 +307,103 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     return true if @conversation.queue_id.present? && @conversation.queue&.manual?
 
     @conversation.account.automation_rules.where(active: true).any?(&:flow?)
+  end
+
+  # BLOQUEIO: o cliente que ja esta sendo atendido por OUTRA pessoa nao pode ser
+  # chamado de novo. Sem isso, dois atendentes falavam com o mesmo cliente ao mesmo
+  # tempo - e, com a caixa travada em uma conversa so, a mensagem nova caia dentro
+  # da conversa de quem ja estava atendendo. Vale para o contato em QUALQUER caixa
+  # da conta (o cliente e' o mesmo), so' para conversa ABERTA com responsavel e so'
+  # quando o responsavel nao e' quem esta tentando - quem ja atende pode seguir.
+  def ensure_contact_not_in_attendance
+    return unless Current.user.is_a?(User)
+
+    active = contact_in_attendance_by_someone_else
+    return if active.blank?
+
+    render json: {
+      error: I18n.t('conversations.in_attendance', agent: active.assignee.name, id: active.display_id),
+      code: 'contact_in_attendance',
+      conversation_id: active.display_id,
+      account_id: active.account_id,
+      assignee_name: active.assignee.name
+    }, status: :unprocessable_entity
+  end
+
+  def contact_in_attendance_by_someone_else
+    Current.account.conversations.open
+           .where(contact_id: @contact_inbox.contact_id)
+           .where.not(assignee_id: [nil, Current.user.id])
+           .includes(:assignee)
+           .order(last_activity_at: :desc)
+           .first
+  end
+
+  # Cliente que JA chamou e esta esperando sem agente (conversa aberta ou pendente,
+  # sem responsavel, nesta caixa): quem inicia a conversa PUXA essa conversa da fila
+  # e fica com ela - em vez de abrir uma segunda conversa com o mesmo cliente.
+  #
+  # A trava da fila continua valendo: quem nao e' Administrador so pode pegar a
+  # conversa que e' a PROXIMA da fila (mesma ordem de `Queues#claim_next`); qualquer
+  # outra fica para o "Pegar proximo da fila". Sem isso, "iniciar conversa" viraria
+  # um jeito de escolher fora de ordem - exatamente o que a trava impede.
+  def find_waiting_conversation
+    return unless Current.user.is_a?(User)
+
+    @waiting_conversation = Current.account.conversations
+                                   .where(inbox_id: @contact_inbox.inbox_id, contact_id: @contact_inbox.contact_id,
+                                          assignee_id: nil, status: [:open, :pending])
+                                   .order(:created_at, :id).first
+    return if @waiting_conversation.blank? || may_take_from_queue?(@waiting_conversation)
+
+    render json: {
+      error: I18n.t('conversations.waiting_in_queue', id: @waiting_conversation.display_id),
+      code: 'contact_waiting_in_queue',
+      conversation_id: @waiting_conversation.display_id,
+      account_id: @waiting_conversation.account_id
+    }, status: :unprocessable_entity
+  end
+
+  def may_take_from_queue?(conversation)
+    return true if conversation.queue_id.blank?
+    return true if Current.account_user&.administrator?
+
+    next_in_queue_for_current_user&.id == conversation.id
+  end
+
+  # Mesmo criterio de `Queues#claim_next`: todas as filas dos Times do agente,
+  # maior prioridade primeiro e, na mesma prioridade, quem chamou primeiro.
+  def next_in_queue_for_current_user
+    queue_ids = Current.account.queues.where(team_id: Current.user.teams.ids).ids
+    return if queue_ids.empty?
+
+    Current.account.conversations
+           .where(queue_id: queue_ids, assignee_id: nil, status: :open)
+           .order(Arel.sql('priority DESC NULLS LAST, created_at ASC, id ASC'))
+           .first
+  end
+
+  def pull_or_build_conversation
+    return take_over_waiting_conversation(@waiting_conversation) if @waiting_conversation
+
+    ConversationBuilder.new(params: params, contact_inbox: @contact_inbox).perform
+  end
+
+  def take_over_waiting_conversation(conversation)
+    conversation.with_lock do
+      # Alguem pode ter pegado no meio tempo: nao rouba de quem acabou de assumir.
+      if conversation.assignee_id.present? && conversation.assignee_id != Current.user.id
+        conversation.errors.add(:base, I18n.t('conversations.in_attendance', agent: conversation.assignee.name, id: conversation.display_id))
+        raise ActiveRecord::RecordInvalid, conversation
+      end
+
+      conversation.assignee_agent_bot = nil
+      conversation.assignee = Current.user
+      conversation.status = :open if conversation.pending?
+      conversation.save!
+    end
+    @pulled_from_queue = true
+    conversation
   end
 
   # Chegar aqui so acontece por acao direta de um agente logado (botao "Nova
