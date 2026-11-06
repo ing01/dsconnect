@@ -108,7 +108,7 @@ Rails.application.routes.draw do
       # pela mesma razao do `client` acima: a conta vem da chave de API
       # (header `X-Ticket-Api-Key`), nunca da URL.
       namespace :integrations do
-        resources :tickets, only: [:index, :show, :create] do
+        resources :tickets, only: [:index, :show, :create, :update] do
           patch :route, on: :member
           resources :comments, controller: 'ticket_comments', only: [:index]
           resources :attachments, controller: 'ticket_attachments', only: [:index, :create]

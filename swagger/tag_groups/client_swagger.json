@@ -2425,6 +2425,41 @@
             "description": "Campo livre (jsonb) - a IA de triagem e sistemas de desenvolvimento gravam aqui qualquer informacao propria (analise, observacoes, documentacao, horas...). `PATCH .../route` faz MERGE nestas chaves, nunca substitui o objeto inteiro.",
             "additionalProperties": true
           },
+          "observacoes_dev": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
+          },
+          "observacoes_teste": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
+          },
+          "documentacao": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
+          },
+          "instrucoes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
+          },
+          "analise": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
+          },
           "team": {
             "type": "object",
             "properties": {
@@ -2656,6 +2691,41 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "observacoes_dev": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
+          },
+          "observacoes_teste": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
+          },
+          "documentacao": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
+          },
+          "instrucoes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
+          },
+          "analise": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
           }
         }
       },

@@ -53,6 +53,21 @@ requestBody:
               due_date:
                 type: string
                 format: date-time
+              observacoes_dev:
+                type: string
+                description: Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev.
+              observacoes_teste:
+                type: string
+                description: Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste.
+              documentacao:
+                type: string
+                description: Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao.
+              instrucoes:
+                type: string
+                description: Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes.
+              analise:
+                type: string
+                description: Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise.
               custom_attributes:
                 type: object
                 additionalProperties: true

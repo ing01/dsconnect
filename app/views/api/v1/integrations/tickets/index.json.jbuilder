@@ -22,5 +22,9 @@ json.payload do
     json.assignee_name ticket.assignee&.name
     json.created_at ticket.created_at.iso8601
     json.updated_at ticket.updated_at.iso8601
+    # Os campos do card do Jira, ja na lista (nil quando nao preenchidos).
+    Ticket::LONG_TEXT_CUSTOM_ATTRIBUTES.each do |field|
+      json.set! field, ticket.custom_attributes[field]
+    end
   end
 end

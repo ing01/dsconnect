@@ -543,6 +543,8 @@
         type: number
   get:
     $ref: ./integrations/tickets/show.yml
+  patch:
+    $ref: ./integrations/tickets/update.yml
 /api/v1/integrations/tickets/{id}/route:
   parameters:
     - name: id

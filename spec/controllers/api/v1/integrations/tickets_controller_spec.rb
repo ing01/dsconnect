@@ -82,6 +82,15 @@ RSpec.describe 'Ticket Integration API', type: :request do
     end
   end
 
+  describe 'GET /api/v1/integrations/tickets (campos do Jira)' do
+    it 'lists the Jira card fields on each item' do
+      ticket = create(:ticket, ticket_column: column, custom_attributes: { 'analise' => 'Texto' })
+      get '/api/v1/integrations/tickets', headers: headers
+      item = response.parsed_body['payload'].find { |t| t['id'] == ticket.id }
+      expect(item).to include('analise' => 'Texto', 'observacoes_dev' => nil)
+    end
+  end
+
   describe 'GET /api/v1/integrations/tickets/:id' do
     it 'returns the rich payload for the IA to analyse' do
       comunicacao = create(:ticket_customer_communication, ticket: ticket, direction: 'outbound', body: 'Resposta da equipe')
@@ -158,6 +167,17 @@ RSpec.describe 'Ticket Integration API', type: :request do
       expect(created.company_id).to eq(empresa.id)
       expect(created.assignee_id).to eq(agente.id)
       expect(created.custom_attributes).to eq('analysis' => 'Nota fiscal rejeitada')
+    end
+
+    it 'accepts the Jira card fields as top-level keys and exposes them' do
+      post '/api/v1/integrations/tickets',
+           params: { ticket: required_fields.merge(analise: 'Causa raiz', documentacao: 'Link') },
+           headers: headers, as: :json
+
+      expect(response).to have_http_status(:created)
+      body = response.parsed_body
+      expect(body).to include('analise' => 'Causa raiz', 'documentacao' => 'Link', 'observacoes_dev' => nil)
+      expect(Ticket.find(body['id']).custom_attributes).to eq('analise' => 'Causa raiz', 'documentacao' => 'Link')
     end
 
     it '422s without a title' do
@@ -265,6 +285,22 @@ RSpec.describe 'Ticket Integration API', type: :request do
       expect(response).to have_http_status(:success)
       ticket.reload
       expect(ticket.custom_attributes).to eq('feature' => ['Vendas'], 'analysis' => 'Causa raiz identificada')
+    end
+
+    it 'accepts the Jira card fields top-level, on route and on PATCH /tickets/:id' do
+      ticket.update!(custom_attributes: { 'feature' => ['Vendas'] })
+
+      patch "/api/v1/integrations/tickets/#{ticket.id}/route",
+            params: { observacoes_dev: 'Obs dev' }, headers: headers, as: :json
+      patch "/api/v1/integrations/tickets/#{ticket.id}",
+            params: { observacoes_teste: 'Obs teste', instrucoes: 'Passo a passo' }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body).to include('observacoes_dev' => 'Obs dev', 'observacoes_teste' => 'Obs teste')
+      expect(ticket.reload.custom_attributes).to eq(
+        'feature' => ['Vendas'], 'observacoes_dev' => 'Obs dev', 'observacoes_teste' => 'Obs teste',
+        'instrucoes' => 'Passo a passo'
+      )
     end
   end
 end

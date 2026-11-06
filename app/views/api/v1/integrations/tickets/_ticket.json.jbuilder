@@ -18,6 +18,11 @@ json.due_date resource.due_date&.iso8601
 # - ver `apply_custom_attributes` no controller, que faz MERGE em vez de
 # substituir o jsonb inteiro.
 json.custom_attributes resource.custom_attributes
+# Os campos do card do Jira tambem como primeiro nivel (mesmo valor que esta em
+# `custom_attributes`) - `nil` quando ainda nao preenchidos.
+Ticket::LONG_TEXT_CUSTOM_ATTRIBUTES.each do |field|
+  json.set! field, resource.custom_attributes[field]
+end
 
 json.team do
   json.id resource.team_id

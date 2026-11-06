@@ -8045,6 +8045,26 @@
                         "type": "string",
                         "format": "date-time"
                       },
+                      "observacoes_dev": {
+                        "type": "string",
+                        "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
+                      },
+                      "observacoes_teste": {
+                        "type": "string",
+                        "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
+                      },
+                      "documentacao": {
+                        "type": "string",
+                        "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
+                      },
+                      "instrucoes": {
+                        "type": "string",
+                        "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
+                      },
+                      "analise": {
+                        "type": "string",
+                        "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
+                      },
                       "custom_attributes": {
                         "type": "object",
                         "additionalProperties": true
@@ -8145,6 +8165,124 @@
             }
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "update-ticket",
+        "summary": "Update a ticket",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "Same as `PATCH .../route` (this is the REST-style alias). Applies any combination of routing/classification changes - every field is optional and applied independently, so this same endpoint also works as a general-purpose \"update\" for an external system (set the priority, assign someone, merge custom_attributes...) without requiring `team_id`. `note` is posted as a visible activity on the ticket for the team's awareness.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "team_id": {
+                    "type": "number",
+                    "description": "The Mesa (team) to move the ticket into"
+                  },
+                  "ticket_column_id": {
+                    "type": "number",
+                    "description": "The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted. Only applied when `team_id` is also present."
+                  },
+                  "service_catalog_item_id": {
+                    "type": "number",
+                    "description": "The Catalogo > Area > Item classification, if the AI determined one"
+                  },
+                  "ticket_category_id": {
+                    "type": "number",
+                    "description": "Must belong to the target Mesa"
+                  },
+                  "ticket_complexity_id": {
+                    "type": "number"
+                  },
+                  "assignee_id": {
+                    "type": "number",
+                    "description": "Sets the ticket's Nivel 1 responsavel. Must be a user of the same account."
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high",
+                      "urgent"
+                    ]
+                  },
+                  "observacoes_dev": {
+                    "type": "string",
+                    "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
+                  },
+                  "observacoes_teste": {
+                    "type": "string",
+                    "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
+                  },
+                  "documentacao": {
+                    "type": "string",
+                    "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
+                  },
+                  "instrucoes": {
+                    "type": "string",
+                    "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
+                  },
+                  "analise": {
+                    "type": "string",
+                    "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
+                  },
+                  "custom_attributes": {
+                    "type": "object",
+                    "description": "MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc). The Jira card text fields shown on tickets of a Mesa with the Desenvolvimento module use these keys (long text, up to 100000 characters each) - `observacoes_dev`, `observacoes_teste`, `documentacao`, `instrucoes`, `analise`. Any other key is capped at 1500 characters per string value.",
+                    "additionalProperties": true
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "A short note explaining the routing decision, posted as a visible activity on the ticket"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ticket_integration"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid routing (e.g. the stage does not belong to the given Mesa)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/integrations/tickets/{id}/route": {
@@ -8208,6 +8346,26 @@
                       "high",
                       "urgent"
                     ]
+                  },
+                  "observacoes_dev": {
+                    "type": "string",
+                    "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
+                  },
+                  "observacoes_teste": {
+                    "type": "string",
+                    "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
+                  },
+                  "documentacao": {
+                    "type": "string",
+                    "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
+                  },
+                  "instrucoes": {
+                    "type": "string",
+                    "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
+                  },
+                  "analise": {
+                    "type": "string",
+                    "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
                   },
                   "custom_attributes": {
                     "type": "object",
@@ -12129,6 +12287,41 @@
             "description": "Campo livre (jsonb) - a IA de triagem e sistemas de desenvolvimento gravam aqui qualquer informacao propria (analise, observacoes, documentacao, horas...). `PATCH .../route` faz MERGE nestas chaves, nunca substitui o objeto inteiro.",
             "additionalProperties": true
           },
+          "observacoes_dev": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
+          },
+          "observacoes_teste": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
+          },
+          "documentacao": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
+          },
+          "instrucoes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
+          },
+          "analise": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
+          },
           "team": {
             "type": "object",
             "properties": {
@@ -12360,6 +12553,41 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "observacoes_dev": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
+          },
+          "observacoes_teste": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
+          },
+          "documentacao": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
+          },
+          "instrucoes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
+          },
+          "analise": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
           }
         }
       },

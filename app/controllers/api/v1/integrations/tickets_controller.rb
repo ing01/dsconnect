@@ -6,6 +6,13 @@
 class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseController
   DEFAULT_PER_PAGE = 25
 
+  # Os campos do card do Jira (Observacoes do Desenvolvedor, Observacoes Sobre o
+  # Teste, Documentacao, Instrucoes, Analise). Guardados em `custom_attributes`,
+  # mas expostos tambem como campos de primeiro nivel - na leitura (lista e
+  # ticket) e na escrita (criar e atualizar), pra quem integra nao precisar
+  # conhecer onde ficam.
+  DEV_FIELDS = Ticket::LONG_TEXT_CUSTOM_ATTRIBUTES
+
   # As mesmas associacoes de Api::V1::Accounts::TicketsController::DETAIL_INCLUDES,
   # menos o que e' so'-interno (ticket_activities, ticket_followers,
   # ticket_sla_extensions, service_catalog_item): a IA externa nao precisa de
@@ -40,7 +47,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   # ticket_category_id sao obrigatorios na criacao, igual ao painel - esta
   # API nao abre excecao nenhuma a essa regra.
   def create
-    @ticket = current_account.tickets.new(create_params)
+    @ticket = current_account.tickets.new(create_attributes)
     @ticket.origin = 'integration_api'
     @ticket.team_id ||= @ticket.ticket_column&.team_id
     @ticket.save!
@@ -64,6 +71,10 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     @ticket.reload
     render :show
   end
+
+  # `PATCH /tickets/:id` - o mesmo que `route`, com o nome REST que quem
+  # integra espera para editar um ticket.
+  alias update route
 
   private
 
@@ -146,9 +157,22 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   # observacoes do dev, horas) - substituir apagaria qualquer chave gravada
   # por outro caminho (o formulario de abertura, por exemplo).
   def apply_custom_attributes
-    return if route_params[:custom_attributes].blank?
+    incoming = merged_custom_attributes(route_params)
+    return if incoming.blank?
 
-    @ticket.update!(custom_attributes: @ticket.custom_attributes.merge(route_params[:custom_attributes].to_h))
+    @ticket.update!(custom_attributes: @ticket.custom_attributes.merge(incoming))
+  end
+
+  # `custom_attributes` + os campos do Jira vindos como primeiro nivel (estes
+  # ganham se a mesma chave vier nos dois).
+  def merged_custom_attributes(source)
+    source[:custom_attributes].to_h.merge(source.slice(*DEV_FIELDS).to_h)
+  end
+
+  def create_attributes
+    base = create_params.except(*DEV_FIELDS, :custom_attributes).to_h
+    custom = merged_custom_attributes(create_params)
+    custom.present? ? base.merge(custom_attributes: custom) : base
   end
 
   # `TicketComment` exige um `user` humano (nao e opcional no model) - sem
@@ -167,13 +191,13 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
 
   def route_params
     params.permit(:team_id, :ticket_column_id, :service_catalog_item_id, :ticket_category_id,
-                  :ticket_complexity_id, :assignee_id, :priority, :note, custom_attributes: {})
+                  :ticket_complexity_id, :assignee_id, :priority, :note, *DEV_FIELDS, custom_attributes: {})
   end
 
   def create_params
     params.require(:ticket).permit(
       :title, :description, :priority, :team_id, :ticket_column_id, :company_id, :contact_id,
-      :ticket_category_id, :ticket_complexity_id, :assignee_id, :due_date, custom_attributes: {}
+      :ticket_category_id, :ticket_complexity_id, :assignee_id, :due_date, *DEV_FIELDS, custom_attributes: {}
     )
   end
 
