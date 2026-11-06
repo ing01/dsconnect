@@ -74,6 +74,15 @@ const downloadAll = async () => {
   }
 };
 
+// Um por vez, em ordem: a acao de upload/exclusao controla a bandeira de "em
+// andamento" por item, entao em paralelo ela voltaria a "livre" no primeiro que
+// terminasse.
+const inSequence = (items, task) =>
+  items.reduce(
+    (chain, item) => chain.then(() => task(item)),
+    Promise.resolve()
+  );
+
 const load = async () => {
   if (hasLoaded.value) return;
   hasLoaded.value = true;
@@ -98,9 +107,8 @@ const uploadFiles = async files => {
   if (!files.length) return;
 
   const failed = [];
-  for (const file of files) {
+  await inSequence(files, async file => {
     try {
-      // eslint-disable-next-line no-await-in-loop
       await store.dispatch('tickets/createAttachment', {
         ticketId: props.ticketId,
         file,
@@ -108,7 +116,7 @@ const uploadFiles = async files => {
     } catch (error) {
       failed.push(file.name);
     }
-  }
+  });
 
   if (failed.length) {
     useAlert(
@@ -216,9 +224,8 @@ const removeSelected = async () => {
   );
   const failed = [];
   isDeletingSelected.value = true;
-  for (const attachmentId of ids) {
+  await inSequence(ids, async attachmentId => {
     try {
-      // eslint-disable-next-line no-await-in-loop
       await store.dispatch('tickets/deleteAttachment', {
         ticketId: props.ticketId,
         attachmentId,
@@ -226,7 +233,7 @@ const removeSelected = async () => {
     } catch (error) {
       failed.push(attachmentId);
     }
-  }
+  });
   isDeletingSelected.value = false;
 
   // O que nao saiu continua selecionado, para tentar de novo.
