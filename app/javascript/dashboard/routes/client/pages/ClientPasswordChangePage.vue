@@ -64,7 +64,7 @@ const salvar = async () => {
     });
     markClientPasswordChanged();
     // Carga completa: o layout da área sobe do zero, já sem a trava.
-    window.location.assign('/app/client/tickets');
+    window.location.assign('/app/client');
   } catch (e) {
     // O servidor sabe qual regra falhou (senha atual errada, igual à padrão...).
     erro.value =

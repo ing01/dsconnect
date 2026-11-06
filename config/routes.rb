@@ -270,6 +270,9 @@ Rails.application.routes.draw do
               resources :labels, only: [:create, :index]
               resources :automation_flow_runs, only: [:index]
               resource :participants, only: [:show, :create, :update, :destroy]
+              # Mensagens das conversas anteriores do mesmo cliente (historico
+              # dentro da conversa nova).
+              resource :contact_history, only: [:show]
               resource :direct_uploads, only: [:create]
               resource :draft_messages, only: [:show, :update, :destroy]
               # "Abrir ticket automaticamente": a IA le a conversa e sugere
@@ -620,6 +623,9 @@ Rails.application.routes.draw do
           resources :suggestion_categories, only: [:index, :create, :update, :destroy]
 
           resources :projects do
+            collection do
+              get :counts
+            end
             member do
               post :generate_tickets
               post :cancel

@@ -11,7 +11,7 @@ import WootDatePicker from 'dashboard/components/ui/DatePicker/DatePicker.vue';
 import { DATE_RANGE_TYPES } from 'dashboard/components/ui/DatePicker/helpers/DatePickerHelper';
 import Select from 'dashboard/components-next/select/Select.vue';
 import Avatar from 'next/avatar/Avatar.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const { t } = useI18n();
 const moodEntriesStore = useMoodEntriesStore();
@@ -113,9 +113,7 @@ onMounted(fetchEntries);
       </div>
     </div>
 
-    <div v-if="isFetching" class="flex items-center justify-center py-10 text-n-slate-11">
-      <Spinner />
-    </div>
+    <PageLoader v-if="isFetching" />
 
     <div v-else-if="entries.length > 0" class="flex flex-col divide-y divide-n-weak">
       <div

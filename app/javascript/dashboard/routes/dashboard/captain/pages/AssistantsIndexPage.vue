@@ -4,7 +4,7 @@ import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const store = useStore();
 const router = useRouter();
@@ -82,9 +82,5 @@ onMounted(() => performRouting());
 </script>
 
 <template>
-  <div
-    class="flex items-center justify-center w-full bg-n-surface-1 text-n-slate-11"
-  >
-    <Spinner />
-  </div>
+  <PageLoader class="flex-1 h-full bg-n-surface-1" />
 </template>

@@ -28,7 +28,6 @@ import {
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ClientSidebar from './ClientSidebar.vue';
-import ClientTour from './components/ClientTour.vue';
 import ClientMonthlySurveyDialog from './components/ClientMonthlySurveyDialog.vue';
 
 // O idioma é definido no boot (vide `entrypoints/dashboard.js`), antes de
@@ -49,6 +48,10 @@ const showChatShortcut = computed(
       'client_chat_history_detail',
     ].includes(route.name)
 );
+
+// A tela de entrada mostra só as três opções: o menu lateral (e o botão que o
+// abre) só aparece depois que a pessoa escolhe uma delas e sai dessa tela.
+const showMenu = computed(() => route.name !== 'client_start');
 
 // Duas coisas diferentes: no desktop a barra RECOLHE (vira um trilho de
 // ícones); no celular ela ABRE e FECHA como gaveta.
@@ -143,12 +146,6 @@ const instalarApp = async () => {
   }
 };
 
-// O tutorial guiado controla a gaveta do celular sozinho enquanto roda (abre
-// antes de apontar pra um item do menu, fecha nos passos que nao sao dele) -
-// ver `ClientTour.vue`.
-const clientTourRef = ref(null);
-const abrirTutorial = () => clientTourRef.value?.start();
-
 // A Avaliação Mensal abre sozinha no primeiro acesso do mês, se ainda não
 // respondida - ver `ClientMonthlySurveyDialog.vue`. `surveyAnswered` começa
 // em `true` (esconde o botão do cabeçalho) até a checagem no servidor voltar,
@@ -195,6 +192,7 @@ onMounted(() => {
       class="flex items-center justify-between flex-shrink-0 gap-3 px-4 py-3 border-b sm:px-6 border-n-weak bg-n-solid-1"
     >
       <button
+        v-if="showMenu"
         type="button"
         class="flex items-center justify-center flex-shrink-0 rounded-lg size-9 text-n-slate-11 hover:bg-n-alpha-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
         :aria-label="t('CLIENT_AREA.MENU.TOGGLE')"
@@ -221,14 +219,6 @@ onMounted(() => {
           {{ contact.name }}
         </span>
         <Button
-          faded
-          slate
-          size="sm"
-          icon="i-lucide-graduation-cap"
-          :label="t('CLIENT_AREA.TOUR.OPEN_BUTTON')"
-          @click="abrirTutorial"
-        />
-        <Button
           v-if="!surveyAnswered"
           faded
           slate
@@ -237,20 +227,15 @@ onMounted(() => {
           :label="t('CLIENT_AREA.MONTHLY_SURVEY.OPEN_BUTTON')"
           @click="abrirAvaliacaoMensal"
         />
-        <span
+        <Button
           v-if="isInstallable"
-          class="contents"
-          data-tour-step="install-app"
-        >
-          <Button
-            faded
-            slate
-            size="sm"
-            icon="i-lucide-download"
-            :label="t('CLIENT_AREA.INSTALL_APP')"
-            @click="instalarApp"
-          />
-        </span>
+          faded
+          slate
+          size="sm"
+          icon="i-lucide-download"
+          :label="t('CLIENT_AREA.INSTALL_APP')"
+          @click="instalarApp"
+        />
         <Button
           faded
           slate
@@ -337,6 +322,7 @@ onMounted(() => {
          arranjo do painel interno. -->
     <div class="relative flex flex-1 min-h-0 min-w-0">
       <ClientSidebar
+        v-if="showMenu"
         :is-collapsed="isCollapsed"
         :is-mobile-open="isMobileOpen"
         @toggle-collapse="toggleCollapse"
@@ -346,7 +332,7 @@ onMounted(() => {
       <!-- Tocar fora fecha a gaveta - no celular não há espaço para um botão
            de fechar competindo com o conteúdo. -->
       <div
-        v-if="isMobileOpen"
+        v-if="showMenu && isMobileOpen"
         class="fixed inset-0 z-30 bg-n-slate-12/40 md:hidden"
         @click="isMobileOpen = false"
       />
@@ -364,7 +350,6 @@ onMounted(() => {
       <router-link
         v-if="showChatShortcut"
         :to="{ name: 'client_chat' }"
-        data-tour-step="floating-chat"
         class="fixed z-20 flex items-center justify-center text-white rounded-full shadow-lg bottom-6 right-6 size-14 bg-n-brand hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
         :aria-label="t('CLIENT_AREA.CHAT.FLOATING_BUTTON')"
         :title="t('CLIENT_AREA.CHAT.FLOATING_BUTTON')"
@@ -372,8 +357,6 @@ onMounted(() => {
         <Icon icon="i-lucide-message-circle" class="size-6" />
       </router-link>
     </div>
-
-    <ClientTour ref="clientTourRef" @sidebar-needed="isMobileOpen = $event" />
 
     <ClientMonthlySurveyDialog
       ref="monthlySurveyRef"

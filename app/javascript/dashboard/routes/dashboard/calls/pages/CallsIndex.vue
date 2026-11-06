@@ -15,7 +15,7 @@ import CallsEmptyState from 'dashboard/components-next/Calls/CallsEmptyState.vue
 import CallsFilterBar from 'dashboard/components-next/Calls/CallsFilterBar.vue';
 import { CALL_ACTIVITY_PARAMS } from 'dashboard/components-next/Calls/constants';
 import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const RESULTS_PER_PAGE = 25;
 
@@ -118,12 +118,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div
-    v-if="isInitializing"
-    class="flex items-center justify-center w-full h-full bg-n-surface-1"
-  >
-    <Spinner :size="24" />
-  </div>
+  <PageLoader v-if="isInitializing" class="h-full" />
   <CallsEmptyState v-else-if="!isVoiceEnabled" />
   <section
     v-else
@@ -148,9 +143,7 @@ onMounted(async () => {
     </header>
     <main class="flex-1 px-6 overflow-y-auto">
       <div class="w-full">
-        <div v-if="isFetching" class="flex items-center justify-center py-16">
-          <Spinner :size="24" />
-        </div>
+        <PageLoader v-if="isFetching" />
         <div
           v-else-if="!calls.length"
           class="flex items-center justify-center py-16"

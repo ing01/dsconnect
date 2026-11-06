@@ -7,6 +7,10 @@ class ProjectPolicy < ApplicationPolicy
     true
   end
 
+  def counts?
+    true
+  end
+
   def create?
     true
   end

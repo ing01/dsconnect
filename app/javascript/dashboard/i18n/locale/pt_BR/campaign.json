@@ -154,7 +154,8 @@
         "CAMPAIGN_DETAILS": {
           "SENT_FROM": "Enviado de",
           "ON": "ativado"
-        }
+        },
+        "ANALYTICS": "Ver análises"
       },
       "CREATE": {
         "TITLE": "Criar campanha do WhatsApp",
@@ -200,6 +201,91 @@
             "SUCCESS_MESSAGE": "Campanha do WhatsApp criada com sucesso",
             "ERROR_MESSAGE": "Houve um erro. Por favor, tente novamente."
           }
+        }
+      },
+      "ANALYTICS": {
+        "LOADING": "Carregando análises...",
+        "EMPTY": "Nenhum registro de entrega encontrado.",
+        "EMPTY_FILTER": "Nenhum registro de entrega {status} encontrado.",
+        "DELIVERIES_ERROR": "Não foi possível carregar os registros de entrega. Atualize a página para tentar novamente.",
+        "EMPTY_STATE": {
+          "ERROR": {
+            "TITLE": "Não foi possível carregar as análises",
+            "DESCRIPTION": "Atualize a página para tentar novamente."
+          },
+          "PENDING": {
+            "TITLE": "Os dados de entrega aparecerão quando o envio começar",
+            "DESCRIPTION": "Ainda não há registros de entrega para esta campanha."
+          },
+          "UNAVAILABLE": {
+            "TITLE": "As análises não estão disponíveis para esta campanha",
+            "DESCRIPTION": "Nenhum dado de entrega foi registrado para esta campanha. Isso pode acontecer com campanhas enviadas antes da existência das análises de campanha."
+          }
+        },
+        "PROCESSING_BANNER": "Esta campanha ainda está em processamento. As análises serão atualizadas conforme as mensagens forem enviadas e os status de entrega forem recebidos.",
+        "RATE": "{value}% do público",
+        "SENT_ON": "Enviada em {date}",
+        "PAGE_INFO": "Mostrando {startItem} - {endItem} de {totalItems} contato | Mostrando {startItem} - {endItem} de {totalItems} contatos",
+        "BREADCRUMB": {
+          "CAMPAIGNS": "Campanhas",
+          "WHATSAPP": "WhatsApp"
+        },
+        "FILTERS": {
+          "ALL": "Todos"
+        },
+        "METRICS": {
+          "AUDIENCE": {
+            "LABEL": "Público",
+            "HINT": "Contatos incluídos nesta campanha."
+          },
+          "SENT": {
+            "LABEL": "Enviadas",
+            "HINT": "Mensagens aceitas pelo WhatsApp para entrega."
+          },
+          "DELIVERED": {
+            "LABEL": "Entregues",
+            "HINT": "Mensagens que chegaram ao aparelho do contato. As lidas estão incluídas."
+          },
+          "READ": {
+            "LABEL": "Lidas",
+            "HINT": "Mensagens abertas pelo contato."
+          },
+          "FAILED": {
+            "LABEL": "Falhas",
+            "HINT": "Mensagens que o WhatsApp não conseguiu entregar."
+          },
+          "SKIPPED": {
+            "LABEL": "Ignoradas",
+            "HINT": "Contatos ignorados antes do envio, geralmente por telefone ausente ou inválido."
+          }
+        },
+        "STATUS": {
+          "QUEUED": "Na fila",
+          "SENT": "Enviada",
+          "DELIVERED": "Entregue",
+          "READ": "Lida",
+          "FAILED": "Falhou",
+          "SKIPPED": "Ignorada"
+        },
+        "BREAKDOWN": {
+          "TITLE": "Resumo das entregas",
+          "DELIVERY_RATE": "{value}% entregues",
+          "LEGEND": {
+            "READ": "Lidas",
+            "DELIVERED": "Entregues",
+            "FAILED": "Falhas",
+            "SKIPPED": "Ignoradas",
+            "PENDING": "Pendentes"
+          }
+        },
+        "TABLE": {
+          "TITLE": "Entregas",
+          "CONTACT": "Contato",
+          "STATUS": "Status",
+          "MESSAGE": "Mensagem",
+          "MESSAGE_NOT_GENERATED": "Não gerada",
+          "REASON": "Motivo",
+          "ERROR_CODE": "Código {code}"
         }
       }
     },

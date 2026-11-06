@@ -13,6 +13,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  readonly: {
+    type: Boolean,
+    default: false,
+  },
+  emptyMessage: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['openProject', 'moveProject']);
@@ -53,6 +61,8 @@ const getStageProjects = stageKey => {
       :title="t(`PROJECTS.STAGES.${stage.key.toUpperCase()}`, stage.label)"
       :color="stage.color"
       :show-completed="showCompleted"
+      :readonly="readonly"
+      :empty-message="emptyMessage"
       :projects="getStageProjects(stage.key)"
       @open-project="emit('openProject', $event)"
       @move-project="emit('moveProject', $event)"

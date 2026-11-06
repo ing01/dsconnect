@@ -3,7 +3,7 @@ import { useRoute } from 'vue-router';
 import { useFunctionGetter } from 'dashboard/composables/store';
 
 import WootReports from './components/WootReports.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const route = useRoute();
 const team = useFunctionGetter('teams/getTeamById', route.params.id);
@@ -21,7 +21,5 @@ const team = useFunctionGetter('teams/getTeamById', route.params.id);
     :report-title="$t('TEAM_REPORTS.HEADER')"
     has-back-button
   />
-  <div v-else class="w-full py-20">
-    <Spinner class="mx-auto" />
-  </div>
+  <PageLoader v-else />
 </template>

@@ -69,7 +69,7 @@
         "SELECT_TEAM": "Selecione um departamento",
         "QUEUE": "Fila",
         "SELECT_QUEUE": "Selecione uma fila",
-        "LABELS": "Tags",
+        "LABELS": "Etiquetas",
         "LABELS_PLACEHOLDER": "tag-um, tag-dois",
         "PRIORITY": "Prioridade",
         "PRIORITY_LOW": "Baixa",

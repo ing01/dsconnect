@@ -10,7 +10,7 @@ import filterQueryGenerator from 'dashboard/helper/filterQueryGenerator';
 
 import ContactsListLayout from 'dashboard/components-next/Contacts/ContactsListLayout.vue';
 import ContactEmptyState from 'dashboard/components-next/Contacts/EmptyState/ContactEmptyState.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import ContactsList from 'dashboard/components-next/Contacts/Pages/ContactsList.vue';
 import ContactsBulkActionBar from '../components/ContactsBulkActionBar.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
@@ -520,12 +520,7 @@ onMounted(async () => {
       @clear-filters="fetchContacts"
       @load-more="loadMoreSearchResults"
     >
-      <div
-        v-if="isFetchingList && !(isSearchView && hasContacts)"
-        class="flex items-center justify-center py-10 text-n-slate-11"
-      >
-        <Spinner />
-      </div>
+      <PageLoader v-if="isFetchingList && !(isSearchView && hasContacts)" />
 
       <template v-else>
         <ContactsBulkActionBar

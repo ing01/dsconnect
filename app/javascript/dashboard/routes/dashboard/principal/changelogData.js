@@ -8,6 +8,56 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'translations-pt-br-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'fix',
+    platform: 'web',
+    title: 'Pausa por inatividade agora vale tambÃ©m para as conversas das Filas',
+    description:
+      'A pesquisa de satisfação (CSAT) e outras mensagens automáticas do sistema agora saem em português. Também traduzimos as telas de análises de campanhas do WhatsApp, os seletores de variáveis, emojis, macros e menções da conversa, os atalhos de formatação, a sincronização de modelos do WhatsApp e outros textos que ainda apareciam em inglês.',
+  },
+  {
+    id: 'inactivity-pause-queue-fallback-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'fix',
+    platform: 'web',
+    title: 'Pausa por inatividade agora vale também para as conversas das Filas',
+    description:
+      'Corrigimos o caso em que a pausa estava ligada nas configurações da caixa de entrada, mas a conversa do Portal estava numa Fila com aviso e encerramento próprios: a Fila ignorava a pausa e encerrava a conversa. Agora, se a Fila não tiver a pausa ligada, vale a pausa da caixa; se a Fila tiver, vale a da Fila.',
+  },
+  {
+    id: 'conversation-contact-history-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Histórico completo do cliente dentro da conversa',
+    description:
+      'Quando um cliente que já falou com a gente abre uma conversa nova, o atendente agora vê, rolando a conversa para cima, tudo o que já foi dito nas conversas anteriores, de qualquer canal (WhatsApp, Portal e os demais), separado por uma divisória com o número, o canal e a data de cada conversa. As mensagens antigas são só para leitura. Cliente realmente novo continua vendo a conversa limpa, e cada atendente só vê o histórico das caixas de entrada a que já tem acesso.',
+  },
+  {
+    id: 'projects-fixes-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'fix',
+    platform: 'web',
+    title: 'Projetos: aba de cancelados, contadores certos e criação mais segura',
+    description:
+      'Em Projetos, agora há a aba "Cancelados", onde dá para consultar e reativar projetos cancelados. Os contadores de Ativos, Concluídos e Cancelados passaram a mostrar o total real. O cadastro cria o projeto e as tarefas de uma vez só, sem deixar projeto vazio nem duplicar ao tentar de novo. A "Data de início de uso do sistema" agora salva, o progresso não conta mais tickets cancelados, o status dos tickets aparece em português e uma tarefa resolvida fora de ordem não puxa mais o projeto para uma etapa anterior. A lista também ficou mais leve.',
+  },
+  {
+    id: 'loading-screens-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'fix',
+    platform: 'web',
+    title: 'Telas de carregamento com texto e ícone no tamanho certo',
+    description:
+      'Corrigimos o ícone de carregamento gigante que tomava a tela e era cortado pelo navegador ao abrir Projetos e Sugestões. Em várias telas (Área do Cliente, Contatos, Campanhas, Chamadas, Manifestações, Relatórios, Central de Ajuda e outras), enquanto nada carrega agora aparece um ícone menor com o texto "Carregando...".',
+  },
+  {
     id: 'inactivity-notice-repeat-fix-2026-11-06',
     date: '6 de novembro de 2026',
     isoDate: '2026-11-06',

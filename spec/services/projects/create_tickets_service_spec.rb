@@ -60,6 +60,27 @@ RSpec.describe Projects::CreateTicketsService do
     expect(tickets.first.due_date.to_date).to eq(Time.zone.now.to_date + 5.days)
   end
 
+  # Gerar de novo (clique repetido, nova tentativa) nao pode duplicar a tarefa.
+  describe 'generating the same task again' do
+    it 'does not duplicate a task already generated for the project' do
+      perform([{ task_template_id: template.id }])
+
+      again = perform([{ task_template_id: template.id }])
+
+      expect(again).to be_empty
+      expect(project.tickets.count).to eq(1)
+    end
+
+    it 'generates the task again when the earlier ticket was cancelled' do
+      perform([{ task_template_id: template.id }]).first.update!(status: :cancelled)
+
+      again = perform([{ task_template_id: template.id }])
+
+      expect(again.size).to eq(1)
+      expect(project.tickets.count).to eq(2)
+    end
+  end
+
   describe 'ticket_category (required by Ticket on create)' do
     it 'defaults to the Mesa\'s first Categoria when no task_data is given' do
       tickets = perform([{ task_template_id: template.id }])

@@ -63,7 +63,7 @@ module Enterprise::MessageTemplates::HookExecutionService
       message_type: :outgoing,
       account_id: conversation.account.id,
       inbox_id: conversation.inbox.id,
-      content: 'Transferring to another agent for further assistance.'
+      content: 'Estamos transferindo você para outro atendente para continuar o atendimento.'
     )
     conversation.bot_handoff!
     Captain::ConversationEvents.handed_off(

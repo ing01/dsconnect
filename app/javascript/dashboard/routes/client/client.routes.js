@@ -9,6 +9,7 @@
  * de cliente - e não sessão de usuário interno.
  */
 import ClientLayout from './ClientLayout.vue';
+import ClientStartPage from './pages/ClientStartPage.vue';
 import ClientPrincipalPage from './pages/ClientPrincipalPage.vue';
 import ClientTicketsPage from './pages/ClientTicketsPage.vue';
 import ClientTicketDetailPage from './pages/ClientTicketDetailPage.vue';
@@ -59,10 +60,16 @@ export default {
       component: ClientLayout,
       children: [
         {
-          // O "Principal" do cliente: novidades do PRODUTO, mesmo esquema do
-          // Principal dos atendentes - e nao mais um redirecionamento direto
-          // para os tickets.
+          // A ENTRADA: so as tres opcoes (chat, ticket, portal completo), com o
+          // menu escondido. O login e a abertura do site/app caem aqui.
           path: '',
+          name: 'client_start',
+          component: ClientStartPage,
+        },
+        {
+          // O "Principal" do cliente: novidades do PRODUTO, mesmo esquema do
+          // Principal dos atendentes. Tela comum, aberta pelo menu.
+          path: 'principal',
           name: 'client_home',
           component: ClientPrincipalPage,
         },

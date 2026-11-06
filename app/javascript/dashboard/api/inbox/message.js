@@ -106,6 +106,15 @@ class MessageApi extends ApiClient {
     return axios.get(`${this.url}/${conversationId}/messages`, { params });
   }
 
+  // Mensagens das conversas anteriores do mesmo cliente (historico dentro da
+  // conversa). `before` e' o id da mensagem mais antiga do historico ja carregado.
+  getContactHistory({ conversationId, before }) {
+    const params = before ? { before } : {};
+    return axios.get(`${this.url}/${conversationId}/contact_history`, {
+      params,
+    });
+  }
+
   translateMessage(conversationId, messageId, targetLanguage) {
     return axios.post(
       `${this.url}/${conversationId}/messages/${messageId}/translate`,

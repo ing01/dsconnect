@@ -8,7 +8,7 @@ import HelpCenterLayout from 'dashboard/components-next/HelpCenter/HelpCenterLay
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import EmptyStateLayout from 'dashboard/components-next/EmptyStateLayout.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import LocaleList from 'dashboard/components-next/HelpCenter/Pages/LocalePage/LocaleList.vue';
 import AddLocaleDialog from 'dashboard/components-next/HelpCenter/Pages/LocalePage/AddLocaleDialog.vue';
 
@@ -80,12 +80,7 @@ const hasResults = computed(() => filteredLocales.value?.length > 0);
       </div>
     </template>
     <template #content>
-      <div
-        v-if="isSwitchingPortal"
-        class="flex items-center justify-center py-10 text-n-slate-11"
-      >
-        <Spinner />
-      </div>
+      <PageLoader v-if="isSwitchingPortal" />
       <EmptyStateLayout
         v-else-if="isSearching && !hasResults"
         :title="t('HELP_CENTER.LOCALES_PAGE.SEARCH_EMPTY_STATE.TITLE')"

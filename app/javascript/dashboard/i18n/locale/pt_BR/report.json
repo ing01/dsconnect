@@ -45,13 +45,15 @@
         "NAME": "Tempo de Primeira Resposta",
         "DESC": "(Média)",
         "INFO_TEXT": "Número total de conversas utilizadas para computação:",
-        "TOOLTIP_TEXT": "O Tempo de Primeira Resposta é de {metricValue} (com base em {conversationCount} conversas)"
+        "TOOLTIP_TEXT": "O Tempo de Primeira Resposta é de {metricValue} (com base em {conversationCount} conversas)",
+        "TOOLTIP_DESCRIPTION": "Com base em {count} conversa | Com base em {count} conversas"
       },
       "RESOLUTION_TIME": {
         "NAME": "Tempo de Resolução",
         "DESC": "(Média)",
         "INFO_TEXT": "Número total de conversas utilizadas para computação:",
-        "TOOLTIP_TEXT": "O Tempo de Resolução é de {metricValue} (com base em {conversationCount} conversas)"
+        "TOOLTIP_TEXT": "O Tempo de Resolução é de {metricValue} (com base em {conversationCount} conversas)",
+        "TOOLTIP_DESCRIPTION": "Com base em {count} conversa | Com base em {count} conversas"
       },
       "RESOLUTION_COUNT": {
         "NAME": "Contagem de Resolução",
@@ -68,7 +70,9 @@
       "REPLY_TIME": {
         "NAME": "Tempo de espera do cliente",
         "TOOLTIP_TEXT": "O Tempo de Espera é {metricValue} (com base em {conversationCount} respostas)",
-        "DESC": ""
+        "DESC": "",
+        "TOOLTIP_LABEL": "Tempo de espera",
+        "TOOLTIP_DESCRIPTION": "Com base em {count} resposta | Com base em {count} respostas"
       }
     },
     "DATE_RANGE_OPTIONS": {
@@ -616,7 +620,8 @@
       "ONLINE": "Disponível",
       "BUSY": "Ocupado",
       "OFFLINE": "Desconectado"
-    }
+    },
+    "HEATMAP_ARIA_LABEL": "{metric} por dia e hora"
   },
   "DAYS_OF_WEEK": {
     "SUNDAY": "Domingo",

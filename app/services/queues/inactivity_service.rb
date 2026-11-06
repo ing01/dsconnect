@@ -41,7 +41,7 @@ class Queues::InactivityService
     return unless last_message&.outgoing?
 
     pause = pause_service(conversation)
-    final_delay = final_delay_for(pause, queue.pause_config, queue.inactivity_close_after)
+    final_delay = final_delay_for(pause, pause_settings[:config], queue.inactivity_close_after)
     nudged_at = nudged_at_for(conversation, last_message)
     if nudged_at
       finish(conversation, pause, nudged_at) if final_delay.present? && elapsed?(nudged_at, final_delay)
@@ -55,8 +55,25 @@ class Queues::InactivityService
   # Pausa (se o fluxo esta ligado na Fila e ainda ha pausa disponivel pra esta
   # conversa) ou encerra direto, como sempre foi.
   def pause_service(conversation)
-    service = Inactivity::PauseService.new(conversation: conversation, config: queue.pause_config, origin: 'queue', close_tickets: true)
+    service = Inactivity::PauseService.new(
+      conversation: conversation, config: pause_settings[:config], origin: pause_settings[:origin], close_tickets: true
+    )
     service if service.allowed?
+  end
+
+  # Configuracao da PAUSA valida para as conversas desta Fila: a da propria Fila,
+  # se estiver ligada; senao a da caixa do Portal. Quem liga a pausa na caixa
+  # espera que ela valha tambem para as conversas das Filas (que cuidam do aviso
+  # e do encerramento) - sem isso a Fila ignorava a pausa e encerrava a conversa.
+  # A origem acompanha a configuracao usada, pra retomada/encerramento depois
+  # usarem as mesmas mensagens e prazos.
+  def pause_settings
+    @pause_settings ||=
+      if queue.pause_config.enabled? || !@inbox.pause_config.enabled?
+        { config: queue.pause_config, origin: 'queue' }
+      else
+        { config: @inbox.pause_config, origin: 'inbox' }
+      end
   end
 
   def finish(conversation, pause, since)
@@ -66,7 +83,7 @@ class Queues::InactivityService
   # Com a pausa ligada na Fila, os prazos so correm no horario de atendimento da
   # caixa do Portal (se a configuracao pedir e a caixa tiver horario ligado).
   def elapsed?(since, minutes)
-    config = queue.pause_config
+    config = pause_settings[:config]
     Inactivity::BusinessTime.new(@inbox, enabled: config.enabled? && config.respect_working_hours?).elapsed?(since, minutes)
   end
 

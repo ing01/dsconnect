@@ -85,10 +85,14 @@ const onChange = evt => {
           "
           class="size-4 text-n-slate-10 flex-shrink-0"
         />
-        <span class="text-sm font-medium text-n-slate-12 truncate">
+        <span class="text-sm font-medium text-n-slate-12 truncate" :title="title">
           {{ title }}
         </span>
-        <span v-if="subtitle" class="text-xs text-n-slate-10 truncate">
+        <span
+          v-if="subtitle"
+          class="text-xs text-n-slate-10 truncate"
+          :title="subtitle"
+        >
           {{ subtitle }}
         </span>
         <span

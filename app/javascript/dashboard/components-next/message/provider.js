@@ -130,17 +130,30 @@ export function useMessageContext() {
   }
 
   const currentChatAttachments = useMapGetter('getSelectedChatAttachments');
+  const galleryTypes = [
+    ATTACHMENT_TYPES.IMAGE,
+    ATTACHMENT_TYPES.VIDEO,
+    ATTACHMENT_TYPES.IG_REEL,
+    ATTACHMENT_TYPES.AUDIO,
+  ];
   const filteredCurrentChatAttachments = computed(() => {
     const attachments = currentChatAttachments.value.filter(attachment =>
-      [
-        ATTACHMENT_TYPES.IMAGE,
-        ATTACHMENT_TYPES.VIDEO,
-        ATTACHMENT_TYPES.IG_REEL,
-        ATTACHMENT_TYPES.AUDIO,
-      ].includes(attachment.file_type)
+      galleryTypes.includes(attachment.file_type)
     );
 
-    return useSnakeCase(attachments);
+    // Mensagens do historico (conversas anteriores do cliente) tem anexos que
+    // nao estao na lista da conversa atual: sem incluir os da propria mensagem,
+    // a galeria nao saberia onde esta nem para onde navegar.
+    const ownAttachments = useSnakeCase(
+      (context.attachments?.value || []).filter(attachment =>
+        galleryTypes.includes(attachment.fileType ?? attachment.file_type)
+      )
+    );
+    const missing = ownAttachments.filter(
+      own => !attachments.some(attachment => attachment.id === own.id)
+    );
+
+    return [...useSnakeCase(attachments), ...missing];
   });
 
   return { ...context, filteredCurrentChatAttachments };

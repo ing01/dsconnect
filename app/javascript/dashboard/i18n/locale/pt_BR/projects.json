@@ -16,11 +16,13 @@
       "ALL_MODULES": "Todos os módulos",
       "ACTIVE_PROJECTS": "Ativos",
       "COMPLETED_PROJECTS": "Concluídos",
+      "CANCELLED_PROJECTS": "Cancelados",
       "SEARCH_PLACEHOLDER": "Buscar projetos..."
     },
     "EMPTY": {
       "NO_PROJECTS": "Nenhum projeto ativo ainda",
       "NO_COMPLETED": "Nenhum projeto concluído ainda",
+      "NO_CANCELLED": "Nenhum projeto cancelado",
       "HINT": "Crie um projeto para começar a organizar o trabalho entre equipes e módulos."
     },
     "STAGES": {

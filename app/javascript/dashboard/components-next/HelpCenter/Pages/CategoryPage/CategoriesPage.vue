@@ -11,7 +11,7 @@ import CategoryList from 'dashboard/components-next/HelpCenter/Pages/CategoryPag
 import CategoryHeaderControls from 'dashboard/components-next/HelpCenter/Pages/CategoryPage/CategoryHeaderControls.vue';
 import CategoryEmptyState from 'dashboard/components-next/HelpCenter/EmptyState/Category/CategoryEmptyState.vue';
 import EditCategoryDialog from 'dashboard/components-next/HelpCenter/Pages/CategoryPage/EditCategoryDialog.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const props = defineProps({
   categories: {
@@ -137,12 +137,7 @@ const reorderCategories = async reorderedGroup => {
       />
     </template>
     <template #content>
-      <div
-        v-if="isLoading"
-        class="flex items-center justify-center py-10 text-n-slate-11"
-      >
-        <Spinner />
-      </div>
+      <PageLoader v-if="isLoading" />
       <CategoryList
         v-else-if="hasCategories"
         :categories="filteredCategories"

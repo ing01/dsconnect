@@ -5,7 +5,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import ConfirmButton from 'dashboard/components-next/button/ConfirmButton.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import TicketMesaSelector from '../components/TicketMesaSelector.vue';
 import TicketAvatarFilterRow from '../components/TicketAvatarFilterRow.vue';
 import TicketSelect from '../components/TicketSelect.vue';
@@ -370,7 +370,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
       />
     </div>
 
-    <Spinner v-if="state.isLoading" />
+    <PageLoader v-if="state.isLoading" />
 
     <template v-if="state.selectedTeamId && !state.isLoading">
       <template v-if="viewMode === 'backlog'">

@@ -17,7 +17,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import ClientAreaAPI from 'dashboard/api/clientArea';
 import Button from 'dashboard/components-next/button/Button.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Label from 'dashboard/components-next/label/Label.vue';
 import { downloadBlob } from 'dashboard/helper/downloadHelper';
@@ -225,9 +225,7 @@ onMounted(carregar);
 
 <template>
   <div class="flex flex-col flex-1 h-full min-h-0 gap-4 p-4 min-w-0 sm:p-6">
-    <div v-if="isLoading" class="flex justify-center py-16 text-n-slate-10">
-      <Spinner />
-    </div>
+    <PageLoader v-if="isLoading" />
 
     <template v-else-if="ticket">
       <div class="flex flex-wrap items-start flex-shrink-0 gap-3">

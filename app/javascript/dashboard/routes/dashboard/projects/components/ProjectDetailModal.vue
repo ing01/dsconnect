@@ -279,7 +279,8 @@ const currentStageColor = computed(() => {
           <span class="text-n-slate-10 block text-[11px] font-medium uppercase tracking-wide mb-1">{{ t('PROJECTS.DETAIL.STAGE') }}</span>
           <select
             :value="project.stage"
-            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full"
+            :disabled="project.status === 'cancelled'"
+            class="h-7 px-2 rounded border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 font-medium focus:border-n-brand focus:outline-none w-full disabled:opacity-60 disabled:cursor-not-allowed"
             @change="onStageChange($event.target.value)"
           >
             <option v-for="st in stages" :key="st.key" :value="st.key">
@@ -465,7 +466,7 @@ const currentStageColor = computed(() => {
                 {{ ticket.assignee_name }}
               </span>
               <WootLabel
-                :label="ticket.status"
+                :label="t(`TICKET.STATUS.${String(ticket.status).toUpperCase()}`, ticket.status)"
                 :color="ticket.status === 'resolved' || ticket.status === 'closed' ? 'teal' : 'slate'"
                 compact
               />

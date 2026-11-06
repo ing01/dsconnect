@@ -19,6 +19,7 @@ json.start_date resource.start_date
 json.due_date resource.due_date
 json.support_ends_on resource.support_ends_on
 json.contract_signed_on resource.contract_signed_on
+json.system_started_on resource.system_started_on
 json.completion_type resource.completion_type
 json.notes resource.notes
 json.cancelled_at resource.cancelled_at
@@ -26,10 +27,22 @@ json.cancellation_reason resource.cancellation_reason
 json.custom_attributes resource.custom_attributes
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i
-json.tickets_count resource.tickets.count
-json.completed_tickets_count resource.tickets.where(status: [:resolved, :closed]).count
-json.tickets_completed resource.tickets_completed?
-json.total_hours resource.total_hours
-json.tickets resource.tickets.order(:position, :id) do |ticket|
-  json.partial! 'api/v1/models/ticket', formats: [:json], resource: ticket
+# Na lista (index) os numeros vem prontos, calculados de uma vez para todos os
+# projetos (`progress`); nos demais (show/create/update) sao calculados aqui.
+# Cancelados nao entram na conta do progresso. A lista nao leva os tickets de
+# cada projeto (pesado) - o detalhe (show) traz.
+progress = local_assigns[:progress]
+if progress
+  json.tickets_count progress[:tickets_count]
+  json.completed_tickets_count progress[:completed_tickets_count]
+  json.tickets_completed progress[:open_tickets_count].zero?
+  json.total_hours progress[:total_hours]
+else
+  json.tickets_count resource.progress_tickets_count
+  json.completed_tickets_count resource.completed_tickets_count
+  json.tickets_completed resource.tickets_completed?
+  json.total_hours resource.total_hours
+  json.tickets resource.tickets.order(:position, :id) do |ticket|
+    json.partial! 'api/v1/models/ticket', formats: [:json], resource: ticket
+  end
 end

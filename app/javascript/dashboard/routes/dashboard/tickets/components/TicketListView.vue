@@ -53,6 +53,14 @@ const props = defineProps({
 // Quem abre o ticket muda com a origem: no painel e a rota interna; com
 // `groups`, quem entregou os dados e quem sabe para onde ir.
 const emit = defineEmits(['openTicket']);
+
+// Celula cortada (...) mostra o texto inteiro ao passar o mouse.
+const showFullTextOnHover = event => {
+  const cell = event.currentTarget;
+  const truncated = cell.scrollWidth > cell.clientWidth;
+  if (truncated) cell.title = cell.textContent.trim();
+  else cell.removeAttribute('title');
+};
 import { statusColor } from '../helpers/ticketLabels';
 import { sortTickets } from '../helpers/ticketSort';
 import {
@@ -561,6 +569,7 @@ onMounted(() => {
                   v-for="column in visibleColumns"
                   :key="column.key"
                   class="px-3 py-2 truncate"
+                  @mouseenter="showFullTextOnHover"
                   :class="
                     column.key === 'title'
                       ? 'text-n-slate-12 font-medium'

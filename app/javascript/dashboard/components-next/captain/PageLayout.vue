@@ -8,7 +8,7 @@ import { usePolicy } from 'dashboard/composables/usePolicy';
 import Button from 'dashboard/components-next/button/Button.vue';
 import BackButton from 'dashboard/components/widgets/BackButton.vue';
 import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Policy from 'dashboard/components/policy.vue';
 import AssistantSwitcher from 'dashboard/components-next/captain/pageComponents/switcher/AssistantSwitcher.vue';
 import CreateAssistantDialog from 'dashboard/components-next/captain/pageComponents/assistant/CreateAssistantDialog.vue';
@@ -209,12 +209,7 @@ const handleCreateAssistant = () => {
     <main class="flex-1 px-6 overflow-y-auto">
       <div class="w-full max-w-5xl h-full mx-auto py-4">
         <slot v-if="!showPaywall" name="controls" />
-        <div
-          v-if="isFetching"
-          class="flex items-center justify-center py-10 text-n-slate-11"
-        >
-          <Spinner />
-        </div>
+        <PageLoader v-if="isFetching" />
         <div v-else-if="showPaywall">
           <slot name="paywall" />
         </div>

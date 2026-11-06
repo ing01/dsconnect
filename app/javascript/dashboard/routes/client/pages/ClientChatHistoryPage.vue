@@ -11,7 +11,7 @@ import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import ClientAreaAPI from 'dashboard/api/clientArea';
 import Button from 'dashboard/components-next/button/Button.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 const { t } = useI18n();
@@ -66,9 +66,7 @@ onMounted(async () => {
       </div>
     </header>
 
-    <div v-if="isLoading" class="flex justify-center py-16 text-n-slate-10">
-      <Spinner />
-    </div>
+    <PageLoader v-if="isLoading" />
 
     <div
       v-else-if="!temItens"

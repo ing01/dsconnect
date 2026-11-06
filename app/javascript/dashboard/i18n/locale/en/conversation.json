@@ -1,5 +1,9 @@
 {
   "CONVERSATION": {
+    "CONTACT_HISTORY": {
+      "PREVIOUS": "Previous conversation #{id}",
+      "CURRENT": "Current conversation #{id}"
+    },
     "REFERRAL": {
       "AD_LABEL": "Ad",
       "POST_LABEL": "Post",

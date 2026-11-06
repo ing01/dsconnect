@@ -132,6 +132,9 @@ const props = defineProps({
   inboxSupportsReplyTo: { type: Object, default: () => ({}) },
   inReplyTo: { type: Object, default: null }, // eslint-disable-line vue/no-unused-properties
   isEmailInbox: { type: Boolean, default: false },
+  // Mensagem do historico (conversa anterior do cliente): so leitura, sem menu
+  // de contexto (apagar, responder, traduzir...), que agiriam na conversa errada.
+  readonly: { type: Boolean, default: false },
   private: { type: Boolean, default: false },
   additionalAttributes: { type: Object, default: () => ({}) }, // eslint-disable-line vue/no-unused-properties
   sender: { type: Object, default: null },
@@ -360,7 +363,7 @@ const componentToRender = computed(() => {
 });
 
 const shouldShowContextMenu = computed(() => {
-  return !props.contentAttributes?.isUnsupported;
+  return !props.readonly && !props.contentAttributes?.isUnsupported;
 });
 
 const isBubble = computed(() => {
@@ -440,6 +443,8 @@ const shouldRenderMessage = computed(() => {
 });
 
 function openContextMenu(e) {
+  if (props.readonly) return;
+
   const shouldSkipContextMenu =
     e.target?.classList.contains('skip-context-menu') ||
     ['a', 'img'].includes(e.target?.tagName.toLowerCase());

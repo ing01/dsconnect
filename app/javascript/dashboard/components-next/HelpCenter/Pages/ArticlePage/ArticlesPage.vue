@@ -20,7 +20,7 @@ import HelpCenterLayout from 'dashboard/components-next/HelpCenter/HelpCenterLay
 import ArticleList from 'dashboard/components-next/HelpCenter/Pages/ArticlePage/ArticleList.vue';
 import ArticleHeaderControls from 'dashboard/components-next/HelpCenter/Pages/ArticlePage/ArticleHeaderControls.vue';
 import CategoryHeaderControls from 'dashboard/components-next/HelpCenter/Pages/CategoryPage/CategoryHeaderControls.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import ArticleEmptyState from 'dashboard/components-next/HelpCenter/EmptyState/Article/ArticleEmptyState.vue';
 import BulkSelectBar from 'dashboard/components-next/captain/assistant/BulkSelectBar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -383,12 +383,7 @@ watch(
       </div>
     </template>
     <template #content>
-      <div
-        v-if="isLoading && !isArticleDragging"
-        class="flex items-center justify-center py-10 text-n-slate-11"
-      >
-        <Spinner />
-      </div>
+      <PageLoader v-if="isLoading && !isArticleDragging" />
       <template v-else-if="!hasNoArticles">
         <div
           v-if="selectedArticleIds.size > 0"

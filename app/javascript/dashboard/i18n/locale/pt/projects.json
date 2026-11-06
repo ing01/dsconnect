@@ -12,11 +12,13 @@
       "ALL_MESAS": "Todas as equipas",
       "ACTIVE_PROJECTS": "Ativos",
       "COMPLETED_PROJECTS": "Concluídos",
+      "CANCELLED_PROJECTS": "Cancelados",
       "SEARCH_PLACEHOLDER": "Procurar projetos..."
     },
     "EMPTY": {
       "NO_PROJECTS": "Ainda não há projetos ativos",
       "NO_COMPLETED": "Ainda não há projetos concluídos",
+      "NO_CANCELLED": "Nenhum projeto cancelado",
       "HINT": "Crie um projeto para começar a organizar o trabalho entre equipas e módulos."
     },
     "STAGES": {

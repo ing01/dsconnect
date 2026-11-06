@@ -79,7 +79,14 @@ const getters = {
 
     return _state.allConversations.filter(conversation => {
       const { assignee } = conversation.meta;
-      const isAssignedToMe = assignee && assignee.id === currentUserID;
+      // Pausada por inatividade: o atendente saiu, mas a conversa continua sendo
+      // "minha" (guardado em paused_assignee_id) ate' ser retomada.
+      const pausedFromMe =
+        conversation.status === 'snoozed' &&
+        Number(conversation.additional_attributes?.paused_assignee_id) ===
+          currentUserID;
+      const isAssignedToMe =
+        (assignee && assignee.id === currentUserID) || pausedFromMe;
       const shouldFilter = applyPageFilters(conversation, activeFilters);
       const isChatMine = isAssignedToMe && shouldFilter;
 

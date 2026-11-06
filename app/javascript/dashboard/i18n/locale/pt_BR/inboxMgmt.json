@@ -652,7 +652,8 @@
       "ERROR_FB_UNAUTHORIZED_HELP": "A tradução é:\n\nPor favor, certifique-se de que você tem acesso à página do Facebook com controle total. Você pode ler mais sobre as funções do Facebook <a href=\" https://www.facebook.com/help/187316341316631\">aqui</a>.",
       "CREATING_CHANNEL": "Criando sua caixa de entrada...",
       "TITLE": "Configurar detalhes da Caixa de Entrada",
-      "DESC": ""
+      "DESC": "",
+      "ERROR_CHANNEL_CREATION": "Não foi possível criar a caixa de entrada. Tente novamente."
     },
     "AGENTS": {
       "BUTTON_TEXT": "Adicionar agentes",

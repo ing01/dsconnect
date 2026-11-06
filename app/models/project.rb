@@ -30,6 +30,17 @@ class Project < ApplicationRecord
   scope :active_board, -> { where(status: :active).where.not(stage: 'finalizado') }
   scope :completed_board, -> { where(stage: 'finalizado').or(where(status: :completed)) }
 
+  # Tarefas de verdade do projeto: ticket cancelado nao e' trabalho pendente nem
+  # feito, entao nao entra na conta do progresso (senao "5/6" convivia com
+  # "todas concluidas").
+  def progress_tickets_count
+    tickets.where.not(status: :cancelled).count
+  end
+
+  def completed_tickets_count
+    tickets.where(status: [:resolved, :closed]).count
+  end
+
   # An `open` ticket is the only status that still represents pending work -
   # resolved/closed/cancelled all count as "done" for this purpose (see
   # Ticket::STATUSES).
@@ -50,11 +61,16 @@ class Project < ApplicationRecord
   # the project just stays where it is until every ticket is done. Explicitly
   # setting stage to `finalizado` (drag-and-drop, editing the project) is a
   # different path and still goes through the validation above.
+  #
+  # So' AVANCA: um ticket resolvido fora de ordem (ex.: o de "Requisito" depois
+  # do de "Em andamento") nao pode puxar o projeto de volta, e um projeto ja
+  # finalizado ou cancelado nunca e' mexido por ticket. Mover para tras (ou
+  # reabrir) continua sendo uma decisao manual de quem acompanha o projeto.
   def advance_stage!(new_stage)
-    return unless STAGES.include?(new_stage.to_s)
-    return if new_stage.to_s == 'finalizado' && !tickets_completed?
+    new_stage = new_stage.to_s
+    return unless can_advance_to?(new_stage)
 
-    update!(stage: new_stage.to_s)
+    update!(stage: new_stage)
   end
 
   # `cancelled` is not one of `STAGES` (it doesn't replace where the project sits
@@ -77,6 +93,14 @@ class Project < ApplicationRecord
   end
 
   private
+
+  def can_advance_to?(new_stage)
+    return false unless STAGES.include?(new_stage)
+    return false if cancelled? || stage == 'finalizado'
+    return false unless STAGES.index(new_stage) > STAGES.index(stage)
+
+    new_stage != 'finalizado' || tickets_completed?
+  end
 
   def tickets_completed_before_finalizing
     return if tickets_completed?

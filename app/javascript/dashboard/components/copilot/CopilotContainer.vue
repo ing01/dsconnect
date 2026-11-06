@@ -11,7 +11,6 @@ import { useConfig } from 'dashboard/composables/useConfig';
 import { useWindowSize } from '@vueuse/core';
 import { vOnClickOutside } from '@vueuse/components';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
-import wootConstants from 'dashboard/constants/globals';
 import CopilotThreadsAPI from 'dashboard/api/captain/copilotThreads';
 import CopilotMessagesAPI from 'dashboard/api/captain/copilotMessages';
 
@@ -35,8 +34,12 @@ const uiFlags = useMapGetter('captainAssistants/getUIFlags');
 const inboxAssistant = useMapGetter('getCopilotAssistant');
 const currentChat = useMapGetter('getSelectedChat');
 
+// Abaixo desta largura o DueBot abre SOBRE a tela (como gaveta) em vez de ocupar
+// um pedaco dela: com 320px a menos, listas, kanban e a conversa ficavam
+// espremidos ou cortados. Acima, ele fica ao lado do conteudo.
+const DOCKED_PANEL_BREAKPOINT = 1280;
 const isSmallScreen = computed(
-  () => windowWidth.value < wootConstants.SMALL_SCREEN_BREAKPOINT
+  () => windowWidth.value < DOCKED_PANEL_BREAKPOINT
 );
 
 const selectedCopilotThreadId = ref(null);
@@ -239,11 +242,11 @@ onMounted(() => {
   <div
     v-if="shouldShowCopilotPanel"
     v-on-click-outside="() => closeCopilotPanel()"
-    class="bg-n-surface-2 h-full overflow-hidden flex-col fixed top-0 ltr:right-0 rtl:left-0 z-40 w-full max-w-sm transition-transform duration-300 ease-in-out md:static md:w-[320px] md:min-w-[320px] ltr:border-l rtl:border-r border-n-weak 2xl:min-w-[360px] 2xl:w-[360px] shadow-lg md:shadow-none"
+    class="bg-n-surface-2 h-full overflow-hidden flex-col fixed top-0 ltr:right-0 rtl:left-0 z-40 w-full max-w-sm transition-transform duration-300 ease-in-out xl:static xl:w-[320px] xl:min-w-[320px] ltr:border-l rtl:border-r border-n-weak 2xl:min-w-[360px] 2xl:w-[360px] shadow-lg xl:shadow-none"
     :class="[
       {
-        'md:flex': shouldShowCopilotPanel,
-        'md:hidden': !shouldShowCopilotPanel,
+        flex: shouldShowCopilotPanel,
+        hidden: !shouldShowCopilotPanel,
       },
     ]"
   >

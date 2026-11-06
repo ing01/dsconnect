@@ -6,7 +6,7 @@ import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useRoute, useRouter } from 'vue-router';
 
 import ContactsDetailsLayout from 'dashboard/components-next/Contacts/ContactsDetailsLayout.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import ContactDetails from 'dashboard/components-next/Contacts/Pages/ContactDetails.vue';
 import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import ContactNotes from 'dashboard/components-next/Contacts/ContactsSidebar/ContactNotes.vue';
@@ -156,12 +156,7 @@ onMounted(() => {
       @go-to-contacts-list="goToContactsList"
       @toggle-block="toggleContactBlock"
     >
-      <div
-        v-if="showSpinner"
-        class="flex items-center justify-center py-10 text-n-slate-11"
-      >
-        <Spinner />
-      </div>
+      <PageLoader v-if="showSpinner" />
       <div v-else-if="selectedContact" class="flex flex-col gap-6">
         <TabBar
           :tabs="tabs"

@@ -1,10 +1,15 @@
 <script setup>
 import { computed, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Message from './Message.vue';
 import { MESSAGE_TYPES } from './constants.js';
 import { useCamelCase } from 'dashboard/composables/useTransformKeys';
 import { useMapGetter } from 'dashboard/composables/store.js';
 import MessageApi from 'dashboard/api/inbox/message.js';
+import {
+  startsConversationBlock,
+  formatHistoryDate,
+} from './helpers/contactHistoryHelper.js';
 
 /**
  * Props definition for the component
@@ -15,6 +20,9 @@ import MessageApi from 'dashboard/api/inbox/message.js';
  * @property {Boolean} isAnEmailChannel - Whether this is an email channel
  * @property {Object} inboxSupportsReplyTo - Inbox reply support configuration
  * @property {Array} messages - Array of all messages [These are not in camelcase]
+ * @property {Array} historyMessages - Messages of the contact's PREVIOUS conversations (oldest first) [not in camelcase]
+ * @property {Object} historyConversations - Previous conversations data, indexed by display_id
+ * @property {Number} currentConversationId - display_id of the open conversation
  */
 const props = defineProps({
   currentUserId: {
@@ -37,19 +45,66 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  // Historico do cliente: mensagens das conversas anteriores, mostradas acima das
+  // da conversa atual, so leitura.
+  historyMessages: {
+    type: Array,
+    default: () => [],
+  },
+  historyConversations: {
+    type: Object,
+    default: () => ({}),
+  },
+  currentConversationId: {
+    type: Number,
+    default: null,
+  },
 });
 
 const emit = defineEmits(['retry']);
 
+const { t, locale } = useI18n();
+
+const CAMEL_CASE_OPTIONS = {
+  deep: true,
+  stopPaths: [
+    'content_attributes.translations',
+    'content_attributes.whatsapp_flow_response.response_json',
+  ],
+};
+
 const allMessages = computed(() => {
-  return useCamelCase(props.messages, {
-    deep: true,
-    stopPaths: [
-      'content_attributes.translations',
-      'content_attributes.whatsapp_flow_response.response_json',
-    ],
-  });
+  return useCamelCase(props.messages, CAMEL_CASE_OPTIONS);
 });
+
+const historyList = computed(() => {
+  return useCamelCase(props.historyMessages, CAMEL_CASE_OPTIONS);
+});
+
+// Titulo da divisoria de cada conversa anterior: "Conversa anterior #12 · WhatsApp · 04/11/2026 10:30".
+const historyBlockLabel = conversationId => {
+  const conversation = props.historyConversations[conversationId] || {};
+  return [
+    t('CONVERSATION.CONTACT_HISTORY.PREVIOUS', { id: conversationId }),
+    conversation.inbox_name,
+    formatHistoryDate(conversation.created_at, locale.value),
+  ]
+    .filter(Boolean)
+    .join(' · ');
+};
+
+const isEmailHistoryMessage = message =>
+  props.historyConversations[message.conversationId]?.channel_type ===
+  'Channel::Email';
+
+// Resposta dentro do proprio historico: so procura nas mensagens carregadas dele,
+// nunca busca na conversa atual (o id seria de outra conversa).
+const getHistoryInReplyTo = message => {
+  const inReplyToId = message.contentAttributes?.inReplyTo;
+  if (!inReplyToId) return null;
+
+  return historyList.value.find(item => item.id === inReplyToId) || null;
+};
 
 const currentChat = useMapGetter('getSelectedChat');
 
@@ -168,6 +223,47 @@ const getInReplyToMessage = parentMessage => {
 <template>
   <ul class="px-4 bg-n-surface-1">
     <slot name="beforeAll" />
+    <template
+      v-for="(message, index) in historyList"
+      :key="`history-${message.id}`"
+    >
+      <li
+        v-if="startsConversationBlock(historyList, index)"
+        class="flex justify-center my-3 list-none"
+        role="separator"
+      >
+        <span
+          class="px-3 py-1 text-xs font-medium rounded-full bg-n-alpha-2 text-n-slate-11"
+        >
+          {{ historyBlockLabel(message.conversationId) }}
+        </span>
+      </li>
+      <Message
+        v-bind="message"
+        readonly
+        :is-email-inbox="isEmailHistoryMessage(message)"
+        :in-reply-to="getHistoryInReplyTo(message)"
+        :group-with-next="shouldGroupWithNext(index, historyList)"
+        :current-user-id="currentUserId"
+        data-clarity-mask="True"
+      />
+    </template>
+    <li
+      v-if="historyList.length && currentConversationId"
+      class="flex justify-center my-3 list-none"
+      role="separator"
+    >
+      <span
+        class="px-3 py-1 text-xs font-medium rounded-full bg-n-alpha-2 text-n-slate-11"
+      >
+        {{
+          t('CONVERSATION.CONTACT_HISTORY.CURRENT', {
+            id: currentConversationId,
+          })
+        }}
+      </span>
+    </li>
+    <slot name="beforeMessages" />
     <template v-for="(message, index) in allMessages" :key="message.id">
       <slot
         v-if="firstUnreadId && message.id === firstUnreadId"

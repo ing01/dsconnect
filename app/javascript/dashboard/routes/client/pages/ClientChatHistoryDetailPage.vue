@@ -9,7 +9,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import ClientAreaAPI from 'dashboard/api/clientArea';
 import Button from 'dashboard/components-next/button/Button.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import ChatMessageBubble from 'dashboard/routes/client/components/ChatMessageBubble.vue';
 
 const { t } = useI18n();
@@ -49,12 +49,7 @@ onMounted(async () => {
       />
     </header>
 
-    <div
-      v-if="isLoading"
-      class="flex justify-center flex-1 py-16 text-n-slate-10"
-    >
-      <Spinner />
-    </div>
+    <PageLoader v-if="isLoading" class="flex-1" />
 
     <div v-else class="flex flex-col flex-1 min-h-0 gap-3 overflow-y-auto">
       <ChatMessageBubble

@@ -25,7 +25,7 @@ import { getClientSession } from 'dashboard/helper/clientSession';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import TicketListView from 'dashboard/routes/dashboard/tickets/components/TicketListView.vue';
 import { ticketMatchesFilters } from 'dashboard/routes/dashboard/tickets/helpers/ticketFilters';
 import ClientTicketDialog from '../components/ClientTicketDialog.vue';
@@ -218,12 +218,7 @@ onMounted(() => carregar());
       />
     </header>
 
-    <div
-      v-if="isLoading"
-      class="flex justify-center flex-1 py-16 text-n-slate-10"
-    >
-      <Spinner />
-    </div>
+    <PageLoader v-if="isLoading" class="flex-1" />
 
     <div
       v-else-if="!board.tickets.length"

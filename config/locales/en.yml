@@ -256,6 +256,7 @@ en:
     project:
       tickets_pending: This project cannot be finished while it still has open tickets.
       cannot_cancel_finalized: A finished project cannot be cancelled.
+      tasks_not_generated: The project tasks could not be generated, so nothing was created. Check that the Team has columns and categories and try again.
     suggestion:
       too_many_attachments: cannot have more than %{count} attachments
       attachment_too_large: is larger than the %{size} MB limit

@@ -39,6 +39,12 @@ module Chatwoot
     config.load_defaults 7.0
     config.rails_i18n.enabled_modules = [:pluralization]
 
+    # O produto e brasileiro: textos gerados fora de uma requisicao (jobs do Sidekiq,
+    # listeners, mensagens automaticas como a pesquisa de satisfacao e as atividades
+    # da conversa) usam o idioma padrao - que era `en` e saia em ingles. Os testes
+    # continuam no padrao para nao depender do idioma.
+    config.i18n.default_locale = :pt_BR unless Rails.env.test?
+
     config.eager_load_paths << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('enterprise/lib')
     config.eager_load_paths << Rails.root.join('enterprise/listeners')

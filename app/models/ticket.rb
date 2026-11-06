@@ -268,8 +268,11 @@ class Ticket < ApplicationRecord
   def cancel!(user = Current.user, reason: nil)
     return if cancelled?
 
+    # Cancelar um ticket que ainda esta na Triagem tambem o tira da fila, igual ao
+    # encerramento: ninguem vai decidir sobre algo cancelado.
+    triage_attrs = pending_triage? ? { pending_triage: false, triaged_at: Time.zone.now, triaged_by: user } : {}
     transaction do
-      update!(status: :cancelled, cancelled_at: Time.zone.now, close_reason: reason.presence || 'cancelled')
+      update!(status: :cancelled, cancelled_at: Time.zone.now, close_reason: reason.presence || 'cancelled', **triage_attrs)
       ticket_activities.create!(
         account_id: account_id, user: user, activity_type: :cancelled,
         previous_value: status_previously_was, meta: { reason: reason }.compact

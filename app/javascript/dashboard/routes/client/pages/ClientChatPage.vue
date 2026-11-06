@@ -33,7 +33,7 @@ import {
 } from 'dashboard/helper/clientPushHelper';
 import Button from 'dashboard/components-next/button/Button.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import AudioRecorder from 'dashboard/components/widgets/WootWriter/AudioRecorder.vue';
 import { AUDIO_FORMATS } from 'shared/constants/messages';
@@ -372,12 +372,7 @@ onBeforeUnmount(desconectar);
       </div>
     </header>
 
-    <div
-      v-if="isLoading"
-      class="flex justify-center flex-1 py-16 text-n-slate-10"
-    >
-      <Spinner />
-    </div>
+    <PageLoader v-if="isLoading" class="flex-1" />
 
     <div
       v-else-if="isChatBlocked"

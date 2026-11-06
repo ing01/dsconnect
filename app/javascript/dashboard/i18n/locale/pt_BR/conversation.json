@@ -1,5 +1,9 @@
 {
   "CONVERSATION": {
+    "CONTACT_HISTORY": {
+      "PREVIOUS": "Conversa anterior #{id}",
+      "CURRENT": "Conversa atual #{id}"
+    },
     "SELECT_A_CONVERSATION": "Por favor, selecione uma conversa no painel da esquerda",
     "CSAT_REPLY_MESSAGE": "Por favor, classifique a conversa",
     "404": "Desculpe, não conseguimos encontrar a conversa. Por favor, tente novamente",
@@ -411,6 +415,48 @@
       "UNMUTE": "Desilenciar microfone",
       "VIEW_CHAT_HISTORY": "Ver histórico da conversa",
       "GO_TO_CONVERSATION": "Ir para a conversa"
+    },
+    "REFERRAL": {
+      "AD_LABEL": "Anúncio",
+      "POST_LABEL": "Publicação",
+      "VIEW_AD": "Ver anúncio",
+      "WELCOME_MESSAGE_LABEL": "Mensagem pré-preenchida: ",
+      "REPLIED_BELOW": "O cliente respondeu abaixo"
+    },
+    "EMPTY_STATE": {
+      "CMD_BAR": "para abrir o menu de comandos",
+      "KEYBOARD_SHORTCUTS": "para ver os atalhos de teclado"
+    },
+    "WHATSAPP_REFERRAL": {
+      "AD": "Anúncio"
+    },
+    "PICKER": {
+      "VARIABLE": {
+        "SEARCH_PLACEHOLDER": "Buscar variáveis",
+        "DESCRIPTION": "Descrição",
+        "VALUE": "Valor",
+        "NO_VALUE": "Sem valor nesta conversa"
+      },
+      "EMOJI": {
+        "SEARCH_PLACEHOLDER": "Buscar emojis",
+        "EMPTY_STATE": "Digite para buscar emojis"
+      },
+      "MACRO": {
+        "SEARCH_PLACEHOLDER": "Buscar macros",
+        "ACTION_COUNT": "1 ação | {count} ações"
+      },
+      "MENTION": {
+        "SEARCH_PLACEHOLDER": "Buscar agentes e equipes",
+        "FILTER": {
+          "ALL": "Todos"
+        },
+        "AVAILABILITY": "Disponibilidade",
+        "ROLE": "Função",
+        "AUTO_ASSIGN": "Atribuição automática",
+        "ENABLED": "Ativada",
+        "DISABLED": "Desativada",
+        "YOU_ARE_A_MEMBER": "Você é membro desta equipe"
+      }
     }
   },
   "EMAIL_TRANSCRIPT": {

@@ -16,11 +16,13 @@
       "ALL_MODULES": "All modules",
       "ACTIVE_PROJECTS": "Active",
       "COMPLETED_PROJECTS": "Completed",
+      "CANCELLED_PROJECTS": "Cancelled",
       "SEARCH_PLACEHOLDER": "Search projects..."
     },
     "EMPTY": {
       "NO_PROJECTS": "No active projects yet",
       "NO_COMPLETED": "No completed projects yet",
+      "NO_CANCELLED": "No cancelled projects",
       "HINT": "Create a project to start organizing work across teams and modules."
     },
     "STAGES": {

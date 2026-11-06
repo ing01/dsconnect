@@ -135,7 +135,7 @@ class ConversationFinder
   def filter_by_assignee_type
     case @assignee_type
     when 'me'
-      @conversations = @conversations.assigned_to(current_user)
+      @conversations = mine_conversations
     when 'unassigned'
       @conversations = @conversations.unassigned
     when 'assigned'
@@ -170,6 +170,18 @@ class ConversationFinder
                                   .where(messages: { message_type: allowed_message_types }).includes(:messages)
                                   .where('messages.content ILIKE :search', search: "%#{params[:q]}%")
                                   .where(messages: { message_type: allowed_message_types })
+  end
+
+  # "Minhas": as atribuidas a mim e, na aba Pausadas, as que EU atendia quando a
+  # pausa por inatividade tirou o atendente (a pausa guarda quem era em
+  # `paused_assignee_id`).
+  def mine_conversations
+    return @conversations.assigned_to(current_user) unless params[:status] == 'snoozed'
+
+    @conversations.where(
+      "conversations.assignee_id = :id OR (conversations.additional_attributes ->> 'paused_assignee_id') = :text_id",
+      id: current_user.id, text_id: current_user.id.to_s
+    )
   end
 
   def filter_by_status

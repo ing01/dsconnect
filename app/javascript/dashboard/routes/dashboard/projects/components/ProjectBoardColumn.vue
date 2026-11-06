@@ -25,6 +25,15 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  // Aba "Cancelados": so consulta, sem arrastar para outra etapa.
+  readonly: {
+    type: Boolean,
+    default: false,
+  },
+  emptyMessage: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['openProject', 'moveProject']);
@@ -79,6 +88,7 @@ const onChange = evt => {
         :list="projects"
         group="projects"
         item-key="id"
+        :disabled="readonly"
         class="flex flex-col gap-2 min-h-[50px]"
         ghost-class="opacity-50"
         @change="onChange"
@@ -92,7 +102,7 @@ const onChange = evt => {
       </Draggable>
 
       <div v-if="!count" class="flex items-center justify-center py-8 text-center text-n-slate-10 text-xs">
-        {{ showCompleted ? t('PROJECTS.EMPTY.NO_COMPLETED') : t('PROJECTS.EMPTY.NO_PROJECTS') }}
+        {{ emptyMessage || (showCompleted ? t('PROJECTS.EMPTY.NO_COMPLETED') : t('PROJECTS.EMPTY.NO_PROJECTS')) }}
       </div>
     </div>
   </div>

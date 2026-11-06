@@ -40,6 +40,48 @@ RSpec.describe Project do
 
       expect(project.reload.stage).to eq('onboarding')
     end
+
+    # Um ticket resolvido fora de ordem nao pode puxar o projeto de volta.
+    it 'never moves the project backwards' do
+      project = create(:project, stage: 'em_andamento')
+
+      project.advance_stage!('requisito')
+      project.advance_stage!('em_andamento')
+
+      expect(project.reload.stage).to eq('em_andamento')
+    end
+
+    it 'leaves a finalizado project alone' do
+      project = create(:project, stage: 'finalizado')
+
+      project.advance_stage!('em_andamento')
+
+      expect(project.reload.stage).to eq('finalizado')
+      expect(project.status).to eq('completed')
+    end
+
+    it 'leaves a cancelled project alone' do
+      project = create(:project, stage: 'onboarding')
+      project.cancel!(reason: 'Cliente desistiu')
+
+      project.advance_stage!('em_andamento')
+
+      expect(project.reload.stage).to eq('onboarding')
+      expect(project.status).to eq('cancelled')
+    end
+  end
+
+  # Ticket cancelado nao e' trabalho pendente nem feito: fica fora do progresso.
+  describe 'progress counters' do
+    it 'does not count cancelled tickets as tasks' do
+      project = create(:project)
+      create_project_ticket(project)
+      create_project_ticket(project).update!(status: :resolved)
+      create_project_ticket(project).update!(status: :cancelled)
+
+      expect(project.progress_tickets_count).to eq(2)
+      expect(project.completed_tickets_count).to eq(1)
+    end
   end
 
   describe 'status/stage sync' do

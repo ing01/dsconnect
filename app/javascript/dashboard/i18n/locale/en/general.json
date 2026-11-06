@@ -6,6 +6,9 @@
       "EMPTY_STATE": "No results found"
     },
     "CLOSE": "Close",
+    "READ_MORE": "Read more",
+    "DISMISS": "Dismiss",
+    "LOADING": "Loading...",
     "BETA": "Beta",
     "BETA_DESCRIPTION": "This feature is in beta and may change as we improve it.",
     "ACCEPT": "Accept",

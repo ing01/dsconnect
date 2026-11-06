@@ -15,7 +15,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Label from 'dashboard/components-next/label/Label.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import {
@@ -282,12 +282,7 @@ onMounted(async () => {
       />
     </div>
 
-    <div
-      v-if="uiFlags.isFetching"
-      class="flex justify-center py-16 text-n-slate-10"
-    >
-      <Spinner />
-    </div>
+    <PageLoader v-if="uiFlags.isFetching" />
 
     <div v-else class="overflow-auto grow min-h-0 min-w-0">
       <BaseTable

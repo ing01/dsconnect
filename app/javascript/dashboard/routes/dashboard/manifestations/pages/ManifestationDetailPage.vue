@@ -17,7 +17,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { frontendURL } from 'dashboard/helper/URLHelper';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Label from 'dashboard/components-next/label/Label.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -158,12 +158,7 @@ onMounted(async () => {
       @click="router.push({ name: 'manifestations_index' })"
     />
 
-    <div
-      v-if="uiFlags.isFetchingItem && !manifestacao"
-      class="flex justify-center py-16 text-n-slate-10"
-    >
-      <Spinner />
-    </div>
+    <PageLoader v-if="uiFlags.isFetchingItem && !manifestacao" />
 
     <p v-else-if="!manifestacao" class="text-sm text-n-slate-11">
       {{ t('MANIFESTATION.DETAIL.NOT_FOUND') }}

@@ -163,6 +163,52 @@ describe 'Inatividade: sem mensagem em duplicidade' do
       expect(avisos(conversa, 'pause').size).to eq(1)
     end
 
+    # Antes a Fila ignorava a pausa ligada so na caixa e ENCERRAVA a conversa.
+    it 'com a pausa ligada so na caixa, a Fila avisa e a conversa PAUSA em vez de encerrar' do
+      portal_inbox.update!(inactivity_config: regras_da_caixa.merge(
+        'pause_enabled' => true, 'pause_after' => 5, 'respect_working_hours' => false
+      ))
+      conversa = conversa_esperando_cliente(fila_com_regras)
+
+      rodar_caixa
+      rodar_fila(fila_com_regras)
+      travel(6.minutes) do
+        3.times do
+          rodar_fila(fila_com_regras)
+          rodar_caixa
+        end
+      end
+
+      expect(conversa.reload).to be_snoozed
+      expect(conversa.additional_attributes['pause_origin']).to eq('inbox')
+      expect(avisos(conversa, 'nudge').map(&:content)).to eq(['Ainda está aí? (fila)'])
+      expect(avisos(conversa, 'pause').size).to eq(1)
+      expect(avisos(conversa, 'close')).to be_empty
+    end
+
+    it 'a pausa ligada na propria Fila vale mais que a da caixa' do
+      portal_inbox.update!(inactivity_config: regras_da_caixa.merge('pause_enabled' => true, 'pause_after' => 5))
+      fila = fila_com_regras
+      fila.update!(inactivity_pause_config: { 'pause_enabled' => true, 'pause_after' => 5, 'respect_working_hours' => false })
+      conversa = conversa_esperando_cliente(fila)
+
+      rodar_fila(fila)
+      travel(6.minutes) { rodar_fila(fila) }
+
+      expect(conversa.reload).to be_snoozed
+      expect(conversa.additional_attributes['pause_origin']).to eq('queue')
+    end
+
+    it 'sem pausa em lugar nenhum, a Fila encerra como sempre' do
+      conversa = conversa_esperando_cliente(fila_com_regras)
+      conversa.update!(additional_attributes: { 'inactivity_nudged_at' => 40.minutes.ago.iso8601 })
+
+      rodar_fila(fila_com_regras)
+
+      expect(conversa.reload).to be_resolved
+      expect(avisos(conversa, 'pause')).to be_empty
+    end
+
     it 'encerra uma unica vez, com a mensagem da Fila' do
       conversa = conversa_esperando_cliente(fila_com_regras)
       conversa.update!(additional_attributes: { 'inactivity_nudged_at' => 40.minutes.ago.iso8601 })

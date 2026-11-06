@@ -1,5 +1,9 @@
 {
   "CONVERSATION": {
+    "CONTACT_HISTORY": {
+      "PREVIOUS": "Conversa anterior #{id}",
+      "CURRENT": "Conversa atual #{id}"
+    },
     "SELECT_A_CONVERSATION": "Por favor, selecione uma conversa no painel da esquerda",
     "CSAT_REPLY_MESSAGE": "Por favor, avalie a conversa",
     "404": "Desculpe, não encontrámos a conversa. Por favor, tente novamente",

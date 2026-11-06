@@ -181,6 +181,8 @@ const submitProject = async () => {
   isSubmitting.value = true;
 
   try {
+    // Projeto e tarefas seguem juntos numa unica chamada: se algo falhar nada e'
+    // criado, e tentar de novo nao gera um segundo projeto.
     const projectPayload = {
       name: name.value.trim(),
       company_id: companyId.value || null,
@@ -190,26 +192,20 @@ const submitProject = async () => {
       start_date: startDate.value || null,
       due_date: projectDueDate.value || null,
       stage: 'pendente',
+      tasks: tasksConfig.value.map(tConfig => ({
+        task_template_id: tConfig.task_template_id,
+        assignee_id: tConfig.assignee_id || null,
+        ticket_category_id: tConfig.ticket_category_id || null,
+        due_date: tConfig.due_date
+          ? new Date(tConfig.due_date).toISOString()
+          : null,
+        scheduled_at: tConfig.scheduled_at
+          ? new Date(tConfig.scheduled_at).toISOString()
+          : null,
+      })),
     };
 
     const createdProject = await store.dispatch('projects/create', projectPayload);
-
-    if (tasksConfig.value.length > 0) {
-      await store.dispatch('projects/generateTickets', {
-        projectId: createdProject.id,
-        tasks: tasksConfig.value.map(tConfig => ({
-          task_template_id: tConfig.task_template_id,
-          assignee_id: tConfig.assignee_id || null,
-          ticket_category_id: tConfig.ticket_category_id || null,
-          due_date: tConfig.due_date
-            ? new Date(tConfig.due_date).toISOString()
-            : null,
-          scheduled_at: tConfig.scheduled_at
-            ? new Date(tConfig.scheduled_at).toISOString()
-            : null,
-        })),
-      });
-    }
 
     useAlert(t('PROJECTS.CREATE.SUCCESS'));
     emit('created', createdProject);

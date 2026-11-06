@@ -14,6 +14,7 @@ module Projects
         tasks.each_with_index do |task_data, index|
           template = account.project_task_templates.find_by(id: task_data[:task_template_id] || task_data[:project_task_template_id])
           next unless template
+          next if already_generated?(template)
 
           due_date = parse_datetime(task_data[:due_date])
           if due_date.blank? && template.due_days.present?
@@ -60,6 +61,12 @@ module Projects
     end
 
     private
+
+    # Gerar de novo (clique repetido, nova tentativa) nao pode duplicar a tarefa:
+    # so conta o ticket que ainda vale (o cancelado pode ser gerado outra vez).
+    def already_generated?(template)
+      project.tickets.where(project_task_template_id: template.id).where.not(status: :cancelled).exists?
+    end
 
     # "NOME DA EMPRESA | NOME DA TAREFA" - so quando o projeto tem uma Empresa
     # (opcional: um projeto pode nao ter cliente). Sem o prefixo, tickets de

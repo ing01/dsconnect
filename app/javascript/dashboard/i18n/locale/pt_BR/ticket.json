@@ -1267,6 +1267,8 @@
       "STEP_RESOLUTION": "2. Resolução",
       "STEP_COMMUNICATION": "3. Comunicação com cliente",
       "STEP_CHECKLIST": "Checklist",
+      "STEP_COMPLEXITY": "Complexidade",
+      "MISSING_COMPLEXITY": "Defina a complexidade do ticket antes de encerrá-lo.",
       "RESOLUTION": "O que foi feito para resolver",
       "RESOLUTION_HINT": "Descreva a causa e o que foi ajustado, de forma que outra pessoa consiga repetir. Este texto alimenta a base de conhecimento (DueRules) e a documentação.",
       "RESOLUTION_PLACEHOLDER": "Ex.: O cadastro do produto estava sem NCM, o que bloqueava a emissão da nota. Preenchido o NCM em Cadastros > Produtos e a nota foi reenviada.",

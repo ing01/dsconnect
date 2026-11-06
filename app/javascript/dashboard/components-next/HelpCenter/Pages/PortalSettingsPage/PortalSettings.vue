@@ -10,7 +10,7 @@ import PortalGeneralSettings from './PortalGeneralSettings.vue';
 import PortalConfigurationSettings from './PortalConfigurationSettings.vue';
 import PortalLayoutContentSettings from './PortalLayoutContentSettings.vue';
 import PortalIntegrationsSettings from './PortalIntegrationsSettings.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const props = defineProps({
   portals: {
@@ -97,12 +97,7 @@ const handleDeletePortal = portal => {
     :breadcrumb-label="t('HELP_CENTER.BREADCRUMB.SETTINGS')"
   >
     <template #content>
-      <div
-        v-if="isLoading"
-        class="flex items-center justify-center py-10 pt-2 pb-8 text-n-slate-11"
-      >
-        <Spinner />
-      </div>
+      <PageLoader v-if="isLoading" />
       <VerticalTabs
         v-else-if="activePortal"
         v-model="activeTab"

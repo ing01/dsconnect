@@ -6,7 +6,7 @@ import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { usePolicy } from 'dashboard/composables/usePolicy';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import SuggestionBoard from '../components/SuggestionBoard.vue';
 import SuggestionDetailDialog from '../components/SuggestionDetailDialog.vue';
@@ -310,12 +310,7 @@ const goToManifestations = () => {
     </div>
 
     <main class="flex-1 flex flex-col min-h-0 min-w-0">
-      <div
-        v-if="uiFlags.isFetching && !columns.length"
-        class="flex items-center justify-center flex-1"
-      >
-        <Spinner size="lg" />
-      </div>
+      <PageLoader v-if="uiFlags.isFetching && !columns.length" class="flex-1" />
       <SuggestionBoard
         v-else
         :columns="columns"

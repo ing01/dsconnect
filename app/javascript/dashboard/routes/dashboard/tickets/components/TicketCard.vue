@@ -269,7 +269,10 @@ export default {
       class="absolute -top-2 -left-2 size-5 rounded-full bg-n-solid-2 text-n-teal-9"
     />
     <div class="flex items-start justify-between gap-2">
-      <p class="text-sm font-medium text-n-slate-12 line-clamp-2">
+      <p
+        class="text-sm font-medium text-n-slate-12 line-clamp-2"
+        :title="fullSubject ? subject : ticket.title"
+      >
         <Icon
           v-if="developmentTypeIcon"
           :icon="developmentTypeIcon"
@@ -317,7 +320,11 @@ export default {
 
     <!-- So aparece em tickets com sprint - Backlog/Mesas fora do Modulo de
          Desenvolvimento nunca tem sprint_name. -->
-    <p v-if="ticket.sprint_name" class="text-xs text-n-slate-10 truncate">
+    <p
+      v-if="ticket.sprint_name"
+      class="text-xs text-n-slate-10 truncate"
+      :title="ticket.sprint_name"
+    >
       <Icon
         icon="i-lucide-rocket"
         class="inline-block size-3 ltr:mr-0.5 rtl:ml-0.5 align-text-top"
@@ -384,7 +391,9 @@ export default {
           hide-offline-status
           class="flex-shrink-0"
         />
-        <span class="text-xs text-n-slate-11 truncate">{{ assigneeName }}</span>
+        <span class="text-xs text-n-slate-11 truncate" :title="assigneeName">{{
+          assigneeName
+        }}</span>
       </div>
       <div v-else />
 

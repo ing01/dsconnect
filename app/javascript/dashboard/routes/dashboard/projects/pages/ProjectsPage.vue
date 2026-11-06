@@ -8,9 +8,10 @@ import { useRouter } from 'vue-router';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { formatMesaName } from 'dashboard/helper/mesaName';
+import ProjectsAPI from 'dashboard/api/projects';
 
 import ProjectBoard from '../components/ProjectBoard.vue';
 import ProjectCreateDialog from '../components/ProjectCreateDialog.vue';
@@ -25,7 +26,10 @@ const selectedTeamId = ref('');
 const selectedImplementerId = ref('');
 const selectedModuleId = ref('');
 const searchQuery = ref('');
-const showCompleted = ref(false);
+// Aba do quadro: 'active' | 'completed' | 'cancelled'.
+const view = ref('active');
+const showCompleted = computed(() => view.value === 'completed');
+const counts = ref({ active: 0, completed: 0, cancelled: 0 });
 const showCreateModal = ref(false);
 const showTutorial = ref(false);
 const selectedProjectId = ref(null);
@@ -36,8 +40,19 @@ const modules = computed(() => store.getters['projectModules/getModules'] || [])
 const projects = computed(() => store.getters['projects/getProjects'] || []);
 const uiFlags = computed(() => store.getters['projects/getUIFlags'] || {});
 
-const activeProjectsCount = computed(() => projects.value.filter(p => p.stage !== 'finalizado').length);
-const completedProjectsCount = computed(() => projects.value.filter(p => p.stage === 'finalizado').length);
+// Os contadores vem do servidor: a lista traz so uma aba por vez, e contar o que
+// ja foi carregado deixava o contador da outra aba sempre em zero.
+const tabs = computed(() => [
+  { key: 'active', label: t('PROJECTS.FILTER.ACTIVE_PROJECTS'), count: counts.value.active },
+  { key: 'completed', label: t('PROJECTS.FILTER.COMPLETED_PROJECTS'), count: counts.value.completed },
+  { key: 'cancelled', label: t('PROJECTS.FILTER.CANCELLED_PROJECTS'), count: counts.value.cancelled },
+]);
+
+const emptyTitle = computed(() => {
+  if (view.value === 'completed') return t('PROJECTS.EMPTY.NO_COMPLETED');
+  if (view.value === 'cancelled') return t('PROJECTS.EMPTY.NO_CANCELLED');
+  return t('PROJECTS.EMPTY.NO_PROJECTS');
+});
 
 const teamOptions = computed(() => [
   { value: '', label: t('PROJECTS.FILTER.ALL_MESAS') },
@@ -52,14 +67,29 @@ const moduleOptions = computed(() => [
   ...modules.value.map(mod => ({ value: mod.id, label: mod.name })),
 ]);
 
+const filterParams = () => ({
+  team_id: selectedTeamId.value || undefined,
+  implementer_id: selectedImplementerId.value || undefined,
+  project_module_id: selectedModuleId.value || undefined,
+  search: searchQuery.value || undefined,
+});
+
+const loadCounts = async () => {
+  try {
+    const { data } = await ProjectsAPI.counts(filterParams());
+    counts.value = data;
+  } catch {
+    // Os contadores sao so informativos: falhar nao pode derrubar o quadro.
+  }
+};
+
 const loadProjects = () => {
   store.dispatch('projects/get', {
-    team_id: selectedTeamId.value || undefined,
-    implementer_id: selectedImplementerId.value || undefined,
-    project_module_id: selectedModuleId.value || undefined,
-    search: searchQuery.value || undefined,
-    completed: showCompleted.value ? 'true' : undefined,
+    ...filterParams(),
+    completed: view.value === 'completed' ? 'true' : undefined,
+    status: view.value === 'cancelled' ? 'cancelled' : undefined,
   });
+  loadCounts();
 };
 
 onMounted(async () => {
@@ -72,7 +102,7 @@ onMounted(async () => {
   loadProjects();
 });
 
-watch([selectedTeamId, selectedImplementerId, selectedModuleId, showCompleted], () => {
+watch([selectedTeamId, selectedImplementerId, selectedModuleId, view], () => {
   loadProjects();
 });
 
@@ -91,6 +121,7 @@ const onMoveProject = async ({ project, newStage }) => {
       stage: newStage,
     });
     useAlert(t('PROJECTS.DETAIL.STAGE_UPDATED'));
+    loadCounts();
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('PROJECTS.DETAIL.UPDATE_ERROR'));
     loadProjects();
@@ -201,25 +232,18 @@ const goToTasksSettings = () => {
             />
           </div>
 
-          <!-- Active / Completed toggle buttons -->
+          <!-- Abas: Ativos / Concluidos / Cancelados -->
           <div class="flex items-center gap-0.5 p-0.5 rounded-lg bg-n-slate-3">
             <NextButton
+              v-for="tab in tabs"
+              :key="tab.key"
               size="sm"
               variant="ghost"
               color="slate"
               no-animation
-              :class="!showCompleted && 'bg-gradient-to-r from-n-blue-9 to-n-teal-9 !text-white'"
-              :label="`${t('PROJECTS.FILTER.ACTIVE_PROJECTS')} (${activeProjectsCount})`"
-              @click="showCompleted = false"
-            />
-            <NextButton
-              size="sm"
-              variant="ghost"
-              color="slate"
-              no-animation
-              :class="showCompleted && 'bg-gradient-to-r from-n-blue-9 to-n-teal-9 !text-white'"
-              :label="`${t('PROJECTS.FILTER.COMPLETED_PROJECTS')} (${completedProjectsCount})`"
-              @click="showCompleted = true"
+              :class="view === tab.key && 'bg-gradient-to-r from-n-blue-9 to-n-teal-9 !text-white'"
+              :label="`${tab.label} (${tab.count})`"
+              @click="view = tab.key"
             />
           </div>
         </div>
@@ -238,22 +262,24 @@ const goToTasksSettings = () => {
 
     <!-- Main Kanban Area -->
     <main class="flex-1 flex flex-col min-h-0 min-w-0">
-      <div v-if="uiFlags.isFetching && !projects.length" class="flex items-center justify-center flex-1">
-        <Spinner size="lg" />
-      </div>
+      <PageLoader
+        v-if="uiFlags.isFetching && !projects.length"
+        class="flex-1"
+        :message="t('PROJECTS.LOADING')"
+      />
 
       <div v-else-if="!projects.length" class="flex flex-col items-center justify-center flex-1 text-center p-8 bg-n-solid-1 rounded-xl border border-n-weak">
         <div class="w-16 h-16 rounded-full bg-n-slate-3 flex items-center justify-center mb-4">
           <Icon icon="i-lucide-kanban" class="size-8 text-n-slate-8" />
         </div>
         <h3 class="text-base font-semibold text-n-slate-12 mb-1">
-          {{ showCompleted ? t('PROJECTS.EMPTY.NO_COMPLETED') : t('PROJECTS.EMPTY.NO_PROJECTS') }}
+          {{ emptyTitle }}
         </h3>
         <p class="text-xs text-n-slate-10 max-w-sm mb-5 leading-relaxed">
           {{ t('PROJECTS.EMPTY.HINT') }}
         </p>
         <NextButton
-          v-if="!showCompleted"
+          v-if="view === 'active'"
           size="sm"
           icon="i-lucide-plus"
           :label="t('PROJECTS.HEADER.NEW_PROJECT')"
@@ -265,6 +291,8 @@ const goToTasksSettings = () => {
         v-else
         :projects="projects"
         :show-completed="showCompleted"
+        :readonly="view === 'cancelled'"
+        :empty-message="emptyTitle"
         @open-project="openProjectDetail"
         @move-project="onMoveProject"
       />

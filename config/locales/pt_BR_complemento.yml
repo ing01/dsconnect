@@ -1,0 +1,29 @@
+# Textos que existem em en.yml e ainda nao estavam traduzidos em pt_BR.yml (sem
+# isto eles saiam em ingles). Carregado junto com pt_BR.yml.
+pt_BR:
+  errors:
+    saml:
+      multi_account_invitation_not_allowed: 'Usuários associados a outra conta não podem ser adicionados enquanto o SAML estiver ativado'
+  captain:
+    copilot:
+      reply_suggestion_discarded: 'A conversa mudou enquanto o Copilot redigia, então a sugestão foi descartada.'
+      reply_suggestion_failed: 'O Copilot não conseguiu gerar uma resposta. Tente novamente.'
+  super_admin:
+    captain_model_overrides:
+      form:
+        customer_features: 'Recursos para clientes'
+        internal_features: 'Recursos internos'
+        use_installation_model: 'Usar o modelo da instalação: %{model} (%{model_id})'
+      sources:
+        installation_override: 'Configuração da instalação'
+      features:
+        conversation_completion: 'Avaliador de conclusão de conversa inativa'
+    push_diagnostics:
+      subscriptions_deleted:
+        one: 'Removida %{count} assinatura. O aparelho do usuário vai se registrar de novo na próxima abertura do app.'
+        other: 'Removidas %{count} assinaturas. Os aparelhos dos usuários vão se registrar de novo na próxima abertura do app.'
+    users:
+      resend_confirmation:
+        button: 'Reenviar e-mail de confirmação'
+        sent: 'E-mail de confirmação enviado.'
+        already_confirmed: 'O usuário já está confirmado.'

@@ -50,7 +50,12 @@ export const actions = {
   create: async ({ commit, dispatch }, data) => {
     commit('SET_UI_FLAG', { isCreating: true });
     try {
-      const response = await ProjectsAPI.create({ project: data });
+      // `tasks` vai junto: o servidor cria projeto e tarefas numa transacao so.
+      const { tasks, ...project } = data;
+      const response = await ProjectsAPI.create({
+        project,
+        ...(tasks?.length ? { tasks } : {}),
+      });
       commit('ADD_PROJECT', response.data);
       return response.data;
     } finally {

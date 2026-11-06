@@ -265,6 +265,7 @@ pt_BR:
     project:
       tickets_pending: Este projeto não pode ser finalizado enquanto ainda houver tickets em aberto.
       cannot_cancel_finalized: Um projeto finalizado não pode ser cancelado.
+      tasks_not_generated: Não foi possível gerar as tarefas do projeto, então nada foi criado. Confira se a Equipe tem etapas e categorias e tente novamente.
     suggestion:
       too_many_attachments: não pode ter mais de %{count} anexos
       attachment_too_large: é maior que o limite de %{size} MB

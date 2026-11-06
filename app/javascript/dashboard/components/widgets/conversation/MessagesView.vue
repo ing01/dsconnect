@@ -16,6 +16,11 @@ import ReferralBubble from 'dashboard/components-next/Conversation/ReferralBubbl
 
 // stores and apis
 import { mapGetters } from 'vuex';
+import MessageApi from 'dashboard/api/inbox/message';
+import {
+  prependHistory,
+  indexConversations,
+} from 'next/message/helpers/contactHistoryHelper';
 
 // mixins
 import inboxMixin, { INBOX_FEATURES } from 'shared/mixins/inboxMixin';
@@ -89,6 +94,14 @@ export default {
       isProgrammaticScroll: false,
       messageSentSinceOpened: false,
       labelSuggestions: [],
+      // Historico do cliente: mensagens das conversas anteriores da mesma pessoa,
+      // mostradas acima das da conversa atual (cliente novo nao tem nenhuma).
+      historyMessages: [],
+      historyConversations: {},
+      historyHasMore: false,
+      isLoadingHistory: false,
+      historyLoadedFor: null,
+      historyRequestToken: 0,
     };
   },
 
@@ -168,7 +181,15 @@ export default {
     shouldShowSpinner() {
       return (
         (this.currentChat && this.currentChat.dataFetched === undefined) ||
-        (!this.listLoadingStatus && this.isLoadingPrevious)
+        (!this.listLoadingStatus && this.isLoadingPrevious) ||
+        this.isLoadingHistory
+      );
+    },
+    // O historico entra depois da conversa atual inteira (nao ha mais mensagens
+    // dela para carregar acima).
+    canLoadHistory() {
+      return (
+        this.currentChat?.dataFetched === true && this.listLoadingStatus === true
       );
     },
     // Check there is a instagram inbox exists with the same instagram_id
@@ -276,6 +297,11 @@ export default {
       this.fetchSuggestions();
       this.messageSentSinceOpened = false;
       this.resetReplyEditorHeight();
+      this.resetContactHistory();
+      this.fetchContactHistory();
+    },
+    canLoadHistory(ready) {
+      if (ready) this.fetchContactHistory();
     },
   },
 
@@ -292,6 +318,7 @@ export default {
     this.addScrollListener();
     this.fetchAllAttachmentsFromCurrentChat();
     this.fetchSuggestions();
+    this.fetchContactHistory();
   },
 
   unmounted() {
@@ -439,6 +466,73 @@ export default {
       }
     },
 
+    resetContactHistory() {
+      // Invalida a resposta em andamento da conversa anterior.
+      this.historyRequestToken += 1;
+      this.historyMessages = [];
+      this.historyConversations = {};
+      this.historyHasMore = false;
+      this.isLoadingHistory = false;
+      this.historyLoadedFor = null;
+    },
+
+    // Carrega (uma pagina por vez, da mais nova para a mais antiga) as mensagens
+    // das conversas anteriores do cliente. Cliente novo nao tem nenhuma e a
+    // lista fica vazia. Falhar nao pode atrapalhar a conversa: o historico e' um
+    // extra, entao o erro e' ignorado (e nao tenta de novo ate' reabrir).
+    async fetchContactHistory() {
+      if (this.isLoadingHistory || !this.canLoadHistory) return;
+      const chatId = this.currentChat.id;
+      if (this.historyLoadedFor === chatId && !this.historyHasMore) return;
+
+      const token = this.historyRequestToken;
+      if (this.conversationPanel) this.setScrollParams();
+      this.isLoadingHistory = true;
+      try {
+        const { data } = await MessageApi.getContactHistory({
+          conversationId: chatId,
+          before: this.historyMessages[0]?.id,
+        });
+        if (token !== this.historyRequestToken) return;
+
+        this.historyMessages = prependHistory(
+          this.historyMessages,
+          data.payload
+        );
+        this.historyConversations = indexConversations(
+          this.historyConversations,
+          data.conversations
+        );
+        this.historyHasMore = Boolean(data.meta?.has_more);
+        this.historyLoadedFor = chatId;
+        await this.$nextTick();
+        this.restoreScrollAfterHistory();
+      } catch (error) {
+        if (token === this.historyRequestToken) {
+          this.historyLoadedFor = chatId;
+          this.historyHasMore = false;
+        }
+      } finally {
+        if (token === this.historyRequestToken) this.isLoadingHistory = false;
+      }
+    },
+
+    // O historico entra ACIMA: quem ainda esta no fim da conversa continua no fim;
+    // quem estava rolando para cima continua vendo o mesmo ponto.
+    restoreScrollAfterHistory() {
+      if (!this.conversationPanel) return;
+
+      if (!this.hasUserScrolled) {
+        this.scrollToBottom();
+        return;
+      }
+      const heightDifference =
+        this.conversationPanel.scrollHeight - this.heightBeforeLoad;
+      this.conversationPanel.scrollTop =
+        this.scrollTopBeforeLoad + heightDifference;
+      this.setScrollParams();
+    },
+
     handleScroll(e) {
       if (this.isProgrammaticScroll) {
         // Reset the flag
@@ -449,6 +543,7 @@ export default {
       }
       emitter.emit(BUS_EVENTS.ON_MESSAGE_LIST_SCROLL);
       this.fetchPreviousMessages(e.target.scrollTop);
+      if (e.target.scrollTop < 100) this.fetchContactHistory();
     },
 
     makeMessagesRead() {
@@ -506,6 +601,9 @@ export default {
       :is-an-email-channel="isAnEmailChannel"
       :inbox-supports-reply-to="inboxSupportsReplyTo"
       :messages="getMessages"
+      :history-messages="historyMessages"
+      :history-conversations="historyConversations"
+      :current-conversation-id="currentChat.id"
       @retry="handleMessageRetry"
     >
       <template #beforeAll>
@@ -517,6 +615,8 @@ export default {
             <Spinner v-if="shouldShowSpinner" class="text-n-brand" />
           </li>
         </transition>
+      </template>
+      <template #beforeMessages>
         <ReferralBubble v-if="referralData" :referral="referralData" />
       </template>
       <template #unreadBadge>

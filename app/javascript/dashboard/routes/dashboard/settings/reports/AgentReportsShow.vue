@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { useFunctionGetter, useStore } from 'dashboard/composables/store';
 
 import WootReports from './components/WootReports.vue';
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const route = useRoute();
 const store = useStore();
@@ -25,7 +25,5 @@ onMounted(() => store.dispatch('agents/get'));
     :report-title="$t('AGENT_REPORTS.HEADER')"
     has-back-button
   />
-  <div v-else class="w-full py-20">
-    <Spinner class="mx-auto" />
-  </div>
+  <PageLoader v-else />
 </template>

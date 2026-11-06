@@ -232,7 +232,7 @@ export default {
         // Primeiro acesso (senha padrao): so' a troca de senha, antes de tudo.
         window.location = data.password_change_required
           ? '/app/client/password/change'
-          : '/app/client/tickets';
+          : '/app/client';
         return true;
       } catch (error) {
         // 401 e a resposta esperada para "nao e um cliente": segue o erro do
