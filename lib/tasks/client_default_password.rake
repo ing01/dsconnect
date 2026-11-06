@@ -7,10 +7,17 @@
 #   So uma conta:
 #     ACCOUNT_ID=2 CONFIRM=1 bundle exec rails client_access:apply_default_password
 #
-# Quem recebe: contato com e-mail, VINCULADO A UMA EMPRESA, que ainda NAO tem
-# acesso (acesso desligado e sem senha). Sem Empresa nao entra. Quem ja tem acesso
-# ou senha - inclusive quem a equipe desligou - e' ignorado, e contato anonimizado
-# (conta excluida) tambem. NADA e' enviado por e-mail: a senha e' entregue pela equipe.
+# Quem recebe: contato com e-mail, VINCULADO A UMA EMPRESA, que NUNCA teve acesso
+# ao portal. Sem Empresa nao entra.
+#
+# Quem ja tem acesso NAO e' tocado, em hipotese nenhuma. Fica de fora quem:
+#   - tem o acesso ligado;
+#   - tem senha gravada (inclusive quem a equipe desligou - o desligamento guarda a senha);
+#   - ja entrou alguma vez (client_last_sign_in_at) ou teve o acesso ligado antes
+#     (client_access_enabled_at);
+#   - tem sessao de cliente criada (access_tokens).
+# Contato anonimizado (conta excluida) tambem e' ignorado. NADA e' enviado por
+# e-mail: a senha e' entregue pela equipe.
 namespace :client_access do
   desc 'Aplica a senha padrao (CLIENT_DEFAULT_PASSWORD) aos solicitantes com e-mail e sem senha (CONFIRM=1 grava)'
   task apply_default_password: :environment do
@@ -18,13 +25,23 @@ namespace :client_access do
     abort 'CLIENT_DEFAULT_PASSWORD nao esta definida no ambiente.' if hash.blank?
 
     com_empresa = 'contacts.company_id IS NOT NULL OR EXISTS (SELECT 1 FROM company_contacts cc WHERE cc.contact_id = contacts.id)'
-    escopo = Contact.where("contacts.email IS NOT NULL AND contacts.email <> ''")
-                    .where(client_access_enabled: false)
-                    .where("contacts.encrypted_password = '' OR contacts.encrypted_password IS NULL")
-                    .where.not('contacts.email ILIKE ?', "%#{ContactClientAccess::ANONYMIZED_EMAIL_SUFFIX}")
-                    .where(com_empresa)
-    escopo = escopo.where(account_id: ENV['ACCOUNT_ID']) if ENV['ACCOUNT_ID'].present?
+    com_email = Contact.where("contacts.email IS NOT NULL AND contacts.email <> ''")
+    com_email = com_email.where(account_id: ENV['ACCOUNT_ID']) if ENV['ACCOUNT_ID'].present?
 
+    # Nunca teve acesso: nem ligado, nem senha, nem login, nem sessao.
+    sem_acesso_nenhum = "contacts.encrypted_password = '' OR contacts.encrypted_password IS NULL"
+    sem_sessao = "NOT EXISTS (SELECT 1 FROM access_tokens t WHERE t.owner_type = 'Contact' AND t.owner_id = contacts.id)"
+    escopo = com_email.where(client_access_enabled: false)
+                      .where(sem_acesso_nenhum)
+                      .where(client_access_enabled_at: nil, client_last_sign_in_at: nil)
+                      .where(sem_sessao)
+                      .where.not('contacts.email ILIKE ?', "%#{ContactClientAccess::ANONYMIZED_EMAIL_SUFFIX}")
+                      .where(com_empresa)
+
+    # So informativo: quem ja tem acesso e portanto fica intacto.
+    ja_com_acesso = com_email.where('contacts.client_access_enabled = TRUE OR contacts.client_last_sign_in_at IS NOT NULL ' \
+                                    "OR NOT (#{sem_acesso_nenhum})")
+    puts "Contatos que JA tem acesso ao portal (NAO serao alterados): #{ja_com_acesso.count}"
     puts "Contatos que receberiam a senha padrao: #{escopo.count}"
     escopo.group(:account_id).count.each { |conta, total| puts "  conta #{conta}: #{total}" }
 

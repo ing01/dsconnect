@@ -264,6 +264,7 @@ module ContactClientAccess
     return false if self.class.default_client_password.blank?
     return false if email.blank? || email.downcase.end_with?(ANONYMIZED_EMAIL_SUFFIX)
     return false if encrypted_password.present?
+    return false if client_access_enabled_at.present? || client_last_sign_in_at.present?
     return false unless client_company_link?(persisted_company_link)
 
     persisted_company_link || new_record? || will_save_change_to_email? || will_save_change_to_company_id?
