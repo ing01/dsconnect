@@ -50,6 +50,8 @@ Rails.application.routes.draw do
       # de conta para ele trocar.
       namespace :client do
         resource :session, only: [:create, :destroy], controller: 'sessions'
+        # Troca da senha padrao no primeiro acesso (sessao ja aberta).
+        resource :password_change, only: [:update], controller: 'password_changes'
         resources :tickets, only: [:index, :show, :create] do
           # A resposta do cliente entra na conversa do ticket.
           resources :communications, only: [:create]

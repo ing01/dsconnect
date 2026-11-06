@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-default-password-first-access-2026-11-05',
+    date: '5 de novembro de 2026',
+    isoDate: '2026-11-05',
+    type: 'feature',
+    platform: 'web',
+    title: 'Senha padrão e troca no primeiro acesso da Área do Cliente',
+    description:
+      'Todo solicitante com e-mail e vinculado a uma Empresa agora já tem acesso à Área do Cliente com uma senha padrão, entregue pela equipe (nada é enviado por e-mail). No primeiro acesso, a Área do Cliente abre uma tela para a pessoa criar a própria senha, e nada mais fica liberado até a troca. Contatos novos já nascem com a senha padrão, e o prazo de validade dela é configurável (por padrão, nunca expira). O app do celular entra normalmente com a senha padrão, sem troca de senha.',
+  },
+  {
     id: 'ticket-description-save-stuck-fix-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',

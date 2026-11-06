@@ -19,6 +19,7 @@ import ClientNotificationsPage from './pages/ClientNotificationsPage.vue';
 import ClientManifestationsPage from './pages/ClientManifestationsPage.vue';
 import ClientManifestationDetailPage from './pages/ClientManifestationDetailPage.vue';
 import ClientPasswordEditPage from './pages/ClientPasswordEditPage.vue';
+import ClientPasswordChangePage from './pages/ClientPasswordChangePage.vue';
 import ClientInstallPage from './pages/ClientInstallPage.vue';
 
 // A definicao de nova senha e o link de instalacao rodam SEM sessao - o
@@ -39,6 +40,14 @@ export default {
       path: '/app/client/password/edit',
       name: 'client_password_edit',
       component: ClientPasswordEditPage,
+    },
+    {
+      // Troca da senha padrao (primeiro acesso). COM sessao, mas fora do
+      // ClientLayout: o menu e o cabecalho leem dados que o servidor so' libera
+      // depois da troca.
+      path: '/app/client/password/change',
+      name: 'client_password_change',
+      component: ClientPasswordChangePage,
     },
     {
       path: '/app/client/install',

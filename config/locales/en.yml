@@ -635,6 +635,17 @@ en:
     chat_blocked: You do not have permission to use the support chat. Please call (18) 3916-7600.
     unauthorized: Invalid session or Client Area access is disabled.
     invalid_credentials: Invalid e-mail or password.
+    password_change:
+      required: Change the default password to continue.
+      expired: The first access with the default password has expired. Use "Forgot my password" on the login screen to create a password.
+      updated: Password changed successfully.
+      errors:
+        wrong_current: The current password is incorrect.
+        too_short: The new password must be at least 8 characters long.
+        mismatch: The confirmation does not match the new password.
+        same_as_current: The new password must be different from the current one.
+        same_as_default: Choose a password different from the default one.
+        invalid: Could not save the new password.
     password:
       updated: Password changed. Sign in with the new one.
       invalid_token: This reset link is no longer valid. Ask for a new one on the login screen.

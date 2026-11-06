@@ -297,6 +297,24 @@
       "EMPTY": "No news on your tickets yet.",
       "ERROR": "Could not load the notifications."
     },
+    "PASSWORD_CHANGE": {
+      "TITLE": "Create your password",
+      "DESCRIPTION": "This is your first access. For security, replace the default password with one only you know to continue.",
+      "CURRENT": "Current password (the one sent to you)",
+      "CURRENT_PLACEHOLDER": "Enter the default password",
+      "NEW": "New password",
+      "NEW_PLACEHOLDER": "At least 8 characters",
+      "CONFIRM": "Repeat the new password",
+      "CONFIRM_PLACEHOLDER": "Type the same password",
+      "SAVE": "Save new password",
+      "LOGOUT": "Sign out",
+      "ERRORS": {
+        "CURRENT": "Enter the current password.",
+        "TOO_SHORT": "The new password must be at least {count} characters long.",
+        "MISMATCH": "The two passwords do not match.",
+        "GENERIC": "Could not change the password. Please try again."
+      }
+    },
     "PASSWORD": {
       "TITLE": "Set a new password",
       "DESCRIPTION": "Choose the password you will use to sign in to the Client Area.",

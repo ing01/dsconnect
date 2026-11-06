@@ -16,8 +16,23 @@ export const CLIENT_PATH = '/app/client';
 export const isClientArea = () =>
   window.location.pathname.startsWith(CLIENT_PATH);
 
-export const setClientSession = ({ api_access_token: token, contact }) => {
-  Cookies.set(CHAVE, JSON.stringify({ token, contact }), { expires: 30 });
+// `password_change_required`: quem entrou com a senha padrao so' pode trocar a
+// senha. Guardado junto da sessao para a guarda de rotas barrar o resto sem uma
+// ida ao servidor (o servidor tambem barra - isto so evita telas quebradas).
+export const setClientSession = ({
+  api_access_token: token,
+  contact,
+  password_change_required: passwordChangeRequired = false,
+}) => {
+  Cookies.set(
+    CHAVE,
+    JSON.stringify({
+      token,
+      contact,
+      passwordChangeRequired: Boolean(passwordChangeRequired),
+    }),
+    { expires: 30 }
+  );
 };
 
 export const getClientSession = () => {
@@ -33,6 +48,21 @@ export const getClientSession = () => {
 };
 
 export const hasClientSession = () => Boolean(getClientSession()?.token);
+
+// A tela de troca da senha padrao.
+export const CLIENT_PASSWORD_CHANGE_PATH = '/app/client/password/change';
+
+export const mustChangeClientPassword = () =>
+  Boolean(getClientSession()?.passwordChangeRequired);
+
+// Depois da troca: mantem a sessao e so' desliga a exigencia.
+export const markClientPasswordChanged = () => {
+  const sessao = getClientSession();
+  if (!sessao) return;
+  Cookies.set(CHAVE, JSON.stringify({ ...sessao, passwordChangeRequired: false }), {
+    expires: 30,
+  });
+};
 
 export const clearClientSession = () => Cookies.remove(CHAVE);
 

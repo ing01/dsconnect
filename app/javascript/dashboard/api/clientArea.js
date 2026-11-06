@@ -16,10 +16,16 @@ import axios from 'axios';
 import {
   getClientSession,
   clearClientSession,
+  CLIENT_PASSWORD_CHANGE_PATH,
 } from 'dashboard/helper/clientSession';
 
 const { apiHost = '' } = window.chatwootConfig || {};
-const cliente = axios.create({ baseURL: `${apiHost}/` });
+// `X-Client-Platform: web`: e' como o servidor sabe que quem chama e' a web, e
+// nao o app do celular - so' a web e' mandada para a troca da senha padrao.
+const cliente = axios.create({
+  baseURL: `${apiHost}/`,
+  headers: { 'X-Client-Platform': 'web' },
+});
 
 const BASE = '/api/v1/client';
 
@@ -54,6 +60,16 @@ cliente.interceptors.response.use(
       erro?.response?.status === 401 &&
       !SEM_REDIRECIONAR.some(rota => url.includes(rota));
 
+    // Sessao com a senha padrao: o servidor recusa tudo menos a troca. Em vez de
+    // uma tela quebrada, leva a pessoa ao formulario (cobre o cookie antigo que
+    // nao trazia a marca).
+    const exigeTroca =
+      erro?.response?.status === 403 &&
+      erro?.response?.data?.code === 'password_change_required';
+    if (exigeTroca && window.location.pathname !== CLIENT_PASSWORD_CHANGE_PATH) {
+      window.location.assign(CLIENT_PASSWORD_CHANGE_PATH);
+    }
+
     if (ehSessaoExpirada) {
       clearClientSession();
       // Carga completa: a tela de login é servida pelo Rails, não é rota deste
@@ -83,6 +99,19 @@ export default {
       headers: headers(),
       data: { password },
     });
+  },
+
+  // A troca da senha padrao no primeiro acesso: COM sessao, e pede a senha atual.
+  changePassword({ currentPassword, password, passwordConfirmation }) {
+    return cliente.put(
+      `${BASE}/password_change`,
+      {
+        current_password: currentPassword,
+        password,
+        password_confirmation: passwordConfirmation,
+      },
+      { headers: headers() }
+    );
   },
 
   // A troca de senha pelo link do e-mail. SEM cabeçalho de sessão de propósito:

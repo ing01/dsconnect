@@ -27,6 +27,7 @@ class Api::V1::Client::PasswordsController < ApplicationController
     # Redefinir derruba a sessao aberta: quem chega aqui esqueceu a senha ou
     # desconfia que alguem a tem, e nos dois casos uma sessao viva em outro
     # lugar deve cair.
+    contato.clear_password_change_requirement!
     contato.revoke_client_sessions!
 
     render json: { message: I18n.t('client_area.password.updated') }
