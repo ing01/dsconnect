@@ -107,12 +107,13 @@ const setQuotedReplyFlagForInbox = (channelType, value, updateUISettings) => {
  * @param {Object} uiSettings - Reactive UI settings object.
  * @returns {boolean} The value of the signature enabled flag.
  */
-const fetchSignatureFlagFromUISettings = (channelType, uiSettings) => {
-  if (!channelType) return false;
-
-  const slugifiedChannel = slugifyChannel(channelType);
-  return uiSettings.value[`${slugifiedChannel}_signature_enabled`];
-};
+// A assinatura NAO e mais aplicada automaticamente nas conversas. O botao que
+// ligava essa preferencia foi retirado, mas quem a tinha ligado antes continuava
+// com a assinatura entrando sozinha em toda resposta e conversa nova (inclusive
+// as do Portal do Cliente) - e sem nenhum botao para desligar. Todo o editor
+// (resposta, conversa nova, nota) le este valor, entao este e o unico ponto.
+// eslint-disable-next-line no-unused-vars
+const fetchSignatureFlagFromUISettings = (channelType, uiSettings) => false;
 
 const fetchQuotedReplyFlagFromUISettings = (channelType, uiSettings) => {
   if (!channelType) return false;

@@ -109,9 +109,11 @@ describe('useUISettings', () => {
     });
   });
 
-  it('fetches signature flag from UI settings correctly', () => {
+  // A assinatura nunca e aplicada sozinha, mesmo para quem a tinha ligado
+  // (`email_signature_enabled: true` no fixture acima).
+  it('never enables the signature automatically', () => {
     const { fetchSignatureFlagFromUISettings } = useUISettings();
-    expect(fetchSignatureFlagFromUISettings('email')).toBe(undefined);
+    expect(fetchSignatureFlagFromUISettings('email')).toBe(false);
   });
 
   it('sets quoted reply flag for inbox correctly', () => {
@@ -155,9 +157,7 @@ describe('useUISettings', () => {
       isEditorHotKeyEnabled,
     } = useUISettings();
     expect(isContactSidebarItemOpen('non_existent_key')).toBe(false);
-    expect(fetchSignatureFlagFromUISettings('non_existent_key')).toBe(
-      undefined
-    );
+    expect(fetchSignatureFlagFromUISettings('non_existent_key')).toBe(false);
     expect(isEditorHotKeyEnabled('non_existent_key')).toBe(false);
   });
 });
