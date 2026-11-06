@@ -1,19 +1,31 @@
-// Um anexo de uma mensagem do chat (foto ou audio) - ver
+// Um anexo de uma mensagem do chat (foto, audio ou arquivo qualquer) - ver
 // `Attachment#push_event_data` no servidor, que e' quem decide o
 // `file_type` e monta a `data_url` (CDN/S3 ou rota local, tanto faz pro
 // app: e' so uma URL pra tocar/mostrar).
 class ChatAttachment {
-  const ChatAttachment({required this.fileType, required this.dataUrl});
+  const ChatAttachment({
+    required this.fileType,
+    required this.dataUrl,
+    this.fileName,
+    this.fileSize,
+  });
 
   final String fileType;
   final String dataUrl;
+  final String? fileName;
+  final int? fileSize;
 
   bool get isImage => fileType == 'image';
   bool get isAudio => fileType == 'audio';
+  // Tudo que nao e' foto nem audio (zip, pdf, planilha...): vira um cartao
+  // tocavel que abre/baixa o arquivo.
+  bool get isFile => !isImage && !isAudio;
 
   factory ChatAttachment.fromJson(Map<String, dynamic> json) => ChatAttachment(
         fileType: (json['file_type'] as String?) ?? 'file',
         dataUrl: (json['data_url'] as String?) ?? '',
+        fileName: json['file_name'] as String?,
+        fileSize: (json['file_size'] as num?)?.toInt(),
       );
 }
 

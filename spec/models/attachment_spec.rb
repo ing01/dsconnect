@@ -45,6 +45,16 @@ RSpec.describe Attachment do
     end
   end
 
+  describe 'push_event_data for a generic file' do
+    it 'includes the file name, so a client app can label the download' do
+      attachment = message.attachments.new(account_id: message.account_id, file_type: :file)
+      attachment.file.attach(io: Rails.root.join('spec/assets/sample.pdf').open, filename: 'relatorio.pdf', content_type: 'application/pdf')
+      attachment.save!
+
+      expect(attachment.push_event_data).to include(file_name: 'relatorio.pdf', extension: 'pdf')
+    end
+  end
+
   describe 'push_event_data for instagram story mentions' do
     let(:instagram_message) { create(:message, :instagram_story_mention) }
 

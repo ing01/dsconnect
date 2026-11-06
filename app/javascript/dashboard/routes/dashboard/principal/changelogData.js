@@ -8,6 +8,36 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'api-dev-fields-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'improvement',
+    platform: 'web',
+    title: 'API de tickets: campos do desenvolvimento na busca e na edição',
+    description:
+      'Observações do Desenvolvedor, Observações Sobre o Teste Realizado, Documentação, Instruções e Análise agora aparecem como campos próprios (observacoes_dev, observacoes_teste, documentacao, instrucoes, analise) na lista e no detalhe dos tickets da API, e podem ser enviados ao criar e ao editar (PATCH /tickets/:id), sem precisar usar custom_attributes.',
+  },
+  {
+    id: 'mobile-chat-files-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'feature',
+    platform: 'mobile',
+    title: 'App: chat agora envia e recebe arquivos (zip, pdf, planilhas...)',
+    description:
+      'No chat do app, arquivos que não são foto nem áudio apareciam em branco para o cliente. Agora aparecem como um cartão com o nome e o tamanho, e ao tocar o arquivo abre/baixa. O cliente também pode enviar arquivos pela opção "Escolher arquivo"; acima de 100 MB o app avisa e não envia. Também voltaram a ser aceitos rar, 7z e tar na caixa de mensagem do painel.',
+  },
+  {
+    id: 'dev-fields-open-when-filled-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Campos do Jira já aparecem abertos quando preenchidos',
+    description:
+      'Nos tickets de Desenvolvimento, Observações do Desenvolvedor, Observações Sobre o Teste, Documentação, Instruções e Análise agora abrem sozinhos quando têm conteúdo, então dá para ver o que foi registrado sem clicar em cada um. Os vazios continuam fechados.',
+  },
+  {
     id: 'dev-full-ticket-title-2026-11-06',
     date: '6 de novembro de 2026',
     isoDate: '2026-11-06',

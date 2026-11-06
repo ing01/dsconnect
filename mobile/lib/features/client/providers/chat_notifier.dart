@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -107,10 +108,21 @@ class ClientChatNotifier extends AsyncNotifier<ChatState> {
     } catch (error) {
       state = AsyncData(current.copyWith(
         isSending: false,
-        error: chatBlockedMessage(error) ?? 'Não foi possível enviar a mensagem.',
+        error: chatBlockedMessage(error) ??
+            (attachments.isNotEmpty && _isClientError(error)
+                ? 'O servidor não aceitou o arquivo (pode ser grande demais). Tente um menor.'
+                : 'Não foi possível enviar a mensagem.'),
       ));
     }
   }
+}
+
+// 4xx = o servidor recusou o que foi enviado (ex.: arquivo acima do limite
+// dele), diferente de falta de rede ou erro 500.
+bool _isClientError(Object error) {
+  if (error is! DioException) return false;
+  final status = error.response?.statusCode ?? 0;
+  return status >= 400 && status < 500;
 }
 
 final clientChatProvider = AsyncNotifierProvider.autoDispose<ClientChatNotifier, ChatState>(

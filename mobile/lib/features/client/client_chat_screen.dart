@@ -1,18 +1,29 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_theme.dart';
 import 'chat_blocked.dart';
 import 'client_chat_history_screen.dart';
 import 'models/chat_message.dart';
 import 'providers/chat_notifier.dart';
+
+// Teto de um arquivo enviado pelo chat. Acima disso o app nem tenta subir: avisa
+// na hora, em vez de gastar minutos de upload para o servidor recusar.
+const int _maxUploadBytes = 100 * 1024 * 1024;
+
+String _formatBytes(int bytes) {
+  if (bytes >= 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  return '${(bytes / 1024).ceil().clamp(1, 1 << 30)} KB';
+}
 
 class ClientChatScreen extends ConsumerStatefulWidget {
   const ClientChatScreen({super.key});
@@ -104,6 +115,37 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> with Widget
     }
   }
 
+  Future<void> _pickFile() async {
+    try {
+      final picked = await FilePicker.pickFile();
+      if (picked == null) return;
+
+      final size = picked.lengthSync() ?? await picked.length();
+      if (size != null && size > _maxUploadBytes) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'O arquivo "${picked.name}" tem ${_formatBytes(size)} e passa do limite de '
+                '${_formatBytes(_maxUploadBytes)}. Escolha um arquivo menor.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      await ref.read(clientChatProvider.notifier).send('', attachments: [picked.xFile]);
+      _scrollToBottom();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível acessar o arquivo. Confira a permissão do app.')),
+        );
+      }
+    }
+  }
+
   void _openAttachmentSheet() {
     showModalBottomSheet(
       context: context,
@@ -124,6 +166,14 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> with Widget
               onTap: () {
                 Navigator.of(context).pop();
                 _pickImage(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.insert_drive_file_outlined),
+              title: const Text('Escolher arquivo'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickFile();
               },
             ),
           ],
@@ -364,7 +414,64 @@ class _ChatAttachmentView extends StatelessWidget {
       );
     }
 
-    return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: _FileAttachmentTile(attachment: attachment),
+    );
+  }
+}
+
+// Um arquivo que nao e' foto nem audio: icone, nome e tamanho; tocar abre no
+// navegador/app do aparelho, que baixa ou mostra conforme o tipo.
+class _FileAttachmentTile extends StatelessWidget {
+  const _FileAttachmentTile({required this.attachment});
+
+  final ChatAttachment attachment;
+
+  Future<void> _open(BuildContext context) async {
+    final opened = await launchUrl(Uri.parse(attachment.dataUrl), mode: LaunchMode.externalApplication);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Não foi possível abrir o arquivo.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = attachment.fileSize;
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () => _open(context),
+      child: Container(
+        width: 220,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).dividerColor),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.insert_drive_file_outlined),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    attachment.fileName ?? 'Arquivo',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (size != null) Text(_formatBytes(size), style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            const Icon(Icons.download_outlined, size: 20),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -123,6 +123,9 @@ class Attachment < ApplicationRecord
 
   def file_metadata
     metadata = {
+      # Nome do arquivo como foi enviado - o app mobile mostra um cartao com
+      # ele para anexos que nao sao foto nem audio.
+      file_name: file.filename.to_s,
       extension: extension,
       content_type: file.content_type,
       data_url: file_url,
