@@ -13,6 +13,38 @@ module ContactClientAccess
   # empresa sem ninguem ter decidido isso.
   VISIBILITY = { own: 0, company: 1 }.freeze
 
+  # A troca de senha do primeiro acesso exige um minimo maior que o da
+  # redefinicao por e-mail: a senha padrao e conhecida por muita gente.
+  MIN_CHANGED_PASSWORD_LENGTH = 8
+
+  # E-mail de contato anonimizado (conta excluida) - nunca recebe acesso.
+  ANONYMIZED_EMAIL_SUFFIX = '@excluido.invalid'.freeze
+
+  class_methods do
+    # A senha padrao vem do ambiente, nunca do codigo nem do banco: assim ela nao
+    # fica no repositorio. Sem ela definida, o recurso inteiro fica desligado.
+    def default_client_password
+      ENV['CLIENT_DEFAULT_PASSWORD'].presence
+    end
+
+    # O hash bcrypt e calculado UMA vez por processo e reaproveitado: gerar um por
+    # contato custaria ~0,2s cada, o que travaria uma importacao grande. O sal
+    # vai dentro do hash, entao `valid_password?` funciona normalmente.
+    def default_client_password_hash
+      senha = default_client_password
+      return if senha.blank?
+
+      @default_client_password_hashes ||= {}
+      @default_client_password_hashes[senha] ||= Devise::Encryptor.digest(self, senha)
+    end
+
+    # Dias de validade da senha padrao; vazio = nunca expira (o padrao).
+    def default_client_password_expires_in_days
+      dias = ENV['CLIENT_DEFAULT_PASSWORD_EXPIRES_DAYS'].to_i
+      dias if dias.positive?
+    end
+  end
+
   included do
     # O token de sessao e o mesmo AccessToken do resto do sistema, com o contato
     # como dono. Nao se usa o AccessTokenable: aquele concern cria um token no
@@ -41,6 +73,12 @@ module ContactClientAccess
     validates :password, confirmation: true
 
     scope :with_client_access, -> { where(client_access_enabled: true) }
+
+    # Senha padrao: todo solicitante (contato com e-mail e vinculado a uma Empresa)
+    # nasce com acesso e com a senha padrao, e precisa trocar no primeiro acesso
+    # (pelo site). Antes da validacao, porque `client_access_requires_credentials`
+    # exige a credencial ja preenchida quando o acesso esta ligado.
+    before_validation :apply_default_client_access, if: :provision_default_client_access?
 
     # Quem pode receber o e-mail de redefinicao.
     #
@@ -74,7 +112,12 @@ module ContactClientAccess
   # Liga o acesso. A senha e opcional numa reativacao: quem ja tinha credencial
   # volta a entrar com a mesma, sem a equipe precisar inventar outra.
   def enable_client_access!(password: nil)
-    self.password = password if password.present?
+    if password.present?
+      self.password = password
+      # Senha escolhida pela equipe no cadastro: nao e a padrao, nao ha o que trocar.
+      self.password_change_required = false
+      self.default_password_set_at = nil
+    end
     self.client_access_enabled = true
     self.client_access_enabled_at ||= Time.current
     save!
@@ -151,6 +194,50 @@ module ContactClientAccess
     reload
   end
 
+  # Ainda com a senha padrao e o prazo (se houver) ja passou: nao entra mais com
+  # ela, so pelo "esqueci minha senha". Sem prazo configurado, nunca expira.
+  def client_default_password_expired?
+    dias = self.class.default_client_password_expires_in_days
+    password_change_required? && dias.present? && default_password_set_at.present? &&
+      default_password_set_at < dias.days.ago
+  end
+
+  # Chamado quando o vinculo com a Empresa nasce DEPOIS do contato (importacao de
+  # solicitantes, vinculo pela tela): so' agora ele passa a ser um solicitante.
+  def provision_default_client_access!
+    return unless provision_default_client_access?(persisted_company_link: true)
+
+    apply_default_client_access
+    # `save`, e nao `save!`: isto roda depois do vinculo, que nao pode falhar por
+    # causa de um contato com dado invalido (e-mail fora do formato, por exemplo) -
+    # ele so' fica sem a senha padrao.
+    return true if save
+
+    Rails.logger.warn("Senha padrao nao aplicada ao contato #{id}: #{errors.full_messages.to_sentence}")
+    false
+  end
+
+  # Troca de senha do primeiro acesso. Devolve um simbolo (`:ok` ou o motivo da
+  # recusa) para o controller traduzir - nada aqui conhece HTTP.
+  def change_client_password(current_password:, password:, confirmation:)
+    return :wrong_current unless valid_password?(current_password.to_s)
+    return :too_short if password.to_s.length < MIN_CHANGED_PASSWORD_LENGTH
+    return :mismatch unless password == confirmation
+    return :same_as_current if password == current_password
+    return :same_as_default if password == self.class.default_client_password
+
+    self.password = password
+    self.password_confirmation = confirmation
+    self.password_change_required = false
+    self.default_password_set_at = nil
+    save ? :ok : :invalid
+  end
+
+  # Redefinir por e-mail tambem encerra a exigencia: a pessoa ja escolheu uma senha.
+  def clear_password_change_requirement!
+    update_columns(password_change_required: false, default_password_set_at: nil) # rubocop:disable Rails/SkipsModelValidations
+  end
+
   def register_client_sign_in!
     # `update_column` de proposito: anotar o login e um carimbo, nao uma
     # alteracao do cadastro - nao deve rodar validacao nem mexer em updated_at,
@@ -159,6 +246,37 @@ module ContactClientAccess
   end
 
   private
+
+  def apply_default_client_access
+    self.encrypted_password = self.class.default_client_password_hash
+    self.client_access_enabled = true
+    self.client_access_enabled_at ||= Time.current
+    self.password_change_required = true
+    self.default_password_set_at = Time.current
+  end
+
+  # Quem recebe a senha padrao: contato com e-mail, VINCULADO A UMA EMPRESA e sem
+  # credencial ainda. Sem Empresa nao entra. So dispara na criacao ou quando o
+  # e-mail/a Empresa acabam de aparecer - nunca religa quem ja tem senha
+  # (inclusive quem a equipe desligou: o desligamento guarda a senha), e nunca
+  # toca em conta anonimizada.
+  def provision_default_client_access?(persisted_company_link: false)
+    return false if self.class.default_client_password.blank?
+    return false if email.blank? || email.downcase.end_with?(ANONYMIZED_EMAIL_SUFFIX)
+    return false if encrypted_password.present?
+    return false if client_access_enabled_at.present? || client_last_sign_in_at.present?
+    return false unless client_company_link?(persisted_company_link)
+
+    persisted_company_link || new_record? || will_save_change_to_email? || will_save_change_to_company_id?
+  end
+
+  # `company_id` e' a Empresa principal; o vinculo pela juncao (`company_contacts`)
+  # so existe depois que o contato foi gravado - e' o caso da importacao.
+  def client_company_link?(persisted_company_link)
+    return true if company_id.present?
+
+    persisted_company_link && persisted? && company_contacts.exists?
+  end
 
   def client_access_requires_credentials
     return unless client_access_enabled?

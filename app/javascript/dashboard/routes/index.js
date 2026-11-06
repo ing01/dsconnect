@@ -3,7 +3,12 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { frontendURL } from '../helper/URLHelper';
 import dashboard from './dashboard/dashboard.routes';
 import clientArea, { CLIENT_PUBLIC_PATHS } from './client/client.routes';
-import { CLIENT_PATH, hasClientSession } from '../helper/clientSession';
+import {
+  CLIENT_PATH,
+  CLIENT_PASSWORD_CHANGE_PATH,
+  hasClientSession,
+  mustChangeClientPassword,
+} from '../helper/clientSession';
 import store from 'dashboard/store';
 import { validateLoggedInRoutes } from '../helper/routeHelpers';
 import { isOnOnboardingView } from 'v3/helpers/RouteHelper';
@@ -34,6 +39,14 @@ export const validateAuthenticateRoutePermission = async (to, next) => {
     if (!hasClientSession()) {
       window.location.assign('/app/login');
       return '';
+    }
+
+    // Senha padrao: nenhuma outra tela da Area do Cliente ate a troca.
+    if (
+      mustChangeClientPassword() &&
+      to.path !== CLIENT_PASSWORD_CHANGE_PATH
+    ) {
+      return next(CLIENT_PASSWORD_CHANGE_PATH);
     }
     return next();
   }

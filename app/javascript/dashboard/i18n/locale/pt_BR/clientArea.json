@@ -310,6 +310,24 @@
       "ERROR_WRONG_PASSWORD": "Senha incorreta. Verifique e tente novamente.",
       "ERROR_GENERIC": "Não foi possível excluir a conta. Tente novamente."
     },
+    "PASSWORD_CHANGE": {
+      "TITLE": "Crie a sua senha",
+      "DESCRIPTION": "Este é o seu primeiro acesso. Por segurança, troque a senha padrão por uma senha só sua para continuar.",
+      "CURRENT": "Senha atual (a que foi enviada para você)",
+      "CURRENT_PLACEHOLDER": "Digite a senha padrão",
+      "NEW": "Nova senha",
+      "NEW_PLACEHOLDER": "Pelo menos 8 caracteres",
+      "CONFIRM": "Repita a nova senha",
+      "CONFIRM_PLACEHOLDER": "Digite a mesma senha",
+      "SAVE": "Salvar nova senha",
+      "LOGOUT": "Sair",
+      "ERRORS": {
+        "CURRENT": "Informe a senha atual.",
+        "TOO_SHORT": "A nova senha precisa ter pelo menos {count} caracteres.",
+        "MISMATCH": "As duas senhas não são iguais.",
+        "GENERIC": "Não foi possível trocar a senha. Tente novamente."
+      }
+    },
     "PASSWORD": {
       "TITLE": "Definir nova senha",
       "DESCRIPTION": "Escolha a senha que você vai usar para entrar na Área do Cliente.",

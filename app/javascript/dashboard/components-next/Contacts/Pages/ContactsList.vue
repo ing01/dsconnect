@@ -43,6 +43,10 @@ const updateContact = async updatedData => {
         useAlert(t(`${i18nPrefix}.EMAIL_ADDRESS.DUPLICATE`));
       } else if (error.data.includes('phone_number')) {
         useAlert(t(`${i18nPrefix}.PHONE_NUMBER.DUPLICATE`));
+      } else {
+        // Outro motivo de validacao (formato, conta anonimizada...): antes
+        // nao mostrava nada e o agente ficava sem saber se salvou.
+        useAlert(error.contactErrorDetail || t(`${i18nPrefix}.ERROR_MESSAGE`));
       }
     } else if (error instanceof ExceptionWithMessage) {
       useAlert(error.data);

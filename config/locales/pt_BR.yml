@@ -649,6 +649,17 @@ pt_BR:
     unauthorized: Sessão inválida ou acesso à Área do Cliente desativado.
     invalid_credentials: E-mail ou senha inválidos.
     wrong_password: Senha incorreta. Verifique e tente novamente.
+    password_change:
+      required: Troque a senha padrão para continuar.
+      expired: O primeiro acesso com a senha padrão expirou. Use "Esqueci minha senha" na tela de login para criar uma senha.
+      updated: Senha alterada com sucesso.
+      errors:
+        wrong_current: A senha atual está incorreta.
+        too_short: A nova senha precisa ter pelo menos 8 caracteres.
+        mismatch: A confirmação não confere com a nova senha.
+        same_as_current: A nova senha precisa ser diferente da atual.
+        same_as_default: Escolha uma senha diferente da senha padrão.
+        invalid: Não foi possível salvar a nova senha.
     password:
       updated: Senha alterada. Entre com a nova senha.
       invalid_token: Este link de redefinição não é mais válido. Peça um novo na tela de login.
