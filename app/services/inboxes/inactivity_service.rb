@@ -23,7 +23,9 @@ class Inboxes::InactivityService
     threshold = [nudge_after, close_after, pause_after].compact.min
     return if threshold.blank?
 
-    inbox.conversations.open.where('last_activity_at <= ?', threshold.minutes.ago).find_each do |conversation|
+    inbox.conversations.open.includes(:queue).where('last_activity_at <= ?', threshold.minutes.ago).find_each do |conversation|
+      next if handled_by_queue?(conversation)
+
       process(conversation, nudge_after, close_after)
     rescue StandardError => e
       # Uma conversa com problema nao pode travar as outras; e' tentada de novo na proxima rodada.
@@ -32,6 +34,15 @@ class Inboxes::InactivityService
   end
 
   private
+
+  # No Portal, quando a Fila da conversa tem regras de inatividade (aviso,
+  # encerramento ou pausa), quem cuida dela e' Queues::InactivityService. Os dois
+  # servicos rodam em paralelo (jobs separados) e, se ambos agissem, o cliente
+  # recebia o aviso em duplicidade e com o texto de uma ou de outra configuracao.
+  def handled_by_queue?(conversation)
+    queue = conversation.queue
+    inbox.client_portal? && queue.present? && queue.active? && queue.inactivity_rules?
+  end
 
   def process(conversation, nudge_after, close_after)
     last_message = last_chat_message(conversation)
@@ -95,13 +106,23 @@ class Inboxes::InactivityService
     Inactivity::BusinessTime.new(inbox, enabled: config.enabled? && config.respect_working_hours?).elapsed?(since, minutes)
   end
 
+  # O aviso e o marcador saem na mesma transacao, com a conversa TRAVADA e
+  # recarregada: se outra rodada (ou outro job) avisou enquanto esperavamos, o
+  # estado novo ja mostra o aviso e nao mandamos de novo.
   def nudge(conversation)
-    send_notice(conversation, inbox.inactivity_config['inactivity_message'], 'nudge')
-    conversation.update!(additional_attributes: (conversation.additional_attributes || {}).merge(NUDGED_AT_KEY => Time.current.iso8601))
+    conversation.with_lock do
+      last_message = last_chat_message(conversation)
+      next unless conversation.open? && last_message&.outgoing? && nudged_at_for(conversation, last_message).nil?
+
+      send_notice(conversation, inbox.inactivity_config['inactivity_message'], 'nudge')
+      conversation.update!(additional_attributes: (conversation.additional_attributes || {}).merge(NUDGED_AT_KEY => Time.current.iso8601))
+    end
   end
 
   def close(conversation, since)
-    ActiveRecord::Base.transaction do
+    conversation.with_lock do
+      next unless conversation.open? && last_chat_message(conversation)&.outgoing?
+
       send_notice(conversation, inbox.inactivity_config['resolve_message'], 'close')
       conversation.inactivity_resolved_after = ((Time.current - since) / 60).round
       conversation.update!(status: :resolved)
