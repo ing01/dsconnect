@@ -108,12 +108,29 @@ describe('TicketActionsMenu', () => {
       expect(items).not.toContain('close');
     });
 
-    // Cancelar foi removido do menu (fluxo do sistema so' usa Fechar), mas um
-    // ticket que ja esta `cancelled` (dado legado, de antes dessa remocao)
-    // ainda precisa poder ser reaberto.
-    it('never offers cancel, but still offers reopen for a legacy cancelled ticket', async () => {
+    // Cancelar voltou, mas so' para administrador: o servidor manda o veredito
+    // em `can_cancel`, e so' vale enquanto o ticket esta aberto. Um ticket que
+    // ja esta `cancelled` (legado ou nao) continua podendo ser reaberto.
+    it('offers cancel only when the server says the user can, on an open ticket', async () => {
+      const allowed = await open(
+        mountMenu({ ticket: ticket({ can_cancel: true }) })
+      );
+      expect(values(allowed)).toContain('cancel');
+      expect(item(allowed, 'cancel').attributes('data-action')).toBe('delete');
+
+      const denied = await open(
+        mountMenu({ ticket: ticket({ can_cancel: false }) })
+      );
+      expect(values(denied)).not.toContain('cancel');
+    });
+
+    it('does not offer cancel once the ticket is closed or cancelled, but still offers reopen', async () => {
       const items = values(
-        await open(mountMenu({ ticket: ticket({ status: 'cancelled' }) }))
+        await open(
+          mountMenu({
+            ticket: ticket({ status: 'cancelled', can_cancel: true }),
+          })
+        )
       );
 
       expect(items).not.toContain('cancel');

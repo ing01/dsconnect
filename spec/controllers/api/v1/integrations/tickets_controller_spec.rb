@@ -41,6 +41,45 @@ RSpec.describe 'Ticket Integration API', type: :request do
       get '/api/v1/integrations/tickets', params: { team_id: outro_team.id }, headers: headers, as: :json
       expect(response.parsed_body['payload']).to be_empty
     end
+
+    it 'filters by ticket_column_id, ticket_category_id, company_id, assignee_id and updated_after' do
+      categoria = create(:ticket_category, team: team)
+      empresa = create(:company, account: account)
+      agente = create(:user, account: account)
+      alvo = create(:ticket, ticket_column: column, ticket_category: categoria, company: empresa, assignee: agente)
+      create(:ticket, ticket_column: column) # outro ticket, nao deve aparecer nos filtros abaixo
+
+      get '/api/v1/integrations/tickets', params: { ticket_column_id: column.id, ticket_category_id: categoria.id,
+                                                    company_id: empresa.id, assignee_id: agente.id },
+                                          headers: headers, as: :json
+
+      expect(response.parsed_body['payload'].pluck('id')).to eq([alvo.id])
+    end
+
+    it 'filters by updated_after' do
+      antigo = create(:ticket, ticket_column: column, updated_at: 2.days.ago)
+      recente = create(:ticket, ticket_column: column, updated_at: 1.hour.ago)
+
+      get '/api/v1/integrations/tickets', params: { updated_after: 1.day.ago }, headers: headers, as: :json
+
+      ids = response.parsed_body['payload'].pluck('id')
+      expect(ids).to include(recente.id)
+      expect(ids).not_to include(antigo.id)
+    end
+
+    it 'includes the stage, category, company and assignee of each ticket' do
+      categoria = create(:ticket_category, team: team)
+      agente = create(:user, account: account)
+      alvo = create(:ticket, ticket_column: column, ticket_category: categoria, assignee: agente)
+
+      get '/api/v1/integrations/tickets', headers: headers, as: :json
+
+      item = response.parsed_body['payload'].find { |t| t['id'] == alvo.id }
+      expect(item['ticket_column_id']).to eq(column.id)
+      expect(item['ticket_category_id']).to eq(categoria.id)
+      expect(item['assignee_id']).to eq(agente.id)
+      expect(item['assignee_name']).to eq(agente.name)
+    end
   end
 
   describe 'GET /api/v1/integrations/tickets/:id' do
@@ -65,6 +104,73 @@ RSpec.describe 'Ticket Integration API', type: :request do
       outro = create(:ticket)
       get "/api/v1/integrations/tickets/#{outro.id}", headers: headers, as: :json
       expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns custom_attributes and the assignee' do
+      agente = create(:user, account: account)
+      ticket.update!(assignee: agente, custom_attributes: { 'analysis' => 'Causa raiz: timeout no gateway' })
+
+      get "/api/v1/integrations/tickets/#{ticket.id}", headers: headers, as: :json
+
+      body = response.parsed_body
+      expect(body['custom_attributes']).to eq('analysis' => 'Causa raiz: timeout no gateway')
+      expect(body['assignee']).to include('id' => agente.id, 'name' => agente.name)
+    end
+  end
+
+  describe 'POST /api/v1/integrations/tickets' do
+    # title, description, priority e ticket_category sao obrigatorios na
+    # CRIACAO em qualquer caminho (TicketOpening, `validates ..., on: :create`)
+    # - a API de integracao nao abre excecao nenhuma a essa regra.
+    let(:categoria) { create(:ticket_category, team: team) }
+    let(:required_fields) do
+      { title: 'Erro ao gerar NFe', description: 'Descricao do problema', priority: 'high',
+        ticket_column_id: column.id, ticket_category_id: categoria.id }
+    end
+
+    it 'creates a ticket with the required fields' do
+      post '/api/v1/integrations/tickets', params: { ticket: required_fields }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:created)
+      created = Ticket.find(response.parsed_body['id'])
+      expect(created.title).to eq('Erro ao gerar NFe')
+      expect(created.team_id).to eq(team.id)
+      activity = created.ticket_activities.find_by(activity_type: :created)
+      expect(activity.meta['origin']).to eq('integration_api')
+    end
+
+    it 'accepts company, contact, complexity, assignee and custom_attributes' do
+      empresa = create(:company, account: account)
+      contato = create(:contact, account: account, company_id: empresa.id)
+      complexidade = create(:ticket_complexity, account: account, teams: [team])
+      agente = create(:user, account: account)
+      create(:team_member, user: agente, team: team)
+
+      post '/api/v1/integrations/tickets',
+           params: { ticket: required_fields.merge(
+             company_id: empresa.id, contact_id: contato.id, ticket_complexity_id: complexidade.id,
+             assignee_id: agente.id, custom_attributes: { 'analysis' => 'Nota fiscal rejeitada' }
+           ) },
+           headers: headers, as: :json
+
+      expect(response).to have_http_status(:created)
+      created = Ticket.find(response.parsed_body['id'])
+      expect(created.company_id).to eq(empresa.id)
+      expect(created.assignee_id).to eq(agente.id)
+      expect(created.custom_attributes).to eq('analysis' => 'Nota fiscal rejeitada')
+    end
+
+    it '422s without a title' do
+      post '/api/v1/integrations/tickets', params: { ticket: required_fields.except(:title) },
+                                           headers: headers, as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'rejects a ticket_column_id from another account' do
+      outro_column = create(:ticket_column)
+      post '/api/v1/integrations/tickets', params: { ticket: { title: 'X', ticket_column_id: outro_column.id } },
+                                           headers: headers, as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 
@@ -101,6 +207,49 @@ RSpec.describe 'Ticket Integration API', type: :request do
             headers: headers, as: :json
 
       expect(response).to have_http_status(:not_found)
+    end
+
+    it 'updates the priority' do
+      patch "/api/v1/integrations/tickets/#{ticket.id}/route", params: { priority: 'urgent' }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(ticket.reload.priority).to eq('urgent')
+    end
+
+    it '422s for an invalid priority instead of a 500' do
+      patch "/api/v1/integrations/tickets/#{ticket.id}/route", params: { priority: 'nao-existe' }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'sets the assignee, scoped to the key\'s own account' do
+      agente = create(:user, account: account)
+
+      patch "/api/v1/integrations/tickets/#{ticket.id}/route", params: { assignee_id: agente.id }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(ticket.reload.assignee_id).to eq(agente.id)
+    end
+
+    it '404s for an assignee from another account' do
+      agente_de_outra_conta = create(:user)
+
+      patch "/api/v1/integrations/tickets/#{ticket.id}/route", params: { assignee_id: agente_de_outra_conta.id },
+                                                               headers: headers, as: :json
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'merges custom_attributes instead of replacing the whole jsonb' do
+      ticket.update!(custom_attributes: { 'feature' => ['Vendas'] })
+
+      patch "/api/v1/integrations/tickets/#{ticket.id}/route",
+            params: { custom_attributes: { 'analysis' => 'Causa raiz identificada' } },
+            headers: headers, as: :json
+
+      expect(response).to have_http_status(:success)
+      ticket.reload
+      expect(ticket.custom_attributes).to eq('feature' => ['Vendas'], 'analysis' => 'Causa raiz identificada')
     end
   end
 end

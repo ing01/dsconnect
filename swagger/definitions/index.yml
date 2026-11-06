@@ -76,6 +76,14 @@ ticket_integration:
   $ref: ./resource/ticket_integration.yml
 ticket_integration_list_item:
   $ref: ./resource/ticket_integration_list_item.yml
+ticket_complexity_integration_list_item:
+  $ref: ./resource/ticket_complexity_integration_list_item.yml
+service_catalog_integration_item:
+  $ref: ./resource/service_catalog_integration_item.yml
+ticket_comment_integration:
+  $ref: ./resource/ticket_comment_integration.yml
+ticket_attachment_integration:
+  $ref: ./resource/ticket_attachment_integration.yml
 label:
   $ref: ./resource/label.yml
 integrations_app:

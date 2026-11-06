@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-cancel-admin-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'feature',
+    platform: 'web',
+    title: 'Administradores podem cancelar tickets',
+    description:
+      'Administradores agora têm "Cancelar ticket" no menu de três pontinhos do card do Kanban e em "Ações do ticket", dentro do ticket. Ao clicar, basta informar o motivo do cancelamento, que fica registrado no histórico. Para os demais usuários, a opção não aparece.',
+  },
+  {
+    id: 'ticket-integration-api-expanded-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'feature',
+    platform: 'web',
+    title: 'API de Tickets para sistemas externos ganhou várias rotas novas',
+    description:
+      'A API de Integração de Tickets (chave em Configurações → Integrações → API de Tickets) agora permite criar ticket, enviar anexo, ler notas internas, definir responsável e prioridade, gravar campos livres (custom_attributes) e listar Complexidades e Catálogo de Serviço. Documentação completa em /swagger.',
+  },
+  {
     id: 'ticket-description-save-stuck-fix-2026-11-05',
     date: '5 de novembro de 2026',
     isoDate: '2026-11-05',

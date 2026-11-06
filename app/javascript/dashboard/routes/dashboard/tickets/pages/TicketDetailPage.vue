@@ -31,6 +31,7 @@ import TicketCatalogDialog from '../components/detail/actions/TicketCatalogDialo
 import TicketBlockDialog from '../components/detail/actions/TicketBlockDialog.vue';
 import TicketUnblockDialog from '../components/detail/actions/TicketUnblockDialog.vue';
 import TicketCloseDialog from '../components/detail/actions/TicketCloseDialog.vue';
+import TicketCancelDialog from '../components/detail/actions/TicketCancelDialog.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -64,6 +65,7 @@ const {
   classify,
   block,
   unblock,
+  cancel,
   reload,
 } = useTicketDetail(ticketId);
 
@@ -86,6 +88,7 @@ const catalogDialog = ref(null);
 const blockDialog = ref(null);
 const unblockDialog = ref(null);
 const closeDialog = ref(null);
+const cancelDialog = ref(null);
 
 const isActing = ref(false);
 
@@ -205,6 +208,7 @@ const DIALOG_BY_ACTION = {
   block: () => blockDialog,
   unblock: () => unblockDialog,
   close: () => closeDialog,
+  cancel: () => cancelDialog,
 };
 
 const handleAction = action => {
@@ -271,6 +275,7 @@ const submitCatalog = classification =>
   runAction(() => classify(classification), catalogDialog);
 const submitBlock = reason => runAction(() => block(reason), blockDialog);
 const submitUnblock = () => runAction(() => unblock(), unblockDialog);
+const submitCancel = reason => runAction(() => cancel(reason), cancelDialog);
 
 // Each of these edits one field in place, through the ticket's existing
 // `update` endpoint - there is no generic ticket form any more.
@@ -457,6 +462,12 @@ const submitContact = contactId =>
       <!-- Closing requires a classification and a message that reached the
            customer, so it is a two-step flow rather than a confirmation. -->
       <TicketCloseDialog ref="closeDialog" :ticket="ticket" @closed="reload" />
+      <TicketCancelDialog
+        ref="cancelDialog"
+        :ticket="ticket"
+        :is-loading="isActing"
+        @submit="submitCancel"
+      />
     </template>
   </div>
 </template>

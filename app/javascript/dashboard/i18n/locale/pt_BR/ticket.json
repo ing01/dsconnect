@@ -95,6 +95,7 @@
       "OVERDUE": "Vencido",
       "MENU": {
         "CLOSE": "Fechar",
+        "CANCEL": "Cancelar ticket",
         "REOPEN": "Reabrir",
         "ASSIGN_TO_ME": "Assumir ticket",
         "SEND_COMMUNICATION": "Enviar comunicação",
@@ -1042,6 +1043,7 @@
       "ADD_SLA_HOURS": "Adicionar horas SLA",
       "CANCEL": "Cancelar ticket",
       "CLOSE": "Fechar ticket",
+      "CANCEL": "Cancelar ticket",
       "REOPEN": "Reabrir ticket",
       "DELETE": "Excluir ticket",
       "CLOSE_DIALOG": {
@@ -1133,7 +1135,7 @@
         "TITLE": "Cancelar ticket #{number}?",
         "DESCRIPTION": "Esta ação alterará o status do ticket para Cancelado. O ticket não será excluído.",
         "REASON": "Motivo do cancelamento",
-        "REASON_PLACEHOLDER": "Opcional",
+        "REASON_PLACEHOLDER": "Descreva por que este ticket está sendo cancelado",
         "BACK": "Voltar",
         "CONFIRM": "Cancelar ticket"
       },

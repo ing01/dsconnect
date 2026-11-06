@@ -1,0 +1,44 @@
+tags:
+  - Ticket Routing
+operationId: create-ticket-attachment-for-integration
+summary: Upload an attachment to a ticket
+security:
+  - ticketApiKey: []
+description: Plain multipart upload (e.g. the NFe/XML behind a Prazo SEFAZ ticket). Attached with no human user - the ticket's "Historico" shows it as a system action.
+requestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        required:
+          - file
+        properties:
+          file:
+            type: string
+            format: binary
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ticket_attachment_integration'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '404':
+    description: Ticket not found
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '422':
+    description: Validation failed (e.g. file too large, or the ticket is already finalized)
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

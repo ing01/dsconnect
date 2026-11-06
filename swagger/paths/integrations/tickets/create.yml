@@ -1,0 +1,77 @@
+tags:
+  - Ticket Routing
+operationId: create-ticket-for-integration
+summary: Create a ticket
+security:
+  - ticketApiKey: []
+description: Opens a new ticket directly (e.g. an external "Abrir chamado" screen, or an automatically-generated deadline ticket). `title`, `description`, `priority` and `ticket_category_id` are required - the same rules the dashboard follows, no exception for this API. `team_id` is inferred from `ticket_column_id` when omitted.
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - ticket
+        properties:
+          ticket:
+            type: object
+            required:
+              - title
+              - description
+              - priority
+              - ticket_category_id
+              - ticket_column_id
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              priority:
+                type: string
+                enum: [low, medium, high, urgent]
+              team_id:
+                type: number
+                description: Inferred from ticket_column_id's Mesa when omitted
+              ticket_column_id:
+                type: number
+                description: The Estagio (stage) to create the ticket into
+              ticket_category_id:
+                type: number
+                description: Must belong to the target Mesa
+              ticket_complexity_id:
+                type: number
+                description: Must be available for the target Mesa
+              company_id:
+                type: number
+              contact_id:
+                type: number
+                description: Must belong to the same company as company_id, when both are given
+              assignee_id:
+                type: number
+                description: Must be a member of the target Mesa
+              due_date:
+                type: string
+                format: date-time
+              custom_attributes:
+                type: object
+                additionalProperties: true
+responses:
+  '201':
+    description: Created
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ticket_integration'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '422':
+    description: Validation failed (e.g. a required field missing, or an id that belongs to another Mesa/account)
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

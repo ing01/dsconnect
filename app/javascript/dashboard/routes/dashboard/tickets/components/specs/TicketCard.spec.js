@@ -13,11 +13,14 @@ const ticket = (overrides = {}) => ({
   ...overrides,
 });
 
-const mountCard = (props = {}) =>
+const mountCard = (props = {}, role = 'agent') =>
   mount(TicketCard, {
     props: { ticket: ticket(), agents: [], ...props },
     global: {
-      mocks: { $t: key => key },
+      mocks: {
+        $t: key => key,
+        $store: { getters: { getCurrentRole: role } },
+      },
       stubs: {
         // O menu e teleportado para o body, para escapar do recorte da coluna
         // do Kanban. Aqui ele volta a renderizar no lugar, que e o que estes
@@ -115,6 +118,26 @@ describe('TicketCard menu', () => {
       'transfer',
       'close',
     ]);
+  });
+
+  // Cancelar so' aparece para administrador (o servidor recusa o resto), no
+  // fim do menu, e so' em ticket aberto.
+  it('offers cancel to an administrator only, as a destructive entry', async () => {
+    const admin = await openMenu(mountCard({}, 'administrator'));
+    expect(values(admin)).toContain('cancel');
+    expect(admin.find('[data-value="cancel"]').attributes('data-action')).toBe(
+      'delete'
+    );
+
+    const agent = await openMenu(mountCard({}, 'agent'));
+    expect(values(agent)).not.toContain('cancel');
+  });
+
+  it('does not offer cancel on a ticket that is no longer open', async () => {
+    const wrapper = await openMenu(
+      mountCard({ ticket: ticket({ status: 'closed' }) }, 'administrator')
+    );
+    expect(values(wrapper)).not.toContain('cancel');
   });
 
   // Editing happens inside the ticket, closing is what ends an attendance, and

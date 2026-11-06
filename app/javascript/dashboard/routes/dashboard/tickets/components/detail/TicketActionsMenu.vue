@@ -153,6 +153,16 @@ const closingItems = computed(() => {
       disabled: !props.canUpdate,
     });
   }
+  // So' administrador (o servidor manda o veredito em `can_cancel`) e so'
+  // enquanto o ticket esta aberto; pede apenas o motivo.
+  if (props.ticket.status === 'open' && props.ticket.can_cancel) {
+    items.push({
+      label: label('CANCEL'),
+      value: 'cancel',
+      action: 'delete',
+      icon: 'i-lucide-ban',
+    });
+  }
   // Replaces the closing pair once the ticket is no longer open.
   if (props.ticket.status !== 'open') {
     items.push({

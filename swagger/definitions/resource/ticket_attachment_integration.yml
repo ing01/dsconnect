@@ -1,0 +1,13 @@
+type: object
+properties:
+  id:
+    type: number
+  filename:
+    type: string
+  content_type:
+    type: string
+  url:
+    type: string
+  created_at:
+    type: string
+    format: date-time

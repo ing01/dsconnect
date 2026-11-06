@@ -9,6 +9,7 @@ import TicketTransferDialog from './TicketTransferDialog.vue';
 import TicketMergeDialog from './TicketMergeDialog.vue';
 import TicketChildDialog from './TicketChildDialog.vue';
 import TicketCloseDialog from './TicketCloseDialog.vue';
+import TicketCancelDialog from './TicketCancelDialog.vue';
 import TicketCreateDialog from '../../create/TicketCreateDialog.vue';
 import TicketCustomerCommunication from '../TicketCustomerCommunication.vue';
 
@@ -31,12 +32,14 @@ const route = useRoute();
 const router = useRouter();
 
 const id = computed(() => props.ticketId);
-const { ticket, transfer, merge, assignToMe, reload } = useTicketDetail(id);
+const { ticket, transfer, merge, assignToMe, cancel, reload } =
+  useTicketDetail(id);
 
 const transferDialog = ref(null);
 const mergeDialog = ref(null);
 const childDialog = ref(null);
 const closeDialog = ref(null);
+const cancelDialog = ref(null);
 const communicationDialog = ref(null);
 
 const childCopyOptions = ref(null);
@@ -52,6 +55,7 @@ const DIALOGS = {
   merge: () => mergeDialog,
   createChild: () => childDialog,
   close: () => closeDialog,
+  cancel: () => cancelDialog,
   sendCommunication: () => communicationDialog,
 };
 
@@ -85,6 +89,8 @@ const submitTransfer = attributes =>
   run(() => transfer(attributes), transferDialog);
 
 const submitMerge = sourceId => run(() => merge(sourceId), mergeDialog);
+
+const submitCancel = reason => run(() => cancel(reason), cancelDialog);
 
 // The copy modal only collects options; what it ticked decides which of the
 // parent's values arrive pre-filled in the shared creation form.
@@ -155,6 +161,12 @@ defineExpose({ open });
       @submit="submitChild"
     />
     <TicketCloseDialog ref="closeDialog" :ticket="ticket" @closed="onClosed" />
+    <TicketCancelDialog
+      ref="cancelDialog"
+      :ticket="ticket"
+      :is-loading="isActing"
+      @submit="submitCancel"
+    />
 
     <!-- The customer communication area itself, in a dialog. Same component the
          Comunicacao tab renders, so there is one composer. -->

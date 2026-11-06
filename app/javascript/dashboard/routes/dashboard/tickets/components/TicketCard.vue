@@ -109,6 +109,9 @@ export default {
         return 'i-lucide-square-check';
       return '';
     },
+    isAdministrator() {
+      return this.$store.getters.getCurrentRole === 'administrator';
+    },
     menuItems() {
       // The operational actions, all of them already implemented elsewhere in
       // the module - the card only names them and the page wires them up.
@@ -160,6 +163,16 @@ export default {
             action: 'delete',
             value: 'close',
             icon: 'i-lucide-circle-x',
+          });
+        }
+        // So' administrador (o servidor recusa o resto). O cartao nao carrega
+        // o veredito do servidor, entao olha o papel direto.
+        if (this.isAdministrator) {
+          items.push({
+            label: this.$t('TICKET.CARD.MENU.CANCEL'),
+            action: 'delete',
+            value: 'cancel',
+            icon: 'i-lucide-ban',
           });
         }
       } else {

@@ -1,0 +1,28 @@
+tags:
+  - Ticket Routing
+operationId: list-ticket-attachments-for-integration
+summary: List a ticket's attachments
+security:
+  - ticketApiKey: []
+description: The same attachments embedded in `GET /integrations/tickets/{id}`, as their own endpoint.
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/ticket_attachment_integration'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '404':
+    description: Ticket not found
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

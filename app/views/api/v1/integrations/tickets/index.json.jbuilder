@@ -12,10 +12,15 @@ json.payload do
     json.priority ticket.priority
     json.team_id ticket.team_id
     json.team_name ticket.team.name
+    json.ticket_column_id ticket.ticket_column_id
+    json.ticket_column_name ticket.ticket_column&.name
     json.ticket_category_id ticket.ticket_category_id
     json.ticket_category_name ticket.ticket_category&.name
     json.company_id ticket.company_id
     json.company_name ticket.company&.name
+    json.assignee_id ticket.assignee_id
+    json.assignee_name ticket.assignee&.name
     json.created_at ticket.created_at.iso8601
+    json.updated_at ticket.updated_at.iso8601
   end
 end

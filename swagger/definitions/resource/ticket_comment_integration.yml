@@ -1,0 +1,14 @@
+type: object
+description: Uma nota interna da equipe (thread so' de leitura nesta API - ver route.yml para como escrever um sistema externo registra algo sem um usuario humano).
+properties:
+  id:
+    type: number
+  content:
+    type: string
+  created_at:
+    type: string
+    format: date-time
+  author_name:
+    type:
+      - string
+      - 'null'

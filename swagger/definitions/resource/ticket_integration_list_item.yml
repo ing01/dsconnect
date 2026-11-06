@@ -16,6 +16,12 @@ properties:
     type: number
   team_name:
     type: string
+  ticket_column_id:
+    type: number
+  ticket_column_name:
+    type:
+      - string
+      - 'null'
   ticket_category_id:
     type:
       - number
@@ -32,6 +38,17 @@ properties:
     type:
       - string
       - 'null'
+  assignee_id:
+    type:
+      - number
+      - 'null'
+  assignee_name:
+    type:
+      - string
+      - 'null'
   created_at:
+    type: string
+    format: date-time
+  updated_at:
     type: string
     format: date-time

@@ -1,0 +1,22 @@
+tags:
+  - Ticket Routing
+operationId: list-service-catalog-items-for-integration
+summary: List the service catalogue (Catalogo > Area > Item)
+security:
+  - ticketApiKey: []
+description: The account's active service catalogue, 3 levels deep. Only the leaf (Item) id is valid for `service_catalog_item_id` in `PATCH /integrations/tickets/{id}/route`.
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/service_catalog_integration_item'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

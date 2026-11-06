@@ -1,0 +1,28 @@
+tags:
+  - Ticket Routing
+operationId: list-ticket-comments-for-integration
+summary: List a ticket's internal notes
+security:
+  - ticketApiKey: []
+description: Read-only - the team's internal notes on the ticket (e.g. what an analyst wrote while investigating). There is no write endpoint here on purpose, a `TicketComment` requires a human author; to leave a note from an external system without one, use the `note` field of `PATCH .../route` (becomes a visible activity) or `custom_attributes` (a free-form field).
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/ticket_comment_integration'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '404':
+    description: Ticket not found
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

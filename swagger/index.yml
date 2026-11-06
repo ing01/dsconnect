@@ -38,7 +38,7 @@ components:
       type: apiKey
       in: header
       name: X-Ticket-Api-Key
-      description: Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, read + routing access to tickets only - unrelated to any user's access_token.
+      description: Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no "actor"), so actions it takes are logged as system/automated activity.
 tags:
   - name: Accounts
     description: Account management APIs
@@ -97,7 +97,7 @@ tags:
   - name: CSAT Survey Page
     description: Customer satisfaction survey
   - name: Ticket Routing
-    description: Read tickets and apply routing decisions - built for an external triage AI to consume, authenticated by its own account-scoped API key
+    description: Read, create and route tickets - built for external systems to consume (a triage AI, a development/Jira sync, an invoicing deadline tracker...), authenticated by its own account-scoped API key. Covers tickets, attachments, internal notes (read-only) and the catalogues needed to pick valid ids (teams/stages, categories, complexities, service catalogue).
 x-tagGroups:
   - name: Platform
     tags:

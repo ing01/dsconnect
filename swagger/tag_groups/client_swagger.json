@@ -2409,12 +2409,21 @@
             "type": "string",
             "format": "date-time"
           },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "due_date": {
             "type": [
               "string",
               "null"
             ],
             "format": "date-time"
+          },
+          "custom_attributes": {
+            "type": "object",
+            "description": "Campo livre (jsonb) - a IA de triagem e sistemas de desenvolvimento gravam aqui qualquer informacao propria (analise, observacoes, documentacao, horas...). `PATCH .../route` faz MERGE nestas chaves, nunca substitui o objeto inteiro.",
+            "additionalProperties": true
           },
           "team": {
             "type": "object",
@@ -2423,6 +2432,24 @@
                 "type": "number"
               },
               "name": {
+                "type": "string"
+              }
+            }
+          },
+          "assignee": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "O responsavel (Nivel 1) do ticket",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
                 "type": "string"
               }
             }
@@ -2533,6 +2560,9 @@
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "type": "number"
+                },
                 "filename": {
                   "type": "string"
                 },
@@ -2574,6 +2604,15 @@
           "team_name": {
             "type": "string"
           },
+          "ticket_column_id": {
+            "type": "number"
+          },
+          "ticket_column_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "ticket_category_id": {
             "type": [
               "number",
@@ -2597,6 +2636,116 @@
               "string",
               "null"
             ]
+          },
+          "assignee_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "assignee_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ticket_complexity_integration_list_item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "service_catalog_integration_item": {
+        "type": "object",
+        "description": "O Catalogo de Servicos em 3 niveis (Catalogo > Area > Item) - so' o Item (o terceiro nivel) e' um id valido para `service_catalog_item_id`.",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "areas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ticket_comment_integration": {
+        "type": "object",
+        "description": "Uma nota interna da equipe (thread so' de leitura nesta API - ver route.yml para como escrever um sistema externo registra algo sem um usuario humano).",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "author_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "ticket_attachment_integration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
           },
           "created_at": {
             "type": "string",
@@ -7658,7 +7807,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "X-Ticket-Api-Key",
-        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, read + routing access to tickets only - unrelated to any user's access_token."
+        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no \"actor\"), so actions it takes are logged as system/automated activity."
       }
     }
   },

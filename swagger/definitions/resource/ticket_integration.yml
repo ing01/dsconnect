@@ -22,17 +22,36 @@ properties:
   created_at:
     type: string
     format: date-time
+  updated_at:
+    type: string
+    format: date-time
   due_date:
     type:
       - string
       - 'null'
     format: date-time
+  custom_attributes:
+    type: object
+    description: Campo livre (jsonb) - a IA de triagem e sistemas de desenvolvimento gravam aqui qualquer informacao propria (analise, observacoes, documentacao, horas...). `PATCH .../route` faz MERGE nestas chaves, nunca substitui o objeto inteiro.
+    additionalProperties: true
   team:
     type: object
     properties:
       id:
         type: number
       name:
+        type: string
+  assignee:
+    type:
+      - object
+      - 'null'
+    description: O responsavel (Nivel 1) do ticket
+    properties:
+      id:
+        type: number
+      name:
+        type: string
+      email:
         type: string
   ticket_column:
     type: object
@@ -104,6 +123,8 @@ properties:
     items:
       type: object
       properties:
+        id:
+          type: number
         filename:
           type: string
         content_type:

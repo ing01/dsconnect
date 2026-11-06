@@ -7843,7 +7843,7 @@
             "ticketApiKey": []
           }
         ],
-        "description": "Lists tickets for the account the API key belongs to, paginated, newest first. Use `team_id`/`status`/`created_after` to narrow the search.",
+        "description": "Lists tickets for the account the API key belongs to, paginated, newest first. Every filter below is optional and can be combined.",
         "parameters": [
           {
             "name": "page",
@@ -7880,7 +7880,44 @@
             }
           },
           {
+            "name": "ticket_column_id",
+            "in": "query",
+            "description": "The Estagio (stage) the ticket is currently in",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "ticket_category_id",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "assignee_id",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
             "name": "created_after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "updated_after",
             "in": "query",
             "schema": {
               "type": "string",
@@ -7920,6 +7957,128 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "create-ticket-for-integration",
+        "summary": "Create a ticket",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "Opens a new ticket directly (e.g. an external \"Abrir chamado\" screen, or an automatically-generated deadline ticket). `title`, `description`, `priority` and `ticket_category_id` are required - the same rules the dashboard follows, no exception for this API. `team_id` is inferred from `ticket_column_id` when omitted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ticket"
+                ],
+                "properties": {
+                  "ticket": {
+                    "type": "object",
+                    "required": [
+                      "title",
+                      "description",
+                      "priority",
+                      "ticket_category_id",
+                      "ticket_column_id"
+                    ],
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "priority": {
+                        "type": "string",
+                        "enum": [
+                          "low",
+                          "medium",
+                          "high",
+                          "urgent"
+                        ]
+                      },
+                      "team_id": {
+                        "type": "number",
+                        "description": "Inferred from ticket_column_id's Mesa when omitted"
+                      },
+                      "ticket_column_id": {
+                        "type": "number",
+                        "description": "The Estagio (stage) to create the ticket into"
+                      },
+                      "ticket_category_id": {
+                        "type": "number",
+                        "description": "Must belong to the target Mesa"
+                      },
+                      "ticket_complexity_id": {
+                        "type": "number",
+                        "description": "Must be available for the target Mesa"
+                      },
+                      "company_id": {
+                        "type": "number"
+                      },
+                      "contact_id": {
+                        "type": "number",
+                        "description": "Must belong to the same company as company_id, when both are given"
+                      },
+                      "assignee_id": {
+                        "type": "number",
+                        "description": "Must be a member of the target Mesa"
+                      },
+                      "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "custom_attributes": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ticket_integration"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed (e.g. a required field missing, or an id that belongs to another Mesa/account)",
             "content": {
               "application/json": {
                 "schema": {
@@ -8004,22 +8163,19 @@
           "Ticket Routing"
         ],
         "operationId": "route-ticket",
-        "summary": "Apply a routing decision",
+        "summary": "Route and/or update a ticket",
         "security": [
           {
             "ticketApiKey": []
           }
         ],
-        "description": "Moves the ticket to the given Mesa/Estagio and, optionally, sets its classification - meant to be called once the AI has decided where a ticket belongs. `team_id` is required; everything else is optional. `note` is posted as a visible activity on the ticket for the team's awareness.",
+        "description": "Applies any combination of routing/classification changes - every field is optional and applied independently, so this same endpoint also works as a general-purpose \"update\" for an external system (set the priority, assign someone, merge custom_attributes...) without requiring `team_id`. `note` is posted as a visible activity on the ticket for the team's awareness.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "team_id"
-                ],
                 "properties": {
                   "team_id": {
                     "type": "number",
@@ -8027,7 +8183,7 @@
                   },
                   "ticket_column_id": {
                     "type": "number",
-                    "description": "The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted."
+                    "description": "The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted. Only applied when `team_id` is also present."
                   },
                   "service_catalog_item_id": {
                     "type": "number",
@@ -8039,6 +8195,24 @@
                   },
                   "ticket_complexity_id": {
                     "type": "number"
+                  },
+                  "assignee_id": {
+                    "type": "number",
+                    "description": "Sets the ticket's Nivel 1 responsavel. Must be a user of the same account."
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high",
+                      "urgent"
+                    ]
+                  },
+                  "custom_attributes": {
+                    "type": "object",
+                    "description": "MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc).",
+                    "additionalProperties": true
                   },
                   "note": {
                     "type": "string",
@@ -8072,6 +8246,200 @@
           },
           "422": {
             "description": "Invalid routing (e.g. the stage does not belong to the given Mesa)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/tickets/{ticket_id}/comments": {
+      "parameters": [
+        {
+          "name": "ticket_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-ticket-comments-for-integration",
+        "summary": "List a ticket's internal notes",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "Read-only - the team's internal notes on the ticket (e.g. what an analyst wrote while investigating). There is no write endpoint here on purpose, a `TicketComment` requires a human author; to leave a note from an external system without one, use the `note` field of `PATCH .../route` (becomes a visible activity) or `custom_attributes` (a free-form field).",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ticket_comment_integration"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/tickets/{ticket_id}/attachments": {
+      "parameters": [
+        {
+          "name": "ticket_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-ticket-attachments-for-integration",
+        "summary": "List a ticket's attachments",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "The same attachments embedded in `GET /integrations/tickets/{id}`, as their own endpoint.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ticket_attachment_integration"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "create-ticket-attachment-for-integration",
+        "summary": "Upload an attachment to a ticket",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "Plain multipart upload (e.g. the NFe/XML behind a Prazo SEFAZ ticket). Attached with no human user - the ticket's \"Historico\" shows it as a system action.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ticket_attachment_integration"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed (e.g. file too large, or the ticket is already finalized)",
             "content": {
               "application/json": {
                 "schema": {
@@ -8189,6 +8557,86 @@
                         }
                       }
                     }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/ticket_complexities": {
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-ticket-complexities-for-integration",
+        "summary": "List valid complexities",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "The account's active Complexidades - the valid `ticket_complexity_id` values for `POST /integrations/tickets` and `PATCH /integrations/tickets/{id}/route`. TicketComplexity is account-wide (not per-Mesa); which Mesas actually offer a given level is not exposed here - an id valid for the account but not available for the ticket's Mesa is rejected with a 422.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ticket_complexity_integration_list_item"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/service_catalog_items": {
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-service-catalog-items-for-integration",
+        "summary": "List the service catalogue (Catalogo > Area > Item)",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "The account's active service catalogue, 3 levels deep. Only the leaf (Item) id is valid for `service_catalog_item_id` in `PATCH /integrations/tickets/{id}/route`.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/service_catalog_integration_item"
                   }
                 }
               }
@@ -11665,12 +12113,21 @@
             "type": "string",
             "format": "date-time"
           },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "due_date": {
             "type": [
               "string",
               "null"
             ],
             "format": "date-time"
+          },
+          "custom_attributes": {
+            "type": "object",
+            "description": "Campo livre (jsonb) - a IA de triagem e sistemas de desenvolvimento gravam aqui qualquer informacao propria (analise, observacoes, documentacao, horas...). `PATCH .../route` faz MERGE nestas chaves, nunca substitui o objeto inteiro.",
+            "additionalProperties": true
           },
           "team": {
             "type": "object",
@@ -11679,6 +12136,24 @@
                 "type": "number"
               },
               "name": {
+                "type": "string"
+              }
+            }
+          },
+          "assignee": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "O responsavel (Nivel 1) do ticket",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
                 "type": "string"
               }
             }
@@ -11789,6 +12264,9 @@
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "type": "number"
+                },
                 "filename": {
                   "type": "string"
                 },
@@ -11830,6 +12308,15 @@
           "team_name": {
             "type": "string"
           },
+          "ticket_column_id": {
+            "type": "number"
+          },
+          "ticket_column_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "ticket_category_id": {
             "type": [
               "number",
@@ -11853,6 +12340,116 @@
               "string",
               "null"
             ]
+          },
+          "assignee_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "assignee_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ticket_complexity_integration_list_item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "service_catalog_integration_item": {
+        "type": "object",
+        "description": "O Catalogo de Servicos em 3 niveis (Catalogo > Area > Item) - so' o Item (o terceiro nivel) e' um id valido para `service_catalog_item_id`.",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "areas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ticket_comment_integration": {
+        "type": "object",
+        "description": "Uma nota interna da equipe (thread so' de leitura nesta API - ver route.yml para como escrever um sistema externo registra algo sem um usuario humano).",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "author_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "ticket_attachment_integration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
           },
           "created_at": {
             "type": "string",
@@ -16914,7 +17511,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "X-Ticket-Api-Key",
-        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, read + routing access to tickets only - unrelated to any user's access_token."
+        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no \"actor\"), so actions it takes are logged as system/automated activity."
       }
     }
   },
@@ -17033,7 +17630,7 @@
     },
     {
       "name": "Ticket Routing",
-      "description": "Read tickets and apply routing decisions - built for an external triage AI to consume, authenticated by its own account-scoped API key"
+      "description": "Read, create and route tickets - built for external systems to consume (a triage AI, a development/Jira sync, an invoicing deadline tracker...), authenticated by its own account-scoped API key. Covers tickets, attachments, internal notes (read-only) and the catalogues needed to pick valid ids (teams/stages, categories, complexities, service catalogue)."
     }
   ],
   "x-tagGroups": [

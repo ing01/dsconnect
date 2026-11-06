@@ -10,6 +10,9 @@ json.can_update policy(@ticket).update?
 # it from `can_update`.
 json.can_add_sla_hours policy(@ticket).add_sla_hours?
 
+# TicketPolicy#cancel? is administrator-only (and the ticket not finalized).
+json.can_cancel policy(@ticket).cancel?
+
 # TicketPolicy#destroy? is administrator-only.
 json.can_destroy policy(@ticket).destroy?
 

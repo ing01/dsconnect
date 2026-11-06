@@ -1,0 +1,22 @@
+tags:
+  - Ticket Routing
+operationId: list-ticket-complexities-for-integration
+summary: List valid complexities
+security:
+  - ticketApiKey: []
+description: The account's active Complexidades - the valid `ticket_complexity_id` values for `POST /integrations/tickets` and `PATCH /integrations/tickets/{id}/route`. TicketComplexity is account-wide (not per-Mesa); which Mesas actually offer a given level is not exposed here - an id valid for the account but not available for the ticket's Mesa is rejected with a 422.
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/ticket_complexity_integration_list_item'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

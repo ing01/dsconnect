@@ -75,8 +75,10 @@ class TicketPolicy < ApplicationPolicy
     update?
   end
 
+  # Cancelar e' so' do administrador (alem de o ticket ainda nao estar
+  # finalizado): nao e' tratativa de quem atende, e' descartar o chamado.
   def cancel?
-    update?
+    editable? && administrator?
   end
 
   # Classifying and writing to the customer are part of handling the ticket.

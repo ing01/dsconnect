@@ -67,4 +67,24 @@ RSpec.describe TicketPolicy, type: :policy do
       end
     end
   end
+
+  permissions :cancel? do
+    it 'allows an administrator' do
+      expect(subject).to permit(administrator_context, ticket)
+    end
+
+    it 'denies the ticket assignee when they are not an administrator' do
+      assigned = create(:ticket, ticket_column: ticket_column, assignee: agent)
+      expect(subject).not_to permit(agent_context, assigned)
+    end
+
+    it 'denies a regular agent' do
+      expect(subject).not_to permit(agent_context, ticket)
+    end
+
+    it 'denies even an administrator once the ticket is finalized' do
+      ticket.update_columns(status: Ticket.statuses[:closed]) # rubocop:disable Rails/SkipsModelValidations
+      expect(subject).not_to permit(administrator_context, ticket)
+    end
+  end
 end

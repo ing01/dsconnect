@@ -1,25 +1,23 @@
 tags:
   - Ticket Routing
 operationId: route-ticket
-summary: Apply a routing decision
+summary: Route and/or update a ticket
 security:
   - ticketApiKey: []
-description: Moves the ticket to the given Mesa/Estagio and, optionally, sets its classification - meant to be called once the AI has decided where a ticket belongs. `team_id` is required; everything else is optional. `note` is posted as a visible activity on the ticket for the team's awareness.
+description: Applies any combination of routing/classification changes - every field is optional and applied independently, so this same endpoint also works as a general-purpose "update" for an external system (set the priority, assign someone, merge custom_attributes...) without requiring `team_id`. `note` is posted as a visible activity on the ticket for the team's awareness.
 requestBody:
   required: true
   content:
     application/json:
       schema:
         type: object
-        required:
-          - team_id
         properties:
           team_id:
             type: number
             description: The Mesa (team) to move the ticket into
           ticket_column_id:
             type: number
-            description: The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted.
+            description: The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted. Only applied when `team_id` is also present.
           service_catalog_item_id:
             type: number
             description: The Catalogo > Area > Item classification, if the AI determined one
@@ -28,6 +26,16 @@ requestBody:
             description: Must belong to the target Mesa
           ticket_complexity_id:
             type: number
+          assignee_id:
+            type: number
+            description: Sets the ticket's Nivel 1 responsavel. Must be a user of the same account.
+          priority:
+            type: string
+            enum: [low, medium, high, urgent]
+          custom_attributes:
+            type: object
+            description: MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc).
+            additionalProperties: true
           note:
             type: string
             description: A short note explaining the routing decision, posted as a visible activity on the ticket

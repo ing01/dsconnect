@@ -532,6 +532,8 @@
 /api/v1/integrations/tickets:
   get:
     $ref: ./integrations/tickets/index.yml
+  post:
+    $ref: ./integrations/tickets/create.yml
 /api/v1/integrations/tickets/{id}:
   parameters:
     - name: id
@@ -550,12 +552,38 @@
         type: number
   patch:
     $ref: ./integrations/tickets/route.yml
+/api/v1/integrations/tickets/{ticket_id}/comments:
+  parameters:
+    - name: ticket_id
+      in: path
+      required: true
+      schema:
+        type: number
+  get:
+    $ref: ./integrations/tickets/comments/index.yml
+/api/v1/integrations/tickets/{ticket_id}/attachments:
+  parameters:
+    - name: ticket_id
+      in: path
+      required: true
+      schema:
+        type: number
+  get:
+    $ref: ./integrations/tickets/attachments/index.yml
+  post:
+    $ref: ./integrations/tickets/attachments/create.yml
 /api/v1/integrations/teams:
   get:
     $ref: ./integrations/teams/index.yml
 /api/v1/integrations/ticket_categories:
   get:
     $ref: ./integrations/ticket_categories/index.yml
+/api/v1/integrations/ticket_complexities:
+  get:
+    $ref: ./integrations/ticket_complexities/index.yml
+/api/v1/integrations/service_catalog_items:
+  get:
+    $ref: ./integrations/service_catalog_items/index.yml
 
 /api/v1/accounts/{account_id}/teams/{team_id}/team_members:
   parameters:

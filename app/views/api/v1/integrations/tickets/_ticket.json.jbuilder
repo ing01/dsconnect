@@ -1,6 +1,8 @@
 # O payload pensado para a IA de triagem externa analisar e decidir o
-# roteamento. De proposito NAO inclui: ticket_comments (thread interna da
-# equipe, nunca sai da conta), ticket_activities (auditoria interna),
+# roteamento (e, agora, pra um sistema de desenvolvimento ler/gravar os
+# proprios campos via `custom_attributes`). De proposito NAO inclui:
+# ticket_comments (thread interna da equipe - ver TicketCommentsController
+# para leitura dedicada), ticket_activities (auditoria interna),
 # ticket_sla_extensions/ticket_applied_slas (nao ajudam a decidir Mesa/Estagio).
 json.id resource.id
 json.display_id resource.display_id
@@ -9,11 +11,27 @@ json.description resource.description
 json.status resource.status
 json.priority resource.priority
 json.created_at resource.created_at.iso8601
+json.updated_at resource.updated_at.iso8601
 json.due_date resource.due_date&.iso8601
+# Qualquer chave: a IA de triagem e sistemas de desenvolvimento usam isto
+# como um "campo livre" (analise, observacoes do dev, documentacao, horas...)
+# - ver `apply_custom_attributes` no controller, que faz MERGE em vez de
+# substituir o jsonb inteiro.
+json.custom_attributes resource.custom_attributes
 
 json.team do
   json.id resource.team_id
   json.name resource.team.name
+end
+
+if resource.assignee
+  json.assignee do
+    json.id resource.assignee.id
+    json.name resource.assignee.name
+    json.email resource.assignee.email
+  end
+else
+  json.assignee nil
 end
 
 json.ticket_column do
@@ -66,6 +84,7 @@ json.customer_communications resource.ticket_customer_communications.sort_by(&:c
 end
 
 json.attachments resource.ticket_attachments do |attachment|
+  json.id attachment.id
   json.filename attachment.file.filename.to_s
   json.content_type attachment.file.content_type
   json.url attachment.file_url

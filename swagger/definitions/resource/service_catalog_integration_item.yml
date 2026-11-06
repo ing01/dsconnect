@@ -1,0 +1,25 @@
+type: object
+description: O Catalogo de Servicos em 3 niveis (Catalogo > Area > Item) - so' o Item (o terceiro nivel) e' um id valido para `service_catalog_item_id`.
+properties:
+  id:
+    type: number
+  name:
+    type: string
+  areas:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              name:
+                type: string
