@@ -201,6 +201,8 @@ pt_BR:
       released_comment: Impedimento retirado por %{user_name}.
     close:
       blocked: Este ticket ainda não pode ser fechado.
+    cancel:
+      reason_required: Informe o motivo para cancelar o ticket.
     communication:
       not_delivered: Não foi possível enviar o e-mail. Verifique a configuração de SMTP e tente novamente.
       no_contact_email: O solicitante deste ticket não possui um e-mail cadastrado.
@@ -529,6 +531,8 @@ pt_BR:
     attachment: 'Anexo'
     no_content: 'Sem conteúdo'
   conversations:
+    cancel:
+      reason_required: Informe o motivo para cancelar a conversa.
     captain:
       handoff: 'Transferindo para que outro agente dê assistência.'
     flow:

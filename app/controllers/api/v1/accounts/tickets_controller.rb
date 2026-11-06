@@ -29,7 +29,11 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     end
   end
 
-  def show; end
+  # Abrir o ticket por qualquer caminho (lista, Kanban, link) conta como ver o
+  # assunto: as notificacoes dele (resposta do cliente, proposta, triagem) somem.
+  def show
+    mark_ticket_notifications_read
+  end
 
   # Bootstraps the Kanban for an account that has no Mesa de Servico yet, so a
   # fresh install lands on a usable board instead of an empty screen. Idempotent -
@@ -96,8 +100,14 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
            status: :unprocessable_entity
   end
 
+  # Cancelar encerra direto, sem classificacao, Resolucao nem comunicacao de
+  # fechamento - e por isso o motivo e OBRIGATORIO: e' a unica justificativa que
+  # o historico terá de um ticket que nao foi tratado.
   def cancel
-    @ticket.cancel!(Current.user, reason: params[:reason])
+    reason = params[:reason].to_s.strip
+    return render json: { error: I18n.t('tickets.cancel.reason_required') }, status: :unprocessable_entity if reason.blank?
+
+    @ticket.cancel!(Current.user, reason: reason)
     render 'show'
   end
 
@@ -275,6 +285,13 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
 
   def contact_matches?(contact, company_id)
     company_id.blank? || contact.company_ids.include?(company_id)
+  end
+
+  def mark_ticket_notifications_read
+    Notification::MarkActorReadService.new(user: Current.user, account: Current.account, primary_actor: @ticket).perform
+  rescue StandardError => e
+    # Ver o ticket nao pode falhar porque o aviso nao foi limpo.
+    ChatwootExceptionTracker.new(e, account: Current.account).capture_exception
   end
 
   def link_conversation!(conversation_id)

@@ -350,6 +350,11 @@
         "ROTATE_LEFT": "Girar para a esquerda",
         "ROTATE_RIGHT": "Girar para a direita",
         "UPLOAD_ERROR": "Não foi possível enviar o arquivo.",
+        "DROP_HERE": "Solte os arquivos aqui para anexar",
+        "DROP_HINT": "ou arraste arquivos para cá",
+        "SELECT_ALL": "Selecionar todos",
+        "DELETE_SELECTED": "Excluir {count} selecionado | Excluir {count} selecionados",
+        "DELETE_SELECTED_CONFIRM": "Excluir {count} anexo? Esta ação não pode ser desfeita. | Excluir {count} anexos? Esta ação não pode ser desfeita.",
         "DELETE_ERROR": "Não foi possível remover o arquivo.",
         "DOWNLOAD_ERROR": "Não foi possível baixar o arquivo.",
         "DOWNLOAD_ALL_ERROR": "Não foi possível baixar os arquivos."
@@ -1142,11 +1147,12 @@
       },
       "CANCEL_DIALOG": {
         "TITLE": "Cancelar ticket #{number}?",
-        "DESCRIPTION": "Esta ação alterará o status do ticket para Cancelado. O ticket não será excluído.",
+        "DESCRIPTION": "O ticket é encerrado agora, sem classificação, resolução nem mensagem ao cliente. Ele não será excluído e continua no histórico.",
         "REASON": "Motivo do cancelamento",
         "REASON_PLACEHOLDER": "Descreva por que este ticket está sendo cancelado",
         "BACK": "Voltar",
-        "CONFIRM": "Cancelar ticket"
+        "CONFIRM": "Cancelar ticket",
+        "REASON_HINT": "Obrigatório. Fica registrado no histórico do ticket."
       },
       "DELETE_DIALOG": {
         "TITLE": "Excluir ticket #{number}?",
@@ -1267,7 +1273,8 @@
       "CHECKLIST_PENDING": "Existem itens obrigatórios pendentes no checklist. Conclua-os ou registre um Compromisso neste ticket para concluir mesmo assim.",
       "CHECKLIST_DONE": "Checklist concluído.",
       "COMMUNICATION_DONE": "Comunicação de encerramento já enviada.",
-      "NO_CONTACT_EMAIL": "O solicitante deste ticket não possui um e-mail cadastrado. Cadastre um e-mail válido antes de enviar a comunicação de encerramento.",
+      "NO_CONTACT_EMAIL": "O solicitante deste ticket não possui um e-mail cadastrado. Cadastre um e-mail válido para enviar mensagens por e-mail.",
+      "NO_EMAIL_CAN_CLOSE": "O solicitante não tem e-mail cadastrado: nenhuma mensagem será enviada, mas o ticket pode ser fechado normalmente.",
       "TO": "Para",
       "SUBJECT": "Assunto",
       "MESSAGE": "Mensagem",

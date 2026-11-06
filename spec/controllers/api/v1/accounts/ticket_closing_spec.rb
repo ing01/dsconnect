@@ -293,13 +293,13 @@ RSpec.describe 'Ticket closing requirements', type: :request do
   describe 'when the requester has no e-mail' do
     let(:contact) { create(:contact, account: account, company: company, email: nil) }
 
-    it 'lists it as a blocker' do
-      ticket.update!(service_catalog_item: item)
+    it 'does not block the close - nobody to e-mail just means no e-mail goes out' do
+      classify_ticket!(ticket)
+      write_resolution!(ticket)
 
-      close_ticket
-
-      expect(response.parsed_body['missing']).to include('contact_email')
-      expect(ticket.reload.status).to eq('open')
+      missing = ticket.reload.missing_close_requirements
+      expect(missing).not_to include('contact_email')
+      expect(missing).not_to include('customer_communication')
     end
 
     it 'refuses to send a communication' do

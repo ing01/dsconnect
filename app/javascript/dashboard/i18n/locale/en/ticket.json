@@ -311,6 +311,11 @@
         "ADD": "Attach file",
         "DELETE": "Remove file",
         "UPLOAD_ERROR": "Could not upload the file.",
+        "DROP_HERE": "Drop the files here to attach them",
+        "DROP_HINT": "or drag files here",
+        "SELECT_ALL": "Select all",
+        "DELETE_SELECTED": "Delete {count} selected | Delete {count} selected",
+        "DELETE_SELECTED_CONFIRM": "Delete {count} attachment? This cannot be undone. | Delete {count} attachments? This cannot be undone.",
         "DELETE_ERROR": "Could not remove the file."
       },
       "ADDITIONAL": {
@@ -1045,11 +1050,12 @@
       },
       "CANCEL_DIALOG": {
         "TITLE": "Cancel ticket #{number}?",
-        "DESCRIPTION": "This changes the ticket status to Cancelled. The ticket is not deleted.",
-        "REASON": "Cancellation reason",
-        "REASON_PLACEHOLDER": "Optional",
+        "DESCRIPTION": "The ticket is closed right away, with no classification, resolution or message to the customer. It is not deleted and stays in the history.",
+        "REASON": "Reason for cancelling",
+        "REASON_PLACEHOLDER": "Explain why this ticket is being cancelled",
         "BACK": "Back",
-        "CONFIRM": "Cancel ticket"
+        "CONFIRM": "Cancel ticket",
+        "REASON_HINT": "Required. It is recorded in the ticket history."
       },
       "DELETE_DIALOG": {
         "TITLE": "Delete ticket #{number}?",
@@ -1170,7 +1176,8 @@
       "CHECKLIST_PENDING": "There are pending required checklist items. Complete them, or record a Compromisso in this ticket to close it anyway.",
       "CHECKLIST_DONE": "Checklist complete.",
       "COMMUNICATION_DONE": "Closing message already sent.",
-      "NO_CONTACT_EMAIL": "The requester of this ticket has no e-mail address on file. Add a valid address before sending the closing message.",
+      "NO_CONTACT_EMAIL": "The requester of this ticket has no e-mail address on file. Add a valid address to send e-mail messages.",
+      "NO_EMAIL_CAN_CLOSE": "The requester has no e-mail on file: no message will be sent, but the ticket can still be closed normally.",
       "TO": "To",
       "SUBJECT": "Subject",
       "MESSAGE": "Message",

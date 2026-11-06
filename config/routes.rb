@@ -289,6 +289,7 @@ Rails.application.routes.draw do
               post :custom_attributes
               post :destroy_custom_attributes
               get :attachments
+              get :linked_tickets
               get :inbox_assistant
               get :reporting_events if ChatwootApp.enterprise?
             end

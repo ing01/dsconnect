@@ -49,12 +49,31 @@ class ConversationApi extends ApiClient {
     });
   }
 
-  toggleStatus({ conversationId, status, snoozedUntil = null, cancelled }) {
+  toggleStatus({
+    conversationId,
+    status,
+    snoozedUntil = null,
+    cancelled,
+    cancelReason,
+    cancelTicketIds = [],
+  }) {
     return axios.post(`${this.url}/${conversationId}/toggle_status`, {
       status,
       snoozed_until: snoozedUntil,
-      ...(cancelled ? { cancelled: true } : {}),
+      ...(cancelled
+        ? {
+            cancelled: true,
+            cancel_reason: cancelReason,
+            cancel_ticket_ids: cancelTicketIds,
+          }
+        : {}),
     });
+  }
+
+  // Tickets em andamento ligados a conversa (e se tem outras conversas): o que
+  // "Cancelar conversa" cancelaria junto.
+  getLinkedTickets(conversationId) {
+    return axios.get(`${this.url}/${conversationId}/linked_tickets`);
   }
 
   // Estende o prazo de uma pausa por inatividade (motivo obrigatorio).

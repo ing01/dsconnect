@@ -9,6 +9,7 @@ import { downloadBlob } from 'dashboard/helper/downloadHelper';
 import TicketsAPI from 'dashboard/api/tickets';
 import Accordion from 'dashboard/components-next/Accordion/Accordion.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
+import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TicketAttachmentPreviewDialog from './actions/TicketAttachmentPreviewDialog.vue';
@@ -90,18 +91,152 @@ onMounted(load);
 
 const pickFile = () => fileInput.value?.click();
 
-const onFileSelected = async event => {
-  const [file] = event.target.files || [];
-  event.target.value = '';
-  if (!file) return;
+// Aceita varios arquivos de uma vez, vindos do seletor ou de arrastar e soltar.
+// Sobem um a um (a acao de upload controla a bandeira de "enviando" por arquivo),
+// e um que falhe nao impede os outros: no fim, o aviso diz quais nao subiram.
+const uploadFiles = async files => {
+  if (!files.length) return;
 
-  try {
-    await store.dispatch('tickets/createAttachment', {
-      ticketId: props.ticketId,
-      file,
-    });
-  } catch (error) {
-    useAlert(t('TICKET.DETAIL.ATTACHMENTS.UPLOAD_ERROR'));
+  const failed = [];
+  for (const file of files) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await store.dispatch('tickets/createAttachment', {
+        ticketId: props.ticketId,
+        file,
+      });
+    } catch (error) {
+      failed.push(file.name);
+    }
+  }
+
+  if (failed.length) {
+    useAlert(
+      `${t('TICKET.DETAIL.ATTACHMENTS.UPLOAD_ERROR')} ${failed.join(', ')}`
+    );
+  }
+};
+
+const onFileSelected = event => {
+  const files = Array.from(event.target.files || []);
+  // Limpo para escolher o mesmo arquivo de novo ainda disparar `change`.
+  event.target.value = '';
+  return uploadFiles(files);
+};
+
+// Arrastar e soltar. O contador de `dragenter`/`dragleave` existe porque esses
+// eventos disparam tambem ao passar por cada elemento filho: sem ele o destaque
+// piscava ao arrastar sobre a lista.
+const isDragging = ref(false);
+let dragDepth = 0;
+
+const hasFiles = event =>
+  Array.from(event.dataTransfer?.types || []).includes('Files');
+
+// Pasta solta junto vem como um "arquivo" vazio: so entram arquivos de verdade.
+// Lido na hora do `drop` - depois dele o navegador esvazia a lista.
+const droppedFiles = event => {
+  const { items, files } = event.dataTransfer;
+  if (!items?.length) return Array.from(files || []);
+  return Array.from(items)
+    .filter(item => item.kind === 'file')
+    .filter(item => item.webkitGetAsEntry?.()?.isFile ?? true)
+    .map(item => item.getAsFile())
+    .filter(Boolean);
+};
+
+const onDragEnter = event => {
+  if (!props.canUpdate || !hasFiles(event)) return;
+  dragDepth += 1;
+  isDragging.value = true;
+};
+
+const onDragLeave = () => {
+  if (!isDragging.value) return;
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (dragDepth === 0) isDragging.value = false;
+};
+
+const onDragOver = event => {
+  if (!props.canUpdate || !hasFiles(event)) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy';
+};
+
+const onDrop = event => {
+  dragDepth = 0;
+  isDragging.value = false;
+  if (!props.canUpdate || !hasFiles(event)) return;
+  event.preventDefault();
+  uploadFiles(droppedFiles(event));
+};
+
+// Selecao para excluir varios de uma vez. So guarda ids; o que ja nao existe mais
+// na lista (excluido, ou ticket trocado) sai da selecao sozinho.
+const selectedIds = ref([]);
+const isDeletingSelected = ref(false);
+
+const selected = computed(() =>
+  selectedIds.value.filter(id =>
+    attachments.value.some(attachment => attachment.id === id)
+  )
+);
+const allSelected = computed(
+  () =>
+    attachments.value.length > 0 &&
+    selected.value.length === attachments.value.length
+);
+
+const toggleOne = (id, checked) => {
+  selectedIds.value = checked
+    ? [...selected.value, id]
+    : selected.value.filter(item => item !== id);
+};
+
+const toggleAll = checked => {
+  selectedIds.value = checked
+    ? attachments.value.map(attachment => attachment.id)
+    : [];
+};
+
+const removeSelected = async () => {
+  const ids = [...selected.value];
+  if (!ids.length || isDeletingSelected.value) return;
+
+  const question = t(
+    'TICKET.DETAIL.ATTACHMENTS.DELETE_SELECTED_CONFIRM',
+    { count: ids.length },
+    ids.length
+  );
+  // eslint-disable-next-line no-alert
+  if (!window.confirm(question)) return;
+
+  const names = Object.fromEntries(
+    attachments.value.map(attachment => [attachment.id, attachment.filename])
+  );
+  const failed = [];
+  isDeletingSelected.value = true;
+  for (const attachmentId of ids) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await store.dispatch('tickets/deleteAttachment', {
+        ticketId: props.ticketId,
+        attachmentId,
+      });
+    } catch (error) {
+      failed.push(attachmentId);
+    }
+  }
+  isDeletingSelected.value = false;
+
+  // O que nao saiu continua selecionado, para tentar de novo.
+  selectedIds.value = failed;
+  if (failed.length) {
+    useAlert(
+      `${t('TICKET.DETAIL.ATTACHMENTS.DELETE_ERROR')} ${failed
+        .map(id => names[id])
+        .join(', ')}`
+    );
   }
 };
 
@@ -123,7 +258,21 @@ const title = computed(
 
 <template>
   <Accordion :title="title" @toggle="expanded => expanded && load()">
-    <div class="flex flex-col gap-3 pt-2">
+    <div
+      class="flex flex-col gap-3 pt-2 rounded-lg"
+      :class="isDragging ? 'ring-2 ring-n-brand bg-n-alpha-1' : ''"
+      @dragenter="onDragEnter"
+      @dragleave="onDragLeave"
+      @dragover="onDragOver"
+      @drop="onDrop"
+    >
+      <p
+        v-if="isDragging"
+        class="py-3 text-sm font-medium text-center text-n-blue-11 drop-hint"
+      >
+        {{ t('TICKET.DETAIL.ATTACHMENTS.DROP_HERE') }}
+      </p>
+
       <div
         v-if="uiFlags.isFetchingAttachments"
         class="flex justify-center py-3"
@@ -135,54 +284,96 @@ const title = computed(
         {{ t('TICKET.DETAIL.ATTACHMENTS.EMPTY') }}
       </p>
 
-      <ul v-else class="flex flex-col gap-1">
-        <li
-          v-for="attachment in attachments"
-          :key="attachment.id"
-          class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-n-alpha-2 group min-w-0"
+      <template v-else>
+        <!-- Selecionar varios para excluir de uma vez. So' para quem pode editar. -->
+        <div
+          v-if="canUpdate"
+          class="flex items-center justify-between gap-2 px-2 min-w-0"
         >
-          <Icon
-            icon="i-lucide-paperclip"
-            class="size-4 text-n-slate-11 flex-shrink-0"
-          />
-          <button
-            type="button"
-            class="flex-1 min-w-0 text-sm text-left text-n-slate-12 hover:text-n-blue-11 truncate"
-            :title="attachment.filename"
-            @click="openAttachment(attachment)"
+          <label
+            class="flex items-center gap-2 text-xs cursor-pointer text-n-slate-11 select-all-attachments"
           >
-            {{ attachment.filename }}
-          </button>
-          <span class="text-xs text-n-slate-10 flex-shrink-0">
-            {{ formatBytes(attachment.byte_size) }}
-          </span>
+            <Checkbox
+              :model-value="allSelected"
+              @update:model-value="toggleAll"
+            />
+            {{ t('TICKET.DETAIL.ATTACHMENTS.SELECT_ALL') }}
+          </label>
           <Button
-            variant="ghost"
-            color="slate"
-            size="xs"
-            icon="i-lucide-download"
-            class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-            :aria-label="t('TICKET.DETAIL.ATTACHMENTS.DOWNLOAD')"
-            @click="download(attachment)"
-          />
-          <Button
-            v-if="canUpdate"
-            variant="ghost"
-            color="slate"
+            v-if="selected.length"
+            variant="faded"
+            color="ruby"
             size="xs"
             icon="i-lucide-trash-2"
-            class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-            :aria-label="t('TICKET.DETAIL.ATTACHMENTS.DELETE')"
-            @click="remove(attachment.id)"
+            class="delete-selected"
+            :is-loading="isDeletingSelected"
+            :label="
+              t(
+                'TICKET.DETAIL.ATTACHMENTS.DELETE_SELECTED',
+                { count: selected.length },
+                selected.length
+              )
+            "
+            @click="removeSelected"
           />
-        </li>
-      </ul>
+        </div>
 
-      <div class="flex flex-wrap gap-2">
+        <ul class="flex flex-col gap-1">
+          <li
+            v-for="attachment in attachments"
+            :key="attachment.id"
+            class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-n-alpha-2 group min-w-0"
+          >
+            <Checkbox
+              v-if="canUpdate"
+              class="flex-shrink-0 attachment-checkbox"
+              :model-value="selected.includes(attachment.id)"
+              @update:model-value="checked => toggleOne(attachment.id, checked)"
+            />
+            <Icon
+              icon="i-lucide-paperclip"
+              class="size-4 text-n-slate-11 flex-shrink-0"
+            />
+            <button
+              type="button"
+              class="flex-1 min-w-0 text-sm text-left text-n-slate-12 hover:text-n-blue-11 truncate"
+              :title="attachment.filename"
+              @click="openAttachment(attachment)"
+            >
+              {{ attachment.filename }}
+            </button>
+            <span class="text-xs text-n-slate-10 flex-shrink-0">
+              {{ formatBytes(attachment.byte_size) }}
+            </span>
+            <Button
+              variant="ghost"
+              color="slate"
+              size="xs"
+              icon="i-lucide-download"
+              class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+              :aria-label="t('TICKET.DETAIL.ATTACHMENTS.DOWNLOAD')"
+              @click="download(attachment)"
+            />
+            <Button
+              v-if="canUpdate"
+              variant="ghost"
+              color="slate"
+              size="xs"
+              icon="i-lucide-trash-2"
+              class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+              :aria-label="t('TICKET.DETAIL.ATTACHMENTS.DELETE')"
+              @click="remove(attachment.id)"
+            />
+          </li>
+        </ul>
+      </template>
+
+      <div class="flex flex-wrap items-center gap-2">
         <div v-if="canUpdate">
           <input
             ref="fileInput"
             type="file"
+            multiple
             class="hidden"
             @change="onFileSelected"
           />
@@ -196,6 +387,9 @@ const title = computed(
             @click="pickFile"
           />
         </div>
+        <span v-if="canUpdate" class="text-xs text-n-slate-10">
+          {{ t('TICKET.DETAIL.ATTACHMENTS.DROP_HINT') }}
+        </span>
         <Button
           v-if="attachments.length > 1"
           variant="faded"

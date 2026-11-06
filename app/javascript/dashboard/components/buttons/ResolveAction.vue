@@ -21,6 +21,8 @@ import ButtonGroup from 'dashboard/components-next/buttonGroup/ButtonGroup.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import ConversationResolveAttributesModal from 'dashboard/components-next/ConversationWorkflow/ConversationResolveAttributesModal.vue';
 import TicketCloseDialog from 'dashboard/routes/dashboard/tickets/components/detail/actions/TicketCloseDialog.vue';
+import ConversationCancelDialog from './ConversationCancelDialog.vue';
+import ConversationAPI from 'dashboard/api/inbox/conversation';
 
 const store = useStore();
 const getters = useStoreGetters();
@@ -171,22 +173,49 @@ const toggleStatus = (status, snoozedUntil, customAttributes = null) => {
 
 // "Cancelar conversa": resolve em silencio - sem mensagem de encerramento nem
 // pesquisa de satisfacao pro cliente, e sem passar pelos requisitos de
-// fechamento (ticket, atributos obrigatorios).
-const cancelConversation = () => {
-  closeDropdown();
-  // eslint-disable-next-line no-alert
-  if (!window.confirm(t('CONVERSATION.RESOLVE_DROPDOWN.CANCEL_CONFIRM'))) {
-    return;
+// fechamento (ticket, atributos obrigatorios). Pede o MOTIVO e cancela, junto, os
+// tickets em andamento ligados a conversa (o servidor faz isso na mesma operacao,
+// com o mesmo motivo) - por isso a lista deles aparece antes de confirmar.
+const cancelDialogRef = ref(null);
+const ticketsToCancel = ref([]);
+
+const findLinkedTicketsToCancel = async conversationId => {
+  try {
+    const { data } = await ConversationAPI.getLinkedTickets(conversationId);
+    return data?.payload || [];
+  } catch (error) {
+    // Sem a lista a confirmacao continua valendo: o servidor cancela do mesmo
+    // jeito, so' nao da' para mostrar quais antes.
+    return [];
   }
+};
+
+const cancelConversation = async () => {
+  closeDropdown();
+  ticketsToCancel.value = await findLinkedTicketsToCancel(currentChat.value.id);
+  await nextTick();
+  cancelDialogRef.value?.open();
+};
+
+const confirmCancelConversation = ({ reason, cancelTicketIds }) => {
   isLoading.value = true;
   store
     .dispatch('toggleStatus', {
       conversationId: currentChat.value.id,
       status: wootConstants.STATUS_TYPE.RESOLVED,
       cancelled: true,
+      cancelReason: reason,
+      cancelTicketIds,
     })
     .then(() => {
+      cancelDialogRef.value?.close();
       useAlert(t('CONVERSATION.RESOLVE_DROPDOWN.CANCEL_DONE'));
+    })
+    .catch(error => {
+      useAlert(
+        error?.response?.data?.error ||
+          t('CONVERSATION.RESOLVE_DROPDOWN.CANCEL_ERROR')
+      );
     })
     .finally(() => {
       isLoading.value = false;
@@ -378,6 +407,12 @@ useEmitter(CMD_RESOLVE_CONVERSATION, onCmdResolveConversation);
         </WootDropdownItem>
       </WootDropdownMenu>
     </div>
+    <ConversationCancelDialog
+      ref="cancelDialogRef"
+      :tickets="ticketsToCancel"
+      :is-loading="isLoading"
+      @submit="confirmCancelConversation"
+    />
     <ConversationResolveAttributesModal
       ref="resolveAttributesModalRef"
       @submit="handleResolveWithAttributes"

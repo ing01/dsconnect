@@ -590,10 +590,22 @@ RSpec.describe 'Ticket actions', type: :request do
       expect(ticket.close_reason).to eq('desistencia')
     end
 
+    it 'refuses to cancel without a reason' do
+      act(:cancel, ticket)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(ticket.reload.status).to eq('open')
+
+      act(:cancel, ticket, { reason: '   ' })
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(ticket.reload.status).to eq('open')
+    end
+
     it 'keeps the history, comments and attachments readable' do
       ticket.ticket_comments.create!(account_id: account.id, user: agent, content: 'nota')
 
-      act(:cancel, ticket)
+      act(:cancel, ticket, { reason: 'duplicado' })
 
       expect(ticket.reload.ticket_comments.count).to eq(1)
       expect(ticket.ticket_activities).to be_present
@@ -608,7 +620,7 @@ RSpec.describe 'Ticket actions', type: :request do
     end
 
     it 'clears the terminal columns on reopen' do
-      act(:cancel, ticket)
+      act(:cancel, ticket, { reason: 'engano' })
 
       act(:reopen, ticket)
 

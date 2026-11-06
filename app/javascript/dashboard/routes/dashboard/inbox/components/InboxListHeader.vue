@@ -23,6 +23,7 @@ export default {
     return {
       showInboxDisplayMenu: false,
       showInboxOptionMenu: false,
+      isMarkingAllRead: false,
     };
   },
   watch: {
@@ -38,10 +39,20 @@ export default {
   },
   methods: {
     markAllRead() {
+      // Uma operacao por vez: uma segunda chamada enquanto a primeira nao
+      // terminou repetia a requisicao e o aviso.
+      if (this.isMarkingAllRead) return;
+
+      this.isMarkingAllRead = true;
       useTrack(INBOX_EVENTS.MARK_ALL_NOTIFICATIONS_AS_READ);
-      this.$store.dispatch('notifications/readAll').then(() => {
-        useAlert(this.$t('INBOX.ALERTS.MARK_ALL_READ'));
-      });
+      this.$store
+        .dispatch('notifications/readAll')
+        .then(() => {
+          useAlert(this.$t('INBOX.ALERTS.MARK_ALL_READ'));
+        })
+        .finally(() => {
+          this.isMarkingAllRead = false;
+        });
     },
     deleteAll() {
       this.$store.dispatch('notifications/deleteAll').then(() => {

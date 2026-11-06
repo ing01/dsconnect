@@ -192,6 +192,8 @@ en:
       released_comment: Impediment removed by %{user_name}.
     close:
       blocked: This ticket cannot be closed yet.
+    cancel:
+      reason_required: Provide the reason to cancel the ticket.
     communication:
       not_delivered: The e-mail could not be sent. Check the SMTP configuration and try again.
       no_contact_email: The requester of this ticket has no e-mail address on file.
@@ -519,6 +521,8 @@ en:
     attachment: 'Attachment'
     no_content: 'No content'
   conversations:
+    cancel:
+      reason_required: Provide the reason to cancel the conversation.
     captain:
       handoff: 'Transferring to another agent for further assistance.'
     flow:

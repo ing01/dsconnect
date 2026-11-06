@@ -14,6 +14,7 @@ const props = defineProps({
 const { t } = useI18n();
 
 const snackMessages = ref([]);
+let toastSequence = 0;
 const snackbarContainer = ref(null);
 
 const showPopover = () => {
@@ -32,8 +33,15 @@ const onNewToastMessage = ({ message: originalMessage, action }) => {
   const message = action?.usei18n ? t(originalMessage) : originalMessage;
   const duration = action?.duration || props.duration;
 
+  // Um aviso identico ao que ja esta na tela nao empilha outro igual: duas
+  // chamadas seguidas (clique duplo, evento repetido) apareciam como o mesmo
+  // aviso duas vezes.
+  if (snackMessages.value.some(item => item.message === message)) return;
+
   snackMessages.value.push({
-    key: Date.now(),
+    // Contador e nao `Date.now()`: dois avisos no mesmo milissegundo ficavam
+    // com a mesma chave.
+    key: (toastSequence += 1),
     message,
     action,
   });
