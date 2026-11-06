@@ -97,7 +97,15 @@ watch(
 
 <template>
   <div class="flex flex-col gap-2 min-w-0">
-    <Accordion v-for="field in fields" :key="field.key" :title="field.label">
+    <!-- Preenchido ja nasce aberto: quem entra no ticket ve de cara o que o
+         desenvolvimento registrou, sem precisar abrir um por um. Vazio fica
+         fechado. -->
+    <Accordion
+      v-for="field in fields"
+      :key="field.key"
+      :title="field.label"
+      :is-open="hasValue(field.key)"
+    >
       <div class="flex flex-col gap-3 min-w-0">
         <template v-if="editingKey === field.key">
           <FullEditor

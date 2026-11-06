@@ -13,8 +13,9 @@ const mountCard = (props = {}) =>
       directives: { dompurifyHtml: () => {} },
       stubs: {
         Accordion: {
-          props: ['title'],
-          template: '<section :data-title="title"><slot /></section>',
+          props: ['title', 'isOpen'],
+          template:
+            '<section :data-title="title" :data-open="String(isOpen)"><slot /></section>',
         },
         Button: {
           props: ['label'],
@@ -42,6 +43,34 @@ describe('TicketDevFieldsCard', () => {
       'TICKET.DETAIL.DEV_FIELDS.INSTRUCOES',
       'TICKET.DETAIL.DEV_FIELDS.ANALISE',
     ]);
+  });
+
+  it('opens the filled fields by default and keeps the empty ones closed', () => {
+    const wrapper = mountCard({
+      ticket: {
+        id: 1,
+        custom_attributes: { analise: 'Causa raiz', documentacao: '   ' },
+      },
+    });
+
+    expect(section(wrapper, 'ANALISE').attributes('data-open')).toBe('true');
+    expect(section(wrapper, 'DOCUMENTACAO').attributes('data-open')).toBe(
+      'false'
+    );
+    expect(section(wrapper, 'INSTRUCOES').attributes('data-open')).toBe(
+      'false'
+    );
+  });
+
+  it('opens a field once it gets filled', async () => {
+    const wrapper = mountCard();
+    expect(section(wrapper, 'ANALISE').attributes('data-open')).toBe('false');
+
+    await wrapper.setProps({
+      ticket: { id: 1, custom_attributes: { analise: 'Nova análise' } },
+    });
+
+    expect(section(wrapper, 'ANALISE').attributes('data-open')).toBe('true');
   });
 
   it('saves one field through its custom_attributes key', async () => {
