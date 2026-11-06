@@ -315,6 +315,15 @@
         "EMPTY": "Nenhum artigo relacionado encontrado.",
         "NO_PORTAL": "Nenhum portal de conhecimento configurado."
       },
+      "DEV_FIELDS": {
+        "OBSERVACOES_DEV": "Observações do Desenvolvedor",
+        "OBSERVACOES_TESTE": "Observações Sobre o Teste Realizado",
+        "DOCUMENTACAO": "Documentação",
+        "INSTRUCOES": "Instruções",
+        "ANALISE": "Análise",
+        "PLACEHOLDER": "Escreva aqui...",
+        "EMPTY": "Nada registrado ainda."
+      },
       "DESCRIPTION": {
         "TITLE": "Descrição",
         "EDIT": "Editar",

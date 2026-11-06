@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-dev-jira-fields-2026-11-06',
+    date: '6 de novembro de 2026',
+    isoDate: '2026-11-06',
+    type: 'feature',
+    platform: 'web',
+    title: 'Campos do Jira nos tickets de Desenvolvimento',
+    description:
+      'Nos tickets da Mesa com o módulo Desenvolvimento, abaixo dos arquivos, agora há Observações do Desenvolvedor, Observações Sobre o Teste Realizado, Documentação, Instruções e Análise, editáveis como a descrição. Esses campos também podem ser lidos e gravados pela API de Tickets.',
+  },
+  {
     id: 'ticket-cancel-admin-2026-11-06',
     date: '6 de novembro de 2026',
     isoDate: '2026-11-06',

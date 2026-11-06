@@ -5,6 +5,7 @@ import TicketRelationshipsCard from './TicketRelationshipsCard.vue';
 import TicketCatalogCard from './TicketCatalogCard.vue';
 import TicketCompanyTicketsAccordion from './TicketCompanyTicketsAccordion.vue';
 import TicketDescriptionCard from './TicketDescriptionCard.vue';
+import TicketDevFieldsCard from './TicketDevFieldsCard.vue';
 import TicketAttachmentsAccordion from './TicketAttachmentsAccordion.vue';
 import TicketPropertiesCard from './TicketPropertiesCard.vue';
 import TicketSlaAccordion from './TicketSlaAccordion.vue';
@@ -114,6 +115,14 @@ defineEmits([
         <TicketAttachmentsAccordion
           :ticket-id="ticket.id"
           :can-update="canUpdate"
+        />
+        <!-- Os campos do card do Jira (Observacoes, Documentacao, Instrucoes,
+             Analise) - so' na Mesa com o Modulo de Desenvolvimento. -->
+        <TicketDevFieldsCard
+          v-if="isDevMesa"
+          :ticket="ticket"
+          :can-update="canUpdate"
+          @save="(...args) => $emit('updateCustomAttribute', ...args)"
         />
       </div>
 

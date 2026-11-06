@@ -240,6 +240,21 @@ RSpec.describe 'Ticket Integration API', type: :request do
       expect(response).to have_http_status(:not_found)
     end
 
+    it 'accepts long text in the Jira card fields, but keeps the 1500 cap on any other key' do
+      longo = 'a' * 5000
+
+      patch "/api/v1/integrations/tickets/#{ticket.id}/route",
+            params: { custom_attributes: { analise: longo, observacoes_dev: longo } },
+            headers: headers, as: :json
+      expect(response).to have_http_status(:success)
+      expect(ticket.reload.custom_attributes['analise'].length).to eq(5000)
+
+      patch "/api/v1/integrations/tickets/#{ticket.id}/route",
+            params: { custom_attributes: { outra_chave: longo } },
+            headers: headers, as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
     it 'merges custom_attributes instead of replacing the whole jsonb' do
       ticket.update!(custom_attributes: { 'feature' => ['Vendas'] })
 

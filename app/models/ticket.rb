@@ -56,7 +56,11 @@ class Ticket < ApplicationRecord
   has_many :created_ticket_proposals, class_name: 'TicketProposal', dependent: :destroy, inverse_of: :ticket
 
   validates :title, presence: true
-  validates :custom_attributes, jsonb_attributes_length: true
+  # Texto longo do card do Jira (Modulo de Desenvolvimento) - guardado em
+  # `custom_attributes`, mas com teto proprio em vez dos 1500 caracteres gerais.
+  LONG_TEXT_CUSTOM_ATTRIBUTES = %w[observacoes_dev observacoes_teste documentacao instrucoes analise].freeze
+
+  validates :custom_attributes, jsonb_attributes_length: { long_text_keys: LONG_TEXT_CUSTOM_ATTRIBUTES }
   validate :ticket_column_belongs_to_account
   validate :team_matches_ticket_column
 

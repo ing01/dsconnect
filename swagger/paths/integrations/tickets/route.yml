@@ -34,7 +34,7 @@ requestBody:
             enum: [low, medium, high, urgent]
           custom_attributes:
             type: object
-            description: MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc).
+            description: MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc). The Jira card text fields shown on tickets of a Mesa with the Desenvolvimento module use these keys (long text, up to 100000 characters each) - `observacoes_dev`, `observacoes_teste`, `documentacao`, `instrucoes`, `analise`. Any other key is capped at 1500 characters per string value.
             additionalProperties: true
           note:
             type: string
