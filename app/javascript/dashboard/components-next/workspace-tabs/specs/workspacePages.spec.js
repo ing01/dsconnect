@@ -1,7 +1,9 @@
 import {
   entryKey,
   flattenMenu,
+  moveItem,
   neighbourItem,
+  orderItems,
   readPageTabs,
   resolveEntry,
   writePageTabs,
@@ -38,8 +40,16 @@ const MENU = [
         label: 'Times',
         collapsible: true,
         children: [
-          { name: 'a', label: 'Suporte', to: to('team_conversations', { teamId: 1 }) },
-          { name: 'b', label: 'Vendas', to: to('team_conversations', { teamId: 2 }) },
+          {
+            name: 'a',
+            label: 'Suporte',
+            to: to('team_conversations', { teamId: 1 }),
+          },
+          {
+            name: 'b',
+            label: 'Vendas',
+            to: to('team_conversations', { teamId: 2 }),
+          },
         ],
       },
     ],
@@ -176,5 +186,34 @@ describe('stored page tabs', () => {
 
     expect(readPageTabs(2, 7)).toEqual([]);
     expect(readPageTabs(1, 9)).toEqual([]);
+  });
+});
+
+describe('ordem das abas arrastadas', () => {
+  const items = ['a', 'b', 'c', 'd'].map(id => ({ id }));
+
+  it('moveItem leva a aba para a posicao da aba alvo', () => {
+    expect(moveItem(['a', 'b', 'c', 'd'], 'a', 'c')).toEqual([
+      'b',
+      'c',
+      'a',
+      'd',
+    ]);
+    expect(moveItem(['a', 'b', 'c', 'd'], 'd', 'b')).toEqual([
+      'a',
+      'd',
+      'b',
+      'c',
+    ]);
+    expect(moveItem(['a', 'b'], 'a', 'x')).toEqual(['a', 'b']);
+  });
+
+  it('orderItems aplica a ordem guardada e deixa as novas no fim', () => {
+    const ordered = orderItems(items, ['c', 'zzz', 'a']);
+    expect(ordered.map(i => i.id)).toEqual(['c', 'a', 'b', 'd']);
+  });
+
+  it('orderItems sem ordem guardada mantem a original', () => {
+    expect(orderItems(items, []).map(i => i.id)).toEqual(['a', 'b', 'c', 'd']);
   });
 });

@@ -87,7 +87,9 @@ export const resolveEntry = (catalog, route) => {
     Object.keys(entry.params).every(name => !(name in routeParams));
 
   return (
-    candidates.find(entry => entry.to.name === route.name && sameParams(entry)) ||
+    candidates.find(
+      entry => entry.to.name === route.name && sameParams(entry)
+    ) ||
     candidates.find(sameParams) ||
     candidates.find(missingParams) ||
     null
@@ -123,4 +125,26 @@ export const neighbourItem = (items, closedId) => {
 
   const remaining = items.filter(item => item.id !== closedId);
   return remaining.length ? remaining[Math.max(index - 1, 0)] : null;
+};
+
+// Aplica a ordem guardada: o que ela conhece vem na ordem dela, o que e' novo
+// entra no fim, na ordem de antes.
+export const orderItems = (items, order) => {
+  const rank = new Map((order || []).map((id, index) => [id, index]));
+  const known = items
+    .filter(item => rank.has(item.id))
+    .sort((a, b) => rank.get(a.id) - rank.get(b.id));
+  return [...known, ...items.filter(item => !rank.has(item.id))];
+};
+
+// Tira `fromId` de onde esta e o poe na posicao de `toId` (arrastar para a
+// direita passa por cima da aba alvo; para a esquerda, entra antes dela).
+export const moveItem = (ids, fromId, toId) => {
+  const from = ids.indexOf(fromId);
+  const to = ids.indexOf(toId);
+  if (from === -1 || to === -1 || from === to) return ids;
+  const next = [...ids];
+  next.splice(from, 1);
+  next.splice(to, 0, fromId);
+  return next;
 };

@@ -16,7 +16,13 @@ import { useTicketWorkspace } from 'dashboard/routes/dashboard/tickets/composabl
 import TicketWorkspaceTab from 'dashboard/routes/dashboard/tickets/components/workspace/TicketWorkspaceTab.vue';
 import WorkspacePageTab from './WorkspacePageTab.vue';
 import { useWorkspacePages } from './useWorkspacePages';
-import { neighbourItem, PRINCIPAL_KEY_PREFIX } from './workspacePages';
+import { LocalStorage } from 'shared/helpers/localStorage';
+import {
+  moveItem,
+  neighbourItem,
+  orderItems,
+  PRINCIPAL_KEY_PREFIX,
+} from './workspacePages';
 
 // A barra de abas do sistema todo: as telas abertas pelo menu (Kanban, Backlog,
 // Projetos, Chat Interno...) e os tickets abertos, lado a lado. Fica no layout,
@@ -72,7 +78,7 @@ const ticketPath = id =>
 
 // Telas primeiro, tickets depois: o que se abre pelo menu fica num lugar
 // previsível, e os tickets - que vêm e vão o dia todo - crescem no fim.
-const items = computed(() => [
+const defaultItems = computed(() => [
   ...pageTabs.value.map(tab => ({
     type: 'page',
     id: `page:${tab.key}`,
@@ -85,7 +91,53 @@ const items = computed(() => [
   })),
 ]);
 
+// A ordem que a pessoa deu arrastando. Guardada so' neste navegador, por conta e
+// usuario: e' preferencia de tela. Abas novas entram no fim; as que sairam
+// deixam de contar.
+const orderKey = () =>
+  `workspace-tab-order::${accountId.value}::${currentUser.value?.id}`;
+const savedOrder = ref([]);
+const items = computed(() =>
+  orderItems(defaultItems.value, savedOrder.value)
+);
+
 const hasItems = computed(() => items.value.length > 0);
+
+const draggingId = ref(null);
+const dropTargetId = ref(null);
+
+const onDragStart = (event, item) => {
+  draggingId.value = item.id;
+  event.dataTransfer.effectAllowed = 'move';
+  // Firefox so' inicia o arrasto se houver algum dado.
+  event.dataTransfer.setData('text/plain', item.id);
+};
+
+const onDragOver = (event, item) => {
+  if (!draggingId.value) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'move';
+  dropTargetId.value = item.id;
+};
+
+const onDragEnd = () => {
+  draggingId.value = null;
+  dropTargetId.value = null;
+};
+
+const onDrop = (event, item) => {
+  event.preventDefault();
+  const from = draggingId.value;
+  onDragEnd();
+  if (!from || from === item.id) return;
+
+  savedOrder.value = moveItem(
+    items.value.map(entry => entry.id),
+    from,
+    item.id
+  );
+  LocalStorage.set(orderKey(), savedOrder.value);
+};
 
 const isActive = item =>
   item.type === 'ticket'
@@ -237,6 +289,8 @@ watch([items, () => route.fullPath], measureOverflow);
 
 onMounted(async () => {
   window.addEventListener('resize', measureOverflow);
+  const stored = LocalStorage.get(orderKey());
+  savedOrder.value = Array.isArray(stored) ? stored : [];
   restorePages(accountId.value, currentUser.value?.id);
   syncRoute(route);
   await restoreTickets(accountId.value, currentUser.value?.id);
@@ -270,6 +324,16 @@ onBeforeUnmount(() => window.removeEventListener('resize', measureOverflow));
           :closable="isClosable(item)"
           :data-active-tab="isActive(item) ? 'true' : 'false'"
           :data-tab-id="item.id"
+          draggable="true"
+          :class="{
+            'opacity-50': draggingId === item.id,
+            'ring-2 ring-n-brand rounded-lg':
+              dropTargetId === item.id && draggingId !== item.id,
+          }"
+          @dragstart="onDragStart($event, item)"
+          @dragover="onDragOver($event, item)"
+          @drop="onDrop($event, item)"
+          @dragend="onDragEnd"
           @select="selectItem(item)"
           @close="closeItem(item)"
         />
@@ -280,6 +344,16 @@ onBeforeUnmount(() => window.removeEventListener('resize', measureOverflow));
           :is-active="isActive(item)"
           :data-active-tab="isActive(item) ? 'true' : 'false'"
           :data-tab-id="item.id"
+          draggable="true"
+          :class="{
+            'opacity-50': draggingId === item.id,
+            'ring-2 ring-n-brand rounded-lg':
+              dropTargetId === item.id && draggingId !== item.id,
+          }"
+          @dragstart="onDragStart($event, item)"
+          @dragover="onDragOver($event, item)"
+          @drop="onDrop($event, item)"
+          @dragend="onDragEnd"
           @select="selectItem(item)"
           @close="closeItem(item)"
         />
