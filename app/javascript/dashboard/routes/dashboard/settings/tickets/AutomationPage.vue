@@ -32,7 +32,8 @@ const DEFAULT_CSAT_SURVEY_MESSAGE =
 const whatsappFlowEnabled = ref(true);
 const whatsappAutoAssignmentEnabled = ref(true);
 const whatsappAutoAssignmentMaxOpenChats = ref(null);
-const whatsappAutoAssignmentExcludedAgentIds = ref([]);
+const portalAutoAssignmentEnabled = ref(true);
+const portalAutoAssignmentMaxOpenChats = ref(null);
 const whatsappCsatSurveyEnabled = ref(false);
 const whatsappCsatSurveyMessage = ref(DEFAULT_CSAT_SURVEY_MESSAGE);
 const whatsappCsatSurveyReplyWindowMinutes = ref(null);
@@ -52,20 +53,17 @@ const isRecalculating = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
 const queues = computed(() => getters['queues/getQueues'].value);
-const agents = computed(() => getters['agents/getAgents'].value);
 
 onBeforeMount(() => {
   store.dispatch('teams/get');
   store.dispatch('queues/get');
-  store.dispatch('agents/get');
 });
 
 watch(
   currentAccount,
   () => {
     const settings = currentAccount.value?.settings || {};
-    whatsappFlowEnabled.value =
-      settings.helpdesk_whatsapp_flow_enabled ?? true;
+    whatsappFlowEnabled.value = settings.helpdesk_whatsapp_flow_enabled ?? true;
     aiResolveLevels.value = settings.helpdesk_ai_resolve_levels?.length
       ? settings.helpdesk_ai_resolve_levels
       : [1, 2];
@@ -88,8 +86,10 @@ watch(
       settings.whatsapp_auto_assignment_enabled ?? true;
     whatsappAutoAssignmentMaxOpenChats.value =
       settings.whatsapp_auto_assignment_max_open_chats ?? null;
-    whatsappAutoAssignmentExcludedAgentIds.value =
-      settings.whatsapp_auto_assignment_excluded_agent_ids || [];
+    portalAutoAssignmentEnabled.value =
+      settings.client_portal_auto_assignment_enabled ?? true;
+    portalAutoAssignmentMaxOpenChats.value =
+      settings.client_portal_auto_assignment_max_open_chats ?? null;
     whatsappCsatSurveyEnabled.value =
       settings.whatsapp_csat_survey_enabled ?? false;
     whatsappCsatSurveyMessage.value =
@@ -104,15 +104,6 @@ const toggleLevel = level => {
   aiResolveLevels.value = aiResolveLevels.value.includes(level)
     ? aiResolveLevels.value.filter(item => item !== level)
     : [...aiResolveLevels.value, level].sort((a, b) => a - b);
-};
-
-const toggleExcludedAgent = agentId => {
-  whatsappAutoAssignmentExcludedAgentIds.value =
-    whatsappAutoAssignmentExcludedAgentIds.value.includes(agentId)
-      ? whatsappAutoAssignmentExcludedAgentIds.value.filter(
-          id => id !== agentId
-        )
-      : [...whatsappAutoAssignmentExcludedAgentIds.value, agentId];
 };
 
 const priorityThresholdsInvalid = computed(() => {
@@ -156,7 +147,8 @@ const saveSettings = async () => {
       {
         helpdesk_whatsapp_flow_enabled: whatsappFlowEnabled.value,
         helpdesk_ai_resolve_levels: aiResolveLevels.value,
-        helpdesk_default_priority_on_ai_failure: defaultPriorityOnAiFailure.value,
+        helpdesk_default_priority_on_ai_failure:
+          defaultPriorityOnAiFailure.value,
         helpdesk_open_ticket_window_days: openTicketWindowDays.value || null,
         helpdesk_level_3to5_team_id: level3to5TeamId.value || null,
         helpdesk_default_queue_id: defaultQueueId.value || null,
@@ -170,10 +162,13 @@ const saveSettings = async () => {
         whatsapp_auto_assignment_enabled: whatsappAutoAssignmentEnabled.value,
         whatsapp_auto_assignment_max_open_chats:
           whatsappAutoAssignmentMaxOpenChats.value || null,
-        whatsapp_auto_assignment_excluded_agent_ids:
-          whatsappAutoAssignmentExcludedAgentIds.value,
+        client_portal_auto_assignment_enabled:
+          portalAutoAssignmentEnabled.value,
+        client_portal_auto_assignment_max_open_chats:
+          portalAutoAssignmentMaxOpenChats.value || null,
         whatsapp_csat_survey_enabled: whatsappCsatSurveyEnabled.value,
-        whatsapp_csat_survey_message: whatsappCsatSurveyMessage.value.trim() || null,
+        whatsapp_csat_survey_message:
+          whatsappCsatSurveyMessage.value.trim() || null,
         whatsapp_csat_survey_reply_window_minutes:
           whatsappCsatSurveyReplyWindowMinutes.value || null,
       },
@@ -291,48 +286,72 @@ const handleRecalculatePriorities = async () => {
                 />
               </WithLabel>
 
+              <p class="mb-0 text-body-para text-n-slate-11">
+                {{ t('TICKET.SETTINGS.AUTOMATION.EXCEPTIONS_LINK.TEXT') }}
+                <router-link
+                  :to="{ name: 'ticket_auto_assignment_exceptions_settings' }"
+                  class="link"
+                >
+                  {{ t('TICKET.SETTINGS.AUTOMATION.EXCEPTIONS_LINK.LABEL') }}
+                </router-link>
+              </p>
+            </template>
+          </div>
+
+          <div class="flex flex-col gap-3 px-5 py-4">
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex flex-col gap-1">
+                <h3 class="text-heading-2 text-n-slate-12">
+                  {{
+                    t('TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.TITLE')
+                  }}
+                </h3>
+                <p class="mb-0 text-body-para text-n-slate-11">
+                  {{
+                    t(
+                      'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.DESCRIPTION'
+                    )
+                  }}
+                </p>
+              </div>
+              <Switch v-model="portalAutoAssignmentEnabled" />
+            </div>
+
+            <template v-if="portalAutoAssignmentEnabled">
               <WithLabel
                 :label="
                   t(
-                    'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.LABEL'
+                    'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.MAX_OPEN_CHATS.LABEL'
                   )
                 "
                 :help-message="
                   t(
-                    'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.HELP'
+                    'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.MAX_OPEN_CHATS.HELP'
                   )
                 "
               >
-                <div
-                  v-if="agents.length"
-                  class="flex flex-col gap-2 pt-1 max-h-48 overflow-y-auto"
-                >
-                  <label
-                    v-for="agent in agents"
-                    :key="agent.id"
-                    class="flex items-center gap-2 text-sm text-n-slate-12"
-                  >
-                    <input
-                      type="checkbox"
-                      class="m-0"
-                      :checked="
-                        whatsappAutoAssignmentExcludedAgentIds.includes(
-                          agent.id
-                        )
-                      "
-                      @change="toggleExcludedAgent(agent.id)"
-                    />
-                    {{ agent.name }}
-                  </label>
-                </div>
-                <p v-else class="mb-0 text-xs text-n-slate-11">
-                  {{
+                <input
+                  v-model.number="portalAutoAssignmentMaxOpenChats"
+                  type="number"
+                  min="1"
+                  class="mb-0 max-w-xs"
+                  :placeholder="
                     t(
-                      'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.EMPTY'
+                      'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.MAX_OPEN_CHATS.PLACEHOLDER'
                     )
-                  }}
-                </p>
+                  "
+                />
               </WithLabel>
+
+              <p class="mb-0 text-body-para text-n-slate-11">
+                {{ t('TICKET.SETTINGS.AUTOMATION.EXCEPTIONS_LINK.TEXT') }}
+                <router-link
+                  :to="{ name: 'ticket_auto_assignment_exceptions_settings' }"
+                  class="link"
+                >
+                  {{ t('TICKET.SETTINGS.AUTOMATION.EXCEPTIONS_LINK.LABEL') }}
+                </router-link>
+              </p>
             </template>
           </div>
 
@@ -358,14 +377,18 @@ const handleRecalculatePriorities = async () => {
                 rows="3"
                 class="mb-0"
                 :placeholder="
-                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_PLACEHOLDER')
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_PLACEHOLDER'
+                  )
                 "
               />
               <p
                 v-if="csatSurveyMessageInvalid"
                 class="mb-0 text-xs text-n-ruby-11"
               >
-                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_REQUIRED') }}
+                {{
+                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_REQUIRED')
+                }}
               </p>
               <p v-else class="mb-0 text-xs text-n-slate-11">
                 {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_HELP') }}
@@ -388,7 +411,9 @@ const handleRecalculatePriorities = async () => {
                 "
               />
               <p class="mb-0 text-xs text-n-slate-11">
-                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.HELP') }}
+                {{
+                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.HELP')
+                }}
               </p>
             </div>
           </div>
@@ -410,10 +435,7 @@ const handleRecalculatePriorities = async () => {
                 t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.PLACEHOLDER')
               "
             />
-            <p
-              v-if="testModeNumberInvalid"
-              class="mb-0 text-xs text-n-ruby-11"
-            >
+            <p v-if="testModeNumberInvalid" class="mb-0 text-xs text-n-ruby-11">
               {{ t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.INVALID_NUMBER') }}
             </p>
             <div
@@ -449,9 +471,7 @@ const handleRecalculatePriorities = async () => {
                     :checked="aiResolveLevels.includes(level)"
                     @change="toggleLevel(level)"
                   />
-                  {{
-                    t('TICKET.SETTINGS.AUTOMATION.LEVEL_LABEL', { level })
-                  }}
+                  {{ t('TICKET.SETTINGS.AUTOMATION.LEVEL_LABEL', { level }) }}
                 </label>
               </div>
             </WithLabel>
@@ -459,15 +479,17 @@ const handleRecalculatePriorities = async () => {
 
           <div class="flex flex-col gap-2 px-5 py-4">
             <WithLabel
-              :label="
-                t('TICKET.SETTINGS.AUTOMATION.DEFAULT_PRIORITY.LABEL')
-              "
+              :label="t('TICKET.SETTINGS.AUTOMATION.DEFAULT_PRIORITY.LABEL')"
               :help-message="
                 t('TICKET.SETTINGS.AUTOMATION.DEFAULT_PRIORITY.HELP')
               "
             >
               <select v-model="defaultPriorityOnAiFailure" class="mb-0">
-                <option v-for="option in PRIORITY_OPTIONS" :key="option" :value="option">
+                <option
+                  v-for="option in PRIORITY_OPTIONS"
+                  :key="option"
+                  :value="option"
+                >
                   {{
                     t(
                       `TICKET.SETTINGS.AUTOMATION.PRIORITY_LABEL.${option.toUpperCase()}`
@@ -480,9 +502,7 @@ const handleRecalculatePriorities = async () => {
 
           <div class="flex flex-col gap-2 px-5 py-4">
             <WithLabel
-              :label="
-                t('TICKET.SETTINGS.AUTOMATION.OPEN_TICKET_WINDOW.LABEL')
-              "
+              :label="t('TICKET.SETTINGS.AUTOMATION.OPEN_TICKET_WINDOW.LABEL')"
               :help-message="
                 t('TICKET.SETTINGS.AUTOMATION.OPEN_TICKET_WINDOW.HELP')
               "
@@ -493,9 +513,7 @@ const handleRecalculatePriorities = async () => {
                 min="1"
                 class="mb-0"
                 :placeholder="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.OPEN_TICKET_WINDOW.PLACEHOLDER'
-                  )
+                  t('TICKET.SETTINGS.AUTOMATION.OPEN_TICKET_WINDOW.PLACEHOLDER')
                 "
               />
             </WithLabel>
@@ -508,7 +526,9 @@ const handleRecalculatePriorities = async () => {
               </h3>
               <p class="mb-0 text-body-para text-n-slate-11">
                 {{
-                  t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.DESCRIPTION')
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.DESCRIPTION'
+                  )
                 }}
               </p>
             </div>
@@ -554,8 +574,15 @@ const handleRecalculatePriorities = async () => {
                 />
               </WithLabel>
             </div>
-            <p v-if="priorityThresholdsInvalid" class="mb-0 text-xs text-n-ruby-11">
-              {{ t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE') }}
+            <p
+              v-if="priorityThresholdsInvalid"
+              class="mb-0 text-xs text-n-ruby-11"
+            >
+              {{
+                t(
+                  'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE'
+                )
+              }}
             </p>
             <div class="flex items-center justify-between gap-2">
               <p class="mb-0 text-xs text-n-slate-11">
@@ -609,7 +636,11 @@ const handleRecalculatePriorities = async () => {
                 <option :value="null">
                   {{ t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.NONE') }}
                 </option>
-                <option v-for="queue in queues" :key="queue.id" :value="queue.id">
+                <option
+                  v-for="queue in queues"
+                  :key="queue.id"
+                  :value="queue.id"
+                >
                   {{ queue.name }}
                 </option>
               </select>
@@ -625,7 +656,11 @@ const handleRecalculatePriorities = async () => {
                 <option :value="null">
                   {{ t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.NONE') }}
                 </option>
-                <option v-for="queue in queues" :key="queue.id" :value="queue.id">
+                <option
+                  v-for="queue in queues"
+                  :key="queue.id"
+                  :value="queue.id"
+                >
                   {{ queue.name }}
                 </option>
               </select>
@@ -641,7 +676,9 @@ const handleRecalculatePriorities = async () => {
                 v-model="supportPhoneNumber"
                 type="text"
                 class="mb-0 max-w-xs"
-                :placeholder="t('TICKET.SETTINGS.AUTOMATION.SUPPORT_PHONE.PLACEHOLDER')"
+                :placeholder="
+                  t('TICKET.SETTINGS.AUTOMATION.SUPPORT_PHONE.PLACEHOLDER')
+                "
               />
             </WithLabel>
           </div>
@@ -655,7 +692,11 @@ const handleRecalculatePriorities = async () => {
                 <option :value="null">
                   {{ t('TICKET.SETTINGS.AUTOMATION.DEFAULT_QUEUE.NONE') }}
                 </option>
-                <option v-for="queue in queues" :key="queue.id" :value="queue.id">
+                <option
+                  v-for="queue in queues"
+                  :key="queue.id"
+                  :value="queue.id"
+                >
                   {{ queue.name }}
                 </option>
               </select>

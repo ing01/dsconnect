@@ -764,6 +764,10 @@
       "AUTOMATION": {
         "TITLE": "WhatsApp Automation",
         "DESCRIPTION": "Settings for the automated WhatsApp triage flow: which client levels the AI tries to resolve on its own, the fallback priority when it fails, and where High priority tickets are routed.",
+        "EXCEPTIONS_LINK": {
+          "TEXT": "Want to take an agent out of auto-assignment?",
+          "LABEL": "See the Distribution exceptions tab."
+        },
         "WHATSAPP_FLOW": {
           "LABEL": "Enable the WhatsApp triage flow",
           "HELP": "When off, incoming WhatsApp conversations are never picked up by the automated flow, regardless of any automation rule configured."
@@ -779,6 +783,20 @@
           "EXCLUDED_AGENTS": {
             "LABEL": "Agents excluded from auto-assignment",
             "HELP": "Checked agents never receive a WhatsApp conversation automatically - they can still be assigned manually as usual.",
+            "EMPTY": "No agents found."
+          }
+        },
+        "PORTAL_AUTO_ASSIGNMENT": {
+          "TITLE": "Client Portal auto-assignment",
+          "DESCRIPTION": "Controls whether Client Portal chat conversations get silently assigned to an online agent on their own (no AI or triage in between). When off, they still arrive normally, just without automatic assignment - anyone can pick them up manually.",
+          "MAX_OPEN_CHATS": {
+            "LABEL": "Open chats limit per agent",
+            "HELP": "An agent who already has this many open Portal conversations stops receiving new ones automatically until they resolve one. Leave blank for no limit.",
+            "PLACEHOLDER": "No limit"
+          },
+          "EXCLUDED_AGENTS": {
+            "LABEL": "Agents excluded from auto-assignment",
+            "HELP": "Checked agents never receive a Portal conversation automatically - they can still be assigned manually as usual.",
             "EMPTY": "No agents found."
           }
         },
@@ -867,6 +885,17 @@
         "API": {
           "SUCCESS": "Automation settings updated.",
           "ERROR": "Could not update the automation settings."
+        }
+      },
+      "AUTO_ASSIGNMENT_EXCEPTIONS": {
+        "TITLE": "Distribution exceptions",
+        "DESCRIPTION": "Agents checked here never receive a conversation automatically on that channel - they can still be assigned manually as usual. It's a list per channel: an agent can be excluded from WhatsApp and not from the Portal, or both.",
+        "WHATSAPP_SECTION_TITLE": "WhatsApp",
+        "PORTAL_SECTION_TITLE": "Client Portal",
+        "SAVE": "Save exceptions",
+        "API": {
+          "SUCCESS": "Distribution exceptions updated.",
+          "ERROR": "Could not update the distribution exceptions."
         }
       },
       "ATTENDANCE_SCHEDULE": {

@@ -888,6 +888,14 @@ const menuItems = computed(() => {
               to: accountScopedRoute('ticket_automation_settings'),
             },
             {
+              name: 'Settings Ticket Auto Assignment Exceptions',
+              label: t('SIDEBAR.TICKET_AUTO_ASSIGNMENT_EXCEPTIONS'),
+              activeOn: ['ticket_auto_assignment_exceptions_settings'],
+              to: accountScopedRoute(
+                'ticket_auto_assignment_exceptions_settings'
+              ),
+            },
+            {
               name: 'Settings Ticket Attendance Schedule',
               label: t('SIDEBAR.TICKET_ATTENDANCE_SCHEDULE'),
               activeOn: ['ticket_attendance_schedule_settings'],
