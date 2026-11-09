@@ -357,6 +357,8 @@ Rails.application.routes.draw do
             end
             member do
               get :contactable_inboxes
+              # Quem ja esta atendendo este cliente (aviso antes de abrir outra conversa).
+              get :attendance
               post :destroy_custom_attributes
               delete :avatar
               # Acesso do contato a Area do Cliente: ligar, desligar e definir

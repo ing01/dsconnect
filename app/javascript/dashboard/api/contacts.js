@@ -38,6 +38,11 @@ class ContactAPI extends ApiClient {
     return axios.patch(`${this.url}/${id}?include_contact_inboxes=false`, data);
   }
 
+  // Quem ja esta atendendo este cliente: o aviso antes de abrir outra conversa com ele.
+  getAttendance(contactId) {
+    return axios.get(`${this.url}/${contactId}/attendance`);
+  }
+
   getConversations(contactId, { inboxId } = {}) {
     const params = inboxId ? { inbox_id: inboxId } : {};
     return axios.get(`${this.url}/${contactId}/conversations`, { params });

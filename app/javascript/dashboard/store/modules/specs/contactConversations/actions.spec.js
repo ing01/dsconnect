@@ -254,6 +254,33 @@ describe('createConversationPayload', () => {
     expect(payload.getAll('message[attachments][]')).toEqual(options.files);
   });
 
+  // "Abrir conversa" a partir de um ticket: o servidor vincula na mesma criacao.
+  it('sends the ticket id when the conversation is opened from a ticket', () => {
+    const payload = createConversationPayload({
+      params: { inboxId: '1', sourceId: '12', assigneeId: '123', ticketId: 5 },
+      contactId: '23',
+    });
+
+    expect(payload.get('ticket_id')).toBe('5');
+  });
+
+  it('sends no ticket id otherwise', () => {
+    const payload = createConversationPayload({
+      params: { inboxId: '1', sourceId: '12', assigneeId: '123' },
+      contactId: '23',
+    });
+
+    expect(payload.has('ticket_id')).toBe(false);
+  });
+
+  it('sends the ticket id on the WhatsApp payload too', () => {
+    const payload = createWhatsAppConversationPayload({
+      params: { inboxId: '1', contactId: '23', sourceId: '12', ticketId: 5 },
+    });
+
+    expect(payload.ticket_id).toBe(5);
+  });
+
   it('creates conversation payload with message and without attachments', () => {
     const options = {
       params: {

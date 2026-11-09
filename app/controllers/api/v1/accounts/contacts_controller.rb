@@ -21,7 +21,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   # somar - o @contact chegaria nulo na acao.
   # rubocop:disable Rails/LexicallyScopedActionFilter
   before_action :fetch_contact, only: [:show, :update, :destroy, :avatar, :contactable_inboxes, :destroy_custom_attributes,
-                                       :client_access]
+                                       :client_access, :attendance]
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :set_include_contact_inboxes, only: [:index, :active, :search, :filter, :show, :update]
 
@@ -78,6 +78,23 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
          CustomExceptions::CustomFilter::InvalidQueryOperator,
          CustomExceptions::CustomFilter::InvalidValue => e
     render_could_not_create_error(e.message)
+  end
+
+  # "Este cliente ja esta em atendimento com FULANO": o aviso que a tela mostra ANTES de abrir
+  # uma conversa com ele (a aba Comunicacao do ticket), em vez de so' depois de preencher e
+  # enviar. Usa a mesma regra do bloqueio de `ConversationsController#create`, que continua
+  # valendo - este endpoint so' antecipa o motivo.
+  def attendance
+    active = Conversations::ContactAttendance.new(account: Current.account, contact_id: @contact.id,
+                                                  user: Current.user).by_someone_else
+    return render json: { in_attendance: false } if active.blank?
+
+    render json: {
+      in_attendance: true,
+      assignee_name: active.assignee.name,
+      conversation_id: active.display_id,
+      account_id: active.account_id
+    }
   end
 
   def contactable_inboxes

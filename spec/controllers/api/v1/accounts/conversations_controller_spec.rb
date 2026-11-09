@@ -657,6 +657,59 @@ RSpec.describe 'Conversations API', type: :request do
           expect(account.conversations.find_by(display_id: response_data[:id]).messages.outgoing.first.content).to eq 'hi'
         end
 
+        # "Abrir conversa" na aba Comunicacao de um ticket: a conversa nasce JA vinculada a ele,
+        # na mesma criacao.
+        context 'when it is opened from a ticket (ticket_id)' do
+          let(:column) { create(:ticket_column, team: team) }
+          let(:ticket) { create(:ticket, account: account, team: team, ticket_column: column) }
+
+          def open_from(target_ticket)
+            allow(Rails.configuration.dispatcher).to receive(:dispatch)
+            post "/api/v1/accounts/#{account.id}/conversations",
+                 headers: agent.create_new_auth_token,
+                 params: { source_id: contact_inbox.source_id, message: { content: 'oi' }, ticket_id: target_ticket.id },
+                 as: :json
+          end
+
+          it 'links the new conversation to the ticket' do
+            open_from(ticket)
+
+            expect(response).to have_http_status(:success)
+            conversation = account.conversations.find_by(display_id: response.parsed_body['id'])
+            expect(ticket.reload.conversations).to include(conversation)
+            expect(ticket.ticket_activities.where(activity_type: :conversation_linked)).to exist
+          end
+
+          it 'does not link anything when no ticket is given' do
+            allow(Rails.configuration.dispatcher).to receive(:dispatch)
+            post "/api/v1/accounts/#{account.id}/conversations",
+                 headers: agent.create_new_auth_token,
+                 params: { source_id: contact_inbox.source_id },
+                 as: :json
+
+            expect(response).to have_http_status(:success)
+            expect(TicketConversation.count).to eq(0)
+          end
+
+          it '404s for a ticket of another account, creating no conversation' do
+            outro = create(:account)
+            alheio = create(:ticket, account: outro, ticket_column: create(:ticket_column, team: create(:team, account: outro)))
+
+            expect { open_from(alheio) }.not_to(change { account.conversations.count })
+
+            expect(response).to have_http_status(:not_found)
+          end
+
+          it 'refuses an agent who cannot change the ticket, creating no conversation' do
+            outra_mesa = create(:team, account: account)
+            do_outro = create(:ticket, account: account, team: outra_mesa, ticket_column: create(:ticket_column, team: outra_mesa))
+
+            expect { open_from(do_outro) }.not_to(change { account.conversations.count })
+
+            expect(response).to have_http_status(:unauthorized)
+          end
+        end
+
         it 'calls contact inbox builder if contact_id and inbox_id is present' do
           builder = double
           allow(Rails.configuration.dispatcher).to receive(:dispatch)

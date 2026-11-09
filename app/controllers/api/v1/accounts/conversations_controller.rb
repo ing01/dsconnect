@@ -54,10 +54,17 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   def show; end
 
   def create
+    # Antes de criar qualquer coisa: o ticket tem de existir NA CONTA e quem chama tem de
+    # poder altera-lo - senao a conversa nasceria e o vinculo seria recusado depois.
+    ticket = ticket_to_link
     ActiveRecord::Base.transaction do
       @conversation = pull_or_build_conversation
       mark_as_agent_initiated(@conversation) unless @pulled_from_queue
       Messages::MessageBuilder.new(Current.user, @conversation, params[:message]).perform if params[:message].present?
+      # Na mesma transacao: ou a conversa nasce vinculada, ou nao nasce. Vale tambem quando
+      # o cliente ja estava na fila e a conversa dele foi assumida (`@pulled_from_queue`) -
+      # e' a conversa que ficou, e e' ela que o ticket passa a mostrar.
+      ticket&.ticket_conversations&.find_or_create_by!(conversation: @conversation)
     end
   end
 
@@ -331,12 +338,8 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   end
 
   def contact_in_attendance_by_someone_else
-    Current.account.conversations.open
-           .where(contact_id: @contact_inbox.contact_id)
-           .where.not(assignee_id: [nil, Current.user.id])
-           .includes(:assignee)
-           .order(last_activity_at: :desc)
-           .first
+    Conversations::ContactAttendance.new(account: Current.account, contact_id: @contact_inbox.contact_id,
+                                         user: Current.user).by_someone_else
   end
 
   # Cliente que JA chamou e esta esperando sem agente (conversa aberta ou pendente,
@@ -381,6 +384,15 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
            .where(queue_id: queue_ids, assignee_id: nil, status: :open)
            .order(Arel.sql('priority DESC NULLS LAST, created_at ASC, id ASC'))
            .first
+  end
+
+  # "Abrir conversa" de dentro de um ticket: o painel manda `ticket_id` junto da criacao.
+  def ticket_to_link
+    return if params[:ticket_id].blank?
+
+    ticket = Current.account.tickets.find(params[:ticket_id])
+    authorize ticket, :update?
+    ticket
   end
 
   def pull_or_build_conversation

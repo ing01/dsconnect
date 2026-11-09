@@ -29,9 +29,15 @@ const props = defineProps({
     type: String,
     default: 'end',
   },
+  // Quando vem de um ticket ("Abrir conversa" na aba Comunicacao): a conversa criada ja
+  // sai vinculada a ele.
+  ticketId: {
+    type: [Number, String],
+    default: null,
+  },
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'created']);
 
 const searchContacts = createContactSearcher();
 const store = useStore();
@@ -176,7 +182,7 @@ const discardCompose = () => {
 const createConversation = async ({ payload, isFromWhatsApp }) => {
   try {
     const data = await store.dispatch('contactConversations/create', {
-      params: payload,
+      params: props.ticketId ? { ...payload, ticketId: props.ticketId } : payload,
       isFromWhatsApp,
     });
     const action = {
@@ -185,6 +191,7 @@ const createConversation = async ({ payload, isFromWhatsApp }) => {
       message: t('COMPOSE_NEW_CONVERSATION.FORM.GO_TO_CONVERSATION'),
     };
     discardCompose();
+    emit('created', data);
     // O cliente ja estava esperando na fila: em vez de abrir outra conversa, a que
     // ele tinha aberto foi atribuida a quem iniciou - e a pessoa precisa saber.
     useAlert(

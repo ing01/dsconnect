@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-open-conversation-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'feature',
+    platform: 'web',
+    title: 'Ticket: botão "Abrir conversa" na aba Comunicação',
+    description:
+      'Na aba Comunicação do ticket, o botão "Abrir conversa" cria uma nova conversa com o solicitante do ticket, já vinculada a ele. Basta escolher a caixa de entrada e escrever a primeira mensagem; a conversa aparece em "Conversas vinculadas". Se o cliente já tiver um chat em andamento com outro agente, a aba avisa com o nome do agente e leva até essa conversa, em vez de deixar abrir outra.',
+  },
+  {
     id: 'client-first-password-rules-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',

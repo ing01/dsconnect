@@ -12,7 +12,8 @@ export const createMessagePayload = (payload, message) => {
 };
 
 export const createConversationPayload = ({ params, contactId, files }) => {
-  const { inboxId, message, sourceId, mailSubject, assigneeId } = params;
+  const { inboxId, message, sourceId, mailSubject, assigneeId, ticketId } =
+    params;
   const payload = new FormData();
 
   if (message) {
@@ -30,12 +31,15 @@ export const createConversationPayload = ({ params, contactId, files }) => {
     payload.append('additional_attributes[mail_subject]', mailSubject);
   }
   payload.append('assignee_id', assigneeId);
+  // "Abrir conversa" a partir de um ticket: o servidor vincula na mesma criacao.
+  if (ticketId) payload.append('ticket_id', ticketId);
 
   return payload;
 };
 
 export const createWhatsAppConversationPayload = ({ params }) => {
-  const { inboxId, message, contactId, sourceId, assigneeId } = params;
+  const { inboxId, message, contactId, sourceId, assigneeId, ticketId } =
+    params;
 
   const payload = {
     inbox_id: inboxId,
@@ -43,6 +47,7 @@ export const createWhatsAppConversationPayload = ({ params }) => {
     source_id: sourceId,
     message,
     assignee_id: assigneeId,
+    ...(ticketId ? { ticket_id: ticketId } : {}),
   };
 
   return payload;

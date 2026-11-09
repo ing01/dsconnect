@@ -363,6 +363,7 @@ const submitContact = contactId =>
       <TicketCommunicationTab
         v-else-if="activeTab === 'communication'"
         :ticket="ticket"
+        @refresh="reload"
       />
       <TicketAppointmentsTab
         v-else-if="activeTab === 'appointments'"

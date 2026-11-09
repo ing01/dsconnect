@@ -506,6 +506,86 @@ RSpec.describe 'Contacts API', type: :request do
     end
   end
 
+  # O aviso ANTES de abrir uma conversa: "este cliente ja esta em atendimento com FULANO". E'
+  # a mesma regra do bloqueio de ConversationsController#create (Conversations::ContactAttendance).
+  describe 'GET /api/v1/accounts/{account.id}/contacts/:id/attendance' do
+    let(:contact) { create(:contact, account: account) }
+    let(:inbox) { create(:inbox, account: account) }
+    let(:agent) { create(:user, account: account, role: :agent) }
+    let(:colega) { create(:user, account: account, role: :agent, name: 'Maria Atendente') }
+
+    def consultar(alvo = contact, usuario = agent)
+      get "/api/v1/accounts/#{account.id}/contacts/#{alvo.id}/attendance", headers: usuario.create_new_auth_token, as: :json
+    end
+
+    it 'returns unauthorized without a login' do
+      get "/api/v1/accounts/#{account.id}/contacts/#{contact.id}/attendance"
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it 'says nobody is attending a customer without an open conversation' do
+      consultar
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body).to eq('in_attendance' => false)
+    end
+
+    it 'names the agent and the conversation when someone else is attending' do
+      conversa = create(:conversation, account: account, contact: contact, inbox: inbox, assignee: colega, status: :open)
+
+      consultar
+
+      expect(response.parsed_body).to eq(
+        'in_attendance' => true, 'assignee_name' => 'Maria Atendente',
+        'conversation_id' => conversa.display_id, 'account_id' => account.id
+      )
+    end
+
+    # Em QUALQUER caixa da conta, como o bloqueio: o agente consultando nem precisa ter acesso a ela.
+    it 'looks at every inbox, even one the agent is not a member of' do
+      create(:conversation, account: account, contact: contact, inbox: create(:inbox, account: account),
+                            assignee: colega, status: :open)
+
+      consultar
+
+      expect(response.parsed_body['in_attendance']).to be(true)
+    end
+
+    it 'does not warn when the one attending is the agent asking' do
+      create(:conversation, account: account, contact: contact, inbox: inbox, assignee: agent, status: :open)
+
+      consultar
+
+      expect(response.parsed_body['in_attendance']).to be(false)
+    end
+
+    it 'does not warn about a conversation that is already resolved' do
+      create(:conversation, account: account, contact: contact, inbox: inbox, assignee: colega, status: :resolved)
+
+      consultar
+
+      expect(response.parsed_body['in_attendance']).to be(false)
+    end
+
+    it 'does not warn about a conversation nobody is attending (it is in the queue)' do
+      create(:conversation, account: account, contact: contact, inbox: inbox, assignee: nil, status: :open)
+
+      consultar
+
+      expect(response.parsed_body['in_attendance']).to be(false)
+    end
+
+    it '404s for a contact of another account' do
+      outra = create(:account)
+      alheio = create(:contact, account: outra)
+
+      consultar(alheio)
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe 'GET /api/v1/accounts/{account.id}/contacts/:id/contactable_inboxes' do
     let!(:contact) { create(:contact, account: account) }
 
