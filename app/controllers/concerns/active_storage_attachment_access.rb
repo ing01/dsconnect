@@ -48,7 +48,11 @@ module ActiveStorageAttachmentAccess
     return if public_blob?
     return if agent_session? || token_session? || integration_key?
 
-    Rails.logger.info "[AttachmentAccess] negado: #{request.path} (#{request.remote_ip})"
+    # Navegador ou app, e de qual pagina: sem isto uma recusa indevida nao deixava rastro
+    # para saber DE QUEM era (nunca o valor de cookie ou token).
+    Rails.logger.info "[AttachmentAccess] negado: #{request.path} (#{request.remote_ip}) " \
+                      "cookie_agente=#{request.get_header('HTTP_COOKIE').to_s.include?(AGENT_COOKIE)} " \
+                      "origem=#{request.referer.to_s[%r{\Ahttps?://[^/]+}]} ua=#{request.user_agent.to_s[0, 70].inspect}"
     deny_attachment_access
   end
 
@@ -130,10 +134,28 @@ module ActiveStorageAttachmentAccess
   end
 
   def parsed_cookie(name)
-    raw = cookies[name]
+    raw = raw_cookie(name)
     parsed = raw.present? ? JSON.parse(raw) : {}
     parsed.is_a?(Hash) ? parsed : {}
   rescue JSON::ParserError
     {}
+  end
+
+  # O valor do cookie, decodificado SO' de `%XX`.
+  #
+  # `cookies[name]` (Rack) decodifica como formulario: troca `+` por espaco. O navegador (js-cookie)
+  # grava o `+` LITERAL - e quem tem `+` no e-mail de login (jean+x@empresa.com) lia outro
+  # `uid` ("jean x@..."), o usuario nao era achado e toda imagem dele era recusada, enquanto o
+  # painel seguia funcionando (la' o proprio navegador le o cookie certo). So' ele, entre os
+  # usuarios, tinha o `+`.
+  def raw_cookie(name)
+    pair = request.get_header('HTTP_COOKIE').to_s.split(/;\s*/).find { |item| item.start_with?("#{name}=") }
+    return if pair.blank?
+
+    percent_decode(pair.delete_prefix("#{name}=").delete_prefix('"').delete_suffix('"'))
+  end
+
+  def percent_decode(value)
+    value.b.gsub(/%([0-9A-Fa-f]{2})/) { [Regexp.last_match(1)].pack('H2') }.force_encoding(Encoding::UTF_8)
   end
 end

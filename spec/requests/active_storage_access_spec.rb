@@ -82,6 +82,20 @@ RSpec.describe 'Acesso aos anexos', type: :request do
       expect(response).to have_http_status(:redirect)
     end
 
+    # O defeito real: o navegador (js-cookie) grava o `+` do e-mail LITERAL no cookie, e o Rack o lia
+    # como espaco - quem tem `+` no e-mail (jean+x@...) nunca era achado e toda imagem dele era
+    # recusada, mesmo logado. O valor aqui e' montado como o js-cookie faz.
+    it 'baixa pelo cookie de quem tem + no e-mail de login' do
+      jean = create(:user, account: account, role: :agent, email: 'jean+dsconnect@exemplo.com.br')
+      credenciais = jean.create_new_auth_token.slice('access-token', 'client', 'uid')
+      cookies['cw_d_session_info'] = CGI.escape(credenciais.to_json).gsub('%2B', '+')
+
+      get blob_path, headers: plain
+
+      expect(credenciais['uid']).to include('+')
+      expect(response).to have_http_status(:redirect)
+    end
+
     it 'recusa um token de agente errado' do
       credenciais = agent_headers.slice('access-token', 'client', 'uid').merge('access-token' => 'errado')
       cookies['cw_d_session_info'] = CGI.escape(credenciais.to_json)
