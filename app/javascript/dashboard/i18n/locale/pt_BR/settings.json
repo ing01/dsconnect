@@ -498,6 +498,7 @@
       "CLIENTES": "Clientes",
       "SOLICITANTES": "Contatos/Solicitantes",
       "COMPANY_PRIORITY": "Código/CNPJ/Prioridade",
+      "COMPANY_CLASSIFICATION": "Código/CNPJ/Classificação",
       "COMPANY_CNPJ_CHECK": "Comparativo de CNPJ",
       "SERVICE_CATALOG": "Catálogo de Serviços"
     },
@@ -526,6 +527,10 @@
       "COMPANY_PRIORITY": {
         "TITLE": "Importar Código/CNPJ/Prioridade",
         "DESCRIPTION": "Atualiza empresas já cadastradas com o Código de referência, CNPJ e Prioridade (Baixa/Média/Alta), casando por Código ou CNPJ. Não cria empresas novas."
+      },
+      "COMPANY_CLASSIFICATION": {
+        "TITLE": "Importar Código/CNPJ/Classificação",
+        "DESCRIPTION": "Atualiza empresas já cadastradas com o Código de referência, CNPJ e Classificação (1 a 5), casando por Código ou CNPJ. Não cria empresas novas."
       },
       "COMPANY_CNPJ_CHECK": {
         "TITLE": "Comparar planilha de CNPJ",

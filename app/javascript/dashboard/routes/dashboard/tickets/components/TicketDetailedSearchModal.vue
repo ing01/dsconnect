@@ -15,6 +15,12 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  // A tela de Gestao avancada de tickets (rota dedicada) ja mostra seu
+  // proprio titulo - so o modal de Busca detalhada precisa deste cabecalho.
+  showHeader: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const { t } = useI18n();
@@ -240,7 +246,10 @@ onMounted(() => {
 
 <template>
   <div class="flex flex-col h-auto overflow-auto">
-    <woot-modal-header :header-title="t('TICKET.SEARCH.TITLE')" />
+    <woot-modal-header
+      v-if="showHeader"
+      :header-title="t('TICKET.SEARCH.TITLE')"
+    />
     <div class="flex flex-col gap-4 px-8 pb-4">
       <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
         <label class="flex flex-col gap-1">

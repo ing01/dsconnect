@@ -198,6 +198,10 @@
         "DUE_DATE": "Due date"
       }
     },
+    "ADVANCED_MANAGEMENT": {
+      "TITLE": "Advanced ticket management",
+      "BUTTON": "Advanced management"
+    },
     "SEARCH": {
       "BUTTON": "Detailed search",
       "TITLE": "Detailed search",
@@ -653,6 +657,8 @@
           "REMOVE_ACTION": "Remove action",
           "UNASSIGN": "Remove assignee",
           "NOTE_PLACEHOLDER": "Text that will show up in the ticket's history...",
+          "CUSTOMER_MESSAGE_PLACEHOLDER": "Standard message that will be sent to the customer...",
+          "NOTIFY_CUSTOMER": "Send by email to the customer (unchecked only logs it, without sending)",
           "STAGE_LABEL": "Stage",
           "ACTION_TYPES": {
             "SET_PRIORITY": "Change the priority",
@@ -661,6 +667,7 @@
             "CLEAR_DUE_DATE": "Clear the due date",
             "CLEAR_SCHEDULED_AT": "Clear the scheduled date",
             "POST_NOTE": "Add an automated note",
+            "SEND_CUSTOMER_MESSAGE": "Send a standard message to the customer",
             "MOVE_PARENT_TO_COLUMN": "Move the parent ticket to another stage"
           },
           "ACTION_HINTS": {

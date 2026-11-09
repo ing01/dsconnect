@@ -34,6 +34,20 @@ const clientLevelQuery = computed(() => route.query?.client_level || '');
 const activeClientLevel = ref(
   clientLevelQuery.value ? Number(clientLevelQuery.value) : ''
 );
+const classificationLevelQuery = computed(
+  () => route.query?.classification_level || ''
+);
+const activeClassificationLevel = ref(
+  classificationLevelQuery.value ? Number(classificationLevelQuery.value) : ''
+);
+const companyNicheIdQuery = computed(() => route.query?.company_niche_id || '');
+const activeCompanyNicheId = ref(
+  companyNicheIdQuery.value ? Number(companyNicheIdQuery.value) : ''
+);
+const specialistIdQuery = computed(() => route.query?.specialist_id || '');
+const activeSpecialistId = ref(
+  specialistIdQuery.value ? Number(specialistIdQuery.value) : ''
+);
 
 const parseSortSettings = (sortString = '') => {
   const hasDescending = sortString.startsWith('-');
@@ -89,6 +103,24 @@ const updateURLParams = (page, search = '', sort = '', clientLevel = '') => {
     delete query.client_level;
   }
 
+  if (activeClassificationLevel.value) {
+    query.classification_level = activeClassificationLevel.value.toString();
+  } else {
+    delete query.classification_level;
+  }
+
+  if (activeCompanyNicheId.value) {
+    query.company_niche_id = activeCompanyNicheId.value.toString();
+  } else {
+    delete query.company_niche_id;
+  }
+
+  if (activeSpecialistId.value) {
+    query.specialist_id = activeSpecialistId.value.toString();
+  } else {
+    delete query.specialist_id;
+  }
+
   router.replace({ query });
 };
 
@@ -97,10 +129,18 @@ const fetchCompanies = async (page, search, sort) => {
   const currentSearch = search ?? searchQuery.value;
   const currentSort = sort ?? sortParam.value;
   const currentClientLevel = activeClientLevel.value;
+  const currentClassificationLevel = activeClassificationLevel.value;
+  const currentCompanyNicheId = activeCompanyNicheId.value;
+  const currentSpecialistId = activeSpecialistId.value;
 
   // Only update URL if arguments were explicitly provided
   if (page !== undefined || search !== undefined || sort !== undefined) {
-    updateURLParams(currentPage, currentSearch, currentSort, currentClientLevel);
+    updateURLParams(
+      currentPage,
+      currentSearch,
+      currentSort,
+      currentClientLevel
+    );
   }
 
   if (currentSearch) {
@@ -109,12 +149,18 @@ const fetchCompanies = async (page, search, sort) => {
       page: currentPage,
       sort: currentSort,
       clientLevel: currentClientLevel,
+      classificationLevel: currentClassificationLevel,
+      companyNicheId: currentCompanyNicheId,
+      specialistId: currentSpecialistId,
     });
   } else {
     await companiesStore.get({
       page: currentPage,
       sort: currentSort,
       clientLevel: currentClientLevel,
+      classificationLevel: currentClassificationLevel,
+      companyNicheId: currentCompanyNicheId,
+      specialistId: currentSpecialistId,
     });
   }
 };
@@ -168,6 +214,21 @@ const handleClientLevelChange = clientLevel => {
   fetchCompanies(1, searchValue.value, sortParam.value);
 };
 
+const handleClassificationLevelChange = classificationLevel => {
+  activeClassificationLevel.value = classificationLevel;
+  fetchCompanies(1, searchValue.value, sortParam.value);
+};
+
+const handleCompanyNicheIdChange = companyNicheId => {
+  activeCompanyNicheId.value = companyNicheId;
+  fetchCompanies(1, searchValue.value, sortParam.value);
+};
+
+const handleSpecialistIdChange = specialistId => {
+  activeSpecialistId.value = specialistId;
+  fetchCompanies(1, searchValue.value, sortParam.value);
+};
+
 onMounted(() => {
   searchValue.value = searchQuery.value;
 
@@ -188,11 +249,17 @@ onMounted(() => {
     :active-sort="activeSort"
     :active-ordering="activeOrdering"
     :active-client-level="activeClientLevel"
+    :active-classification-level="activeClassificationLevel"
+    :active-company-niche-id="activeCompanyNicheId"
+    :active-specialist-id="activeSpecialistId"
     :is-fetching-list="isFetchingList"
     :show-pagination-footer="!!companies.length"
     @update:current-page="onPageChange"
     @update:sort="handleSort"
     @update:client-level="handleClientLevelChange"
+    @update:classification-level="handleClassificationLevelChange"
+    @update:company-niche-id="handleCompanyNicheIdChange"
+    @update:specialist-id="handleSpecialistIdChange"
     @search="onSearch"
     @create="openCreateCompanyDialog"
   >

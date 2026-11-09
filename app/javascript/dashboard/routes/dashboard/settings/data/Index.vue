@@ -83,6 +83,9 @@ const importTypeLabel = dataImport =>
       if (type === 'company_priority') {
         return t('DATA_IMPORTS.TYPES.COMPANY_PRIORITY');
       }
+      if (type === 'company_classification') {
+        return t('DATA_IMPORTS.TYPES.COMPANY_CLASSIFICATION');
+      }
       if (type === 'company_cnpj_check') {
         return t('DATA_IMPORTS.TYPES.COMPANY_CNPJ_CHECK');
       }
@@ -271,7 +274,9 @@ onBeforeUnmount(() => {
           data-type="solicitantes"
           icon="i-lucide-user-round-plus"
           :title="$t('DATA_IMPORTS.SPREADSHEETS.SOLICITANTES.TITLE')"
-          :description="$t('DATA_IMPORTS.SPREADSHEETS.SOLICITANTES.DESCRIPTION')"
+          :description="
+            $t('DATA_IMPORTS.SPREADSHEETS.SOLICITANTES.DESCRIPTION')
+          "
           template-url="/downloads/solicitantes-modelo.xlsx"
           template-filename="solicitantes-modelo.xlsx"
           result-summary-key="DATA_IMPORTS.SPREADSHEETS.SOLICITANTES.RESULT_SUMMARY"
@@ -281,7 +286,9 @@ onBeforeUnmount(() => {
           data-type="service_catalog"
           icon="i-lucide-list-tree"
           :title="$t('DATA_IMPORTS.SPREADSHEETS.SERVICE_CATALOG.TITLE')"
-          :description="$t('DATA_IMPORTS.SPREADSHEETS.SERVICE_CATALOG.DESCRIPTION')"
+          :description="
+            $t('DATA_IMPORTS.SPREADSHEETS.SERVICE_CATALOG.DESCRIPTION')
+          "
           template-url="/downloads/catalogo-servicos-modelo.xlsx"
           template-filename="catalogo-servicos-modelo.xlsx"
         />
@@ -289,15 +296,29 @@ onBeforeUnmount(() => {
           data-type="company_priority"
           icon="i-lucide-star"
           :title="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_PRIORITY.TITLE')"
-          :description="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_PRIORITY.DESCRIPTION')"
+          :description="
+            $t('DATA_IMPORTS.SPREADSHEETS.COMPANY_PRIORITY.DESCRIPTION')
+          "
           template-url="/downloads/codigo-cnpj-prioridade-modelo.xlsx"
           template-filename="codigo-cnpj-prioridade-modelo.xlsx"
+        />
+        <SpreadsheetImportCard
+          data-type="company_classification"
+          icon="i-lucide-gauge"
+          :title="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CLASSIFICATION.TITLE')"
+          :description="
+            $t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CLASSIFICATION.DESCRIPTION')
+          "
+          template-url="/downloads/codigo-cnpj-classificacao-modelo.xlsx"
+          template-filename="codigo-cnpj-classificacao-modelo.xlsx"
         />
         <SpreadsheetImportCard
           data-type="company_cnpj_check"
           icon="i-lucide-git-compare"
           :title="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.TITLE')"
-          :description="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.DESCRIPTION')"
+          :description="
+            $t('DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.DESCRIPTION')
+          "
           template-url="/downloads/comparativo-cnpj-modelo.xlsx"
           template-filename="comparativo-cnpj-modelo.xlsx"
           result-summary-key="DATA_IMPORTS.SPREADSHEETS.COMPANY_CNPJ_CHECK.RESULT_SUMMARY"

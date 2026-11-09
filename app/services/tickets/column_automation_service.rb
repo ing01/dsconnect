@@ -25,6 +25,7 @@ class Tickets::ColumnAutomationService
     when 'clear_due_date' then ticket.update!(due_date: nil)
     when 'clear_scheduled_at' then ticket.update!(scheduled_at: nil)
     when 'post_note' then post_note(action[:value])
+    when 'send_customer_message' then send_customer_message(action[:value])
     when 'move_parent_to_column' then move_parent_to_column(action[:value])
     end
   rescue StandardError => e
@@ -65,6 +66,20 @@ class Tickets::ColumnAutomationService
     ticket.ticket_activities.create!(
       account_id: ticket.account_id, user: nil, activity_type: :automation_note, new_value: text
     )
+  end
+
+  # `value` e' um hash `{ "body" => "...", "notify_customer" => true/false }`.
+  # Sem e-mail do solicitante, nao ha' pra quem enviar - pula em silencio
+  # (mesmo criterio de Tickets::BulkOperations::Handlers para essa acao), sem
+  # contar como falha da automacao do Estagio.
+  def send_customer_message(value)
+    body = value[:body].to_s
+    return if body.blank? || ticket.requester_contact&.email.blank?
+
+    Tickets::CustomerCommunicationService.new(
+      ticket: ticket, user: nil, body: body, closing: false,
+      notify_customer: value[:notify_customer] != false
+    ).perform
   end
 
   # Move o ticket PAI (se tiver) para um Estagio especifico, de qualquer Mesa -

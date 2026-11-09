@@ -35,6 +35,7 @@ const ACTION_TYPES = [
   'clear_due_date',
   'clear_scheduled_at',
   'post_note',
+  'send_customer_message',
   'move_parent_to_column',
 ];
 const PRIORITY_OPTIONS = ['low', 'medium', 'high', 'urgent'];
@@ -46,6 +47,7 @@ const DEFAULT_VALUE_FOR_TYPE = {
   clear_due_date: null,
   clear_scheduled_at: null,
   post_note: '',
+  send_customer_message: { body: '', notify_customer: true },
   move_parent_to_column: { team_id: null, ticket_column_id: null },
 };
 
@@ -64,7 +66,9 @@ const removeAction = index => {
 const setType = (index, type) => {
   update(
     actions.value.map((action, position) =>
-      position === index ? { type, value: DEFAULT_VALUE_FOR_TYPE[type] } : action
+      position === index
+        ? { type, value: DEFAULT_VALUE_FOR_TYPE[type] }
+        : action
     )
   );
 };
@@ -75,6 +79,17 @@ const setValue = (index, value) => {
       position === index ? { ...action, value } : action
     )
   );
+};
+
+const setCustomerMessageBody = (index, body) => {
+  const action = actions.value[index];
+  setValue(index, { ...action.value, body });
+};
+
+const toggleCustomerMessageNotify = index => {
+  const action = actions.value[index];
+  const notifiesToday = action.value?.notify_customer !== false;
+  setValue(index, { ...action.value, notify_customer: !notifiesToday });
 };
 
 const actionLabel = type =>
@@ -96,15 +111,22 @@ const onParentColumnTeamChange = async (index, teamId) => {
 
 const onParentColumnChange = (index, ticketColumnId) => {
   const action = actions.value[index];
-  setValue(index, { ...action.value, ticket_column_id: ticketColumnId || null });
+  setValue(index, {
+    ...action.value,
+    ticket_column_id: ticketColumnId || null,
+  });
 };
 
 // Ao abrir o editor com uma acao ja configurada, busca a Mesa que ela ja
 // aponta - senao o select de Estagio nasceria vazio ate a pessoa trocar de Mesa.
 onMounted(() => {
   actions.value
-    .filter(action => action.type === 'move_parent_to_column' && action.value?.team_id)
-    .forEach(action => store.dispatch('ticketColumns/fetchColumns', action.value.team_id));
+    .filter(
+      action => action.type === 'move_parent_to_column' && action.value?.team_id
+    )
+    .forEach(action =>
+      store.dispatch('ticketColumns/fetchColumns', action.value.team_id)
+    );
 });
 </script>
 
@@ -186,11 +208,38 @@ onMounted(() => {
       />
 
       <div
+        v-else-if="action.type === 'send_customer_message'"
+        class="flex flex-col gap-2"
+      >
+        <textarea
+          :value="action.value?.body"
+          rows="3"
+          class="mb-0"
+          :placeholder="
+            t('TICKET.SETTINGS.FORM.AUTOMATION.CUSTOMER_MESSAGE_PLACEHOLDER')
+          "
+          @input="setCustomerMessageBody(index, $event.target.value)"
+        />
+        <label class="flex items-center gap-2 text-xs text-n-slate-11">
+          <input
+            type="checkbox"
+            :checked="action.value?.notify_customer !== false"
+            @change="toggleCustomerMessageNotify(index)"
+          />
+          {{ t('TICKET.SETTINGS.FORM.AUTOMATION.NOTIFY_CUSTOMER') }}
+        </label>
+      </div>
+
+      <div
         v-else-if="action.type === 'move_parent_to_column'"
         class="flex flex-col gap-2"
       >
         <p class="mb-0 text-xs text-n-slate-11">
-          {{ t('TICKET.SETTINGS.FORM.AUTOMATION.ACTION_HINTS.MOVE_PARENT_TO_COLUMN') }}
+          {{
+            t(
+              'TICKET.SETTINGS.FORM.AUTOMATION.ACTION_HINTS.MOVE_PARENT_TO_COLUMN'
+            )
+          }}
         </p>
         <div class="flex items-center gap-2">
           <select

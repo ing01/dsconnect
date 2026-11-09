@@ -199,6 +199,10 @@
         "DUE_DATE": "Prazo"
       }
     },
+    "ADVANCED_MANAGEMENT": {
+      "TITLE": "Gestão avançada de tickets",
+      "BUTTON": "Gestão avançada"
+    },
     "SEARCH": {
       "BUTTON": "Busca detalhada",
       "TITLE": "Busca detalhada",
@@ -736,6 +740,8 @@
           "REMOVE_ACTION": "Remover ação",
           "UNASSIGN": "Remover responsável",
           "NOTE_PLACEHOLDER": "Texto que vai aparecer no histórico do ticket...",
+          "CUSTOMER_MESSAGE_PLACEHOLDER": "Mensagem padrão que será enviada ao cliente...",
+          "NOTIFY_CUSTOMER": "Enviar por e-mail ao cliente (desmarcado só registra, sem enviar)",
           "STAGE_LABEL": "Estágio",
           "ACTION_TYPES": {
             "SET_PRIORITY": "Mudar a prioridade",
@@ -744,6 +750,7 @@
             "CLEAR_DUE_DATE": "Limpar a data de vencimento",
             "CLEAR_SCHEDULED_AT": "Limpar a data de agendamento",
             "POST_NOTE": "Adicionar uma nota automática",
+            "SEND_CUSTOMER_MESSAGE": "Enviar mensagem padrão ao cliente",
             "MOVE_PARENT_TO_COLUMN": "Mover o ticket pai para outro estágio"
           },
           "ACTION_HINTS": {
