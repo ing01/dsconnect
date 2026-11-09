@@ -121,9 +121,15 @@ class WebhookListener < BaseListener
 
   def deliver_api_inbox_webhooks(payload, inbox)
     return unless inbox.channel_type == 'Channel::Api'
-    return if inbox.channel.webhook_url.blank?
+    # O Portal do Cliente entrega pelo proprio app, nunca por webhook. Se a caixa ficar com uma
+    # "URL" lixo (ex.: o texto `null` salvo pelo formulario), cada mensagem da equipe virava
+    # "Falha ao enviar" (scheme must be http or https) e o cliente nao recebia nada.
+    return if inbox.client_portal?
 
-    WebhookJob.perform_later(inbox.channel.webhook_url, payload, :api_inbox_webhook,
+    url = inbox.channel.webhook_url
+    return if url.blank? || url.strip.casecmp?('null')
+
+    WebhookJob.perform_later(url, payload, :api_inbox_webhook,
                              secret: inbox.channel.secret, delivery_id: SecureRandom.uuid)
   end
 

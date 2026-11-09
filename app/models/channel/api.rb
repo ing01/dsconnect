@@ -30,12 +30,25 @@ class Channel::Api < ApplicationRecord
   include WebhookSecretable
   validate :ensure_valid_agent_reply_time_window
   validates :webhook_url, length: { maximum: Limits::URL_LENGTH_LIMIT }
+  before_validation :normalize_webhook_url
+
+  # Textos que um formulario/cliente manda no lugar de "sem URL" - gravados como estao, viravam
+  # uma URL "valida" para o sistema e toda mensagem enviada falhava (scheme must be http or https).
+  EMPTY_WEBHOOK_TEXTS = %w[null undefined nil none].freeze
 
   def name
     'API'
   end
 
   private
+
+  # A caixa do Portal do Cliente entrega pelo proprio app: nunca tem webhook. Nas demais caixas, URL
+  # em branco ou com um desses textos vira vazio (sem webhook), em vez de ficar gravada.
+  def normalize_webhook_url
+    value = webhook_url.to_s.strip
+    portal = additional_attributes.is_a?(Hash) && additional_attributes[Inboxes::EnsureClientPortalInboxService::MARKER_KEY] == true
+    self.webhook_url = nil if portal || value.blank? || EMPTY_WEBHOOK_TEXTS.include?(value.downcase)
+  end
 
   def ensure_valid_agent_reply_time_window
     return if additional_attributes['agent_reply_time_window'].blank?

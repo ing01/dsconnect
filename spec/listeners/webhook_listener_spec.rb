@@ -123,6 +123,32 @@ describe WebhookListener do
         expect(WebhookJob).not_to receive(:perform_later)
         listener.message_created(api_event)
       end
+
+      # O defeito: com a "URL" salva como o texto `null`, cada mensagem da equipe no Portal do Cliente
+      # virava "Falha ao enviar" (scheme must be http or https).
+      def outgoing_event_for(channel_api)
+        conversation = create(:conversation, account: account, inbox: channel_api.inbox, assignee: user)
+        message = create(:message, message_type: 'outgoing', account: account, inbox: channel_api.inbox,
+                                   conversation: conversation)
+        Events::Base.new(event_name, Time.zone.now, message: message)
+      end
+
+      it 'does not trigger webhook if webhook_url is the text null' do
+        channel_api = create(:channel_api, webhook_url: 'null', account: account)
+        event = outgoing_event_for(channel_api)
+
+        expect(WebhookJob).not_to receive(:perform_later)
+        listener.message_created(event)
+      end
+
+      it 'never triggers webhook for the client portal inbox, even with a url set' do
+        channel_api = create(:channel_api, webhook_url: 'https://example.com/hook', account: account,
+                                           additional_attributes: { Inboxes::EnsureClientPortalInboxService::MARKER_KEY => true })
+        event = outgoing_event_for(channel_api)
+
+        expect(WebhookJob).not_to receive(:perform_later)
+        listener.message_created(event)
+      end
     end
   end
 

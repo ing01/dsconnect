@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'portal-chat-send-failure-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'fix',
+    platform: 'web',
+    title: 'Portal do Cliente: mensagens da equipe não ficam mais com "Falha ao enviar"',
+    description:
+      'Com uma URL de webhook inválida salva na caixa do Portal, toda resposta da equipe aparecia como "Falha ao enviar". O Portal agora entrega pelo próprio app e ignora essa URL.',
+  },
+  {
     id: 'portal-inbox-auto-assignment-toggle-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',
