@@ -7917,9 +7917,17 @@
             }
           },
           {
+            "name": "display_id",
+            "in": "query",
+            "description": "The ticket number (the \"#35369\" shown on screen, unique per account) - not the database id used in the URL. Finds the ticket whatever its Mesa; a number that does not exist finds nothing.",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
             "name": "sprint_id",
             "in": "query",
-            "description": "Only the tickets of this sprint (see GET /sprints). A sprint of another account, or one that does not exist, simply finds nothing.",
+            "description": "Only the tickets of this sprint (see GET /sprints). A sprint of another account, or one that does not exist, is a 404.",
             "schema": {
               "type": "number"
             }

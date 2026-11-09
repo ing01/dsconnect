@@ -148,21 +148,20 @@ RSpec.describe 'Ticket Integration API - users and sprints', type: :request do
       expect(response.parsed_body['payload'].first['sprint_id']).to eq(sprint.id)
     end
 
-    # O filtro e' de igualdade, como os outros desta lista: a conta da chave limita
-    # a consulta, entao o sprint de outra conta (ou inexistente) so' nao acha nada.
-    it 'finds nothing for a sprint of another account' do
+    # Como todo id desta API: de outra conta ou inexistente e' 404 (antes devolvia 200 com lista vazia,
+    # o que escondia um sprint_id errado).
+    it '404s for a sprint of another account' do
       alheio = create(:sprint, account: other_account, team: other_team)
 
       get '/api/v1/integrations/tickets', params: { sprint_id: alheio.id }, headers: headers
 
-      expect(response).to have_http_status(:success)
-      expect(response.parsed_body['payload']).to eq([])
+      expect(response).to have_http_status(:not_found)
     end
 
-    it 'finds nothing for a sprint that does not exist' do
+    it '404s for a sprint that does not exist' do
       get '/api/v1/integrations/tickets', params: { sprint_id: 0 }, headers: headers
 
-      expect(response.parsed_body['payload']).to eq([])
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

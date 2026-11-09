@@ -108,12 +108,17 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   EQUALITY_FILTERS = {
     status: :status, team_id: :team_id, ticket_column_id: :ticket_column_id,
     ticket_category_id: :ticket_category_id, company_id: :company_id, assignee_id: :assignee_id,
-    sprint_id: :sprint_id, development_type: :development_type
+    sprint_id: :sprint_id, development_type: :development_type,
+    # O numero do chamado (o "#35369" da tela), unico na conta - diferente do `id` do banco (o da URL).
+    # Acha o ticket sem depender da Mesa em que ele esta.
+    display_id: :display_id
   }.freeze
 
   def filtered_tickets
     # Valor fora de bug/task/story e' 422: no filtro de igualdade ele viraria "sem tipo".
     checked_development_type(params[:development_type]) if params[:development_type].present?
+    # Sprint que nao existe (ou de outra conta) e' 404, como em todo id desta API - nao uma lista vazia.
+    Sprint.where(account_id: current_account.id).find(params[:sprint_id]) if params[:sprint_id].present?
     scope = current_account.tickets.includes(:team, :ticket_column, :ticket_category, :company, :assignee)
     scope = apply_equality_filters(scope)
     scope = scope.where(created_at: params[:created_after]..) if params[:created_after].present?

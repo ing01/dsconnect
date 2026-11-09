@@ -89,7 +89,10 @@ são os mesmos de antes.
 **`sprint_id`** — sprint da **mesma Mesa** do ticket → senão 422. De outra conta
 ou inexistente → 404. Em branco devolve o ticket ao Backlog.
 
-Filtros na lista: `?sprint_id=` e `?development_type=`.
+Filtros na lista: `?sprint_id=`, `?development_type=` e `?display_id=` (o número do chamado,
+o "#35369" da tela, único na conta — não é o `id` do banco, que é o da URL; acha o ticket sem
+depender da Mesa). `?sprint_id=` de sprint inexistente ou de outra conta é **404** (antes devolvia
+200 com lista vazia).
 
 Onde enviar:
 - **Criação:** `POST /tickets`, dentro de `ticket` (ao lado de `title` etc.).

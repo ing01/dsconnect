@@ -82,6 +82,36 @@ RSpec.describe 'Ticket Integration API', type: :request do
     end
   end
 
+  # O numero do chamado ("#35369" na tela) nao e' o `id` do banco (o da URL): o filtro `display_id`
+  # acha o ticket por ele, sem depender da Mesa.
+  describe 'GET /api/v1/integrations/tickets?display_id=' do
+    let!(:wanted) { create(:ticket, ticket_column: column) }
+    let!(:other_team_ticket) { create(:ticket, ticket_column: create(:ticket_column, team: create(:team, account: account))) }
+
+    it 'finds the ticket by its number, whatever the Mesa, exposing display_id' do
+      get '/api/v1/integrations/tickets', params: { display_id: other_team_ticket.display_id }, headers: headers
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['payload'].pluck('id')).to eq([other_team_ticket.id])
+      expect(response.parsed_body['payload'].first['display_id']).to eq(other_team_ticket.display_id)
+    end
+
+    it 'finds nothing for a number that does not exist' do
+      get '/api/v1/integrations/tickets', params: { display_id: 999_999_999 }, headers: headers
+
+      expect(response.parsed_body['payload']).to eq([])
+    end
+
+    it 'does not find the number of a ticket from another account' do
+      foreign = create(:ticket)
+      foreign.update_column(:display_id, wanted.display_id) # rubocop:disable Rails/SkipsModelValidations
+
+      get '/api/v1/integrations/tickets', params: { display_id: wanted.display_id }, headers: headers
+
+      expect(response.parsed_body['payload'].pluck('id')).to eq([wanted.id])
+    end
+  end
+
   describe 'GET /api/v1/integrations/tickets (campos do Jira)' do
     it 'lists the Jira card fields on each item' do
       ticket = create(:ticket, ticket_column: column, custom_attributes: { 'analise' => 'Texto' })

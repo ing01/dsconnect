@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'integration-api-display-id-filter-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'improvement',
+    platform: 'web',
+    title: 'API de Integração: buscar ticket pelo número do chamado',
+    description:
+      'A lista de tickets da API de Integração ganhou o filtro display_id (o número do chamado que aparece na tela, como #35369), que acha o ticket sem depender da Mesa. Além disso, filtrar por um sprint que não existe agora responde 404 em vez de uma lista vazia.',
+  },
+  {
     id: 'portal-chat-send-failure-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',

@@ -8,6 +8,8 @@ RSpec.describe 'Ticket Integration API - rate limit', type: :request do
   let(:account) { create(:account) }
   let!(:ticket_api_key) { create(:ticket_api_key, account: account) }
   let(:headers) { { 'X-Ticket-Api-Key' => ticket_api_key.token } }
+  # 127.0.0.1 e ::1 estao na lista de IPs liberados do Rack::Attack - de la' nada seria limitado.
+  let(:external_ip) { { 'REMOTE_ADDR' => '203.0.113.7' } }
 
   around do |example|
     enabled = Rack::Attack.enabled
@@ -21,13 +23,13 @@ RSpec.describe 'Ticket Integration API - rate limit', type: :request do
   end
 
   def exceed_the_limit
-    120.times { get '/api/v1/integrations/teams', headers: headers }
-    get '/api/v1/integrations/teams', headers: headers
+    120.times { get '/api/v1/integrations/teams', headers: headers, env: external_ip }
+    get '/api/v1/integrations/teams', headers: headers, env: external_ip
   end
 
   it 'answers normally up to 120 requests in the minute' do
     120.times do
-      get '/api/v1/integrations/teams', headers: headers
+      get '/api/v1/integrations/teams', headers: headers, env: external_ip
       expect(response).to have_http_status(:success)
     end
   end
@@ -47,7 +49,7 @@ RSpec.describe 'Ticket Integration API - rate limit', type: :request do
     exceed_the_limit
     outra = create(:ticket_api_key, account: create(:account))
 
-    get '/api/v1/integrations/teams', headers: { 'X-Ticket-Api-Key' => outra.token }
+    get '/api/v1/integrations/teams', headers: { 'X-Ticket-Api-Key' => outra.token }, env: external_ip
 
     expect(response).to have_http_status(:success)
   end
