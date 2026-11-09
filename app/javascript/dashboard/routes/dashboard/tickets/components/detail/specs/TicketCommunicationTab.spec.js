@@ -202,6 +202,45 @@ describe('TicketCommunicationTab', () => {
     expect(wrapper.text()).toContain('Suporte Web');
   });
 
+  // Quem atende a conversa (ou atendeu, se ja foi encerrada) aparece na propria linha.
+  describe('o atendente de cada conversa', () => {
+    const conversa = (extra = {}) => ({
+      id: 14,
+      display_id: 2,
+      inbox_name: 'Portal do Cliente',
+      contact_name: 'Michelle',
+      ...extra,
+    });
+    const atendente = wrapper => wrapper.find('[data-testid="conversation-attendant"]').text();
+
+    it('names the agent attending an open conversation', () => {
+      const wrapper = mountTab([conversa({ status: 'open', assignee_name: 'Maria' })]);
+
+      expect(atendente(wrapper)).toContain('CONVERSATION_ASSIGNEE');
+      expect(atendente(wrapper)).toContain('Maria');
+    });
+
+    it('says who handled a conversation that was already resolved', () => {
+      const wrapper = mountTab([conversa({ status: 'resolved', assignee_name: 'Maria' })]);
+
+      expect(atendente(wrapper)).toContain('CONVERSATION_ATTENDED_BY');
+      expect(atendente(wrapper)).toContain('Maria');
+    });
+
+    it('says there is no agent when nobody is assigned', () => {
+      const wrapper = mountTab([conversa({ status: 'open', assignee_name: null })]);
+
+      expect(atendente(wrapper)).toContain('CONVERSATION_NO_ASSIGNEE');
+    });
+
+    it('translates the status instead of showing the raw word', () => {
+      const wrapper = mountTab([conversa({ status: 'resolved', assignee_name: 'Maria' })]);
+
+      expect(wrapper.text()).toContain('CONVERSATION_STATUS.RESOLVED');
+      expect(wrapper.text()).not.toContain(' resolved ');
+    });
+  });
+
   // The regression this pins: the dashboard route and the conversations API
   // both resolve on display_id, so navigating with the primary key opens
   // somebody else's conversation.

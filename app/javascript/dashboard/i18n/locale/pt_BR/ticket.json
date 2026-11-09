@@ -282,6 +282,15 @@
       "NO_DESCRIPTION": "Nenhuma descrição informada",
       "LINKED_CONVERSATIONS": "Conversas vinculadas",
       "NO_CONVERSATIONS": "Nenhuma conversa vinculada a este ticket",
+      "CONVERSATION_STATUS": {
+        "OPEN": "Aberta",
+        "RESOLVED": "Resolvida",
+        "PENDING": "Pendente",
+        "SNOOZED": "Adiada"
+      },
+      "CONVERSATION_ASSIGNEE": "Atendente: {name}",
+      "CONVERSATION_ATTENDED_BY": "Atendida por {name}",
+      "CONVERSATION_NO_ASSIGNEE": "Sem atendente",
       "CONVERSATION_LABEL": "Conversa #{id}",
       "TAB_ACTIVITY": "Atividade",
       "TAB_COMMENTS": "Comentários",

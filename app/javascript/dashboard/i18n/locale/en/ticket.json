@@ -261,6 +261,15 @@
       "NO_DESCRIPTION": "No description provided",
       "LINKED_CONVERSATIONS": "Linked conversations",
       "NO_CONVERSATIONS": "No conversations linked to this ticket",
+      "CONVERSATION_STATUS": {
+        "OPEN": "Open",
+        "RESOLVED": "Resolved",
+        "PENDING": "Pending",
+        "SNOOZED": "Snoozed"
+      },
+      "CONVERSATION_ASSIGNEE": "Agent: {name}",
+      "CONVERSATION_ATTENDED_BY": "Handled by {name}",
+      "CONVERSATION_NO_ASSIGNEE": "No agent",
       "CONVERSATION_LABEL": "Conversation #{id}",
       "TAB_ACTIVITY": "Activity",
       "TAB_COMMENTS": "Comments",

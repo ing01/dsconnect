@@ -663,6 +663,20 @@ RSpec.describe 'Ticket actions', type: :request do
       expect(payload.first).to include('display_id', 'channel', 'inbox_name', 'contact_name', 'last_activity_at')
     end
 
+    # Quem atende (ou atendeu) cada conversa vinculada: a aba Comunicacao mostra o nome.
+    it 'carries the name of the agent attending each conversation, or nil without one' do
+      atendente = create(:user, account: account, role: :agent, name: 'Maria Atendente')
+      com_agente = create(:conversation, account: account, contact: contact, assignee: atendente)
+      sem_agente = create(:conversation, account: account, contact: contact, assignee: nil)
+      [com_agente, sem_agente].each { |c| ticket.ticket_conversations.create!(account_id: account.id, conversation: c) }
+
+      get "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}", headers: auth, as: :json
+
+      por_id = response.parsed_body['conversations'].index_by { |c| c['id'] }
+      expect(por_id[com_agente.id]['assignee_name']).to eq('Maria Atendente')
+      expect(por_id[sem_agente.id]['assignee_name']).to be_nil
+    end
+
     # The dashboard route and the conversations API both resolve on display_id,
     # so the payload has to carry it alongside the primary key.
     it 'carries display_id distinctly from the primary key' do

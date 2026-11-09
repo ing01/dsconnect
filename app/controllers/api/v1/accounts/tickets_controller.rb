@@ -230,7 +230,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     *AssigneeLeveled.assignee_associations,
     { ticket_attachments: [{ file_attachment: :blob }, :user] },
     { ticket_activities: :user },
-    { ticket_conversations: { conversation: [{ contact: :company }, :inbox] } },
+    { ticket_conversations: { conversation: [{ contact: :company }, :inbox, :assignee] } },
     { ticket_followers: :user },
     { ticket_sla_extensions: :user },
     { ticket_applied_slas: :ticket_column },

@@ -33,6 +33,9 @@ json.conversations resource.conversations.sort_by(&:id) do |conversation|
   json.inbox_name conversation.inbox&.name
   json.contact_name conversation.contact&.name
   json.company_name conversation.contact&.company&.name
+  # Quem atende (ou atendeu) a conversa. A conversa guarda so' o responsavel atual - nao quem
+  # clicou em "encerrar" -, que numa conversa resolvida e' quem a atendeu.
+  json.assignee_name conversation.assignee&.name
   json.last_activity_at conversation.last_activity_at&.to_i
   # A short preview so "Conversas relacionadas" can be told apart at a glance
   # when several conversations share the same contact and channel. Fetched with

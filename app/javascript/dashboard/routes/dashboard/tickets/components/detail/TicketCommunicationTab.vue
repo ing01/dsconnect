@@ -70,6 +70,29 @@ const onCreated = () => {
 const channel = ref('internal');
 const router = useRouter();
 
+// Os status que a conversa pode ter; qualquer outro aparece como veio.
+const KNOWN_STATUSES = ['open', 'resolved', 'pending', 'snoozed'];
+
+const statusLabel = status =>
+  KNOWN_STATUSES.includes(status)
+    ? t(`TICKET.DETAIL.CONVERSATION_STATUS.${status.toUpperCase()}`)
+    : status;
+
+// Quem atende a conversa - ou atendeu, quando ja foi resolvida. A conversa guarda so' o
+// responsavel atual, e numa conversa encerrada e' quem a atendeu (e quase sempre quem a
+// encerrou).
+const attendantLabel = conversation => {
+  if (!conversation.assignee_name) {
+    return t('TICKET.DETAIL.CONVERSATION_NO_ASSIGNEE');
+  }
+  return t(
+    conversation.status === 'resolved'
+      ? 'TICKET.DETAIL.CONVERSATION_ATTENDED_BY'
+      : 'TICKET.DETAIL.CONVERSATION_ASSIGNEE',
+    { name: conversation.assignee_name }
+  );
+};
+
 const formatDateTime = timestamp =>
   timestamp ? new Date(timestamp * 1000).toLocaleString() : '';
 
@@ -215,8 +238,15 @@ const openConversation = conversation => {
                   {{ conversation.inbox_name }}
                 </span>
                 <span v-if="conversation.status">{{
-                  conversation.status
+                  statusLabel(conversation.status)
                 }}</span>
+                <span
+                  data-testid="conversation-attendant"
+                  class="flex items-center gap-1"
+                >
+                  <Icon icon="i-lucide-user-round" class="size-3" />
+                  {{ attendantLabel(conversation) }}
+                </span>
                 <span v-if="conversation.last_activity_at">
                   {{ formatDateTime(conversation.last_activity_at) }}
                 </span>

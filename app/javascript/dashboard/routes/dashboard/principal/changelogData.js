@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-linked-conversation-agent-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Ticket: conversas vinculadas mostram quem atende',
+    description:
+      'Na aba Comunicação, cada conversa vinculada agora mostra o agente que a atende ("Atendente: Maria") ou, se já foi resolvida, quem a atendeu ("Atendida por Maria"). O status também aparece em português (Aberta, Resolvida...).',
+  },
+  {
     id: 'ticket-open-conversation-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',
