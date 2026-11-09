@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-day-dividers-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Chat interno: linha com a data quando o dia muda',
+    description:
+      'Nas conversas do Chat interno, uma linha com a data por extenso (ex.: 9 de novembro de 2026) separa as mensagens de cada dia, como no Discord.',
+  },
+  {
     id: 'translation-missing-fix-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',

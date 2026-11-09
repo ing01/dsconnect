@@ -26,9 +26,13 @@ import EditChannelDialog from '../components/EditChannelDialog.vue';
 import ChannelMembersPanel from '../components/ChannelMembersPanel.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import ImageLightbox from '../components/ImageLightbox.vue';
-import { continuesBlock } from '../helpers/messageParser';
+import {
+  continuesBlock,
+  dayLabel,
+  startsNewDay,
+} from '../helpers/messageParser';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const store = useStore();
 const getters = useStoreGetters();
 const router = useRouter();
@@ -436,6 +440,20 @@ const unreadDividerIndex = computed(() => {
                 {{ t('INTERNAL_CHAT.UNREAD_DIVIDER', { count: unreadFrom }) }}
               </span>
               <span class="h-px grow bg-n-ruby-8" />
+            </div>
+
+            <!-- Mudou o dia: linha com a data por extenso, como no Discord. -->
+            <div
+              v-if="startsNewDay(message, visibleMessages[index - 1])"
+              class="flex items-center gap-3 px-4 pt-4 pb-1"
+              role="separator"
+              data-testid="day-divider"
+            >
+              <span class="h-px grow bg-n-weak" />
+              <span class="text-xs font-semibold text-n-slate-10">
+                {{ dayLabel(message.createdAt, locale) }}
+              </span>
+              <span class="h-px grow bg-n-weak" />
             </div>
 
             <ChatMessage

@@ -71,6 +71,40 @@ export const shortTime = timestamp =>
     minute: '2-digit',
   });
 
+const sameDay = (a, b) => {
+  const first = new Date(a * 1000);
+  const second = new Date(b * 1000);
+  return (
+    first.getFullYear() === second.getFullYear() &&
+    first.getMonth() === second.getMonth() &&
+    first.getDate() === second.getDate()
+  );
+};
+
+/**
+ * A mensagem abre um dia novo? Vale para a primeira da conversa (sem anterior)
+ * e para a que vem em outro dia do calendario - e' onde a tela desenha a
+ * linha com a data, como o Discord.
+ * @param {object} message mensagem atual
+ * @param {object} previous mensagem anterior, se houver
+ * @returns {boolean} true quando a data muda em relacao a anterior
+ */
+export const startsNewDay = (message, previous) =>
+  !previous || !sameDay(message.createdAt, previous.createdAt);
+
+/**
+ * Data por extenso para a linha de mudanca de dia, ex.: `9 de novembro de 2026`.
+ * @param {number} timestamp em segundos desde a epoca
+ * @param {string} locale idioma da tela (`pt_BR` ou `pt-BR`)
+ * @returns {string} a data no idioma pedido
+ */
+export const dayLabel = (timestamp, locale = 'pt-BR') =>
+  new Date(timestamp * 1000).toLocaleDateString(locale.replace('_', '-'), {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
 /**
  * Duas mensagens seguidas da mesma pessoa, em poucos minutos, viram um bloco
  * só - é o que mantém a leitura densa em vez de repetir avatar e nome.
@@ -81,6 +115,8 @@ export const shortTime = timestamp =>
 export const continuesBlock = (message, previous) => {
   if (!previous || previous.userId !== message.userId) return false;
   if (message.replyTo) return false;
+  // Depois da linha com a data volta o avatar e o nome, como no Discord.
+  if (startsNewDay(message, previous)) return false;
 
   // Em segundos, pelo mesmo motivo do `shortTime`. Com o valor em
   // milissegundos, cinco minutos viravam três dias e meio, e praticamente toda
