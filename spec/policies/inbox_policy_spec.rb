@@ -32,4 +32,23 @@ RSpec.describe InboxPolicy, type: :policy do
       it { expect(inbox_policy).to permit(agent_context, inbox) }
     end
   end
+
+  permissions :show? do
+    before do
+      Current.user = agent
+      Current.account = account
+    end
+
+    after { Current.reset }
+
+    it 'nega ao atendente uma caixa da qual ele nao e membro' do
+      expect(inbox_policy).not_to permit(agent_context, inbox)
+    end
+
+    it 'libera a caixa Portal do Cliente a qualquer atendente da conta' do
+      portal = Inboxes::EnsureClientPortalInboxService.new(account: account).perform
+
+      expect(inbox_policy).to permit(agent_context, portal)
+    end
+  end
 end

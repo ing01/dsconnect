@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'open-conversation-portal-inbox-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'fix',
+    platform: 'web',
+    title: 'Ticket: "Abrir conversa" volta a achar as caixas do cliente',
+    description:
+      'No ticket, o botão "Abrir conversa" mostrava "Não há caixas de entrada disponíveis" mesmo para clientes do Portal. Agora a lista de caixas é buscada ao abrir o formulário, e o Portal do Cliente também fica disponível para atendentes que não são administradores.',
+  },
+  {
     id: 'image-viewer-pan-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',

@@ -23,6 +23,11 @@ class InboxPolicy < ApplicationPolicy
     # FIXME: for agent bots, lets bring this validation to policies as well in future
     return true if @user.is_a?(AgentBot)
 
+    # A caixa "Portal do Cliente" e' criada pelo sistema, sem ninguem como membro. Sem isto, so'
+    # administradores conseguiam abrir conversa com um cliente do Portal: para os demais
+    # atendentes a caixa era filtrada e aparecia "Nao ha caixas de entrada disponiveis".
+    return true if record.client_portal?
+
     Current.user.assigned_inboxes.include? record
   end
 

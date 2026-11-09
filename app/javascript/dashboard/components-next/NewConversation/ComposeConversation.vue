@@ -223,6 +223,18 @@ const createConversation = async ({ payload, isFromWhatsApp }) => {
   }
 };
 
+// Com o contato ja definido por fora (ex.: o solicitante de um ticket), as caixas em que da' para
+// falar com ele NAO vem junto do contato: so' a tela do contato as carrega. Sem esta busca a lista
+// ficava vazia e aparecia "Nao ha caixas de entrada disponiveis", mesmo com o Portal ativo.
+const loadContactableInboxes = async () => {
+  if (!props.contactId) return;
+  try {
+    await store.dispatch('contacts/fetchContactableInbox', props.contactId);
+  } catch (error) {
+    // Sem a lista o formulario mostra o aviso de "sem caixas", que ja e' o retorno certo.
+  }
+};
+
 const onPopoverShow = () => {
   // Flag to prevent triggering drag n drop,
   // When compose modal is active
@@ -230,6 +242,7 @@ const onPopoverShow = () => {
   // Cache-aware refetch, so newly synced WhatsApp templates show up here
   // even if the account-cache-invalidated websocket event was missed.
   store.dispatch('inboxes/get');
+  loadContactableInboxes();
 };
 
 const onPopoverHide = () => {
