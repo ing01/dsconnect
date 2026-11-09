@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-first-password-rules-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Primeiro acesso do cliente: a tela mostra o que a senha precisa ter',
+    description:
+      'Na tela "Crie a sua senha", uma lista mostra as regras (pelo menos 8 caracteres, diferente da senha padrão, igual nos dois campos) e se marca enquanto o cliente digita. Cada erro aparece embaixo do campo certo, e dá para ver a senha enquanto digita.',
+  },
+  {
     id: 'push-delivery-errors-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',

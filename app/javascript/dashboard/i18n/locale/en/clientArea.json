@@ -277,6 +277,11 @@
     "PASSWORD_CHANGE": {
       "TITLE": "Create your password",
       "DESCRIPTION": "This is your first access. For security, replace the default password with one only you know to continue.",
+      "REQUIREMENTS_TITLE": "Your new password must:",
+      "REQUIREMENT_LENGTH": "Have at least {count} characters",
+      "REQUIREMENT_DIFFERENT": "Be different from the default password that was sent to you",
+      "REQUIREMENT_MATCH": "Be typed the same in both fields",
+      "SHOW_PASSWORDS": "Show the passwords as I type",
       "CURRENT": "Current password (the one sent to you)",
       "CURRENT_PLACEHOLDER": "Enter the default password",
       "NEW": "New password",
@@ -289,6 +294,7 @@
         "CURRENT": "Enter the current password.",
         "TOO_SHORT": "The new password must be at least {count} characters long.",
         "MISMATCH": "The two passwords do not match.",
+        "SAME_AS_DEFAULT": "The new password cannot be the same as the default password. Choose one only you know.",
         "GENERIC": "Could not change the password. Please try again."
       }
     },

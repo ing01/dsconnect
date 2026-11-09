@@ -290,6 +290,11 @@
     "PASSWORD_CHANGE": {
       "TITLE": "Crie a sua senha",
       "DESCRIPTION": "Este é o seu primeiro acesso. Por segurança, troque a senha padrão por uma senha só sua para continuar.",
+      "REQUIREMENTS_TITLE": "Sua nova senha precisa:",
+      "REQUIREMENT_LENGTH": "Ter pelo menos {count} caracteres",
+      "REQUIREMENT_DIFFERENT": "Ser diferente da senha padrão que foi enviada para você",
+      "REQUIREMENT_MATCH": "Ser digitada igual nos dois campos",
+      "SHOW_PASSWORDS": "Mostrar as senhas enquanto digito",
       "CURRENT": "Senha atual (a que foi enviada para você)",
       "CURRENT_PLACEHOLDER": "Digite a senha padrão",
       "NEW": "Nova senha",
@@ -302,6 +307,7 @@
         "CURRENT": "Informe a senha atual.",
         "TOO_SHORT": "A nova senha precisa ter pelo menos {count} caracteres.",
         "MISMATCH": "As duas senhas não são iguais.",
+        "SAME_AS_DEFAULT": "A nova senha não pode ser igual à senha padrão. Escolha uma senha só sua.",
         "GENERIC": "Não foi possível trocar a senha. Tente novamente."
       }
     },

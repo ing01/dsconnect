@@ -136,6 +136,7 @@ RSpec.describe 'Senha padrao da Area do Cliente', type: :request do
           headers: web.merge('api_access_token' => token)
 
       expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body).to include('code' => 'wrong_current', 'error' => 'A senha atual está incorreta.')
     end
 
     it 'refuses the default password as the new one' do
@@ -145,6 +146,32 @@ RSpec.describe 'Senha padrao da Area do Cliente', type: :request do
           headers: web.merge('api_access_token' => token)
 
       expect(response).to have_http_status(:unprocessable_entity)
+      # No primeiro acesso a senha atual E a padrao; a regra que dispara primeiro e' a da atual.
+      expect(response.parsed_body['code']).to eq('same_as_current')
+    end
+
+    it 'refuses the default password even when the current one typed is a different one' do
+      entrar(headers: web)
+      contato = Contact.find_by!(email: 'pessoa@exemplo.com.br')
+      contato.update!(password: 'OutraSenhaAtual@1')
+      contato.update_columns(password_change_required: true) # rubocop:disable Rails/SkipsModelValidations
+
+      put '/api/v1/client/password_change',
+          params: { current_password: 'OutraSenhaAtual@1', password: padrao, password_confirmation: padrao },
+          headers: web.merge('api_access_token' => token)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body['code']).to eq('same_as_default')
+    end
+
+    it 'says which rule failed, so the screen can point at the right field' do
+      entrar(headers: web)
+      put '/api/v1/client/password_change',
+          params: { current_password: padrao, password: 'MinhaSenhaNova@9', password_confirmation: 'OutraDiferente@9' },
+          headers: web.merge('api_access_token' => token)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body).to include('code' => 'mismatch', 'error' => 'A confirmação não confere com a nova senha.')
     end
 
     it 'refuses a password shorter than 8 characters' do
@@ -154,6 +181,7 @@ RSpec.describe 'Senha padrao da Area do Cliente', type: :request do
           headers: web.merge('api_access_token' => token)
 
       expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body['code']).to eq('too_short')
     end
   end
 
