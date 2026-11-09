@@ -38,7 +38,7 @@ components:
       type: apiKey
       in: header
       name: X-Ticket-Api-Key
-      description: Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no "actor"), so actions it takes are logged as system/automated activity.
+      description: Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no "actor"), so actions it takes are logged as system/automated activity. Every id is checked against the key's account - an id from another account answers 404. Limit - 120 requests per minute for each key (HTTP 429 with Retry-After).
 tags:
   - name: Accounts
     description: Account management APIs
@@ -97,7 +97,7 @@ tags:
   - name: CSAT Survey Page
     description: Customer satisfaction survey
   - name: Ticket Routing
-    description: Read, create and route tickets - built for external systems to consume (a triage AI, a development/Jira sync, an invoicing deadline tracker...), authenticated by its own account-scoped API key. Covers tickets, attachments, internal notes (read-only) and the catalogues needed to pick valid ids (teams/stages, categories, complexities, service catalogue).
+    description: Read, create and route tickets - built for external systems to consume (a triage AI, a development sync, an invoicing deadline tracker...), authenticated by its own account-scoped API key. Covers tickets, attachments, internal notes (read-only) and the catalogues needed to pick valid ids (teams/stages, categories, complexities, service catalogue). Also lists users and sprints (the ids for assignee_id and sprint_id). Limit of 120 requests per minute per key (429). There is no close operation - moving a ticket to a Finalizado Estagio only changes its Estagio.
 x-tagGroups:
   - name: Platform
     tags:

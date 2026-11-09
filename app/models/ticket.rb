@@ -85,7 +85,9 @@ class Ticket < ApplicationRecord
   enum status: { open: 0, resolved: 1, closed: 2, cancelled: 3 }
   # So' usado pelo Modulo de Desenvolvimento - `nil` em qualquer ticket de uma
   # Mesa comum.
-  enum development_type: { bug: 0, task: 1 }
+  # `story` (Historia) entrou depois, com o proximo numero: o valor fica GRAVADO
+  # na coluna, entao `bug` e `task` continuam sendo 0 e 1.
+  enum development_type: { bug: 0, task: 1, story: 2 }
 
   # What the Kanban shows. Everything except `open` is a terminal state: the
   # ticket was dealt with (resolved/closed) or never will be (cancelled), so it

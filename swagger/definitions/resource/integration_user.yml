@@ -1,0 +1,15 @@
+type: object
+description: Um usuario da conta da chave - o `id` e' o que vai em `assignee_id`.
+properties:
+  id:
+    type: number
+  name:
+    type: string
+  email:
+    type: string
+  role:
+    type:
+      - string
+      - 'null'
+    enum: [agent, administrator, null]
+    description: O papel na conta

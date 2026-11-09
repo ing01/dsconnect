@@ -35,7 +35,7 @@ const emit = defineEmits([
   'changeStatus',
 ]);
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
-const DEVELOPMENT_TYPES = ['bug', 'task'];
+const DEVELOPMENT_TYPES = ['bug', 'task', 'story'];
 const RESOLUCOES = ['Definitiva', 'Paliativa'];
 // `cancelled` is terminal and distinct from `closed` - a closed ticket was
 // dealt with, a cancelled one never will be.

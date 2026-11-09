@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'attachments-require-login-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'fix',
+    platform: 'web',
+    title: 'Anexos protegidos: só abrem com login',
+    description:
+      'Os links dos anexos (imagens, áudios e arquivos de tickets, conversas e chamados) deixaram de abrir para quem não está logado. Antes, qualquer pessoa com o endereço baixava o arquivo. No portal e no aplicativo do cliente nada muda para quem está logado; o app precisa ser atualizado.',
+  },
+  {
+    id: 'integration-api-dev-fields-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'feature',
+    platform: 'web',
+    title: 'API de integração: usuários, sprints e tipo História',
+    description:
+      'A API de integração agora lista usuários e sprints da conta, aceita sprint e tipo de desenvolvimento (Bug, Tarefa e o novo História) ao criar e atualizar tickets, e passa a mover o ticket quando só o Estágio é informado. O tipo História também aparece no ticket e no formulário.',
+  },
+  {
     id: 'internal-chat-recent-first-2026-11-06',
     date: '6 de novembro de 2026',
     isoDate: '2026-11-06',

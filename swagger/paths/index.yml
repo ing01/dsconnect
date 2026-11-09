@@ -580,6 +580,21 @@
 /api/v1/integrations/ticket_categories:
   get:
     $ref: ./integrations/ticket_categories/index.yml
+/api/v1/integrations/users:
+  get:
+    $ref: ./integrations/users/index.yml
+/api/v1/integrations/users/{id}:
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: number
+  get:
+    $ref: ./integrations/users/show.yml
+/api/v1/integrations/sprints:
+  get:
+    $ref: ./integrations/sprints/index.yml
 /api/v1/integrations/ticket_complexities:
   get:
     $ref: ./integrations/ticket_complexities/index.yml

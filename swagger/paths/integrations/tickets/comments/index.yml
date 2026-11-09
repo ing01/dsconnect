@@ -26,3 +26,20 @@ responses:
       application/json:
         schema:
           $ref: '#/components/schemas/bad_request_error'
+  '429':
+    description: Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.
+    headers:
+      Retry-After:
+        description: Seconds until the current window resets
+        schema:
+          type: integer
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/integration_rate_limit_error'
+        example:
+          error: rate_limit_exceeded
+          message: 'Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.'
+          limit: 120
+          period_seconds: 60
+          retry_after: 23

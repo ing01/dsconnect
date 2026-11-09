@@ -342,6 +342,27 @@ class Rack::Attack
     req.get_header('HTTP_X_TICKET_API_KEY') if req.path.start_with?('/api/v1/integrations')
   end
 
+  ## Resposta do 429. A API de Integracao e' consumida por maquina: recebe JSON
+  ## (e nao o "Retry later" em texto do padrao) com o limite e em quantos segundos
+  ## pode tentar de novo - o mesmo valor do cabecalho `Retry-After`. O resto do
+  ## sistema segue com o corpo de texto de sempre.
+  self.throttled_responder = lambda do |request|
+    match = request.env['rack.attack.match_data'] || {}
+    period = match[:period].to_i
+    retry_after = period.positive? ? period - (match[:epoch_time].to_i % period) : 0
+
+    if request.path.start_with?('/api/v1/integrations')
+      body = {
+        error: 'rate_limit_exceeded',
+        message: "Too many requests: the limit is #{match[:limit]} per #{period} seconds for each API key. Retry in #{retry_after} seconds.",
+        limit: match[:limit], period_seconds: period, retry_after: retry_after
+      }
+      [429, { 'Content-Type' => 'application/json', 'Retry-After' => retry_after.to_s }, [body.to_json]]
+    else
+      [429, { 'Content-Type' => 'text/plain', 'Retry-After' => retry_after.to_s }, ["Retry later\n"]]
+    end
+  end
+
   ## ----------------------------------------------- ##
 end
 

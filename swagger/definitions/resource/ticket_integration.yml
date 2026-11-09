@@ -19,6 +19,17 @@ properties:
       - string
       - 'null'
     enum: [low, medium, high, urgent, null]
+  development_type:
+    type:
+      - string
+      - 'null'
+    enum: [bug, task, story, null]
+    description: Campos do desenvolvimento - bug (Bug), task (Tarefa) ou story (Historia)
+  sprint_id:
+    type:
+      - number
+      - 'null'
+    description: O sprint do ticket; null = Backlog
   created_at:
     type: string
     format: date-time
@@ -38,27 +49,27 @@ properties:
     type:
       - string
       - 'null'
-    description: Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev.
+    description: Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev.
   observacoes_teste:
     type:
       - string
       - 'null'
-    description: Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste.
+    description: Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste.
   documentacao:
     type:
       - string
       - 'null'
-    description: Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao.
+    description: Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao.
   instrucoes:
     type:
       - string
       - 'null'
-    description: Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes.
+    description: Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes.
   analise:
     type:
       - string
       - 'null'
-    description: Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise.
+    description: Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise.
   team:
     type: object
     properties:

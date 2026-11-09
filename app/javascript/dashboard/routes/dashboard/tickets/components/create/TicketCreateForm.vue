@@ -51,7 +51,7 @@ const {
 } = useTicketCreation(context);
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
-const DEVELOPMENT_TYPES = ['bug', 'task'];
+const DEVELOPMENT_TYPES = ['bug', 'task', 'story'];
 const RESOLUCOES = ['Definitiva', 'Paliativa'];
 
 // As listas no formato do TicketSelect, o seletor padrao do modulo.

@@ -1,0 +1,52 @@
+tags:
+  - Ticket Routing
+operationId: list-users-for-integration
+summary: List the users of the account
+security:
+  - ticketApiKey: []
+description: The users of the key's account - the valid `assignee_id` values. `team_id` narrows to the members of that Mesa (the ones accepted as assignee when creating a ticket). A Mesa of another account, or one that does not exist, answers 404.
+parameters:
+  - name: team_id
+    in: query
+    schema:
+      type: number
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/integration_user'
+  '401':
+    description: Unauthorized - missing or invalid `X-Ticket-Api-Key`
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+
+  '404':
+    description: Mesa not found (does not exist, or belongs to another account)
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+
+  '429':
+    description: Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.
+    headers:
+      Retry-After:
+        description: Seconds until the current window resets
+        schema:
+          type: integer
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/integration_rate_limit_error'
+        example:
+          error: rate_limit_exceeded
+          message: 'Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.'
+          limit: 120
+          period_seconds: 60
+          retry_after: 23

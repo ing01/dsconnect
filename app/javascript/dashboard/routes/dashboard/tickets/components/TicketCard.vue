@@ -117,6 +117,8 @@ export default {
       if (this.ticket.development_type === 'bug') return 'i-lucide-bug';
       if (this.ticket.development_type === 'task')
         return 'i-lucide-square-check';
+      if (this.ticket.development_type === 'story')
+        return 'i-lucide-book-open';
       return '';
     },
     isAdministrator() {

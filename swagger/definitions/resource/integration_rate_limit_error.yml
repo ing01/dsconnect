@@ -1,0 +1,17 @@
+type: object
+description: Limite de chamadas excedido (HTTP 429). O mesmo valor de `retry_after` vai no cabecalho `Retry-After`.
+properties:
+  error:
+    type: string
+    enum: [rate_limit_exceeded]
+  message:
+    type: string
+  limit:
+    type: number
+    description: Requisicoes permitidas por janela
+  period_seconds:
+    type: number
+    description: Tamanho da janela, em segundos
+  retry_after:
+    type: number
+    description: Em quantos segundos a janela atual termina

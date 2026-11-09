@@ -9792,6 +9792,26 @@
               null
             ]
           },
+          "development_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "bug",
+              "task",
+              "story",
+              null
+            ],
+            "description": "Campos do desenvolvimento - bug (Bug), task (Tarefa) ou story (Historia)"
+          },
+          "sprint_id": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "O sprint do ticket; null = Backlog"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -9817,35 +9837,35 @@
               "string",
               "null"
             ],
-            "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
+            "description": "Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
           },
           "observacoes_teste": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
+            "description": "Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
           },
           "documentacao": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
+            "description": "Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
           },
           "instrucoes": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
+            "description": "Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
           },
           "analise": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
+            "description": "Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
           },
           "team": {
             "type": "object",
@@ -10020,6 +10040,24 @@
               "null"
             ]
           },
+          "development_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "bug",
+              "task",
+              "story",
+              null
+            ]
+          },
+          "sprint_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
           "team_id": {
             "type": "number"
           },
@@ -10084,35 +10122,144 @@
               "string",
               "null"
             ],
-            "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
+            "description": "Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
           },
           "observacoes_teste": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
+            "description": "Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
           },
           "documentacao": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
+            "description": "Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
           },
           "instrucoes": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
+            "description": "Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
           },
           "analise": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
+            "description": "Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
+          }
+        }
+      },
+      "integration_user": {
+        "type": "object",
+        "description": "Um usuario da conta da chave - o `id` e' o que vai em `assignee_id`.",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "agent",
+              "administrator",
+              null
+            ],
+            "description": "O papel na conta"
+          }
+        }
+      },
+      "integration_sprint": {
+        "type": "object",
+        "description": "Um sprint da conta - o `id` e' o que vai em `sprint_id`. `active` marca o sprint em andamento da Mesa (so' um por Mesa de cada vez).",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "number"
+          },
+          "team_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "upcoming",
+              "active",
+              "completed"
+            ]
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "integration_validation_error": {
+        "type": "object",
+        "description": "Erro de validacao (HTTP 422). `error` e `message` trazem o mesmo texto; `attributes` lista os campos recusados.",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "integration_rate_limit_error": {
+        "type": "object",
+        "description": "Limite de chamadas excedido (HTTP 429). O mesmo valor de `retry_after` vai no cabecalho `Retry-After`.",
+        "properties": {
+          "error": {
+            "type": "string",
+            "enum": [
+              "rate_limit_exceeded"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Requisicoes permitidas por janela"
+          },
+          "period_seconds": {
+            "type": "number",
+            "description": "Tamanho da janela, em segundos"
+          },
+          "retry_after": {
+            "type": "number",
+            "description": "Em quantos segundos a janela atual termina"
           }
         }
       },
@@ -15264,7 +15411,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "X-Ticket-Api-Key",
-        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no \"actor\"), so actions it takes are logged as system/automated activity."
+        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no \"actor\"), so actions it takes are logged as system/automated activity. Every id is checked against the key's account - an id from another account answers 404. Limit - 120 requests per minute for each key (HTTP 429 with Retry-After)."
       }
     }
   },

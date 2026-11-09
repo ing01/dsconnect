@@ -10,6 +10,8 @@ json.payload do
     json.title ticket.title
     json.status ticket.status
     json.priority ticket.priority
+    json.development_type ticket.development_type
+    json.sprint_id ticket.sprint_id
     json.team_id ticket.team_id
     json.team_name ticket.team.name
     json.ticket_column_id ticket.ticket_column_id

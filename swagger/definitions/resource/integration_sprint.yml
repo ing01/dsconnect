@@ -1,0 +1,22 @@
+type: object
+description: Um sprint da conta - o `id` e' o que vai em `sprint_id`. `active` marca o sprint em andamento da Mesa (so' um por Mesa de cada vez).
+properties:
+  id:
+    type: number
+  name:
+    type: string
+  team_id:
+    type: number
+  team_name:
+    type: string
+  starts_on:
+    type: string
+    format: date
+  ends_on:
+    type: string
+    format: date
+  status:
+    type: string
+    enum: [upcoming, active, completed]
+  active:
+    type: boolean

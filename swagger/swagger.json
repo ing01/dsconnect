@@ -7917,6 +7917,27 @@
             }
           },
           {
+            "name": "sprint_id",
+            "in": "query",
+            "description": "Only the tickets of this sprint (see GET /sprints). A sprint of another account, or one that does not exist, simply finds nothing.",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "development_type",
+            "in": "query",
+            "description": "Campos do desenvolvimento - bug, task or story",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bug",
+                "task",
+                "story"
+              ]
+            }
+          },
+          {
             "name": "updated_after",
             "in": "query",
             "schema": {
@@ -7964,6 +7985,31 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
           }
         }
       },
@@ -7978,7 +8024,7 @@
             "ticketApiKey": []
           }
         ],
-        "description": "Opens a new ticket directly (e.g. an external \"Abrir chamado\" screen, or an automatically-generated deadline ticket). `title`, `description`, `priority` and `ticket_category_id` are required - the same rules the dashboard follows, no exception for this API. `team_id` is inferred from `ticket_column_id` when omitted.",
+        "description": "Opens a new ticket directly (e.g. an external \"Abrir chamado\" screen, or an automatically-generated deadline ticket). `title`, `description`, `priority` and `ticket_category_id` are required - the same rules the dashboard follows, no exception for this API. `team_id` is inferred from `ticket_column_id` when omitted; when both are sent the Estagio must belong to the Mesa (422). `assignee_id` must be a member of the Mesa on creation (the dashboard rule); on update any user of the account is accepted.",
         "requestBody": {
           "required": true,
           "content": {
@@ -8045,25 +8091,38 @@
                         "type": "string",
                         "format": "date-time"
                       },
+                      "development_type": {
+                        "type": "string",
+                        "enum": [
+                          "bug",
+                          "task",
+                          "story"
+                        ],
+                        "description": "Campos do desenvolvimento - bug (Bug), task (Tarefa) or story (Historia). Any other value is 422."
+                      },
+                      "sprint_id": {
+                        "type": "number",
+                        "description": "A sprint of the SAME Mesa as the ticket (see GET /sprints). Another Mesa -> 422; another account or unknown -> 404."
+                      },
                       "observacoes_dev": {
                         "type": "string",
-                        "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
+                        "description": "Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
                       },
                       "observacoes_teste": {
                         "type": "string",
-                        "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
+                        "description": "Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
                       },
                       "documentacao": {
                         "type": "string",
-                        "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
+                        "description": "Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
                       },
                       "instrucoes": {
                         "type": "string",
-                        "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
+                        "description": "Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
                       },
                       "analise": {
                         "type": "string",
-                        "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
+                        "description": "Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
                       },
                       "custom_attributes": {
                         "type": "object",
@@ -8106,6 +8165,31 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
           }
         }
       }
@@ -8132,7 +8216,7 @@
             "ticketApiKey": []
           }
         ],
-        "description": "Returns the full payload a triage AI needs to analyse and route the ticket - content, classification, company/requester and the customer-facing communication thread. Never includes the team's internal comments.",
+        "description": "Returns the full payload an external system needs to read the ticket - content, classification, development fields (`development_type`, `sprint_id`), assignee, company/requester and the customer-facing communication thread. Never includes the team's internal comments. `attachments[].url` is a permanent link that REQUIRES authentication: send the same `X-Ticket-Api-Key` header when downloading it (it answers 302 to a signed link valid for 5 minutes); without credentials it answers 401.",
         "responses": {
           "200": {
             "description": "Success",
@@ -8163,6 +8247,31 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
           }
         }
       },
@@ -8187,11 +8296,11 @@
                 "properties": {
                   "team_id": {
                     "type": "number",
-                    "description": "The Mesa (team) to move the ticket into"
+                    "description": "The Mesa (team) to move the ticket into. Without `ticket_column_id`, the ticket goes to the Mesa's first Estagio (no change if it is already in that Mesa). A Mesa of another account answers 404."
                   },
                   "ticket_column_id": {
                     "type": "number",
-                    "description": "The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted. Only applied when `team_id` is also present."
+                    "description": "The Estagio to move the ticket into. Without `team_id`, the Mesa is the Estagio's (this used to be ignored when `team_id` was missing). With both, the Estagio must belong to the Mesa (422). Blank means \"do not move\"."
                   },
                   "service_catalog_item_id": {
                     "type": "number",
@@ -8217,34 +8326,52 @@
                       "urgent"
                     ]
                   },
+                  "development_type": {
+                    "type": "string",
+                    "enum": [
+                      "bug",
+                      "task",
+                      "story"
+                    ],
+                    "description": "Campos do desenvolvimento - bug (Bug), task (Tarefa) or story (Historia). Blank clears it; another value is 422."
+                  },
+                  "sprint_id": {
+                    "type": "number",
+                    "description": "A sprint of the ticket's Mesa (see GET /sprints). Blank returns the ticket to the Backlog. When the ticket changes Mesa while in a sprint, send `sprint_id` (blank for Backlog) in the same request - otherwise 422."
+                  },
                   "observacoes_dev": {
                     "type": "string",
-                    "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
+                    "description": "Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
                   },
                   "observacoes_teste": {
                     "type": "string",
-                    "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
+                    "description": "Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
                   },
                   "documentacao": {
                     "type": "string",
-                    "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
+                    "description": "Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
                   },
                   "instrucoes": {
                     "type": "string",
-                    "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
+                    "description": "Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
                   },
                   "analise": {
                     "type": "string",
-                    "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
+                    "description": "Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
                   },
                   "custom_attributes": {
                     "type": "object",
-                    "description": "MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc). The Jira card text fields shown on tickets of a Mesa with the Desenvolvimento module use these keys (long text, up to 100000 characters each) - `observacoes_dev`, `observacoes_teste`, `documentacao`, `instrucoes`, `analise`. Any other key is capped at 1500 characters per string value.",
+                    "description": "MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc). The development text fields shown on tickets of a Mesa with the Desenvolvimento module use these keys (long text, up to 100000 characters each) - `observacoes_dev`, `observacoes_teste`, `documentacao`, `instrucoes`, `analise`. Any other key is capped at 1500 characters per string value.",
                     "additionalProperties": true
                   },
                   "note": {
                     "type": "string",
-                    "description": "A short note explaining the routing decision, posted as a visible activity on the ticket"
+                    "description": "A short note explaining the routing decision, posted as a visible activity on the ticket. On this endpoint it gets the prefix `Direcionado automaticamente pela IA de triagem:` (the triage flow) unless `triage` is false."
+                  },
+                  "triage": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `false`, `note` is recorded exactly as sent, without the triage-AI prefix."
                   }
                 }
               }
@@ -8278,6 +8405,31 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
                 }
               }
             }
@@ -8317,11 +8469,11 @@
                 "properties": {
                   "team_id": {
                     "type": "number",
-                    "description": "The Mesa (team) to move the ticket into"
+                    "description": "The Mesa (team) to move the ticket into. Without `ticket_column_id`, the ticket goes to the Mesa's first Estagio (no change if it is already in that Mesa). A Mesa of another account answers 404."
                   },
                   "ticket_column_id": {
                     "type": "number",
-                    "description": "The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted. Only applied when `team_id` is also present."
+                    "description": "The Estagio to move the ticket into. Without `team_id`, the Mesa is the Estagio's (this used to be ignored when `team_id` was missing). With both, the Estagio must belong to the Mesa (422). Blank means \"do not move\"."
                   },
                   "service_catalog_item_id": {
                     "type": "number",
@@ -8347,34 +8499,52 @@
                       "urgent"
                     ]
                   },
+                  "development_type": {
+                    "type": "string",
+                    "enum": [
+                      "bug",
+                      "task",
+                      "story"
+                    ],
+                    "description": "Campos do desenvolvimento - bug (Bug), task (Tarefa) or story (Historia). Blank clears it; another value is 422."
+                  },
+                  "sprint_id": {
+                    "type": "number",
+                    "description": "A sprint of the ticket's Mesa (see GET /sprints). Blank returns the ticket to the Backlog. When the ticket changes Mesa while in a sprint, send `sprint_id` (blank for Backlog) in the same request - otherwise 422."
+                  },
                   "observacoes_dev": {
                     "type": "string",
-                    "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
+                    "description": "Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev."
                   },
                   "observacoes_teste": {
                     "type": "string",
-                    "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
+                    "description": "Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste."
                   },
                   "documentacao": {
                     "type": "string",
-                    "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
+                    "description": "Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao."
                   },
                   "instrucoes": {
                     "type": "string",
-                    "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
+                    "description": "Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes."
                   },
                   "analise": {
                     "type": "string",
-                    "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
+                    "description": "Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise."
                   },
                   "custom_attributes": {
                     "type": "object",
-                    "description": "MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc). The Jira card text fields shown on tickets of a Mesa with the Desenvolvimento module use these keys (long text, up to 100000 characters each) - `observacoes_dev`, `observacoes_teste`, `documentacao`, `instrucoes`, `analise`. Any other key is capped at 1500 characters per string value.",
+                    "description": "MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc). The development text fields shown on tickets of a Mesa with the Desenvolvimento module use these keys (long text, up to 100000 characters each) - `observacoes_dev`, `observacoes_teste`, `documentacao`, `instrucoes`, `analise`. Any other key is capped at 1500 characters per string value.",
                     "additionalProperties": true
                   },
                   "note": {
                     "type": "string",
-                    "description": "A short note explaining the routing decision, posted as a visible activity on the ticket"
+                    "description": "A short note explaining the routing decision, posted as a visible activity on the ticket. On this endpoint it gets the prefix `Direcionado automaticamente pela IA de triagem:` (the triage flow) unless `triage` is false."
+                  },
+                  "triage": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `false`, `note` is recorded exactly as sent, without the triage-AI prefix."
                   }
                 }
               }
@@ -8408,6 +8578,31 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
                 }
               }
             }
@@ -8471,6 +8666,31 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
           }
         }
       }
@@ -8531,6 +8751,31 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
           }
         }
       },
@@ -8545,7 +8790,7 @@
             "ticketApiKey": []
           }
         ],
-        "description": "Plain multipart upload (e.g. the NFe/XML behind a Prazo SEFAZ ticket). Attached with no human user - the ticket's \"Historico\" shows it as a system action.",
+        "description": "Plain multipart upload (e.g. the NFe/XML behind a Prazo SEFAZ ticket). Attached with no human user - the ticket's \"Historico\" shows it as a system action. Each file is limited to 40 MB - above that the request is refused with 422 and nothing is attached.",
         "requestBody": {
           "required": true,
           "content": {
@@ -8597,11 +8842,36 @@
             }
           },
           "422": {
-            "description": "Validation failed (e.g. file too large, or the ticket is already finalized)",
+            "description": "Validation failed - file above 40 MB, or the ticket is already finalized (closed or cancelled)",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
                 }
               }
             }
@@ -8667,6 +8937,31 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
           }
         }
       }
@@ -8729,6 +9024,311 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/users": {
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-users-for-integration",
+        "summary": "List the users of the account",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "The users of the key's account - the valid `assignee_id` values. `team_id` narrows to the members of that Mesa (the ones accepted as assignee when creating a ticket). A Mesa of another account, or one that does not exist, answers 404.",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/integration_user"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid `X-Ticket-Api-Key`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mesa not found (does not exist, or belongs to another account)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/users/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "show-user-for-integration",
+        "summary": "Get a user of the account",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "One user of the key's account. A user of another account, or an id that does not exist, answers 404.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_user"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid `X-Ticket-Api-Key`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found (does not exist, or belongs to another account)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/sprints": {
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-sprints-for-integration",
+        "summary": "List the sprints of the account",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "The sprints of the key's account, by start date - the valid `sprint_id` values. `active: true` marks the sprint in progress of each Mesa. Use `team_id` and `status` to narrow.",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "A value outside the list answers 422 (not an empty list).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "upcoming",
+                "active",
+                "completed"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/integration_sprint"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid `X-Ticket-Api-Key`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mesa not found (does not exist, or belongs to another account)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid `status`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_validation_error"
+                },
+                "example": {
+                  "error": "ticket_column_id does not belong to team_id",
+                  "message": "ticket_column_id does not belong to team_id",
+                  "attributes": [
+                    "ticket_column_id"
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
           }
         }
       }
@@ -8769,6 +9369,31 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
+                }
+              }
+            }
           }
         }
       }
@@ -8806,6 +9431,31 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                },
+                "example": {
+                  "error": "rate_limit_exceeded",
+                  "message": "Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.",
+                  "limit": 120,
+                  "period_seconds": 60,
+                  "retry_after": 23
                 }
               }
             }
@@ -12267,6 +12917,26 @@
               null
             ]
           },
+          "development_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "bug",
+              "task",
+              "story",
+              null
+            ],
+            "description": "Campos do desenvolvimento - bug (Bug), task (Tarefa) ou story (Historia)"
+          },
+          "sprint_id": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "O sprint do ticket; null = Backlog"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -12292,35 +12962,35 @@
               "string",
               "null"
             ],
-            "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
+            "description": "Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
           },
           "observacoes_teste": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
+            "description": "Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
           },
           "documentacao": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
+            "description": "Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
           },
           "instrucoes": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
+            "description": "Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
           },
           "analise": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
+            "description": "Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
           },
           "team": {
             "type": "object",
@@ -12495,6 +13165,24 @@
               "null"
             ]
           },
+          "development_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "bug",
+              "task",
+              "story",
+              null
+            ]
+          },
+          "sprint_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
           "team_id": {
             "type": "number"
           },
@@ -12559,35 +13247,144 @@
               "string",
               "null"
             ],
-            "description": "Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
+            "description": "Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_dev."
           },
           "observacoes_teste": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
+            "description": "Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.observacoes_teste."
           },
           "documentacao": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
+            "description": "Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.documentacao."
           },
           "instrucoes": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
+            "description": "Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.instrucoes."
           },
           "analise": {
             "type": [
               "string",
               "null"
             ],
-            "description": "Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
+            "description": "Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Mesmo valor de custom_attributes.analise."
+          }
+        }
+      },
+      "integration_user": {
+        "type": "object",
+        "description": "Um usuario da conta da chave - o `id` e' o que vai em `assignee_id`.",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "agent",
+              "administrator",
+              null
+            ],
+            "description": "O papel na conta"
+          }
+        }
+      },
+      "integration_sprint": {
+        "type": "object",
+        "description": "Um sprint da conta - o `id` e' o que vai em `sprint_id`. `active` marca o sprint em andamento da Mesa (so' um por Mesa de cada vez).",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "number"
+          },
+          "team_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "upcoming",
+              "active",
+              "completed"
+            ]
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "integration_validation_error": {
+        "type": "object",
+        "description": "Erro de validacao (HTTP 422). `error` e `message` trazem o mesmo texto; `attributes` lista os campos recusados.",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "integration_rate_limit_error": {
+        "type": "object",
+        "description": "Limite de chamadas excedido (HTTP 429). O mesmo valor de `retry_after` vai no cabecalho `Retry-After`.",
+        "properties": {
+          "error": {
+            "type": "string",
+            "enum": [
+              "rate_limit_exceeded"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Requisicoes permitidas por janela"
+          },
+          "period_seconds": {
+            "type": "number",
+            "description": "Tamanho da janela, em segundos"
+          },
+          "retry_after": {
+            "type": "number",
+            "description": "Em quantos segundos a janela atual termina"
           }
         }
       },
@@ -17739,7 +18536,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "X-Ticket-Api-Key",
-        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no \"actor\"), so actions it takes are logged as system/automated activity."
+        "description": "Generated in Configuracoes > Integracoes > API de Tickets by an account administrator. Scoped to one account, ticket access only - unrelated to any user's access_token. Acts with no human user behind it (there is no \"actor\"), so actions it takes are logged as system/automated activity. Every id is checked against the key's account - an id from another account answers 404. Limit - 120 requests per minute for each key (HTTP 429 with Retry-After)."
       }
     }
   },
@@ -17858,7 +18655,7 @@
     },
     {
       "name": "Ticket Routing",
-      "description": "Read, create and route tickets - built for external systems to consume (a triage AI, a development/Jira sync, an invoicing deadline tracker...), authenticated by its own account-scoped API key. Covers tickets, attachments, internal notes (read-only) and the catalogues needed to pick valid ids (teams/stages, categories, complexities, service catalogue)."
+      "description": "Read, create and route tickets - built for external systems to consume (a triage AI, a development sync, an invoicing deadline tracker...), authenticated by its own account-scoped API key. Covers tickets, attachments, internal notes (read-only) and the catalogues needed to pick valid ids (teams/stages, categories, complexities, service catalogue). Also lists users and sprints (the ids for assignee_id and sprint_id). Limit of 120 requests per minute per key (429). There is no close operation - moving a ticket to a Finalizado Estagio only changes its Estagio."
     }
   ],
   "x-tagGroups": [

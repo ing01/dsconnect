@@ -1394,6 +1394,7 @@
         "LABEL": "Tipo",
         "BUG": "Bug",
         "TASK": "Tarefa",
+        "STORY": "História",
         "NONE": "Não definido"
       },
       "SPRINT": {

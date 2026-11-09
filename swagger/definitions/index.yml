@@ -76,6 +76,14 @@ ticket_integration:
   $ref: ./resource/ticket_integration.yml
 ticket_integration_list_item:
   $ref: ./resource/ticket_integration_list_item.yml
+integration_user:
+  $ref: ./resource/integration_user.yml
+integration_sprint:
+  $ref: ./resource/integration_sprint.yml
+integration_validation_error:
+  $ref: ./resource/integration_validation_error.yml
+integration_rate_limit_error:
+  $ref: ./resource/integration_rate_limit_error.yml
 ticket_complexity_integration_list_item:
   $ref: ./resource/ticket_complexity_integration_list_item.yml
 service_catalog_integration_item:

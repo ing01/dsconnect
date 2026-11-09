@@ -117,6 +117,8 @@ Rails.application.routes.draw do
         resources :ticket_categories, only: [:index]
         resources :ticket_complexities, only: [:index]
         resources :service_catalog_items, only: [:index]
+        resources :users, only: [:index, :show]
+        resources :sprints, only: [:index]
       end
 
       # ----------------------------------

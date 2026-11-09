@@ -4,7 +4,7 @@ operationId: create-ticket-attachment-for-integration
 summary: Upload an attachment to a ticket
 security:
   - ticketApiKey: []
-description: Plain multipart upload (e.g. the NFe/XML behind a Prazo SEFAZ ticket). Attached with no human user - the ticket's "Historico" shows it as a system action.
+description: Plain multipart upload (e.g. the NFe/XML behind a Prazo SEFAZ ticket). Attached with no human user - the ticket's "Historico" shows it as a system action. Each file is limited to 40 MB - above that the request is refused with 422 and nothing is attached.
 requestBody:
   required: true
   content:
@@ -37,8 +37,25 @@ responses:
         schema:
           $ref: '#/components/schemas/bad_request_error'
   '422':
-    description: Validation failed (e.g. file too large, or the ticket is already finalized)
+    description: Validation failed - file above 40 MB, or the ticket is already finalized (closed or cancelled)
     content:
       application/json:
         schema:
           $ref: '#/components/schemas/bad_request_error'
+  '429':
+    description: Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.
+    headers:
+      Retry-After:
+        description: Seconds until the current window resets
+        schema:
+          type: integer
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/integration_rate_limit_error'
+        example:
+          error: rate_limit_exceeded
+          message: 'Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.'
+          limit: 120
+          period_seconds: 60
+          retry_after: 23

@@ -10,6 +10,9 @@ json.title resource.title
 json.description resource.description
 json.status resource.status
 json.priority resource.priority
+# Campos do desenvolvimento: `story` (Historia) alem de bug/task; `sprint_id` nil = Backlog.
+json.development_type resource.development_type
+json.sprint_id resource.sprint_id
 json.created_at resource.created_at.iso8601
 json.updated_at resource.updated_at.iso8601
 json.due_date resource.due_date&.iso8601

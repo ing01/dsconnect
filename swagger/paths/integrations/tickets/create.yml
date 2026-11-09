@@ -4,7 +4,7 @@ operationId: create-ticket-for-integration
 summary: Create a ticket
 security:
   - ticketApiKey: []
-description: Opens a new ticket directly (e.g. an external "Abrir chamado" screen, or an automatically-generated deadline ticket). `title`, `description`, `priority` and `ticket_category_id` are required - the same rules the dashboard follows, no exception for this API. `team_id` is inferred from `ticket_column_id` when omitted.
+description: Opens a new ticket directly (e.g. an external "Abrir chamado" screen, or an automatically-generated deadline ticket). `title`, `description`, `priority` and `ticket_category_id` are required - the same rules the dashboard follows, no exception for this API. `team_id` is inferred from `ticket_column_id` when omitted; when both are sent the Estagio must belong to the Mesa (422). `assignee_id` must be a member of the Mesa on creation (the dashboard rule); on update any user of the account is accepted.
 requestBody:
   required: true
   content:
@@ -53,21 +53,28 @@ requestBody:
               due_date:
                 type: string
                 format: date-time
+              development_type:
+                type: string
+                enum: [bug, task, story]
+                description: Campos do desenvolvimento - bug (Bug), task (Tarefa) or story (Historia). Any other value is 422.
+              sprint_id:
+                type: number
+                description: A sprint of the SAME Mesa as the ticket (see GET /sprints). Another Mesa -> 422; another account or unknown -> 404.
               observacoes_dev:
                 type: string
-                description: Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev.
+                description: Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev.
               observacoes_teste:
                 type: string
-                description: Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste.
+                description: Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste.
               documentacao:
                 type: string
-                description: Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao.
+                description: Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao.
               instrucoes:
                 type: string
-                description: Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes.
+                description: Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes.
               analise:
                 type: string
-                description: Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise.
+                description: Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise.
               custom_attributes:
                 type: object
                 additionalProperties: true
@@ -90,3 +97,20 @@ responses:
       application/json:
         schema:
           $ref: '#/components/schemas/bad_request_error'
+  '429':
+    description: Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.
+    headers:
+      Retry-After:
+        description: Seconds until the current window resets
+        schema:
+          type: integer
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/integration_rate_limit_error'
+        example:
+          error: rate_limit_exceeded
+          message: 'Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.'
+          limit: 120
+          period_seconds: 60
+          retry_after: 23

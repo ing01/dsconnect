@@ -11,7 +11,7 @@
 class Tickets::ActivityLabeler
   PRIORITY_LABELS = { 'low' => 'Baixa', 'medium' => 'Média', 'high' => 'Alta', 'urgent' => 'Urgente' }.freeze
   STATUS_LABELS = { 'open' => 'Aberto', 'resolved' => 'Resolvido', 'closed' => 'Fechado', 'cancelled' => 'Cancelado' }.freeze
-  ORIGIN_LABELS = { 'manual' => 'Manual' }.freeze
+  ORIGIN_LABELS = { 'manual' => 'Manual', 'integration_api' => 'Integração (API)' }.freeze
 
   # Qual registro cada tipo de atividade referencia em previous/new_value.
   VALUE_KINDS = {

@@ -1,0 +1,11 @@
+type: object
+description: Erro de validacao (HTTP 422). `error` e `message` trazem o mesmo texto; `attributes` lista os campos recusados.
+properties:
+  error:
+    type: string
+  message:
+    type: string
+  attributes:
+    type: array
+    items:
+      type: string

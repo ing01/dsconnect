@@ -14,10 +14,10 @@ requestBody:
         properties:
           team_id:
             type: number
-            description: The Mesa (team) to move the ticket into
+            description: The Mesa (team) to move the ticket into. Without `ticket_column_id`, the ticket goes to the Mesa's first Estagio (no change if it is already in that Mesa). A Mesa of another account answers 404.
           ticket_column_id:
             type: number
-            description: The Estagio (stage) within that Mesa. Defaults to the Mesa's first stage when omitted. Only applied when `team_id` is also present.
+            description: The Estagio to move the ticket into. Without `team_id`, the Mesa is the Estagio's (this used to be ignored when `team_id` was missing). With both, the Estagio must belong to the Mesa (422). Blank means "do not move".
           service_catalog_item_id:
             type: number
             description: The Catalogo > Area > Item classification, if the AI determined one
@@ -32,28 +32,39 @@ requestBody:
           priority:
             type: string
             enum: [low, medium, high, urgent]
+          development_type:
+            type: string
+            enum: [bug, task, story]
+            description: Campos do desenvolvimento - bug (Bug), task (Tarefa) or story (Historia). Blank clears it; another value is 422.
+          sprint_id:
+            type: number
+            description: A sprint of the ticket's Mesa (see GET /sprints). Blank returns the ticket to the Backlog. When the ticket changes Mesa while in a sprint, send `sprint_id` (blank for Backlog) in the same request - otherwise 422.
           observacoes_dev:
             type: string
-            description: Observacoes do Desenvolvedor (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev.
+            description: Observacoes do Desenvolvedor (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_dev.
           observacoes_teste:
             type: string
-            description: Observacoes Sobre o Teste Realizado (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste.
+            description: Observacoes Sobre o Teste Realizado (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.observacoes_teste.
           documentacao:
             type: string
-            description: Documentacao (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao.
+            description: Documentacao (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.documentacao.
           instrucoes:
             type: string
-            description: Instrucoes (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes.
+            description: Instrucoes (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.instrucoes.
           analise:
             type: string
-            description: Analise (campo do card do Jira). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise.
+            description: Analise (campo do desenvolvimento). Texto longo, ate 100000 caracteres. Gravado tambem em custom_attributes.analise.
           custom_attributes:
             type: object
-            description: MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc). The Jira card text fields shown on tickets of a Mesa with the Desenvolvimento module use these keys (long text, up to 100000 characters each) - `observacoes_dev`, `observacoes_teste`, `documentacao`, `instrucoes`, `analise`. Any other key is capped at 1500 characters per string value.
+            description: MERGED into the ticket's existing custom_attributes (never replaces the whole object) - use this for any field your system owns that DSConnect doesn't have a dedicated column for (analysis, dev notes, documentation links, hours, etc). The development text fields shown on tickets of a Mesa with the Desenvolvimento module use these keys (long text, up to 100000 characters each) - `observacoes_dev`, `observacoes_teste`, `documentacao`, `instrucoes`, `analise`. Any other key is capped at 1500 characters per string value.
             additionalProperties: true
           note:
             type: string
-            description: A short note explaining the routing decision, posted as a visible activity on the ticket
+            description: A short note explaining the routing decision, posted as a visible activity on the ticket. On this endpoint it gets the prefix `Direcionado automaticamente pela IA de triagem:` (the triage flow) unless `triage` is false.
+          triage:
+            type: boolean
+            default: true
+            description: When `false`, `note` is recorded exactly as sent, without the triage-AI prefix.
 responses:
   '200':
     description: Success
@@ -73,3 +84,20 @@ responses:
       application/json:
         schema:
           $ref: '#/components/schemas/bad_request_error'
+  '429':
+    description: Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.
+    headers:
+      Retry-After:
+        description: Seconds until the current window resets
+        schema:
+          type: integer
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/integration_rate_limit_error'
+        example:
+          error: rate_limit_exceeded
+          message: 'Too many requests: the limit is 120 per 60 seconds for each API key. Retry in 23 seconds.'
+          limit: 120
+          period_seconds: 60
+          retry_after: 23
