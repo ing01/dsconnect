@@ -112,12 +112,11 @@ class Notification::PushNotificationService
     return unless firebase_credentials_present?
     return unless subscription.fcm?
 
-    fcm_service = Notification::FcmService.new(
-      GlobalConfigService.load('FIREBASE_PROJECT_ID', nil), GlobalConfigService.load('FIREBASE_CREDENTIALS', nil)
-    )
-    fcm = fcm_service.fcm_client
-    response = fcm.send_v1(fcm_options(subscription))
-    remove_subscription_if_error(subscription, response)
+    # A resposta e' lida (e o token morto, removido) em Notification::FcmSender.
+    Notification::FcmSender.new(
+      subscription: subscription, options: fcm_options(subscription), account: notification.account,
+      description: "para #{user.email} com o titulo #{push_message[:title]}"
+    ).deliver
   end
 
   def send_push_via_chatwoot_hub(subscription)
@@ -134,14 +133,6 @@ class Notification::PushNotificationService
 
   def chatwoot_hub_enabled?
     ActiveModel::Type::Boolean.new.cast(ENV.fetch('ENABLE_PUSH_RELAY_SERVER', true))
-  end
-
-  def remove_subscription_if_error(subscription, response)
-    if JSON.parse(response[:body])['results']&.first&.keys&.include?('error')
-      subscription.destroy!
-    else
-      Rails.logger.info("FCM push sent to #{user.email} with title #{push_message[:title]}")
-    end
   end
 
   def fcm_options(subscription)

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'push-delivery-errors-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'fix',
+    platform: 'mobile',
+    title: 'Notificações do app: falhas de entrega agora aparecem e o iPhone registra melhor',
+    description:
+      'O servidor tratava qualquer falha de envio de notificação como sucesso, e aparelhos desinstalados nunca eram removidos. Agora a falha é registrada, o aparelho inválido é limpo e, se a chave do iPhone no Firebase estiver errada, o erro fica visível. O app também espera o iPhone liberar o token antes de registrar o aparelho.',
+  },
+  {
     id: 'attachments-require-login-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',

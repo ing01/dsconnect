@@ -117,16 +117,40 @@ class PushNotificationService {
       final settings = await FirebaseMessaging.instance.requestPermission();
       if (!_isAuthorized(settings)) return;
 
-      final token = await FirebaseMessaging.instance.getToken();
-      if (token != null) await _sendToken(session, token);
-
+      // O ouvinte vem ANTES de pedir o token. No iPhone o token do FCM so' nasce depois
+      // que o APNs responde; se ele chegar depois, e' este ouvinte que o registra no
+      // servidor. Antes o ouvinte ficava depois do `getToken`, e quando este falhava
+      // (APNs ainda sem resposta) o ouvinte nunca era criado: o aparelho so' registrava
+      // na proxima vez que o app abrisse.
       await _tokenRefreshSubscription?.cancel();
       _tokenRefreshSubscription =
           FirebaseMessaging.instance.onTokenRefresh.listen((newToken) => _sendToken(session, newToken));
+
+      final token = await _currentToken();
+      if (token != null) await _sendToken(session, token);
     } catch (error) {
       // Falha ao registrar push nao pode derrubar o app - o resto continua
       // funcionando normalmente, so sem notificacao.
       debugPrint('Falha ao registrar push: $error');
+    }
+  }
+
+  // O token FCM deste aparelho, ou null se ainda nao deu (o ouvinte de renovacao registra
+  // quando ele nascer). No iPhone, o FCM so' gera o token depois que o APNs entrega o
+  // dele - pedir antes falha com "apns-token-not-set" -, entao espera ate' ~10 s por ele.
+  Future<String?> _currentToken() async {
+    if (Platform.isIOS) {
+      for (var attempt = 0; attempt < 10; attempt++) {
+        if (await FirebaseMessaging.instance.getAPNSToken() != null) break;
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+    }
+
+    try {
+      return await FirebaseMessaging.instance.getToken();
+    } catch (error) {
+      debugPrint('Token de push ainda indisponivel: $error');
+      return null;
     }
   }
 
@@ -226,7 +250,13 @@ class PushNotificationService {
 
   Future<void> _sendToken(Session session, String token) async {
     final deviceId = await _deviceId();
-    final attributes = {'device_id': deviceId, 'push_token': token};
+    // `platform` so' serve para o servidor dizer, nos logs de envio, de qual sistema
+    // era o aparelho que falhou.
+    final attributes = {
+      'device_id': deviceId,
+      'push_token': token,
+      'platform': Platform.isIOS ? 'ios' : 'android',
+    };
 
     try {
       if (session.mode == AuthMode.client) {

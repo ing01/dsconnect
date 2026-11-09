@@ -74,13 +74,13 @@ module Client::PushNotificationDeliverable
   def send_fcm_push(subscription)
     return unless firebase_credentials_present?
 
-    fcm_service = Notification::FcmService.new(
-      GlobalConfigService.load('FIREBASE_PROJECT_ID', nil), GlobalConfigService.load('FIREBASE_CREDENTIALS', nil)
-    )
-    response = fcm_service.fcm_client.send_v1(fcm_options(subscription))
-    subscription.destroy! if JSON.parse(response[:body])['results']&.first&.keys&.include?('error')
-  rescue StandardError => e
-    ChatwootExceptionTracker.new(e, account: push_account).capture_exception
+    # A resposta do Google e' lida em Notification::FcmSender: antes so' se olhava o
+    # formato legado (`results`), entao a falha de entrega (inclusive a do APNs do
+    # iPhone) passava por sucesso e o token morto nunca era removido.
+    Notification::FcmSender.new(
+      subscription: subscription, options: fcm_options(subscription), account: push_account,
+      description: "para o contato #{contact.id}"
+    ).deliver
   end
 
   def firebase_credentials_present?

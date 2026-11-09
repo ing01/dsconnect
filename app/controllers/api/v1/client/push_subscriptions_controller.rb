@@ -55,6 +55,8 @@ class Api::V1::Client::PushSubscriptionsController < Api::V1::Client::BaseContro
   end
 
   def permitted_params
-    params.permit(:subscription_type, subscription_attributes: [:endpoint, :p256dh, :auth, :device_id, :push_token])
+    # `platform` (ios/android) so' serve para os logs de envio: sem ele nao ha como
+    # saber, num erro de entrega, de qual sistema era o aparelho.
+    params.permit(:subscription_type, subscription_attributes: [:endpoint, :p256dh, :auth, :device_id, :push_token, :platform])
   end
 end
