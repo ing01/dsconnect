@@ -62,6 +62,7 @@ const {
   onWheelImageZoom,
   onMouseMove,
   onMouseLeave,
+  onPanStart,
   resetZoomAndRotation,
 } = useImageZoom(imageRef);
 
@@ -302,6 +303,7 @@ onMounted(() => {
                 @click.stop
                 @dblclick.stop="onDoubleClickZoomImage"
                 @wheel.prevent.stop="onWheelImageZoom"
+                @pointerdown="onPanStart"
                 @mousemove="onMouseMove"
                 @mouseleave="onMouseLeave"
               />

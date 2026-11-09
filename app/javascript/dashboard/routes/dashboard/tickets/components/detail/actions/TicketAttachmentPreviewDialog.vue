@@ -22,6 +22,7 @@ const {
   onWheelImageZoom,
   onMouseMove,
   onMouseLeave,
+  onPanStart,
   resetZoomAndRotation,
 } = useImageZoom(imageRef);
 
@@ -107,6 +108,7 @@ defineExpose({ open, close });
             class="max-h-[50vh] max-w-[50vh] rounded-lg object-contain duration-100 ease-in-out transform select-none"
             @dblclick.stop="onDoubleClickZoomImage"
             @wheel.prevent.stop="onWheelImageZoom"
+            @pointerdown="onPanStart"
             @mousemove="onMouseMove"
             @mouseleave="onMouseLeave"
           />

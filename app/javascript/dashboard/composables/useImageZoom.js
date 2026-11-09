@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, getCurrentInstance, onBeforeUnmount } from 'vue';
 import {
   debounce,
   calculateCenterOffset,
@@ -18,15 +18,35 @@ export const useImageZoom = imageRef => {
   const zoomScale = ref(1);
   const imgTransformOriginPoint = ref(DEFAULT_IMG_TRANSFORM_ORIGIN);
   const activeImageRotation = ref(0);
+  // Deslocamento (arrasto) da imagem ampliada, no eixo da propria imagem (antes da rotacao).
+  const panX = ref(0);
+  const panY = ref(0);
+  const isPanning = ref(false);
+  let panStart = null;
+
+  const resetPan = () => {
+    panX.value = 0;
+    panY.value = 0;
+  };
+
+  function getCursor() {
+    if (zoomScale.value > MIN_ZOOM_LEVEL) {
+      return isPanning.value ? 'grabbing' : 'grab';
+    }
+    return 'zoom-in';
+  }
 
   const imageWrapperStyle = computed(() => ({
     transform: `rotate(${activeImageRotation.value}deg)`,
   }));
 
   const imageStyle = computed(() => ({
-    transform: `scale(${zoomScale.value})`,
-    cursor: zoomScale.value < MAX_ZOOM_LEVEL ? 'zoom-in' : 'zoom-out',
+    transform: `translate(${panX.value}px, ${panY.value}px) scale(${zoomScale.value})`,
+    cursor: getCursor(),
     transformOrigin: `${imgTransformOriginPoint.value}`,
+    // Sem transicao enquanto arrasta, senao a imagem fica "pesada" atras do mouse.
+    ...(isPanning.value ? { transition: 'none' } : {}),
+    ...(zoomScale.value > MIN_ZOOM_LEVEL ? { touchAction: 'none' } : {}),
   }));
 
   // Resets the transform origin to center
@@ -48,6 +68,7 @@ export const useImageZoom = imageRef => {
 
     // Reset zoom when rotating
     zoomScale.value = 1;
+    resetPan();
     resetTransformOrigin();
   };
 
@@ -100,6 +121,7 @@ export const useImageZoom = imageRef => {
 
     // Apply the new scale
     zoomScale.value = newScale;
+    if (newScale === MIN_ZOOM_LEVEL) resetPan();
   };
 
   // Handles double-click zoom toggling
@@ -117,6 +139,7 @@ export const useImageZoom = imageRef => {
 
     // Apply the new scale
     zoomScale.value = newScale;
+    if (newScale === MIN_ZOOM_LEVEL) resetPan();
   };
 
   // Handles mouse wheel zooming for images
@@ -161,9 +184,70 @@ export const useImageZoom = imageRef => {
     false
   );
 
+  // Leva o deslocamento da tela para o eixo da imagem (desfaz a rotacao do quadro).
+  const toImageAxis = (dx, dy) => {
+    const angle = (-activeImageRotation.value * Math.PI) / 180;
+    return {
+      x: dx * Math.cos(angle) - dy * Math.sin(angle),
+      y: dx * Math.sin(angle) + dy * Math.cos(angle),
+    };
+  };
+
+  // Nao deixa a imagem sair toda da tela: a borda pode chegar no centro, no maximo.
+  const clampPan = (value, size) => {
+    const limit = (size * zoomScale.value) / 2;
+    return Math.max(-limit, Math.min(limit, value));
+  };
+
+  const onPanMove = e => {
+    if (!panStart) return;
+    const { x, y } = toImageAxis(
+      e.clientX - panStart.pointerX,
+      e.clientY - panStart.pointerY
+    );
+    const el = imageRef.value;
+    const width = el?.offsetWidth || Infinity;
+    const height = el?.offsetHeight || Infinity;
+    panX.value = clampPan(panStart.x + x, width);
+    panY.value = clampPan(panStart.y + y, height);
+  };
+
+  const stopListening = () => {
+    window.removeEventListener('pointermove', onPanMove);
+    window.removeEventListener('pointerup', onPanEnd);
+    window.removeEventListener('pointercancel', onPanEnd);
+  };
+
+  function onPanEnd() {
+    panStart = null;
+    isPanning.value = false;
+    stopListening();
+  }
+
+  // Comeca a arrastar (so' com a imagem ampliada e botao principal).
+  const onPanStart = e => {
+    if (!imageRef.value || zoomScale.value <= MIN_ZOOM_LEVEL) return;
+    if (e.button != null && e.button !== 0) return;
+    e.preventDefault();
+    panStart = {
+      pointerX: e.clientX,
+      pointerY: e.clientY,
+      x: panX.value,
+      y: panY.value,
+    };
+    isPanning.value = true;
+    window.addEventListener('pointermove', onPanMove);
+    window.addEventListener('pointerup', onPanEnd);
+    window.addEventListener('pointercancel', onPanEnd);
+  };
+
+  if (getCurrentInstance()) onBeforeUnmount(stopListening);
+
   const resetZoomAndRotation = () => {
     activeImageRotation.value = 0;
     zoomScale.value = 1;
+    resetPan();
+    onPanEnd();
     resetTransformOrigin();
   };
 
@@ -171,6 +255,10 @@ export const useImageZoom = imageRef => {
     zoomScale,
     imgTransformOriginPoint,
     activeImageRotation,
+    panX,
+    panY,
+    isPanning,
+    onPanStart,
     imageWrapperStyle,
     imageStyle,
     getZoomOrigin,

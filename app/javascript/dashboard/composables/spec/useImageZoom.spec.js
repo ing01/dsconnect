@@ -138,4 +138,63 @@ describe('useImageZoom', () => {
     expect(bottomRightOrigin.x).toBeCloseTo(100);
     expect(bottomRightOrigin.y).toBeCloseTo(100);
   });
+
+  describe('arrastar a imagem ampliada', () => {
+    const down = (x, y) => ({
+      clientX: x,
+      clientY: y,
+      button: 0,
+      preventDefault: vi.fn(),
+    });
+    const move = (x, y) =>
+      window.dispatchEvent(
+        Object.assign(new Event('pointermove'), { clientX: x, clientY: y })
+      );
+
+    it('nao arrasta sem zoom', () => {
+      const { panX, onPanStart, isPanning } = useImageZoom(imageRef);
+      onPanStart(down(0, 0));
+      expect(isPanning.value).toBe(false);
+      move(30, 30);
+      expect(panX.value).toBe(0);
+    });
+
+    it('move a imagem acompanhando o mouse e solta no pointerup', () => {
+      const { onZoom, onPanStart, panX, panY, isPanning } =
+        useImageZoom(imageRef);
+      onZoom(1);
+      onPanStart(down(100, 100));
+      expect(isPanning.value).toBe(true);
+      move(120, 90);
+      expect(panX.value).toBe(20);
+      expect(panY.value).toBe(-10);
+      window.dispatchEvent(new Event('pointerup'));
+      expect(isPanning.value).toBe(false);
+      move(200, 200);
+      expect(panX.value).toBe(20);
+    });
+
+    it('acompanha o mouse mesmo com a imagem girada', () => {
+      const { onZoom, onRotate, onPanStart, panX, panY } =
+        useImageZoom(imageRef);
+      onRotate('clockwise');
+      onZoom(1);
+      onPanStart(down(0, 0));
+      move(0, 10); // para baixo na tela = para a esquerda no eixo da imagem girada
+      expect(panX.value).toBeCloseTo(-10);
+      expect(panY.value).toBeCloseTo(0);
+      window.dispatchEvent(new Event('pointerup'));
+    });
+
+    it('volta ao centro ao sair do zoom', () => {
+      const { onZoom, onPanStart, panX } = useImageZoom(imageRef);
+      onZoom(1);
+      onPanStart(down(0, 0));
+      move(15, 0);
+      window.dispatchEvent(new Event('pointerup'));
+      expect(panX.value).toBe(15);
+      onZoom(-10);
+      expect(panX.value).toBe(0);
+    });
+  });
 });
