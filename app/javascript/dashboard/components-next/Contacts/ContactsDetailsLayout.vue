@@ -18,6 +18,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // Quando o contato foi aberto a partir de uma Empresa, o "voltar" leva pra
+  // ela - o breadcrumb mostra o nome dela em vez de "Contatos" generico,
+  // senao o rotulo diria uma coisa e o clique levaria pra outra.
+  backLabel: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['goToContactsList', 'toggleBlock']);
@@ -37,7 +44,7 @@ const selectedContactName = computed(() => {
 const breadcrumbItems = computed(() => {
   const items = [
     {
-      label: t('CONTACTS_LAYOUT.HEADER.BREADCRUMB.CONTACTS'),
+      label: props.backLabel || t('CONTACTS_LAYOUT.HEADER.BREADCRUMB.CONTACTS'),
       link: '#',
     },
   ];

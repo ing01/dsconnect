@@ -10,6 +10,10 @@ import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 
 const props = defineProps({
+  company: {
+    type: Object,
+    default: () => ({}),
+  },
   notes: {
     type: Array,
     default: () => [],
@@ -38,12 +42,17 @@ const getWrittenBy = note => {
     : note?.user?.name || 'Bot';
 };
 
+// Ver CompanyContactsSidebar.openContact - mesmo motivo pro `query`.
 const openContact = contactId => {
   router.push({
     name: 'contacts_edit',
     params: {
       accountId: route.params.accountId,
       contactId,
+    },
+    query: {
+      fromCompanyId: props.company.id,
+      fromCompanyName: props.company.name || undefined,
     },
   });
 };
