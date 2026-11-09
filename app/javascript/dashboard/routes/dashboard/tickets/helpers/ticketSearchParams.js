@@ -31,4 +31,9 @@ export const toSearchParams = (filters = {}) => ({
   title: filters.title || undefined,
   created_after: filters.createdAfter || undefined,
   created_before: filters.createdBefore || undefined,
+  // Lacunas e prazo - usados pelo painel em lote para achar o que falta.
+  unassigned: filters.unassigned || undefined,
+  uncategorized: filters.uncategorized || undefined,
+  due_after: filters.dueAfter || undefined,
+  due_before: filters.dueBefore || undefined,
 });

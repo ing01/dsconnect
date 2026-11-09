@@ -8,6 +8,7 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import TicketListView from './TicketListView.vue';
 import TicketSelect from './TicketSelect.vue';
 import TicketExportButton from './TicketExportButton.vue';
+import TicketBulkPanel from './TicketBulkPanel.vue';
 
 const props = defineProps({
   teams: {
@@ -52,6 +53,11 @@ const emptySelection = () => ({
   // Nao e zerada na troca de Mesa: a lista de Complexidade e da conta, e nao da
   // Mesa como os Estagios e as Categorias.
   complexityIds: [],
+  // Lacunas e prazo (usados para achar o que falta no painel em lote).
+  unassigned: false,
+  uncategorized: false,
+  dueAfter: '',
+  dueBefore: '',
 });
 
 const draft = reactive({
@@ -197,8 +203,17 @@ const onCompaniesChange = values =>
 const onContactsChange = values =>
   remember(chosenContacts, values, contactOptions.value);
 
+// Tickets marcados na lista para o painel em lote.
+const selectedIds = ref([]);
+
 const search = () => {
   appliedFilters.value = { ...draft };
+  selectedIds.value = [];
+};
+
+// Depois de uma operacao em lote a lista recarrega com os mesmos filtros.
+const refreshList = () => {
+  appliedFilters.value = { ...appliedFilters.value };
 };
 
 const clearFilters = () => {
@@ -403,6 +418,34 @@ onMounted(() => {
             :aria-label="t('TICKET.COMPLEXITY.LABEL')"
           />
         </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs text-n-slate-11">
+            {{ t('TICKET.BULK.FILTERS.DUE_AFTER') }}
+          </span>
+          <input
+            v-model="draft.dueAfter"
+            type="date"
+            class="px-2 text-sm bg-transparent border rounded-lg h-10 border-n-strong"
+          />
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs text-n-slate-11">
+            {{ t('TICKET.BULK.FILTERS.DUE_BEFORE') }}
+          </span>
+          <input
+            v-model="draft.dueBefore"
+            type="date"
+            class="px-2 text-sm bg-transparent border rounded-lg h-10 border-n-strong"
+          />
+        </label>
+        <label class="flex items-center gap-2 text-sm text-n-slate-11">
+          <input v-model="draft.unassigned" type="checkbox" />
+          {{ t('TICKET.BULK.FILTERS.UNASSIGNED') }}
+        </label>
+        <label class="flex items-center gap-2 text-sm text-n-slate-11">
+          <input v-model="draft.uncategorized" type="checkbox" />
+          {{ t('TICKET.BULK.FILTERS.UNCATEGORIZED') }}
+        </label>
       </div>
 
       <div class="flex items-center justify-end gap-2">
@@ -424,7 +467,21 @@ onMounted(() => {
         <TicketExportButton :filters="appliedFilters" :count="resultCount" />
       </div>
 
-      <TicketListView :filters="appliedFilters" class="h-96" />
+      <TicketBulkPanel
+        :selected-ids="selectedIds"
+        :filters="appliedFilters"
+        :result-count="resultCount"
+        :teams="teams"
+        @done="refreshList"
+        @clear-selection="selectedIds = []"
+      />
+
+      <TicketListView
+        v-model:selected-ids="selectedIds"
+        selectable
+        :filters="appliedFilters"
+        class="h-96"
+      />
     </div>
   </div>
 </template>

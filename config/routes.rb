@@ -548,6 +548,14 @@ Rails.application.routes.draw do
             end
           end
 
+          resources :ticket_bulk_operations, only: [:index, :show, :create] do
+            collection { post :preview }
+            member do
+              post :undo
+              post :retry_failed
+            end
+          end
+
           resources :tickets do
             collection do
               # Exportacao da Busca detalhada, nos mesmos filtros do index.

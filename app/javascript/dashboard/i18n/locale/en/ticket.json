@@ -1,5 +1,83 @@
 {
   "TICKET": {
+    "BULK": {
+      "TITLE": "Bulk actions",
+      "SELECT_PAGE": "Select all tickets on this page",
+      "CLEAR_SELECTION": "Clear selection",
+      "OVER_LIMIT": "Too many tickets: the limit is {limit} per operation. Narrow the filter or the selection.",
+      "SCOPE": {
+        "SELECTED": "Selected ({count})",
+        "FILTER": "All from the filter ({count})"
+      },
+      "GROUPS": {
+        "FIELDS": "Fields",
+        "MOVE": "Move",
+        "COMMUNICATE": "Communication",
+        "FINISH": "Finish"
+      },
+      "ACTIONS": {
+        "priority": "Priority",
+        "due_date": "Due date",
+        "scheduled_at": "Scheduled date",
+        "category": "Category",
+        "complexity": "Complexity",
+        "assignee": "Assignee",
+        "contact_company": "Requester / Company",
+        "followers": "Add followers",
+        "stage": "Stage",
+        "team": "Mesa",
+        "comment": "Internal comment",
+        "customer_message": "Message to customer",
+        "resolve": "Resolve",
+        "close": "Close",
+        "cancel": "Cancel",
+        "reopen": "Reopen"
+      },
+      "ACTION": "Action",
+      "ACTION_PLACEHOLDER": "Choose what to do with the tickets",
+      "ERROR": "Could not run the bulk action.",
+      "FIELDS": {
+        "LEVEL": "Level {level}",
+        "LEVEL_LABEL": "Assignee level",
+        "CLEAR_DATE": "Remove the date from all tickets",
+        "NO_CATEGORY": "No category",
+        "NO_COMPLEXITY": "No complexity",
+        "NO_ASSIGNEE": "No assignee (clear)",
+        "FIRST_STAGE": "First stage of the Mesa",
+        "TEAM_CLEARS_ASSIGNEE": "Assignees who are not members of the new Mesa are cleared, and so is a category from another Mesa.",
+        "NOTIFY_CUSTOMER": "Send by e-mail (otherwise only register on the ticket)",
+        "CONSOLIDATED": "One e-mail per requester: if a requester has several tickets, a single message lists them all. The text is registered on every ticket.",
+        "CANCEL_REASON": "Reason for cancelling (recorded on every ticket)"
+      },
+      "CLOSE": {
+        "WARNING": "ATTENTION: what is filled in here applies to ALL {count} tickets.",
+        "RESOLUTION": "Resolution (for ALL tickets without one)",
+        "CATEGORY": "Category (for ALL tickets without one)",
+        "KEEP": "Keep each ticket's own",
+        "HINT": "Tickets that already have a resolution, category or classification keep theirs. Tickets still missing something required are skipped and listed in the report."
+      },
+      "REVIEW": "Review",
+      "REVIEW_SUMMARY": "{action}: {count} tickets will be processed.",
+      "REVIEW_FORBIDDEN": "{count} tickets you cannot change will be skipped.",
+      "REVIEW_FINALIZED": "{count} tickets are already closed or cancelled.",
+      "BACK": "Back",
+      "CONFIRM": "Apply to {count} tickets",
+      "RUNNING": "Running... {progress}%",
+      "REPORT": {
+        "SUMMARY": "Done: {succeeded} changed, {skipped} skipped, {failed} failed.",
+        "DOWNLOAD": "Download report (CSV)",
+        "RETRY": "Retry the failed",
+        "UNDO": "Undo",
+        "NEW": "New action"
+      },
+      "HISTORY": "Recent bulk actions",
+      "FILTERS": {
+        "DUE_AFTER": "Due from",
+        "DUE_BEFORE": "Due until",
+        "UNASSIGNED": "Without assignee",
+        "UNCATEGORIZED": "Without category"
+      }
+    },
     "WORKSPACE": {
       "KANBAN": "Kanban",
       "CLOSE_TAB": "Close tab",

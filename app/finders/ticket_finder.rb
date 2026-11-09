@@ -28,6 +28,7 @@ class TicketFinder
 
   def perform
     result = filter_by_ownership(scope)
+    result = filter_by_gaps(result)
     result = filter_by_attributes(result)
     result = filter_by_sprint(result)
     result = filter_by_parent(result)
@@ -48,7 +49,20 @@ class TicketFinder
     relation
   end
 
-  # Impedimento e um eixo proprio, ao lado do status: um ticket impedido
+# Lacunas e prazos, para o painel em lote achar o que falta preencher.
+def filter_by_gaps(relation)
+  relation = relation.where(assignee_id: nil) if truthy?(params[:unassigned])
+  relation = relation.where(ticket_category_id: nil) if truthy?(params[:uncategorized])
+  relation = relation.where('tickets.due_date >= ?', params[:due_after].to_date.beginning_of_day) if params[:due_after].present?
+  relation = relation.where('tickets.due_date <= ?', params[:due_before].to_date.end_of_day) if params[:due_before].present?
+  relation
+end
+
+def truthy?(value)
+  value.present? && ActiveModel::Type::Boolean.new.cast(value)
+end
+
+# Impedimento e um eixo proprio, ao lado do status: um ticket impedido
   # continua aberto. O filtro apenas recorta - nao mexe em `status` nem
   # substitui nenhum dos filtros existentes.
   #
