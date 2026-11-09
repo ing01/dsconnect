@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'portal-inbox-auto-assignment-toggle-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'fix',
+    platform: 'web',
+    title: 'Caixa do Portal: a atribuição automática não liga mais sozinha',
+    description:
+      'Quem desligava "Ativar atribuição automática de conversas" na caixa Portal do Cliente via o botão voltar a ficar ligado sozinho. Agora a escolha é respeitada; a distribuição do Portal continua controlada em Configurações > Tickets > Automação.',
+  },
+  {
     id: 'internal-chat-day-dividers-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',

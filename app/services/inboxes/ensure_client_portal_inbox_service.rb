@@ -37,24 +37,25 @@ module Inboxes
 
     private
 
-    # Reforca as tres configuracoes em toda chamada, nao so na criacao - uma
-    # caixa criada por uma versao anterior deste servico (antes de existir
-    # historico de conversas/CSAT, ou de antes da distribuicao automatica)
-    # precisa alcancar o mesmo estado sem depender de ninguem editar isso
-    # manualmente em Configuracoes. `enable_auto_assignment` e' o interruptor
-    # do motor (sempre ligado - a caixa e' unica por conta); quem liga/desliga
-    # de verdade e' `Account#client_portal_auto_assignment_enabled`
-    # (Configuracoes > Tickets > Automacao), sem precisar deste servico rodar
-    # de novo.
+    # Reforca as duas configuracoes de que o historico de conversas e o CSAT dependem, em toda
+    # chamada, nao so na criacao - uma caixa criada por uma versao anterior deste servico precisa
+    # alcancar o mesmo estado sem depender de ninguem editar isso manualmente em Configuracoes.
+    #
+    # `enable_auto_assignment` NAO entra aqui de proposito: e' o botao "Ativar atribuicao
+    # automatica de conversas" da caixa. Ele nasce ligado (create_inbox!), mas quem desliga em
+    # Configuracoes > Caixas de entrada tem que ver o botao continuar desligado - este servico roda
+    # a cada chat do Portal e a cada "Abrir conversa", e religava sozinho. Quem decide a
+    # distribuicao do Portal e' `Account#client_portal_auto_assignment_enabled`
+    # (Configuracoes > Tickets > Automacao).
     def ensure_settings!(inbox)
       return inbox if settings_in_place?(inbox)
 
-      inbox.update!(lock_to_single_conversation: false, csat_survey_enabled: true, enable_auto_assignment: true)
+      inbox.update!(lock_to_single_conversation: false, csat_survey_enabled: true)
       inbox
     end
 
     def settings_in_place?(inbox)
-      inbox.lock_to_single_conversation == false && inbox.csat_survey_enabled == true && inbox.enable_auto_assignment == true
+      inbox.lock_to_single_conversation == false && inbox.csat_survey_enabled == true
     end
 
     def find_channel
