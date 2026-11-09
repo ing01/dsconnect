@@ -73,4 +73,15 @@ Rails.application.config.to_prepare do
   end
 
   ActiveStorage::Streaming.prepend(ActiveStorageProxyRangeLimit) unless ActiveStorage::Streaming < ActiveStorageProxyRangeLimit
+
+  # Baixar anexo exige login (ver ActiveStorageAttachmentAccess): o link assinado
+  # do ActiveStorage, sozinho, deixava qualquer pessoa com o endereco baixar o
+  # arquivo de um cliente.
+  [
+    ActiveStorage::Blobs::RedirectController, ActiveStorage::Blobs::ProxyController,
+    ActiveStorage::Representations::RedirectController, ActiveStorage::Representations::ProxyController,
+    ActiveStorage::DiskController
+  ].each do |controller|
+    controller.include(ActiveStorageAttachmentAccess) unless controller.include?(ActiveStorageAttachmentAccess)
+  end
 end

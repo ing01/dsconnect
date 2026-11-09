@@ -62,13 +62,18 @@ class PushNotificationService {
   // continua aparecendo (ver `shouldShowForegroundPush`).
   bool chatTabOpen = false;
 
+  // So estes dois estados contam como "o sistema permite avisos" - qualquer
+  // outra coisa (negado, ou negado sem dialogo nenhum - ver `_isAuthorized`)
+  // precisa ser tratada como bloqueado, nunca como sucesso.
+  bool _isAuthorized(NotificationSettings settings) =>
+      settings.authorizationStatus == AuthorizationStatus.authorized ||
+      settings.authorizationStatus == AuthorizationStatus.provisional;
+
   // Notificacoes "ativas": a pessoa nao as desligou e o sistema permite avisos.
   Future<bool> isActive() async {
     try {
       if (await _secureStorage.read(key: _disabledKey) == 'true') return false;
-      final settings = await FirebaseMessaging.instance.getNotificationSettings();
-      return settings.authorizationStatus == AuthorizationStatus.authorized ||
-          settings.authorizationStatus == AuthorizationStatus.provisional;
+      return _isAuthorized(await FirebaseMessaging.instance.getNotificationSettings());
     } catch (error) {
       debugPrint('Falha ao ler o estado das notificacoes: $error');
       return false;
@@ -80,7 +85,10 @@ class PushNotificationService {
       await _secureStorage.delete(key: _disabledKey);
       await _ensureInitialized();
       final settings = await FirebaseMessaging.instance.requestPermission();
-      if (settings.authorizationStatus == AuthorizationStatus.denied) return PushEnableResult.blockedBySystem;
+      // Depois de uma negacao anterior, o Android pode nem reabrir a telinha
+      // (so decide sozinho) - `denied` nao e' o unico jeito disso aparecer,
+      // entao so aceita como sucesso o que for de fato autorizado.
+      if (!_isAuthorized(settings)) return PushEnableResult.blockedBySystem;
 
       await registerForSession(session);
       return PushEnableResult.enabled;
@@ -90,9 +98,15 @@ class PushNotificationService {
     }
   }
 
+  // So desinscreve no servidor - mantem o token FCM vivo. Apagar o token
+  // aqui (como faz `unregisterForSession`, pensado pra logout) e gerar um
+  // novo pouco depois ao religar e' propenso a voltar o token antigo/vazio;
+  // sem a sessao sendo encerrada, nao ha motivo pra arriscar isso.
   Future<void> disable(Session session) async {
     await _secureStorage.write(key: _disabledKey, value: 'true');
-    await unregisterForSession(session);
+    await _tokenRefreshSubscription?.cancel();
+    _tokenRefreshSubscription = null;
+    await _unsubscribeFromServer(session);
   }
 
   Future<void> registerForSession(Session session) async {
@@ -101,7 +115,7 @@ class PushNotificationService {
       await _ensureInitialized();
 
       final settings = await FirebaseMessaging.instance.requestPermission();
-      if (settings.authorizationStatus == AuthorizationStatus.denied) return;
+      if (!_isAuthorized(settings)) return;
 
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null) await _sendToken(session, token);
@@ -182,7 +196,16 @@ class PushNotificationService {
   Future<void> unregisterForSession(Session session) async {
     await _tokenRefreshSubscription?.cancel();
     _tokenRefreshSubscription = null;
+    await _unsubscribeFromServer(session);
 
+    try {
+      await FirebaseMessaging.instance.deleteToken();
+    } catch (error) {
+      debugPrint('Falha ao invalidar o token de push: $error');
+    }
+  }
+
+  Future<void> _unsubscribeFromServer(Session session) async {
     try {
       final deviceId = await _deviceId();
       if (session.mode == AuthMode.client) {
@@ -198,12 +221,6 @@ class PushNotificationService {
       }
     } catch (error) {
       debugPrint('Falha ao desinscrever o push no servidor: $error');
-    }
-
-    try {
-      await FirebaseMessaging.instance.deleteToken();
-    } catch (error) {
-      debugPrint('Falha ao invalidar o token de push: $error');
     }
   }
 
