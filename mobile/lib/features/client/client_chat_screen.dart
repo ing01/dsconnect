@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/auth/auth_providers.dart';
 import '../../core/theme/app_theme.dart';
 import 'chat_blocked.dart';
 import 'client_chat_history_screen.dart';
@@ -379,14 +382,17 @@ class _ChatBubble extends StatelessWidget {
   }
 }
 
-class _ChatAttachmentView extends StatelessWidget {
+// O servidor so' entrega anexo a quem esta logado: a imagem e o audio vao com o
+// token da sessao, igual a qualquer outra chamada do app.
+class _ChatAttachmentView extends ConsumerWidget {
   const _ChatAttachmentView({required this.attachment});
 
   final ChatAttachment attachment;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (attachment.dataUrl.isEmpty) return const SizedBox.shrink();
+    final token = ref.watch(sessionProvider).value?.apiAccessToken;
 
     if (attachment.isImage) {
       return Padding(
@@ -395,6 +401,7 @@ class _ChatAttachmentView extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           child: Image.network(
             attachment.dataUrl,
+            headers: token == null ? null : {'api_access_token': token},
             width: 220,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stack) => const SizedBox(
@@ -475,18 +482,21 @@ class _FileAttachmentTile extends StatelessWidget {
   }
 }
 
-class _AudioAttachmentPlayer extends StatefulWidget {
+class _AudioAttachmentPlayer extends ConsumerStatefulWidget {
   const _AudioAttachmentPlayer({required this.url});
 
   final String url;
 
   @override
-  State<_AudioAttachmentPlayer> createState() => _AudioAttachmentPlayerState();
+  ConsumerState<_AudioAttachmentPlayer> createState() => _AudioAttachmentPlayerState();
 }
 
-class _AudioAttachmentPlayerState extends State<_AudioAttachmentPlayer> {
+class _AudioAttachmentPlayerState extends ConsumerState<_AudioAttachmentPlayer> {
   final _player = AudioPlayer();
   bool _isPlaying = false;
+  // O player nao aceita cabecalho: o audio e' baixado pelo cliente da API (que ja
+  // manda o token) e tocado da memoria. Guardado, para nao baixar a cada play.
+  Uint8List? _bytes;
 
   @override
   void initState() {
@@ -511,7 +521,22 @@ class _AudioAttachmentPlayerState extends State<_AudioAttachmentPlayer> {
     if (_isPlaying) {
       await _player.pause();
     } else {
-      await _player.play(UrlSource(widget.url));
+      _bytes ??= await _download();
+      if (_bytes == null) return;
+      await _player.play(BytesSource(_bytes!));
+    }
+  }
+
+  Future<Uint8List?> _download() async {
+    try {
+      final response = await ref.read(apiClientProvider).get<List<int>>(
+            widget.url,
+            options: Options(responseType: ResponseType.bytes),
+          );
+      final data = response.data;
+      return data == null ? null : Uint8List.fromList(data);
+    } on DioException {
+      return null;
     }
   }
 
