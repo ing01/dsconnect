@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Sem isso o app nao resolve nem o DNS do servidor - o Flutter so
          adiciona essa permissao sozinho nos manifests de debug/profile (pra
          hot reload), entao builds de release (o .apk que vai pro celular de
@@ -17,6 +18,14 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- Digital / reconhecimento facial como trava de acesso (local_auth). -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <!-- O open_filex declara permissoes de midia/armazenamento, mas o app so
+         abre arquivos que ele mesmo baixou na pasta temporaria (nao precisa
+         delas). Sem remover, o Google Play exige a declaracao de "Permissoes
+         de fotos e videos" e costuma recusar o app. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"/>
     <application
         android:label="DSConnect"
         android:name="${applicationName}"
