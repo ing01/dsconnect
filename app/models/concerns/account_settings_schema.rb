@@ -53,6 +53,12 @@ module AccountSettingsSchema
           'type': %w[array null],
           'items': { 'type': 'integer' }
         },
+        'client_portal_auto_assignment_enabled': { 'type': %w[boolean null] },
+        'client_portal_auto_assignment_max_open_chats': { 'type': %w[integer null], 'minimum': 1 },
+        'client_portal_auto_assignment_excluded_agent_ids': {
+          'type': %w[array null],
+          'items': { 'type': 'integer' }
+        },
         'whatsapp_csat_survey_enabled': { 'type': %w[boolean null] },
         'whatsapp_csat_survey_message': { 'type': %w[string null] },
         'whatsapp_csat_survey_reply_window_minutes': { 'type': %w[integer null], 'minimum': 1 },

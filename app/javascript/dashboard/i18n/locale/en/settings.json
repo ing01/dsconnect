@@ -471,7 +471,8 @@
     "CHECKLISTS": "Checklists",
     "INTERNAL_CHAT": "Internal chat",
     "TICKET_TRIAGE": "Triage",
-    "TICKET_COMPLEXITY": "Complexidade"
+    "TICKET_COMPLEXITY": "Complexidade",
+    "TICKET_AUTO_ASSIGNMENT_EXCEPTIONS": "Distribution exceptions"
   },
   "DATA_IMPORTS": {
     "HEADER": "Data",

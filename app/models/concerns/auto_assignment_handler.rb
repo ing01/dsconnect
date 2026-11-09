@@ -62,7 +62,14 @@ module AutoAssignmentHandler
   # perder a corrida e verificar ANTES se a conta tem alguma automacao com
   # fluxo ativa - se tiver, o roteamento (Mesa/Fila/prioridade) fica por conta
   # dela, nunca desta atribuicao generica da inbox.
+  # Portal do Cliente nao tem IA/triagem no meio (pedido da Ingrid, 2026-11-09)
+  # - nunca deve ficar travado so porque OUTRA caixa (ex: WhatsApp) tem uma
+  # automacao de fluxo ativa. A trava abaixo e' por conta, nao por inbox, de
+  # proposito para o WhatsApp (ver comentario completo no metodo que chama
+  # este); o Portal precisa ficar de fora dela.
   def pending_flow_automation?
+    return false if inbox.client_portal?
+
     account.automation_rules.where(active: true).any?(&:flow?)
   end
 end

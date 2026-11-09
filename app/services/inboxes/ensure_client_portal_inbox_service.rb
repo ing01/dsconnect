@@ -37,19 +37,24 @@ module Inboxes
 
     private
 
-    # Reforca as duas configuracoes em toda chamada, nao so na criacao - uma
+    # Reforca as tres configuracoes em toda chamada, nao so na criacao - uma
     # caixa criada por uma versao anterior deste servico (antes de existir
-    # historico de conversas/CSAT) precisa alcancar o mesmo estado sem
-    # depender de ninguem editar isso manualmente em Configuracoes.
+    # historico de conversas/CSAT, ou de antes da distribuicao automatica)
+    # precisa alcancar o mesmo estado sem depender de ninguem editar isso
+    # manualmente em Configuracoes. `enable_auto_assignment` e' o interruptor
+    # do motor (sempre ligado - a caixa e' unica por conta); quem liga/desliga
+    # de verdade e' `Account#client_portal_auto_assignment_enabled`
+    # (Configuracoes > Tickets > Automacao), sem precisar deste servico rodar
+    # de novo.
     def ensure_settings!(inbox)
       return inbox if settings_in_place?(inbox)
 
-      inbox.update!(lock_to_single_conversation: false, csat_survey_enabled: true, enable_auto_assignment: false)
+      inbox.update!(lock_to_single_conversation: false, csat_survey_enabled: true, enable_auto_assignment: true)
       inbox
     end
 
     def settings_in_place?(inbox)
-      inbox.lock_to_single_conversation == false && inbox.csat_survey_enabled == true && inbox.enable_auto_assignment == false
+      inbox.lock_to_single_conversation == false && inbox.csat_survey_enabled == true && inbox.enable_auto_assignment == true
     end
 
     def find_channel
@@ -71,10 +76,15 @@ module Inboxes
         # de satisfacao ao resolver.
         lock_to_single_conversation: false,
         csat_survey_enabled: true,
-        # Quem recebe a conversa do Portal e' decidido pela triagem do bot
-        # (Mesa/Fila), nunca pela distribuicao automatica da caixa - que
-        # entregava ao primeiro agente online antes da triagem rodar.
-        enable_auto_assignment: false
+        # Distribuicao automatica e silenciosa entre os agentes online, sem
+        # IA/triagem no meio (pedido da Ingrid, 2026-11-09) - substitui a
+        # versao anterior, que desligava isso de proposito pra nao disputar
+        # com a triagem do bot. `AutoAssignmentHandler#pending_flow_automation?`
+        # ja sabe deixar o Portal de fora da trava de "qualquer automacao de
+        # fluxo ativa na conta", e o rodizio em si respeita
+        # `Account#client_portal_auto_assignment_*` (Configuracoes > Tickets >
+        # Automacao), incluindo a lista de exceções de agentes.
+        enable_auto_assignment: true
       )
     end
   end

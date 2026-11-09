@@ -475,7 +475,8 @@
     "INTERNAL_CHAT": "Chat interno",
     "TICKET_TRIAGE": "Triagem",
     "TICKET_COMPLEXITY": "Complexidade",
-    "DEVELOPMENT_BACKLOG": "Backlog"
+    "DEVELOPMENT_BACKLOG": "Backlog",
+    "TICKET_AUTO_ASSIGNMENT_EXCEPTIONS": "Exceção da distribuição"
   },
   "DATA_IMPORTS": {
     "HEADER": "Dados",

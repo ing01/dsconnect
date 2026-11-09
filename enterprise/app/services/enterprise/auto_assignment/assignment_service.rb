@@ -19,6 +19,7 @@ module Enterprise::AutoAssignment::AssignmentService
     return nil if agents.nil?
 
     agents = filter_agents_by_whatsapp_assignment_settings(agents)
+    agents = filter_agents_by_portal_assignment_settings(agents)
     return nil if agents.empty?
 
     agents = filter_agents_by_rate_limit(agents)
@@ -53,6 +54,28 @@ module Enterprise::AutoAssignment::AssignmentService
 
   def filter_agents_by_whatsapp_open_chat_limit(agents)
     limit = account.whatsapp_auto_assignment_max_open_chats.to_i
+    return agents unless limit.positive?
+
+    agents.select do |agent_member|
+      inbox.conversations.open.where(assignee_id: agent_member.user_id).count < limit
+    end
+  end
+
+  # Mesma ideia da configuracao de WhatsApp acima, pro chat do Portal do
+  # Cliente (pedido da Ingrid, 2026-11-09) - distribuicao silenciosa entre
+  # agentes online, sem IA/triagem no meio.
+  def filter_agents_by_portal_assignment_settings(agents)
+    return agents unless inbox.client_portal?
+    return agents.none unless account.client_portal_auto_assignment_enabled?
+
+    excluded_ids = Array(account.client_portal_auto_assignment_excluded_agent_ids)
+    agents = agents.where.not(user_id: excluded_ids) if excluded_ids.present?
+
+    filter_agents_by_portal_open_chat_limit(agents)
+  end
+
+  def filter_agents_by_portal_open_chat_limit(agents)
+    limit = account.client_portal_auto_assignment_max_open_chats.to_i
     return agents unless limit.positive?
 
     agents.select do |agent_member|

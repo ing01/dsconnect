@@ -860,6 +860,10 @@
       "AUTOMATION": {
         "TITLE": "Automação WhatsApp",
         "DESCRIPTION": "Configurações do fluxo automático de triagem do WhatsApp: quais níveis de cliente a IA tenta resolver sozinha, a prioridade padrão quando ela falha, e para onde vão os tickets de prioridade Alta.",
+        "EXCEPTIONS_LINK": {
+          "TEXT": "Quer tirar um agente da distribuição automática?",
+          "LABEL": "Veja a aba Exceção da distribuição."
+        },
         "WHATSAPP_FLOW": {
           "LABEL": "Habilitar o fluxo de triagem do WhatsApp",
           "HELP": "Desligado, nenhuma conversa recebida pelo WhatsApp é assumida pelo fluxo automático, mesmo com uma automação configurada."
@@ -875,6 +879,20 @@
           "EXCLUDED_AGENTS": {
             "LABEL": "Agentes fora da distribuição automática",
             "HELP": "Marcados aqui, nunca recebem conversa de WhatsApp automaticamente - continuam podendo ser atribuídos na mão normalmente.",
+            "EMPTY": "Nenhum agente encontrado."
+          }
+        },
+        "PORTAL_AUTO_ASSIGNMENT": {
+          "TITLE": "Distribuição automática do Portal do Cliente",
+          "DESCRIPTION": "Controla se as conversas do chat do Portal do Cliente são distribuídas sozinhas, silenciosamente, a um agente online (sem IA nem triagem no meio). Desligado, elas continuam chegando normalmente, só sem atribuição automática - qualquer um pode assumir na mão.",
+          "MAX_OPEN_CHATS": {
+            "LABEL": "Limite de conversas abertas por agente",
+            "HELP": "Um agente que já tiver essa quantidade de conversas do Portal em aberto para de receber novas automaticamente, até resolver alguma. Em branco, sem limite.",
+            "PLACEHOLDER": "Sem limite"
+          },
+          "EXCLUDED_AGENTS": {
+            "LABEL": "Agentes fora da distribuição automática",
+            "HELP": "Marcados aqui, nunca recebem conversa do Portal automaticamente - continuam podendo ser atribuídos na mão normalmente.",
             "EMPTY": "Nenhum agente encontrado."
           }
         },
@@ -963,6 +981,17 @@
         "API": {
           "SUCCESS": "Configurações de automação atualizadas.",
           "ERROR": "Não foi possível atualizar as configurações de automação."
+        }
+      },
+      "AUTO_ASSIGNMENT_EXCEPTIONS": {
+        "TITLE": "Exceção da distribuição",
+        "DESCRIPTION": "Agentes marcados aqui nunca recebem conversa automaticamente nesse canal - continuam podendo ser atribuídos na mão normalmente. É uma lista por canal: um agente pode estar de fora do WhatsApp e não do Portal, ou os dois.",
+        "WHATSAPP_SECTION_TITLE": "WhatsApp",
+        "PORTAL_SECTION_TITLE": "Portal do Cliente",
+        "SAVE": "Salvar exceções",
+        "API": {
+          "SUCCESS": "Exceções de distribuição atualizadas.",
+          "ERROR": "Não foi possível atualizar as exceções de distribuição."
         }
       },
       "ATTENDANCE_SCHEDULE": {

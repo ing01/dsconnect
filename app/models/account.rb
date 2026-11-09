@@ -84,6 +84,12 @@ class Account < ApplicationRecord
   # automatica mas continua podendo ser atribuido a mao.
   store_accessor :settings, :whatsapp_auto_assignment_enabled, :whatsapp_auto_assignment_max_open_chats,
                   :whatsapp_auto_assignment_excluded_agent_ids
+  # Mesma ideia, pro chat do Portal do Cliente (pedido da Ingrid, 2026-11-09):
+  # cliente abre o chat, recebe a saudacao do canal e e' distribuido sozinho a
+  # um agente online - sem IA/triagem no meio. Ver
+  # Enterprise::AutoAssignment::AssignmentService#filter_agents_by_portal_assignment_settings.
+  store_accessor :settings, :client_portal_auto_assignment_enabled, :client_portal_auto_assignment_max_open_chats,
+                  :client_portal_auto_assignment_excluded_agent_ids
   # Pesquisa de satisfacao por digito (1-5) no WhatsApp - ver
   # Whatsapp::CsatDigitSurveyService, unico lugar que le essas chaves.
   # Mensagem em branco cai no texto padrao (`whatsapp_csat_survey_message_or_default`).
@@ -144,6 +150,11 @@ class Account < ApplicationRecord
   # o toggle na tela (grava `false`).
   def whatsapp_auto_assignment_enabled?
     whatsapp_auto_assignment_enabled != false
+  end
+
+  # Mesmo criterio acima, pro Portal do Cliente.
+  def client_portal_auto_assignment_enabled?
+    client_portal_auto_assignment_enabled != false
   end
 
   has_many :account_users, dependent: :destroy_async
