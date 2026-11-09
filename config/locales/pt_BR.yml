@@ -177,26 +177,26 @@ pt_BR:
       regards: Atenciosamente,
       company_name: Duesoft Sistemas
   tickets:
-bulk:
-  empty: nenhum ticket para esta operação
-  limit_exceeded: "tickets demais: o limite é %{limit} por operação"
-  not_undoable: esta operação não pode mais ser desfeita
-  related_tickets: "Tickets relacionados: %{numbers}"
-  reasons:
-    not_found: ticket não encontrado
-    forbidden: você não tem permissão para alterar este ticket
-    unchanged: nada a alterar neste ticket
-    changed_since: o ticket foi alterado depois da operação
-    category_other_team: a categoria pertence a outra Mesa
-    invalid_level: nível de responsável inválido
-    not_team_member: a pessoa não é membro da Mesa deste ticket
-    column_not_found: estágio não encontrado
-    stage_other_team: o estágio pertence a outra Mesa
-    team_not_found: Mesa não encontrada
-    team_without_stage: a Mesa não tem estágios
-    reason_required: informe o motivo para cancelar
-    close_missing: "faltou para fechar: %{missing}"
-    no_requester_email: o solicitante não tem e-mail
+    bulk:
+      empty: nenhum ticket para esta operação
+      limit_exceeded: "tickets demais: o limite é %{limit} por operação"
+      not_undoable: esta operação não pode mais ser desfeita
+      related_tickets: "Tickets relacionados: %{numbers}"
+      reasons:
+        not_found: ticket não encontrado
+        forbidden: você não tem permissão para alterar este ticket
+        unchanged: nada a alterar neste ticket
+        changed_since: o ticket foi alterado depois da operação
+        category_other_team: a categoria pertence a outra Mesa
+        invalid_level: nível de responsável inválido
+        not_team_member: a pessoa não é membro da Mesa deste ticket
+        column_not_found: estágio não encontrado
+        stage_other_team: o estágio pertence a outra Mesa
+        team_not_found: Mesa não encontrada
+        team_without_stage: a Mesa não tem estágios
+        reason_required: informe o motivo para cancelar
+        close_missing: "faltou para fechar: %{missing}"
+        no_requester_email: o solicitante não tem e-mail
     auto_creation:
       whatsapp_title: "Atendimento WhatsApp #%{id}"
       whatsapp_title_named: "Atendimento WhatsApp - %{name}"

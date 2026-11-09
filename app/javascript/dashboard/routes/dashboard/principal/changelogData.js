@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'translation-missing-fix-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'fix',
+    platform: 'web',
+    title: 'Notificações e atividades da conversa voltam a aparecer em português',
+    description:
+      'Notificações como "abriu a conversa" e os avisos de atribuição dentro da conversa apareciam como "Translation missing". Os textos foram restaurados.',
+  },
+  {
     id: 'image-viewer-pan-fix-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',
