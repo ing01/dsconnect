@@ -47,6 +47,12 @@ class Company < ApplicationRecord
   validates :client_level, numericality: {
     only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 3
   }
+  # Classificacao manual de 1 a 5 (pedido da Ingrid, 2026-11-09) - INDEPENDENTE
+  # do `client_level` acima (automatico, a partir da mensalidade). Nula/em
+  # branco significa "ainda nao classificada".
+  validates :classification_level, numericality: {
+    only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 5
+  }, allow_nil: true
   # Precisa rodar ANTES de `compute_client_level`: o vinculo com um contrato
   # muda `billing_amount`, e a prioridade so pode ser calculada depois disso -
   # senao usa o valor antigo, de antes da troca.
@@ -58,6 +64,12 @@ class Company < ApplicationRecord
 
   belongs_to :account
   belongs_to :company_category, optional: true
+  # Segunda lista de opcoes com criacao livre, separada de `company_category`
+  # (pedido da Ingrid, 2026-11-09 - "Nicho" nao e' a mesma coisa que "Categoria").
+  belongs_to :company_niche, optional: true
+  # Agente responsavel pela Empresa - so' uma marcacao informativa, nao muda
+  # quem pode ver/editar a Empresa nem os tickets dela.
+  belongs_to :specialist, class_name: 'User', optional: true
   belongs_to :contract, optional: true
   # `contacts` (via the FK) is the Empresa's primary/first contacts - kept for
   # counter_cache/ticket compatibility. `company_contacts` is the full

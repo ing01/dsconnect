@@ -24,6 +24,24 @@
         "ALL": "Todas as prioridades"
       }
     },
+    "FILTER_BY_CLASSIFICATION": {
+      "LABEL": "Filtrar por classificação",
+      "OPTIONS": {
+        "ALL": "Todas as classificações"
+      }
+    },
+    "FILTER_BY_NICHE": {
+      "LABEL": "Filtrar por nicho",
+      "OPTIONS": {
+        "ALL": "Todos os nichos"
+      }
+    },
+    "FILTER_BY_SPECIALIST": {
+      "LABEL": "Filtrar por especialista",
+      "OPTIONS": {
+        "ALL": "Todos os especialistas"
+      }
+    },
     "SEARCH_PLACEHOLDER": "Buscar empresas...",
     "LOADING": "Carregando empresas...",
     "UNNAMED": "Empresa sem nome",
@@ -265,6 +283,9 @@
           "MODULES": "Módulos utilizados",
           "CLIENT_LEVEL": "Prioridade do cliente",
           "CATEGORY": "Categoria",
+          "NICHE": "Nicho",
+          "SPECIALIST": "Especialista",
+          "CLASSIFICATION_LEVEL": "Nível de classificação (1 a 5)",
           "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha"
         },
         "LEVEL": {
@@ -277,6 +298,23 @@
           "NONE": "Nenhuma",
           "ADD_PLACEHOLDER": "Nome da nova categoria",
           "ADD_BUTTON": "Adicionar"
+        },
+        "NICHE": {
+          "NONE": "Nenhum",
+          "ADD_PLACEHOLDER": "Nome do novo nicho",
+          "ADD_BUTTON": "Adicionar"
+        },
+        "SPECIALIST": {
+          "NONE": "Nenhum especialista",
+          "PLACEHOLDER": "Selecionar especialista"
+        },
+        "CLASSIFICATION_LEVEL": {
+          "NONE": "Sem classificação",
+          "L1": "1 - Básico",
+          "L2": "2",
+          "L3": "3",
+          "L4": "4",
+          "L5": "5 - Maior prioridade"
         },
         "CNPJ_LOOKUP": {
           "BUTTON": "Buscar",

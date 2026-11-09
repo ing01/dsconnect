@@ -75,12 +75,19 @@ const showPaginationFooter = computed(
   () => hasContacts.value && totalContacts.value > props.contacts.length
 );
 
+// Marca de onde o contato foi aberto: sem isto, o "voltar" da tela do
+// contato usa o historico do navegador pra adivinhar pra onde ir, e aqui
+// ele sempre teria vindo desta Empresa - nunca da lista de Contatos.
 const openContact = contactId => {
   router.push({
     name: 'contacts_edit',
     params: {
       accountId: route.params.accountId,
       contactId,
+    },
+    query: {
+      fromCompanyId: props.company.id,
+      fromCompanyName: props.company.name || undefined,
     },
   });
 };

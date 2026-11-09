@@ -1,5 +1,83 @@
 {
   "TICKET": {
+    "BULK": {
+      "TITLE": "Ações em lote",
+      "SELECT_PAGE": "Selecionar todos os tickets desta página",
+      "CLEAR_SELECTION": "Limpar seleção",
+      "OVER_LIMIT": "Tickets demais: o limite é {limit} por operação. Reduza o filtro ou a seleção.",
+      "SCOPE": {
+        "SELECTED": "Marcados ({count})",
+        "FILTER": "Todos do filtro ({count})"
+      },
+      "GROUPS": {
+        "FIELDS": "Campos",
+        "MOVE": "Movimentar",
+        "COMMUNICATE": "Comunicação",
+        "FINISH": "Encerrar"
+      },
+      "ACTIONS": {
+        "priority": "Prioridade",
+        "due_date": "Data de entrega",
+        "scheduled_at": "Data de agendamento",
+        "category": "Categoria",
+        "complexity": "Complexidade",
+        "assignee": "Responsável",
+        "contact_company": "Solicitante / Empresa",
+        "followers": "Adicionar seguidores",
+        "stage": "Estágio",
+        "team": "Mesa",
+        "comment": "Comentário interno",
+        "customer_message": "Mensagem ao cliente",
+        "resolve": "Resolver",
+        "close": "Fechar",
+        "cancel": "Cancelar",
+        "reopen": "Reabrir"
+      },
+      "ACTION": "Ação",
+      "ACTION_PLACEHOLDER": "Escolha o que fazer com os tickets",
+      "ERROR": "Não foi possível executar a ação em lote.",
+      "FIELDS": {
+        "LEVEL": "Nível {level}",
+        "LEVEL_LABEL": "Nível do responsável",
+        "CLEAR_DATE": "Remover a data de todos os tickets",
+        "NO_CATEGORY": "Sem categoria",
+        "NO_COMPLEXITY": "Sem complexidade",
+        "NO_ASSIGNEE": "Sem responsável (limpar)",
+        "FIRST_STAGE": "Primeiro estágio da Mesa",
+        "TEAM_CLEARS_ASSIGNEE": "Responsáveis que não são membros da nova Mesa são removidos, assim como uma categoria de outra Mesa.",
+        "NOTIFY_CUSTOMER": "Enviar por e-mail (senão, apenas registrar no ticket)",
+        "CONSOLIDATED": "Um e-mail por solicitante: se o solicitante tem vários tickets, uma única mensagem lista todos. O texto é registrado em cada ticket.",
+        "CANCEL_REASON": "Motivo do cancelamento (registrado em todos os tickets)"
+      },
+      "CLOSE": {
+        "WARNING": "ATENÇÃO: o que for preenchido aqui vale para TODOS os {count} tickets.",
+        "RESOLUTION": "Resolução (para TODOS os tickets que ainda não têm)",
+        "CATEGORY": "Categoria (para TODOS os tickets que ainda não têm)",
+        "KEEP": "Manter a de cada ticket",
+        "HINT": "Tickets que já têm resolução, categoria ou classificação mantêm a sua. Os que ainda faltarem algo obrigatório são ignorados e aparecem no relatório."
+      },
+      "REVIEW": "Revisar",
+      "REVIEW_SUMMARY": "{action}: {count} tickets serão processados.",
+      "REVIEW_FORBIDDEN": "{count} tickets que você não pode alterar serão ignorados.",
+      "REVIEW_FINALIZED": "{count} tickets já estão fechados ou cancelados.",
+      "BACK": "Voltar",
+      "CONFIRM": "Aplicar em {count} tickets",
+      "RUNNING": "Executando... {progress}%",
+      "REPORT": {
+        "SUMMARY": "Concluído: {succeeded} alterados, {skipped} ignorados, {failed} com falha.",
+        "DOWNLOAD": "Baixar relatório (CSV)",
+        "RETRY": "Tentar de novo os que falharam",
+        "UNDO": "Desfazer",
+        "NEW": "Nova ação"
+      },
+      "HISTORY": "Ações em lote recentes",
+      "FILTERS": {
+        "DUE_AFTER": "Entrega a partir de",
+        "DUE_BEFORE": "Entrega até",
+        "UNASSIGNED": "Sem responsável",
+        "UNCATEGORIZED": "Sem categoria"
+      }
+    },
     "WORKSPACE": {
       "KANBAN": "Kanban",
       "CLOSE_TAB": "Fechar aba",
@@ -120,6 +198,10 @@
         "COMPLEXITY": "Complexidade",
         "DUE_DATE": "Prazo"
       }
+    },
+    "ADVANCED_MANAGEMENT": {
+      "TITLE": "Gestão avançada de tickets",
+      "BUTTON": "Gestão avançada"
     },
     "SEARCH": {
       "BUTTON": "Busca detalhada",
@@ -671,6 +753,8 @@
           "REMOVE_ACTION": "Remover ação",
           "UNASSIGN": "Remover responsável",
           "NOTE_PLACEHOLDER": "Texto que vai aparecer no histórico do ticket...",
+          "CUSTOMER_MESSAGE_PLACEHOLDER": "Mensagem padrão que será enviada ao cliente...",
+          "NOTIFY_CUSTOMER": "Enviar por e-mail ao cliente (desmarcado só registra, sem enviar)",
           "STAGE_LABEL": "Estágio",
           "ACTION_TYPES": {
             "SET_PRIORITY": "Mudar a prioridade",
@@ -679,6 +763,7 @@
             "CLEAR_DUE_DATE": "Limpar a data de vencimento",
             "CLEAR_SCHEDULED_AT": "Limpar a data de agendamento",
             "POST_NOTE": "Adicionar uma nota automática",
+            "SEND_CUSTOMER_MESSAGE": "Enviar mensagem padrão ao cliente",
             "MOVE_PARENT_TO_COLUMN": "Mover o ticket pai para outro estágio"
           },
           "ACTION_HINTS": {

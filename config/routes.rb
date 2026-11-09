@@ -335,6 +335,7 @@ Rails.application.routes.draw do
           end
           resources :system_modules, only: [:index, :create]
           resources :company_categories, only: [:index, :create]
+          resources :company_niches, only: [:index, :create]
           resources :products, only: [:index, :create, :update, :destroy]
           resources :product_groups, only: [:index, :create, :update, :destroy]
           resources :contracts, only: [:index, :show, :create, :update, :destroy] do
@@ -549,6 +550,14 @@ Rails.application.routes.draw do
                 post :toggle_reaction
                 post :toggle_pin
               end
+            end
+          end
+
+          resources :ticket_bulk_operations, only: [:index, :show, :create] do
+            collection { post :preview }
+            member do
+              post :undo
+              post :retry_failed
             end
           end
 

@@ -14,13 +14,43 @@ class CompanyAPI extends ApiClient {
   }
 
   get(params = {}) {
-    const { page = 1, sort = 'name', clientLevel = '' } = params;
-    const requestURL = `${this.url}?${buildParams({ page, sort, client_level: clientLevel })}`;
+    const {
+      page = 1,
+      sort = 'name',
+      clientLevel = '',
+      classificationLevel = '',
+      companyNicheId = '',
+      specialistId = '',
+    } = params;
+    const requestURL = `${this.url}?${buildParams({
+      page,
+      sort,
+      client_level: clientLevel,
+      classification_level: classificationLevel,
+      company_niche_id: companyNicheId,
+      specialist_id: specialistId,
+    })}`;
     return axios.get(requestURL);
   }
 
-  search(query = '', page = 1, sort = 'name', clientLevel = '') {
-    const requestURL = `${this.url}/search?${buildParams({ q: query, page, sort, client_level: clientLevel })}`;
+  search(
+    query = '',
+    page = 1,
+    sort = 'name',
+    clientLevel = '',
+    classificationLevel = '',
+    companyNicheId = '',
+    specialistId = ''
+  ) {
+    const requestURL = `${this.url}/search?${buildParams({
+      q: query,
+      page,
+      sort,
+      client_level: clientLevel,
+      classification_level: classificationLevel,
+      company_niche_id: companyNicheId,
+      specialist_id: specialistId,
+    })}`;
     return axios.get(requestURL);
   }
 

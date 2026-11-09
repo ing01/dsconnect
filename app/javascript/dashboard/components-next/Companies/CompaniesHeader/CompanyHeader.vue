@@ -5,8 +5,9 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import CompanySortMenu from './components/CompanySortMenu.vue';
 import CompanyPriorityFilter from './components/CompanyPriorityFilter.vue';
-
-const { t } = useI18n();
+import CompanyClassificationFilter from './components/CompanyClassificationFilter.vue';
+import CompanyNicheFilter from './components/CompanyNicheFilter.vue';
+import CompanySpecialistFilter from './components/CompanySpecialistFilter.vue';
 
 defineProps({
   showSearch: { type: Boolean, default: true },
@@ -15,14 +16,22 @@ defineProps({
   activeSort: { type: String, default: 'last_activity_at' },
   activeOrdering: { type: String, default: '' },
   activeClientLevel: { type: [String, Number], default: '' },
+  activeClassificationLevel: { type: [String, Number], default: '' },
+  activeCompanyNicheId: { type: [String, Number], default: '' },
+  activeSpecialistId: { type: [String, Number], default: '' },
 });
 
 const emit = defineEmits([
   'search',
   'update:sort',
   'update:clientLevel',
+  'update:classificationLevel',
+  'update:companyNicheId',
+  'update:specialistId',
   'create',
 ]);
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -57,6 +66,20 @@ const emit = defineEmits([
           <CompanyPriorityFilter
             :active-client-level="activeClientLevel"
             @update:client-level="emit('update:clientLevel', $event)"
+          />
+          <CompanyClassificationFilter
+            :active-classification-level="activeClassificationLevel"
+            @update:classification-level="
+              emit('update:classificationLevel', $event)
+            "
+          />
+          <CompanyNicheFilter
+            :active-company-niche-id="activeCompanyNicheId"
+            @update:company-niche-id="emit('update:companyNicheId', $event)"
+          />
+          <CompanySpecialistFilter
+            :active-specialist-id="activeSpecialistId"
+            @update:specialist-id="emit('update:specialistId', $event)"
           />
           <CompanySortMenu
             :active-sort="activeSort"

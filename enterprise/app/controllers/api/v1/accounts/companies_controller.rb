@@ -76,8 +76,14 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   private
 
   def resolved_companies
-    @resolved_companies ||= filter_by_client_level(
-      Current.account.companies.includes(:system_modules, :company_category)
+    @resolved_companies ||= filter_by_specialist(
+      filter_by_company_niche(
+        filter_by_classification_level(
+          filter_by_client_level(
+            Current.account.companies.includes(:system_modules, :company_category, :company_niche, :specialist)
+          )
+        )
+      )
     )
   end
 
@@ -89,6 +95,26 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
     return companies if params[:client_level].blank?
 
     companies.where(client_level: params[:client_level])
+  end
+
+  # Filtro pela Classificacao manual (1 a 5) - pedido da Ingrid, 2026-11-09.
+  # Independente do filtro de Prioridade acima.
+  def filter_by_classification_level(companies)
+    return companies if params[:classification_level].blank?
+
+    companies.where(classification_level: params[:classification_level])
+  end
+
+  def filter_by_company_niche(companies)
+    return companies if params[:company_niche_id].blank?
+
+    companies.where(company_niche_id: params[:company_niche_id])
+  end
+
+  def filter_by_specialist(companies)
+    return companies if params[:specialist_id].blank?
+
+    companies.where(specialist_id: params[:specialist_id])
   end
 
   def set_current_page
@@ -117,6 +143,9 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   # `codigo` tambem fica de fora de proposito - so pode ser definido pela
   # importacao de Codigo/CNPJ/Prioridade (`CompanyPriorityImportJob`), nunca
   # editado a mao pelo cadastro normal da empresa (pedido da Ingrid).
+  # `classification_level` ja ENTRA aqui, ao contrario de `client_level`: e'
+  # um campo manual e independente (pedido da Ingrid, 2026-11-09), tambem
+  # editavel pela importacao por planilha (`CompanyClassificationImportJob`).
   def company_params
     params.require(:company).permit(
       :name,
@@ -137,6 +166,9 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :campaign_opt_in,
       :blocked,
       :company_category_id,
+      :company_niche_id,
+      :specialist_id,
+      :classification_level,
       *allowed_billing_attrs,
       additional_attributes: {},
       custom_attributes: {},

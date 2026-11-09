@@ -10,6 +10,9 @@ defineProps({
   activeSort: { type: String, default: 'name' },
   activeOrdering: { type: String, default: '' },
   activeClientLevel: { type: [String, Number], default: '' },
+  activeClassificationLevel: { type: [String, Number], default: '' },
+  activeCompanyNicheId: { type: [String, Number], default: '' },
+  activeSpecialistId: { type: [String, Number], default: '' },
   showPaginationFooter: { type: Boolean, default: true },
 });
 
@@ -17,6 +20,9 @@ const emit = defineEmits([
   'update:currentPage',
   'update:sort',
   'update:clientLevel',
+  'update:classificationLevel',
+  'update:companyNicheId',
+  'update:specialistId',
   'search',
   'create',
 ]);
@@ -37,9 +43,17 @@ const updateCurrentPage = page => {
         :active-sort="activeSort"
         :active-ordering="activeOrdering"
         :active-client-level="activeClientLevel"
+        :active-classification-level="activeClassificationLevel"
+        :active-company-niche-id="activeCompanyNicheId"
+        :active-specialist-id="activeSpecialistId"
         @search="emit('search', $event)"
         @update:sort="emit('update:sort', $event)"
         @update:client-level="emit('update:clientLevel', $event)"
+        @update:classification-level="
+          emit('update:classificationLevel', $event)
+        "
+        @update:company-niche-id="emit('update:companyNicheId', $event)"
+        @update:specialist-id="emit('update:specialistId', $event)"
         @create="emit('create')"
       />
       <main class="flex-1 px-6 overflow-y-auto">

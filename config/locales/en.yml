@@ -168,6 +168,26 @@ en:
       regards: Kind regards,
       company_name: Duesoft Sistemas
   tickets:
+bulk:
+  empty: no tickets match this operation
+  limit_exceeded: "too many tickets: the limit is %{limit} per operation"
+  not_undoable: this operation can no longer be undone
+  related_tickets: "Related tickets: %{numbers}"
+  reasons:
+    not_found: ticket not found
+    forbidden: you do not have permission to change this ticket
+    unchanged: nothing to change on this ticket
+    changed_since: the ticket was changed after the operation
+    category_other_team: the category belongs to another Mesa
+    invalid_level: invalid assignee level
+    not_team_member: the person is not a member of this ticket's Mesa
+    column_not_found: stage not found
+    stage_other_team: the stage belongs to another Mesa
+    team_not_found: Mesa not found
+    team_without_stage: the Mesa has no stages
+    reason_required: a reason is required to cancel
+    close_missing: "missing to close: %{missing}"
+    no_requester_email: the requester has no e-mail
     auto_creation:
       whatsapp_title: "WhatsApp service #%{id}"
       whatsapp_title_named: "WhatsApp service - %{name}"

@@ -36,6 +36,9 @@ const props = defineProps({
     required: true,
   },
   groups: { type: Array, default: null },
+  // Mostra a coluna de caixas de selecao (painel em lote). So na lista plana.
+  selectable: { type: Boolean, default: false },
+  selectedIds: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
   // So no modo `groups`: e a chave de onde fica guardado o que esta recolhido.
   accountId: { type: [Number, String], default: null },
@@ -52,7 +55,7 @@ const props = defineProps({
 
 // Quem abre o ticket muda com a origem: no painel e a rota interna; com
 // `groups`, quem entregou os dados e quem sabe para onde ir.
-const emit = defineEmits(['openTicket']);
+const emit = defineEmits(['openTicket', 'update:selectedIds']);
 
 // Celula cortada (...) mostra o texto inteiro ao passar o mouse.
 const showFullTextOnHover = event => {
@@ -303,6 +306,30 @@ const tickets = computed(() =>
   recebeLinhas.value ? [] : store.getters['tickets/getTicketsList']
 );
 
+const isSelected = id => props.selectedIds.includes(id);
+const toggleSelected = id =>
+  emit(
+    'update:selectedIds',
+    isSelected(id)
+      ? props.selectedIds.filter(selected => selected !== id)
+      : [...props.selectedIds, id]
+  );
+// Marca ou desmarca todos os tickets da pagina aberta.
+const allVisibleSelected = computed(
+  () =>
+    tickets.value.length > 0 &&
+    tickets.value.every(ticket => isSelected(ticket.id))
+);
+const toggleAllVisible = () => {
+  const ids = tickets.value.map(ticket => ticket.id);
+  emit(
+    'update:selectedIds',
+    allVisibleSelected.value
+      ? props.selectedIds.filter(id => !ids.includes(id))
+      : [...new Set([...props.selectedIds, ...ids])]
+  );
+};
+
 // A tabela desenha UMA sequencia, venha ela de onde vier: no modo `groups` os
 // cabecalhos de Estagio entram como linha, e o grupo recolhido simplesmente nao
 // contribui com as dele. Manter uma so sequencia evita a marcacao da linha do
@@ -468,6 +495,7 @@ onMounted(() => {
       <div class="flex-1 min-h-0 overflow-auto rounded-xl border border-n-weak">
         <table class="w-full text-sm table-fixed">
           <colgroup>
+            <col v-if="selectable" class="w-10" />
             <col
               v-for="column in visibleColumns"
               :key="column.key"
@@ -476,6 +504,14 @@ onMounted(() => {
           </colgroup>
           <thead class="sticky top-0 bg-n-solid-1 border-b border-n-weak">
             <tr class="text-left text-xs text-n-slate-10">
+              <th v-if="selectable" class="px-3 py-2">
+                <input
+                  type="checkbox"
+                  :checked="allVisibleSelected"
+                  :aria-label="t('TICKET.BULK.SELECT_PAGE')"
+                  @change="toggleAllVisible"
+                />
+              </th>
               <th
                 v-for="column in visibleColumns"
                 :key="column.key"
@@ -565,16 +601,23 @@ onMounted(() => {
                 class="border-b border-n-weak last:border-b-0 cursor-pointer hover:bg-n-slate-2"
                 @click="openTicket(linha.ticket)"
               >
+                <td v-if="selectable" class="px-3 py-2" @click.stop>
+                  <input
+                    type="checkbox"
+                    :checked="isSelected(linha.ticket.id)"
+                    @change="toggleSelected(linha.ticket.id)"
+                  />
+                </td>
                 <td
                   v-for="column in visibleColumns"
                   :key="column.key"
                   class="px-3 py-2 truncate"
-                  @mouseenter="showFullTextOnHover"
                   :class="
                     column.key === 'title'
                       ? 'text-n-slate-12 font-medium'
                       : 'text-n-slate-11'
                   "
+                  @mouseenter="showFullTextOnHover"
                 >
                   <template v-if="column.key === 'display_id'">
                     #{{ linha.ticket.display_id }}

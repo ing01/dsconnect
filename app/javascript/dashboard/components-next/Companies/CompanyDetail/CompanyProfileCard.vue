@@ -1,16 +1,19 @@
 <script setup>
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { debounce } from '@chatwoot/utils';
 import { useAlert } from 'dashboard/composables';
+import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { dynamicTime } from 'shared/helpers/timeHelper';
 
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
+import Select from 'dashboard/components-next/select/Select.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import CompanyModulesField from 'dashboard/components-next/Companies/CompanyDetail/CompanyModulesField.vue';
 import CompanyCategoryField from 'dashboard/components-next/Companies/CompanyDetail/CompanyCategoryField.vue';
+import CompanyNicheField from 'dashboard/components-next/Companies/CompanyDetail/CompanyNicheField.vue';
 import { useCompaniesStore } from 'dashboard/stores/companies';
 
 const props = defineProps({
@@ -20,6 +23,8 @@ const props = defineProps({
 
 const { t } = useI18n();
 const companiesStore = useCompaniesStore();
+const store = useStore();
+const agents = useMapGetter('agents/getAgents');
 
 const FISCAL_FIELDS = [
   'legalName',
@@ -36,7 +41,9 @@ const FISCAL_FIELDS = [
 ];
 
 const clientLevelLabel = computed(() =>
-  t(`COMPANIES.DETAIL.PROFILE.LEVEL.L${Number(props.company?.clientLevel) || 1}`)
+  t(
+    `COMPANIES.DETAIL.PROFILE.LEVEL.L${Number(props.company?.clientLevel) || 1}`
+  )
 );
 
 // 1 Baixa (verde), 2 Media (laranja), 3 Alta (vermelho) - "verde" nessa
@@ -49,6 +56,18 @@ const CLIENT_LEVEL_COLOR_CLASSES = {
 const clientLevelColorClasses = computed(
   () => CLIENT_LEVEL_COLOR_CLASSES[Number(props.company?.clientLevel) || 1]
 );
+
+const classificationLevelOptions = computed(() => [
+  { value: 0, label: t('COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.NONE') },
+  ...[1, 2, 3, 4, 5].map(level => ({
+    value: level,
+    label: t(`COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.L${level}`),
+  })),
+]);
+const specialistOptions = computed(() => [
+  { value: 0, label: t('COMPANIES.DETAIL.PROFILE.SPECIALIST.NONE') },
+  ...agents.value.map(agent => ({ value: agent.id, label: agent.name })),
+]);
 
 const form = reactive({
   name: '',
@@ -66,6 +85,9 @@ const form = reactive({
   addressCity: '',
   addressState: '',
   companyCategoryId: 0,
+  companyNicheId: 0,
+  specialistId: 0,
+  classificationLevel: 0,
   campaignOptIn: false,
   systemModuleIds: [],
 });
@@ -107,8 +129,11 @@ const hasChanges = computed(
     FISCAL_FIELDS.some(
       field => (form[field] || '').trim() !== (props.company?.[field] || '')
     ) ||
-    (form.companyCategoryId || 0) !==
-      (props.company?.companyCategoryId || 0) ||
+    (form.companyCategoryId || 0) !== (props.company?.companyCategoryId || 0) ||
+    (form.companyNicheId || 0) !== (props.company?.companyNicheId || 0) ||
+    (form.specialistId || 0) !== (props.company?.specialistId || 0) ||
+    (form.classificationLevel || 0) !==
+      (props.company?.classificationLevel || 0) ||
     form.campaignOptIn !== Boolean(props.company?.campaignOptIn) ||
     !sameModuleSelection.value
 );
@@ -138,6 +163,9 @@ const syncForm = company => {
     form[field] = company?.[field] || '';
   });
   form.companyCategoryId = company?.companyCategoryId || 0;
+  form.companyNicheId = company?.companyNicheId || 0;
+  form.specialistId = company?.specialistId || 0;
+  form.classificationLevel = company?.classificationLevel || 0;
   form.campaignOptIn = Boolean(company?.campaignOptIn);
   form.systemModuleIds = (company?.systemModules || []).map(m => m.id);
   cnpjLookupState.value = 'idle';
@@ -156,6 +184,9 @@ watch(
     ...FISCAL_FIELDS.map(field => props.company?.[field]),
     props.company?.clientLevel,
     props.company?.companyCategoryId,
+    props.company?.companyNicheId,
+    props.company?.specialistId,
+    props.company?.classificationLevel,
     props.company?.campaignOptIn,
     JSON.stringify(props.company?.systemModules || []),
   ],
@@ -204,6 +235,9 @@ const handleUpdateCompany = async () => {
         return attrs;
       }, {}),
       companyCategoryId: form.companyCategoryId || null,
+      companyNicheId: form.companyNicheId || null,
+      specialistId: form.specialistId || null,
+      classificationLevel: form.classificationLevel || null,
       campaignOptIn: form.campaignOptIn,
       systemModuleIds: form.systemModuleIds,
     });
@@ -252,6 +286,10 @@ watch(
     if (value.replace(/\D/g, '').length === 14) debouncedCnpjLookup();
   }
 );
+
+onMounted(() => {
+  if (!agents.value.length) store.dispatch('agents/get');
+});
 </script>
 
 <template>
@@ -333,7 +371,9 @@ watch(
               variant="faded"
               color="slate"
               :is-loading="isLookingUpCnpj"
-              :disabled="isUpdating || form.cnpj.replace(/\D/g, '').length !== 14"
+              :disabled="
+                isUpdating || form.cnpj.replace(/\D/g, '').length !== 14
+              "
               @click="handleCnpjLookup"
             />
           </div>
@@ -356,13 +396,13 @@ watch(
             custom-input-class="h-8 !pt-1 !pb-1"
           />
         </div>
-        <p
-          v-if="cnpjLookupState === 'success'"
-          class="text-xs text-n-teal-11"
-        >
+        <p v-if="cnpjLookupState === 'success'" class="text-xs text-n-teal-11">
           {{ t('COMPANIES.DETAIL.PROFILE.CNPJ_LOOKUP.SUCCESS') }}
         </p>
-        <p v-else-if="cnpjLookupState === 'error'" class="text-xs text-n-ruby-11">
+        <p
+          v-else-if="cnpjLookupState === 'error'"
+          class="text-xs text-n-ruby-11"
+        >
           {{ cnpjLookupErrorMessage }}
         </p>
       </div>
@@ -393,6 +433,35 @@ watch(
             </label>
             <CompanyCategoryField
               v-model="form.companyCategoryId"
+              :disabled="isUpdating"
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm text-n-slate-11">
+              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.NICHE') }}
+            </label>
+            <CompanyNicheField
+              v-model="form.companyNicheId"
+              :disabled="isUpdating"
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm text-n-slate-11">
+              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.SPECIALIST') }}
+            </label>
+            <Select
+              v-model="form.specialistId"
+              :options="specialistOptions"
+              :disabled="isUpdating"
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm text-n-slate-11">
+              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.CLASSIFICATION_LEVEL') }}
+            </label>
+            <Select
+              v-model="form.classificationLevel"
+              :options="classificationLevelOptions"
               :disabled="isUpdating"
             />
           </div>
@@ -444,17 +513,13 @@ watch(
           />
           <Input
             v-model="form.addressComplement"
-            :label="
-              t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_COMPLEMENT')
-            "
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_COMPLEMENT')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />
           <Input
             v-model="form.addressNeighborhood"
-            :label="
-              t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_NEIGHBORHOOD')
-            "
+            :label="t('COMPANIES.DETAIL.PROFILE.FIELDS.ADDRESS_NEIGHBORHOOD')"
             :disabled="isUpdating"
             custom-input-class="h-8 !pt-1 !pb-1"
           />

@@ -75,9 +75,7 @@ const isFetchingConversations = computed(
 );
 const isFetchingNotes = computed(() => uiFlags.value.fetchingNotes);
 const isFetchingTickets = computed(() => uiFlags.value.fetchingTickets);
-const isFetchingCredentials = computed(
-  () => uiFlags.value.fetchingCredentials
-);
+const isFetchingCredentials = computed(() => uiFlags.value.fetchingCredentials);
 const isSavingCredential = computed(
   () => uiFlags.value.creatingCredential || uiFlags.value.updatingCredential
 );
@@ -141,8 +139,19 @@ const goToCompaniesIndex = () => {
   });
 };
 
+// So' confia no "voltar" do navegador quando a pagina anterior era mesmo a
+// lista de Empresas - chegar aqui de outro lugar (ex.: o "voltar" de um
+// contato aberto por esta Empresa, que cai de novo aqui) deixaria o
+// `back` apontando pra esse outro lugar, nao pra lista.
+const cameFromCompaniesIndex = () => {
+  const back = window.history.state?.back;
+  if (!back) return false;
+  const indexPath = `/app/accounts/${route.params.accountId}/companies`;
+  return back === indexPath || back.startsWith(`${indexPath}?`);
+};
+
 const goToCompaniesList = () => {
-  if (window.history.state?.back) {
+  if (cameFromCompaniesIndex()) {
     router.back();
     return;
   }
@@ -414,6 +423,7 @@ onBeforeUnmount(() => {
       />
       <CompanyNotesSidebar
         v-else-if="activeTab === 'notes'"
+        :company="company"
         :notes="companyNotes"
         :is-loading="isFetchingNotes"
       />
@@ -426,7 +436,10 @@ onBeforeUnmount(() => {
         v-else-if="activeTab === 'billing' && canManageBilling"
         class="flex flex-col gap-6"
       >
-        <CompanyBillingCard :company="company" :is-loading="isFetchingCompany" />
+        <CompanyBillingCard
+          :company="company"
+          :is-loading="isFetchingCompany"
+        />
       </div>
       <CompanyCredentialsSidebar
         v-else-if="activeTab === 'credentials' && canManageCredentials"

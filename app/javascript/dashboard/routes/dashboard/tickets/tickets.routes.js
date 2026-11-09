@@ -5,6 +5,7 @@ import TicketsPage from './pages/TicketsPage.vue';
 import TicketDetailPage from './pages/TicketDetailPage.vue';
 import TicketTriagePage from './pages/TicketTriagePage.vue';
 import BacklogPage from './pages/BacklogPage.vue';
+import TicketAdvancedManagementView from './pages/TicketAdvancedManagementView.vue';
 
 const meta = {
   permissions: ['administrator', 'agent', 'ticket_manage'],
@@ -40,6 +41,13 @@ const ticketsRoutes = {
           name: 'tickets_backlog',
           meta,
           component: BacklogPage,
+        },
+        // Antes de `:ticketId`, pelo mesmo motivo de "triage"/"backlog" acima.
+        {
+          path: 'advanced',
+          name: 'tickets_advanced_management',
+          meta,
+          component: TicketAdvancedManagementView,
         },
         {
           path: ':ticketId',

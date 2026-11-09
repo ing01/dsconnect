@@ -146,6 +146,14 @@ export default {
     openDetailedSearch() {
       this.showDetailedSearch = true;
     },
+    // Tela propria (nao o modal de Busca detalhada) - pedido da Ingrid,
+    // 2026-11-09: um botao ao lado do titulo "Tickets", sem entrada no menu
+    // lateral, pra nao lota-lo.
+    openAdvancedManagement() {
+      this.$router.push(
+        frontendURL(`accounts/${this.currentAccountId}/tickets/advanced`)
+      );
+    },
     // Tela propria, e nao a busca detalhada com um filtro: a pergunta aqui e so
     // "o que esta travado comigo?", e os filtros da busca atrapalham a resposta.
     openImpededSearch() {
@@ -254,14 +262,22 @@ export default {
          the Kanban's max-content (every column added) and the header controls
          get pushed past the clipping edge of <main>. -->
     <header class="flex flex-col gap-3 w-full min-w-0 flex-shrink-0">
-      <div>
+      <div class="flex items-center gap-2">
         <h1 class="text-xl font-medium text-n-slate-12">
           {{ $t('TICKET.HEADER') }}
         </h1>
-        <p class="text-sm text-n-slate-11">
-          {{ $t('TICKET.DESCRIPTION') }}
-        </p>
+        <NextButton
+          icon="i-lucide-list-filter"
+          ghost
+          slate
+          size="sm"
+          :label="$t('TICKET.ADVANCED_MANAGEMENT.BUTTON')"
+          @click="openAdvancedManagement"
+        />
       </div>
+      <p class="text-sm text-n-slate-11">
+        {{ $t('TICKET.DESCRIPTION') }}
+      </p>
 
       <!-- Mesa and Busca detalhada never shrink; the agent filter takes the
            slack and wraps to its own line first when space runs out. -->

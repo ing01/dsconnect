@@ -72,7 +72,28 @@ const activeTabIndex = computed(() => {
   return CONTACT_TABS_OPTIONS.findIndex(v => v.value === activeTab.value);
 });
 
+// Quem abriu este contato a partir de uma Empresa (ver
+// CompanyContactsSidebar/CompanyNotesSidebar) marca isso na query - sem essa
+// marca, "voltar" usa o historico do navegador pra adivinhar pra onde ir, e
+// ao cruzar de Empresas pra Contatos ele podia cair em outra tela qualquer
+// (a que ficava "antes" na pilha), nao na lista de Contatos nem na Empresa.
+const cameFromCompanyId = computed(() => route.query.fromCompanyId);
+const cameFromCompanyName = computed(() => route.query.fromCompanyName);
+
+const backLabel = computed(() => cameFromCompanyName.value || undefined);
+
 const goToContactsList = () => {
+  if (cameFromCompanyId.value) {
+    router.push({
+      name: 'companies_dashboard_show',
+      params: {
+        accountId: route.params.accountId,
+        companyId: cameFromCompanyId.value,
+      },
+    });
+    return;
+  }
+
   if (window.history.state?.back || window.history.length > 1) {
     router.back();
   } else {
@@ -153,6 +174,7 @@ onMounted(() => {
       is-detail-view
       :show-pagination-footer="false"
       :is-updating="isUpdatingContact"
+      :back-label="backLabel"
       @go-to-contacts-list="goToContactsList"
       @toggle-block="toggleContactBlock"
     >
