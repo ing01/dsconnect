@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'image-viewer-pan-fix-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'fix',
+    platform: 'web',
+    title: 'Visualizador de imagens: arrastar a imagem ampliada funciona',
+    description:
+      'O arrasto da imagem ampliada era interrompido pelo próprio navegador (que tentava "puxar" a imagem como arquivo). Agora, com zoom, é só clicar e arrastar para ver a parte desejada.',
+  },
+  {
     id: 'open-conversation-portal-inbox-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',

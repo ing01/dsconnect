@@ -180,8 +180,8 @@ describe('useImageZoom', () => {
       onRotate('clockwise');
       onZoom(1);
       onPanStart(down(0, 0));
-      move(0, 10); // para baixo na tela = para a esquerda no eixo da imagem girada
-      expect(panX.value).toBeCloseTo(-10);
+      move(0, 10); // girada 90 graus: "para baixo" na tela e' o +x da imagem
+      expect(panX.value).toBeCloseTo(10);
       expect(panY.value).toBeCloseTo(0);
       window.dispatchEvent(new Event('pointerup'));
     });

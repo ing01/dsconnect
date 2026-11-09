@@ -303,6 +303,8 @@ onMounted(() => {
                 @click.stop
                 @dblclick.stop="onDoubleClickZoomImage"
                 @wheel.prevent.stop="onWheelImageZoom"
+                draggable="false"
+                @dragstart.prevent
                 @pointerdown="onPanStart"
                 @mousemove="onMouseMove"
                 @mouseleave="onMouseLeave"
