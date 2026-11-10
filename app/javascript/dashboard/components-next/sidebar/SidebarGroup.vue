@@ -15,6 +15,8 @@ const props = defineProps({
   label: { type: String, required: true },
   icon: { type: [String, Object, Function], default: null },
   to: { type: Object, default: null },
+  // Item de topo sem rota do Vue Router (link externo) - ver SidebarGroupHeader.
+  href: { type: String, default: '' },
   activeOn: { type: Array, default: () => [] },
   children: { type: Array, default: undefined },
   getterKeys: { type: Object, default: () => ({}) },
@@ -262,9 +264,24 @@ watch(
         @mouseleave="handleMouseLeave"
       >
         <component
-          :is="to && !hasChildren ? 'router-link' : 'button'"
+          :is="
+            href && !hasChildren
+              ? 'a'
+              : to && !hasChildren
+                ? 'router-link'
+                : 'button'
+          "
           ref="triggerRef"
-          :to="to && !hasChildren ? to : undefined"
+          :to="
+            href && !hasChildren
+              ? undefined
+              : to && !hasChildren
+                ? to
+                : undefined
+          "
+          :href="href && !hasChildren ? href : undefined"
+          :target="href && !hasChildren ? '_blank' : undefined"
+          :rel="href && !hasChildren ? 'noopener noreferrer' : undefined"
           type="button"
           class="flex items-center justify-center size-10 rounded-lg"
           :class="{
@@ -296,6 +313,7 @@ watch(
         :name
         :label
         :to
+        :href
         :getter-keys="getterKeys"
         :is-active="isActive"
         :has-active-child="hasActiveChild"

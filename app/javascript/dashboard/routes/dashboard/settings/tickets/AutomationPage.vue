@@ -23,20 +23,13 @@ const { currentAccount, updateAccount } = useAccount();
 // fixa no backend.
 const LEVELS = [1, 2, 3];
 const PRIORITY_OPTIONS = ['baixa', 'media', 'alta'];
-// Mesmo texto padrao de Account::DEFAULT_WHATSAPP_CSAT_SURVEY_MESSAGE - so
-// pra pre-preencher o campo com algo editavel em vez de vazio antes do
-// primeiro salvamento; o backend tem o mesmo default como rede de seguranca.
-const DEFAULT_CSAT_SURVEY_MESSAGE =
-  'Como você avalia nosso atendimento? Responda com um número de 1 a 5, sendo 1 (péssimo) e 5 (ótimo).';
 
 const whatsappFlowEnabled = ref(true);
-const whatsappAutoAssignmentEnabled = ref(true);
-const whatsappAutoAssignmentMaxOpenChats = ref(null);
-const portalAutoAssignmentEnabled = ref(true);
+// Comeca desligada (pedido da Ingrid, 2026-11-10: so' liga por acao
+// explicita de um admin, nunca sozinha).
+const portalAutoAssignmentEnabled = ref(false);
 const portalAutoAssignmentMaxOpenChats = ref(null);
-const whatsappCsatSurveyEnabled = ref(false);
-const whatsappCsatSurveyMessage = ref(DEFAULT_CSAT_SURVEY_MESSAGE);
-const whatsappCsatSurveyReplyWindowMinutes = ref(null);
+const portalAutoAssignmentExcludedAgentIds = ref([]);
 const aiResolveLevels = ref([1, 2]);
 const defaultPriorityOnAiFailure = ref('baixa');
 const openTicketWindowDays = ref(null);
@@ -53,10 +46,12 @@ const isRecalculating = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
 const queues = computed(() => getters['queues/getQueues'].value);
+const agents = computed(() => getters['agents/getAgents'].value);
 
 onBeforeMount(() => {
   store.dispatch('teams/get');
   store.dispatch('queues/get');
+  store.dispatch('agents/get');
 });
 
 watch(
@@ -82,20 +77,12 @@ watch(
       settings.priority_threshold_high_min ?? null;
     whatsappAutomationTestModeNumber.value =
       settings.whatsapp_automation_test_mode_number || '';
-    whatsappAutoAssignmentEnabled.value =
-      settings.whatsapp_auto_assignment_enabled ?? true;
-    whatsappAutoAssignmentMaxOpenChats.value =
-      settings.whatsapp_auto_assignment_max_open_chats ?? null;
     portalAutoAssignmentEnabled.value =
-      settings.client_portal_auto_assignment_enabled ?? true;
+      settings.client_portal_auto_assignment_enabled ?? false;
     portalAutoAssignmentMaxOpenChats.value =
       settings.client_portal_auto_assignment_max_open_chats ?? null;
-    whatsappCsatSurveyEnabled.value =
-      settings.whatsapp_csat_survey_enabled ?? false;
-    whatsappCsatSurveyMessage.value =
-      settings.whatsapp_csat_survey_message || DEFAULT_CSAT_SURVEY_MESSAGE;
-    whatsappCsatSurveyReplyWindowMinutes.value =
-      settings.whatsapp_csat_survey_reply_window_minutes ?? null;
+    portalAutoAssignmentExcludedAgentIds.value =
+      settings.client_portal_auto_assignment_excluded_agent_ids || [];
   },
   { deep: true, immediate: true }
 );
@@ -104,6 +91,13 @@ const toggleLevel = level => {
   aiResolveLevels.value = aiResolveLevels.value.includes(level)
     ? aiResolveLevels.value.filter(item => item !== level)
     : [...aiResolveLevels.value, level].sort((a, b) => a - b);
+};
+
+const togglePortalExcludedAgent = agentId => {
+  portalAutoAssignmentExcludedAgentIds.value =
+    portalAutoAssignmentExcludedAgentIds.value.includes(agentId)
+      ? portalAutoAssignmentExcludedAgentIds.value.filter(id => id !== agentId)
+      : [...portalAutoAssignmentExcludedAgentIds.value, agentId];
 };
 
 const priorityThresholdsInvalid = computed(() => {
@@ -120,11 +114,6 @@ const testModeNumberInvalid = computed(() => {
   return value.length > 0 && !/^\+[1-9]\d{1,14}$/.test(value);
 });
 
-const csatSurveyMessageInvalid = computed(
-  () =>
-    whatsappCsatSurveyEnabled.value && !whatsappCsatSurveyMessage.value.trim()
-);
-
 // Compartilhado pelo botao "Salvar" e pelo "Recalcular agora" - o recalculo
 // sempre salva primeiro, senao rodaria com os limiares antigos ainda
 // gravados no banco.
@@ -135,10 +124,6 @@ const saveSettings = async () => {
   }
   if (testModeNumberInvalid.value) {
     useAlert(t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.INVALID_NUMBER'));
-    return false;
-  }
-  if (csatSurveyMessageInvalid.value) {
-    useAlert(t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_REQUIRED'));
     return false;
   }
 
@@ -159,18 +144,12 @@ const saveSettings = async () => {
         priority_threshold_high_min: priorityThresholdHighMin.value || null,
         whatsapp_automation_test_mode_number:
           whatsappAutomationTestModeNumber.value.trim() || null,
-        whatsapp_auto_assignment_enabled: whatsappAutoAssignmentEnabled.value,
-        whatsapp_auto_assignment_max_open_chats:
-          whatsappAutoAssignmentMaxOpenChats.value || null,
         client_portal_auto_assignment_enabled:
           portalAutoAssignmentEnabled.value,
         client_portal_auto_assignment_max_open_chats:
           portalAutoAssignmentMaxOpenChats.value || null,
-        whatsapp_csat_survey_enabled: whatsappCsatSurveyEnabled.value,
-        whatsapp_csat_survey_message:
-          whatsappCsatSurveyMessage.value.trim() || null,
-        whatsapp_csat_survey_reply_window_minutes:
-          whatsappCsatSurveyReplyWindowMinutes.value || null,
+        client_portal_auto_assignment_excluded_agent_ids:
+          portalAutoAssignmentExcludedAgentIds.value,
       },
       { silent: true }
     );
@@ -249,59 +228,6 @@ const handleRecalculatePriorities = async () => {
             <div class="flex items-center justify-between gap-4">
               <div class="flex flex-col gap-1">
                 <h3 class="text-heading-2 text-n-slate-12">
-                  {{ t('TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.TITLE') }}
-                </h3>
-                <p class="mb-0 text-body-para text-n-slate-11">
-                  {{
-                    t('TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.DESCRIPTION')
-                  }}
-                </p>
-              </div>
-              <Switch v-model="whatsappAutoAssignmentEnabled" />
-            </div>
-
-            <template v-if="whatsappAutoAssignmentEnabled">
-              <WithLabel
-                :label="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.LABEL'
-                  )
-                "
-                :help-message="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.HELP'
-                  )
-                "
-              >
-                <input
-                  v-model.number="whatsappAutoAssignmentMaxOpenChats"
-                  type="number"
-                  min="1"
-                  class="mb-0 max-w-xs"
-                  :placeholder="
-                    t(
-                      'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.PLACEHOLDER'
-                    )
-                  "
-                />
-              </WithLabel>
-
-              <p class="mb-0 text-body-para text-n-slate-11">
-                {{ t('TICKET.SETTINGS.AUTOMATION.EXCEPTIONS_LINK.TEXT') }}
-                <router-link
-                  :to="{ name: 'ticket_auto_assignment_exceptions_settings' }"
-                  class="link"
-                >
-                  {{ t('TICKET.SETTINGS.AUTOMATION.EXCEPTIONS_LINK.LABEL') }}
-                </router-link>
-              </p>
-            </template>
-          </div>
-
-          <div class="flex flex-col gap-3 px-5 py-4">
-            <div class="flex items-center justify-between gap-4">
-              <div class="flex flex-col gap-1">
-                <h3 class="text-heading-2 text-n-slate-12">
                   {{
                     t('TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.TITLE')
                   }}
@@ -343,79 +269,47 @@ const handleRecalculatePriorities = async () => {
                 />
               </WithLabel>
 
-              <p class="mb-0 text-body-para text-n-slate-11">
-                {{ t('TICKET.SETTINGS.AUTOMATION.EXCEPTIONS_LINK.TEXT') }}
-                <router-link
-                  :to="{ name: 'ticket_auto_assignment_exceptions_settings' }"
-                  class="link"
-                >
-                  {{ t('TICKET.SETTINGS.AUTOMATION.EXCEPTIONS_LINK.LABEL') }}
-                </router-link>
-              </p>
-            </template>
-          </div>
-
-          <div class="flex flex-col gap-3 px-5 py-4">
-            <div class="flex items-center justify-between gap-4">
-              <div class="flex flex-col gap-1">
-                <h3 class="text-heading-2 text-n-slate-12">
-                  {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.TITLE') }}
-                </h3>
-                <p class="mb-0 text-body-para text-n-slate-11">
-                  {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.DESCRIPTION') }}
-                </p>
-              </div>
-              <Switch v-model="whatsappCsatSurveyEnabled" />
-            </div>
-
-            <div v-if="whatsappCsatSurveyEnabled" class="flex flex-col gap-1">
-              <label class="text-sm text-n-slate-12">
-                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_LABEL') }}
-              </label>
-              <textarea
-                v-model="whatsappCsatSurveyMessage"
-                rows="3"
-                class="mb-0"
-                :placeholder="
+              <WithLabel
+                :label="
                   t(
-                    'TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_PLACEHOLDER'
+                    'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.EXCLUDED_AGENTS.LABEL'
                   )
                 "
-              />
-              <p
-                v-if="csatSurveyMessageInvalid"
-                class="mb-0 text-xs text-n-ruby-11"
+                :help-message="
+                  t(
+                    'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.EXCLUDED_AGENTS.HELP'
+                  )
+                "
               >
-                {{
-                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_REQUIRED')
-                }}
-              </p>
-              <p v-else class="mb-0 text-xs text-n-slate-11">
-                {{ t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_HELP') }}
-              </p>
-
-              <label class="text-sm text-n-slate-12">
-                {{
-                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.LABEL')
-                }}
-              </label>
-              <input
-                v-model.number="whatsappCsatSurveyReplyWindowMinutes"
-                type="number"
-                min="1"
-                class="mb-0 max-w-xs"
-                :placeholder="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.PLACEHOLDER'
-                  )
-                "
-              />
-              <p class="mb-0 text-xs text-n-slate-11">
-                {{
-                  t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.HELP')
-                }}
-              </p>
-            </div>
+                <div
+                  v-if="agents.length"
+                  class="flex flex-col gap-2 pt-1 max-h-48 overflow-y-auto"
+                >
+                  <label
+                    v-for="agent in agents"
+                    :key="agent.id"
+                    class="flex items-center gap-2 text-sm text-n-slate-12"
+                  >
+                    <input
+                      type="checkbox"
+                      class="m-0"
+                      :checked="
+                        portalAutoAssignmentExcludedAgentIds.includes(agent.id)
+                      "
+                      @change="togglePortalExcludedAgent(agent.id)"
+                    />
+                    {{ agent.name }}
+                  </label>
+                </div>
+                <p v-else class="mb-0 text-xs text-n-slate-11">
+                  {{
+                    t(
+                      'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.EXCLUDED_AGENTS.EMPTY'
+                    )
+                  }}
+                </p>
+              </WithLabel>
+            </template>
           </div>
 
           <div class="flex flex-col gap-2 px-5 py-4">

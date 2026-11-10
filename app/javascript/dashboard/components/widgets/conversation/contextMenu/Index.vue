@@ -25,6 +25,7 @@ const MENU = {
   LABEL: 'label',
   OPEN_NEW_TAB: 'open-new-tab',
   COPY_LINK: 'copy-link',
+  DELETE: 'delete',
 };
 
 export default {
@@ -68,6 +69,13 @@ export default {
       type: Array,
       default: () => [],
     },
+    // So' a caixa de E-mail oferece "Excluir e-mail" - limpar spam nos
+    // outros canais (WhatsApp, Portal) apagaria historico de atendimento de
+    // verdade, o que nao e' o caso aqui (pedido da Ingrid, 2026-11-10).
+    isEmailInbox: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: [
     'updateConversation',
@@ -78,6 +86,7 @@ export default {
     'assignTeam',
     'assignLabel',
     'removeLabel',
+    'delete',
     'close',
   ],
   data() {
@@ -166,6 +175,11 @@ export default {
         key: MENU.COPY_LINK,
         icon: 'copy',
         label: this.$t('CONVERSATION.CARD_CONTEXT_MENU.COPY_LINK'),
+      },
+      deleteEmailOption: {
+        key: MENU.DELETE,
+        icon: 'delete-outline',
+        label: this.$t('CONVERSATION.CARD_CONTEXT_MENU.DELETE_EMAIL'),
       },
     };
   },
@@ -427,6 +441,14 @@ export default {
         :option="copyLinkOption"
         variant="icon"
         @click.stop="copyConversationLink"
+      />
+    </template>
+    <template v-if="isEmailInbox && isAllowed([MENU.DELETE])">
+      <hr class="m-1 rounded border-b border-n-weak dark:border-n-weak" />
+      <MenuItem
+        :option="deleteEmailOption"
+        variant="icon"
+        @click.stop="$emit('delete')"
       />
     </template>
   </div>

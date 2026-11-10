@@ -6,7 +6,9 @@ import { vOnClickOutside } from '@vueuse/components';
 import { useVuelidate } from '@vuelidate/core';
 import { minValue } from '@vuelidate/validators';
 import { useAlert } from 'dashboard/composables';
+import { useAccount } from 'dashboard/composables/useAccount';
 import { useConfig } from 'dashboard/composables/useConfig';
+import { useInbox } from 'dashboard/composables/useInbox';
 import SettingsFieldSection from 'dashboard/components-next/Settings/SettingsFieldSection.vue';
 import SettingsAccordion from 'dashboard/components-next/Settings/SettingsAccordion.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -14,6 +16,7 @@ import SettingsToggleSection from 'dashboard/components-next/Settings/SettingsTo
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TagInput from 'dashboard/components-next/taginput/TagInput.vue';
+import WithLabel from 'v3/components/Form/WithLabel.vue';
 import assignmentPoliciesAPI from 'dashboard/api/assignmentPolicies';
 import { useI18n } from 'vue-i18n';
 
@@ -29,11 +32,67 @@ const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const { isEnterprise } = useConfig();
+const { currentAccount, updateAccount } = useAccount();
+const { isAWhatsAppChannel, isATwilioWhatsAppChannel } = useInbox(
+  props.inbox?.id
+);
+const isAnyWhatsAppChannel = computed(
+  () => isAWhatsAppChannel.value || isATwilioWhatsAppChannel.value
+);
 
 const selectedAgentIds = ref([]);
 const isAgentListUpdating = ref(false);
 const enableAutoAssignment = ref(false);
 const maxAssignmentLimit = ref(null);
+
+// Excecao/limite da distribuicao automatica de WhatsApp - pedido da Ingrid,
+// 2026-11-10: fica junto do proprio liga/desliga, nao numa tela separada.
+// Configuracao de CONTA (Account#whatsapp_auto_assignment_*), nao de inbox -
+// ver Enterprise::AutoAssignment::AssignmentService#filter_agents_by_whatsapp_assignment_settings.
+const whatsappExcludedAgentIds = ref([]);
+const whatsappMaxOpenChats = ref(null);
+const isSavingWhatsappDistribution = ref(false);
+
+const syncWhatsappDistributionState = () => {
+  const settings = currentAccount.value?.settings || {};
+  whatsappExcludedAgentIds.value =
+    settings.whatsapp_auto_assignment_excluded_agent_ids || [];
+  whatsappMaxOpenChats.value =
+    settings.whatsapp_auto_assignment_max_open_chats ?? null;
+};
+
+watch(currentAccount, syncWhatsappDistributionState, {
+  deep: true,
+  immediate: true,
+});
+
+const toggleWhatsappExcludedAgent = agentId => {
+  whatsappExcludedAgentIds.value = whatsappExcludedAgentIds.value.includes(
+    agentId
+  )
+    ? whatsappExcludedAgentIds.value.filter(id => id !== agentId)
+    : [...whatsappExcludedAgentIds.value, agentId];
+};
+
+const saveWhatsappDistributionSettings = async () => {
+  isSavingWhatsappDistribution.value = true;
+  try {
+    await updateAccount(
+      {
+        whatsapp_auto_assignment_excluded_agent_ids:
+          whatsappExcludedAgentIds.value,
+        whatsapp_auto_assignment_max_open_chats:
+          whatsappMaxOpenChats.value || null,
+      },
+      { silent: true }
+    );
+    useAlert(t('TICKET.SETTINGS.AUTO_ASSIGNMENT_EXCEPTIONS.API.SUCCESS'));
+  } catch (error) {
+    useAlert(t('TICKET.SETTINGS.AUTO_ASSIGNMENT_EXCEPTIONS.API.ERROR'));
+  } finally {
+    isSavingWhatsappDistribution.value = false;
+  }
+};
 const assignmentPolicy = ref(null);
 const isLoadingPolicy = ref(false);
 const isDeletingPolicy = ref(false);
@@ -666,6 +725,83 @@ onMounted(() => {
           </template>
         </template>
       </SettingsToggleSection>
+    </SettingsAccordion>
+
+    <SettingsAccordion
+      v-if="isAnyWhatsAppChannel && enableAutoAssignment"
+      :title="t('TICKET.SETTINGS.AUTO_ASSIGNMENT_EXCEPTIONS.TITLE')"
+      class="mt-6"
+    >
+      <div class="flex flex-col gap-4 p-4">
+        <p class="m-0 text-body-main text-n-slate-11">
+          {{ t('TICKET.SETTINGS.AUTO_ASSIGNMENT_EXCEPTIONS.DESCRIPTION') }}
+        </p>
+        <WithLabel
+          :label="
+            t('TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.LABEL')
+          "
+          :help-message="
+            t('TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.HELP')
+          "
+        >
+          <input
+            v-model.number="whatsappMaxOpenChats"
+            type="number"
+            min="1"
+            class="mb-0 max-w-xs"
+            :placeholder="
+              t(
+                'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.MAX_OPEN_CHATS.PLACEHOLDER'
+              )
+            "
+          />
+        </WithLabel>
+        <WithLabel
+          :label="
+            t(
+              'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.LABEL'
+            )
+          "
+          :help-message="
+            t('TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.HELP')
+          "
+        >
+          <div
+            v-if="agentList.length"
+            class="flex flex-col gap-2 pt-1 max-h-48 overflow-y-auto"
+          >
+            <label
+              v-for="agent in agentList"
+              :key="agent.id"
+              class="flex items-center gap-2 text-sm text-n-slate-12"
+            >
+              <input
+                type="checkbox"
+                class="m-0"
+                :checked="whatsappExcludedAgentIds.includes(agent.id)"
+                @change="toggleWhatsappExcludedAgent(agent.id)"
+              />
+              {{ agent.name }}
+            </label>
+          </div>
+          <p v-else class="mb-0 text-xs text-n-slate-11">
+            {{
+              t(
+                'TICKET.SETTINGS.AUTOMATION.AUTO_ASSIGNMENT.EXCLUDED_AGENTS.EMPTY'
+              )
+            }}
+          </p>
+        </WithLabel>
+        <div class="flex justify-end">
+          <NextButton
+            type="button"
+            size="sm"
+            :is-loading="isSavingWhatsappDistribution"
+            :label="t('TICKET.SETTINGS.AUTO_ASSIGNMENT_EXCEPTIONS.SAVE')"
+            @click="saveWhatsappDistributionSettings"
+          />
+        </div>
+      </div>
     </SettingsAccordion>
 
     <woot-modal

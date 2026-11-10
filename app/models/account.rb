@@ -152,9 +152,12 @@ class Account < ApplicationRecord
     whatsapp_auto_assignment_enabled != false
   end
 
-  # Mesmo criterio acima, pro Portal do Cliente.
+  # Ao contrario do WhatsApp acima: ausente (nil) = DESLIGADO. A distribuicao
+  # automatica do Portal precisa ser ativada de proposito por um admin
+  # (pedido da Ingrid, 2026-11-10 - "nao pode fazer sozinho o rodizio"),
+  # nunca comecar ligada so' porque ninguem desmarcou nada.
   def client_portal_auto_assignment_enabled?
-    client_portal_auto_assignment_enabled != false
+    client_portal_auto_assignment_enabled == true
   end
 
   has_many :account_users, dependent: :destroy_async

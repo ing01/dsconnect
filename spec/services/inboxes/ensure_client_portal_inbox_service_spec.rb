@@ -9,12 +9,19 @@ RSpec.describe Inboxes::EnsureClientPortalInboxService do
     described_class.new(account: account).perform
   end
 
-  it 'cria a caixa do Portal com a atribuicao automatica ligada' do
+  it 'cria a caixa do Portal com a atribuicao automatica desligada' do
     inbox = perform
 
-    expect(inbox.enable_auto_assignment).to be(true)
+    expect(inbox.enable_auto_assignment).to be(false)
     expect(inbox.lock_to_single_conversation).to be(false)
     expect(inbox.csat_survey_enabled).to be(true)
+  end
+
+  it 'nao liga sozinha a atribuicao automatica que um admin ativou na caixa' do
+    inbox = perform
+    inbox.update!(enable_auto_assignment: true)
+
+    expect(perform.reload.enable_auto_assignment).to be(true)
   end
 
   # O defeito: quem desligava "Ativar atribuicao automatica de conversas" na caixa via o botao

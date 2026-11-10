@@ -37,16 +37,21 @@ module Inboxes
 
     private
 
-    # Reforca as duas configuracoes de que o historico de conversas e o CSAT dependem, em toda
-    # chamada, nao so na criacao - uma caixa criada por uma versao anterior deste servico precisa
-    # alcancar o mesmo estado sem depender de ninguem editar isso manualmente em Configuracoes.
+    # Reforca so' as DUAS configuracoes estruturais em toda chamada, nao so
+    # na criacao - uma caixa criada por uma versao anterior deste servico
+    # (antes de existir historico de conversas/CSAT) precisa alcancar o
+    # mesmo estado sem depender de ninguem editar isso manualmente em
+    # Configuracoes.
     #
-    # `enable_auto_assignment` NAO entra aqui de proposito: e' o botao "Ativar atribuicao
-    # automatica de conversas" da caixa. Ele nasce ligado (create_inbox!), mas quem desliga em
-    # Configuracoes > Caixas de entrada tem que ver o botao continuar desligado - este servico roda
-    # a cada chat do Portal e a cada "Abrir conversa", e religava sozinho. Quem decide a
-    # distribuicao do Portal e' `Account#client_portal_auto_assignment_enabled`
-    # (Configuracoes > Tickets > Automacao).
+    # `enable_auto_assignment` FICA DE FORA de proposito (pedido explicito da
+    # Ingrid, 2026-11-10 - "a distribuicao automatica deve ser ATIVADA E
+    # DESATIVADA, nao pode fazer sozinho o rodizio"): se este metodo o
+    # reforcasse aqui, a escolha feita por um admin em Configuracoes >
+    # Caixas de Entrada > Colaboradores seria desfeita sozinha na proxima
+    # vez que alguem abrisse o chat - e' exatamente o bug que ja aconteceu
+    # (duas vezes, inclusive). Esse campo e' definido UMA unica vez, na
+    # criacao (sempre `false` - comeca desligada, so' liga por acao
+    # explicita de um admin), e dali em diante so muda por acao dele.
     def ensure_settings!(inbox)
       return inbox if settings_in_place?(inbox)
 
@@ -77,15 +82,14 @@ module Inboxes
         # de satisfacao ao resolver.
         lock_to_single_conversation: false,
         csat_survey_enabled: true,
-        # Distribuicao automatica e silenciosa entre os agentes online, sem
-        # IA/triagem no meio (pedido da Ingrid, 2026-11-09) - substitui a
-        # versao anterior, que desligava isso de proposito pra nao disputar
-        # com a triagem do bot. `AutoAssignmentHandler#pending_flow_automation?`
-        # ja sabe deixar o Portal de fora da trava de "qualquer automacao de
-        # fluxo ativa na conta", e o rodizio em si respeita
-        # `Account#client_portal_auto_assignment_*` (Configuracoes > Tickets >
-        # Automacao), incluindo a lista de exceções de agentes.
-        enable_auto_assignment: true
+        # Comeca DESLIGADA de proposito (pedido da Ingrid, 2026-11-10): a
+        # distribuicao automatica e silenciosa entre agentes online (sem
+        # IA/triagem no meio - ver `AutoAssignmentHandler#pending_flow_automation?`
+        # e `Account#client_portal_auto_assignment_*`) existe como
+        # capacidade, mas so' entra em uso se um admin ligar explicitamente
+        # em Configuracoes > Caixas de Entrada > Portal do Cliente >
+        # Colaboradores. Nunca o contrario.
+        enable_auto_assignment: false
       )
     end
   end

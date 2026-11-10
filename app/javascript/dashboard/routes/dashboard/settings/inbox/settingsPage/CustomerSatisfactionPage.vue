@@ -3,6 +3,7 @@ import { reactive, onMounted, ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
+import { useAccount } from 'dashboard/composables/useAccount';
 import { useInbox } from 'dashboard/composables/useInbox';
 import { useCaptain } from 'dashboard/composables/useCaptain';
 import { CSAT_DISPLAY_TYPES } from 'shared/constants/messages';
@@ -28,6 +29,7 @@ const { t } = useI18n();
 const store = useStore();
 const labels = useMapGetter('labels/getLabels');
 const { captainEnabled } = useCaptain();
+const { currentAccount, updateAccount } = useAccount();
 
 const { isAWhatsAppChannel, isATwilioWhatsAppChannel } = useInbox(
   props.inbox?.id
@@ -37,6 +39,63 @@ const { isAWhatsAppChannel, isATwilioWhatsAppChannel } = useInbox(
 const isAnyWhatsAppChannel = computed(
   () => isAWhatsAppChannel.value || isATwilioWhatsAppChannel.value
 );
+
+// Mesmo texto padrao de Account::DEFAULT_WHATSAPP_CSAT_SURVEY_MESSAGE - so
+// pra pre-preencher o campo antes do primeiro salvamento; o backend tem o
+// mesmo default como rede de seguranca.
+const DEFAULT_DIGIT_SURVEY_MESSAGE =
+  'Como você avalia nosso atendimento? Responda com um número de 1 a 5, sendo 1 (péssimo) e 5 (ótimo).';
+
+// Pesquisa por digito (1-5) do WhatsApp - mecanismo PROPRIO, independente do
+// CSAT nativo acima (que depende de modelo aprovado pela Meta/Twilio, que o
+// provedor de WhatsApp desta conta nao oferece). Configuracao de CONTA (nao
+// de inbox), movida pra ca - ver Whatsapp::CsatDigitSurveyService (pedido da
+// Ingrid, 2026-11-10: antes vivia na tela de Automacao WhatsApp, agora
+// oculta/desativada).
+const digitSurveyEnabled = ref(false);
+const digitSurveyMessage = ref(DEFAULT_DIGIT_SURVEY_MESSAGE);
+const digitSurveyReplyWindowMinutes = ref(null);
+const isSavingDigitSurvey = ref(false);
+
+const digitSurveyMessageInvalid = computed(
+  () => digitSurveyEnabled.value && !digitSurveyMessage.value.trim()
+);
+
+const syncDigitSurveyState = () => {
+  const settings = currentAccount.value?.settings || {};
+  digitSurveyEnabled.value = settings.whatsapp_csat_survey_enabled ?? false;
+  digitSurveyMessage.value =
+    settings.whatsapp_csat_survey_message || DEFAULT_DIGIT_SURVEY_MESSAGE;
+  digitSurveyReplyWindowMinutes.value =
+    settings.whatsapp_csat_survey_reply_window_minutes ?? null;
+};
+
+watch(currentAccount, syncDigitSurveyState, { deep: true, immediate: true });
+
+const saveDigitSurvey = async () => {
+  if (digitSurveyMessageInvalid.value) {
+    useAlert(t('INBOX_MGMT.CSAT.WHATSAPP_DIGIT_SURVEY.API.ERROR'));
+    return;
+  }
+
+  isSavingDigitSurvey.value = true;
+  try {
+    await updateAccount(
+      {
+        whatsapp_csat_survey_enabled: digitSurveyEnabled.value,
+        whatsapp_csat_survey_message: digitSurveyMessage.value.trim() || null,
+        whatsapp_csat_survey_reply_window_minutes:
+          digitSurveyReplyWindowMinutes.value || null,
+      },
+      { silent: true }
+    );
+    useAlert(t('INBOX_MGMT.CSAT.WHATSAPP_DIGIT_SURVEY.API.SUCCESS'));
+  } catch (error) {
+    useAlert(t('INBOX_MGMT.CSAT.WHATSAPP_DIGIT_SURVEY.API.ERROR'));
+  } finally {
+    isSavingDigitSurvey.value = false;
+  }
+};
 
 const isUpdating = ref(false);
 const utilityAnalysisLoading = ref(false);
@@ -735,6 +794,71 @@ const handleConfirmTemplateUpdate = async () => {
         :is-loading="isUpdating"
         @click="saveSettings"
       />
+    </div>
+
+    <div v-if="isAnyWhatsAppChannel" class="mt-6 pt-6 border-t border-n-weak">
+      <SettingsToggleSection
+        v-model="digitSurveyEnabled"
+        :header="$t('INBOX_MGMT.CSAT.WHATSAPP_DIGIT_SURVEY.TITLE')"
+        :description="$t('INBOX_MGMT.CSAT.WHATSAPP_DIGIT_SURVEY.DESCRIPTION')"
+      >
+        <template v-if="digitSurveyEnabled" #editor>
+          <div class="grid gap-5">
+            <WithLabel
+              :label="$t('INBOX_MGMT.CSAT.MESSAGE.LABEL')"
+              name="digit_survey_message"
+            >
+              <textarea
+                v-model="digitSurveyMessage"
+                rows="3"
+                class="mb-0 w-full"
+                :placeholder="$t('INBOX_MGMT.CSAT.MESSAGE.PLACEHOLDER')"
+              />
+              <p
+                v-if="digitSurveyMessageInvalid"
+                class="mt-1 mb-0 text-xs text-n-ruby-11"
+              >
+                {{
+                  $t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.MESSAGE_REQUIRED')
+                }}
+              </p>
+            </WithLabel>
+
+            <WithLabel
+              :label="
+                $t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.LABEL')
+              "
+              name="digit_survey_reply_window"
+            >
+              <input
+                v-model.number="digitSurveyReplyWindowMinutes"
+                type="number"
+                min="1"
+                class="mb-0 max-w-xs"
+                :placeholder="
+                  $t(
+                    'TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.PLACEHOLDER'
+                  )
+                "
+              />
+              <p class="mt-1 mb-0 text-xs text-n-slate-11">
+                {{
+                  $t('TICKET.SETTINGS.AUTOMATION.CSAT_SURVEY.REPLY_WINDOW.HELP')
+                }}
+              </p>
+            </WithLabel>
+          </div>
+        </template>
+      </SettingsToggleSection>
+
+      <div class="w-full flex justify-end items-center py-4 mt-2">
+        <NextButton
+          type="button"
+          :label="$t('INBOX_MGMT.CSAT.WHATSAPP_DIGIT_SURVEY.SAVE')"
+          :is-loading="isSavingDigitSurvey"
+          @click="saveDigitSurvey"
+        />
+      </div>
     </div>
 
     <!-- Template Update Confirmation Dialog -->

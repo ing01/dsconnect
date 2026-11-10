@@ -7,7 +7,6 @@ import ComplexityPage from './ComplexityPage.vue';
 import CatalogPage from './CatalogPage.vue';
 import PrioritiesPage from './PrioritiesPage.vue';
 import AutomationPage from './AutomationPage.vue';
-import AutoAssignmentExceptionsPage from './AutoAssignmentExceptionsPage.vue';
 import AttendanceSchedulePage from './AttendanceSchedulePage.vue';
 import ClientPortalRoutingPage from './ClientPortalRoutingPage.vue';
 import ImportTicketsPage from './ImportTicketsPage.vue';
@@ -79,14 +78,6 @@ export default {
             permissions: ['administrator'],
           },
           component: AutomationPage,
-        },
-        {
-          path: 'auto-assignment-exceptions',
-          name: 'ticket_auto_assignment_exceptions_settings',
-          meta: {
-            permissions: ['administrator'],
-          },
-          component: AutoAssignmentExceptionsPage,
         },
         {
           path: 'attendance-schedule',

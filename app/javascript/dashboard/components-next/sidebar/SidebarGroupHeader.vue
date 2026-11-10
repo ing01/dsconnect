@@ -5,6 +5,9 @@ import Icon from 'next/icon/Icon.vue';
 
 const props = defineProps({
   to: { type: [Object, String], default: '' },
+  // Item de topo sem rota do Vue Router (link externo) - mesma ideia de
+  // SidebarGroupLeaf, pra um item de topo tambem poder ser so' um link.
+  href: { type: String, default: '' },
   label: { type: String, default: '' },
   icon: { type: [String, Object], default: '' },
   expandable: { type: Boolean, default: false },
@@ -25,11 +28,14 @@ const count = computed(() =>
 
 <template>
   <component
-    :is="to ? 'router-link' : 'div'"
+    :is="href ? 'a' : to ? 'router-link' : 'div'"
     class="flex items-center gap-2 px-1.5 py-1 rounded-lg h-9 min-w-0"
     role="button"
     draggable="false"
-    :to="to"
+    :to="href ? undefined : to"
+    :href="href || undefined"
+    :target="href ? '_blank' : undefined"
+    :rel="href ? 'noopener noreferrer' : undefined"
     :title="label"
     :class="{
       'text-n-slate-12 bg-n-alpha-2 font-medium': isActive && !hasActiveChild,
