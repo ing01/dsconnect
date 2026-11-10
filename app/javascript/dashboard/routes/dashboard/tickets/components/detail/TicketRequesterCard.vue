@@ -28,6 +28,14 @@ const companyRoute = computed(() =>
     `accounts/${route.params.accountId}/companies/${props.ticket.company_id}`
   )
 );
+
+// O nome do solicitante abre o contato, como o da empresa abre a empresa.
+const contactRoute = computed(() => {
+  const contactId = contact.value?.id || props.ticket.contact_id;
+  return contactId
+    ? frontendURL(`accounts/${route.params.accountId}/contacts/${contactId}`)
+    : null;
+});
 </script>
 
 <template>
@@ -63,7 +71,16 @@ const companyRoute = computed(() =>
           class="flex-shrink-0"
         />
         <div class="flex flex-col gap-0.5 min-w-0">
+          <router-link
+            v-if="contactRoute"
+            :to="contactRoute"
+            class="text-sm font-medium text-n-blue-11 hover:underline truncate"
+            :title="contact.name"
+          >
+            {{ contact.name }}
+          </router-link>
           <span
+            v-else
             class="text-sm font-medium text-n-slate-12 truncate"
             :title="contact.name"
           >

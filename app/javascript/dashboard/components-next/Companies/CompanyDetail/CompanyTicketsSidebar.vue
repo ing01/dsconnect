@@ -19,9 +19,9 @@ defineProps({
 const { t } = useI18n();
 const route = useRoute();
 
-const ticketsHomeUrl = frontendURL(
-  `accounts/${route.params.accountId}/tickets`
-);
+// A rota do ticket usa o id do banco (`ticket.id`), nao o numero exibido.
+const ticketUrl = ticket =>
+  frontendURL(`accounts/${route.params.accountId}/tickets/${ticket.id}`);
 
 const priorityColor = priority =>
   ({
@@ -38,10 +38,10 @@ const priorityColor = priority =>
   </div>
 
   <div v-else-if="tickets.length > 0" class="flex flex-col gap-2">
-    <a
+    <router-link
       v-for="ticket in tickets"
       :key="ticket.id"
-      :href="ticketsHomeUrl"
+      :to="ticketUrl(ticket)"
       class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border border-n-weak hover:bg-n-alpha-1 dark:hover:bg-n-alpha-3"
     >
       <div class="flex items-center gap-2.5 min-w-0">
@@ -49,6 +49,12 @@ const priorityColor = priority =>
           class="flex-shrink-0 w-2 h-2 rounded-full"
           :class="priorityColor(ticket.priority)"
         />
+        <span
+          v-if="ticket.displayId"
+          class="flex-shrink-0 text-xs tabular-nums text-n-slate-11"
+        >
+          #{{ ticket.displayId }}
+        </span>
         <span class="text-sm font-medium truncate text-n-slate-12">
           {{ ticket.title }}
         </span>
@@ -59,7 +65,7 @@ const priorityColor = priority =>
       >
         {{ t('TICKET.CARD.CONVERSATIONS_LINKED', ticket.conversationIds.length) }}
       </span>
-    </a>
+    </router-link>
   </div>
 
   <p

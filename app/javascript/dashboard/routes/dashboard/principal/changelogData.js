@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-requester-opens-contact-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Ticket: o nome do solicitante abre o contato',
+    description:
+      'Dentro do ticket, clicar no nome do solicitante agora abre o cadastro do contato, do mesmo jeito que clicar no nome da empresa abre a empresa.',
+  },
+  {
+    id: 'company-tickets-display-id-link-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Empresa: tickets mostram o número e abrem direto',
+    description:
+      'Na aba Tickets do cadastro da empresa, cada ticket agora mostra o número do chamado (como #35369) e, ao clicar, abre o próprio ticket em vez de levar para a lista.',
+  },
+  {
     id: 'integration-api-display-id-filter-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',
