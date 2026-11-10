@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useAlert } from 'dashboard/composables';
+import { copyTextToClipboard } from 'shared/helpers/clipboard';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TicketActionsMenu from './TicketActionsMenu.vue';
@@ -25,6 +27,26 @@ const subject = computed(() =>
     .map(part => `[${part}]`)
     .join(' | ')
 );
+
+// `#NUM - Empresa | Solicitante | Título`, sem os colchetes da tela, pronto para
+// colar em outro lugar.
+const copyText = computed(() => {
+  const parts = [
+    props.ticket.company_name,
+    props.ticket.contact?.name,
+    props.ticket.title,
+  ].filter(Boolean);
+  return `#${props.ticket.display_id} - ${parts.join(' | ')}`;
+});
+
+const copyTitle = async () => {
+  try {
+    await copyTextToClipboard(copyText.value);
+    useAlert(t('TICKET.DETAIL.COPY_TITLE_SUCCESS'));
+  } catch (error) {
+    // sem permissao de area de transferencia: nada a fazer
+  }
+};
 </script>
 
 <template>
@@ -71,6 +93,15 @@ const subject = computed(() =>
           {{ subject }}
         </button>
         <span v-else class="flex-1 min-w-0 truncate">{{ subject }}</span>
+        <button
+          type="button"
+          class="flex-shrink-0 self-center p-1 rounded text-n-slate-11 hover:text-n-slate-12 hover:bg-n-alpha-2 transition-colors"
+          :title="t('TICKET.DETAIL.COPY_TITLE')"
+          :aria-label="t('TICKET.DETAIL.COPY_TITLE')"
+          @click="copyTitle"
+        >
+          <Icon icon="i-lucide-copy" class="size-4" />
+        </button>
       </h1>
 
       <div class="flex items-center gap-2 flex-shrink-0">

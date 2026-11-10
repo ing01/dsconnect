@@ -329,6 +329,8 @@
     },
     "DETAIL": {
       "BACK": "Back to tickets",
+      "COPY_TITLE": "Copy number and title",
+      "COPY_TITLE_SUCCESS": "Number and title copied",
       "OPEN_CONVERSATION": "Open conversation",
       "OPEN_CONVERSATION_NO_REQUESTER": "No requester: there is nobody to open a conversation with.",
       "IN_ATTENDANCE": "This customer already has a chat in progress with {agent} (conversation #{id}). Another conversation can only be opened once that one is closed.",

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-copy-number-title-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Ticket: botão para copiar o número e o título',
+    description:
+      'Ao lado do título do ticket há um botão que copia o número e o título no formato "#35497 - Empresa | Solicitante | Título", pronto para colar onde precisar.',
+  },
+  {
     id: 'ticket-requester-opens-contact-2026-11-10',
     date: '10 de novembro de 2026',
     isoDate: '2026-11-10',

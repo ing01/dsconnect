@@ -350,6 +350,8 @@
     },
     "DETAIL": {
       "BACK": "Voltar para tickets",
+      "COPY_TITLE": "Copiar número e título",
+      "COPY_TITLE_SUCCESS": "Número e título copiados",
       "OPEN_CONVERSATION": "Abrir conversa",
       "OPEN_CONVERSATION_NO_REQUESTER": "Sem solicitante: não há com quem abrir uma conversa.",
       "IN_ATTENDANCE": "Este cliente já tem um chat em andamento com {agent} (conversa #{id}). Só é possível abrir outra conversa quando esse atendimento for encerrado.",
