@@ -38,6 +38,8 @@ const fila = ref([]);
 const emTriagem = ref(null);
 const destino = ref({ teamId: null, columnId: null, categoryId: null });
 const encaminharDialog = ref(null);
+const resumoDialog = ref(null);
+const ticketResumo = ref(null);
 
 const teamOptions = computed(() =>
   (teams.value || []).map(team => ({ value: team.id, label: team.name }))
@@ -78,7 +80,17 @@ const carregar = async () => {
   }
 };
 
-const abrirTicket = ticket => {
+// Botao "Abrir" da fila: mostra um resumo primeiro, em vez de navegar direto
+// pro ticket completo - pedido da Ingrid, 2026-11-10 (ir e voltar toda hora
+// pra so' dar uma olhada ficava inviavel). A navegacao de verdade (e' o que
+// o resumo oferece como "Ver ticket completo") continua a mesma de antes.
+const abrirResumo = ticket => {
+  ticketResumo.value = ticket;
+  resumoDialog.value?.open();
+};
+
+const irParaTicketCompleto = ticket => {
+  resumoDialog.value?.close();
   router.push(
     frontendURL(`accounts/${currentAccountId.value}/tickets/${ticket.id}`)
   );
@@ -112,6 +124,14 @@ const abrirEncaminhamento = async ticket => {
   // mais provável, e quem tria confirma ou muda.
   await escolherMesa(ticket.team_id);
   encaminharDialog.value?.open();
+};
+
+// Mesmo fluxo do botao "Aceitar e encaminhar" da fila - so' que acionado de
+// dentro do resumo, pra quem abriu so' pra espiar decidir encaminhar sem
+// precisar fechar e procurar o outro botao.
+const abrirEncaminhamentoDoResumo = ticket => {
+  resumoDialog.value?.close();
+  abrirEncaminhamento(ticket);
 };
 
 const podeEncaminhar = computed(
@@ -218,7 +238,7 @@ onMounted(async () => {
             size="sm"
             icon="i-lucide-eye"
             :label="t('TICKET.TRIAGE.OPEN')"
-            @click="abrirTicket(ticket)"
+            @click="abrirResumo(ticket)"
           />
           <Button
             size="sm"
@@ -229,6 +249,73 @@ onMounted(async () => {
         </div>
       </li>
     </ul>
+
+    <Dialog
+      ref="resumoDialog"
+      type="edit"
+      width="md"
+      :title="
+        t('TICKET.TRIAGE.SUMMARY.TITLE', { number: ticketResumo?.display_id })
+      "
+    >
+      <div v-if="ticketResumo" class="flex flex-col gap-3 min-w-0">
+        <div class="flex flex-wrap items-center gap-2 min-w-0">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ ticketResumo.title }}
+          </span>
+          <Label
+            v-if="ticketResumo.priority"
+            :label="
+              t(`TICKET.FORM.PRIORITY.${ticketResumo.priority.toUpperCase()}`)
+            "
+            :color="priorityColor(ticketResumo.priority)"
+            size="small"
+          />
+        </div>
+        <span class="text-xs text-n-slate-10">
+          {{
+            t('TICKET.TRIAGE.OPENED_BY', {
+              name: ticketResumo.requester_name || '—',
+              company: ticketResumo.company_name || '—',
+              at: dataHora(ticketResumo.created_at),
+            })
+          }}
+        </span>
+        <span class="text-xs text-n-slate-11">
+          {{
+            t('TICKET.TRIAGE.SUGGESTED', {
+              category: ticketResumo.ticket_category_name || '—',
+              team: ticketResumo.team_name,
+            })
+          }}
+        </span>
+        <p
+          v-if="ticketResumo.description"
+          class="m-0 text-sm whitespace-pre-wrap text-n-slate-12"
+        >
+          {{ ticketResumo.description }}
+        </p>
+      </div>
+
+      <template #footer>
+        <div class="flex items-center justify-between w-full gap-3">
+          <Button
+            faded
+            slate
+            class="w-full"
+            type="button"
+            :label="t('TICKET.TRIAGE.SUMMARY.VIEW_FULL')"
+            @click="irParaTicketCompleto(ticketResumo)"
+          />
+          <Button
+            class="w-full"
+            type="button"
+            :label="t('TICKET.TRIAGE.SUMMARY.OPEN_AND_FORWARD')"
+            @click="abrirEncaminhamentoDoResumo(ticketResumo)"
+          />
+        </div>
+      </template>
+    </Dialog>
 
     <Dialog
       ref="encaminharDialog"

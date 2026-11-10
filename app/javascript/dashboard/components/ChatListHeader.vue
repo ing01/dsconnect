@@ -7,6 +7,8 @@ import wootConstants from 'dashboard/constants/globals';
 import ConversationBasicFilter from './widgets/conversation/ConversationBasicFilter.vue';
 import SwitchLayout from 'dashboard/routes/dashboard/conversation/search/SwitchLayout.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import NextInput from 'dashboard/components-next/input/Input.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 
 const props = defineProps({
@@ -18,6 +20,9 @@ const props = defineProps({
   conversationStats: { type: Object, required: true },
   isListLoading: { type: Boolean, required: true },
   isQueueTab: { type: Boolean, default: false },
+  // Busca rapida por nome ou empresa, so' na lista ja' carregada - pedido da
+  // Ingrid, 2026-11-10.
+  searchQuery: { type: String, default: '' },
 });
 
 const emit = defineEmits([
@@ -26,6 +31,7 @@ const emit = defineEmits([
   'resetFilters',
   'basicFilterChange',
   'filtersModal',
+  'update:searchQuery',
 ]);
 
 const { uiSettings, updateUISettings } = useUISettings();
@@ -98,6 +104,23 @@ const toggleConversationLayout = () => {
         </template>
       </ComposeConversation>
     </div>
+
+    <!-- Busca rapida por nome ou empresa, so' na lista ja' carregada -->
+    <NextInput
+      :model-value="searchQuery"
+      type="search"
+      size="sm"
+      custom-input-class="!ps-8"
+      :placeholder="$t('CHAT_LIST.SEARCH_PLACEHOLDER')"
+      @update:model-value="emit('update:searchQuery', $event)"
+    >
+      <template #prefix>
+        <Icon
+          icon="i-lucide-search"
+          class="absolute -translate-y-1/2 text-n-slate-11 size-3.5 top-1/2 ltr:left-2.5 rtl:right-2.5"
+        />
+      </template>
+    </NextInput>
 
     <!-- Linha inferior: filtros de status + ações -->
     <div class="flex items-center justify-between gap-1.5">

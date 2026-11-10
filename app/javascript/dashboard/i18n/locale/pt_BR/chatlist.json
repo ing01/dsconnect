@@ -1,6 +1,7 @@
 {
   "CHAT_LIST": {
     "NEW_CONVERSATION_BUTTON": "Nova conversa",
+    "SEARCH_PLACEHOLDER": "Buscar por nome ou empresa...",
     "LOADING": "Buscando conversas",
     "LOAD_MORE_CONVERSATIONS": "Carregar mais conversas",
     "EOF": "Todas as conversas carregadas 🎉",

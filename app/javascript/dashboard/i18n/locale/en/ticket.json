@@ -764,10 +764,6 @@
       "AUTOMATION": {
         "TITLE": "WhatsApp Automation",
         "DESCRIPTION": "Settings for the automated WhatsApp triage flow: which client levels the AI tries to resolve on its own, the fallback priority when it fails, and where High priority tickets are routed.",
-        "EXCEPTIONS_LINK": {
-          "TEXT": "Want to take an agent out of auto-assignment?",
-          "LABEL": "See the Distribution exceptions tab."
-        },
         "WHATSAPP_FLOW": {
           "LABEL": "Enable the WhatsApp triage flow",
           "HELP": "When off, incoming WhatsApp conversations are never picked up by the automated flow, regardless of any automation rule configured."
@@ -889,9 +885,7 @@
       },
       "AUTO_ASSIGNMENT_EXCEPTIONS": {
         "TITLE": "Distribution exceptions",
-        "DESCRIPTION": "Agents checked here never receive a conversation automatically on that channel - they can still be assigned manually as usual. It's a list per channel: an agent can be excluded from WhatsApp and not from the Portal, or both.",
-        "WHATSAPP_SECTION_TITLE": "WhatsApp",
-        "PORTAL_SECTION_TITLE": "Client Portal",
+        "DESCRIPTION": "Agents checked here never receive a conversation automatically on that channel - they can still be assigned manually as usual.",
         "SAVE": "Save exceptions",
         "API": {
           "SUCCESS": "Distribution exceptions updated.",
@@ -1351,6 +1345,11 @@
       "OPENED_BY": "{name} · {company} · {at}",
       "SUGGESTED": "Category given: {category} · Entry Mesa: {team}",
       "APPROVED": "Ticket #{number} routed.",
+      "SUMMARY": {
+        "TITLE": "Ticket #{number} summary",
+        "VIEW_FULL": "View full ticket",
+        "OPEN_AND_FORWARD": "Open and route"
+      },
       "DIALOG": {
         "TITLE": "Route ticket #{number}",
         "DESCRIPTION": "Choose the Mesa and stage that will handle it. The category can be fixed here.",

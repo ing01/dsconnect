@@ -790,16 +790,19 @@ const menuItems = computed(() => {
       ],
     },
     {
+      // Pedido da Ingrid, 2026-11-10: item proprio no menu (nao mais dentro
+      // de Configuracoes), visivel pra qualquer um - sem permissao nenhuma
+      // associada, igual aos demais itens de topo sem `activeOn`/rota interna.
+      name: 'Auto Updater',
+      label: t('SIDEBAR.AUTO_UPDATER'),
+      icon: 'i-lucide-download',
+      href: 'https://arquivos.duesoft.com.br/Dashboard',
+    },
+    {
       name: 'Settings',
       label: t('SIDEBAR.SETTINGS'),
       icon: 'i-lucide-bolt',
       children: [
-        {
-          name: 'Settings Auto Updater',
-          label: t('SIDEBAR.AUTO_UPDATER'),
-          icon: 'i-lucide-download',
-          href: 'https://arquivos.duesoft.com.br/Dashboard',
-        },
         // {
         //   name: 'Settings Captain',
         //   label: t('SIDEBAR.CAPTAIN_AI'),
@@ -886,14 +889,6 @@ const menuItems = computed(() => {
               label: t('SIDEBAR.TICKET_AUTOMATION'),
               activeOn: ['ticket_automation_settings'],
               to: accountScopedRoute('ticket_automation_settings'),
-            },
-            {
-              name: 'Settings Ticket Auto Assignment Exceptions',
-              label: t('SIDEBAR.TICKET_AUTO_ASSIGNMENT_EXCEPTIONS'),
-              activeOn: ['ticket_auto_assignment_exceptions_settings'],
-              to: accountScopedRoute(
-                'ticket_auto_assignment_exceptions_settings'
-              ),
             },
             {
               name: 'Settings Ticket Attendance Schedule',

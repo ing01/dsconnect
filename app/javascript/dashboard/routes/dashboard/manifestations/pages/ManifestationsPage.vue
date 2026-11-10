@@ -238,7 +238,7 @@ onMounted(async () => {
         </select>
       </label>
 
-      <label class="flex flex-col gap-1 min-w-32">
+      <label class="flex flex-col gap-1 min-w-36">
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('MANIFESTATION.FILTERS.FROM') }}
         </span>
@@ -250,7 +250,7 @@ onMounted(async () => {
         />
       </label>
 
-      <label class="flex flex-col gap-1 min-w-32">
+      <label class="flex flex-col gap-1 min-w-36">
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('MANIFESTATION.FILTERS.TO') }}
         </span>
@@ -262,15 +262,23 @@ onMounted(async () => {
         />
       </label>
 
-      <label class="flex items-center gap-2 text-sm text-n-slate-12">
-        <input
-          v-model="filtros.pending_only"
-          type="checkbox"
-          class="mb-0"
-          @change="buscar"
-        />
-        {{ t('MANIFESTATION.FILTERS.PENDING_ONLY') }}
-      </label>
+      <div class="flex flex-col gap-1">
+        <span
+          aria-hidden="true"
+          class="text-xs font-medium select-none text-transparent"
+        >
+          &nbsp;
+        </span>
+        <label class="flex items-center gap-2 text-sm text-n-slate-12">
+          <input
+            v-model="filtros.pending_only"
+            type="checkbox"
+            class="mb-0"
+            @change="buscar"
+          />
+          {{ t('MANIFESTATION.FILTERS.PENDING_ONLY') }}
+        </label>
+      </div>
 
       <Button
         v-if="temFiltro"

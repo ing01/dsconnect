@@ -38,13 +38,18 @@ module Enterprise::AutoAssignment::AssignmentService
     agents.select { |agent_member| capacity_service.agent_has_capacity?(agent_member.user, inbox) }
   end
 
-  # Configuracao de "Distribuicao automatica de WhatsApp" (tela de Automacao,
-  # ver Account#whatsapp_auto_assignment_*) - so entra em jogo pra caixas de
-  # WhatsApp, e e' independente da politica de capacidade acima (essa aqui
-  # nao depende do flag premium `advanced_assignment`).
+  # Limite/excecoes de distribuicao de WhatsApp (Account#whatsapp_auto_assignment_*,
+  # ver aba "Exceção da distribuição" em Configuracoes > Tickets) - so entra em
+  # jogo pra caixas de WhatsApp, independente da politica de capacidade acima
+  # (essa aqui nao depende do flag premium `advanced_assignment`).
+  #
+  # O liga/desliga de verdade NAO e' mais uma configuracao de conta separada -
+  # e' o `enable_auto_assignment` da propria Caixa de Entrada (aba
+  # Colaboradores), que ja' filtra isso bem antes de chegar aqui (pedido da
+  # Ingrid, 2026-11-10: a tela de "Automacao WhatsApp" nao controla mais
+  # distribuicao nenhuma, so fica fora de uso).
   def filter_agents_by_whatsapp_assignment_settings(agents)
     return agents unless inbox.whatsapp?
-    return agents.none unless account.whatsapp_auto_assignment_enabled?
 
     excluded_ids = Array(account.whatsapp_auto_assignment_excluded_agent_ids)
     agents = agents.where.not(user_id: excluded_ids) if excluded_ids.present?

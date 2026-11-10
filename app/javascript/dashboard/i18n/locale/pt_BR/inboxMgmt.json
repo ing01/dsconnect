@@ -1265,6 +1265,15 @@
       "API": {
         "SUCCESS_MESSAGE": "Configurações de CSAT atualizadas com sucesso",
         "ERROR_MESSAGE": "Não foi possível atualizar as configurações do CSAT. Por favor, tente novamente mais tarde."
+      },
+      "WHATSAPP_DIGIT_SURVEY": {
+        "TITLE": "Pesquisa de satisfação por dígito (WhatsApp)",
+        "DESCRIPTION": "Mecanismo próprio, independente do CSAT acima (que depende de modelo aprovado pela Meta) - o cliente responde digitando um número de 1 a 5 na própria conversa. Fica desligado sozinho se o CSAT acima estiver ativo, pra nunca enviar os dois.",
+        "SAVE": "Salvar pesquisa por dígito",
+        "API": {
+          "SUCCESS": "Pesquisa por dígito atualizada.",
+          "ERROR": "Não foi possível atualizar a pesquisa por dígito."
+        }
       }
     },
     "BUSINESS_HOURS": {

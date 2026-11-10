@@ -224,7 +224,8 @@
     "DELETE_CONVERSATION": {
       "TITLE": "Excluir conversa #{conversationId}",
       "DESCRIPTION": "Tem certeza que deseja excluir esta conversa?",
-      "CONFIRM": "Excluir"
+      "CONFIRM": "Excluir",
+      "ERROR": "Não foi possível excluir. Tente novamente."
     },
     "CARD_CONTEXT_MENU": {
       "PENDING": "Deixar pendente",
@@ -245,6 +246,7 @@
       "AGENTS_LOADING": "Carregando agentes...",
       "ASSIGN_TEAM": "Atribuir time",
       "DELETE": "Excluir conversa",
+      "DELETE_EMAIL": "Excluir e-mail",
       "OPEN_IN_NEW_TAB": "Abrir em nova aba",
       "COPY_LINK": "Copiar link da conversa",
       "COPY_LINK_SUCCESS": "Link da conversa copiado",

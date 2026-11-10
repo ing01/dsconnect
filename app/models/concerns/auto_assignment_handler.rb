@@ -39,6 +39,15 @@ module AutoAssignmentHandler
 
   def should_run_auto_assignment?
     return false unless inbox.enable_auto_assignment?
+    # Conversa com fila definida (ex: triagem por IA, aguardando alguem
+    # pegar na mao) nunca pode ser roubada por este rodizio generico - nem na
+    # primeira vez, nem quando ela volta de uma pausa (Pausar/Snooze) pra
+    # "aberta" de novo. Mesma regra que `AutoAssignment::AssignmentService`
+    # ja aplica na varredura em lote (`where(queue_id: nil)`); sem isso aqui,
+    # uma conversa pausada ENQUANTO ainda na fila saia da pausa e caia
+    # sozinha num agente do rodizio, pulando a fila (bug relatado pela
+    # Ingrid, 2026-11-10).
+    return false if queue_id.present?
     # Tem que vir ANTES do atalho de resolvido/suspenso logo abaixo - sem
     # isso, uma conversa dentro do fluxo de triagem que fosse resolvida ou
     # suspensa furava a trava (o atalho devolvia `true` direto, sem nunca

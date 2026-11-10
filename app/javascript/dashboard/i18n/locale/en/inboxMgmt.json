@@ -1265,6 +1265,15 @@
       "API": {
         "SUCCESS_MESSAGE": "CSAT settings updated successfully",
         "ERROR_MESSAGE": "We couldn't update CSAT settings. Please try again later."
+      },
+      "WHATSAPP_DIGIT_SURVEY": {
+        "TITLE": "Digit-reply satisfaction survey (WhatsApp)",
+        "DESCRIPTION": "Separate mechanism, independent from the CSAT above (which depends on a Meta-approved template) - the customer replies with a number from 1 to 5 in the conversation itself. Turns off on its own if the CSAT above is enabled, so it never sends both.",
+        "SAVE": "Save digit-reply survey",
+        "API": {
+          "SUCCESS": "Digit-reply survey updated.",
+          "ERROR": "Could not update the digit-reply survey."
+        }
       }
     },
     "BUSINESS_HOURS": {

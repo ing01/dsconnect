@@ -1,7 +1,9 @@
 <script setup>
 import { computed, ref, watch, inject } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
 import { frontendURL, conversationUrl } from 'dashboard/helper/URLHelper';
 import ConversationCard from './widgets/conversation/ConversationCard.vue';
 import ConversationCardExpanded from 'dashboard/components-next/Conversation/ConversationCard/ConversationCardExpanded.vue';
@@ -20,6 +22,7 @@ const props = defineProps({
 
 const router = useRouter();
 const store = useStore();
+const { t } = useI18n();
 
 const selectConversation = inject('selectConversation');
 const deSelectConversation = inject('deSelectConversation');
@@ -69,6 +72,13 @@ const inbox = computed(() => {
   const inboxId = props.source.inbox_id;
   return inboxId ? store.getters['inboxes/getInbox'](inboxId) : {};
 });
+
+// So' a caixa de E-mail oferece "Excluir e-mail" no menu de contexto -
+// pedido da Ingrid, 2026-11-10 (limpar spam, sem opcao parecida pros outros
+// canais, que apagaria historico de atendimento de verdade).
+const isEmailInbox = computed(
+  () => inbox.value.channel_type === 'Channel::Email'
+);
 
 const showInboxName = computed(
   () => !activeInbox.value && inboxesList.value.length > 1
@@ -170,6 +180,25 @@ const onAssignPriority = priority => {
   assignPriority(priority, props.source.id);
   closeContextMenu();
 };
+
+const onDeleteConversation = async () => {
+  closeContextMenu();
+  const confirmMessage = [
+    t('CONVERSATION.DELETE_CONVERSATION.TITLE', {
+      conversationId: props.source.id,
+    }),
+    t('CONVERSATION.DELETE_CONVERSATION.DESCRIPTION'),
+  ].join('\n\n');
+  // eslint-disable-next-line no-alert
+  const confirmed = window.confirm(confirmMessage);
+  if (!confirmed) return;
+
+  try {
+    await store.dispatch('conversations/deleteConversation', props.source.id);
+  } catch (error) {
+    useAlert(t('CONVERSATION.DELETE_CONVERSATION.ERROR'));
+  }
+};
 </script>
 
 <template>
@@ -223,6 +252,7 @@ const onAssignPriority = priority => {
       :has-unread-messages="source.unread_count > 0"
       :conversation-labels="source.labels"
       :conversation-url="conversationPath"
+      :is-email-inbox="isEmailInbox"
       @update-conversation="onUpdateConversation"
       @assign-agent="onAssignAgent"
       @assign-label="onAssignLabel"
@@ -231,6 +261,7 @@ const onAssignPriority = priority => {
       @mark-as-unread="onMarkAsUnread"
       @mark-as-read="onMarkAsRead"
       @assign-priority="onAssignPriority"
+      @delete="onDeleteConversation"
       @close="closeContextMenu"
     />
   </ContextMenu>

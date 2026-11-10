@@ -86,6 +86,9 @@ const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
 const onlyUnassigned = ref(false);
 const isClaimingNextInQueue = ref(false);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
+// Busca rapida por nome ou empresa na listagem - filtra so' o que ja' esta'
+// carregado na tela, sem bater no backend (pedido da Ingrid, 2026-11-10).
+const searchQuery = ref('');
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
 // chatsOnView is to store the chats that are currently visible on the screen,
@@ -445,6 +448,18 @@ const conversationList = computed(() => {
     localConversationList = sortByUnreadStatus(localConversationList);
   }
 
+  const query = searchQuery.value.trim().toLowerCase();
+  if (query) {
+    localConversationList = localConversationList.filter(conversation => {
+      const sender = conversation.meta?.sender || {};
+      const nameMatches = (sender.name || '').toLowerCase().includes(query);
+      const companyMatches = (sender.companies || []).some(company =>
+        (company.name || '').toLowerCase().includes(query)
+      );
+      return nameMatches || companyMatches;
+    });
+  }
+
   return localConversationList;
 });
 
@@ -736,6 +751,15 @@ function toggleOnlyUnassigned() {
   }
 }
 
+function onBasicFilterChange(value, type) {
+  if (type === 'status') {
+    activeStatus.value = value;
+  } else {
+    activeSortBy.value = value;
+  }
+  resetAndFetchData();
+}
+
 // Botao "Pausadas": alterna o filtro de status entre Pausadas (snoozed) e o
 // status que estava antes.
 const isPausedView = computed(
@@ -750,15 +774,6 @@ function togglePausedView() {
   }
   statusBeforePausedView = activeStatus.value;
   onBasicFilterChange(wootConstants.STATUS_TYPE.SNOOZED, 'status');
-}
-
-function onBasicFilterChange(value, type) {
-  if (type === 'status') {
-    activeStatus.value = value;
-  } else {
-    activeSortBy.value = value;
-  }
-  resetAndFetchData();
 }
 
 function openLastSavedItemInFolder() {
@@ -797,7 +812,10 @@ async function claimNextInQueue() {
     fetchConversations();
     router.push(
       frontendURL(
-        conversationUrl({ accountId: route.params.accountId, id: conversation.display_id })
+        conversationUrl({
+          accountId: route.params.accountId,
+          id: conversation.display_id,
+        })
       )
     );
   } catch (error) {
@@ -1041,6 +1059,7 @@ watch(conversationFilters, (newVal, oldVal) => {
   >
     <slot />
     <ChatListHeader
+      v-model:search-query="searchQuery"
       :page-title="pageTitle"
       :has-applied-filters="hasAppliedFilters"
       :has-active-folders="hasActiveFolders"
