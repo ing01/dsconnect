@@ -16,6 +16,14 @@ class ChatChannelMember < ApplicationRecord
     clear_chat_notifications
   end
 
+  # "Marcar como nao lida": volta o ponto de leitura para logo antes desta
+  # mensagem, e ela (e tudo que veio depois) volta a contar como nao lida - no
+  # contador do menu e nas notificacoes. Serve para lembrar de responder depois.
+  def mark_unread_from!(message)
+    update!(last_read_at: message.created_at - 0.000001)
+    reopen_chat_notifications_from(message)
+  end
+
   # "Excluir" a conversa so' para esta pessoa: corta o historico dela aqui e
   # zera o nao lido. O outro participante nao e tocado.
   def clear!
@@ -29,6 +37,18 @@ class ChatChannelMember < ApplicationRecord
   # A leitura da sala vale mesmo que a limpeza das notificacoes falhe.
   def clear_chat_notifications
     Notification::MarkInternalChatReadService.new(user: user, account: account, chat_channel: chat_channel).perform
+  rescue StandardError => e
+    ChatwootExceptionTracker.new(e, account: account).capture_exception
+  end
+
+  # Uma a uma, com `update!`, para o tempo real atualizar o contador e a lista.
+  def reopen_chat_notifications_from(message)
+    user.notifications.where(
+      account: account,
+      notification_type: :internal_chat_message,
+      primary_actor_type: 'ChatMessage',
+      primary_actor_id: chat_channel.chat_messages.where('created_at >= ?', message.created_at).select(:id)
+    ).where.not(read_at: nil).find_each { |notification| notification.update!(read_at: nil) }
   rescue StandardError => e
     ChatwootExceptionTracker.new(e, account: account).capture_exception
   end

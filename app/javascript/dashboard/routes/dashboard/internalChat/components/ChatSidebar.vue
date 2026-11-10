@@ -22,6 +22,7 @@ const emit = defineEmits([
   'createChannel',
   'editChannel',
   'deleteRoom',
+  'markUnread',
 ]);
 
 const { t } = useI18n();
@@ -38,8 +39,6 @@ const isDirectRoom = room => room.kind === 'direct';
 const canDeleteRoom = room => (isDirectRoom(room) ? true : props.canEdit);
 
 const openContextMenu = (event, room) => {
-  if (!isDirectRoom(room) && !props.canEdit) return;
-
   contextMenu.value = {
     channel: room,
     isDirect: isDirectRoom(room),
@@ -52,6 +51,12 @@ const editFromContextMenu = () => {
   const channel = contextMenu.value?.channel;
   contextMenu.value = null;
   if (channel) emit('editChannel', channel);
+};
+
+const markUnreadFromContextMenu = () => {
+  const room = contextMenu.value?.channel;
+  contextMenu.value = null;
+  if (room) emit('markUnread', room);
 };
 
 const deleteFromContextMenu = () => {
@@ -269,7 +274,15 @@ const visibleChannels = computed(() =>
         :style="{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }"
       >
         <button
-          v-if="!contextMenu.isDirect"
+          type="button"
+          class="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-start text-n-slate-12 hover:bg-n-alpha-1"
+          @click="markUnreadFromContextMenu"
+        >
+          <Icon icon="i-lucide-mail" class="size-4" />
+          {{ t('INTERNAL_CHAT.SIDEBAR.MARK_UNREAD') }}
+        </button>
+        <button
+          v-if="!contextMenu.isDirect && canEdit"
           type="button"
           class="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-start text-n-slate-12 hover:bg-n-alpha-1"
           @click="editFromContextMenu"
@@ -278,6 +291,7 @@ const visibleChannels = computed(() =>
           {{ t('INTERNAL_CHAT.SIDEBAR.EDIT_CHANNEL') }}
         </button>
         <button
+          v-if="canDeleteRoom(contextMenu.channel)"
           type="button"
           class="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-start text-n-ruby-11 hover:bg-n-alpha-1"
           @click="deleteFromContextMenu"

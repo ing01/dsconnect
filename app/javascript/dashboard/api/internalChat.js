@@ -78,6 +78,19 @@ class InternalChatAPI extends ApiClient {
     return axios.post(`${this.url}/${channelId}/read`);
   }
 
+  // Marca a sala como nao lida: a ultima mensagem de outra pessoa volta a contar.
+  markRoomUnread(channelId) {
+    return axios.post(`${this.url}/${channelId}/mark_unread`);
+  }
+
+  // Volta o ponto de leitura para esta mensagem: ela e as seguintes voltam a
+  // contar como nao lidas (contador do menu e notificacoes).
+  markMessageUnread(channelId, messageId) {
+    return axios.post(
+      `${this.url}/${channelId}/messages/${messageId}/mark_unread`
+    );
+  }
+
   toggleReaction(channelId, messageId, emoji) {
     return axios.post(
       `${this.url}/${channelId}/messages/${messageId}/toggle_reaction`,

@@ -7,7 +7,7 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
 
   before_action :fetch_channel
   before_action :check_authorization
-  before_action :fetch_message, only: [:toggle_reaction, :toggle_pin, :destroy]
+  before_action :fetch_message, only: [:toggle_reaction, :toggle_pin, :destroy, :mark_unread]
 
   # As mensagens fixadas da sala, mais recente primeiro - sem paginacao: sao
   # poucas por natureza (fixar exige uma acao deliberada por vez).
@@ -74,6 +74,18 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
     @chat_message.toggle_pin!
     @chat_message.dispatch_updated_event
     render 'show'
+  end
+
+  # Marcar como nao lida, para responder depois. So faz sentido para mensagem de
+  # outra pessoa: a propria nunca conta como nao lida. Devolve o nao lido da sala
+  # para a tela atualizar o contador sem buscar a lista de novo.
+  def mark_unread
+    if @chat_message.user_id == Current.user.id
+      return render json: { error: I18n.t('errors.chat_message.cannot_mark_own_unread') }, status: :unprocessable_entity
+    end
+
+    membership&.mark_unread_from!(@chat_message)
+    render json: { unread: @chat_channel.unread_count_for(Current.user) }
   end
 
   # Apagar uma mensagem. O autor apaga a propria; o administrador apaga qualquer

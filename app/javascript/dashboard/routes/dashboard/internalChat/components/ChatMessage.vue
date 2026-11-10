@@ -29,6 +29,7 @@ const emit = defineEmits([
   'openTicket',
   'pin',
   'delete',
+  'markUnread',
 ]);
 
 const { t } = useI18n();
@@ -160,6 +161,16 @@ const canDelete = computed(
         @click="emit('pin', message.id)"
       >
         <Icon icon="i-lucide-pin" class="size-3.5" />
+      </button>
+      <button
+        v-if="message.userId !== currentUserId"
+        type="button"
+        class="p-1 rounded hover:bg-n-alpha-2 text-n-slate-11"
+        :title="t('INTERNAL_CHAT.MESSAGE.MARK_UNREAD')"
+        :aria-label="t('INTERNAL_CHAT.MESSAGE.MARK_UNREAD')"
+        @click="emit('markUnread', message)"
+      >
+        <Icon icon="i-lucide-mail" class="size-3.5" />
       </button>
       <button
         v-if="canDelete"

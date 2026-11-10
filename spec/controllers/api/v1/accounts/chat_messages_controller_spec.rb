@@ -25,6 +25,94 @@ RSpec.describe 'Chat messages API', type: :request do
            headers: user.create_new_auth_token, as: :json
   end
 
+  def marcar_nao_lida(sala, message, user)
+    post "/api/v1/accounts/#{account.id}/chat_channels/#{sala.id}/messages/#{message.id}/mark_unread",
+         headers: user.create_new_auth_token, as: :json
+  end
+
+  describe 'POST mark_unread' do
+    let!(:membership) { entrar(channel, agent) }
+    let!(:message) { create(:chat_message, chat_channel: channel, user: outro_agente, content: 'responder depois') }
+
+    before do
+      entrar(channel, outro_agente)
+      create(:chat_message, chat_channel: channel, user: outro_agente, content: 'depois dela')
+      membership.mark_read!
+    end
+
+    it 'makes that message and the following ones count as unread again' do
+      marcar_nao_lida(channel, message, agent)
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['unread']).to eq(2)
+      expect(channel.unread_count_for(agent)).to eq(2)
+    end
+
+    it 'brings back the notifications of that message onward' do
+      notification = create(:notification, account: account, user: agent, notification_type: 'internal_chat_message',
+                                           primary_actor: message, secondary_actor: outro_agente, read_at: Time.current)
+
+      marcar_nao_lida(channel, message, agent)
+
+      expect(notification.reload.read_at).to be_nil
+    end
+
+    it 'leaves the messages before it as read' do
+      antes = create(:chat_message, chat_channel: channel, user: outro_agente, created_at: 1.hour.ago)
+      membership.mark_read!
+
+      marcar_nao_lida(channel, message, agent)
+
+      expect(channel.chat_messages.where.not(user_id: agent.id).where('created_at > ?', membership.reload.last_read_at))
+        .not_to include(antes)
+    end
+
+    it 'refuses to mark your own message' do
+      propria = create(:chat_message, chat_channel: channel, user: agent)
+
+      marcar_nao_lida(channel, propria, agent)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'does not reach rooms the person is not part of' do
+      fora = create(:chat_channel, account: account)
+      alheia = create(:chat_message, chat_channel: fora, user: outro_agente)
+
+      marcar_nao_lida(fora, alheia, agent)
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe 'POST chat_channels/:id/mark_unread' do
+    let!(:membership) { entrar(channel, agent) }
+
+    before { entrar(channel, outro_agente) }
+
+    it 'makes the last message from someone else count as unread again' do
+      create(:chat_message, chat_channel: channel, user: outro_agente, content: 'antiga')
+      create(:chat_message, chat_channel: channel, user: outro_agente, content: 'ultima')
+      create(:chat_message, chat_channel: channel, user: agent, content: 'minha resposta')
+      membership.mark_read!
+
+      post "/api/v1/accounts/#{account.id}/chat_channels/#{channel.id}/mark_unread",
+           headers: agent.create_new_auth_token, as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['unread']).to eq(1)
+    end
+
+    it 'does nothing when nobody else wrote' do
+      create(:chat_message, chat_channel: channel, user: agent)
+
+      post "/api/v1/accounts/#{account.id}/chat_channels/#{channel.id}/mark_unread",
+           headers: agent.create_new_auth_token, as: :json
+
+      expect(response.parsed_body['unread']).to eq(0)
+    end
+  end
+
   describe 'POST create' do
     it 'lets any member write in an ordinary channel' do
       entrar(channel, agent)

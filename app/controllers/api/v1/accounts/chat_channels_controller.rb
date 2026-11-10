@@ -5,7 +5,7 @@
 # canal e da empresa, e quem administra responde por ele. Conversa entre duas
 # pessoas continua so de quem participa, para qualquer papel.
 class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseController
-  before_action :fetch_channel, only: [:show, :read, :update, :destroy, :add_member, :remove_member]
+  before_action :fetch_channel, only: [:show, :read, :mark_unread, :update, :destroy, :add_member, :remove_member]
   before_action :check_authorization
 
   def index
@@ -57,6 +57,15 @@ class Api::V1::Accounts::ChatChannelsController < Api::V1::Accounts::BaseControl
   def read
     membership(@chat_channel)&.mark_read!
     head :ok
+  end
+
+  # Marcar a sala como nao lida (botao direito na lista): a ultima mensagem de
+  # outra pessoa volta a contar como nao lida, no contador do menu e nas
+  # notificacoes. Sala sem mensagem de ninguem mais nao tem o que marcar.
+  def mark_unread
+    ultima = @chat_channel.messages_visible_to(Current.user).where.not(user_id: Current.user.id).order(:id).last
+    membership(@chat_channel)&.mark_unread_from!(ultima) if ultima
+    render json: { unread: @chat_channel.unread_count_for(Current.user) }
   end
 
   # Canal: exclui de verdade (some para todos). Conversa privada: some so' para

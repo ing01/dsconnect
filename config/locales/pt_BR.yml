@@ -280,6 +280,7 @@ pt_BR:
     chat_message:
       not_allowed_to_post: Somente as pessoas autorizadas podem escrever neste canal.
       not_allowed_to_delete: Você pode apagar apenas as suas próprias mensagens.
+      cannot_mark_own_unread: Só é possível marcar como não lida a mensagem de outra pessoa.
       too_large: é maior que o limite de %{size} MB
       too_many: não pode passar de %{count} arquivos por mensagem
     project:

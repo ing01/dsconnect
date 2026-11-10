@@ -22,6 +22,10 @@ class ChatChannelPolicy < ApplicationPolicy
     true
   end
 
+  def mark_unread?
+    true
+  end
+
   # Ajustar o canal (nome/descricao/fixar/moderadores) tem a regra de verdade
   # no controller (`administrator?`) - aqui so' garante participacao, ja
   # assegurada por `fetch_channel`/`visible_channels`.

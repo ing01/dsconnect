@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-mark-unread-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'feature',
+    platform: 'web',
+    title: 'Chat interno: marcar como não lida para responder depois',
+    description:
+      'No Chat interno, clique com o botão direito na conversa (ou use o botão de envelope em uma mensagem) e escolha "Marcar como não lida". A conversa volta a aparecer no contador do menu lateral e nas notificações até você abri-la de novo.',
+  },
+  {
     id: 'ticket-copy-number-title-2026-11-10',
     date: '10 de novembro de 2026',
     isoDate: '2026-11-10',

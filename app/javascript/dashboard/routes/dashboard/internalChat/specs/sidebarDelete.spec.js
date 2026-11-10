@@ -31,6 +31,32 @@ const montar = (props = {}) =>
 const botoesDaLista = wrapper =>
   wrapper.findAll('section button[type="button"]').filter(b => b.text());
 
+describe('ChatSidebar, marcar como nao lida pelo botao direito', () => {
+  it('oferece marcar como nao lida na conversa privada e emite a sala', async () => {
+    const wrapper = montar({ canEdit: false });
+    const direct = botoesDaLista(wrapper).find(b => b.text().includes('Carla'));
+
+    await direct.trigger('contextmenu');
+    const opcao = wrapper
+      .findAll('button')
+      .find(b => b.text().includes('INTERNAL_CHAT.SIDEBAR.MARK_UNREAD'));
+    await opcao.trigger('click');
+
+    expect(wrapper.emitted('markUnread')[0][0]).toMatchObject({ id: 5 });
+  });
+
+  it('oferece a um canal para quem nao e administrador, sem editar nem excluir', async () => {
+    const wrapper = montar({ canEdit: false });
+    const canal = botoesDaLista(wrapper).find(b => b.text().includes('geral'));
+
+    await canal.trigger('contextmenu');
+
+    expect(wrapper.text()).toContain('INTERNAL_CHAT.SIDEBAR.MARK_UNREAD');
+    expect(wrapper.text()).not.toContain('INTERNAL_CHAT.SIDEBAR.EDIT_CHANNEL');
+    expect(wrapper.text()).not.toContain('INTERNAL_CHAT.HEADER.DELETE_CHANNEL');
+  });
+});
+
 describe('ChatSidebar, excluir pelo botao direito', () => {
   it('oferece excluir numa conversa privada, sem editar, mesmo sem ser administrador', async () => {
     const wrapper = montar({ canEdit: false });

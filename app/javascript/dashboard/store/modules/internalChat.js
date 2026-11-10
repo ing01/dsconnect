@@ -211,6 +211,32 @@ export const actions = {
     await InternalChatAPI.markRead(roomId);
   },
 
+  // Marcar a sala inteira como nao lida (botao direito na lista). Se era a sala
+  // aberta, deixa de ser: pelo mesmo motivo de `markMessageUnread`.
+  markRoomUnread: async ({ commit, state: _state }, roomId) => {
+    const response = await InternalChatAPI.markRoomUnread(roomId);
+    commit(types.SET_INTERNAL_CHAT_UNREAD, {
+      roomId,
+      unread: response.data.unread,
+    });
+    if (_state.activeRoomId === roomId) {
+      commit(types.SET_INTERNAL_CHAT_ACTIVE_ROOM, null);
+    }
+  },
+
+  // Marcar uma mensagem como nao lida, para responder depois. O servidor devolve
+  // o nao lido da sala ja recontado, que alimenta o contador do menu. A sala
+  // deixa de ser a aberta: com ela aberta, a proxima mensagem que chegasse
+  // marcaria tudo como lido de novo e o lembrete se perderia.
+  markMessageUnread: async ({ commit }, { roomId, messageId }) => {
+    const response = await InternalChatAPI.markMessageUnread(roomId, messageId);
+    commit(types.SET_INTERNAL_CHAT_UNREAD, {
+      roomId,
+      unread: response.data.unread,
+    });
+    commit(types.SET_INTERNAL_CHAT_ACTIVE_ROOM, null);
+  },
+
   sendMessage: async ({ commit }, { roomId, body, replyTo, attachments }) => {
     commit(types.SET_INTERNAL_CHAT_UI_FLAG, { isSending: true });
     try {

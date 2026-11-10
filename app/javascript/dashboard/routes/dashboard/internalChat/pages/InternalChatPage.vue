@@ -238,6 +238,43 @@ const react = ({ messageId, emoji }) =>
     emoji,
   });
 
+// Deixa a mensagem como nao lida para responder depois. A sala fecha em seguida:
+// continuar com ela aberta a leria de novo na proxima mensagem que chegasse.
+const markUnread = async message => {
+  try {
+    await store.dispatch('internalChat/markMessageUnread', {
+      roomId: activeRoomId.value,
+      messageId: message.id,
+    });
+    activeRoomId.value = '';
+    showConversationOnMobile.value = false;
+    useAlert(t('INTERNAL_CHAT.MESSAGE.MARKED_UNREAD'));
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error ||
+        t('INTERNAL_CHAT.MESSAGE.MARK_UNREAD_ERROR')
+    );
+  }
+};
+
+// Pelo botao direito na lista: a sala toda volta a contar como nao lida. Se era a
+// aberta, fecha - ver `markUnread`.
+const markRoomUnread = async room => {
+  try {
+    await store.dispatch('internalChat/markRoomUnread', room.id);
+    if (activeRoomId.value === room.id) {
+      activeRoomId.value = '';
+      showConversationOnMobile.value = false;
+    }
+    useAlert(t('INTERNAL_CHAT.MESSAGE.MARKED_UNREAD'));
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error ||
+        t('INTERNAL_CHAT.MESSAGE.MARK_UNREAD_ERROR')
+    );
+  }
+};
+
 const togglePin = messageId =>
   store.dispatch('internalChat/togglePin', {
     roomId: activeRoomId.value,
@@ -384,6 +421,7 @@ const unreadDividerIndex = computed(() => {
         @create-channel="createChannelDialog?.open()"
         @edit-channel="channel => editChannelDialog?.open(channel)"
         @delete-room="askDeleteRoom"
+        @mark-unread="markRoomUnread"
       />
     </div>
 
@@ -474,6 +512,7 @@ const unreadDividerIndex = computed(() => {
               @reply="value => (replyTo = value)"
               @react="react"
               @pin="togglePin"
+              @mark-unread="markUnread"
               @delete="askDelete"
               @open-image="attachment => (lightboxAttachment = attachment)"
               @open-ticket="openTicket"

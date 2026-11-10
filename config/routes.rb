@@ -537,6 +537,7 @@ Rails.application.routes.draw do
             end
             member do
               post :read
+              post :mark_unread
               post :add_member
               delete :remove_member
             end
@@ -549,6 +550,7 @@ Rails.application.routes.draw do
               member do
                 post :toggle_reaction
                 post :toggle_pin
+                post :mark_unread
               end
             end
           end

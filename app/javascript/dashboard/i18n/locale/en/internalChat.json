@@ -1,6 +1,7 @@
 {
   "INTERNAL_CHAT": {
     "SIDEBAR": {
+      "MARK_UNREAD": "Marcar como não lida",
       "SEARCH": "Search conversations",
       "DIRECTS": "Conversations",
       "CHANNELS": "Channels",
@@ -40,6 +41,9 @@
       "UNPIN": "Unpin message",
       "PINNED": "Pinned",
       "NO_PINNED": "No pinned messages in this channel.",
+      "MARK_UNREAD": "Marcar como não lida",
+      "MARKED_UNREAD": "Mensagem marcada como não lida. Ela aparece no contador do menu.",
+      "MARK_UNREAD_ERROR": "Não foi possível marcar como não lida.",
       "DELETE": "Apagar",
       "DELETE_CONFIRM": "Apagar esta mensagem? Não há como desfazer.",
       "DELETE_ERROR": "Não foi possível apagar a mensagem.",
