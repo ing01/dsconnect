@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'link-preview-description-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Link do DSConnect: nova descrição na pré-visualização',
+    description:
+      'Ao enviar o link do DSConnect em um chat, a pré-visualização agora mostra uma descrição em português (plataforma de organização de chamados e atendimento), em vez do texto genérico em inglês.',
+  },
+  {
     id: 'internal-chat-mark-unread-2026-11-10',
     date: '10 de novembro de 2026',
     isoDate: '2026-11-10',
