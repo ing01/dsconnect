@@ -6,6 +6,12 @@ import { useAlert } from 'dashboard/composables';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import TicketTimerCard from './TicketTimerCard.vue';
+import {
+  formatDuration,
+  joinHours,
+  splitHours,
+} from '../../helpers/timeEntryFormat';
 
 const props = defineProps({
   ticketId: { type: [Number, String], required: true },
@@ -26,7 +32,8 @@ const note = ref('');
 const isSubmitting = ref(false);
 
 const entries = computed(
-  () => store.getters['ticketTimeEntries/getEntriesByTicket'](props.ticketId) || []
+  () =>
+    store.getters['ticketTimeEntries/getEntriesByTicket'](props.ticketId) || []
 );
 
 const totalHours = computed(() =>
@@ -47,9 +54,11 @@ const hoursByLevel = computed(() =>
 
 const showLevelSummary = computed(() => hoursByLevel.value.length > 0);
 
-const categoryLabel = value => t(`TICKET.DETAIL.TIME_ENTRIES.CATEGORY.${value.toUpperCase()}`);
+const categoryLabel = value =>
+  t(`TICKET.DETAIL.TIME_ENTRIES.CATEGORY.${value.toUpperCase()}`);
 
-const load = () => store.dispatch('ticketTimeEntries/getByTicket', props.ticketId);
+const load = () =>
+  store.dispatch('ticketTimeEntries/getByTicket', props.ticketId);
 
 const resetForm = () => {
   hours.value = '';
@@ -71,9 +80,61 @@ const addEntry = async () => {
     });
     resetForm();
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.TIME_ENTRIES.ADD_ERROR'));
+    useAlert(
+      parseAPIErrorResponse(error) || t('TICKET.DETAIL.TIME_ENTRIES.ADD_ERROR')
+    );
   } finally {
     isSubmitting.value = false;
+  }
+};
+
+// Editar um apontamento ja lancado: horas e minutos, categoria, dia e observacao.
+const editingId = ref(null);
+const editHours = ref(0);
+const editMinutes = ref(0);
+const editCategory = ref('implantacao');
+const editDate = ref('');
+const editNote = ref('');
+const isSaving = ref(false);
+
+const startEdit = entry => {
+  const parts = splitHours(entry.hours);
+  editingId.value = entry.id;
+  editHours.value = parts.hours;
+  editMinutes.value = parts.minutes;
+  editCategory.value = entry.category;
+  editDate.value = entry.worked_on;
+  editNote.value = entry.note || '';
+};
+
+const cancelEdit = () => {
+  editingId.value = null;
+};
+
+const editedHours = computed(() =>
+  joinHours(editHours.value, editMinutes.value)
+);
+
+const saveEdit = async entry => {
+  if (editedHours.value <= 0 || isSaving.value) return;
+
+  isSaving.value = true;
+  try {
+    await store.dispatch('ticketTimeEntries/update', {
+      ticketId: props.ticketId,
+      entryId: entry.id,
+      hours: editedHours.value,
+      category: editCategory.value,
+      worked_on: editDate.value,
+      note: editNote.value.trim(),
+    });
+    editingId.value = null;
+  } catch (error) {
+    useAlert(
+      parseAPIErrorResponse(error) || t('TICKET.DETAIL.TIME_ENTRIES.EDIT_ERROR')
+    );
+  } finally {
+    isSaving.value = false;
   }
 };
 
@@ -101,7 +162,8 @@ watch(() => props.ticketId, load);
         {{ t('TICKET.DETAIL.TIME_ENTRIES.TITLE') }}
       </h2>
       <span v-if="totalHours" class="text-xs font-medium text-n-slate-11">
-        {{ t('TICKET.DETAIL.TIME_ENTRIES.TOTAL') }}: {{ totalHours }}h
+        {{ t('TICKET.DETAIL.TIME_ENTRIES.TOTAL') }}:
+        {{ formatDuration(totalHours) }}
       </span>
     </div>
 
@@ -122,9 +184,13 @@ watch(() => props.ticketId, load);
         <span class="text-sm font-medium truncate text-n-slate-12">
           {{ row.name || t('TICKET.FORM.ASSIGNEE.NONE') }}
         </span>
-        <span class="text-sm text-n-slate-11">{{ row.hours }}h</span>
+        <span class="text-sm text-n-slate-11">{{
+          formatDuration(row.hours)
+        }}</span>
       </div>
     </div>
+
+    <TicketTimerCard :ticket-id="ticketId" />
 
     <p
       v-if="!entries.length"
@@ -139,31 +205,130 @@ watch(() => props.ticketId, load);
         v-for="entry in entries"
         :key="entry.id"
         class="group flex items-start justify-between gap-2 px-3 py-2 rounded-lg bg-n-alpha-1 min-w-0"
+        data-testid="entry-row"
       >
-        <div class="flex flex-col gap-0.5 min-w-0">
-          <span class="text-sm font-medium text-n-slate-12">
-            {{ entry.hours }}h — {{ categoryLabel(entry.category) }}
-          </span>
-          <span class="text-xs text-n-slate-10">
-            {{ entry.worked_on }}
-            <template v-if="entry.user_name"> · {{ entry.user_name }}</template>
-            <template v-if="entry.level">
-              ·
-              {{ t('TICKET.DETAIL.TIME_ENTRIES.LEVEL', { level: entry.level }) }}
-            </template>
-          </span>
-          <span v-if="entry.note" class="text-xs text-n-slate-11 truncate" :title="entry.note">
-            {{ entry.note }}
-          </span>
-        </div>
-        <button
-          type="button"
-          class="opacity-0 group-hover:opacity-100 text-n-slate-9 hover:text-n-ruby-11 flex-shrink-0"
-          :aria-label="t('TICKET.DETAIL.TIME_ENTRIES.DELETE')"
-          @click="removeEntry(entry)"
+        <!-- Editando: horas e minutos, categoria, dia e observacao. -->
+        <form
+          v-if="editingId === entry.id"
+          class="grid flex-1 grid-cols-2 gap-2 min-w-0 sm:grid-cols-4"
+          data-testid="entry-edit-form"
+          @submit.prevent="saveEdit(entry)"
         >
-          <Icon icon="i-lucide-trash-2" class="size-3.5" />
-        </button>
+          <label class="flex items-center gap-1 text-xs text-n-slate-11">
+            <input
+              v-model="editHours"
+              type="number"
+              min="0"
+              step="1"
+              data-testid="edit-hours"
+              class="h-9 w-full px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+              :aria-label="t('TICKET.DETAIL.TIME_ENTRIES.HOURS_LABEL')"
+            />
+            {{ t('TICKET.DETAIL.TIME_ENTRIES.HOURS_SHORT') }}
+          </label>
+          <label class="flex items-center gap-1 text-xs text-n-slate-11">
+            <input
+              v-model="editMinutes"
+              type="number"
+              min="0"
+              max="59"
+              step="1"
+              data-testid="edit-minutes"
+              class="h-9 w-full px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+              :aria-label="t('TICKET.DETAIL.TIME_ENTRIES.MINUTES_LABEL')"
+            />
+            {{ t('TICKET.DETAIL.TIME_ENTRIES.MINUTES_SHORT') }}
+          </label>
+          <select
+            v-model="editCategory"
+            class="h-9 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+          >
+            <option v-for="cat in CATEGORIES" :key="cat" :value="cat">
+              {{ categoryLabel(cat) }}
+            </option>
+          </select>
+          <input
+            v-model="editDate"
+            type="date"
+            class="h-9 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+          />
+          <input
+            v-model="editNote"
+            type="text"
+            class="h-9 col-span-2 px-2 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none sm:col-span-4"
+            :placeholder="t('TICKET.DETAIL.TIME_ENTRIES.NOTE_PLACEHOLDER')"
+          />
+          <div class="flex items-center gap-2 col-span-2 sm:col-span-4">
+            <NextButton
+              size="xs"
+              type="submit"
+              data-testid="edit-save"
+              :label="t('TICKET.DETAIL.TIME_ENTRIES.SAVE')"
+              :disabled="editedHours <= 0"
+              :is-loading="isSaving"
+            />
+            <NextButton
+              size="xs"
+              variant="ghost"
+              color="slate"
+              :label="t('TICKET.DETAIL.TIME_ENTRIES.CANCEL')"
+              @click="cancelEdit"
+            />
+          </div>
+        </form>
+
+        <template v-else>
+          <div class="flex flex-col gap-0.5 min-w-0">
+            <span
+              class="text-sm font-medium text-n-slate-12"
+              :title="`${entry.hours}h`"
+            >
+              {{ formatDuration(entry.hours) }} —
+              {{ categoryLabel(entry.category) }}
+            </span>
+            <span class="text-xs text-n-slate-10">
+              {{ entry.worked_on }}
+              <template v-if="entry.user_name">
+                · {{ entry.user_name }}</template
+              >
+              <template v-if="entry.level">
+                ·
+                {{
+                  t('TICKET.DETAIL.TIME_ENTRIES.LEVEL', { level: entry.level })
+                }}
+              </template>
+            </span>
+            <span
+              v-if="entry.note"
+              class="text-xs text-n-slate-11 truncate"
+              :title="entry.note"
+            >
+              {{ entry.note }}
+            </span>
+          </div>
+          <div class="flex items-center flex-shrink-0 gap-2">
+            <button
+              type="button"
+              data-testid="entry-edit"
+              class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 max-md:opacity-100 text-n-slate-9 hover:text-n-slate-12"
+              :aria-label="t('TICKET.DETAIL.TIME_ENTRIES.EDIT')"
+              :title="t('TICKET.DETAIL.TIME_ENTRIES.EDIT')"
+              @click="startEdit(entry)"
+            >
+              <Icon icon="i-lucide-pencil" class="size-3.5" />
+            </button>
+            <button
+              type="button"
+              data-testid="entry-delete"
+              class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 max-md:opacity-100 text-n-slate-9 hover:text-n-ruby-11"
+              :aria-label="t('TICKET.DETAIL.TIME_ENTRIES.DELETE')"
+              :title="t('TICKET.DETAIL.TIME_ENTRIES.DELETE')"
+              @click="removeEntry(entry)"
+            >
+              <Icon icon="i-lucide-trash-2" class="size-3.5" />
+            </button>
+          </div>
+        </template>
       </li>
     </ul>
 

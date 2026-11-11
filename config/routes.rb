@@ -610,6 +610,15 @@ Rails.application.routes.draw do
               end
             end
             resources :time_entries, controller: 'ticket_time_entries', only: [:index, :create, :update, :destroy]
+            # Cronometro de apontamento: inicia/pausa/continua/finaliza. Ao finalizar vira um
+            # time_entry comum; so' o proprio agente enxerga e mexe nos seus.
+            resources :timers, controller: 'ticket_timers', only: [:index, :create, :destroy] do
+              member do
+                post :pause
+                post :resume
+                post :finish
+              end
+            end
             # Aba Valorizacao: propostas comerciais de melhoria. `defaults` traz o
             # formulario preenchido com a Empresa do ticket; `pdf` entrega o documento.
             resources :proposals, controller: 'ticket_proposals', only: [:index, :create, :update, :destroy] do

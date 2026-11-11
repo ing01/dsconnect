@@ -48,6 +48,8 @@ class Ticket < ApplicationRecord
   has_many :calendar_events, through: :calendar_event_tickets
   has_many :ticket_checklist_items, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :ticket
   has_many :ticket_time_entries, -> { order(worked_on: :desc, id: :desc) }, dependent: :destroy, inverse_of: :ticket
+  # Cronometros em andamento (ver TicketTimer): ainda nao sao horas lancadas.
+  has_many :ticket_timers, dependent: :destroy, inverse_of: :ticket
   # Uma proposta pode valer para varios tickets; esta e' a lista das que
   # aparecem neste. `created_ticket_proposals` sao as que nasceram aqui - sem
   # elas, excluir o ticket falharia pela chave estrangeira de `ticket_id`.

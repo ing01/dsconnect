@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-time-entry-timer-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'feature',
+    platform: 'web',
+    title: 'Ticket: cronômetro de apontamento de horas',
+    description:
+      'Na aba Apontamento do ticket, clique em Iniciar para começar a contar o tempo (horas, minutos e segundos). Dá para pausar, continuar e, ao finalizar, o tempo vira um apontamento na lista. O cronômetro não se perde se você fechar a página, e os apontamentos agora podem ser editados (horas e minutos) além de removidos.',
+  },
+  {
     id: 'chat-list-date-filter-inside-funnel-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',
