@@ -62,6 +62,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits([
+  'rateMessage',
+  'clearRating',
   'sendMessage',
   'reset',
   'setAssistant',
@@ -194,6 +196,10 @@ watch(
             :message="item.message"
             :is-last-message="index === visibleMessages.length - 1"
             :conversation-inbox-type="conversationInboxType"
+            :message-id="item.id"
+            :feedback="item.feedback"
+            @rate="$event => emit('rateMessage', $event)"
+            @clear-rate="$event => emit('clearRating', $event)"
           />
         </template>
 

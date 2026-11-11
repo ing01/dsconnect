@@ -18,6 +18,8 @@
 class CopilotMessage < ApplicationRecord
   belongs_to :copilot_thread
   belongs_to :account
+  # O feedback sobrevive a mensagem (a conversa pode ser excluida): ver a migration.
+  has_many :copilot_message_feedbacks, dependent: :nullify
 
   enum message_type: { user: 0, assistant: 1, assistant_thinking: 2 }
 

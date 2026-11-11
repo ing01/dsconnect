@@ -486,6 +486,22 @@
       "KICK_OFF_MESSAGE": "Tire dúvidas sobre o sistema e auxilie seus clientes: pergunte sobre telas, rotinas e regras do ERP, ou peça ajuda para entender uma conversa.",
       "KICK_OFF_MESSAGE_CLIENT": "Tire dúvidas rápidas sobre o sistema.",
       "SEND_MESSAGE": "Enviar mensagem...",
+      "FEEDBACK": {
+        "USEFUL": "Resposta útil",
+        "NOT_USEFUL": "Resposta não ajudou",
+        "THANKS": "Obrigado pelo feedback!",
+        "QUESTION": "O que não ficou bom?",
+        "WRONG_ANSWER": "Resposta errada",
+        "INCOMPLETE": "Incompleta",
+        "NOT_HELPFUL": "Não respondeu o que perguntei",
+        "OUTDATED": "Desatualizada",
+        "OTHER": "Outro",
+        "COMMENT_PLACEHOLDER": "Quer detalhar? (opcional)",
+        "SEND": "Enviar",
+        "CANCEL": "Cancelar",
+        "REMOVE": "Remover avaliação",
+        "ERROR": "Não foi possível enviar o feedback. Tente novamente."
+      },
       "EMPTY_MESSAGE": "Houve um erro ao gerar a resposta. Por favor, tente novamente.",
       "LOADER": "Pensando para te responder",
       "LOADER_PHRASES": {

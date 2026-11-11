@@ -198,6 +198,34 @@ const handleReset = () => {
 
 watch(() => currentChat.value?.id, handleReset);
 
+// O agente avalia a resposta do DueBot; fica gravado para analise. A tela so muda
+// quando o servidor confirma (o polegar marcado vem na resposta).
+const rateMessage = async payload => {
+  try {
+    await store.dispatch('copilotMessages/rate', {
+      threadId: selectedCopilotThreadId.value,
+      ...payload,
+    });
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error || t('CAPTAIN.COPILOT.FEEDBACK.ERROR')
+    );
+  }
+};
+
+const clearRating = async payload => {
+  try {
+    await store.dispatch('copilotMessages/clearRating', {
+      threadId: selectedCopilotThreadId.value,
+      ...payload,
+    });
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error || t('CAPTAIN.COPILOT.FEEDBACK.ERROR')
+    );
+  }
+};
+
 const sendMessage = async payload => {
   const message = typeof payload === 'string' ? payload : payload.message;
   const requestType =
@@ -264,6 +292,8 @@ onMounted(() => {
       :can-load-more-history="canLoadMoreHistory"
       @set-assistant="setAssistant"
       @send-message="sendMessage"
+      @rate-message="rateMessage"
+      @clear-rating="clearRating"
       @reset="handleReset"
       @toggle-history="toggleHistory"
       @select-thread="openThread"

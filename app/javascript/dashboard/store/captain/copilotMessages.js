@@ -15,5 +15,15 @@ export default createStore({
     upsert({ commit }, data) {
       commit(mutationTypes.UPSERT, data);
     },
+    // A resposta da API e a mensagem inteira, ja com o feedback desta pessoa:
+    // o UPSERT troca o registro e a tela mostra o polegar marcado.
+    async rate({ commit }, payload) {
+      const response = await CopilotMessagesAPI.rate(payload);
+      commit(mutationTypes.UPSERT, response.data);
+    },
+    async clearRating({ commit }, payload) {
+      const response = await CopilotMessagesAPI.clearRating(payload);
+      commit(mutationTypes.UPSERT, response.data);
+    },
   }),
 });

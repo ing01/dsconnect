@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'duebot-answer-feedback-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'feature',
+    platform: 'web',
+    title: 'DueBot: avalie as respostas com 👍 ou 👎',
+    description:
+      'Abaixo de cada resposta do DueBot há agora os botões de polegar. Marque se a resposta ajudou ou, se não ajudou, diga o motivo e escreva um comentário. As avaliações ficam guardadas para a equipe analisar e melhorar o DueBot.',
+  },
+  {
     id: 'integration-api-jira-key-filter-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

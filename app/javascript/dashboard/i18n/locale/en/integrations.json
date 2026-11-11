@@ -486,6 +486,22 @@
       "KICK_OFF_MESSAGE": "Ask questions about the system and help your customers: screens, routines and ERP rules, or get help understanding a conversation.",
       "KICK_OFF_MESSAGE_CLIENT": "Get quick answers about the system.",
       "SEND_MESSAGE": "Send message...",
+      "FEEDBACK": {
+        "USEFUL": "Helpful answer",
+        "NOT_USEFUL": "Answer did not help",
+        "THANKS": "Thanks for the feedback!",
+        "QUESTION": "What was wrong?",
+        "WRONG_ANSWER": "Wrong answer",
+        "INCOMPLETE": "Incomplete",
+        "NOT_HELPFUL": "Did not answer what I asked",
+        "OUTDATED": "Outdated",
+        "OTHER": "Other",
+        "COMMENT_PLACEHOLDER": "Want to add details? (optional)",
+        "SEND": "Send",
+        "CANCEL": "Cancel",
+        "REMOVE": "Remove rating",
+        "ERROR": "Could not send the feedback. Please try again."
+      },
       "EMPTY_MESSAGE": "There was an error generating the response. Please try again.",
       "LOADER": "Thinking about your answer",
       "LOADER_PHRASES": {

@@ -182,7 +182,9 @@ Rails.application.routes.draw do
             resources :message_reports, only: [:create]
             resources :bulk_actions, only: [:create]
             resources :copilot_threads, only: [:index, :create, :destroy] do
-              resources :copilot_messages, only: [:index, :create]
+              resources :copilot_messages, only: [:index, :create] do
+                resource :feedback, only: [:create, :destroy], controller: 'copilot_message_feedbacks'
+              end
             end
             resources :custom_tools do
               post :test, on: :collection

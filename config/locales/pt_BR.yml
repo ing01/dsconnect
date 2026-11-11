@@ -277,6 +277,8 @@ pt_BR:
     conversation:
       must_be_assigned_to_reply: Esta conversa está atribuída a outro atendente. Atribua a você mesmo para responder.
       must_reopen_to_reply: Esta conversa está resolvida. Reabra-a para responder.
+    copilot_feedback:
+      only_assistant: Só é possível avaliar uma resposta do DueBot.
     chat_message:
       not_allowed_to_post: Somente as pessoas autorizadas podem escrever neste canal.
       not_allowed_to_delete: Você pode apagar apenas as suas próprias mensagens.

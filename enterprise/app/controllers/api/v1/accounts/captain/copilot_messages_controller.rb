@@ -4,7 +4,7 @@ class Api::V1::Accounts::Captain::CopilotMessagesController < Api::V1::Accounts:
   def index
     @copilot_messages = @copilot_thread
                         .copilot_messages
-                        .includes(:copilot_thread)
+                        .includes(:copilot_thread, :copilot_message_feedbacks)
                         .order(created_at: :asc)
                         .page(permitted_params[:page] || 1)
                         .per(1000)
