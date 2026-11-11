@@ -8,6 +8,90 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'conversation-list-search-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'feature',
+    platform: 'web',
+    title: 'Buscar conversa por nome do cliente ou da empresa',
+    description:
+      'A listagem de conversas ganhou um campo de busca: digite o nome do cliente ou da empresa para filtrar a lista na hora, sem precisar abrir cada conversa para achar.',
+  },
+  {
+    id: 'queue-reopen-after-pause-no-autoassign-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'fix',
+    platform: 'web',
+    title:
+      'Conversa pausada que estava numa Fila volta pra Fila, não pra um atendente',
+    description:
+      'Quando o cliente volta de uma pausa numa conversa que estava esperando numa Fila, ela volta pra Fila sem agente nenhum, em vez de ser atribuída sozinha pela distribuição automática.',
+  },
+  {
+    id: 'autoassignment-exceptions-colocated-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title:
+      'Exceção da distribuição automática agora fica junto do botão que liga/desliga',
+    description:
+      'As listas de agentes excluídos e o limite de conversas simultâneas por atendente saíram de uma tela separada e passaram a aparecer junto da própria habilitação da distribuição automática - em Colaboradores da caixa (WhatsApp) e em Automação (Portal do Cliente).',
+  },
+  {
+    id: 'triage-summary-modal-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Triagem: resumo do chamado antes de abrir o ticket completo',
+    description:
+      'O botão "Abrir" na Triagem agora mostra um resumo do chamado (prioridade, solicitante, empresa, categoria sugerida e descrição) numa janela rápida, com as opções "Ver ticket completo" ou já "Abrir e encaminhar" direto dali.',
+  },
+  {
+    id: 'auto-updater-menu-top-level-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title:
+      '"Atualizador automático" agora é item próprio no menu, pra todo mundo',
+    description:
+      'O item "Atualizador automático" saiu de dentro de Configurações e passou a ser um item próprio no menu lateral, visível pra qualquer usuário.',
+  },
+  {
+    id: 'delete-email-context-menu-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'feature',
+    platform: 'web',
+    title: 'Excluir e-mail direto pelo menu de contexto',
+    description:
+      'Nas conversas de E-mail, clicar com o botão direito num item da lista agora mostra a opção "Excluir e-mail", útil pra limpar spam sem precisar abrir a conversa.',
+  },
+  {
+    id: 'filters-alignment-suggestions-sac-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'fix',
+    platform: 'web',
+    title:
+      'Filtros de data alinhados em Sugestões e Melhorias e em SAC e Sugestões',
+    description:
+      'Os campos de data "De" e "Até" ficaram alinhados com os demais filtros (Prioridade, Categoria, Responsável) nas telas de Sugestões e Melhorias e de SAC e Sugestões.',
+  },
+  {
+    id: 'client-portal-autoassignment-no-self-enable-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'fix',
+    platform: 'web',
+    title: 'Distribuição automática do Portal do Cliente não liga mais sozinha',
+    description:
+      'Corrigido: a caixa do Portal do Cliente podia voltar a ligar a distribuição automática por conta própria depois que um administrador desligava. Agora ela só liga por uma ação explícita de um administrador em Configurações.',
+  },
+  {
     id: 'internal-chat-recent-first-2026-11-06',
     date: '6 de novembro de 2026',
     isoDate: '2026-11-06',
@@ -33,7 +117,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-06',
     type: 'fix',
     platform: 'web',
-    title: 'Pausa por inatividade agora vale tambÃ©m para as conversas das Filas',
+    title:
+      'Pausa por inatividade agora vale tambÃ©m para as conversas das Filas',
     description:
       'A pesquisa de satisfação (CSAT) e outras mensagens automáticas do sistema agora saem em português. Também traduzimos as telas de análises de campanhas do WhatsApp, os seletores de variáveis, emojis, macros e menções da conversa, os atalhos de formatação, a sincronização de modelos do WhatsApp e outros textos que ainda apareciam em inglês.',
   },
@@ -43,7 +128,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-06',
     type: 'fix',
     platform: 'web',
-    title: 'Pausa por inatividade agora vale também para as conversas das Filas',
+    title:
+      'Pausa por inatividade agora vale também para as conversas das Filas',
     description:
       'Corrigimos o caso em que a pausa estava ligada nas configurações da caixa de entrada, mas a conversa do Portal estava numa Fila com aviso e encerramento próprios: a Fila ignorava a pausa e encerrava a conversa. Agora, se a Fila não tiver a pausa ligada, vale a pausa da caixa; se a Fila tiver, vale a da Fila.',
   },
@@ -63,7 +149,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-06',
     type: 'fix',
     platform: 'web',
-    title: 'Projetos: aba de cancelados, contadores certos e criação mais segura',
+    title:
+      'Projetos: aba de cancelados, contadores certos e criação mais segura',
     description:
       'Em Projetos, agora há a aba "Cancelados", onde dá para consultar e reativar projetos cancelados. Os contadores de Ativos, Concluídos e Cancelados passaram a mostrar o total real. O cadastro cria o projeto e as tarefas de uma vez só, sem deixar projeto vazio nem duplicar ao tentar de novo. A "Data de início de uso do sistema" agora salva, o progresso não conta mais tickets cancelados, o status dos tickets aparece em português e uma tarefa resolvida fora de ordem não puxa mais o projeto para uma etapa anterior. A lista também ficou mais leve.',
   },
