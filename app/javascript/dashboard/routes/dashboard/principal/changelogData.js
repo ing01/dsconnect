@@ -15,7 +15,7 @@ export const CHANGELOG_ENTRIES = [
     platform: 'web',
     title: 'Novo ticket: escolher o módulo ao lado do título',
     description:
-      'Ao criar um ticket, um seletor ao lado do título lista os módulos do Catálogo de Serviços (DS Comercial, etc.) e coloca o escolhido no começo do título, no formato [DS Comercial] ERRO AO GERAR NOTAS EM LOTE. Trocar o módulo substitui o anterior, e "Sem módulo" o retira.',
+      'Ao criar um ticket, um seletor ao lado do título lista os módulos do Catálogo de Serviços (DS Comercial, etc.) e coloca o escolhido no começo do título, no formato [DS Comercial] ERRO AO GERAR NOTAS EM LOTE. O seletor é pesquisável e também aparece ao editar o título de um ticket já criado. Trocar o módulo substitui o anterior, e "Sem módulo" o retira.',
   },
   {
     id: 'unread-alert-confirm-2026-11-11',
@@ -35,7 +35,7 @@ export const CHANGELOG_ENTRIES = [
     platform: 'web',
     title: 'Chat interno: imagens com zoom, arrastar e girar',
     description:
-      'As imagens do chat interno agora abrem no mesmo visualizador das imagens do ticket: dá para ampliar com a roda do mouse, duplo clique ou botões, arrastar a imagem ampliada e girá-la para os lados. Ao anexar uma imagem, clicar na miniatura também a abre ampliada antes de enviar.',
+      'As imagens do chat interno agora abrem no mesmo visualizador das imagens do ticket: dá para ampliar com a roda do mouse, duplo clique ou botões, arrastar a imagem ampliada e girá-la para os lados. A imagem abre grande, ocupando quase toda a tela. Ao anexar uma imagem, clicar na miniatura também a abre ampliada antes de enviar.',
   },
   {
     id: 'time-entry-team-category-precision-2026-11-11',

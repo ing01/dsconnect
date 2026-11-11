@@ -65,7 +65,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 <template>
   <div
     v-if="attachment"
-    class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 p-6 bg-black/70"
+    class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 p-4 bg-black/80"
     role="dialog"
     aria-modal="true"
     @pointerdown.self="emit('close')"
@@ -138,7 +138,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
           :src="source"
           :alt="attachment.name"
           :style="imageStyle"
-          class="object-contain max-w-3xl rounded-lg max-h-[70vh] duration-100 ease-in-out transform select-none"
+          class="object-contain rounded-lg w-[92vw] h-[78vh] duration-100 ease-in-out transform select-none"
           draggable="false"
           @dragstart.prevent
           @dblclick.stop="onDoubleClickZoomImage"

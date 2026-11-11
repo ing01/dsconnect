@@ -1,17 +1,14 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useMapGetter, useStore } from 'dashboard/composables/store';
+import { useMapGetter } from 'dashboard/composables/store';
 import { useTicketCreation } from '../../composables/useTicketCreation';
 import { TICKET_DESCRIPTION_TEMPLATE } from '../../helpers/descriptionTemplate';
-import {
-  moduleFromTitle,
-  stripModule,
-  withModule,
-} from '../../helpers/titleModule';
+import { stripModule } from '../../helpers/titleModule';
 import TicketCompanySelect from '../TicketCompanySelect.vue';
 import TicketContactSelect from '../TicketContactSelect.vue';
 import TicketPicker from '../detail/actions/TicketPicker.vue';
+import TicketModuleSelect from '../TicketModuleSelect.vue';
 import TicketFollowersSelect from './TicketFollowersSelect.vue';
 import TicketFileInput from './TicketFileInput.vue';
 import TicketRecentCompanyTickets from './TicketRecentCompanyTickets.vue';
@@ -107,26 +104,15 @@ const priorityOptions = computed(() =>
 
 const showValidation = ref(false);
 
-// O modulo do sistema (DS Comercial...) vem do Catalogo de Servicos, 1o nivel, e entra
-// no comeco do titulo como "[Modulo] ". Ele e' lido do proprio titulo, sem estado a parte.
-const store = useStore();
+// O modulo escolhido entra no titulo como "[Modulo] " (TicketModuleSelect). So o modulo
+// no titulo nao e' titulo: continua faltando o texto.
 const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
-const moduleNames = computed(() => catalogs.value.map(item => item.name));
-const moduleOptions = computed(() =>
-  moduleNames.value.map(name => ({ value: name, label: name }))
-);
-const titleModule = computed({
-  get: () => moduleFromTitle(form.value.title, moduleNames.value),
-  set: name => {
-    form.value.title = withModule(form.value.title, name, moduleNames.value);
-  },
-});
-// So o modulo no titulo nao e' titulo: continua faltando o texto.
 const bareTitle = computed(() =>
-  stripModule(form.value.title, moduleNames.value).trim()
+  stripModule(
+    form.value.title,
+    catalogs.value.map(item => item.name)
+  ).trim()
 );
-
-onMounted(() => store.dispatch('serviceCatalogs/fetch'));
 
 // FullEditor's image button dispatches `articles/attachImage` with a portal
 // slug this route does not have, so those two options are left out; files go
@@ -451,16 +437,7 @@ defineExpose({ resetForNext });
            around it on the ticket page; repeating them here would store the
            same data twice. -->
       <div class="flex flex-col gap-2 sm:flex-row min-w-0">
-        <div v-if="moduleOptions.length" class="sm:w-56 sm:flex-shrink-0">
-          <TicketSelect
-            v-model="titleModule"
-            :options="moduleOptions"
-            clearable
-            :clear-label="t('TICKET.FORM.TITLE.NO_MODULE')"
-            :placeholder="t('TICKET.FORM.TITLE.MODULE_PLACEHOLDER')"
-            :aria-label="t('TICKET.FORM.TITLE.MODULE_LABEL')"
-          />
-        </div>
+        <TicketModuleSelect v-model="form.title" />
         <input
           v-model="form.title"
           type="text"
