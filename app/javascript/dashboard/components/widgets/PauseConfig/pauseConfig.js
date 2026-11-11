@@ -12,7 +12,6 @@ export const PAUSE_NUMBERS = [
 
 export const PAUSE_TOGGLES = [
   { key: 'pause_enabled', default: false, label: 'ENABLED' },
-  { key: 'resume_one_click', default: true, label: 'RESUME_ONE_CLICK' },
   { key: 'keep_previous_agent', default: true, label: 'KEEP_PREVIOUS_AGENT' },
   {
     key: 'respect_working_hours',

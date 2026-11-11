@@ -39,10 +39,6 @@
           "LABEL": "Pausas por conversa",
           "HELP": "Quantas vezes a mesma conversa pode ser pausada. Depois disso, a inatividade encerra de uma vez. Vazio = 1."
         },
-        "RESUME_ONE_CLICK": {
-          "LABEL": "Qualquer mensagem retoma",
-          "HELP": "O cliente retoma enviando qualquer mensagem (ex.: \"oi\"). Desligado, só \"sim\" retoma."
-        },
         "KEEP_PREVIOUS_AGENT": {
           "LABEL": "Voltar ao atendente anterior se estiver disponível",
           "HELP": "Se o atendente anterior estiver online e disponível, a conversa volta para ele; senão vai para a fila."

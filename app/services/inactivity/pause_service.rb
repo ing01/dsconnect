@@ -8,8 +8,8 @@
 #   (auditoria das extensoes) e pause_count (quantas vezes ja foi pausada).
 #
 # - pause!    : libera o atendente, avisa o cliente e conta o prazo.
-# - resume!   : o cliente voltou no prazo -> reabre; vincula ao atendente
-#               anterior se estiver online e disponivel, senao volta pra fila.
+# - resume!   : o cliente voltou no prazo (qualquer mensagem) -> reabre; vincula ao
+#               atendente anterior se estiver online e disponivel, senao volta pra fila.
 # - decline!  : o cliente respondeu NAO -> encerra.
 # - finalize! : o prazo acabou sem resposta -> encerra (fluxo de inatividade).
 # - extend!   : o analista soma tempo ao prazo final, com motivo obrigatorio.
@@ -53,15 +53,20 @@ class Inactivity::PauseService
 
     # Chamado por Message#reopen_conversation. Retorna true quando a mensagem do
     # cliente foi tratada aqui (a reabertura padrao nao deve acontecer).
+    #
+    # Qualquer mensagem do cliente retoma a conversa - para o atendente anterior, se
+    # estiver disponivel, ou para a fila. So' o "nao" (que a propria mensagem de pausa
+    # oferece) encerra. Antes, com a retomada "com um clique" desligada, um texto que
+    # nao fosse "sim"/"nao" deixava a conversa pausada: a mensagem real do cliente
+    # ficava escondida em Pausadas, sem ninguem ver.
     def handle_incoming(message)
       service = for_paused(message.conversation)
       return false if service.nil?
 
       return service.finalize_expired_before_reply! if service.expired?
       return service.decline! if service.decline_reply?(message)
-      return service.resume! if service.config.resume_one_click? || service.affirmative_reply?(message)
 
-      true # fica pausada: so "sim"/"nao" valem quando a retomada com um clique esta desligada
+      service.resume!
     end
   end
 

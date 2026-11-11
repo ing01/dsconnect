@@ -27,7 +27,7 @@ class Inactivity::PauseConfig
   }.freeze
 
   PERMITTED_KEYS = %i[
-    pause_enabled pause_after pause_window max_pauses resume_one_click keep_previous_agent respect_working_hours
+    pause_enabled pause_after pause_window max_pauses keep_previous_agent respect_working_hours
     extension_enabled max_extension_minutes max_extensions
     pause_message resume_same_agent_message resume_queue_message resume_out_of_hours_message
     extension_message finalize_message decline_message
@@ -52,10 +52,6 @@ class Inactivity::PauseConfig
   def max_pauses
     value = @raw[:max_pauses]
     value.blank? ? DEFAULT_MAX_PAUSES : value.to_i
-  end
-
-  def resume_one_click?
-    bool(:resume_one_click, true)
   end
 
   def keep_previous_agent?

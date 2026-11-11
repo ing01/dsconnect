@@ -39,10 +39,6 @@
           "LABEL": "Pauses per conversation",
           "HELP": "How many times the same conversation can be paused. After that, inactivity closes it right away. Empty = 1."
         },
-        "RESUME_ONE_CLICK": {
-          "LABEL": "Any message resumes",
-          "HELP": "The customer resumes by sending any message (e.g. \"hi\"). When off, only \"yes\" resumes."
-        },
         "KEEP_PREVIOUS_AGENT": {
           "LABEL": "Return to the previous agent if available",
           "HELP": "If the previous agent is online and available the conversation goes back to them; otherwise it goes to the queue."
