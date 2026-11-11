@@ -8,6 +8,7 @@ import { setDirectUploadAuthHeaders } from 'dashboard/helper/directUploadsHelper
 import InternalChatAPI from 'dashboard/api/internalChat';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
+import ImageLightbox from './ImageLightbox.vue';
 
 const props = defineProps({
   // O upload e autorizado por sala, entao o composer precisa saber em qual esta.
@@ -38,6 +39,8 @@ const textareaRef = ref(null);
 const attachMenuOpen = ref(false);
 const emojiOpen = ref(false);
 const pendingAttachments = ref([]);
+// Imagem anexada aberta em tamanho grande (zoom, arrastar e girar), antes de enviar.
+const previewImage = ref(null);
 const isUploading = ref(false);
 const fileInput = ref(null);
 const acceptedTypes = ref('');
@@ -291,12 +294,19 @@ const onKeydown = event => {
         :key="item.signedId"
         class="flex items-center gap-2 py-1 pl-1 pr-1.5 text-xs rounded-md bg-n-solid-2 text-n-slate-11 max-w-64"
       >
-        <img
+        <button
           v-if="item.preview"
-          :src="item.preview"
-          :alt="item.name"
-          class="object-cover flex-shrink-0 rounded size-8"
-        />
+          type="button"
+          class="flex-shrink-0 rounded cursor-zoom-in"
+          :title="t('INTERNAL_CHAT.IMAGE.OPEN_PREVIEW')"
+          @click="previewImage = { url: item.preview, name: item.name }"
+        >
+          <img
+            :src="item.preview"
+            :alt="item.name"
+            class="object-cover rounded size-8"
+          />
+        </button>
         <Icon
           v-else
           icon="i-lucide-paperclip"
@@ -436,5 +446,7 @@ const onKeydown = event => {
         @click="send()"
       />
     </div>
+
+    <ImageLightbox :attachment="previewImage" @close="previewImage = null" />
   </div>
 </template>

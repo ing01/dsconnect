@@ -104,7 +104,12 @@
       "AUTHORIZED_EMPTY": "Escolha os participantes acima para poder autorizá-los."
     },
     "IMAGE": {
-      "CLOSE": "Fechar"
+      "CLOSE": "Fechar",
+      "ZOOM_IN": "Aumentar zoom",
+      "ZOOM_OUT": "Diminuir zoom",
+      "ROTATE_LEFT": "Girar para a esquerda",
+      "ROTATE_RIGHT": "Girar para a direita",
+      "OPEN_PREVIEW": "Ver imagem ampliada"
     },
     "UNREAD_DIVIDER": "{count} mensagens não lidas",
     "ROOM_EMPTY": "Ainda não há mensagens aqui. Diga alguma coisa.",
