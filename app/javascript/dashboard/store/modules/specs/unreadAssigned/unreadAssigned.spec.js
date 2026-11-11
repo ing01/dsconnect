@@ -1,9 +1,9 @@
 import { actions, getters, mutations } from '../../unreadAssigned';
-import ConversationAPI from 'dashboard/api/conversations';
+import ConversationAPI from 'dashboard/api/inbox/conversation';
 
 // O aviso de "mensagem nao lida em conversa atribuida a mim": so guarda os numeros
 // das conversas, e acende/apaga conforme os eventos do tempo real e a busca.
-vi.mock('dashboard/api/conversations', () => ({
+vi.mock('dashboard/api/inbox/conversation', () => ({
   default: { get: vi.fn() },
 }));
 
@@ -111,16 +111,28 @@ describe('unreadAssigned', () => {
     it('mensagem do cliente numa conversa minha acende o aviso', () => {
       const commit = vi.fn();
 
-      actions.applyMessage({ commit, rootGetters }, mensagem());
+      actions.applyMessage(
+        { commit, dispatch: vi.fn(), rootGetters },
+        mensagem()
+      );
 
       expect(commit).toHaveBeenCalledWith('ADD_CONVERSATION_ID', 436);
+    });
+
+    it('o palpite do tempo real e confirmado pela lista do servidor', () => {
+      const commit = vi.fn();
+      const dispatch = vi.fn();
+
+      actions.applyMessage({ commit, dispatch, rootGetters }, mensagem());
+
+      expect(dispatch).toHaveBeenCalledWith('scheduleRefresh');
     });
 
     it('conversa de outro agente nao acende', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         mensagem({ conversation: { assignee_id: 99, unread_count: 2 } })
       );
 
@@ -131,7 +143,7 @@ describe('unreadAssigned', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         mensagem({ conversation: { assignee_id: null, unread_count: 2 } })
       );
 
@@ -142,7 +154,7 @@ describe('unreadAssigned', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         mensagem({ message_type: 1 })
       );
 
@@ -156,7 +168,7 @@ describe('unreadAssigned', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         mensagem({ message_type: 1 })
       );
 
@@ -167,7 +179,7 @@ describe('unreadAssigned', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         mensagem({ message_type: 3 })
       );
 
@@ -178,7 +190,7 @@ describe('unreadAssigned', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         mensagem({ message_type: 1, private: true })
       );
 
@@ -189,7 +201,7 @@ describe('unreadAssigned', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         mensagem({ message_type: 2 })
       );
 
@@ -200,7 +212,7 @@ describe('unreadAssigned', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         mensagem({ conversation: { assignee_id: ME, unread_count: 0 } })
       );
 
@@ -275,7 +287,7 @@ describe('unreadAssigned', () => {
       const commit = vi.fn();
 
       actions.applyMessage(
-        { commit, rootGetters },
+        { commit, dispatch: vi.fn(), rootGetters },
         {
           message_type: 0,
           conversation_id: 437,

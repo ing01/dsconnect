@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'unread-alert-confirm-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'fix',
+    platform: 'web',
+    title: 'Aviso "!": só para as suas conversas',
+    description:
+      'O aviso "!" estava olhando as conversas abertas de todo mundo, e não só as suas: o filtro "Minhas" não chegava ao servidor, então uma mensagem de cliente na fila acendia o aviso. Agora ele considera apenas as conversas atribuídas a você e é conferido com o servidor logo depois de aparecer em tempo real.',
+  },
+  {
     id: 'internal-chat-image-viewer-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

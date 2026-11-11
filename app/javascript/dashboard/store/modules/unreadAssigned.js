@@ -1,4 +1,4 @@
-import ConversationAPI from '../../api/conversations';
+import ConversationAPI from '../../api/inbox/conversation';
 
 /**
  * Conversas ABERTAS, atribuidas a quem esta logado, em que o CLIENTE escreveu e eu ainda
@@ -97,7 +97,7 @@ export const actions = {
   // - do CLIENTE numa conversa MINHA: acende o aviso;
   // - da EQUIPE (uma resposta, nao nota privada): o cliente ja foi respondido, apaga.
   // Atividade e conversa de outra pessoa nao acendem.
-  applyMessage: ({ commit, rootGetters }, data) => {
+  applyMessage: ({ commit, dispatch, rootGetters }, data) => {
     const conversation = data?.conversation;
     if (!conversation) return;
 
@@ -115,6 +115,9 @@ export const actions = {
     // Mensagem nova do cliente: vale mais que a leitura de antes.
     commit('FORGET_READ', data.conversation_id);
     commit('ADD_CONVERSATION_ID', data.conversation_id);
+    // O evento e' so' um palpite rapido (nao diz se a conversa esta aberta, nem se o
+    // atendente mudou logo depois): a lista do servidor confirma e corrige em seguida.
+    dispatch('scheduleRefresh');
   },
 
   // Eu abri/li a conversa neste navegador: o aviso dela some na hora e o servidor
