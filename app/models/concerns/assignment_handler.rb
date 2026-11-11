@@ -34,6 +34,13 @@ module AssignmentHandler
     return if pending_flow_automation?
 
     team_members_with_capacity = inbox.member_ids_with_assignment_capacity & team.members.ids
+    # Mesma Excecao da distribuicao (agentes fora do rodizio + limite de
+    # conversas abertas) que `AutoAssignmentHandler` aplica - sem isso, um
+    # agente marcado como excecao podia ser escolhido aqui, pelo caminho de
+    # troca de Mesa (ex: triagem roteando a conversa), mesmo nunca podendo
+    # ser escolhido pelo rodizio normal da inbox (bug URGENTE relatado pela
+    # Ingrid, 2026-11-11 - ver `AutoAssignmentHandler#apply_distribution_exceptions`).
+    team_members_with_capacity = apply_distribution_exceptions(team_members_with_capacity)
     ::AutoAssignment::AgentAssignmentService.new(conversation: self, allowed_agent_ids: team_members_with_capacity).find_assignee
   end
 
