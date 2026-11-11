@@ -89,6 +89,11 @@ const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
 // Busca rapida por nome ou empresa na listagem - filtra so' o que ja' esta'
 // carregado na tela, sem bater no backend (pedido da Ingrid, 2026-11-10).
 const searchQuery = ref('');
+// Filtro rapido por periodo (dia especifico, com os dois campos iguais, ou
+// um intervalo) - mesma logica client-side da busca acima, por data de
+// abertura da conversa/e-mail (pedido da Ingrid, 2026-11-11).
+const dateFrom = ref('');
+const dateTo = ref('');
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
 // chatsOnView is to store the chats that are currently visible on the screen,
@@ -457,6 +462,25 @@ const conversationList = computed(() => {
         (company.name || '').toLowerCase().includes(query)
       );
       return nameMatches || companyMatches;
+    });
+  }
+
+  if (dateFrom.value || dateTo.value) {
+    // `created_at` chega em segundos (ver _conversation.json.jbuilder); o
+    // "T00:00:00"/"T23:59:59" local cobre o dia inteiro nos dois limites,
+    // em vez de so' a meia-noite.
+    const fromSeconds = dateFrom.value
+      ? new Date(`${dateFrom.value}T00:00:00`).getTime() / 1000
+      : null;
+    const toSeconds = dateTo.value
+      ? new Date(`${dateTo.value}T23:59:59`).getTime() / 1000
+      : null;
+    localConversationList = localConversationList.filter(conversation => {
+      const createdAt = conversation.created_at;
+      if (!createdAt) return false;
+      if (fromSeconds !== null && createdAt < fromSeconds) return false;
+      if (toSeconds !== null && createdAt > toSeconds) return false;
+      return true;
     });
   }
 
@@ -1060,6 +1084,8 @@ watch(conversationFilters, (newVal, oldVal) => {
     <slot />
     <ChatListHeader
       v-model:search-query="searchQuery"
+      v-model:date-from="dateFrom"
+      v-model:date-to="dateTo"
       :page-title="pageTitle"
       :has-applied-filters="hasAppliedFilters"
       :has-active-folders="hasActiveFolders"

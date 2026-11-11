@@ -23,6 +23,10 @@ const props = defineProps({
   // Busca rapida por nome ou empresa, so' na lista ja' carregada - pedido da
   // Ingrid, 2026-11-10.
   searchQuery: { type: String, default: '' },
+  // Filtro rapido por periodo (dia especifico ou intervalo), tambem so' na
+  // lista ja' carregada - pedido da Ingrid, 2026-11-11.
+  dateFrom: { type: String, default: '' },
+  dateTo: { type: String, default: '' },
 });
 
 const emit = defineEmits([
@@ -32,7 +36,16 @@ const emit = defineEmits([
   'basicFilterChange',
   'filtersModal',
   'update:searchQuery',
+  'update:dateFrom',
+  'update:dateTo',
 ]);
+
+const hasDateFilter = computed(() => !!(props.dateFrom || props.dateTo));
+
+const clearDateFilter = () => {
+  emit('update:dateFrom', '');
+  emit('update:dateTo', '');
+};
 
 const { uiSettings, updateUISettings } = useUISettings();
 
@@ -121,6 +134,37 @@ const toggleConversationLayout = () => {
         />
       </template>
     </NextInput>
+
+    <!-- Filtro rapido por periodo: dia especifico (mesma data nos dois
+         campos) ou um intervalo -->
+    <div class="flex items-center gap-1.5">
+      <input
+        :value="dateFrom"
+        type="date"
+        class="mb-0 w-full"
+        :aria-label="$t('CHAT_LIST.DATE_FILTER.FROM')"
+        @input="emit('update:dateFrom', $event.target.value)"
+      />
+      <span class="text-n-slate-10 text-xs shrink-0">
+        {{ $t('CHAT_LIST.DATE_FILTER.TO') }}
+      </span>
+      <input
+        :value="dateTo"
+        type="date"
+        class="mb-0 w-full"
+        :aria-label="$t('CHAT_LIST.DATE_FILTER.TO')"
+        @input="emit('update:dateTo', $event.target.value)"
+      />
+      <NextButton
+        v-if="hasDateFilter"
+        v-tooltip.top-end="$t('CHAT_LIST.DATE_FILTER.CLEAR')"
+        icon="i-lucide-circle-x"
+        ruby
+        sm
+        faded
+        @click="clearDateFilter"
+      />
+    </div>
 
     <!-- Linha inferior: filtros de status + ações -->
     <div class="flex items-center justify-between gap-1.5">

@@ -3,8 +3,15 @@ class ConversationPolicy < ApplicationPolicy
     true
   end
 
+  # "Excluir e-mail" (limpar spam) precisa funcionar pra qualquer atendente
+  # com acesso aquela caixa de e-mail, nao so' administrador - era essa a
+  # trava que deixava o botao sem efeito pra quem nao e admin (pedido da
+  # Ingrid, 2026-11-11). Os demais canais continuam exigindo administrador:
+  # apagar ali apaga historico de atendimento de verdade, nao spam.
   def destroy?
-    administrator?
+    return true if administrator?
+
+    record.inbox.email? && inbox_access?
   end
 
   def show?

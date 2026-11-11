@@ -240,7 +240,7 @@ const goToManifestations = () => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('SUGGESTIONS.FILTERS.PRIORITY') }}
         </span>
-        <select v-model="filters.priorityId" class="mb-0">
+        <select v-model="filters.priorityId" class="mb-0 w-full">
           <option value="">{{ t('SUGGESTIONS.FILTERS.ALL') }}</option>
           <option
             v-for="priority in priorities"
@@ -256,7 +256,7 @@ const goToManifestations = () => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('SUGGESTIONS.FILTERS.CATEGORY') }}
         </span>
-        <select v-model="filters.categoryId" class="mb-0">
+        <select v-model="filters.categoryId" class="mb-0 w-full">
           <option value="">{{ t('SUGGESTIONS.FILTERS.ALL') }}</option>
           <option
             v-for="category in categories"
@@ -272,7 +272,7 @@ const goToManifestations = () => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('SUGGESTIONS.FILTERS.ASSIGNEE') }}
         </span>
-        <select v-model="filters.assigneeId" class="mb-0">
+        <select v-model="filters.assigneeId" class="mb-0 w-full">
           <option value="">{{ t('SUGGESTIONS.FILTERS.ALL') }}</option>
           <option
             v-for="admin in administrators"
