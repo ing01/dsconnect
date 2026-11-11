@@ -44,6 +44,35 @@ describe('unreadAssigned', () => {
   });
 
   describe('fetch', () => {
+    it('so avisa quando o cliente escreveu por ultimo: depois que respondi, nao', async () => {
+      const ultima = (message_type, extra = {}) => ({
+        last_non_activity_message: { message_type, ...extra },
+      });
+      ConversationAPI.get.mockResolvedValue({
+        data: {
+          data: {
+            payload: [
+              // o cliente escreveu e eu nao respondi
+              { id: 1, unread_count: 1, ...ultima(0) },
+              // o cliente escreveu, eu respondi (o servidor ainda diz 1 nao lida)
+              { id: 2, unread_count: 1, ...ultima(1) },
+              // respondi com um modelo
+              { id: 3, unread_count: 2, ...ultima(3) },
+              // nota privada depois da mensagem do cliente: continua esperando
+              { id: 4, unread_count: 1, ...ultima(1, { private: true }) },
+              // sem ultima mensagem conhecida: confia no servidor
+              { id: 5, unread_count: 1 },
+            ],
+          },
+        },
+      });
+      const commit = vi.fn();
+
+      await actions.fetch({ commit });
+
+      expect(commit).toHaveBeenCalledWith('SET_CONVERSATION_IDS', [1, 4, 5]);
+    });
+
     it('busca so as MINHAS conversas ABERTAS e guarda as que tem nao lida', async () => {
       ConversationAPI.get.mockResolvedValue({
         data: {
@@ -117,6 +146,53 @@ describe('unreadAssigned', () => {
         mensagem({ message_type: 1 })
       );
 
+      expect(commit).not.toHaveBeenCalledWith(
+        'ADD_CONVERSATION_ID',
+        expect.anything()
+      );
+    });
+
+    it('uma resposta da equipe apaga o aviso: o cliente ja foi respondido', () => {
+      const commit = vi.fn();
+
+      actions.applyMessage(
+        { commit, rootGetters },
+        mensagem({ message_type: 1 })
+      );
+
+      expect(commit).toHaveBeenCalledWith('REMOVE_CONVERSATION_ID', 436);
+    });
+
+    it('uma resposta com modelo tambem apaga o aviso', () => {
+      const commit = vi.fn();
+
+      actions.applyMessage(
+        { commit, rootGetters },
+        mensagem({ message_type: 3 })
+      );
+
+      expect(commit).toHaveBeenCalledWith('REMOVE_CONVERSATION_ID', 436);
+    });
+
+    it('uma nota privada nao conta como resposta', () => {
+      const commit = vi.fn();
+
+      actions.applyMessage(
+        { commit, rootGetters },
+        mensagem({ message_type: 1, private: true })
+      );
+
+      expect(commit).not.toHaveBeenCalled();
+    });
+
+    it('mensagem de atividade nao acende nem apaga', () => {
+      const commit = vi.fn();
+
+      actions.applyMessage(
+        { commit, rootGetters },
+        mensagem({ message_type: 2 })
+      );
+
       expect(commit).not.toHaveBeenCalled();
     });
 
@@ -129,6 +205,100 @@ describe('unreadAssigned', () => {
       );
 
       expect(commit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('o aviso concorda com o cartao da lista (conversa que eu ja li)', () => {
+    const conversa = (extra = {}) => ({
+      id: 437,
+      unread_count: 1,
+      agent_last_seen_at: 0,
+      assignee_last_seen_at: 0,
+      last_non_activity_message: { message_type: 0, created_at: 1000 },
+      ...extra,
+    });
+    const buscar = async (chats, state) => {
+      ConversationAPI.get.mockResolvedValue({
+        data: { data: { payload: chats } },
+      });
+      const commit = vi.fn();
+      await actions.fetch({ commit, state });
+      return commit.mock.calls.find(
+        ([name]) => name === 'SET_CONVERSATION_IDS'
+      )[1];
+    };
+
+    it('o cliente escreveu e eu nao vi: acende', async () => {
+      expect(await buscar([conversa()], { readAt: {} })).toEqual([437]);
+    });
+
+    it('o servidor registrou uma leitura minha depois da mensagem: nao acende', async () => {
+      expect(
+        await buscar([conversa({ agent_last_seen_at: 1005 })], { readAt: {} })
+      ).toEqual([]);
+      expect(
+        await buscar([conversa({ assignee_last_seen_at: 1005 })], {
+          readAt: {},
+        })
+      ).toEqual([]);
+    });
+
+    it('eu li aqui depois da mensagem: a busca nao reacende (mesmo que o servidor demore)', async () => {
+      expect(await buscar([conversa()], { readAt: { 437: 1010 } })).toEqual([]);
+    });
+
+    it('uma mensagem do cliente MAIS NOVA que a minha leitura volta a acender', async () => {
+      const nova = conversa({
+        last_non_activity_message: { message_type: 0, created_at: 1020 },
+      });
+
+      expect(await buscar([nova], { readAt: { 437: 1010 } })).toEqual([437]);
+    });
+
+    it('ler a conversa guarda o instante da leitura', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(1010 * 1000));
+      const commit = vi.fn();
+
+      actions.markRead({ commit, dispatch: vi.fn() }, 437);
+
+      expect(commit).toHaveBeenCalledWith('SET_READ_AT', {
+        conversationId: 437,
+        at: 1010,
+      });
+      expect(commit).toHaveBeenCalledWith('REMOVE_CONVERSATION_ID', 437);
+      actions.clear({ commit: vi.fn() });
+      vi.useRealTimers();
+    });
+
+    it('mensagem nova do cliente esquece a leitura de antes', () => {
+      const commit = vi.fn();
+
+      actions.applyMessage(
+        { commit, rootGetters },
+        {
+          message_type: 0,
+          conversation_id: 437,
+          conversation: { assignee_id: ME, unread_count: 1 },
+        }
+      );
+
+      expect(commit).toHaveBeenCalledWith('FORGET_READ', 437);
+      expect(commit).toHaveBeenCalledWith('ADD_CONVERSATION_ID', 437);
+    });
+
+    it('as mutacoes guardam, esquecem e limpam as leituras', () => {
+      const state = { readAt: {} };
+
+      mutations.SET_READ_AT(state, { conversationId: 437, at: 1010 });
+      mutations.SET_READ_AT(state, { conversationId: 8, at: 5 });
+      expect(state.readAt).toEqual({ 437: 1010, 8: 5 });
+
+      mutations.FORGET_READ(state, 437);
+      expect(state.readAt).toEqual({ 8: 5 });
+
+      mutations.CLEAR_READ(state);
+      expect(state.readAt).toEqual({});
     });
   });
 
