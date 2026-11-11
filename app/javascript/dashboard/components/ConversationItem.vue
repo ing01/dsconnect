@@ -181,22 +181,28 @@ const onAssignPriority = priority => {
   closeContextMenu();
 };
 
-const onDeleteConversation = async () => {
-  closeContextMenu();
-  const confirmMessage = [
-    t('CONVERSATION.DELETE_CONVERSATION.TITLE', {
-      conversationId: props.source.id,
-    }),
-    t('CONVERSATION.DELETE_CONVERSATION.DESCRIPTION'),
-  ].join('\n\n');
-  // eslint-disable-next-line no-alert
-  const confirmed = window.confirm(confirmMessage);
-  if (!confirmed) return;
+// `window.confirm` nao abre em todo ambiente (ex: dentro do app desktop
+// empacotado) - a caixa simplesmente nunca aparecia, e por isso "excluir
+// e-mail" parecia nao fazer nada. Troca pro modal de confirmacao proprio do
+// app, que e' so' HTML (pedido da Ingrid, 2026-11-11).
+const showDeleteConversationModal = ref(false);
 
+const onDeleteConversation = () => {
+  closeContextMenu();
+  showDeleteConversationModal.value = true;
+};
+
+const closeDeleteConversationModal = () => {
+  showDeleteConversationModal.value = false;
+};
+
+const confirmDeleteConversation = async () => {
   try {
     await store.dispatch('conversations/deleteConversation', props.source.id);
   } catch (error) {
     useAlert(t('CONVERSATION.DELETE_CONVERSATION.ERROR'));
+  } finally {
+    closeDeleteConversationModal();
   }
 };
 </script>
@@ -265,4 +271,19 @@ const onDeleteConversation = async () => {
       @close="closeContextMenu"
     />
   </ContextMenu>
+
+  <woot-delete-modal
+    v-if="showDeleteConversationModal"
+    v-model:show="showDeleteConversationModal"
+    :on-close="closeDeleteConversationModal"
+    :on-confirm="confirmDeleteConversation"
+    :title="
+      t('CONVERSATION.DELETE_CONVERSATION.TITLE', {
+        conversationId: source.id,
+      })
+    "
+    :message="t('CONVERSATION.DELETE_CONVERSATION.DESCRIPTION')"
+    :confirm-text="t('CONVERSATION.DELETE_CONVERSATION.CONFIRM')"
+    :reject-text="t('CONVERSATION.DELETE_CONVERSATION.CANCEL')"
+  />
 </template>

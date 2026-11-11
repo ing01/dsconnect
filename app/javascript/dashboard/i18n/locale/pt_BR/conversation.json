@@ -225,6 +225,7 @@
       "TITLE": "Excluir conversa #{conversationId}",
       "DESCRIPTION": "Tem certeza que deseja excluir esta conversa?",
       "CONFIRM": "Excluir",
+      "CANCEL": "Cancelar",
       "ERROR": "Não foi possível excluir. Tente novamente."
     },
     "CARD_CONTEXT_MENU": {

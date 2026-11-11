@@ -25,7 +25,6 @@
     "FETCH_ERROR": "Couldn't load conversations. Please try again.",
     "TAB_HEADING": "Conversations",
     "ONLY_UNASSIGNED": "No agent assigned",
-    "ONLY_PAUSED": "Paused",
     "MENTION_HEADING": "Mentions",
     "UNATTENDED_HEADING": "Unattended",
     "CHANNEL_TYPE_VIEWS": {
