@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'sidebar-favorite-menus-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'feature',
+    platform: 'web',
+    title: 'Menu lateral: favorite os menus que você mais usa',
+    description:
+      'Passe o mouse sobre um item do menu lateral e clique na estrela para fixá-lo no topo. Os favoritos ficam salvos no seu usuário e aparecem na mesma ordem em qualquer computador.',
+  },
+  {
     id: 'conversation-list-date-filter-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

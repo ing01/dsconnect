@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useMapGetter } from 'dashboard/composables/store.js';
+import { useI18n } from 'vue-i18n';
 import Icon from 'next/icon/Icon.vue';
 
 const props = defineProps({
@@ -15,9 +16,19 @@ const props = defineProps({
   isActive: { type: Boolean, default: false },
   hasActiveChild: { type: Boolean, default: false },
   getterKeys: { type: Object, default: () => ({}) },
+  // So o menu lateral do dashboard oferece favoritar; outras telas que montam o
+  // grupo nao mostram a estrela.
+  favoritable: { type: Boolean, default: false },
+  isFavorite: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['toggle']);
+const emit = defineEmits(['toggle', 'toggleFavorite']);
+
+const { t } = useI18n();
+
+const favoriteLabel = computed(() =>
+  props.isFavorite ? t('SIDEBAR.UNFAVORITE') : t('SIDEBAR.FAVORITE')
+);
 
 const showBadge = useMapGetter(props.getterKeys.badge);
 const dynamicCount = useMapGetter(props.getterKeys.count);
@@ -29,7 +40,7 @@ const count = computed(() =>
 <template>
   <component
     :is="href ? 'a' : to ? 'router-link' : 'div'"
-    class="flex items-center gap-2 px-1.5 py-1 rounded-lg h-9 min-w-0"
+    class="group flex items-center gap-2 px-1.5 py-1 rounded-lg h-9 min-w-0"
     role="button"
     draggable="false"
     :to="href ? undefined : to"
@@ -69,6 +80,27 @@ const count = computed(() =>
         {{ count }}
       </span>
     </div>
+    <!-- A estrela fica escondida ate o mouse passar; no celular, sem hover, fica
+         sempre a mostra. Favoritado fica visivel sempre. -->
+    <button
+      v-if="favoritable"
+      type="button"
+      class="flex-shrink-0 grid place-items-center size-5 rounded text-n-slate-10 hover:text-n-amber-11 focus-visible:opacity-100 max-md:opacity-100"
+      :class="
+        isFavorite
+          ? 'opacity-100 text-n-amber-11'
+          : 'opacity-0 group-hover:opacity-100'
+      "
+      :title="favoriteLabel"
+      :aria-label="favoriteLabel"
+      :aria-pressed="isFavorite"
+      @click.stop.prevent="emit('toggleFavorite')"
+    >
+      <span
+        class="size-3.5"
+        :class="isFavorite ? 'i-ph-star-fill' : 'i-lucide-star'"
+      />
+    </button>
     <span
       v-if="expandable"
       v-show="isExpanded"

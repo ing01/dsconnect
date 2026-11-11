@@ -23,6 +23,7 @@ import SidebarAccountSwitcher from './SidebarAccountSwitcher.vue';
 import SidebarTicketSearch from './SidebarTicketSearch.vue';
 import { useWorkspacePages } from '../workspace-tabs/useWorkspacePages';
 import { flattenMenu } from '../workspace-tabs/workspacePages';
+import { useSidebarFavorites, orderMenuItems } from './useSidebarFavorites';
 import Logo from 'next/icon/Logo.vue';
 import SidebarComposeMenu from './SidebarComposeMenu.vue';
 import {
@@ -1168,6 +1169,13 @@ const menuItems = computed(() => {
 
 // A barra de abas do sistema não mantém uma lista própria de telas: o que está
 // neste menu é o que pode virar aba (nome, ícone e rotas já estão aqui).
+// Favoritos no topo. So muda a ordem do que ja foi montado (permissao e feature
+// flag continuam valendo), e o catalogo das abas abaixo usa a lista original.
+const { favorites } = useSidebarFavorites();
+const orderedMenuItems = computed(() =>
+  orderMenuItems(menuItems.value, favorites.value)
+);
+
 watch(menuItems, items => setPageCatalog(flattenMenu(items)), {
   immediate: true,
 });
@@ -1244,9 +1252,10 @@ watch(menuItems, items => setPageCatalog(flattenMenu(items)), {
         :class="{ 'items-center': isEffectivelyCollapsed }"
       >
         <SidebarGroup
-          v-for="item in menuItems"
+          v-for="item in orderedMenuItems"
           :key="item.name"
           v-bind="item"
+          favoritable
         />
       </ul>
     </nav>

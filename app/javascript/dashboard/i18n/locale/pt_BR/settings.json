@@ -326,6 +326,8 @@
     }
   },
   "SIDEBAR": {
+    "FAVORITE": "Fixar no topo",
+    "UNFAVORITE": "Remover dos favoritos",
     "NO_ITEMS": "Nenhum item",
     "CURRENTLY_VIEWING_ACCOUNT": "Visualização atual:",
     "SWITCH": "Trocar",

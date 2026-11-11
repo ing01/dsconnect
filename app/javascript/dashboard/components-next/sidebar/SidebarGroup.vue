@@ -9,6 +9,7 @@ import SidebarGroupLeaf from './SidebarGroupLeaf.vue';
 import SidebarSubGroup from './SidebarSubGroup.vue';
 import SidebarGroupEmptyLeaf from './SidebarGroupEmptyLeaf.vue';
 import SidebarCollapsedPopover from './SidebarCollapsedPopover.vue';
+import { useSidebarFavorites } from './useSidebarFavorites';
 
 const props = defineProps({
   name: { type: String, required: true },
@@ -20,7 +21,10 @@ const props = defineProps({
   activeOn: { type: Array, default: () => [] },
   children: { type: Array, default: undefined },
   getterKeys: { type: Object, default: () => ({}) },
+  favoritable: { type: Boolean, default: false },
 });
+
+const { isFavorite, toggleFavorite } = useSidebarFavorites();
 
 const {
   expandedItem,
@@ -319,7 +323,10 @@ watch(
         :has-active-child="hasActiveChild"
         :expandable="hasChildren"
         :is-expanded="isExpanded"
+        :favoritable="favoritable"
+        :is-favorite="isFavorite(name)"
         @toggle="toggleTrigger"
+        @toggle-favorite="toggleFavorite(name)"
       />
       <ul
         v-if="hasChildren"
