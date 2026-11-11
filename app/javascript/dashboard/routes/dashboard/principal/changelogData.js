@@ -38,6 +38,16 @@ export const CHANGELOG_ENTRIES = [
       'Os filtros de Prioridade, Categoria e Responsável estavam mais estreitos que os campos de data ao lado. Agora todos os filtros da tela ficam com a mesma largura.',
   },
   {
+    id: 'company-tickets-order-display-id-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Empresa: tickets ordenados do mais novo para o mais antigo',
+    description:
+      'Na aba Tickets do cadastro da empresa, a lista agora vem ordenada pelo número do chamado, do maior para o menor, então o ticket mais recente aparece primeiro.',
+  },
+  {
     id: 'link-preview-description-2026-11-10',
     date: '10 de novembro de 2026',
     isoDate: '2026-11-10',
