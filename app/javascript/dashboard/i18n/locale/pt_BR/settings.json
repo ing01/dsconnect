@@ -326,6 +326,10 @@
     }
   },
   "SIDEBAR": {
+    "UNREAD_ALERT": {
+      "CONVERSATIONS": "Você tem mensagem não lida em uma conversa atribuída a você",
+      "INTERNAL_CHAT": "Você tem mensagem não lida no chat interno"
+    },
     "FAVORITE": "Fixar no topo",
     "UNFAVORITE": "Remover dos favoritos",
     "NO_ITEMS": "Nenhum item",

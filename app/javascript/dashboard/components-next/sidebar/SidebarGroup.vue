@@ -10,6 +10,10 @@ import SidebarSubGroup from './SidebarSubGroup.vue';
 import SidebarGroupEmptyLeaf from './SidebarGroupEmptyLeaf.vue';
 import SidebarCollapsedPopover from './SidebarCollapsedPopover.vue';
 import { useSidebarFavorites } from './useSidebarFavorites';
+import { useI18n } from 'vue-i18n';
+import { useUnreadAlerts } from 'dashboard/composables/useUnreadAlerts';
+import UnreadAlertMark from '../workspace-tabs/UnreadAlertMark.vue';
+import { ALERT_KIND } from '../workspace-tabs/unreadAlerts';
 
 const props = defineProps({
   name: { type: String, required: true },
@@ -22,7 +26,24 @@ const props = defineProps({
   children: { type: Array, default: undefined },
   getterKeys: { type: Object, default: () => ({}) },
   favoritable: { type: Boolean, default: false },
+  // Que aviso "!" este item carrega: conversas ou chat interno (ver unreadAlerts).
+  alertKind: { type: String, default: null },
 });
+
+const { t } = useI18n();
+const unreadAlerts = useUnreadAlerts();
+const hasAlert = computed(
+  () =>
+    (props.alertKind === ALERT_KIND.CONVERSATIONS &&
+      unreadAlerts.conversations.value) ||
+    (props.alertKind === ALERT_KIND.INTERNAL_CHAT &&
+      unreadAlerts.internalChat.value)
+);
+const alertLabel = computed(() =>
+  props.alertKind === ALERT_KIND.INTERNAL_CHAT
+    ? t('SIDEBAR.UNREAD_ALERT.INTERNAL_CHAT')
+    : t('SIDEBAR.UNREAD_ALERT.CONVERSATIONS')
+);
 
 const { isFavorite, toggleFavorite } = useSidebarFavorites();
 
@@ -296,6 +317,11 @@ watch(
           @click="hasChildren ? handleCollapsedClick() : undefined"
         >
           <Icon v-if="icon" :icon="icon" class="size-4" />
+          <UnreadAlertMark
+            v-if="hasAlert"
+            :label="alertLabel"
+            class="absolute top-0 ltr:right-0 rtl:left-0 !size-3.5"
+          />
         </component>
         <SidebarCollapsedPopover
           v-if="hasChildren && isPopoverOpen"
@@ -325,6 +351,8 @@ watch(
         :is-expanded="isExpanded"
         :favoritable="favoritable"
         :is-favorite="isFavorite(name)"
+        :alert="hasAlert"
+        :alert-label="alertLabel"
         @toggle="toggleTrigger"
         @toggle-favorite="toggleFavorite(name)"
       />

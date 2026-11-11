@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'unread-alert-exclamation-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'feature',
+    platform: 'web',
+    title: 'Aviso (!) de mensagem não lida: abas, menu e navegador',
+    description:
+      'Quando chegar mensagem não lida numa conversa atribuída a você, ou no chat interno, aparece um "!" na aba do topo e no item do menu lateral, e a aba do navegador ganha "(!)" no título e o selo no ícone. O aviso some quando você lê a mensagem.',
+  },
+  {
     id: 'ticket-time-entry-timer-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

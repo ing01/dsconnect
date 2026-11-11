@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useMapGetter } from 'dashboard/composables/store.js';
 import { useI18n } from 'vue-i18n';
 import Icon from 'next/icon/Icon.vue';
+import UnreadAlertMark from '../workspace-tabs/UnreadAlertMark.vue';
 
 const props = defineProps({
   to: { type: [Object, String], default: '' },
@@ -20,6 +21,9 @@ const props = defineProps({
   // grupo nao mostram a estrela.
   favoritable: { type: Boolean, default: false },
   isFavorite: { type: Boolean, default: false },
+  // Mensagem nao lida esperando nesta tela (o "!"), com o texto que o explica.
+  alert: { type: Boolean, default: false },
+  alertLabel: { type: String, default: '' },
 });
 
 const emit = defineEmits(['toggle', 'toggleFavorite']);
@@ -73,6 +77,7 @@ const count = computed(() =>
       >
         {{ label }}
       </span>
+      <UnreadAlertMark v-if="alert" :label="alertLabel" />
       <span
         v-if="dynamicCount"
         class="inline-grid h-5 min-w-5 place-items-center rounded-full bg-n-slate-4 px-1 text-xxs font-medium leading-3 text-n-slate-12 dark:bg-n-slate-5 flex-shrink-0"

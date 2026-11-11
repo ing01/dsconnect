@@ -324,6 +324,10 @@
     }
   },
   "SIDEBAR": {
+    "UNREAD_ALERT": {
+      "CONVERSATIONS": "You have an unread message in a conversation assigned to you",
+      "INTERNAL_CHAT": "You have an unread message in the internal chat"
+    },
     "FAVORITE": "Pin to top",
     "UNFAVORITE": "Remove from favorites",
     "NO_ITEMS": "No items",

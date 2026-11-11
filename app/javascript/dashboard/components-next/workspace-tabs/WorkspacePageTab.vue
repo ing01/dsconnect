@@ -1,7 +1,11 @@
 <script setup>
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useUnreadAlerts } from 'dashboard/composables/useUnreadAlerts';
+import UnreadAlertMark from './UnreadAlertMark.vue';
+import { ALERT_KIND, alertKindForTabKey } from './unreadAlerts';
 
-defineProps({
+const props = defineProps({
   tab: { type: Object, required: true },
   isActive: { type: Boolean, default: false },
   closable: { type: Boolean, default: true },
@@ -10,6 +14,21 @@ defineProps({
 defineEmits(['select', 'close']);
 
 const { t } = useI18n();
+
+// "!" quando esta tela tem mensagem nao lida para mim (conversa atribuida a mim ou
+// chat interno). Nao e' contador.
+const alerts = useUnreadAlerts();
+const kind = computed(() => alertKindForTabKey(props.tab.key));
+const hasAlert = computed(
+  () =>
+    (kind.value === ALERT_KIND.CONVERSATIONS && alerts.conversations.value) ||
+    (kind.value === ALERT_KIND.INTERNAL_CHAT && alerts.internalChat.value)
+);
+const alertLabel = computed(() =>
+  kind.value === ALERT_KIND.INTERNAL_CHAT
+    ? t('SIDEBAR.UNREAD_ALERT.INTERNAL_CHAT')
+    : t('SIDEBAR.UNREAD_ALERT.CONVERSATIONS')
+);
 </script>
 
 <template>
@@ -32,6 +51,7 @@ const { t } = useI18n();
     >
       <span class="flex-shrink-0 size-4" :class="tab.icon" />
       <span class="truncate">{{ tab.label }}</span>
+      <UnreadAlertMark v-if="hasAlert" :label="alertLabel" />
     </button>
 
     <button

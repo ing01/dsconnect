@@ -26,6 +26,7 @@ import CopilotContainer from 'dashboard/components/copilot/CopilotContainer.vue'
 
 import MobileSidebarLauncher from 'dashboard/components-next/sidebar/MobileSidebarLauncher.vue';
 import WorkspaceTabsBar from 'dashboard/components-next/workspace-tabs/WorkspaceTabsBar.vue';
+import UnreadTabAlert from 'dashboard/components-next/workspace-tabs/UnreadTabAlert.vue';
 import { useCallsStore } from 'dashboard/stores/calls';
 
 export default {
@@ -40,6 +41,7 @@ export default {
     FloatingCallWidget,
     MobileSidebarLauncher,
     WorkspaceTabsBar,
+    UnreadTabAlert,
   },
   setup() {
     const upgradePageRef = ref(null);
@@ -160,6 +162,7 @@ export default {
              contexto de largura/altura em que foram feitas. -->
         <div class="flex flex-col flex-1 w-full h-full min-w-0 min-h-0">
           <WorkspaceTabsBar />
+          <UnreadTabAlert />
           <div class="flex flex-1 w-full min-w-0 min-h-0">
             <router-view />
           </div>

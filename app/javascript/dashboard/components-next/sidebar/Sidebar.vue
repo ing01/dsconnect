@@ -372,6 +372,7 @@ const menuItems = computed(() => {
     },
     {
       name: 'Conversation',
+      alertKind: 'conversations',
       label: t('SIDEBAR.CONVERSATIONS'),
       icon: 'i-lucide-message-circle',
       // O total de ABERTAS NA FILA da conta inteira fica no proprio item,
@@ -504,6 +505,7 @@ const menuItems = computed(() => {
     },
     {
       name: 'Internal Chat',
+      alertKind: 'internal_chat',
       label: t('SIDEBAR.INTERNAL_CHAT'),
       icon: 'i-lucide-messages-square',
       to: accountScopedRoute('internal_chat'),

@@ -121,6 +121,7 @@ class ActionCableConnector extends BaseActionCableConnector {
 
   onAssigneeChanged = payload => {
     const { id } = payload;
+    this.app.$store.dispatch('unreadAssigned/scheduleRefresh');
     if (id) {
       this.app.$store.dispatch('updateConversation', payload);
     }
@@ -133,6 +134,7 @@ class ActionCableConnector extends BaseActionCableConnector {
   };
 
   onConversationRead = data => {
+    this.app.$store.dispatch('unreadAssigned/markRead', data?.id);
     this.app.$store.dispatch('updateConversation', data);
   };
 
@@ -146,6 +148,7 @@ class ActionCableConnector extends BaseActionCableConnector {
     } = data;
     DashboardAudioNotificationHelper.onNewMessage(data);
     this.app.$store.dispatch('addMessage', data);
+    this.app.$store.dispatch('unreadAssigned/applyMessage', data);
     this.app.$store.dispatch('updateConversationLastActivity', {
       lastActivityAt,
       conversationId,
@@ -156,6 +159,7 @@ class ActionCableConnector extends BaseActionCableConnector {
   onReload = () => window.location.reload();
 
   onStatusChange = data => {
+    this.app.$store.dispatch('unreadAssigned/scheduleRefresh');
     this.app.$store.dispatch('updateConversation', data);
     this.fetchConversationStats();
   };

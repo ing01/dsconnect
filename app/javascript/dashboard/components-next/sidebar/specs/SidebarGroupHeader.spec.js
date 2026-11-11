@@ -41,3 +41,17 @@ describe('SidebarGroupHeader, favoritar', () => {
     );
   });
 });
+
+describe('SidebarGroupHeader, aviso de nao lida', () => {
+  it('sem aviso, nao mostra o !', () => {
+    expect(montar().find('[data-testid="unread-alert"]').exists()).toBe(false);
+  });
+
+  it('com aviso, mostra o ! ao lado do nome, com o texto que o explica', () => {
+    const wrapper = montar({ alert: true, alertLabel: 'Mensagem nao lida' });
+
+    const mark = wrapper.find('[data-testid="unread-alert"]');
+    expect(mark.exists()).toBe(true);
+    expect(mark.attributes('aria-label')).toBe('Mensagem nao lida');
+  });
+});
