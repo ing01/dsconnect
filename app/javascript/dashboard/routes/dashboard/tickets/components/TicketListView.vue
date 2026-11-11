@@ -76,7 +76,11 @@ import {
 // bem querer ve-lo no quadro.
 const COLLAPSE_SCOPE = 'list';
 
-const PER_PAGE = 25;
+// 25 travava rapido numa Busca detalhada com muitos resultados, obrigando a
+// trocar de pagina o tempo todo. O backend (Kaminari) ja aceita qualquer
+// per_page sem teto proprio - so' o valor enviado daqui era baixo (pedido da
+// Ingrid, 2026-11-11).
+const PER_PAGE = 100;
 
 const { t } = useI18n();
 const store = useStore();

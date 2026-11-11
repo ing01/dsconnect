@@ -1,6 +1,7 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { useDraggable } from '@vueuse/core';
 import DueBotLogo from './DueBotLogo.vue';
 import ButtonGroup from 'dashboard/components-next/buttonGroup/ButtonGroup.vue';
 import { useUISettings } from 'dashboard/composables/useUISettings';
@@ -51,15 +52,74 @@ const toggleSidebar = () => {
     is_contact_sidebar_open: false,
   });
 };
+
+// Botao arrastavel: a posicao fica salva por usuario (uiSettings), pra dar
+// pra tirar da frente de um filtro ou outro botao que ele acabe cobrindo -
+// pedido da Ingrid, 2026-11-11. Sem nunca arrastar, continua no canto de
+// sempre (equivalente ao antigo `bottom-4 right-4`), inclusive acompanhando
+// o redimensionamento da janela.
+const LAUNCHER_SIZE = 56; // size-12 (48px) da logo + padding do ButtonGroup
+const MARGIN = 16; // equivalente ao bottom-4/right-4 (1rem) em px
+
+const launcherRef = ref(null);
+const hasCustomPosition = computed(
+  () => !!uiSettings.value.copilot_launcher_position
+);
+
+const clampToViewport = ({ x, y }) => ({
+  x: Math.min(Math.max(x, 0), Math.max(window.innerWidth - LAUNCHER_SIZE, 0)),
+  y: Math.min(Math.max(y, 0), Math.max(window.innerHeight - LAUNCHER_SIZE, 0)),
+});
+
+const defaultCornerPosition = () => ({
+  x: window.innerWidth - LAUNCHER_SIZE - MARGIN,
+  y: window.innerHeight - LAUNCHER_SIZE - MARGIN,
+});
+
+let hasMoved = false;
+
+const { x, y, style } = useDraggable(launcherRef, {
+  initialValue: () =>
+    clampToViewport(
+      uiSettings.value.copilot_launcher_position || defaultCornerPosition()
+    ),
+  onStart: () => {
+    hasMoved = false;
+  },
+  onMove: () => {
+    hasMoved = true;
+  },
+  onEnd: position => {
+    // So' grava se realmente arrastou - um clique simples (abrir o Copilot)
+    // tambem passa por aqui, e nao pode custar uma escrita de configuracao
+    // a cada abertura.
+    if (!hasMoved) return;
+    updateUISettings({ copilot_launcher_position: clampToViewport(position) });
+  },
+});
+
+// Janela redimensionada e o botao nunca foi arrastado: continua seguindo o
+// canto, em vez de ficar "presa" na posicao calculada no primeiro carregamento.
+const followCornerOnResize = () => {
+  if (hasCustomPosition.value) return;
+  const corner = defaultCornerPosition();
+  x.value = corner.x;
+  y.value = corner.y;
+};
+
+onMounted(() => window.addEventListener('resize', followCornerOnResize));
+onUnmounted(() => window.removeEventListener('resize', followCornerOnResize));
 </script>
 
 <template>
   <div
     v-if="showCopilotLauncher"
-    class="fixed bottom-4 ltr:right-4 rtl:left-4 z-50"
+    ref="launcherRef"
+    class="fixed z-50 touch-none"
+    :style="style"
   >
     <ButtonGroup
-      class="rounded-full bg-n-alpha-2 backdrop-blur-lg p-1 shadow hover:shadow-md"
+      class="rounded-full cursor-move bg-n-alpha-2 backdrop-blur-lg p-1 shadow hover:shadow-md"
     >
       <button
         type="button"

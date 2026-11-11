@@ -53,6 +53,11 @@ const clearDateFilter = () => {
   emit('update:dateTo', '');
 };
 
+// (x) em cada campo, pra limpar so' aquela data sem precisar abrir o link
+// "Limpar filtro de data" la embaixo - pedido da Ingrid, 2026-11-11.
+const clearDateFrom = () => emit('update:dateFrom', '');
+const clearDateTo = () => emit('update:dateTo', '');
+
 const onBasicFilterChange = (value, type) => {
   emit('basicFilterChange', value, type);
 };
@@ -269,25 +274,51 @@ const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
               <span class="w-8 shrink-0">
                 {{ $t('CHAT_LIST.DATE_FILTER.FROM') }}
               </span>
-              <input
-                :value="dateFrom"
-                data-testid="date-from"
-                type="date"
-                class="mb-0 !h-8 w-full text-xs px-2"
-                @input="emit('update:dateFrom', $event.target.value)"
-              />
+              <span class="relative flex-1">
+                <input
+                  :value="dateFrom"
+                  data-testid="date-from"
+                  type="date"
+                  class="mb-0 !h-8 w-full text-xs px-2"
+                  :class="{ 'pe-6': dateFrom }"
+                  @input="emit('update:dateFrom', $event.target.value)"
+                />
+                <button
+                  v-if="dateFrom"
+                  type="button"
+                  data-testid="date-from-clear"
+                  :aria-label="$t('CHAT_LIST.DATE_FILTER.CLEAR')"
+                  class="absolute -translate-y-1/2 top-1/2 ltr:right-1.5 rtl:left-1.5 text-n-slate-10 hover:text-n-ruby-11"
+                  @click="clearDateFrom"
+                >
+                  <Icon icon="i-lucide-x" class="size-3.5" />
+                </button>
+              </span>
             </label>
             <label class="flex items-center gap-2 text-xs text-n-slate-11">
               <span class="w-8 shrink-0">
                 {{ $t('CHAT_LIST.DATE_FILTER.TO') }}
               </span>
-              <input
-                :value="dateTo"
-                data-testid="date-to"
-                type="date"
-                class="mb-0 !h-8 w-full text-xs px-2"
-                @input="emit('update:dateTo', $event.target.value)"
-              />
+              <span class="relative flex-1">
+                <input
+                  :value="dateTo"
+                  data-testid="date-to"
+                  type="date"
+                  class="mb-0 !h-8 w-full text-xs px-2"
+                  :class="{ 'pe-6': dateTo }"
+                  @input="emit('update:dateTo', $event.target.value)"
+                />
+                <button
+                  v-if="dateTo"
+                  type="button"
+                  data-testid="date-to-clear"
+                  :aria-label="$t('CHAT_LIST.DATE_FILTER.CLEAR')"
+                  class="absolute -translate-y-1/2 top-1/2 ltr:right-1.5 rtl:left-1.5 text-n-slate-10 hover:text-n-ruby-11"
+                  @click="clearDateTo"
+                >
+                  <Icon icon="i-lucide-x" class="size-3.5" />
+                </button>
+              </span>
             </label>
             <button
               v-if="hasDateFilter"

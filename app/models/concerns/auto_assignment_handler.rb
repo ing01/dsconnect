@@ -23,8 +23,42 @@ module AutoAssignmentHandler
       # Use legacy assignment system
       # If conversation has a team, only consider team members for assignment
       allowed_agent_ids = team_id.present? ? team_member_ids_with_capacity : inbox.member_ids_with_assignment_capacity
+      allowed_agent_ids = apply_distribution_exceptions(allowed_agent_ids)
       AutoAssignment::AgentAssignmentService.new(conversation: self, allowed_agent_ids: allowed_agent_ids).perform
     end
+  end
+
+  # A "Excecao da distribuicao" (agentes fora do rodizio + limite de
+  # conversas abertas, em Configuracoes > Caixas de Entrada > Colaboradores
+  # para WhatsApp, ou Tickets > Automacao para o Portal) so' era aplicada no
+  # caminho novo (`Enterprise::AutoAssignment::AssignmentService`, quando a
+  # conta tem o feature `assignment_v2`). Contas sem esse feature usam este
+  # caminho legado, que nunca filtrava por ela - um agente marcado como
+  # excecao continuava recebendo conversas pelo rodizio comum sempre que uma
+  # conversa voltava de pausa (ou era aberta direto) nessa caixa. Bug URGENTE
+  # relatado pela Ingrid, 2026-11-11.
+  def apply_distribution_exceptions(agent_ids)
+    excluded_ids = distribution_excluded_agent_ids
+    agent_ids -= excluded_ids if excluded_ids.present?
+
+    limit = distribution_max_open_chats
+    return agent_ids unless limit.positive?
+
+    agent_ids.select { |agent_id| inbox.conversations.open.where(assignee_id: agent_id).count < limit }
+  end
+
+  def distribution_excluded_agent_ids
+    return Array(account.whatsapp_auto_assignment_excluded_agent_ids) if inbox.whatsapp?
+    return Array(account.client_portal_auto_assignment_excluded_agent_ids) if inbox.client_portal?
+
+    []
+  end
+
+  def distribution_max_open_chats
+    return account.whatsapp_auto_assignment_max_open_chats.to_i if inbox.whatsapp?
+    return account.client_portal_auto_assignment_max_open_chats.to_i if inbox.client_portal?
+
+    0
   end
 
   def conversation_status_changed_to_resolved_or_snoozed?
