@@ -25,8 +25,9 @@
 # ao finalizar, vira um TicketTimeEntry (as horas lancadas) e some. Enquanto roda
 # NAO conta em nenhum total ou relatorio: so o apontamento finalizado conta.
 class TicketTimer < ApplicationRecord
-  # Menor lancamento possivel: as horas tem 2 casas, entao 0,01 h (36 s).
-  MIN_HOURS = 0.01
+  # As horas tem 4 casas (ver a migration das horas): o menor lancamento e' 0,0003 h (~1 s).
+  MIN_HOURS = 0.0003
+  HOURS_SCALE = 4
 
   belongs_to :account
   belongs_to :ticket
@@ -59,7 +60,7 @@ class TicketTimer < ApplicationRecord
   end
 
   def self.hours_from(seconds)
-    [(seconds / 3600.0).round(2), MIN_HOURS].max
+    [(seconds / 3600.0).round(HOURS_SCALE), MIN_HOURS].max
   end
 
   def running?

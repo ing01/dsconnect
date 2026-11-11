@@ -9,6 +9,7 @@ RSpec.describe TicketTimer do
   let(:ticket) { create(:ticket, ticket_column: column) }
   let(:other_ticket) { create(:ticket, ticket_column: column) }
   let(:agent) { create(:user, account: account) }
+  let(:colleague) { create(:user, account: account) }
 
   describe 'validations' do
     it { is_expected.to belong_to(:account) }
@@ -102,14 +103,23 @@ RSpec.describe TicketTimer do
       )
     end
 
-    it 'rounds to 2 decimals' do
+    it 'keeps the time to the second (4 decimals), so a short timer is not rounded away' do
+      one_minute = create(:ticket_timer, ticket: ticket, account: account, user: agent, accumulated_seconds: 60).finish!
+      two_minutes = create(:ticket_timer, ticket: ticket, account: account, user: colleague, accumulated_seconds: 120).finish!
+
+      expect(one_minute.hours).to eq(0.0167)
+      expect(two_minutes.hours).to eq(0.0333)
+      expect(((one_minute.hours + two_minutes.hours) * 3600).round).to eq(180) # 1 min + 2 min = 3 min
+    end
+
+    it 'rounds a long timer to 4 decimals' do
       timer = create(:ticket_timer, ticket: ticket, account: account, user: agent, accumulated_seconds: 17 * 60)
 
-      expect(timer.finish!.hours).to eq(0.28)
+      expect(timer.finish!.hours).to eq(0.2833)
     end
 
     it 'never lets less than the minimum through' do
-      timer = create(:ticket_timer, ticket: ticket, account: account, user: agent, accumulated_seconds: 3)
+      timer = create(:ticket_timer, ticket: ticket, account: account, user: agent, accumulated_seconds: 0)
 
       expect(timer.finish!.hours).to eq(described_class::MIN_HOURS)
     end

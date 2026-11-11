@@ -377,6 +377,7 @@ const submitContact = contactId =>
         v-else-if="activeTab === 'time_entries'"
         :ticket-id="ticket.id"
         :level-assignees="levelAssignees"
+        :team-name="ticket.team_name"
       />
       <TicketProposalsTab
         v-else-if="activeTab === 'valuation'"

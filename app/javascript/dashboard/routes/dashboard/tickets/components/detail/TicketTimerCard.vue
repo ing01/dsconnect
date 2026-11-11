@@ -13,6 +13,8 @@ import { formatClock } from '../../helpers/timeEntryFormat';
 // relogio, entao recarregar a pagina ou abrir em outro aparelho nao perde nada.
 const props = defineProps({
   ticketId: { type: [Number, String], required: true },
+  // A categoria que combina com a Mesa do ticket (implantacao, desenvolvimento...).
+  defaultCategory: { type: String, default: 'implantacao' },
 });
 
 const { t } = useI18n();
@@ -22,7 +24,15 @@ const CATEGORIES = ['implantacao', 'desenvolvimento', 'dev_geral'];
 const categoryLabel = value =>
   t(`TICKET.DETAIL.TIME_ENTRIES.CATEGORY.${value.toUpperCase()}`);
 
-const category = ref('implantacao');
+// Ja vem na categoria da Mesa do ticket; se a pessoa escolher outra, a escolha dela vale.
+const category = ref(props.defaultCategory);
+const categoryTouched = ref(false);
+watch(
+  () => props.defaultCategory,
+  value => {
+    if (!categoryTouched.value) category.value = value;
+  }
+);
 const note = ref('');
 const isBusy = ref(false);
 const confirmingDiscard = ref(false);
@@ -106,6 +116,8 @@ watch(
   () => props.ticketId,
   () => {
     confirmingDiscard.value = false;
+    categoryTouched.value = false;
+    category.value = props.defaultCategory;
     load();
   }
 );
@@ -125,6 +137,7 @@ watch(
         <select
           v-model="category"
           data-testid="timer-category"
+          @change="categoryTouched = true"
           class="h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
         >
           <option v-for="cat in CATEGORIES" :key="cat" :value="cat">

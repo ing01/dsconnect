@@ -8,7 +8,9 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import TicketTimerCard from './TicketTimerCard.vue';
 import {
+  categoryForTeamName,
   formatDuration,
+  hoursToClock,
   joinHours,
   splitHours,
 } from '../../helpers/timeEntryFormat';
@@ -18,6 +20,8 @@ const props = defineProps({
   // Os responsaveis de cada nivel, para o resumo dizer de quem e cada tempo.
   // Vazio quando a Mesa nao usa niveis, e ai o resumo nem aparece.
   levelAssignees: { type: Object, default: () => ({}) },
+  // Nome da Mesa do ticket: define a categoria que ja vem escolhida.
+  teamName: { type: String, default: '' },
 });
 
 const { t } = useI18n();
@@ -25,7 +29,16 @@ const store = useStore();
 
 const CATEGORIES = ['implantacao', 'desenvolvimento', 'dev_geral'];
 
-const category = ref('implantacao');
+// A categoria ja vem a da Mesa do ticket (Implantacao -> implantacao, Desenvolvimento ->
+// desenvolvimento); se a pessoa escolher outra, a escolha dela vale.
+const defaultCategory = computed(
+  () => categoryForTeamName(props.teamName) || 'implantacao'
+);
+const category = ref(defaultCategory.value);
+const categoryTouched = ref(false);
+watch(defaultCategory, value => {
+  if (!categoryTouched.value) category.value = value;
+});
 const hours = ref('');
 const workedOn = ref(new Date().toISOString().split('T')[0]);
 const note = ref('');
@@ -97,8 +110,11 @@ const editDate = ref('');
 const editNote = ref('');
 const isSaving = ref(false);
 
+const editOriginal = ref({ hours: 0, minutes: 0 });
+
 const startEdit = entry => {
   const parts = splitHours(entry.hours);
+  editOriginal.value = parts;
   editingId.value = entry.id;
   editHours.value = parts.hours;
   editMinutes.value = parts.minutes;
@@ -115,15 +131,23 @@ const editedHours = computed(() =>
   joinHours(editHours.value, editMinutes.value)
 );
 
+const hoursChanged = computed(
+  () =>
+    Number(editHours.value) !== editOriginal.value.hours ||
+    Number(editMinutes.value) !== editOriginal.value.minutes
+);
+
 const saveEdit = async entry => {
-  if (editedHours.value <= 0 || isSaving.value) return;
+  if (isSaving.value) return;
+  if (hoursChanged.value && editedHours.value <= 0) return;
 
   isSaving.value = true;
   try {
     await store.dispatch('ticketTimeEntries/update', {
       ticketId: props.ticketId,
       entryId: entry.id,
-      hours: editedHours.value,
+      // Sem mudar horas/minutos, nao mexe nas horas (guardam os segundos exatos).
+      ...(hoursChanged.value && { hours: editedHours.value }),
       category: editCategory.value,
       worked_on: editDate.value,
       note: editNote.value.trim(),
@@ -190,7 +214,10 @@ watch(() => props.ticketId, load);
       </div>
     </div>
 
-    <TicketTimerCard :ticket-id="ticketId" />
+    <TicketTimerCard
+      :ticket-id="ticketId"
+      :default-category="defaultCategory"
+    />
 
     <p
       v-if="!entries.length"
@@ -264,7 +291,7 @@ watch(() => props.ticketId, load);
               type="submit"
               data-testid="edit-save"
               :label="t('TICKET.DETAIL.TIME_ENTRIES.SAVE')"
-              :disabled="editedHours <= 0"
+              :disabled="hoursChanged && editedHours <= 0"
               :is-loading="isSaving"
             />
             <NextButton
@@ -281,7 +308,7 @@ watch(() => props.ticketId, load);
           <div class="flex flex-col gap-0.5 min-w-0">
             <span
               class="text-sm font-medium text-n-slate-12"
-              :title="`${entry.hours}h`"
+              :title="hoursToClock(entry.hours)"
             >
               {{ formatDuration(entry.hours) }} —
               {{ categoryLabel(entry.category) }}
@@ -338,6 +365,8 @@ watch(() => props.ticketId, load);
     >
       <select
         v-model="category"
+        data-testid="entry-category"
+        @change="categoryTouched = true"
         class="h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
       >
         <option v-for="cat in CATEGORIES" :key="cat" :value="cat">

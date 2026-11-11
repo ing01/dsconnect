@@ -27,14 +27,18 @@ const ButtonStub = {
   template: '<button type="button" v-bind="$attrs">{{ label }}</button>',
 };
 
-const montar = () =>
+const montar = (props = {}) =>
   mount(TicketTimeEntriesTab, {
-    props: { ticketId: 10 },
+    props: { ticketId: 10, ...props },
     global: {
       stubs: {
         NextButton: ButtonStub,
         Icon: true,
-        TicketTimerCard: { template: '<div data-testid="timer-card" />' },
+        TicketTimerCard: {
+          props: ['defaultCategory'],
+          template:
+            '<div data-testid="timer-card" :data-category="defaultCategory" />',
+        },
       },
     },
   });
@@ -116,6 +120,97 @@ describe('TicketTimeEntriesTab', () => {
     expect(dispatch).toHaveBeenCalledWith('ticketTimeEntries/delete', {
       ticketId: 10,
       entryId: 1,
+    });
+  });
+
+  describe('a categoria vem da Mesa do ticket', () => {
+    it('Mesa de Desenvolvimento: o formulario e o cronometro ja vem em Desenvolvimento', () => {
+      const wrapper = montar({ teamName: 'Desenvolvimento' });
+
+      expect(find(wrapper, 'entry-category').element.value).toBe(
+        'desenvolvimento'
+      );
+      expect(find(wrapper, 'timer-card').attributes('data-category')).toBe(
+        'desenvolvimento'
+      );
+    });
+
+    it('Mesa de Implantacao: vem em Implantacao', () => {
+      const wrapper = montar({ teamName: 'Implantação' });
+
+      expect(find(wrapper, 'entry-category').element.value).toBe('implantacao');
+      expect(find(wrapper, 'timer-card').attributes('data-category')).toBe(
+        'implantacao'
+      );
+    });
+
+    it('Mesa que nao e nenhuma das duas: fica o padrao (Implantacao)', () => {
+      const wrapper = montar({ teamName: 'Suporte' });
+
+      expect(find(wrapper, 'entry-category').element.value).toBe('implantacao');
+    });
+
+    it('se o ticket muda de Mesa, a categoria acompanha', async () => {
+      const wrapper = montar({ teamName: 'Implantação' });
+
+      await wrapper.setProps({ teamName: 'Desenvolvimento' });
+
+      expect(find(wrapper, 'entry-category').element.value).toBe(
+        'desenvolvimento'
+      );
+    });
+
+    it('se a pessoa escolheu outra categoria, a escolha dela vale', async () => {
+      const wrapper = montar({ teamName: 'Implantação' });
+      await find(wrapper, 'entry-category').setValue('dev_geral');
+
+      await wrapper.setProps({ teamName: 'Desenvolvimento' });
+
+      expect(find(wrapper, 'entry-category').element.value).toBe('dev_geral');
+    });
+  });
+
+  describe('os tempos batem', () => {
+    it('a dica ao passar o mouse mostra o relogio exato, e nao horas decimais', () => {
+      entries.value = [{ ...entries.value[0], hours: '0.0333' }];
+
+      const wrapper = montar();
+
+      expect(find(wrapper, 'entry-row').text()).toContain('2min');
+      expect(
+        find(wrapper, 'entry-row').find('[title="00:02:00"]').exists()
+      ).toBe(true);
+    });
+
+    it('o total soma o que foi apontado: 1 minuto + 2 minutos = 3 minutos', () => {
+      entries.value = [
+        { ...entries.value[0], id: 1, hours: '0.0333' },
+        { ...entries.value[0], id: 2, hours: '0.0167' },
+      ];
+
+      const wrapper = montar();
+
+      expect(wrapper.text()).toContain(
+        'TICKET.DETAIL.TIME_ENTRIES.TOTAL: 3min'
+      );
+    });
+
+    it('abrir e salvar sem mexer nas horas nao muda o tempo (guarda os segundos)', async () => {
+      entries.value = [{ ...entries.value[0], hours: '0.0353' }]; // 2min07s
+      const wrapper = montar();
+      await find(wrapper, 'entry-edit').trigger('click');
+
+      await find(wrapper, 'entry-edit-form').trigger('submit');
+      await flushPromises();
+
+      const [, payload] = dispatch.mock.calls.find(
+        ([name]) => name === 'ticketTimeEntries/update'
+      );
+      expect(payload).not.toHaveProperty('hours');
+      expect(payload).toMatchObject({
+        category: 'desenvolvimento',
+        note: 'tela de pedidos',
+      });
     });
   });
 });

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'time-entry-team-category-precision-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Apontamento: categoria pela Mesa do ticket e tempos exatos',
+    description:
+      'No apontamento (cronômetro e lançamento manual), a categoria já vem preenchida pela Mesa em que o ticket está: Implantação ou Desenvolvimento. Também corrigimos os tempos: as horas passam a ser guardadas com mais precisão, então 1 minuto + 2 minutos dá 3 minutos no total, a lista mostra os segundos e a dica ao passar o mouse mostra o relógio exato (ex.: 00:02:00) em vez de horas decimais. Apontamentos antigos continuam como foram gravados.',
+  },
+  {
     id: 'pause-resume-any-message-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

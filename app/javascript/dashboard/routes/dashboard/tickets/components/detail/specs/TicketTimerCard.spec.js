@@ -28,9 +28,9 @@ const ButtonStub = {
   template: '<button type="button" v-bind="$attrs">{{ label }}</button>',
 };
 
-const montar = () =>
+const montar = (props = {}) =>
   mount(TicketTimerCard, {
-    props: { ticketId: 10 },
+    props: { ticketId: 10, ...props },
     global: { stubs: { NextButton: ButtonStub, Icon: true } },
   });
 
@@ -61,6 +61,39 @@ describe('TicketTimerCard', () => {
       expect(find(wrapper, 'timer-start').exists()).toBe(true);
       expect(find(wrapper, 'timer-category').exists()).toBe(true);
       expect(find(wrapper, 'timer-clock').exists()).toBe(false);
+    });
+
+    it('ja vem na categoria da Mesa do ticket', () => {
+      const wrapper = montar({ defaultCategory: 'desenvolvimento' });
+
+      expect(find(wrapper, 'timer-category').element.value).toBe(
+        'desenvolvimento'
+      );
+    });
+
+    it('iniciar sem mexer na categoria usa a da Mesa', async () => {
+      const wrapper = montar({ defaultCategory: 'desenvolvimento' });
+
+      await find(wrapper, 'timer-start').trigger('click');
+
+      expect(dispatch).toHaveBeenCalledWith('ticketTimeEntries/startTimer', {
+        ticketId: 10,
+        category: 'desenvolvimento',
+        note: '',
+      });
+    });
+
+    it('se o ticket muda de Mesa, a categoria acompanha; se a pessoa escolheu, a escolha vale', async () => {
+      const acompanha = montar({ defaultCategory: 'implantacao' });
+      await acompanha.setProps({ defaultCategory: 'desenvolvimento' });
+      expect(find(acompanha, 'timer-category').element.value).toBe(
+        'desenvolvimento'
+      );
+
+      const escolheu = montar({ defaultCategory: 'implantacao' });
+      await find(escolheu, 'timer-category').setValue('dev_geral');
+      await escolheu.setProps({ defaultCategory: 'desenvolvimento' });
+      expect(find(escolheu, 'timer-category').element.value).toBe('dev_geral');
     });
 
     it('iniciar manda a categoria e a observacao', async () => {
