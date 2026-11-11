@@ -58,6 +58,80 @@ export const CHANGELOG_ENTRIES = [
       'Na aba Tickets do cadastro da empresa, cada ticket agora mostra o número do chamado (como #35369) e, ao clicar, abre o próprio ticket em vez de levar para a lista.',
   },
   {
+    id: 'conversation-list-search-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'feature',
+    platform: 'web',
+    title: 'Buscar conversa por nome do cliente ou da empresa',
+    description:
+      'A listagem de conversas ganhou um campo de busca: digite o nome do cliente ou da empresa para filtrar a lista na hora, sem precisar abrir cada conversa para achar.',
+  },
+  {
+    id: 'queue-reopen-after-pause-no-autoassign-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'fix',
+    platform: 'web',
+    title:
+      'Conversa pausada que estava numa Fila volta pra Fila, não pra um atendente',
+    description:
+      'Quando o cliente volta de uma pausa numa conversa que estava esperando numa Fila, ela volta pra Fila sem agente nenhum, em vez de ser atribuída sozinha pela distribuição automática.',
+  },
+  {
+    id: 'autoassignment-exceptions-colocated-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title:
+      'Exceção da distribuição automática agora fica junto do botão que liga/desliga',
+    description:
+      'As listas de agentes excluídos e o limite de conversas simultâneas por atendente saíram de uma tela separada e passaram a aparecer junto da própria habilitação da distribuição automática - em Colaboradores da caixa (WhatsApp) e em Automação (Portal do Cliente).',
+  },
+  {
+    id: 'triage-summary-modal-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Triagem: resumo do chamado antes de abrir o ticket completo',
+    description:
+      'O botão "Abrir" na Triagem agora mostra um resumo do chamado (prioridade, solicitante, empresa, categoria sugerida e descrição) numa janela rápida, com as opções "Ver ticket completo" ou já "Abrir e encaminhar" direto dali.',
+  },
+  {
+    id: 'auto-updater-menu-top-level-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'improvement',
+    platform: 'web',
+    title:
+      '"Atualizador automático" agora é item próprio no menu, pra todo mundo',
+    description:
+      'O item "Atualizador automático" saiu de dentro de Configurações e passou a ser um item próprio no menu lateral, visível pra qualquer usuário.',
+  },
+  {
+    id: 'delete-email-context-menu-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'feature',
+    platform: 'web',
+    title: 'Excluir e-mail direto pelo menu de contexto',
+    description:
+      'Nas conversas de E-mail, clicar com o botão direito num item da lista agora mostra a opção "Excluir e-mail", útil pra limpar spam sem precisar abrir a conversa.',
+  },
+  {
+    id: 'filters-alignment-suggestions-sac-2026-11-10',
+    date: '10 de novembro de 2026',
+    isoDate: '2026-11-10',
+    type: 'fix',
+    platform: 'web',
+    title:
+      'Filtros de data alinhados em Sugestões e Melhorias e em SAC e Sugestões',
+    description:
+      'Os campos de data "De" e "Até" ficaram alinhados com os demais filtros (Prioridade, Categoria, Responsável) nas telas de Sugestões e Melhorias e de SAC e Sugestões.',
+  },
+  {
     id: 'integration-api-display-id-filter-2026-11-09',
     date: '9 de novembro de 2026',
     isoDate: '2026-11-09',
@@ -73,7 +147,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-09',
     type: 'fix',
     platform: 'web',
-    title: 'Portal do Cliente: mensagens da equipe não ficam mais com "Falha ao enviar"',
+    title:
+      'Portal do Cliente: mensagens da equipe não ficam mais com "Falha ao enviar"',
     description:
       'Com uma URL de webhook inválida salva na caixa do Portal, toda resposta da equipe aparecia como "Falha ao enviar". O Portal agora entrega pelo próprio app e ignora essa URL.',
   },
@@ -103,7 +178,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-09',
     type: 'fix',
     platform: 'web',
-    title: 'Notificações e atividades da conversa voltam a aparecer em português',
+    title:
+      'Notificações e atividades da conversa voltam a aparecer em português',
     description:
       'Notificações como "abriu a conversa" e os avisos de atribuição dentro da conversa apareciam como "Translation missing". Os textos foram restaurados.',
   },
@@ -163,7 +239,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-09',
     type: 'improvement',
     platform: 'web',
-    title: 'Primeiro acesso do cliente: a tela mostra o que a senha precisa ter',
+    title:
+      'Primeiro acesso do cliente: a tela mostra o que a senha precisa ter',
     description:
       'Na tela "Crie a sua senha", uma lista mostra as regras (pelo menos 8 caracteres, diferente da senha padrão, igual nos dois campos) e se marca enquanto o cliente digita. Cada erro aparece embaixo do campo certo, e dá para ver a senha enquanto digita.',
   },
@@ -173,7 +250,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-09',
     type: 'fix',
     platform: 'mobile',
-    title: 'Notificações do app: falhas de entrega agora aparecem e o iPhone registra melhor',
+    title:
+      'Notificações do app: falhas de entrega agora aparecem e o iPhone registra melhor',
     description:
       'O servidor tratava qualquer falha de envio de notificação como sucesso, e aparelhos desinstalados nunca eram removidos. Agora a falha é registrada, o aparelho inválido é limpo e, se a chave do iPhone no Firebase estiver errada, o erro fica visível. O app também espera o iPhone liberar o token antes de registrar o aparelho.',
   },
@@ -223,7 +301,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-06',
     type: 'fix',
     platform: 'web',
-    title: 'Pausa por inatividade agora vale tambÃ©m para as conversas das Filas',
+    title:
+      'Pausa por inatividade agora vale tambÃ©m para as conversas das Filas',
     description:
       'A pesquisa de satisfação (CSAT) e outras mensagens automáticas do sistema agora saem em português. Também traduzimos as telas de análises de campanhas do WhatsApp, os seletores de variáveis, emojis, macros e menções da conversa, os atalhos de formatação, a sincronização de modelos do WhatsApp e outros textos que ainda apareciam em inglês.',
   },
@@ -233,7 +312,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-06',
     type: 'fix',
     platform: 'web',
-    title: 'Pausa por inatividade agora vale também para as conversas das Filas',
+    title:
+      'Pausa por inatividade agora vale também para as conversas das Filas',
     description:
       'Corrigimos o caso em que a pausa estava ligada nas configurações da caixa de entrada, mas a conversa do Portal estava numa Fila com aviso e encerramento próprios: a Fila ignorava a pausa e encerrava a conversa. Agora, se a Fila não tiver a pausa ligada, vale a pausa da caixa; se a Fila tiver, vale a da Fila.',
   },
@@ -253,7 +333,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-06',
     type: 'fix',
     platform: 'web',
-    title: 'Projetos: aba de cancelados, contadores certos e criação mais segura',
+    title:
+      'Projetos: aba de cancelados, contadores certos e criação mais segura',
     description:
       'Em Projetos, agora há a aba "Cancelados", onde dá para consultar e reativar projetos cancelados. Os contadores de Ativos, Concluídos e Cancelados passaram a mostrar o total real. O cadastro cria o projeto e as tarefas de uma vez só, sem deixar projeto vazio nem duplicar ao tentar de novo. A "Data de início de uso do sistema" agora salva, o progresso não conta mais tickets cancelados, o status dos tickets aparece em português e uma tarefa resolvida fora de ordem não puxa mais o projeto para uma etapa anterior. A lista também ficou mais leve.',
   },
