@@ -8,6 +8,36 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'conversation-list-date-filter-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'feature',
+    platform: 'web',
+    title: 'Filtrar conversas e e-mails por data',
+    description:
+      'Ao lado da busca por nome ou empresa, a listagem de conversas (e a de E-mails) ganhou dois campos de data - "De" e "Até" - para filtrar só o que aconteceu num dia específico ou num período.',
+  },
+  {
+    id: 'delete-email-fix-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'fix',
+    platform: 'web',
+    title: 'Excluir e-mail: botão corrigido para qualquer atendente',
+    description:
+      'A opção "Excluir e-mail" do menu de contexto não fazia nada para quem não era administrador. Agora qualquer atendente com acesso à caixa de E-mail consegue excluir, igual já acontecia para administradores.',
+  },
+  {
+    id: 'suggestions-filters-alignment-fix-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'fix',
+    platform: 'web',
+    title: 'Sugestões e Melhorias: filtros com a mesma largura',
+    description:
+      'Os filtros de Prioridade, Categoria e Responsável estavam mais estreitos que os campos de data ao lado. Agora todos os filtros da tela ficam com a mesma largura.',
+  },
+  {
     id: 'link-preview-description-2026-11-10',
     date: '10 de novembro de 2026',
     isoDate: '2026-11-10',

@@ -2,6 +2,11 @@
   "CHAT_LIST": {
     "NEW_CONVERSATION_BUTTON": "New conversation",
     "SEARCH_PLACEHOLDER": "Search by name or company...",
+    "DATE_FILTER": {
+      "FROM": "From",
+      "TO": "To",
+      "CLEAR": "Clear date filter"
+    },
     "LOADING": "Fetching conversations",
     "LOAD_MORE_CONVERSATIONS": "Load more conversations",
     "EOF": "All conversations loaded 🎉",
