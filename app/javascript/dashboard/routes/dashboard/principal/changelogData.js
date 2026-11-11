@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-title-module-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Novo ticket: escolher o módulo ao lado do título',
+    description:
+      'Ao criar um ticket, um seletor ao lado do título lista os módulos do Catálogo de Serviços (DS Comercial, etc.) e coloca o escolhido no começo do título, no formato [DS Comercial] ERRO AO GERAR NOTAS EM LOTE. Trocar o módulo substitui o anterior, e "Sem módulo" o retira.',
+  },
+  {
     id: 'unread-alert-confirm-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

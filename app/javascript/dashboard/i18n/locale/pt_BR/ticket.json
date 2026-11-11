@@ -138,6 +138,9 @@
       "TITLE": {
         "LABEL": "Título",
         "PLACEHOLDER": "Descreva o problema em poucas palavras",
+        "MODULE_LABEL": "Módulo do sistema",
+        "MODULE_PLACEHOLDER": "Módulo",
+        "NO_MODULE": "Sem módulo",
         "REQUIRED_ERROR": "O título é obrigatório"
       },
       "DESCRIPTION": {

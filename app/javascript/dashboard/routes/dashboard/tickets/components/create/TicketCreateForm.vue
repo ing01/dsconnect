@@ -1,8 +1,14 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { useTicketCreation } from '../../composables/useTicketCreation';
 import { TICKET_DESCRIPTION_TEMPLATE } from '../../helpers/descriptionTemplate';
+import {
+  moduleFromTitle,
+  stripModule,
+  withModule,
+} from '../../helpers/titleModule';
 import TicketCompanySelect from '../TicketCompanySelect.vue';
 import TicketContactSelect from '../TicketContactSelect.vue';
 import TicketPicker from '../detail/actions/TicketPicker.vue';
@@ -101,6 +107,27 @@ const priorityOptions = computed(() =>
 
 const showValidation = ref(false);
 
+// O modulo do sistema (DS Comercial...) vem do Catalogo de Servicos, 1o nivel, e entra
+// no comeco do titulo como "[Modulo] ". Ele e' lido do proprio titulo, sem estado a parte.
+const store = useStore();
+const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
+const moduleNames = computed(() => catalogs.value.map(item => item.name));
+const moduleOptions = computed(() =>
+  moduleNames.value.map(name => ({ value: name, label: name }))
+);
+const titleModule = computed({
+  get: () => moduleFromTitle(form.value.title, moduleNames.value),
+  set: name => {
+    form.value.title = withModule(form.value.title, name, moduleNames.value);
+  },
+});
+// So o modulo no titulo nao e' titulo: continua faltando o texto.
+const bareTitle = computed(() =>
+  stripModule(form.value.title, moduleNames.value).trim()
+);
+
+onMounted(() => store.dispatch('serviceCatalogs/fetch'));
+
 // FullEditor's image button dispatches `articles/attachImage` with a portal
 // slug this route does not have, so those two options are left out; files go
 // through the attachment field instead.
@@ -122,7 +149,7 @@ const applyTemplate = () => {
 
 const submit = createAnother => {
   showValidation.value = true;
-  if (!isValid.value) return;
+  if (!isValid.value || !bareTitle.value) return;
 
   emit('submit', {
     ticket: toPayload(),
@@ -135,6 +162,7 @@ const submit = createAnother => {
 const invalid = field => showValidation.value && !form.value[field];
 const invalidText = field =>
   showValidation.value && !String(form.value[field] || '').trim();
+const invalidTitle = computed(() => showValidation.value && !bareTitle.value);
 
 defineExpose({ resetForNext });
 </script>
@@ -422,13 +450,25 @@ defineExpose({ resetForNext });
       <!-- Just the title. The number and the Empresa/Solicitante are shown
            around it on the ticket page; repeating them here would store the
            same data twice. -->
-      <input
-        v-model="form.title"
-        type="text"
-        class="w-full mb-0"
-        :placeholder="t('TICKET.FORM.TITLE.PLACEHOLDER')"
-      />
-      <span v-if="invalidText('title')" class="text-xs text-n-ruby-11">
+      <div class="flex flex-col gap-2 sm:flex-row min-w-0">
+        <div v-if="moduleOptions.length" class="sm:w-56 sm:flex-shrink-0">
+          <TicketSelect
+            v-model="titleModule"
+            :options="moduleOptions"
+            clearable
+            :clear-label="t('TICKET.FORM.TITLE.NO_MODULE')"
+            :placeholder="t('TICKET.FORM.TITLE.MODULE_PLACEHOLDER')"
+            :aria-label="t('TICKET.FORM.TITLE.MODULE_LABEL')"
+          />
+        </div>
+        <input
+          v-model="form.title"
+          type="text"
+          class="w-full mb-0"
+          :placeholder="t('TICKET.FORM.TITLE.PLACEHOLDER')"
+        />
+      </div>
+      <span v-if="invalidTitle" class="text-xs text-n-ruby-11">
         {{ t('TICKET.CREATE.REQUIRED') }}
       </span>
     </label>
