@@ -3,6 +3,7 @@
     "NEW_CONVERSATION_BUTTON": "Nova conversa",
     "SEARCH_PLACEHOLDER": "Buscar por nome ou empresa...",
     "DATE_FILTER": {
+      "TITLE": "Período",
       "FROM": "De",
       "TO": "Até",
       "CLEAR": "Limpar filtro de data"

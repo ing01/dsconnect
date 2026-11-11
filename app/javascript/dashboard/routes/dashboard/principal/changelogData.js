@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'chat-list-date-filter-inside-funnel-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Conversas: filtro de data dentro do ícone de filtro',
+    description:
+      'Os campos de data saíram da tela da lista de conversas. Agora, ao clicar no ícone de filtro, o menu mostra o período (De e Até) e a opção "Filtrar conversas". Quando há um período ativo, aparece um pontinho no ícone.',
+  },
+  {
     id: 'duebot-answer-feedback-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

@@ -3,6 +3,7 @@
     "NEW_CONVERSATION_BUTTON": "New conversation",
     "SEARCH_PLACEHOLDER": "Search by name or company...",
     "DATE_FILTER": {
+      "TITLE": "Period",
       "FROM": "From",
       "TO": "To",
       "CLEAR": "Clear date filter"

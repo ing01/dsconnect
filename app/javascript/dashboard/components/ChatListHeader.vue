@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { OnClickOutside } from '@vueuse/components';
 import { formatNumber } from '@chatwoot/utils';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -37,6 +38,15 @@ const emit = defineEmits([
 ]);
 
 const hasDateFilter = computed(() => !!(props.dateFrom || props.dateTo));
+
+// O periodo mora dentro do menu do funil (so um icone na tela). "Filtros avancados"
+// continua sendo o que o funil abria antes, agora o primeiro item do menu.
+const isFilterMenuOpen = ref(false);
+
+const openAdvancedFilters = () => {
+  isFilterMenuOpen.value = false;
+  emit('filtersModal');
+};
 
 const clearDateFilter = () => {
   emit('update:dateFrom', '');
@@ -137,32 +147,7 @@ const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
       </div>
       <div v-else class="flex-1" />
 
-      <div class="flex items-center gap-1 shrink-0">
-        <!-- Filtro por periodo: fixo, do lado do botao "Filtrar conversas"
-             (pedido da Ingrid, 2026-11-11) -->
-        <input
-          :value="dateFrom"
-          type="date"
-          class="mb-0 !h-8 w-28 text-xs px-2"
-          :aria-label="$t('CHAT_LIST.DATE_FILTER.FROM')"
-          @input="emit('update:dateFrom', $event.target.value)"
-        />
-        <input
-          :value="dateTo"
-          type="date"
-          class="mb-0 !h-8 w-28 text-xs px-2"
-          :aria-label="$t('CHAT_LIST.DATE_FILTER.TO')"
-          @input="emit('update:dateTo', $event.target.value)"
-        />
-        <NextButton
-          v-if="hasDateFilter"
-          v-tooltip.top-end="$t('CHAT_LIST.DATE_FILTER.CLEAR')"
-          icon="i-lucide-circle-x"
-          ruby
-          sm
-          faded
-          @click="clearDateFilter"
-        />
+      <div class="relative flex items-center gap-1 shrink-0">
         <template v-if="hasAppliedFilters && !hasActiveFolders">
           <div class="relative">
             <NextButton
@@ -189,6 +174,22 @@ const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
           />
         </template>
         <template v-if="hasActiveFolders">
+          <div class="relative">
+            <NextButton
+              v-tooltip.top-end="$t('CHAT_LIST.DATE_FILTER.TITLE')"
+              data-filter-menu-trigger
+              data-testid="date-menu-trigger"
+              icon="i-lucide-calendar-range"
+              slate
+              sm
+              faded
+              @click="isFilterMenuOpen = !isFilterMenuOpen"
+            />
+            <span
+              v-if="hasDateFilter"
+              class="absolute rounded-full -top-0.5 size-2 ltr:-right-0.5 rtl:-left-0.5 bg-n-brand border border-n-solid-2"
+            />
+          </div>
           <div class="relative">
             <NextButton
               id="toggleConversationFilterButton"
@@ -219,11 +220,18 @@ const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
           <NextButton
             id="toggleConversationFilterButton"
             v-tooltip.right="$t('FILTER.TOOLTIP_LABEL')"
+            data-filter-menu-trigger
+            data-testid="filter-menu-trigger"
             icon="i-lucide-list-filter"
             slate
             sm
             faded
-            @click="emit('filtersModal')"
+            @click="isFilterMenuOpen = !isFilterMenuOpen"
+          />
+          <span
+            v-if="hasDateFilter"
+            data-testid="date-filter-dot"
+            class="absolute rounded-full pointer-events-none -top-0.5 size-2 ltr:-right-0.5 rtl:-left-0.5 bg-n-brand border border-n-solid-2"
           />
           <div
             id="conversationFilterTeleportTarget"
@@ -231,6 +239,68 @@ const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
             :class="{ 'ltr:right-0 rtl:left-0': isOnExpandedLayout }"
           />
         </div>
+
+        <OnClickOutside
+          v-if="isFilterMenuOpen"
+          :options="{ ignore: ['[data-filter-menu-trigger]'] }"
+          @trigger="isFilterMenuOpen = false"
+        >
+          <div
+            data-testid="filter-menu"
+            class="absolute z-50 flex flex-col gap-2 p-3 mt-1 border rounded-lg shadow-md top-full ltr:right-0 rtl:left-0 w-60 border-n-weak bg-n-solid-1"
+          >
+            <template v-if="!hasActiveFolders">
+              <button
+                type="button"
+                data-testid="advanced-filters"
+                class="flex items-center gap-2 px-1 py-1 text-sm rounded text-start text-n-slate-12 hover:bg-n-alpha-1"
+                @click="openAdvancedFilters"
+              >
+                <Icon icon="i-lucide-list-filter" class="size-4" />
+                {{ $t('FILTER.TOOLTIP_LABEL') }}
+              </button>
+              <div class="h-px bg-n-weak" />
+            </template>
+
+            <span class="text-xs font-medium text-n-slate-11">
+              {{ $t('CHAT_LIST.DATE_FILTER.TITLE') }}
+            </span>
+            <label class="flex items-center gap-2 text-xs text-n-slate-11">
+              <span class="w-8 shrink-0">
+                {{ $t('CHAT_LIST.DATE_FILTER.FROM') }}
+              </span>
+              <input
+                :value="dateFrom"
+                data-testid="date-from"
+                type="date"
+                class="mb-0 !h-8 w-full text-xs px-2"
+                @input="emit('update:dateFrom', $event.target.value)"
+              />
+            </label>
+            <label class="flex items-center gap-2 text-xs text-n-slate-11">
+              <span class="w-8 shrink-0">
+                {{ $t('CHAT_LIST.DATE_FILTER.TO') }}
+              </span>
+              <input
+                :value="dateTo"
+                data-testid="date-to"
+                type="date"
+                class="mb-0 !h-8 w-full text-xs px-2"
+                @input="emit('update:dateTo', $event.target.value)"
+              />
+            </label>
+            <button
+              v-if="hasDateFilter"
+              type="button"
+              data-testid="date-clear"
+              class="flex items-center gap-1.5 text-xs text-start text-n-ruby-11 hover:underline"
+              @click="clearDateFilter"
+            >
+              <Icon icon="i-lucide-circle-x" class="size-3.5" />
+              {{ $t('CHAT_LIST.DATE_FILTER.CLEAR') }}
+            </button>
+          </div>
+        </OnClickOutside>
       </div>
     </div>
   </div>
