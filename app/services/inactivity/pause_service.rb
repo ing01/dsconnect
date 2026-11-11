@@ -234,9 +234,28 @@ class Inactivity::PauseService
     # Mesma regra da distribuicao automatica: quem esta no bloqueio de almoco
     # (de 20 min antes ate o fim do almoco) nao recebe conversa nova.
     return if account_user.lunch_blackout_now?
+    # Mesma Excecao da distribuicao (agentes fora do rodizio, configurada em
+    # Colaboradores/Automacao) que o rodizio normal ja respeita - sem isso, o
+    # atendente anterior continuava recebendo a conversa de volta so' por ter
+    # sido quem atendia antes da pausa, mesmo estando marcado pra ficar fora da
+    # distribuicao automatica. Bug URGENTE relatado pela Ingrid, 2026-11-11 -
+    # retornar nil aqui devolve a conversa pra fila (se houver) ou deixa
+    # AutoAssignmentHandler escolher um agente de verdade pelo rodizio.
+    return if excluded_from_distribution?(id)
 
     user = account_user.user
     user if conversation.inbox.assignable_agents.include?(user)
+  end
+
+  def excluded_from_distribution?(agent_id)
+    inbox = conversation.inbox
+    excluded_ids =
+      if inbox.whatsapp?
+        conversation.account.whatsapp_auto_assignment_excluded_agent_ids
+      elsif inbox.client_portal?
+        conversation.account.client_portal_auto_assignment_excluded_agent_ids
+      end
+    Array(excluded_ids).map(&:to_i).include?(agent_id.to_i)
   end
 
   def reopen_tickets
