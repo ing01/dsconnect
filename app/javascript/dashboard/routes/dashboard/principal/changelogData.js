@@ -15,7 +15,7 @@ export const CHANGELOG_ENTRIES = [
     platform: 'web',
     title: 'Filtrar conversas e e-mails por data',
     description:
-      'Ao lado da busca por nome ou empresa, a listagem de conversas (e a de E-mails) ganhou dois campos de data - "De" e "Até" - para filtrar só o que aconteceu num dia específico ou num período.',
+      'A listagem de conversas (e a de E-mails) ganhou dois campos de data - "De" e "Até" - fixos do lado do botão "Filtrar conversas", para filtrar só o que aconteceu num dia específico ou num período.',
   },
   {
     id: 'delete-email-fix-2026-11-11',
@@ -23,9 +23,29 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-11',
     type: 'fix',
     platform: 'web',
-    title: 'Excluir e-mail: botão corrigido para qualquer atendente',
+    title: 'Excluir e-mail: botão corrigido',
     description:
-      'A opção "Excluir e-mail" do menu de contexto não fazia nada para quem não era administrador. Agora qualquer atendente com acesso à caixa de E-mail consegue excluir, igual já acontecia para administradores.',
+      'A opção "Excluir e-mail" do menu de contexto não funcionava: além de exigir administrador, a caixa de confirmação do navegador simplesmente não abria em alguns ambientes. Trocamos pelo modal de confirmação próprio do DSConnect e liberamos a exclusão para qualquer atendente com acesso à caixa de E-mail.',
+  },
+  {
+    id: 'chat-list-pending-to-paused-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Listagem de conversas: "Pausadas" no lugar de "Pendentes"',
+    description:
+      'O filtro rápido "Pendentes" virou "Pausadas" na listagem de conversas, e a opção "Deixar pendente" saiu do menu de contexto - o dia a dia é abrir, pausar ou resolver.',
+  },
+  {
+    id: 'chat-list-remove-sort-layout-buttons-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Listagem de conversas com menos botões',
+    description:
+      'Removemos os botões "Ordenar conversas" e "Alternar layout" do topo da listagem - podiam confundir mais do que ajudar.',
   },
   {
     id: 'suggestions-filters-alignment-fix-2026-11-11',

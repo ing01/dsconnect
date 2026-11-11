@@ -1,11 +1,7 @@
 <script setup>
 import { computed } from 'vue';
-import { useUISettings } from 'dashboard/composables/useUISettings';
 import { formatNumber } from '@chatwoot/utils';
-import wootConstants from 'dashboard/constants/globals';
 
-import ConversationBasicFilter from './widgets/conversation/ConversationBasicFilter.vue';
-import SwitchLayout from 'dashboard/routes/dashboard/conversation/search/SwitchLayout.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -19,12 +15,12 @@ const props = defineProps({
   isOnExpandedLayout: { type: Boolean, required: true },
   conversationStats: { type: Object, required: true },
   isListLoading: { type: Boolean, required: true },
-  isQueueTab: { type: Boolean, default: false },
   // Busca rapida por nome ou empresa, so' na lista ja' carregada - pedido da
   // Ingrid, 2026-11-10.
   searchQuery: { type: String, default: '' },
   // Filtro rapido por periodo (dia especifico ou intervalo), tambem so' na
-  // lista ja' carregada - pedido da Ingrid, 2026-11-11.
+  // lista ja' carregada - pedido da Ingrid, 2026-11-11. Fica fixo do lado do
+  // botao "Filtrar conversas", nao embaixo da busca (ficava estranho ali).
   dateFrom: { type: String, default: '' },
   dateTo: { type: String, default: '' },
 });
@@ -47,8 +43,6 @@ const clearDateFilter = () => {
   emit('update:dateTo', '');
 };
 
-const { uiSettings, updateUISettings } = useUISettings();
-
 const onBasicFilterChange = (value, type) => {
   emit('basicFilterChange', value, type);
 };
@@ -60,25 +54,10 @@ const hasAppliedFiltersOrActiveFolders = computed(() => {
 const allCount = computed(() => props.conversationStats?.allCount || 0);
 const formattedAllCount = computed(() => formatNumber(allCount.value));
 
-// Snoozed/All stay in the ConversationBasicFilter dropdown - these three cover
-// the day-to-day switching (including bot conversations, which sit in
-// "pending" until handed off) without needing to open that dropdown first.
-const QUICK_STATUSES = ['open', 'pending', 'resolved'];
-
-const toggleConversationLayout = () => {
-  const { LAYOUT_TYPES } = wootConstants;
-  const {
-    conversation_display_type: conversationDisplayType = LAYOUT_TYPES.CONDENSED,
-  } = uiSettings.value;
-  const newViewType =
-    conversationDisplayType === LAYOUT_TYPES.CONDENSED
-      ? LAYOUT_TYPES.EXPANDED
-      : LAYOUT_TYPES.CONDENSED;
-  updateUISettings({
-    conversation_display_type: newViewType,
-    previously_used_conversation_display_type: newViewType,
-  });
-};
+// "Pausadas" no lugar de "Pendentes" - pedido da Ingrid, 2026-11-11 (quem
+// precisa ver pendentes usa o filtro avancado; o dia a dia e abrir/pausar/
+// resolver).
+const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
 </script>
 
 <template>
@@ -135,39 +114,8 @@ const toggleConversationLayout = () => {
       </template>
     </NextInput>
 
-    <!-- Filtro rapido por periodo: dia especifico (mesma data nos dois
-         campos) ou um intervalo -->
-    <div class="flex items-center gap-1.5">
-      <input
-        :value="dateFrom"
-        type="date"
-        class="mb-0 w-full"
-        :aria-label="$t('CHAT_LIST.DATE_FILTER.FROM')"
-        @input="emit('update:dateFrom', $event.target.value)"
-      />
-      <span class="text-n-slate-10 text-xs shrink-0">
-        {{ $t('CHAT_LIST.DATE_FILTER.TO') }}
-      </span>
-      <input
-        :value="dateTo"
-        type="date"
-        class="mb-0 w-full"
-        :aria-label="$t('CHAT_LIST.DATE_FILTER.TO')"
-        @input="emit('update:dateTo', $event.target.value)"
-      />
-      <NextButton
-        v-if="hasDateFilter"
-        v-tooltip.top-end="$t('CHAT_LIST.DATE_FILTER.CLEAR')"
-        icon="i-lucide-circle-x"
-        ruby
-        sm
-        faded
-        @click="clearDateFilter"
-      />
-    </div>
-
     <!-- Linha inferior: filtros de status + ações -->
-    <div class="flex items-center justify-between gap-1.5">
+    <div class="flex items-center flex-wrap justify-between gap-1.5">
       <div
         v-if="!hasAppliedFiltersOrActiveFolders"
         class="flex items-center gap-0.5 p-0.5 rounded-lg bg-n-slate-3 shrink-0"
@@ -190,6 +138,31 @@ const toggleConversationLayout = () => {
       <div v-else class="flex-1" />
 
       <div class="flex items-center gap-1 shrink-0">
+        <!-- Filtro por periodo: fixo, do lado do botao "Filtrar conversas"
+             (pedido da Ingrid, 2026-11-11) -->
+        <input
+          :value="dateFrom"
+          type="date"
+          class="mb-0 !h-8 w-28 text-xs px-2"
+          :aria-label="$t('CHAT_LIST.DATE_FILTER.FROM')"
+          @input="emit('update:dateFrom', $event.target.value)"
+        />
+        <input
+          :value="dateTo"
+          type="date"
+          class="mb-0 !h-8 w-28 text-xs px-2"
+          :aria-label="$t('CHAT_LIST.DATE_FILTER.TO')"
+          @input="emit('update:dateTo', $event.target.value)"
+        />
+        <NextButton
+          v-if="hasDateFilter"
+          v-tooltip.top-end="$t('CHAT_LIST.DATE_FILTER.CLEAR')"
+          icon="i-lucide-circle-x"
+          ruby
+          sm
+          faded
+          @click="clearDateFilter"
+        />
         <template v-if="hasAppliedFilters && !hasActiveFolders">
           <div class="relative">
             <NextButton
@@ -258,15 +231,6 @@ const toggleConversationLayout = () => {
             :class="{ 'ltr:right-0 rtl:left-0': isOnExpandedLayout }"
           />
         </div>
-        <ConversationBasicFilter
-          v-if="!hasAppliedFiltersOrActiveFolders && !isQueueTab"
-          :is-on-expanded-layout="isOnExpandedLayout"
-          @change-filter="onBasicFilterChange"
-        />
-        <SwitchLayout
-          :is-on-expanded-layout="isOnExpandedLayout"
-          @toggle="toggleConversationLayout"
-        />
       </div>
     </div>
   </div>

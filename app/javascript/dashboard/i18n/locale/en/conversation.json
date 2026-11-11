@@ -267,6 +267,7 @@
       "TITLE": "Delete conversation #{conversationId}",
       "DESCRIPTION": "Are you sure you want to delete this conversation?",
       "CONFIRM": "Delete",
+      "CANCEL": "Cancel",
       "ERROR": "Could not delete it. Please try again."
     },
     "CARD_CONTEXT_MENU": {
