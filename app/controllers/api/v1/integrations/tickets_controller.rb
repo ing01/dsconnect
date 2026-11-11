@@ -121,6 +121,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     Sprint.where(account_id: current_account.id).find(params[:sprint_id]) if params[:sprint_id].present?
     scope = current_account.tickets.includes(:team, :ticket_column, :ticket_category, :company, :assignee)
     scope = apply_equality_filters(scope)
+    scope = apply_jira_key_filter(scope)
     scope = scope.where(created_at: params[:created_after]..) if params[:created_after].present?
     scope = scope.where(updated_at: params[:updated_after]..) if params[:updated_after].present?
     scope
@@ -132,6 +133,15 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
 
       current_scope.where(column => params[param_name])
     end
+  end
+
+  # A key do card no Jira (o "DM-3634" da aba Desenvolvimento). Fora da tabela de igualdade porque a
+  # busca ignora maiuscula/minuscula e espacos nas pontas: quem integra digita "dm-3634" e acha o mesmo.
+  def apply_jira_key_filter(scope)
+    key = params[:jira_key].to_s.strip
+    return scope if key.blank?
+
+    scope.where('LOWER(tickets.jira_key) = ?', key.downcase)
   end
 
   def apply_transfer

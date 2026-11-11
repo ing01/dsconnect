@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'integration-api-jira-key-filter-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'improvement',
+    platform: 'web',
+    title: 'API de Integração: buscar ticket pela key do Jira',
+    description:
+      'A lista de tickets da API de Integração ganhou o filtro jira_key (a key do card ligada na aba Desenvolvimento, como DM-3634). Ele devolve o ticket com os mesmos campos do filtro por número do chamado, sem diferenciar maiúscula de minúscula.',
+  },
+  {
     id: 'sidebar-favorite-menus-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

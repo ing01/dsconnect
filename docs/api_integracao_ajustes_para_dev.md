@@ -94,6 +94,11 @@ o "#35369" da tela, único na conta — não é o `id` do banco, que é o da URL
 depender da Mesa). `?sprint_id=` de sprint inexistente ou de outra conta é **404** (antes devolvia
 200 com lista vazia).
 
+Também filtra por `?jira_key=` (a key do card no Jira, o "DM-3634" da aba Desenvolvimento): igualdade exata,
+sem diferenciar maiúscula de minúscula e ignorando espaços nas pontas. Devolve os mesmos campos dos outros
+filtros (inclusive `display_id` e `jira_key`) e acha o ticket em qualquer Mesa; key que não está ligada a
+nenhum ticket devolve lista vazia.
+
 Onde enviar:
 - **Criação:** `POST /tickets`, dentro de `ticket` (ao lado de `title` etc.).
 - **Alteração:** `PATCH /tickets/:id` (ou `/route`), no nível raiz do corpo.

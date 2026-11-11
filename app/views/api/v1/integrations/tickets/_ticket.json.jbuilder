@@ -12,6 +12,8 @@ json.status resource.status
 json.priority resource.priority
 # Campos do desenvolvimento: `story` (Historia) alem de bug/task; `sprint_id` nil = Backlog.
 json.development_type resource.development_type
+# A key do card no Jira (aba Desenvolvimento); a lista busca por ela com `?jira_key=`.
+json.jira_key resource.jira_key
 json.sprint_id resource.sprint_id
 json.created_at resource.created_at.iso8601
 json.updated_at resource.updated_at.iso8601

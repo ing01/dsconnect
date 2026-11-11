@@ -82,6 +82,58 @@ RSpec.describe 'Ticket Integration API', type: :request do
     end
   end
 
+  # A key do card no Jira ("DM-3634", aba Desenvolvimento): acha o ticket por ela, com os mesmos
+  # campos da lista, sem depender da Mesa.
+  describe 'GET /api/v1/integrations/tickets?jira_key=' do
+    let!(:linked) { create(:ticket, ticket_column: column, jira_key: 'DM-3634') }
+    let!(:other_team_linked) do
+      create(:ticket, ticket_column: create(:ticket_column, team: create(:team, account: account)), jira_key: 'DM-3700')
+    end
+
+    before { create(:ticket, ticket_column: column, jira_key: 'DM-1') }
+
+    it 'finds the ticket by its Jira key, exposing the same fields as the other filters' do
+      get '/api/v1/integrations/tickets', params: { jira_key: 'DM-3634' }, headers: headers
+
+      expect(response).to have_http_status(:success)
+      item = response.parsed_body['payload'].first
+      expect(response.parsed_body['payload'].pluck('id')).to eq([linked.id])
+      expect(item).to include('display_id' => linked.display_id, 'jira_key' => 'DM-3634', 'title' => linked.title)
+    end
+
+    it 'ignores case and surrounding spaces' do
+      get '/api/v1/integrations/tickets', params: { jira_key: '  dm-3634 ' }, headers: headers
+
+      expect(response.parsed_body['payload'].pluck('id')).to eq([linked.id])
+    end
+
+    it 'finds the ticket whatever its Mesa' do
+      get '/api/v1/integrations/tickets', params: { jira_key: 'DM-3700' }, headers: headers
+
+      expect(response.parsed_body['payload'].pluck('id')).to eq([other_team_linked.id])
+    end
+
+    it 'finds nothing for a key that is not linked to any ticket' do
+      get '/api/v1/integrations/tickets', params: { jira_key: 'DM-999999' }, headers: headers
+
+      expect(response.parsed_body['payload']).to eq([])
+    end
+
+    it 'does not match part of a key' do
+      get '/api/v1/integrations/tickets', params: { jira_key: 'DM-36' }, headers: headers
+
+      expect(response.parsed_body['payload']).to eq([])
+    end
+
+    it 'does not find the key of a ticket from another account' do
+      create(:ticket, jira_key: 'XX-1')
+
+      get '/api/v1/integrations/tickets', params: { jira_key: 'XX-1' }, headers: headers
+
+      expect(response.parsed_body['payload']).to eq([])
+    end
+  end
+
   # O numero do chamado ("#35369" na tela) nao e' o `id` do banco (o da URL): o filtro `display_id`
   # acha o ticket por ele, sem depender da Mesa.
   describe 'GET /api/v1/integrations/tickets?display_id=' do

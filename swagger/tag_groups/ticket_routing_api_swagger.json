@@ -113,6 +113,14 @@
             }
           },
           {
+            "name": "jira_key",
+            "in": "query",
+            "description": "The Jira card key linked in the ticket's Development tab (e.g. \"DM-3634\"). Exact match, ignoring case and surrounding spaces; a key that is not linked to any ticket finds nothing. Returns the same fields as the other filters.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "sprint_id",
             "in": "query",
             "description": "Only the tickets of this sprint (see GET /sprints). A sprint of another account, or one that does not exist, is a 404.",
@@ -3408,6 +3416,13 @@
           "display_id": {
             "type": "number"
           },
+          "jira_key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "A key do card no Jira ligada na aba Desenvolvimento (ex. DM-3634), ou null."
+          },
           "title": {
             "type": "string"
           },
@@ -3674,6 +3689,13 @@
           },
           "display_id": {
             "type": "number"
+          },
+          "jira_key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "A key do card no Jira ligada na aba Desenvolvimento (ex. DM-3634), ou null."
           },
           "title": {
             "type": "string"

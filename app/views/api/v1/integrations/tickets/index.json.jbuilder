@@ -11,6 +11,8 @@ json.payload do
     json.status ticket.status
     json.priority ticket.priority
     json.development_type ticket.development_type
+    # A key do card no Jira (aba Desenvolvimento); busca por ela: `?jira_key=`.
+    json.jira_key ticket.jira_key
     json.sprint_id ticket.sprint_id
     json.team_id ticket.team_id
     json.team_name ticket.team.name

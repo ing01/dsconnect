@@ -4,6 +4,11 @@ properties:
     type: number
   display_id:
     type: number
+  jira_key:
+    type:
+      - string
+      - 'null'
+    description: A key do card no Jira ligada na aba Desenvolvimento (ex. DM-3634), ou null.
   title:
     type: string
   status:
