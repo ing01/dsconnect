@@ -17,6 +17,10 @@ const refresh = () => store.dispatch('unreadAssigned/fetch');
 // O titulo muda sozinho (cada tela poe o seu): observa e reaplica o aviso sem
 // acumular prefixos.
 let titleObserver = null;
+let poller = null;
+// Rede de seguranca: o evento de "nao lidas mudou" so e enviado quando a contagem de nao
+// lidas esta ligada na conta. Sem ele, a busca periodica mantem o aviso em dia.
+const POLL_INTERVAL_MS = 60000;
 
 const applyTitle = () => {
   const next = withTitleAlert(document.title, any.value);
@@ -55,6 +59,9 @@ const onVisible = () => {
 
 onMounted(() => {
   refresh();
+  poller = setInterval(() => {
+    if (document.visibilityState === 'visible') refresh();
+  }, POLL_INTERVAL_MS);
   document.addEventListener('visibilitychange', onVisible);
   const titleElement = document.querySelector('title');
   if (titleElement) {
@@ -65,6 +72,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  clearInterval(poller);
   document.removeEventListener('visibilitychange', onVisible);
   titleObserver?.disconnect();
   store.dispatch('unreadAssigned/clear');

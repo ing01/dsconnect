@@ -18,7 +18,9 @@ export const getters = {
   getConversationIds: _state => _state.conversationIds,
 };
 
-// Varios eventos seguidos (ler, atribuir, mudar status) viram uma busca so.
+// Varios eventos seguidos (ler, atribuir, mudar status, "nao lidas mudou") viram uma
+// busca so, no maximo uma a cada 1,5 s. O relogio NAO reinicia a cada evento: numa conta
+// movimentada os eventos nunca param, e reiniciar adiaria a busca para sempre.
 const REFRESH_DELAY_MS = 1500;
 let refreshTimer = null;
 
@@ -46,8 +48,11 @@ export const actions = {
   // agrupando. Quem le a conversa tira o aviso na hora (`markRead`) e o resto
   // espera a confirmacao do servidor.
   scheduleRefresh: ({ dispatch }) => {
-    clearTimeout(refreshTimer);
-    refreshTimer = setTimeout(() => dispatch('fetch'), REFRESH_DELAY_MS);
+    if (refreshTimer) return;
+    refreshTimer = setTimeout(() => {
+      refreshTimer = null;
+      dispatch('fetch');
+    }, REFRESH_DELAY_MS);
   },
 
   // Chegou mensagem de cliente numa conversa MINHA: acende o aviso sem pedir nada
@@ -63,7 +68,8 @@ export const actions = {
     commit('ADD_CONVERSATION_ID', data.conversation_id);
   },
 
-  // A conversa foi lida (por mim, em qualquer aparelho): o aviso dela some na hora.
+  // Eu abri/li a conversa neste navegador: o aviso dela some na hora e o servidor
+  // confirma logo depois. (Ler em OUTRO aparelho chega por `conversation.unread_count_changed`.)
   markRead: ({ commit, dispatch }, conversationId) => {
     commit('REMOVE_CONVERSATION_ID', conversationId);
     dispatch('scheduleRefresh');
@@ -71,6 +77,7 @@ export const actions = {
 
   clear: ({ commit }) => {
     clearTimeout(refreshTimer);
+    refreshTimer = null;
     commit('SET_CONVERSATION_IDS', []);
   },
 };

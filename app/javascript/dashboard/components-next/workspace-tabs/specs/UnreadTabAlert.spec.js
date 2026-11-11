@@ -35,6 +35,30 @@ describe('UnreadTabAlert', () => {
     expect(dispatch).toHaveBeenCalledWith('unreadAssigned/fetch');
   });
 
+  it('confere o aviso a cada minuto, so com a aba visivel (rede de seguranca)', () => {
+    vi.useFakeTimers();
+    const wrapper = montar();
+    dispatch.mockClear();
+
+    vi.advanceTimersByTime(60000);
+    expect(dispatch).toHaveBeenCalledWith('unreadAssigned/fetch');
+
+    dispatch.mockClear();
+    Object.defineProperty(document, 'visibilityState', {
+      value: 'hidden',
+      configurable: true,
+    });
+    vi.advanceTimersByTime(60000);
+    expect(dispatch).not.toHaveBeenCalledWith('unreadAssigned/fetch');
+
+    Object.defineProperty(document, 'visibilityState', {
+      value: 'visible',
+      configurable: true,
+    });
+    wrapper.unmount();
+    vi.useRealTimers();
+  });
+
   it('sem aviso, o titulo e o favicon ficam como estao', () => {
     const wrapper = montar();
 

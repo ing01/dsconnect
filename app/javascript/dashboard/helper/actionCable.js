@@ -134,7 +134,6 @@ class ActionCableConnector extends BaseActionCableConnector {
   };
 
   onConversationRead = data => {
-    this.app.$store.dispatch('unreadAssigned/markRead', data?.id);
     this.app.$store.dispatch('updateConversation', data);
   };
 
@@ -170,6 +169,7 @@ class ActionCableConnector extends BaseActionCableConnector {
   };
 
   onConversationUnreadCountChanged = () => {
+    this.app.$store.dispatch('unreadAssigned/scheduleRefresh');
     this.refreshConversationUnreadCountsWithFilteredRetry();
   };
 

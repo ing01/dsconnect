@@ -138,7 +138,10 @@ describe('unreadAssigned', () => {
       ConversationAPI.get.mockReset();
     });
 
-    afterEach(() => vi.useRealTimers());
+    afterEach(() => {
+      actions.clear({ commit: vi.fn() }); // zera a busca agendada de um teste para o outro
+      vi.useRealTimers();
+    });
 
     it('ler a conversa apaga o aviso dela na hora e confirma depois', () => {
       const commit = vi.fn();
@@ -160,6 +163,28 @@ describe('unreadAssigned', () => {
 
       expect(dispatch).toHaveBeenCalledTimes(1);
       expect(dispatch).toHaveBeenCalledWith('fetch');
+    });
+
+    it('eventos continuos nao adiam a busca para sempre', () => {
+      const dispatch = vi.fn();
+
+      actions.scheduleRefresh({ dispatch });
+      vi.advanceTimersByTime(1000);
+      actions.scheduleRefresh({ dispatch }); // outro evento antes de buscar
+      vi.advanceTimersByTime(600);
+
+      expect(dispatch).toHaveBeenCalledTimes(1);
+    });
+
+    it('depois de buscar, um evento novo agenda outra busca', () => {
+      const dispatch = vi.fn();
+      actions.scheduleRefresh({ dispatch });
+      vi.advanceTimersByTime(2000);
+
+      actions.scheduleRefresh({ dispatch });
+      vi.advanceTimersByTime(2000);
+
+      expect(dispatch).toHaveBeenCalledTimes(2);
     });
 
     it('limpar zera a lista e cancela a busca agendada', () => {
