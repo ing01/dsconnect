@@ -467,6 +467,7 @@
     "TICKET_CATEGORIES": "Categories",
     "TICKET_PRIORITIES": "Priorities & SLA",
     "TICKET_AUTOMATION": "WhatsApp Automation",
+    "TICKET_DISTRIBUTION": "Automatic Distribution",
     "TICKET_ATTENDANCE_SCHEDULE": "Attendance Schedule",
     "TICKET_ROUTING": "Portal Routing",
     "TICKET_IMPORT": "Import",

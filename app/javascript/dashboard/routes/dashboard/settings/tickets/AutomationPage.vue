@@ -10,6 +10,7 @@ import CompaniesAPI from 'dashboard/api/companies';
 import WithLabel from 'v3/components/Form/WithLabel.vue';
 import Switch from 'next/switch/Switch.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 
@@ -25,11 +26,6 @@ const LEVELS = [1, 2, 3];
 const PRIORITY_OPTIONS = ['baixa', 'media', 'alta'];
 
 const whatsappFlowEnabled = ref(true);
-// Comeca desligada (pedido da Ingrid, 2026-11-10: so' liga por acao
-// explicita de um admin, nunca sozinha).
-const portalAutoAssignmentEnabled = ref(false);
-const portalAutoAssignmentMaxOpenChats = ref(null);
-const portalAutoAssignmentExcludedAgentIds = ref([]);
 const aiResolveLevels = ref([1, 2]);
 const defaultPriorityOnAiFailure = ref('baixa');
 const openTicketWindowDays = ref(null);
@@ -46,12 +42,10 @@ const isRecalculating = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
 const queues = computed(() => getters['queues/getQueues'].value);
-const agents = computed(() => getters['agents/getAgents'].value);
 
 onBeforeMount(() => {
   store.dispatch('teams/get');
   store.dispatch('queues/get');
-  store.dispatch('agents/get');
 });
 
 watch(
@@ -77,12 +71,6 @@ watch(
       settings.priority_threshold_high_min ?? null;
     whatsappAutomationTestModeNumber.value =
       settings.whatsapp_automation_test_mode_number || '';
-    portalAutoAssignmentEnabled.value =
-      settings.client_portal_auto_assignment_enabled ?? false;
-    portalAutoAssignmentMaxOpenChats.value =
-      settings.client_portal_auto_assignment_max_open_chats ?? null;
-    portalAutoAssignmentExcludedAgentIds.value =
-      settings.client_portal_auto_assignment_excluded_agent_ids || [];
   },
   { deep: true, immediate: true }
 );
@@ -91,13 +79,6 @@ const toggleLevel = level => {
   aiResolveLevels.value = aiResolveLevels.value.includes(level)
     ? aiResolveLevels.value.filter(item => item !== level)
     : [...aiResolveLevels.value, level].sort((a, b) => a - b);
-};
-
-const togglePortalExcludedAgent = agentId => {
-  portalAutoAssignmentExcludedAgentIds.value =
-    portalAutoAssignmentExcludedAgentIds.value.includes(agentId)
-      ? portalAutoAssignmentExcludedAgentIds.value.filter(id => id !== agentId)
-      : [...portalAutoAssignmentExcludedAgentIds.value, agentId];
 };
 
 const priorityThresholdsInvalid = computed(() => {
@@ -144,12 +125,6 @@ const saveSettings = async () => {
         priority_threshold_high_min: priorityThresholdHighMin.value || null,
         whatsapp_automation_test_mode_number:
           whatsappAutomationTestModeNumber.value.trim() || null,
-        client_portal_auto_assignment_enabled:
-          portalAutoAssignmentEnabled.value,
-        client_portal_auto_assignment_max_open_chats:
-          portalAutoAssignmentMaxOpenChats.value || null,
-        client_portal_auto_assignment_excluded_agent_ids:
-          portalAutoAssignmentExcludedAgentIds.value,
       },
       { silent: true }
     );
@@ -205,6 +180,16 @@ const handleRecalculatePriorities = async () => {
     </template>
 
     <template #body>
+      <p class="flex items-center gap-2 mb-0 text-sm text-n-slate-11">
+        <Icon icon="i-lucide-info" class="shrink-0 size-4" />
+        {{ t('TICKET.SETTINGS.AUTO_ASSIGNMENT_EXCEPTIONS.MOVED_NOTICE') }}
+        <router-link
+          :to="{ name: 'ticket_distribution_settings' }"
+          class="underline hover:no-underline"
+        >
+          {{ t('TICKET.SETTINGS.DISTRIBUTION.TITLE') }}
+        </router-link>
+      </p>
       <form
         class="flex flex-col w-full max-w-2xl gap-5"
         @submit.prevent="handleSubmit"
@@ -224,93 +209,9 @@ const handleRecalculatePriorities = async () => {
             <Switch v-model="whatsappFlowEnabled" />
           </div>
 
-          <div class="flex flex-col gap-3 px-5 py-4">
-            <div class="flex items-center justify-between gap-4">
-              <div class="flex flex-col gap-1">
-                <h3 class="text-heading-2 text-n-slate-12">
-                  {{
-                    t('TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.TITLE')
-                  }}
-                </h3>
-                <p class="mb-0 text-body-para text-n-slate-11">
-                  {{
-                    t(
-                      'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.DESCRIPTION'
-                    )
-                  }}
-                </p>
-              </div>
-              <Switch v-model="portalAutoAssignmentEnabled" />
-            </div>
-
-            <template v-if="portalAutoAssignmentEnabled">
-              <WithLabel
-                :label="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.MAX_OPEN_CHATS.LABEL'
-                  )
-                "
-                :help-message="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.MAX_OPEN_CHATS.HELP'
-                  )
-                "
-              >
-                <input
-                  v-model.number="portalAutoAssignmentMaxOpenChats"
-                  type="number"
-                  min="1"
-                  class="mb-0 max-w-xs"
-                  :placeholder="
-                    t(
-                      'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.MAX_OPEN_CHATS.PLACEHOLDER'
-                    )
-                  "
-                />
-              </WithLabel>
-
-              <WithLabel
-                :label="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.EXCLUDED_AGENTS.LABEL'
-                  )
-                "
-                :help-message="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.EXCLUDED_AGENTS.HELP'
-                  )
-                "
-              >
-                <div
-                  v-if="agents.length"
-                  class="flex flex-col gap-2 pt-1 max-h-48 overflow-y-auto"
-                >
-                  <label
-                    v-for="agent in agents"
-                    :key="agent.id"
-                    class="flex items-center gap-2 text-sm text-n-slate-12"
-                  >
-                    <input
-                      type="checkbox"
-                      class="m-0"
-                      :checked="
-                        portalAutoAssignmentExcludedAgentIds.includes(agent.id)
-                      "
-                      @change="togglePortalExcludedAgent(agent.id)"
-                    />
-                    {{ agent.name }}
-                  </label>
-                </div>
-                <p v-else class="mb-0 text-xs text-n-slate-11">
-                  {{
-                    t(
-                      'TICKET.SETTINGS.AUTOMATION.PORTAL_AUTO_ASSIGNMENT.EXCLUDED_AGENTS.EMPTY'
-                    )
-                  }}
-                </p>
-              </WithLabel>
-            </template>
-          </div>
+          <!-- A distribuicao automatica do Portal (liga/desliga, limite e
+               excecao) foi consolidada em Configuracoes > Tickets >
+               Distribuicao Automatica (pedido da Ingrid, 2026-11-12). -->
 
           <div class="flex flex-col gap-2 px-5 py-4">
             <div class="flex flex-col gap-1">

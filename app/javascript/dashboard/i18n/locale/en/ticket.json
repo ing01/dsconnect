@@ -923,10 +923,40 @@
       "AUTO_ASSIGNMENT_EXCEPTIONS": {
         "TITLE": "Distribution exceptions",
         "DESCRIPTION": "Agents checked here never receive a conversation automatically on that channel - they can still be assigned manually as usual.",
+        "MOVED_NOTICE": "The distribution exception and the open chats limit now all live together in",
         "SAVE": "Save exceptions",
         "API": {
           "SUCCESS": "Distribution exceptions updated.",
           "ERROR": "Could not update the distribution exceptions."
+        }
+      },
+      "DISTRIBUTION": {
+        "TITLE": "Automatic Distribution",
+        "DESCRIPTION": "Turn automatic conversation distribution on or off and set its exceptions - all in one place.",
+        "WHATSAPP_EXCEPTIONS_TITLE": "Distribution exception · WhatsApp",
+        "FLOW_NOTE": "Most WhatsApp conversations go through automatic triage and land in a Queue before reaching any agent - whether THOSE get distributed on their own is decided by each Queue's \"Distribution\" setting below, not by a single inbox's toggle. The per-inbox toggle only matters for a conversation that never goes through any queue.",
+        "QUEUES": {
+          "TITLE": "Queues",
+          "DESCRIPTION": "Each queue decides whether it distributes the conversations it receives on its own (Round robin or Least busy) or leaves them for someone to pick up manually (Manual).",
+          "EMPTY": "No queues created yet.",
+          "API": {
+            "ERROR": "Could not update this queue's distribution."
+          }
+        },
+        "WHATSAPP_INBOXES": {
+          "TITLE": "WhatsApp inboxes",
+          "DESCRIPTION": "Automatically assigns, by round robin among the inbox's agents, an open conversation that isn't in any queue.",
+          "EMPTY": "No WhatsApp inboxes created yet.",
+          "API": {
+            "ERROR": "Could not update this inbox."
+          }
+        },
+        "PORTAL": {
+          "SAVE": "Save",
+          "API": {
+            "SUCCESS": "Portal settings updated.",
+            "ERROR": "Could not update the Portal settings."
+          }
         }
       },
       "ATTENDANCE_SCHEDULE": {
