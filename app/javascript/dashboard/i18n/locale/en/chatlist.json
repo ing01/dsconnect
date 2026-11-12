@@ -8,6 +8,32 @@
       "TO": "To",
       "CLEAR": "Clear date filter"
     },
+    "AGENT_FILTER": {
+      "TITLE": "Agent",
+      "ALL_AGENTS": "All agents",
+      "CLEAR": "Clear agent filter"
+    },
+    "DISTRIBUTE": {
+      "BUTTON": "Distribute conversations",
+      "SUCCESS": "{count} conversation(s) successfully distributed",
+      "NONE_ASSIGNED": "No conversation could be distributed",
+      "NOTHING_TO_DO": "There are no unassigned conversations to distribute",
+      "ERROR": "Could not distribute conversations",
+      "RESULT_TITLE": "Distribution result",
+      "ASSIGNED_LABEL": "Distributed",
+      "UNASSIGNED_LABEL": "Not distributed",
+      "REASON": {
+        "OFFLINE": "{name} is offline",
+        "ONLINE_LOAD": "{name} is online (with {count} open conversation(s))",
+        "EXCLUDED": "{name} is in the distribution exception list",
+        "LUNCH_BLACKOUT": "{name} is in the lunch blackout window",
+        "NO_TEAM": "Queue has no team configured",
+        "NO_QUEUE": "Conversation has no queue/auto-assignment inbox",
+        "MANUAL_QUEUE": "Queue is configured as manual distribution",
+        "NO_MEMBERS": "The queue's team has no agents"
+      },
+      "CLOSE": "Close"
+    },
     "LOADING": "Fetching conversations",
     "LOAD_MORE_CONVERSATIONS": "Load more conversations",
     "EOF": "All conversations loaded 🎉",

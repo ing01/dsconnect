@@ -14,6 +14,7 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
+import CreateScheduleDialog from 'dashboard/routes/dashboard/projects/components/CreateScheduleDialog.vue';
 
 const props = defineProps({
   projectId: {
@@ -197,6 +198,12 @@ const reactivateProject = async () => {
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('PROJECTS.DETAIL.REACTIVATE.ERROR'));
   }
+};
+
+const createScheduleDialogRef = ref(null);
+const openCreateSchedule = () => createScheduleDialogRef.value?.open();
+const onScheduleCreated = async () => {
+  await store.dispatch('projects/show', props.projectId);
 };
 
 const openTicket = ticket => {
@@ -440,9 +447,19 @@ const currentStageColor = computed(() => {
           <h4 class="text-sm font-semibold text-n-slate-12">
             {{ t('PROJECTS.DETAIL.TASKS_LIST') }} ({{ project.tickets?.length || 0 }})
           </h4>
-          <span class="text-xs text-n-slate-10">
-            {{ project.completed_tickets_count || 0 }} {{ t('PROJECTS.DETAIL.COMPLETED') }}
-          </span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-n-slate-10">
+              {{ project.completed_tickets_count || 0 }} {{ t('PROJECTS.DETAIL.COMPLETED') }}
+            </span>
+            <NextButton
+              icon="i-lucide-calendar-plus"
+              size="sm"
+              faded
+              slate
+              :label="t('PROJECTS.SCHEDULE.BUTTON')"
+              @click="openCreateSchedule"
+            />
+          </div>
         </div>
 
         <div v-if="!project.tickets?.length" class="text-center py-8 text-sm text-n-slate-10 border border-dashed border-n-weak rounded-xl bg-n-alpha-1">
@@ -496,5 +513,14 @@ const currentStageColor = computed(() => {
         />
       </div>
     </div>
+
+    <CreateScheduleDialog
+      v-if="project"
+      ref="createScheduleDialogRef"
+      :project-id="projectId"
+      :tickets="project.tickets || []"
+      :agent-options="agentOptions"
+      @created="onScheduleCreated"
+    />
   </div>
 </template>

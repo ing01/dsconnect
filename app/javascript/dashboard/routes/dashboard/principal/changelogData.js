@@ -28,6 +28,46 @@ export const CHANGELOG_ENTRIES = [
       'Na tela de Estágios, a coluna Tickets agora conta só os tickets abertos, o mesmo que o Kanban mostra. Tickets resolvidos, encerrados e cancelados não contam mais e, ao excluir o estágio, são movidos para o estágio Finalizado da Mesa.',
   },
   {
+    id: 'project-create-schedule-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'feature',
+    platform: 'web',
+    title: 'Projetos: botão "Criar cronograma"',
+    description:
+      'No detalhe de um Projeto, o botão "Criar cronograma" abre uma tela para vincular tickets (já existentes no projeto ou novos) a uma data/horário e a um responsável. Ao salvar, a data é gravada no ticket e um compromisso é criado na Agenda do responsável, já vinculado ao ticket.',
+  },
+  {
+    id: 'conversations-agent-filter-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'feature',
+    platform: 'web',
+    title: 'Novo filtro por agente nas conversas',
+    description:
+      'O menu de filtros rápidos da lista de conversas (ao lado do filtro de período) agora tem um filtro por agente responsável, para ver rapidamente as conversas de uma pessoa específica sem precisar abrir os filtros avançados.',
+  },
+  {
+    id: 'distribute-conversations-button-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'feature',
+    platform: 'web',
+    title: 'Botão "Distribuir conversas" para administradores',
+    description:
+      'Na aba "Todas" das conversas, administradores agora têm o botão "Distribuir conversas", que força a distribuição automática das conversas em fila que ainda estão sem atendente. Quando alguma não pode ser distribuída, mostra o motivo de cada agente (offline, na exceção de distribuição, etc).',
+  },
+  {
+    id: 'date-filter-alignment-fix-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'fix',
+    platform: 'web',
+    title: 'Filtros de data: alinhamento corrigido',
+    description:
+      'Os campos "De" e "Até" em telas como o Quadro de Sugestões e o SAC e Sugestões apareciam mais para cima que os demais filtros ao lado. Agora ficam alinhados corretamente com os outros campos da mesma linha.',
+  },
+  {
     id: 'stage-delete-closed-tickets-2026-11-12',
     date: '12 de novembro de 2026',
     isoDate: '2026-11-12',

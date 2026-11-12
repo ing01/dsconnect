@@ -140,6 +140,24 @@
         "ERROR": "Failed to reopen the project"
       }
     },
+    "SCHEDULE": {
+      "BUTTON": "Create schedule",
+      "TITLE": "Create schedule",
+      "DESCRIPTION": "Link tickets to dates/times - each row becomes a calendar appointment for the responsible agent.",
+      "EXISTING_TICKET": "Existing ticket",
+      "NEW_TICKET": "New ticket",
+      "SELECT_TICKET": "Select a ticket",
+      "NEW_TICKET_PLACEHOLDER": "New ticket title",
+      "START_AT": "Start",
+      "END_AT": "End",
+      "RESPONSIBLE": "Responsible",
+      "NO_RESPONSIBLE": "No responsible",
+      "ADD_ROW": "Add appointment",
+      "REMOVE_ROW": "Remove row",
+      "SAVE": "Create schedule",
+      "SUCCESS": "{count} appointment(s) successfully created",
+      "ERROR": "Failed to create the schedule"
+    },
     "LOADING": "Loading projects...",
     "HELP": {
       "BUTTON": "Help",

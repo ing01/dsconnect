@@ -1,5 +1,5 @@
 class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
-  before_action :fetch_project, only: [:show, :update, :destroy, :generate_tickets, :cancel, :reactivate]
+  before_action :fetch_project, only: [:show, :update, :destroy, :generate_tickets, :cancel, :reactivate, :create_schedule]
   before_action :check_authorization
 
   def index
@@ -57,6 +57,24 @@ class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
   def reactivate
     @project.reactivate!
     render 'show'
+  end
+
+  # Botao "Criar cronograma": lote de agendamentos (ticket + data/hora +
+  # responsavel), cada um virando um CalendarEvent vinculado ao ticket -
+  # pedido da Ingrid, 2026-11-12.
+  def create_schedule
+    results = Projects::CreateScheduleService.new(
+      account: Current.account,
+      project: @project,
+      user: Current.user,
+      items: schedule_items_params
+    ).perform
+
+    render json: {
+      created_count: results.size,
+      tickets: results.map { |result| result.ticket.slice(:id, :display_id, :title, :scheduled_at, :assignee_id) },
+      calendar_event_ids: results.map { |result| result.calendar_event.id }
+    }
   end
 
   private
@@ -148,6 +166,12 @@ class Api::V1::Accounts::ProjectsController < Api::V1::Accounts::BaseController
   # campos que exige `project_manage`.
   RESTRICTED_ATTRS = %i[name company_id contact_id team_id project_module_id start_date due_date
                         default_ticket_category_id].freeze
+
+  def schedule_items_params
+    params.require(:items).map do |item|
+      item.permit(:ticket_id, :new_ticket_title, :title, :description, :start_at, :end_at, :responsible_user_id).to_h
+    end
+  end
 
   def project_params
     params.require(:project).permit(*permitted_project_attrs, custom_attributes: {})

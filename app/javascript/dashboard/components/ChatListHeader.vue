@@ -24,6 +24,10 @@ const props = defineProps({
   // botao "Filtrar conversas", nao embaixo da busca (ficava estranho ali).
   dateFrom: { type: String, default: '' },
   dateTo: { type: String, default: '' },
+  // Filtro rapido por agente responsavel, tambem so' na lista ja' carregada
+  // - pedido da Ingrid, 2026-11-12. Mora no mesmo menu do periodo.
+  agentId: { type: [String, Number], default: '' },
+  agents: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits([
@@ -35,9 +39,14 @@ const emit = defineEmits([
   'update:searchQuery',
   'update:dateFrom',
   'update:dateTo',
+  'update:agentId',
 ]);
 
 const hasDateFilter = computed(() => !!(props.dateFrom || props.dateTo));
+const hasAgentFilter = computed(() => !!props.agentId);
+const hasQuickFilter = computed(() => hasDateFilter.value || hasAgentFilter.value);
+
+const clearAgentFilter = () => emit('update:agentId', '');
 
 // O periodo mora dentro do menu do funil (so um icone na tela). "Filtros avancados"
 // continua sendo o que o funil abria antes, agora o primeiro item do menu.
@@ -191,7 +200,7 @@ const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
               @click="isFilterMenuOpen = !isFilterMenuOpen"
             />
             <span
-              v-if="hasDateFilter"
+              v-if="hasQuickFilter"
               class="absolute rounded-full -top-0.5 size-2 ltr:-right-0.5 rtl:-left-0.5 bg-n-brand border border-n-solid-2"
             />
           </div>
@@ -234,7 +243,7 @@ const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
             @click="isFilterMenuOpen = !isFilterMenuOpen"
           />
           <span
-            v-if="hasDateFilter"
+            v-if="hasQuickFilter"
             data-testid="date-filter-dot"
             class="absolute rounded-full pointer-events-none -top-0.5 size-2 ltr:-right-0.5 rtl:-left-0.5 bg-n-brand border border-n-solid-2"
           />
@@ -330,6 +339,40 @@ const QUICK_STATUSES = ['open', 'snoozed', 'resolved'];
               <Icon icon="i-lucide-circle-x" class="size-3.5" />
               {{ $t('CHAT_LIST.DATE_FILTER.CLEAR') }}
             </button>
+
+            <div class="h-px bg-n-weak" />
+
+            <span class="text-xs font-medium text-n-slate-11">
+              {{ $t('CHAT_LIST.AGENT_FILTER.TITLE') }}
+            </span>
+            <label class="flex items-center gap-2 text-xs text-n-slate-11">
+              <span class="relative flex-1">
+                <select
+                  :value="agentId"
+                  data-testid="agent-filter-select"
+                  class="mb-0 !h-8 w-full text-xs px-2"
+                  :class="{ 'pe-6': agentId }"
+                  @change="emit('update:agentId', $event.target.value)"
+                >
+                  <option value="">
+                    {{ $t('CHAT_LIST.AGENT_FILTER.ALL_AGENTS') }}
+                  </option>
+                  <option v-for="agent in agents" :key="agent.id" :value="agent.id">
+                    {{ agent.name }}
+                  </option>
+                </select>
+                <button
+                  v-if="agentId"
+                  type="button"
+                  data-testid="agent-filter-clear"
+                  :aria-label="$t('CHAT_LIST.AGENT_FILTER.CLEAR')"
+                  class="absolute -translate-y-1/2 top-1/2 ltr:right-1.5 rtl:left-1.5 text-n-slate-10 hover:text-n-ruby-11"
+                  @click="clearAgentFilter"
+                >
+                  <Icon icon="i-lucide-x" class="size-3.5" />
+                </button>
+              </span>
+            </label>
           </div>
         </OnClickOutside>
       </div>

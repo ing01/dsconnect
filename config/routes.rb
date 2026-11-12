@@ -134,6 +134,7 @@ Rails.application.routes.draw do
             resource :contact_merge, only: [:create]
           end
           resource :bulk_actions, only: [:create]
+          resource :conversation_distribution, only: [:create]
           resource :onboarding, only: [:update] do
             get :help_center_generation
           end
@@ -654,6 +655,7 @@ Rails.application.routes.draw do
             end
             member do
               post :generate_tickets
+              post :create_schedule
               post :cancel
               post :reactivate
             end

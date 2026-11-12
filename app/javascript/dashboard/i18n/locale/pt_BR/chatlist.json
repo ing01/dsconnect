@@ -8,6 +8,32 @@
       "TO": "Até",
       "CLEAR": "Limpar filtro de data"
     },
+    "AGENT_FILTER": {
+      "TITLE": "Agente",
+      "ALL_AGENTS": "Todos os agentes",
+      "CLEAR": "Limpar filtro de agente"
+    },
+    "DISTRIBUTE": {
+      "BUTTON": "Distribuir conversas",
+      "SUCCESS": "{count} conversa(s) distribuída(s) com sucesso",
+      "NONE_ASSIGNED": "Nenhuma conversa pôde ser distribuída",
+      "NOTHING_TO_DO": "Não há conversas sem atendente para distribuir",
+      "ERROR": "Não foi possível distribuir as conversas",
+      "RESULT_TITLE": "Resultado da distribuição",
+      "ASSIGNED_LABEL": "Distribuídas",
+      "UNASSIGNED_LABEL": "Não distribuídas",
+      "REASON": {
+        "OFFLINE": "{name} está offline",
+        "ONLINE_LOAD": "{name} está online (com {count} conversa(s) em aberto)",
+        "EXCLUDED": "{name} está na exceção de distribuição",
+        "LUNCH_BLACKOUT": "{name} está no horário de bloqueio de almoço",
+        "NO_TEAM": "Fila sem equipe configurada",
+        "NO_QUEUE": "Conversa sem fila/caixa de distribuição automática",
+        "MANUAL_QUEUE": "Fila configurada como distribuição manual",
+        "NO_MEMBERS": "A equipe da fila não tem agentes"
+      },
+      "CLOSE": "Fechar"
+    },
     "LOADING": "Buscando conversas",
     "LOAD_MORE_CONVERSATIONS": "Carregar mais conversas",
     "EOF": "Todas as conversas carregadas 🎉",

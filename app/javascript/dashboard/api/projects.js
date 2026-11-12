@@ -21,6 +21,10 @@ class ProjectsAPI extends ApiClient {
   reactivate(projectId) {
     return axios.post(`${this.url}/${projectId}/reactivate`);
   }
+
+  createSchedule(projectId, items) {
+    return axios.post(`${this.url}/${projectId}/create_schedule`, { items });
+  }
 }
 
 export default new ProjectsAPI();

@@ -14,6 +14,35 @@ class Queues::DistributionService
     @conversation.with_lock { @conversation.update!(assignee_id: agent.id) }
   end
 
+  # Usado pelo botao "Distribuir conversas" (Ingrid, 2026-11-12) pra explicar
+  # pro admin, agente por agente da Mesa, por que a fila nao conseguiu
+  # escolher ninguem - mesmo criterio de `eligible_agents`, so' que sem
+  # descartar quem ficou de fora.
+  def diagnostics
+    return [{ agent: nil, reason: :no_queue }] if @queue.blank?
+    return [{ agent: nil, reason: :manual_queue }] if @queue.manual?
+
+    members = @queue.team&.members.to_a
+    return [{ agent: nil, reason: :no_team }] if @queue.team.blank?
+    return [{ agent: nil, reason: :no_members }] if members.blank?
+
+    excluded_ids = excluded_agent_ids
+    lunch_blackout_ids = AccountUser.lunch_blackout_user_ids(@conversation.account_id)
+    online_ids = online_agent_ids_raw
+
+    members.map do |agent|
+      if excluded_ids.include?(agent.id)
+        { agent: agent, reason: :excluded }
+      elsif lunch_blackout_ids.include?(agent.id)
+        { agent: agent, reason: :lunch_blackout }
+      elsif !online_ids.include?(agent.id)
+        { agent: agent, reason: :offline }
+      else
+        { agent: agent, reason: :online, open_count: open_conversation_count(agent) }
+      end
+    end
+  end
+
   private
 
   def next_agent
@@ -57,12 +86,15 @@ class Queues::DistributionService
   # conta (ocupado/away nao), e quem esta no bloqueio de almoco tambem fica
   # de fora, mesmo que a presenca diga online.
   def online_agent_ids
+    lunch_blackout_ids = AccountUser.lunch_blackout_user_ids(@conversation.account_id)
+    online_agent_ids_raw - lunch_blackout_ids
+  end
+
+  def online_agent_ids_raw
     online_agents = OnlineStatusTracker.get_available_users(@conversation.account_id)
     return [] if online_agents.blank?
 
-    lunch_blackout_ids = AccountUser.lunch_blackout_user_ids(@conversation.account_id)
-    online_agents.select { |_key, value| value.eql?('online') }
-                 .keys.map(&:to_i) - lunch_blackout_ids
+    online_agents.select { |_key, value| value.eql?('online') }.keys.map(&:to_i)
   end
 
   def ranking_key(agent)
