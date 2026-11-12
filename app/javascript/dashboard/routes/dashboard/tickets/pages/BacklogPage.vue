@@ -15,10 +15,13 @@ import BacklogBucket from '../components/backlog/BacklogBucket.vue';
 import BacklogBulkActionsBar from '../components/backlog/BacklogBulkActionsBar.vue';
 import BacklogBulkEditDialog from '../components/backlog/BacklogBulkEditDialog.vue';
 import { useBacklog } from '../composables/useBacklog';
+import { useBoardDensity } from '../composables/useBoardDensity';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
+// Tamanho dos cards do quadro do Sprint ativo - o mesmo do Kanban por Mesa.
+const { isCompact, toggleDensity } = useBoardDensity();
 
 const {
   devTeams,
@@ -218,7 +221,10 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
 </script>
 
 <template>
-  <div class="flex flex-col w-full h-full min-h-0 overflow-y-auto p-4 gap-4">
+  <div
+    class="flex flex-col w-full h-full min-h-0 overflow-y-auto"
+    :class="isCompact && viewMode === 'board' ? 'p-2 gap-2' : 'p-4 gap-4'"
+  >
     <div class="flex items-center flex-wrap gap-2">
       <h1 class="text-lg font-medium text-n-slate-12 m-0">
         {{ t('TICKET.BACKLOG.TITLE') }}
@@ -291,6 +297,25 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
           :confirm-label="t('TICKET.BACKLOG.CONCLUDE_SPRINT_CONFIRM')"
           @click="concludeSprint(boardSprint.id)"
         />
+        <NextButton
+          v-tooltip="
+            isCompact
+              ? t('TICKET.BOARD.DENSITY_COMFORTABLE')
+              : t('TICKET.BOARD.DENSITY_COMPACT')
+          "
+          :icon="
+            isCompact ? 'i-lucide-unfold-vertical' : 'i-lucide-fold-vertical'
+          "
+          faded
+          slate
+          size="sm"
+          :aria-label="
+            isCompact
+              ? t('TICKET.BOARD.DENSITY_COMFORTABLE')
+              : t('TICKET.BOARD.DENSITY_COMPACT')
+          "
+          @click="toggleDensity"
+        />
       </template>
     </div>
 
@@ -348,6 +373,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
       <TicketAvatarFilterRow
         :agents="mesaAgents"
         :selected-agent-ids="filters.assigneeIds"
+        class="flex-1 min-w-[14rem]"
         @select="ids => (filters.assigneeIds = ids)"
       />
       <TicketSelect
@@ -428,6 +454,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
           :agents="mesaAgents"
           :filters="boardFilters"
           full-subject
+          :compact="isCompact"
           @add-ticket="onAddTicket"
           @open-ticket="openTicket"
           @move-ticket="moveTicketInBoard"

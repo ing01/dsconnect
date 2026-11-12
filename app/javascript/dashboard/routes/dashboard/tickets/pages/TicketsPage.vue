@@ -19,11 +19,7 @@ import {
   readAgentFilter,
   writeAgentFilter,
 } from '../helpers/boardAgentFilter';
-import {
-  isCompactBoard,
-  readDensityPreference,
-  writeDensityPreference,
-} from '../helpers/boardDensity';
+import { useBoardDensity } from '../composables/useBoardDensity';
 import TicketDetailedSearchModal from '../components/TicketDetailedSearchModal.vue';
 import TicketImpededModal from '../components/TicketImpededModal.vue';
 
@@ -49,6 +45,11 @@ export default {
     TicketDetailedSearchModal,
     TicketImpededModal,
   },
+  // Tamanho dos cards, compartilhado com o quadro do Sprint ativo (Backlog).
+  setup() {
+    const { isCompact, toggleDensity } = useBoardDensity();
+    return { isCompact, toggleDensity };
+  },
   data() {
     return {
       showCreateForm: false,
@@ -64,10 +65,6 @@ export default {
       selectedAgentIds: [],
       quickSearch: '',
       sort: null,
-      // Escolha da pessoa (botao do cabecalho); sem ela, o tamanho da janela decide.
-      densityPreference: readDensityPreference(),
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight,
       // Any Estagio can be hidden from the board (TicketColumn#hidden,
       // Configuracoes > Estagios) - "Finalizado" is not a special case
       // anymore, see TicketBoard.vue.
@@ -91,13 +88,6 @@ export default {
     },
     isLoading() {
       return this.boardUIFlags.isFetching && !this.selectedBoard;
-    },
-    isCompact() {
-      return isCompactBoard(
-        this.densityPreference,
-        this.viewportWidth,
-        this.viewportHeight
-      );
     },
   },
   watch: {
@@ -124,7 +114,6 @@ export default {
     },
   },
   mounted() {
-    window.addEventListener('resize', this.onResize);
     this.$store.dispatch('teams/get').then(() => this.pickInitialTeam());
   },
   // So dispara em visitas SEGUINTES: o KeepAlive chama `activated` tambem na
@@ -138,18 +127,7 @@ export default {
       this.loadMesa(this.selectedTeamId);
     }
   },
-  beforeUnmount() {
-    window.removeEventListener('resize', this.onResize);
-  },
   methods: {
-    onResize() {
-      this.viewportWidth = window.innerWidth;
-      this.viewportHeight = window.innerHeight;
-    },
-    toggleDensity() {
-      this.densityPreference = this.isCompact ? 'comfortable' : 'compact';
-      writeDensityPreference(this.densityPreference);
-    },
     // A brand-new account has no Mesa at all, which would leave the Kanban on a
     // dead-end empty state. Provisioning is server-side and idempotent, so this
     // only ever creates the default Mesa once.

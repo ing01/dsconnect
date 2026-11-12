@@ -15,7 +15,7 @@ export const CHANGELOG_ENTRIES = [
     platform: 'web',
     title: 'Kanban de tickets: modo compacto para telas pequenas',
     description:
-      'Em monitores menores (como 1280x800) o Kanban agora usa colunas mais estreitas e cards enxutos, para caberem vários tickets na tela: título menor, prioridade, prazo, conversas e responsável numa linha só, e o cabeçalho da página mais baixo. A fila de agentes do topo também não quebra mais em várias linhas: mostra só os avatares que cabem e manda o resto para o "+N". O modo compacto entra sozinho conforme a tela e, no botão ao lado da ordenação, você escolhe entre "Cards compactos" e "Cards confortáveis" (a escolha fica salva).',
+      'Em monitores menores (como 1280x800) o Kanban agora usa colunas mais estreitas e cards enxutos, para caberem vários tickets na tela: título menor, prioridade, prazo, conversas e responsável numa linha só, e o cabeçalho da página mais baixo. O mesmo vale para o quadro do Sprint ativo (Backlog), com o mesmo botão e a mesma escolha. A fila de agentes do topo também não quebra mais em várias linhas: mostra só os avatares que cabem e manda o resto para o "+N". O modo compacto entra sozinho conforme a tela e, no botão ao lado da ordenação, você escolhe entre "Cards compactos" e "Cards confortáveis" (a escolha fica salva).',
   },
   {
     id: 'resolve-conversation-summarize-2026-11-12',
@@ -193,7 +193,8 @@ export const CHANGELOG_ENTRIES = [
     isoDate: '2026-11-11',
     type: 'fix',
     platform: 'web',
-    title: 'Pausa por inatividade: qualquer mensagem do cliente retoma a conversa',
+    title:
+      'Pausa por inatividade: qualquer mensagem do cliente retoma a conversa',
     description:
       'Quando o cliente responde a uma conversa pausada por inatividade, ela agora volta para o atendente anterior (se estiver disponível) ou para a fila, seja qual for o texto enviado. Antes, com a opção "Qualquer mensagem retoma" desligada, um texto diferente de "sim" deixava a conversa escondida em Pausadas. Só responder "não" continua encerrando. A opção foi removida das configurações.',
   },
