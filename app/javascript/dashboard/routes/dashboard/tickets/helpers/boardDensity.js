@@ -1,7 +1,7 @@
 import { LocalStorage } from 'shared/helpers/localStorage';
 
 // O Kanban tem dois tamanhos: confortavel (cards cheios, colunas de 288 px) e compacto
-// (colunas de 240 px e cards de poucas linhas, para caberem varios tickets na tela). Sem
+// (colunas de 224 px e cards de poucas linhas, para caberem varios tickets na tela). Sem
 // escolha da pessoa, o tamanho segue a tela: em monitor pequeno (ex.: 1280x800) o compacto
 // entra sozinho. Uma vez escolhido no botao do Kanban, vale a escolha, em qualquer tela.
 const DENSITY_KEY = 'ticket-kanban-density';

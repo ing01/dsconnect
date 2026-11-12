@@ -269,7 +269,7 @@ export default {
 <template>
   <div
     class="drag-handle group relative flex flex-col rounded-xl border cursor-pointer hover:shadow-sm transition-shadow"
-    :class="[cardClass, compact ? 'gap-1.5 p-2' : 'gap-2 p-3']"
+    :class="[cardClass, compact ? 'gap-1 px-2 py-1.5' : 'gap-2 p-3']"
     @click="$emit('click', ticket)"
   >
     <Icon
@@ -281,7 +281,12 @@ export default {
       <p
         class="font-medium text-n-slate-12"
         :class="
-          compact ? 'text-xs leading-snug line-clamp-3' : 'text-sm line-clamp-2'
+          compact
+            ? [
+                'text-xs leading-tight',
+                fullSubject ? 'line-clamp-3' : 'line-clamp-2',
+              ]
+            : 'text-sm line-clamp-2'
         "
         :title="fullSubject ? subject : ticket.title"
       >
@@ -325,7 +330,7 @@ export default {
     <p
       v-if="ticket.company_name"
       class="text-n-slate-11 truncate"
-      :class="compact ? 'text-[11px]' : 'text-xs'"
+      :class="compact ? 'text-[10px]' : 'text-xs'"
       :title="ticket.company_name"
     >
       {{ ticket.company_name }}
@@ -413,35 +418,35 @@ export default {
         />
         <span
           v-if="dueDateLabel"
-          class="flex items-center gap-1 text-[11px]"
+          class="flex items-center gap-1 text-[10px]"
           :class="isOverdue ? 'text-n-ruby-11 font-medium' : 'text-n-slate-11'"
           :title="$t('TICKET.CARD.DUE_DATE')"
         >
-          <Icon icon="i-lucide-calendar-clock" class="size-3" />
+          <Icon icon="i-lucide-calendar-clock" class="size-2.5" />
           {{ dueDateLabel }}
         </span>
         <span
           v-if="scheduledAtLabel"
-          class="flex items-center gap-1 text-[11px] text-n-slate-11"
+          class="flex items-center gap-1 text-[10px] text-n-slate-11"
           :title="$t('TICKET.CARD.SCHEDULED_AT')"
         >
-          <Icon icon="i-lucide-calendar" class="size-3" />
+          <Icon icon="i-lucide-calendar" class="size-2.5" />
           {{ scheduledAtLabel }}
         </span>
       </div>
       <div class="flex items-center flex-shrink-0 gap-1.5">
         <span
           v-if="conversationCount"
-          class="flex items-center gap-0.5 text-[11px] text-n-slate-11"
+          class="flex items-center gap-0.5 text-[10px] text-n-slate-11"
         >
-          <Icon icon="i-lucide-message-circle" class="size-3" />
+          <Icon icon="i-lucide-message-circle" class="size-2.5" />
           {{ conversationCount }}
         </span>
         <span v-if="assigneeName" class="flex" :title="assigneeName">
           <Avatar
             :name="assigneeName"
             :src="assignee?.thumbnail"
-            :size="18"
+            :size="16"
             rounded-full
             hide-offline-status
           />

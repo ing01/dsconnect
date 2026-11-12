@@ -134,7 +134,7 @@ export default {
          being squeezed to fit. -->
     <div
       class="flex h-full w-max pb-2 items-start"
-      :class="compact ? 'gap-2' : 'gap-3'"
+      :class="compact ? 'gap-1.5' : 'gap-3'"
     >
       <TicketBoardColumn
         v-for="column in columns"

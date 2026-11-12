@@ -87,7 +87,7 @@ export default {
 <template>
   <div
     class="flex flex-col flex-shrink-0 rounded-xl bg-n-slate-2 max-h-full transition-[width] duration-150"
-    :class="isCollapsed ? 'w-14 h-full' : compact ? 'w-60' : 'w-72'"
+    :class="isCollapsed ? 'w-14 h-full' : compact ? 'w-56' : 'w-72'"
   >
     <!-- Collapsed: expand button on top, then the counter, then the rotated
          name filling whatever height is left - stacked rather than overlapping,
@@ -125,7 +125,7 @@ export default {
     <template v-else>
       <div
         class="flex items-center justify-between gap-2 ps-3 pe-2"
-        :class="compact ? 'py-1.5' : 'py-2'"
+        :class="compact ? 'py-1' : 'py-2'"
       >
         <div class="flex items-center gap-2 min-w-0">
           <span
@@ -176,7 +176,7 @@ export default {
         animation="200"
         ghost-class="ghost"
         class="flex flex-col overflow-y-auto min-h-[2rem] flex-1"
-        :class="compact ? 'gap-1.5 px-1.5 pb-1.5' : 'gap-2 px-2 pb-2'"
+        :class="compact ? 'gap-1 px-1 pb-1' : 'gap-2 px-2 pb-2'"
         @change="onChange"
       >
         <template #item="{ element }">

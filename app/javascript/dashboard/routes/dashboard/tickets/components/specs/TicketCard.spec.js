@@ -206,13 +206,23 @@ describe('TicketCard compacto', () => {
     expect(wrapper.find('p.line-clamp-2').exists()).toBe(true);
   });
 
-  it('esconde a sprint e o selo de aberto, e o titulo ganha 3 linhas', () => {
+  it('esconde a sprint e o selo de aberto, e o titulo fica em 2 linhas', () => {
     const wrapper = mountCard({ ticket: comSprint(), compact: true });
 
     expect(wrapper.text()).not.toContain('Sprint 7');
     expect(
       wrapper.find('woot-label-stub[label="TICKET.STATUS.OPEN"]').exists()
     ).toBe(false);
+    expect(wrapper.find('p.line-clamp-2').exists()).toBe(true);
+  });
+
+  it('no quadro de titulo completo (Sprint), o titulo compacto ganha 3 linhas', () => {
+    const wrapper = mountCard({
+      ticket: comSprint(),
+      compact: true,
+      fullSubject: true,
+    });
+
     expect(wrapper.find('p.line-clamp-3').exists()).toBe(true);
   });
 
