@@ -894,6 +894,12 @@ const menuItems = computed(() => {
               to: accountScopedRoute('ticket_automation_settings'),
             },
             {
+              name: 'Settings Ticket Distribution',
+              label: t('SIDEBAR.TICKET_DISTRIBUTION'),
+              activeOn: ['ticket_distribution_settings'],
+              to: accountScopedRoute('ticket_distribution_settings'),
+            },
+            {
               name: 'Settings Ticket Attendance Schedule',
               label: t('SIDEBAR.TICKET_ATTENDANCE_SCHEDULE'),
               activeOn: ['ticket_attendance_schedule_settings'],

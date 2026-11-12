@@ -1009,10 +1009,40 @@
       "AUTO_ASSIGNMENT_EXCEPTIONS": {
         "TITLE": "Exceção da distribuição",
         "DESCRIPTION": "Agentes marcados aqui nunca recebem conversa automaticamente nesse canal - continuam podendo ser atribuídos na mão normalmente.",
+        "MOVED_NOTICE": "A exceção da distribuição e o limite de conversas abertas agora ficam todos juntos em",
         "SAVE": "Salvar exceções",
         "API": {
           "SUCCESS": "Exceções de distribuição atualizadas.",
           "ERROR": "Não foi possível atualizar as exceções de distribuição."
+        }
+      },
+      "DISTRIBUTION": {
+        "TITLE": "Distribuição Automática",
+        "DESCRIPTION": "Ative, desative e defina exceções da distribuição automática de conversas - tudo num lugar só.",
+        "WHATSAPP_EXCEPTIONS_TITLE": "Exceção da distribuição · WhatsApp",
+        "FLOW_NOTE": "A maioria das conversas de WhatsApp passa pela triagem automática e cai numa Fila antes de qualquer atendente - quem decide se ELAS são distribuídas sozinhas é a \"Distribuição\" de cada Fila abaixo, não o botão de uma caixa específica. O liga/desliga por caixa só importa pra conversa que nunca passa por fila nenhuma.",
+        "QUEUES": {
+          "TITLE": "Filas",
+          "DESCRIPTION": "Cada Fila decide se distribui as conversas que recebe sozinha (Rodízio ou Menos ocupado) ou deixa pra alguém pegar na mão (Manual).",
+          "EMPTY": "Nenhuma fila cadastrada ainda.",
+          "API": {
+            "ERROR": "Não foi possível atualizar a distribuição desta fila."
+          }
+        },
+        "WHATSAPP_INBOXES": {
+          "TITLE": "Caixas de WhatsApp",
+          "DESCRIPTION": "Atribui sozinha, por rodízio entre os agentes da caixa, uma conversa aberta que não está em nenhuma Fila.",
+          "EMPTY": "Nenhuma caixa de WhatsApp cadastrada ainda.",
+          "API": {
+            "ERROR": "Não foi possível atualizar esta caixa."
+          }
+        },
+        "PORTAL": {
+          "SAVE": "Salvar",
+          "API": {
+            "SUCCESS": "Configurações do Portal atualizadas.",
+            "ERROR": "Não foi possível atualizar as configurações do Portal."
+          }
         }
       },
       "ATTENDANCE_SCHEDULE": {

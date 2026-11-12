@@ -470,6 +470,7 @@
     "TICKET_CATEGORIES": "Categorias",
     "TICKET_PRIORITIES": "Prioridades e SLA",
     "TICKET_AUTOMATION": "Automação WhatsApp",
+    "TICKET_DISTRIBUTION": "Distribuição Automática",
     "TICKET_ATTENDANCE_SCHEDULE": "Configuração de Atendimento",
     "TICKET_ROUTING": "Roteamento do Portal",
     "TICKET_IMPORT": "Importar",
