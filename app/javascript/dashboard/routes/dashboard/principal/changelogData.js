@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'stage-delete-closed-tickets-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'fix',
+    platform: 'web',
+    title: 'Estágios: tickets encerrados também não travam a exclusão',
+    description:
+      'Ao excluir um estágio, os tickets encerrados que estavam nele, além dos cancelados, são movidos para o estágio Finalizado da Mesa e não impedem mais a exclusão. Continuam impedindo apenas os abertos, resolvidos ou em triagem, e a contagem da tela de Estágios mostra exatamente esses.',
+  },
+  {
     id: 'ticket-close-moves-to-finalized-2026-11-12',
     date: '12 de novembro de 2026',
     isoDate: '2026-11-12',

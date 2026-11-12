@@ -112,8 +112,9 @@ RSpec.describe 'Ticket Columns API', type: :request do
       expect(response.parsed_body['ticket_columns'].pluck('id')).to eq([second.id, first.id])
     end
 
-    it 'counts the tickets that block deletion (closed ones too, cancelled not) in blocking_tickets_count' do
+    it 'counts the tickets that block deletion (resolved ones too, closed and cancelled not) in blocking_tickets_count' do
       column = create(:ticket_column, team: team)
+      create(:ticket, ticket_column: column, status: :resolved)
       create(:ticket, ticket_column: column, status: :closed)
       create(:ticket, ticket_column: column, status: :cancelled)
 
@@ -152,9 +153,10 @@ RSpec.describe 'Ticket Columns API', type: :request do
       expect(TicketColumn.exists?(column.id)).to be(true)
     end
 
-    it 'does not let cancelled tickets block the deletion: they move to the Finalizado Estagio' do
+    it 'does not let closed or cancelled tickets block the deletion: they move to the Finalizado Estagio' do
       column = create(:ticket_column, team: team)
       cancelled = create(:ticket, ticket_column: column, team: team, status: :cancelled)
+      closed = create(:ticket, ticket_column: column, team: team, status: :closed)
       finalizado = team.ticket_columns.find_by!(kind: 'completed')
 
       delete "/api/v1/accounts/#{account.id}/teams/#{team.id}/ticket_columns/#{column.id}",
@@ -164,12 +166,13 @@ RSpec.describe 'Ticket Columns API', type: :request do
       expect(response).to have_http_status(:success)
       expect(TicketColumn.exists?(column.id)).to be(false)
       expect(cancelled.reload.ticket_column_id).to eq(finalizado.id)
+      expect(closed.reload.ticket_column_id).to eq(finalizado.id)
     end
 
-    it 'still blocks on closed tickets, counting only the blocking ones' do
+    it 'still blocks on resolved tickets, counting only the blocking ones' do
       column = create(:ticket_column, team: team)
-      create(:ticket, ticket_column: column, team: team, status: :closed)
-      create_list(:ticket, 2, ticket_column: column, team: team, status: :cancelled)
+      create(:ticket, ticket_column: column, team: team, status: :resolved)
+      create_list(:ticket, 2, ticket_column: column, team: team, status: :closed)
 
       delete "/api/v1/accounts/#{account.id}/teams/#{team.id}/ticket_columns/#{column.id}",
              headers: administrator.create_new_auth_token,

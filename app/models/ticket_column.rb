@@ -148,30 +148,31 @@ class TicketColumn < ApplicationRecord
     self.position = (team&.ticket_columns&.maximum(:position) || -1) + 1
   end
 
-  # Ticket cancelado nao trava a exclusao: ele nunca mais volta ao quadro e nao ha trabalho
-  # a mover. So os abertos, resolvidos, encerrados e em triagem impedem. Os cancelados que
-  # sobram vao para o Estagio "Finalizado" da Mesa (todo ticket precisa de um Estagio).
+  # Ticket encerrado ou cancelado nao trava a exclusao: ele nunca mais volta ao quadro e nao
+  # ha trabalho a mover. So os abertos e resolvidos (e os em triagem) impedem. Os encerrados
+  # e cancelados que sobram vao para o Estagio "Finalizado" da Mesa (todo ticket precisa de
+  # um Estagio) - e' para la que encerrar e cancelar ja levam o ticket.
   def ensure_no_tickets
-    blocking_count = tickets.where.not(status: :cancelled).count
+    blocking_count = tickets.where.not(status: TicketFinalizable::FINALIZED_STATUSES).count
     if blocking_count.positive?
       errors.add(:base, I18n.t('errors.ticket_column.has_tickets', count: blocking_count))
       throw :abort
     end
 
-    move_cancelled_tickets
+    move_finished_tickets
   end
 
-  def move_cancelled_tickets
-    cancelled = Ticket.cancelled.where(ticket_column_id: id)
-    return unless cancelled.exists?
+  def move_finished_tickets
+    finished = Ticket.where(status: TicketFinalizable::FINALIZED_STATUSES, ticket_column_id: id)
+    return unless finished.exists?
 
     destination = team.ticket_columns.where(kind: 'completed').where.not(id: id).first
     if destination.blank?
-      errors.add(:base, I18n.t('errors.ticket_column.has_tickets', count: cancelled.count))
+      errors.add(:base, I18n.t('errors.ticket_column.has_tickets', count: finished.count))
       throw :abort
     end
 
-    cancelled.update_all(ticket_column_id: destination.id, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+    finished.update_all(ticket_column_id: destination.id, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
   end
 
   # Pendente/Finalizado are mandatory Estagios of a Mesa's Kanban - deleting

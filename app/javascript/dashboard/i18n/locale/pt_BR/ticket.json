@@ -744,7 +744,7 @@
       "MOVE_DOWN": "Mover para baixo",
       "EDIT": "Editar estágio",
       "DELETE": "Excluir estágio",
-      "DELETE_BLOCKED_HINT": "Mova os tickets deste estágio (inclusive encerrados e em triagem) antes de excluí-lo",
+      "DELETE_BLOCKED_HINT": "Mova os tickets deste estágio (abertos, resolvidos ou em triagem) antes de excluí-lo",
       "FORM": {
         "MESA": {
           "LABEL": "Mesa de Serviço",
