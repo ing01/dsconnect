@@ -145,6 +145,24 @@
         "ERROR": "Erro ao reabrir o projeto"
       }
     },
+    "SCHEDULE": {
+      "BUTTON": "Criar cronograma",
+      "TITLE": "Criar cronograma",
+      "DESCRIPTION": "Vincule tickets a datas/horários - cada linha vira um compromisso na agenda do responsável.",
+      "EXISTING_TICKET": "Ticket existente",
+      "NEW_TICKET": "Novo ticket",
+      "SELECT_TICKET": "Selecione um ticket",
+      "NEW_TICKET_PLACEHOLDER": "Título do novo ticket",
+      "START_AT": "Início",
+      "END_AT": "Fim",
+      "RESPONSIBLE": "Responsável",
+      "NO_RESPONSIBLE": "Sem responsável",
+      "ADD_ROW": "Adicionar agendamento",
+      "REMOVE_ROW": "Remover linha",
+      "SAVE": "Criar cronograma",
+      "SUCCESS": "{count} agendamento(s) criado(s) com sucesso",
+      "ERROR": "Erro ao criar o cronograma"
+    },
     "LOADING": "Carregando projetos...",
     "HELP": {
       "BUTTON": "Ajuda",

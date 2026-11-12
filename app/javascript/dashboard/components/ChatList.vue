@@ -20,7 +20,10 @@ import ConversationResolveAttributesModal from 'dashboard/components-next/Conver
 
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useAlert } from 'dashboard/composables';
+import { useAdmin } from 'dashboard/composables/useAdmin';
 import { useBulkActions } from 'dashboard/composables/chatlist/useBulkActions';
+import ConversationDistributionAPI from 'dashboard/api/conversationDistribution';
+import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import { useFilter } from 'shared/composables/useFilter';
 import { useTrack } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
@@ -79,8 +82,12 @@ const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
+const { isAdmin } = useAdmin();
 
 const resolveAttributesModalRef = ref(null);
+const distributionResultDialogRef = ref(null);
+const isDistributingConversations = ref(false);
+const distributionResult = ref(null);
 
 const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
 const onlyUnassigned = ref(false);
@@ -94,6 +101,9 @@ const searchQuery = ref('');
 // abertura da conversa/e-mail (pedido da Ingrid, 2026-11-11).
 const dateFrom = ref('');
 const dateTo = ref('');
+// Filtro rapido por agente responsavel, mesma logica client-side da busca e
+// da data acima (pedido da Ingrid, 2026-11-12).
+const agentFilter = ref('');
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
 // chatsOnView is to store the chats that are currently visible on the screen,
@@ -111,6 +121,7 @@ const advancedFilterTypes = ref(
 );
 
 const currentUser = useMapGetter('getCurrentUser');
+const agentsList = useMapGetter('agents/getAgents');
 const chatLists = useMapGetter('getFilteredConversations');
 const mineChatsList = useMapGetter('getMineChats');
 const allChatList = useMapGetter('getAllStatusChats');
@@ -463,6 +474,13 @@ const conversationList = computed(() => {
       );
       return nameMatches || companyMatches;
     });
+  }
+
+  if (agentFilter.value) {
+    const agentId = Number(agentFilter.value);
+    localConversationList = localConversationList.filter(
+      conversation => conversation.meta?.assignee?.id === agentId
+    );
   }
 
   if (dateFrom.value || dateTo.value) {
@@ -833,6 +851,36 @@ async function claimNextInQueue() {
   }
 }
 
+// Botao "Distribuir conversas", so' para administradores - forca o fluxo de
+// distribuicao automatica (Fila) pra conversas que ficaram sem atendente, e
+// mostra o motivo amigavel de quem nao pode receber (offline, exceçao, etc)
+// - pedido da Ingrid, 2026-11-12.
+async function distributeConversations() {
+  isDistributingConversations.value = true;
+  try {
+    const { data } = await ConversationDistributionAPI.distribute();
+    distributionResult.value = data;
+
+    if (data.total === 0) {
+      useAlert(t('CHAT_LIST.DISTRIBUTE.NOTHING_TO_DO'));
+      return;
+    }
+
+    if (data.unassigned.length === 0) {
+      useAlert(t('CHAT_LIST.DISTRIBUTE.SUCCESS', { count: data.assigned_count }));
+      if (!currentPage.value) fetchConversations();
+      return;
+    }
+
+    if (!currentPage.value) fetchConversations();
+    distributionResultDialogRef.value?.open();
+  } catch (error) {
+    useAlert(t('CHAT_LIST.DISTRIBUTE.ERROR'));
+  } finally {
+    isDistributingConversations.value = false;
+  }
+}
+
 function redirectToConversationList() {
   const {
     params: { accountId, inbox_id: inboxId, label, teamId },
@@ -1070,6 +1118,8 @@ watch(conversationFilters, (newVal, oldVal) => {
       v-model:search-query="searchQuery"
       v-model:date-from="dateFrom"
       v-model:date-to="dateTo"
+      v-model:agent-id="agentFilter"
+      :agents="agentsList"
       :page-title="pageTitle"
       :has-applied-filters="hasAppliedFilters"
       :has-active-folders="hasActiveFolders"
@@ -1131,7 +1181,78 @@ watch(conversationFilters, (newVal, oldVal) => {
         :label="$t('CHAT_LIST.ONLY_UNASSIGNED')"
         @click="toggleOnlyUnassigned"
       />
+      <NextButton
+        v-if="activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.ALL && isAdmin"
+        size="sm"
+        faded
+        slate
+        icon="i-lucide-shuffle"
+        :label="$t('CHAT_LIST.DISTRIBUTE.BUTTON')"
+        :is-loading="isDistributingConversations"
+        @click="distributeConversations"
+      />
     </div>
+
+    <Dialog
+      ref="distributionResultDialogRef"
+      :title="$t('CHAT_LIST.DISTRIBUTE.RESULT_TITLE')"
+      :show-cancel-button="false"
+      :show-confirm-button="false"
+    >
+      <div
+        v-if="distributionResult"
+        class="flex flex-col gap-3 max-h-[60vh] overflow-y-auto"
+      >
+        <p class="mb-0 text-sm text-n-slate-11">
+          {{
+            $t('CHAT_LIST.DISTRIBUTE.SUCCESS', {
+              count: distributionResult.assigned_count,
+            })
+          }}
+        </p>
+        <div
+          v-if="distributionResult.unassigned.length"
+          class="flex flex-col gap-2"
+        >
+          <span class="text-xs font-medium text-n-slate-11">
+            {{ $t('CHAT_LIST.DISTRIBUTE.UNASSIGNED_LABEL') }}
+          </span>
+          <div
+            v-for="outcome in distributionResult.unassigned"
+            :key="outcome.display_id"
+            class="flex flex-col gap-1 p-2 rounded-lg bg-n-slate-2"
+          >
+            <span class="text-sm font-medium text-n-slate-12">
+              #{{ outcome.display_id }}
+            </span>
+            <ul class="pl-4 m-0 list-disc">
+              <li
+                v-for="(agentOutcome, index) in outcome.agent_outcomes"
+                :key="index"
+                class="text-xs text-n-slate-11"
+              >
+                {{
+                  $t(
+                    `CHAT_LIST.DISTRIBUTE.REASON.${agentOutcome.reason_key.toUpperCase()}`,
+                    {
+                      name: agentOutcome.agent_name,
+                      count: agentOutcome.reason_params?.count,
+                    }
+                  )
+                }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <NextButton
+          :label="$t('CHAT_LIST.DISTRIBUTE.CLOSE')"
+          class="w-full"
+          @click="distributionResultDialogRef?.close()"
+        />
+      </template>
+    </Dialog>
 
     <div
       v-if="activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.QUEUE"
