@@ -230,6 +230,20 @@ RSpec.describe 'Ticket actions', type: :request do
         expect(child.conversations).to eq([conversation])
       end
 
+      # Regressao: copiar o arquivo falhava com "closed stream" DEPOIS de o ticket filho ser
+      # gravado, entao o agente via erro e o ticket so aparecia ao recarregar a pagina.
+      it 'copies the files, each with its own blob, without failing the request' do
+        original = create(:ticket_attachment, ticket: ticket)
+
+        create_child({ attachments: true })
+
+        expect(response).to have_http_status(:created)
+        copied = child.ticket_attachments.first
+        expect(copied.file).to be_attached
+        expect(copied.file.blob_id).not_to eq(original.file.blob_id)
+        expect(copied.file.download).to eq(original.file.download)
+      end
+
       it 'copies internal comments as new rows attributed to their author' do
         ticket.ticket_comments.create!(account_id: account.id, user: agent, content: 'nota interna')
 

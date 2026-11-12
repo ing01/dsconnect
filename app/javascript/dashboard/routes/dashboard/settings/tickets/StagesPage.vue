@@ -41,7 +41,10 @@ const selectedBoard = computed(() =>
 // count comes for free - no extra request and no counter column to keep in sync.
 const stages = computed(() => selectedBoard.value?.ticket_columns ?? []);
 
-const ticketCount = stage => stage.tickets?.length ?? 0;
+// Os que de fato impedem excluir (abertos, resolvidos, encerrados e em triagem), e nao so'
+// os do quadro. Cancelados nao contam: sao movidos para "Finalizado" na exclusao.
+const ticketCount = stage =>
+  stage.blocking_tickets_count ?? stage.tickets?.length ?? 0;
 
 // O prazo do Estagio, em HH:MM. Sem prazo e uma resposta valida, e a tabela
 // precisa dizer isso em vez de deixar a celula vazia.

@@ -148,12 +148,30 @@ class TicketColumn < ApplicationRecord
     self.position = (team&.ticket_columns&.maximum(:position) || -1) + 1
   end
 
+  # Ticket cancelado nao trava a exclusao: ele nunca mais volta ao quadro e nao ha trabalho
+  # a mover. So os abertos, resolvidos, encerrados e em triagem impedem. Os cancelados que
+  # sobram vao para o Estagio "Finalizado" da Mesa (todo ticket precisa de um Estagio).
   def ensure_no_tickets
-    ticket_count = tickets.count
-    return if ticket_count.zero?
+    blocking_count = tickets.where.not(status: :cancelled).count
+    if blocking_count.positive?
+      errors.add(:base, I18n.t('errors.ticket_column.has_tickets', count: blocking_count))
+      throw :abort
+    end
 
-    errors.add(:base, I18n.t('errors.ticket_column.has_tickets', count: ticket_count))
-    throw :abort
+    move_cancelled_tickets
+  end
+
+  def move_cancelled_tickets
+    cancelled = Ticket.cancelled.where(ticket_column_id: id)
+    return unless cancelled.exists?
+
+    destination = team.ticket_columns.where(kind: 'completed').where.not(id: id).first
+    if destination.blank?
+      errors.add(:base, I18n.t('errors.ticket_column.has_tickets', count: cancelled.count))
+      throw :abort
+    end
+
+    cancelled.update_all(ticket_column_id: destination.id, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
   end
 
   # Pendente/Finalizado are mandatory Estagios of a Mesa's Kanban - deleting

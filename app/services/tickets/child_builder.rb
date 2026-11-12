@@ -115,12 +115,19 @@ class Tickets::ChildBuilder
       copy = child.ticket_attachments.new(account_id: child.account_id, user_id: attachment.user_id)
       # `blob.open` streams to a tempfile instead of loading the whole file into
       # memory, which matters at the 40 MB attachment limit.
+      #
+      # The copy is uploaded INSIDE the block, while the tempfile is still open.
+      # `copy.file.attach(io:)` only defers the upload to the record's after_commit,
+      # which runs after `blob.open` has closed and deleted the tempfile: the ticket
+      # was already committed and the request failed with "closed stream" (500), so the
+      # agent saw an error and no ticket until reloading the page.
       attachment.file.blob.open do |file|
-        copy.file.attach(
+        copy_blob = ActiveStorage::Blob.create_and_upload!(
           io: file,
           filename: attachment.file.filename.to_s,
           content_type: attachment.file.content_type
         )
+        copy.file.attach(copy_blob)
       end
       copy.save!
     end

@@ -70,6 +70,35 @@ RSpec.describe Ticket do
     end
   end
 
+  describe 'saindo da fila de Triagem' do
+    it 'cancelar um ticket em triagem o tira da fila, por qualquer caminho' do
+      ticket = create(:ticket, pending_triage: true)
+
+      ticket.update!(status: :cancelled)
+
+      expect(ticket.reload.pending_triage).to be(false)
+      expect(described_class.pending_triage).not_to include(ticket)
+    end
+
+    it 'resolver ou encerrar tambem tira da fila' do
+      resolvido = create(:ticket, pending_triage: true)
+      encerrado = create(:ticket, pending_triage: true)
+
+      resolvido.update!(status: :resolved)
+      encerrado.update!(status: :closed)
+
+      expect([resolvido, encerrado].map { |ticket| ticket.reload.pending_triage }).to eq([false, false])
+    end
+
+    it 'um ticket aberto continua na fila' do
+      ticket = create(:ticket, pending_triage: true)
+
+      ticket.update!(title: 'outro titulo')
+
+      expect(ticket.reload.pending_triage).to be(true)
+    end
+  end
+
   describe 'status enum' do
     it { is_expected.to define_enum_for(:status).with_values(open: 0, resolved: 1, closed: 2, cancelled: 3) }
 

@@ -8,6 +8,36 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'triage-cancelled-stuck-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'fix',
+    platform: 'web',
+    title: 'Triagem: ticket cancelado não fica mais preso na fila',
+    description:
+      'Um ticket cancelado, encerrado ou resolvido que ainda estava na Triagem continuava na fila e no contador do menu, sem como aprovar ou cancelar de novo. Agora qualquer ticket que deixa de estar aberto sai da fila sozinho, e os que já estavam presos foram liberados.',
+  },
+  {
+    id: 'child-ticket-copy-files-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'fix',
+    platform: 'web',
+    title: 'Ticket filho: copiar os arquivos não dá mais erro',
+    description:
+      'Ao criar um ticket filho com a opção de copiar os arquivos do ticket pai, o ticket era criado, mas a tela mostrava "Não foi possível salvar o ticket" e ele só aparecia depois de recarregar a página. Os arquivos agora são copiados corretamente e o ticket abre normalmente.',
+  },
+  {
+    id: 'stage-ticket-count-all-2026-11-11',
+    date: '11 de novembro de 2026',
+    isoDate: '2026-11-11',
+    type: 'fix',
+    platform: 'web',
+    title: 'Estágios: tickets cancelados não travam mais a exclusão',
+    description:
+      'Ao excluir um estágio, os tickets cancelados que estavam nele não impedem mais a exclusão: eles são movidos para o estágio Finalizado da Mesa. Continuam impedindo apenas os tickets abertos, resolvidos, encerrados ou em triagem. A coluna Tickets em Configurações > Tickets > Estágios agora conta exatamente esses, e o botão de excluir já aparece bloqueado com a explicação quando houver algum.',
+  },
+  {
     id: 'ticket-title-module-2026-11-11',
     date: '11 de novembro de 2026',
     isoDate: '2026-11-11',

@@ -16,6 +16,12 @@ module TicketTriage
     # agentes ser escrita.
     after_create_commit :notify_triage_queue, if: :pending_triage?
 
+    # Quem saiu da situacao "aberto" (cancelado, encerrado, resolvido) nao tem mais o que
+    # triar. Vale para QUALQUER caminho que mude o status - nao so' `cancel!` e `close!` -,
+    # senao um ticket cancelado ficava preso na fila: nao da' para aprovar e cancelar de
+    # novo nao faz nada, e o contador do menu nunca zera.
+    before_save :leave_triage_queue, if: -> { pending_triage? && !open? }
+
     scope :pending_triage, -> { where(pending_triage: true) }
     # O que ja pode andar no Kanban da equipe. O quadro usa este escopo: um
     # chamado em triagem ainda nao foi aceito por ninguem, e aparecer entre os
@@ -42,6 +48,11 @@ module TicketTriage
   end
 
   private
+
+  def leave_triage_queue
+    self.pending_triage = false
+    self.triaged_at ||= Time.current
+  end
 
   def notify_triage_queue
     Tickets::TriageNotificationJob.perform_later(id)
