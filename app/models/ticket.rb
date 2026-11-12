@@ -218,6 +218,7 @@ class Ticket < ApplicationRecord
     triage_attrs = pending_triage? ? { pending_triage: false, triaged_at: Time.zone.now, triaged_by: user } : {}
     update!(status: :closed, closed_at: Time.zone.now, **triage_attrs)
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :closed)
+    move_to_finalized_column!
     advance_project_stage_if_needed!
   end
 
@@ -263,8 +264,46 @@ class Ticket < ApplicationRecord
   def reopen!(user = Current.user)
     return if open?
 
+    origin = column_before_finalized
     update!(status: :open, resolved_at: nil, closed_at: nil, cancelled_at: nil, close_reason: nil)
     ticket_activities.create!(account_id: account_id, user: user, activity_type: :reopened)
+    restore_column!(origin)
+  end
+
+  # Encerrar ou cancelar leva o ticket para o Estagio Finalizado da Mesa (`kind: completed`).
+  # E' uma SEGUNDA gravacao, depois da mudanca de status, de proposito: gravar as duas
+  # coisas juntas faria o evento sair como `ticket.moved` e esconderia o `ticket.closed`
+  # de quem escuta. O Estagio de onde ele saiu fica no Historico (`column_changed`), que e'
+  # de onde a reabertura o busca. Regras do Estagio de destino (responsavel, data...) nao
+  # barram: fechar nunca pode falhar por causa delas.
+  def move_to_finalized_column!
+    final = team&.ticket_columns&.find_by(kind: 'completed')
+    return if final.blank? || final.id == ticket_column_id
+
+    previous_column = ticket_column
+    as_administrative_change do
+      update!(ticket_column: final, position: (final.tickets.maximum(:position) || -1) + 1)
+    end
+    reindex_column!(previous_column)
+  end
+
+  # O Estagio em que o ticket estava antes de ir para o Finalizado, lido do Historico.
+  # Nil quando ele nao esta num Finalizado, ou quando nao ha registro do Estagio anterior
+  # (ticket antigo): nesse caso fica onde esta.
+  def column_before_finalized
+    return unless ticket_column&.kind == 'completed'
+
+    entry = ticket_activities.column_changed.where(new_value: ticket_column_id.to_s).order(:id).last
+    origin = team.ticket_columns.find_by(id: entry&.previous_value)
+    origin unless origin.blank? || origin.kind == 'completed'
+  end
+
+  def restore_column!(origin)
+    return if origin.blank?
+
+    finalized_column = ticket_column
+    update!(ticket_column: origin, position: (origin.tickets.maximum(:position) || -1) + 1)
+    reindex_column!(finalized_column)
   end
 
   # Cancelling never deletes the ticket - it is a terminal status, so the
@@ -281,6 +320,7 @@ class Ticket < ApplicationRecord
         account_id: account_id, user: user, activity_type: :cancelled,
         previous_value: status_previously_was, meta: { reason: reason }.compact
       )
+      move_to_finalized_column!
     end
   end
 

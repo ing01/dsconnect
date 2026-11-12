@@ -66,10 +66,10 @@ RSpec.describe 'Kanban operational scope', type: :request do
     # otherwise a closed ticket's slot would be handed out twice.
     it 'still occupy their slot in the column' do
       first = ticket_with(:open)
-      closed = ticket_with(:closed)
+      resolved = ticket_with(:resolved)
       last = ticket_with(:open)
 
-      expect(column.reload.tickets.pluck(:id)).to eq([first.id, closed.id, last.id])
+      expect(column.reload.tickets.pluck(:id)).to eq([first.id, resolved.id, last.id])
     end
   end
 
@@ -90,10 +90,12 @@ RSpec.describe 'Kanban operational scope', type: :request do
       end
     end
 
+    # Encerrar leva o ticket para o Finalizado da Mesa: e' la que a busca o encontra.
     it 'finds a terminal ticket by its Estagio' do
       closed = ticket_with(:closed)
+      finalizado = team.ticket_columns.find_by!(kind: 'completed')
 
-      expect(search_ticket_ids({ ticket_column_id: column.id })).to include(closed.id)
+      expect(search_ticket_ids({ ticket_column_id: finalizado.id })).to include(closed.id)
     end
   end
 end

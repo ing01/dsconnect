@@ -16,8 +16,12 @@ class Tickets::TransferService
   def perform
     ticket.transaction do
       before = snapshot
-      apply_status_transition
+      # Reabrir vem ANTES (so' um ticket aberto aceita as outras mudancas); encerrar,
+      # cancelar e resolver vem DEPOIS: fechar leva o ticket para o Finalizado da Mesa, e
+      # isso tem que acontecer na Mesa/Estagio ja escolhidos aqui, e nao brigar com eles.
+      apply_status_transition(reopening: true)
       apply_attributes
+      apply_status_transition(reopening: false)
       log_activity(before, snapshot)
     end
     ticket
@@ -32,9 +36,10 @@ class Tickets::TransferService
   # Status has no generic setter: resolve!/close!/reopen!/cancel! are what write
   # `resolved_at`/`closed_at`/`cancelled_at` and their own activity, so a
   # transfer routes through them rather than assigning the column directly.
-  def apply_status_transition
+  def apply_status_transition(reopening:)
     target = attributes[:status].presence
     return if target.blank? || target.to_s == ticket.status
+    return unless reopening == %w[resolved closed cancelled].exclude?(target.to_s)
 
     case target.to_s
     when 'resolved' then ticket.resolve!(user)

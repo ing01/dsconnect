@@ -244,6 +244,24 @@ RSpec.describe 'Ticket actions', type: :request do
         expect(copied.file.download).to eq(original.file.download)
       end
 
+      # "Todas as imagens do pai aparecem no filho": cada arquivo do pai vira um anexo do
+      # filho, com o arquivo DE FATO gravado no storage (nao so' o registro) e o mesmo
+      # conteudo - foi a ausencia do arquivo no storage que deixava a imagem quebrada.
+      it 'copies every file of the parent, and every copy is really stored' do
+        names = %w[print-1.png print-2.png print-3.png]
+        originals = names.map { |name| create(:ticket_attachment, ticket: ticket, filename: name) }
+
+        create_child({ attachments: true })
+
+        expect(response).to have_http_status(:created)
+        copies = child.ticket_attachments.includes(file_attachment: :blob).order(:id)
+        expect(copies.map { |copy| copy.file.filename.to_s }).to match_array(names)
+        expect(copies).to all(satisfy { |copy| copy.file.blob.service.exist?(copy.file.blob.key) })
+        expect(copies.map { |copy| copy.file.download }).to all(eq(originals.first.file.download))
+        # E o pai continua com os seus, intactos.
+        expect(ticket.ticket_attachments.count).to eq(3)
+      end
+
       it 'copies internal comments as new rows attributed to their author' do
         ticket.ticket_comments.create!(account_id: account.id, user: agent, content: 'nota interna')
 

@@ -70,6 +70,54 @@ RSpec.describe Ticket do
     end
   end
 
+  describe 'Estagio Finalizado ao encerrar, cancelar e reabrir' do
+    let(:team) { create(:team) }
+    let(:origin) { team.ticket_columns.find_by!(kind: 'pending') }
+    let(:finalizado) { team.ticket_columns.find_by!(kind: 'completed') }
+    let(:ticket) { create(:ticket, ticket_column: origin, team: team) }
+
+    it 'encerrar leva o ticket para o Finalizado e guarda o Estagio de origem no Historico' do
+      ticket.close!(nil, skip_requirements: true)
+
+      expect(ticket.reload.ticket_column).to eq(finalizado)
+      expect(ticket).to be_closed
+      activity = ticket.ticket_activities.column_changed.last
+      expect([activity.previous_value, activity.new_value]).to eq([origin.id.to_s, finalizado.id.to_s])
+    end
+
+    it 'cancelar tambem leva para o Finalizado' do
+      ticket.cancel!(nil, reason: 'duplicado')
+
+      expect(ticket.reload.ticket_column).to eq(finalizado)
+      expect(ticket).to be_cancelled
+    end
+
+    it 'reabrir devolve o ticket ao Estagio de onde saiu' do
+      ticket.close!(nil, skip_requirements: true)
+
+      ticket.reload.reopen!(nil)
+
+      expect(ticket.reload.ticket_column).to eq(origin)
+      expect(ticket).to be_open
+    end
+
+    it 'reabrir um ticket antigo, sem Estagio anterior no Historico, nao muda de Estagio' do
+      ticket.update_columns(ticket_column_id: finalizado.id, status: described_class.statuses[:closed]) # rubocop:disable Rails/SkipsModelValidations
+
+      ticket.reload.reopen!(nil)
+
+      expect(ticket.reload.ticket_column).to eq(finalizado)
+      expect(ticket).to be_open
+    end
+
+    it 'um ticket que ja esta no Finalizado nao e movido de novo' do
+      ticket.update!(ticket_column: finalizado)
+
+      expect { ticket.close!(nil, skip_requirements: true) }
+        .not_to(change { ticket.ticket_activities.column_changed.count })
+    end
+  end
+
   describe 'saindo da fila de Triagem' do
     it 'cancelar um ticket em triagem o tira da fila, por qualquer caminho' do
       ticket = create(:ticket, pending_triage: true)
@@ -155,7 +203,7 @@ RSpec.describe Ticket do
 
       expect(ticket.status).to eq('closed')
       expect(ticket.closed_at).to be_present
-      expect(ticket.ticket_activities.last.activity_type).to eq('closed')
+      expect(ticket.ticket_activities.where(activity_type: :closed)).to be_present
     end
 
     it 'reopens a resolved or closed ticket' do

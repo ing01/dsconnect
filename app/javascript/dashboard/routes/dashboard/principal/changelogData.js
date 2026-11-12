@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-close-moves-to-finalized-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Encerrar ou cancelar leva o ticket para o estágio Finalizado',
+    description:
+      'Ao encerrar ou cancelar um ticket, ele agora vai para o estágio Finalizado da Mesa, e o estágio de onde saiu fica registrado no Histórico. Ao reabrir, o ticket volta para esse estágio. Tickets antigos, sem estágio anterior no Histórico, continuam onde estão ao serem reabertos. Resolver não muda o estágio.',
+  },
+  {
     id: 'triage-cancelled-stuck-2026-11-12',
     date: '12 de novembro de 2026',
     isoDate: '2026-11-12',
