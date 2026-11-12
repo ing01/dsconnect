@@ -8,6 +8,36 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-compact-density-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Kanban de tickets: modo compacto para telas pequenas',
+    description:
+      'Em monitores menores (como 1280x800) o Kanban agora usa colunas mais estreitas e cards enxutos, para caberem vários tickets na tela: título menor, prioridade, prazo, conversas e responsável numa linha só, e o cabeçalho da página mais baixo. A fila de agentes do topo também não quebra mais em várias linhas: mostra só os avatares que cabem e manda o resto para o "+N". O modo compacto entra sozinho conforme a tela e, no botão ao lado da ordenação, você escolhe entre "Cards compactos" e "Cards confortáveis" (a escolha fica salva).',
+  },
+  {
+    id: 'resolve-conversation-summarize-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'feature',
+    platform: 'web',
+    title: 'Resolver conversa: botão "Resumir conversa com IA"',
+    description:
+      'Ao clicar em Resolver numa conversa com ticket aberto, a tela de fechar o ticket ganhou o botão "Resumir conversa com IA" logo abaixo da descrição. Ele faz o mesmo resumo da tela do ticket e já preenche a descrição e o título; você pode editar os dois antes de fechar.',
+  },
+  {
+    id: 'help-center-import-markdown-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'feature',
+    platform: 'web',
+    title: 'Central de Ajuda: importar manuais em Markdown (.md)',
+    description:
+      'Na lista de artigos da Central de Ajuda há o botão "Importar .md". Escolha um ou vários arquivos, e cada um vira um artigo em rascunho no idioma que você está vendo, com a categoria que escolher. O título vem do cabeçalho "title:" ou do primeiro "# Título" do arquivo, ou do nome do arquivo. Imagens do manual também entram: escolha as imagens junto com os .md e elas são enviadas e ligadas ao texto pelo nome do arquivo. Revise e publique depois.',
+  },
+  {
     id: 'kanban-agent-filter-persist-2026-11-12',
     date: '12 de novembro de 2026',
     isoDate: '2026-11-12',

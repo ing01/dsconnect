@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { onClickOutside } from '@vueuse/core';
+import { onClickOutside, useElementSize } from '@vueuse/core';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 
@@ -22,10 +22,21 @@ const emit = defineEmits(['select']);
 // is reachable through the "+N" menu instead of stretching the row.
 const MAX_VISIBLE_AGENTS = 6;
 
+// A fila nunca quebra de linha (em tela estreita os avatares viravam 3 fileiras e
+// comiam a altura do Kanban): quantos avatares cabem vem da largura que a linha
+// recebe, e quem nao cabe vai para o "+N". Medidas em px: avatar de 28 + espaco,
+// botao "Todos", botao "+N" e botao "Limpar" (so' com filtro), cada um com o espaco.
+const AVATAR_SLOT_WIDTH = 34;
+const ALL_BUTTON_WIDTH = 60;
+const OVERFLOW_BUTTON_WIDTH = 46;
+const CLEAR_BUTTON_WIDTH = 66;
+
 const { t } = useI18n();
 
 const isMenuOpen = ref(false);
 const menuContainer = ref(null);
+const rowRef = ref(null);
+const { width: rowWidth } = useElementSize(rowRef);
 
 onClickOutside(menuContainer, () => {
   isMenuOpen.value = false;
@@ -38,10 +49,24 @@ const isSelected = agentId => props.selectedAgentIds.includes(agentId);
 // Every selected agent stays on the row - they are the active filter, so hiding
 // one behind "+N" would leave no way to tell who the board is filtered by. The
 // remaining slots are filled with unselected members, in order.
+// Sem medida (a linha ainda nao foi desenhada), vale o limite fixo.
+const maxVisibleAgents = computed(() => {
+  if (!rowWidth.value) return MAX_VISIBLE_AGENTS;
+
+  const fixed = ALL_BUTTON_WIDTH + (hasFilter.value ? CLEAR_BUTTON_WIDTH : 0);
+  const fitsAll = Math.floor((rowWidth.value - fixed) / AVATAR_SLOT_WIDTH);
+  const fitsWithOverflow = Math.floor(
+    (rowWidth.value - fixed - OVERFLOW_BUTTON_WIDTH) / AVATAR_SLOT_WIDTH
+  );
+  const capacity = props.agents.length <= fitsAll ? fitsAll : fitsWithOverflow;
+
+  return Math.max(1, Math.min(MAX_VISIBLE_AGENTS, capacity));
+});
+
 const visibleAgents = computed(() => {
   const selected = props.agents.filter(agent => isSelected(agent.id));
   const rest = props.agents.filter(agent => !isSelected(agent.id));
-  const freeSlots = Math.max(MAX_VISIBLE_AGENTS - selected.length, 0);
+  const freeSlots = Math.max(maxVisibleAgents.value - selected.length, 0);
 
   return [...selected, ...rest.slice(0, freeSlots)];
 });
@@ -77,7 +102,7 @@ const handleMenuAction = ({ value }) => toggleAgent(value);
 </script>
 
 <template>
-  <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+  <div ref="rowRef" class="flex items-center gap-1.5 min-w-0 flex-nowrap">
     <button
       type="button"
       class="flex items-center h-7 px-2.5 rounded-full text-xs font-medium border transition-colors flex-shrink-0"

@@ -28,6 +28,7 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 import BulkTranslateDialog from './BulkTranslateDialog.vue';
+import ImportMarkdownDialog from './ImportMarkdownDialog.vue';
 
 const props = defineProps({
   articles: {
@@ -111,6 +112,9 @@ const selectedCountLabel = computed(() =>
 );
 
 const bulkTranslateDialogRef = ref(null);
+const importMarkdownDialogRef = ref(null);
+
+const openImportMarkdown = () => importMarkdownDialogRef.value?.open();
 
 const hasNoArticles = computed(
   () => !isFetching.value && !props.articles.length
@@ -372,6 +376,7 @@ watch(
           @locale-change="handleLocaleAction"
           @category-change="handleCategoryAction"
           @new-article="navigateToNewArticlePage"
+          @import-markdown="openImportMarkdown"
         />
         <CategoryHeaderControls
           v-else-if="showCategoryHeaderControls"
@@ -379,6 +384,7 @@ watch(
           :allowed-locales="allowedLocales"
           :has-selected-category="isCategoryArticles"
           @new-article="navigateToNewArticlePage"
+          @import-markdown="openImportMarkdown"
         />
       </div>
     </template>
@@ -510,6 +516,11 @@ watch(
         @click="navigateToNewArticlePage"
       />
     </template>
+    <ImportMarkdownDialog
+      ref="importMarkdownDialogRef"
+      :categories="categories"
+      @imported="emit('refreshArticles')"
+    />
     <BulkTranslateDialog
       ref="bulkTranslateDialogRef"
       :selected-article-ids="[...selectedArticleIds]"

@@ -44,6 +44,14 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Cartao enxuto, para caberem varios tickets na tela (monitor pequeno): titulo menor,
+    // sem a linha da sprint, sem o selo de status 'aberto' e com prioridade, prazo,
+    // conversas e responsavel numa linha so'. Padrao `false`: Backlog e Area do Cliente
+    // continuam com o cartao cheio.
+    compact: {
+      type: Boolean,
+      default: false,
+    },
   },
   // The menu now carries its intent in one event: the card names the action,
   // the page decides how to run it.
@@ -117,8 +125,7 @@ export default {
       if (this.ticket.development_type === 'bug') return 'i-lucide-bug';
       if (this.ticket.development_type === 'task')
         return 'i-lucide-square-check';
-      if (this.ticket.development_type === 'story')
-        return 'i-lucide-book-open';
+      if (this.ticket.development_type === 'story') return 'i-lucide-book-open';
       return '';
     },
     isAdministrator() {
@@ -261,8 +268,8 @@ export default {
 
 <template>
   <div
-    class="drag-handle group relative flex flex-col gap-2 rounded-xl border p-3 cursor-pointer hover:shadow-sm transition-shadow"
-    :class="cardClass"
+    class="drag-handle group relative flex flex-col rounded-xl border cursor-pointer hover:shadow-sm transition-shadow"
+    :class="[cardClass, compact ? 'gap-1.5 p-2' : 'gap-2 p-3']"
     @click="$emit('click', ticket)"
   >
     <Icon
@@ -272,7 +279,10 @@ export default {
     />
     <div class="flex items-start justify-between gap-2">
       <p
-        class="text-sm font-medium text-n-slate-12 line-clamp-2"
+        class="font-medium text-n-slate-12"
+        :class="
+          compact ? 'text-xs leading-snug line-clamp-3' : 'text-sm line-clamp-2'
+        "
         :title="fullSubject ? subject : ticket.title"
       >
         <Icon
@@ -314,7 +324,8 @@ export default {
 
     <p
       v-if="ticket.company_name"
-      class="text-xs text-n-slate-11 truncate"
+      class="text-n-slate-11 truncate"
+      :class="compact ? 'text-[11px]' : 'text-xs'"
       :title="ticket.company_name"
     >
       {{ ticket.company_name }}
@@ -323,7 +334,7 @@ export default {
     <!-- So aparece em tickets com sprint - Backlog/Mesas fora do Modulo de
          Desenvolvimento nunca tem sprint_name. -->
     <p
-      v-if="ticket.sprint_name"
+      v-if="ticket.sprint_name && !compact"
       class="text-xs text-n-slate-10 truncate"
       :title="ticket.sprint_name"
     >
@@ -334,7 +345,14 @@ export default {
       {{ ticket.sprint_name }}
     </p>
 
-    <div class="flex items-center flex-wrap gap-1.5">
+    <div
+      v-if="
+        !compact ||
+        ticket.blocked ||
+        (ticket.status && ticket.status !== 'open')
+      "
+      class="flex items-center flex-wrap gap-1.5"
+    >
       <!-- Impedido vem primeiro entre os selos: e a informacao que muda o
              que a pessoa faz com o cartao. Status e prioridade continuam ali,
              porque o ticket segue aberto. -->
@@ -345,24 +363,24 @@ export default {
         compact
       />
       <WootLabel
-        v-if="ticket.status"
+        v-if="ticket.status && (!compact || ticket.status !== 'open')"
         :label="statusLabel"
         :color="statusColor"
         compact
       />
       <WootLabel
-        v-if="ticket.priority"
+        v-if="ticket.priority && !compact"
         :label="priorityLabel"
         :color="priorityColor"
         compact
       />
-      <span v-if="!ticket.priority" class="text-xs text-n-slate-10">
+      <span v-if="!ticket.priority && !compact" class="text-xs text-n-slate-10">
         {{ $t('TICKET.FORM.PRIORITY.NONE') }}
       </span>
     </div>
 
     <div
-      v-if="dueDateLabel || scheduledAtLabel"
+      v-if="!compact && (dueDateLabel || scheduledAtLabel)"
       class="flex items-center flex-wrap gap-x-3 gap-y-1"
     >
       <span
@@ -383,7 +401,55 @@ export default {
       </span>
     </div>
 
-    <div class="flex items-center justify-between gap-2">
+    <!-- Compacto: prioridade, prazo, conversas e responsavel numa linha so'. O nome
+         do responsavel fica no tooltip do avatar. -->
+    <div v-if="compact" class="flex items-center justify-between gap-2 min-w-0">
+      <div class="flex items-center flex-wrap gap-x-2 gap-y-1 min-w-0">
+        <WootLabel
+          v-if="ticket.priority"
+          :label="priorityLabel"
+          :color="priorityColor"
+          compact
+        />
+        <span
+          v-if="dueDateLabel"
+          class="flex items-center gap-1 text-[11px]"
+          :class="isOverdue ? 'text-n-ruby-11 font-medium' : 'text-n-slate-11'"
+          :title="$t('TICKET.CARD.DUE_DATE')"
+        >
+          <Icon icon="i-lucide-calendar-clock" class="size-3" />
+          {{ dueDateLabel }}
+        </span>
+        <span
+          v-if="scheduledAtLabel"
+          class="flex items-center gap-1 text-[11px] text-n-slate-11"
+          :title="$t('TICKET.CARD.SCHEDULED_AT')"
+        >
+          <Icon icon="i-lucide-calendar" class="size-3" />
+          {{ scheduledAtLabel }}
+        </span>
+      </div>
+      <div class="flex items-center flex-shrink-0 gap-1.5">
+        <span
+          v-if="conversationCount"
+          class="flex items-center gap-0.5 text-[11px] text-n-slate-11"
+        >
+          <Icon icon="i-lucide-message-circle" class="size-3" />
+          {{ conversationCount }}
+        </span>
+        <span v-if="assigneeName" class="flex" :title="assigneeName">
+          <Avatar
+            :name="assigneeName"
+            :src="assignee?.thumbnail"
+            :size="18"
+            rounded-full
+            hide-offline-status
+          />
+        </span>
+      </div>
+    </div>
+
+    <div v-else class="flex items-center justify-between gap-2">
       <div v-if="assigneeName" class="flex items-center gap-1.5 min-w-0">
         <Avatar
           :name="assigneeName"

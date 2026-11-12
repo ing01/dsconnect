@@ -45,6 +45,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Colunas e cartoes enxutos para telas pequenas - ver TicketCard.
+    compact: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['addTicket', 'openTicket', 'moveTicket', 'menuAction'],
   data() {
@@ -127,7 +132,10 @@ export default {
          or push the header out of reach. The inner strip is `w-max` so columns
          keep their usable width and simply extend past the viewport instead of
          being squeezed to fit. -->
-    <div class="flex h-full w-max gap-3 pb-2 items-start">
+    <div
+      class="flex h-full w-max pb-2 items-start"
+      :class="compact ? 'gap-2' : 'gap-3'"
+    >
       <TicketBoardColumn
         v-for="column in columns"
         :key="column.id"
@@ -138,6 +146,7 @@ export default {
         :is-collapsed="isCollapsed(column.id)"
         :read-only="readOnly"
         :full-subject="fullSubject"
+        :compact="compact"
         @toggle-collapse="toggleColumn"
         @add-ticket="$emit('addTicket', $event)"
         @open-ticket="$emit('openTicket', $event)"

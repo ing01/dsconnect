@@ -1,6 +1,16 @@
 import { mount } from '@vue/test-utils';
 import TicketAvatarFilterRow from '../TicketAvatarFilterRow.vue';
 
+// A largura que a linha recebe da tela: o teste escolhe, em vez de depender de layout.
+const { rowWidth } = vi.hoisted(() => ({ rowWidth: { value: 0 } }));
+vi.mock('@vueuse/core', async importOriginal => ({
+  ...(await importOriginal()),
+  useElementSize: () => ({ width: rowWidth }),
+}));
+beforeEach(() => {
+  rowWidth.value = 0;
+});
+
 const agent = id => ({
   id,
   name: `Agente ${id}`,
@@ -182,5 +192,48 @@ describe('TicketAvatarFilterRow', () => {
 
     expect(wrapper.text()).toContain('TICKET.FILTERS.NO_MESA_MEMBERS');
     expect(wrapper.findAll('[data-name]')).toHaveLength(0);
+  });
+});
+
+describe('TicketAvatarFilterRow em tela estreita', () => {
+  const oito = () => Array.from({ length: 8 }, (_, i) => agent(i + 1));
+
+  it('nunca quebra de linha', () => {
+    expect(mountRow().classes()).toContain('flex-nowrap');
+    expect(mountRow().classes()).not.toContain('flex-wrap');
+  });
+
+  it('mostra menos avatares e manda o resto para o +N conforme a largura', () => {
+    rowWidth.value = 300;
+    const wrapper = mountRow({ agents: oito() });
+
+    expect(wrapper.findAll('[data-name]')).toHaveLength(5);
+    expect(wrapper.text()).toContain('+3');
+  });
+
+  it('com largura de sobra, volta ao limite de 6', () => {
+    rowWidth.value = 600;
+    const wrapper = mountRow({ agents: oito() });
+
+    expect(wrapper.findAll('[data-name]')).toHaveLength(6);
+    expect(wrapper.text()).toContain('+2');
+  });
+
+  it('numa linha muito curta, ainda mostra um avatar e o +N', () => {
+    rowWidth.value = 100;
+    const wrapper = mountRow({ agents: oito() });
+
+    expect(wrapper.findAll('[data-name]')).toHaveLength(1);
+    expect(wrapper.text()).toContain('+7');
+  });
+
+  it('quem esta no filtro continua na linha, mesmo sem largura', () => {
+    rowWidth.value = 100;
+    const wrapper = mountRow({ agents: oito(), selectedAgentIds: [7, 8] });
+
+    const nomes = wrapper
+      .findAll('[data-name]')
+      .map(a => a.attributes('data-name'));
+    expect(nomes).toEqual(expect.arrayContaining(['Agente 7', 'Agente 8']));
   });
 });

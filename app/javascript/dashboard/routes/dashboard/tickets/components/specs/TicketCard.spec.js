@@ -191,3 +191,55 @@ describe('TicketCard menu', () => {
     });
   });
 });
+
+describe('TicketCard compacto', () => {
+  const comSprint = () =>
+    ticket({ sprint_name: 'Sprint 7', due_date: '2099-01-02T10:00:00Z' });
+
+  it('o cartao cheio continua mostrando a sprint e o selo de status', () => {
+    const wrapper = mountCard({ ticket: comSprint() });
+
+    expect(wrapper.text()).toContain('Sprint 7');
+    expect(
+      wrapper.find('woot-label-stub[label="TICKET.STATUS.OPEN"]').exists()
+    ).toBe(true);
+    expect(wrapper.find('p.line-clamp-2').exists()).toBe(true);
+  });
+
+  it('esconde a sprint e o selo de aberto, e o titulo ganha 3 linhas', () => {
+    const wrapper = mountCard({ ticket: comSprint(), compact: true });
+
+    expect(wrapper.text()).not.toContain('Sprint 7');
+    expect(
+      wrapper.find('woot-label-stub[label="TICKET.STATUS.OPEN"]').exists()
+    ).toBe(false);
+    expect(wrapper.find('p.line-clamp-3').exists()).toBe(true);
+  });
+
+  it('mantem prioridade, prazo e responsavel na linha do rodape', () => {
+    const wrapper = mountCard({
+      ticket: ticket({ ...comSprint(), assignee_id: 5, conversation_ids: [1] }),
+      agents: [{ id: 5, name: 'Ana', thumbnail: '' }],
+      compact: true,
+    });
+
+    expect(
+      wrapper
+        .find('woot-label-stub[label="TICKET.FORM.PRIORITY.MEDIUM"]')
+        .exists()
+    ).toBe(true);
+    expect(wrapper.text()).toContain('02/01');
+    expect(wrapper.find('[title="Ana"]').exists()).toBe(true);
+  });
+
+  it('um ticket impedido continua mostrando o selo de impedimento', () => {
+    const wrapper = mountCard({
+      ticket: ticket({ blocked: true }),
+      compact: true,
+    });
+
+    expect(
+      wrapper.find('woot-label-stub[label="TICKET.IMPEDIMENT.LABEL"]').exists()
+    ).toBe(true);
+  });
+});

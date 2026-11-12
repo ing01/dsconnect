@@ -110,6 +110,8 @@
       "ADD_TICKET": "Novo ticket",
       "COLLAPSE": "Minimizar coluna",
       "EXPAND": "Expandir coluna",
+      "DENSITY_COMPACT": "Cards compactos",
+      "DENSITY_COMFORTABLE": "Cards confortáveis",
       "COLLAPSE_COLUMN": "Minimizar coluna {name}",
       "EXPAND_COLUMN": "Expandir coluna {name}",
       "ADD_TICKET_TO_COLUMN": "Novo ticket na coluna {name}"
@@ -1441,6 +1443,7 @@
       "STEP_DETAILS": "Detalhes do ticket",
       "DETAILS_TITLE": "Assunto / título",
       "DETAILS_DESCRIPTION": "Descrição",
+      "SUMMARIZE": "Resumir conversa com IA",
       "DETAILS_HINT": "Você pode ajustar o assunto e a descrição antes de fechar. A alteração é salva junto com o fechamento.",
       "STEP_CLASSIFICATION": "1. Classificação",
       "STEP_RESOLUTION": "2. Resolução",

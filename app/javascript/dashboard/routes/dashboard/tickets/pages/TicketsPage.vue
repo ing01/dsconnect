@@ -19,6 +19,11 @@ import {
   readAgentFilter,
   writeAgentFilter,
 } from '../helpers/boardAgentFilter';
+import {
+  isCompactBoard,
+  readDensityPreference,
+  writeDensityPreference,
+} from '../helpers/boardDensity';
 import TicketDetailedSearchModal from '../components/TicketDetailedSearchModal.vue';
 import TicketImpededModal from '../components/TicketImpededModal.vue';
 
@@ -59,6 +64,10 @@ export default {
       selectedAgentIds: [],
       quickSearch: '',
       sort: null,
+      // Escolha da pessoa (botao do cabecalho); sem ela, o tamanho da janela decide.
+      densityPreference: readDensityPreference(),
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
       // Any Estagio can be hidden from the board (TicketColumn#hidden,
       // Configuracoes > Estagios) - "Finalizado" is not a special case
       // anymore, see TicketBoard.vue.
@@ -82,6 +91,13 @@ export default {
     },
     isLoading() {
       return this.boardUIFlags.isFetching && !this.selectedBoard;
+    },
+    isCompact() {
+      return isCompactBoard(
+        this.densityPreference,
+        this.viewportWidth,
+        this.viewportHeight
+      );
     },
   },
   watch: {
@@ -108,6 +124,7 @@ export default {
     },
   },
   mounted() {
+    window.addEventListener('resize', this.onResize);
     this.$store.dispatch('teams/get').then(() => this.pickInitialTeam());
   },
   // So dispara em visitas SEGUINTES: o KeepAlive chama `activated` tambem na
@@ -121,7 +138,18 @@ export default {
       this.loadMesa(this.selectedTeamId);
     }
   },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.onResize);
+  },
   methods: {
+    onResize() {
+      this.viewportWidth = window.innerWidth;
+      this.viewportHeight = window.innerHeight;
+    },
+    toggleDensity() {
+      this.densityPreference = this.isCompact ? 'comfortable' : 'compact';
+      writeDensityPreference(this.densityPreference);
+    },
     // A brand-new account has no Mesa at all, which would leave the Kanban on a
     // dead-end empty state. Provisioning is server-side and idempotent, so this
     // only ever creates the default Mesa once.
@@ -274,14 +302,23 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-col w-full h-full min-h-0 min-w-0 p-4 gap-4">
+  <div
+    class="flex flex-col w-full h-full min-h-0 min-w-0"
+    :class="isCompact ? 'p-2 gap-2' : 'p-4 gap-4'"
+  >
     <!-- `w-full min-w-0` is what keeps this page inside the shell: it is a flex
          item of Dashboard.vue's <main>, so without them its width is driven by
          the Kanban's max-content (every column added) and the header controls
          get pushed past the clipping edge of <main>. -->
-    <header class="flex flex-col gap-3 w-full min-w-0 flex-shrink-0">
+    <header
+      class="flex flex-col w-full min-w-0 flex-shrink-0"
+      :class="isCompact ? 'gap-2' : 'gap-3'"
+    >
       <div class="flex items-center gap-2">
-        <h1 class="text-xl font-medium text-n-slate-12">
+        <h1
+          class="font-medium text-n-slate-12"
+          :class="isCompact ? 'text-base' : 'text-xl'"
+        >
           {{ $t('TICKET.HEADER') }}
         </h1>
         <NextButton
@@ -293,7 +330,7 @@ export default {
           @click="openAdvancedManagement"
         />
       </div>
-      <p class="text-sm text-n-slate-11">
+      <p v-if="!isCompact" class="text-sm text-n-slate-11">
         {{ $t('TICKET.DESCRIPTION') }}
       </p>
 
@@ -311,7 +348,7 @@ export default {
           v-if="selectedTeamId"
           :agents="mesaAgents"
           :selected-agent-ids="selectedAgentIds"
-          class="flex-1 min-w-0 order-last sm:order-none"
+          class="flex-1 min-w-[14rem] order-last sm:order-none"
           @select="selectAgentFilter"
         />
 
@@ -338,6 +375,29 @@ export default {
           v-if="selectedTeamId"
           :sort="sort"
           @update="updateSort"
+        />
+
+        <!-- Tamanho dos cards: sozinho pela tela, ate a pessoa escolher. -->
+        <NextButton
+          v-if="selectedTeamId"
+          v-tooltip="
+            isCompact
+              ? $t('TICKET.BOARD.DENSITY_COMFORTABLE')
+              : $t('TICKET.BOARD.DENSITY_COMPACT')
+          "
+          :icon="
+            isCompact ? 'i-lucide-unfold-vertical' : 'i-lucide-fold-vertical'
+          "
+          faded
+          slate
+          size="sm"
+          class="flex-shrink-0"
+          :aria-label="
+            isCompact
+              ? $t('TICKET.BOARD.DENSITY_COMFORTABLE')
+              : $t('TICKET.BOARD.DENSITY_COMPACT')
+          "
+          @click="toggleDensity"
         />
 
         <NextButton
@@ -391,6 +451,7 @@ export default {
       :agents="mesaAgents"
       :filters="{ assigneeIds: selectedAgentIds, query: quickSearch }"
       :sort="sort"
+      :compact="isCompact"
       class="flex-1 min-h-0 min-w-0"
       @add-ticket="openAddTicket"
       @open-ticket="openTicketDetail"

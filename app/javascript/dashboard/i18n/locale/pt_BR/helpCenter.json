@@ -594,6 +594,27 @@
           "SUBTITLE": "Não foi possível encontrar artigos que correspondam à sua pesquisa. Tente um termo diferente."
         }
       },
+      "IMPORT_MARKDOWN": {
+        "BUTTON": "Importar .md",
+        "TITLE": "Importar manuais em Markdown",
+        "DESCRIPTION": "Escolha um ou mais arquivos .md, junto com as imagens que eles usam. Cada arquivo vira um artigo em rascunho, no idioma que você está vendo, para você revisar e publicar.",
+        "CHOOSE": "Escolher arquivos .md e imagens",
+        "CATEGORY_LABEL": "Categoria",
+        "OPTIONAL": "(opcional)",
+        "CATEGORY_PLACEHOLDER": "Sem categoria",
+        "CONFIRM": "Importar arquivo | Importar {count} arquivos",
+        "REMOVE": "Remover da lista",
+        "NOT_MARKDOWN": "Não é um arquivo .md nem uma imagem (png, jpg, gif ou webp).",
+        "IMAGES_SELECTED": "{count} imagem escolhida | {count} imagens escolhidas",
+        "IMAGE_MISSING": "Imagem não escolhida: {names}. Escolha o arquivo junto, ou o artigo fica com a imagem quebrada.",
+        "IMAGE_TOO_LARGE": "A imagem passa de 10 MB.",
+        "IMAGE_UPLOAD_ERROR": "Não foi possível enviar a imagem {name}.",
+        "TOO_LARGE": "O arquivo passa de 1 MB.",
+        "READ_ERROR": "Não foi possível ler o arquivo.",
+        "CREATE_ERROR": "Não foi possível criar o artigo.",
+        "SUCCESS": "{count} artigo importado como rascunho. | {count} artigos importados como rascunho.",
+        "NOTE": "O título vem do cabeçalho \"title:\" do arquivo ou do primeiro \"# Título\" do texto; sem nenhum dos dois, usa o nome do arquivo. As imagens do texto são achadas pelo nome do arquivo (a pasta não importa): escolha os .md e as imagens na mesma seleção. Imagens com endereço da internet funcionam sem precisar escolher."
+      },
       "BULK_TRANSLATE": {
         "TITLE": "Traduzir artigo | Traduzir {count} artigos",
         "DESCRIPTION": "Traduza o artigo selecionado para outro idioma. | Traduza os artigos selecionados para outro idioma.",

@@ -20,6 +20,8 @@ export default {
     // arrastar e abrir ticket na coluna. Padrao `false`.
     readOnly: { type: Boolean, default: false },
     fullSubject: { type: Boolean, default: false },
+    // Colunas mais estreitas e cartoes enxutos - ver TicketCard.
+    compact: { type: Boolean, default: false },
   },
   emits: [
     'addTicket',
@@ -85,7 +87,7 @@ export default {
 <template>
   <div
     class="flex flex-col flex-shrink-0 rounded-xl bg-n-slate-2 max-h-full transition-[width] duration-150"
-    :class="isCollapsed ? 'w-14 h-full' : 'w-72'"
+    :class="isCollapsed ? 'w-14 h-full' : compact ? 'w-60' : 'w-72'"
   >
     <!-- Collapsed: expand button on top, then the counter, then the rotated
          name filling whatever height is left - stacked rather than overlapping,
@@ -121,10 +123,14 @@ export default {
     </div>
 
     <template v-else>
-      <div class="flex items-center justify-between gap-2 ps-3 pe-2 py-2">
+      <div
+        class="flex items-center justify-between gap-2 ps-3 pe-2"
+        :class="compact ? 'py-1.5' : 'py-2'"
+      >
         <div class="flex items-center gap-2 min-w-0">
           <span
-            class="text-sm font-medium text-n-slate-12 truncate"
+            class="font-medium text-n-slate-12 truncate"
+            :class="compact ? 'text-xs' : 'text-sm'"
             :title="column.name"
           >
             {{ column.name }}
@@ -169,7 +175,8 @@ export default {
         item-key="id"
         animation="200"
         ghost-class="ghost"
-        class="flex flex-col gap-2 px-2 pb-2 overflow-y-auto min-h-[2rem] flex-1"
+        class="flex flex-col overflow-y-auto min-h-[2rem] flex-1"
+        :class="compact ? 'gap-1.5 px-1.5 pb-1.5' : 'gap-2 px-2 pb-2'"
         @change="onChange"
       >
         <template #item="{ element }">
@@ -179,6 +186,7 @@ export default {
             :agents="agents"
             :read-only="readOnly"
             :full-subject="fullSubject"
+            :compact="compact"
             :is-completed="column.kind === 'completed'"
             @click="$emit('openTicket', element)"
             @menu-action="$emit('menuAction', $event)"

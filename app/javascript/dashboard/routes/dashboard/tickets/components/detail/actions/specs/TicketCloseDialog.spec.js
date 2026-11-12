@@ -1,5 +1,6 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import TicketCloseDialog from '../TicketCloseDialog.vue';
+import TicketsAPI from 'dashboard/api/tickets';
 
 // Dois assuntos vivem aqui.
 //
@@ -13,6 +14,10 @@ import TicketCloseDialog from '../TicketCloseDialog.vue';
 // REGISTRADA - o cliente ve o texto na Area do Cliente e nenhum e-mail sai -, e
 // o que a pessoa desmarcou tem de chegar ao servidor.
 const dispatch = vi.fn(() => Promise.resolve());
+
+vi.mock('dashboard/api/tickets', () => ({
+  default: { summarizeConversation: vi.fn() },
+}));
 
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
@@ -81,6 +86,77 @@ const mensagemEnviada = () =>
 beforeEach(() => dispatch.mockClear());
 
 describe('TicketCloseDialog', () => {
+  // Fechando pela conversa (Resolver), o assunto e a descricao se ajustam ali; o
+  // botao traz o mesmo resumo por IA da tela do ticket.
+  describe('Resumir conversa com IA', () => {
+    const pelaConversa = () =>
+      montar({
+        allowEditDetails: true,
+        ticket: ticket({
+          title: 'Atendimento Portal - Jaqueline',
+          description: 'Ticket aberto automaticamente.',
+        }),
+      });
+
+    it('so aparece quando o fechamento vem da conversa', async () => {
+      expect((await montar()).find('.resumir').exists()).toBe(false);
+      expect((await pelaConversa()).find('.resumir').exists()).toBe(true);
+    });
+
+    it('troca a descricao e o titulo pelo resumo, ainda editaveis', async () => {
+      TicketsAPI.summarizeConversation.mockResolvedValue({
+        data: { message: 'Cliente pediu a nota.', title: 'Nota em lote' },
+      });
+      const wrapper = await pelaConversa();
+
+      await wrapper.find('.resumir').trigger('click');
+      await flushPromises();
+
+      expect(TicketsAPI.summarizeConversation).toHaveBeenCalledWith(1);
+      expect(wrapper.find('textarea').element.value).toBe(
+        'Cliente pediu a nota.'
+      );
+      expect(wrapper.find('input[type="text"]').element.value).toBe(
+        'Nota em lote'
+      );
+    });
+
+    it('sem titulo no resumo, mantem o titulo que estava', async () => {
+      TicketsAPI.summarizeConversation.mockResolvedValue({
+        data: { message: 'Resumo.', title: '' },
+      });
+      const wrapper = await pelaConversa();
+
+      await wrapper.find('.resumir').trigger('click');
+      await flushPromises();
+
+      expect(wrapper.find('textarea').element.value).toBe('Resumo.');
+      expect(wrapper.find('input[type="text"]').element.value).toBe(
+        'Atendimento Portal - Jaqueline'
+      );
+    });
+
+    it('com erro ou resumo vazio, nao mexe no que a pessoa tinha', async () => {
+      const wrapper = await pelaConversa();
+
+      TicketsAPI.summarizeConversation.mockRejectedValueOnce(new Error('x'));
+      await wrapper.find('.resumir').trigger('click');
+      await flushPromises();
+      TicketsAPI.summarizeConversation.mockResolvedValueOnce({
+        data: { message: '' },
+      });
+      await wrapper.find('.resumir').trigger('click');
+      await flushPromises();
+
+      expect(wrapper.find('textarea').element.value).toBe(
+        'Ticket aberto automaticamente.'
+      );
+      expect(wrapper.find('input[type="text"]').element.value).toBe(
+        'Atendimento Portal - Jaqueline'
+      );
+    });
+  });
+
   it('does not put the message editor inside a label', async () => {
     const wrapper = await montar();
 

@@ -35,6 +35,7 @@ const emit = defineEmits([
   'localeChange',
   'categoryChange',
   'newArticle',
+  'importMarkdown',
 ]);
 
 const route = useRoute();
@@ -194,12 +195,21 @@ const handleTabChange = value => {
           </OnClickOutside>
         </div>
       </div>
-      <Button
-        :label="t('HELP_CENTER.ARTICLES_PAGE.ARTICLES_HEADER.NEW_ARTICLE')"
-        icon="i-lucide-plus"
-        size="sm"
-        @click="handleNewArticle"
-      />
+      <div class="flex items-center gap-2">
+        <Button
+          :label="t('HELP_CENTER.ARTICLES_PAGE.IMPORT_MARKDOWN.BUTTON')"
+          icon="i-lucide-file-up"
+          color="slate"
+          size="sm"
+          @click="emit('importMarkdown')"
+        />
+        <Button
+          :label="t('HELP_CENTER.ARTICLES_PAGE.ARTICLES_HEADER.NEW_ARTICLE')"
+          icon="i-lucide-plus"
+          size="sm"
+          @click="handleNewArticle"
+        />
+      </div>
     </div>
   </div>
 </template>

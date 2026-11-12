@@ -7,6 +7,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import TicketsAPI from 'dashboard/api/tickets';
 import FullEditor from 'dashboard/components/widgets/WootWriter/FullEditor.vue';
 import TicketCatalogSelect from './TicketCatalogSelect.vue';
 
@@ -47,6 +48,11 @@ const notificarCliente = ref(true);
 // ticket ja tem e so' sao gravados se mudaram.
 const title = ref('');
 const description = ref('');
+// "Resumir conversa com IA": o mesmo resumo da tela do ticket. `summaryRun` marca
+// a abertura atual do dialogo, para uma resposta que chega depois de fechar (ou de
+// abrir outro ticket) nao escrever no formulario errado.
+const isSummarizing = ref(false);
+let summaryRun = 0;
 
 const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
 
@@ -109,8 +115,38 @@ const open = () => {
   notificarCliente.value = true;
   title.value = props.ticket.title || '';
   description.value = props.ticket.description || '';
+  summaryRun += 1;
+  isSummarizing.value = false;
   store.dispatch('serviceCatalogs/fetch');
   dialogRef.value?.open();
+};
+
+// O servidor resume as conversas ligadas ao ticket e devolve descricao e titulo
+// sugeridos, como na tela do ticket. Aqui eles so' PREENCHEM os campos: continuam
+// editaveis e so' sao gravados junto com o fechamento.
+const summarizeConversation = async () => {
+  if (isSummarizing.value || isWorking.value) return;
+
+  const run = summaryRun;
+  isSummarizing.value = true;
+  try {
+    const { data } = await TicketsAPI.summarizeConversation(props.ticket.id);
+    if (run !== summaryRun) return;
+    if (!data?.message) {
+      useAlert(t('TICKET.DETAIL.DESCRIPTION.SUMMARIZE_EMPTY'));
+      return;
+    }
+    description.value = data.message;
+    if (data.title?.trim()) title.value = data.title.trim();
+  } catch (error) {
+    if (run !== summaryRun) return;
+    useAlert(
+      error?.response?.data?.error ||
+        t('TICKET.DETAIL.DESCRIPTION.SUMMARIZE_ERROR')
+    );
+  } finally {
+    if (run === summaryRun) isSummarizing.value = false;
+  }
 };
 
 // The classification comes first, then the message, then the close - and each
@@ -262,6 +298,20 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
               class="w-full mb-0 text-sm resize-y min-h-[6rem]"
             />
           </label>
+          <div class="flex justify-end">
+            <Button
+              variant="faded"
+              color="slate"
+              size="sm"
+              type="button"
+              class="resumir"
+              icon="i-fluent-text-bullet-list-square-sparkle-32-regular"
+              :is-loading="isSummarizing"
+              :disabled="isSummarizing || isWorking"
+              :label="t('TICKET.CLOSE.SUMMARIZE')"
+              @click="summarizeConversation"
+            />
+          </div>
         </section>
 
         <div class="h-px bg-n-weak" />
@@ -303,7 +353,9 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
         <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
           <Icon
             :icon="
-              needsResolution ? 'i-lucide-circle-alert' : 'i-lucide-circle-check'
+              needsResolution
+                ? 'i-lucide-circle-alert'
+                : 'i-lucide-circle-check'
             "
             class="flex-shrink-0 size-4"
             :class="needsResolution ? 'text-n-amber-11' : 'text-n-teal-11'"
@@ -320,7 +372,8 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
 
         <label v-else class="flex flex-col gap-1 min-w-0">
           <span class="text-sm font-medium text-n-slate-12">
-            {{ t('TICKET.CLOSE.RESOLUTION') }}<span class="text-n-ruby-11">*</span>
+            {{ t('TICKET.CLOSE.RESOLUTION')
+            }}<span class="text-n-ruby-11">*</span>
           </span>
           <span class="text-xs text-n-slate-10">
             {{ t('TICKET.CLOSE.RESOLUTION_HINT') }}
