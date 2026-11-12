@@ -24,6 +24,6 @@ json.tickets resource.board_tickets do |ticket|
   json.partial! 'api/v1/models/ticket', formats: [:json], resource: ticket
 end
 json.tickets_total_count resource.operational_tickets.count
-# Os tickets que impedem excluir o Estagio: abertos, resolvidos e em triagem. Encerrados e
+# Os tickets que impedem excluir o Estagio: so os abertos. Resolvidos, encerrados e
 # cancelados nao contam - sao movidos para o Finalizado na exclusao.
-json.blocking_tickets_count resource.tickets.where.not(status: TicketFinalizable::FINALIZED_STATUSES).count
+json.blocking_tickets_count resource.tickets.where.not(status: TicketColumn::NON_BLOCKING_STATUSES).count

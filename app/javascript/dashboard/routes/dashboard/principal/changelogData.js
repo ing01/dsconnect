@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-agent-filter-persist-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'fix',
+    platform: 'web',
+    title: 'Kanban: o filtro de agente não se perde mais ao trocar de aba',
+    description:
+      'O agente selecionado no filtro do Kanban agora é lembrado por Mesa. Ao ir para outra aba, como o Chat interno, e voltar, o filtro continua aplicado. Para ver todos de novo, basta limpar o filtro.',
+  },
+  {
+    id: 'stage-delete-only-open-block-2026-11-12',
+    date: '12 de novembro de 2026',
+    isoDate: '2026-11-12',
+    type: 'fix',
+    platform: 'web',
+    title: 'Estágios: só tickets abertos contam e travam a exclusão',
+    description:
+      'Na tela de Estágios, a coluna Tickets agora conta só os tickets abertos, o mesmo que o Kanban mostra. Tickets resolvidos, encerrados e cancelados não contam mais e, ao excluir o estágio, são movidos para o estágio Finalizado da Mesa.',
+  },
+  {
     id: 'stage-delete-closed-tickets-2026-11-12',
     date: '12 de novembro de 2026',
     isoDate: '2026-11-12',

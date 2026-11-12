@@ -14,6 +14,11 @@ import TicketAvatarFilterRow from '../components/TicketAvatarFilterRow.vue';
 import TicketMesaSelector from '../components/TicketMesaSelector.vue';
 import TicketSortMenu from '../components/TicketSortMenu.vue';
 import { readSortPreference, writeSortPreference } from '../helpers/ticketSort';
+import {
+  keepCurrentMembers,
+  readAgentFilter,
+  writeAgentFilter,
+} from '../helpers/boardAgentFilter';
 import TicketDetailedSearchModal from '../components/TicketDetailedSearchModal.vue';
 import TicketImpededModal from '../components/TicketImpededModal.vue';
 
@@ -80,10 +85,22 @@ export default {
     },
   },
   watch: {
+    // Quem saiu da Mesa deixa o filtro: um filtro preso a alguem que nao aparece na linha de
+    // avatares esconderia todos os tickets sem como desfazer.
+    mesaAgents(members) {
+      if (!members.length || !this.selectedAgentIds.length) return;
+
+      const current = keepCurrentMembers(this.selectedAgentIds, members);
+      if (current.length !== this.selectedAgentIds.length) {
+        this.selectAgentFilter(current);
+      }
+    },
     selectedTeamId(teamId) {
       if (!teamId) return;
       window.localStorage.setItem(LAST_TEAM_STORAGE_KEY, teamId);
-      this.selectedAgentIds = [];
+      // O filtro de agente volta como estava nesta Mesa (inclusive depois de passar por
+      // outra aba, que desmonta o modulo); a busca rapida nao e' guardada.
+      this.selectedAgentIds = readAgentFilter(this.currentAccountId, teamId);
       this.quickSearch = '';
       // Sorting is remembered per Mesa, so it is reloaded rather than cleared.
       this.sort = readSortPreference(this.currentAccountId, teamId);
@@ -162,6 +179,7 @@ export default {
     // The filter row resolves add/remove/clear and hands over the full list.
     selectAgentFilter(agentIds) {
       this.selectedAgentIds = agentIds;
+      writeAgentFilter(this.currentAccountId, this.selectedTeamId, agentIds);
     },
     updateSort(sort) {
       this.sort = sort;

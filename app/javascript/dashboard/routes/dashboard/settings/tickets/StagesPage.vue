@@ -41,8 +41,8 @@ const selectedBoard = computed(() =>
 // count comes for free - no extra request and no counter column to keep in sync.
 const stages = computed(() => selectedBoard.value?.ticket_columns ?? []);
 
-// Os que de fato impedem excluir (abertos, resolvidos e em triagem), e nao so' os do quadro.
-// Encerrados e cancelados nao contam: sao movidos para "Finalizado" na exclusao.
+// Os que de fato impedem excluir: so os abertos. Resolvidos, encerrados e cancelados nao
+// contam: sao movidos para "Finalizado" na exclusao.
 const ticketCount = stage =>
   stage.blocking_tickets_count ?? stage.tickets?.length ?? 0;
 

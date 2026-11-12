@@ -79,6 +79,9 @@ class TicketColumn < ApplicationRecord
   # assigned to someone.
   KINDS = %w[normal pending completed in_progress].freeze
   REQUIRED_KINDS = %w[pending completed].freeze
+  # Quem ja saiu do quadro (resolvido, encerrado, cancelado) nao trava a exclusao do Estagio:
+  # nao ha o que atender nele. O que aparece na contagem e' o que de fato esta em aberto.
+  NON_BLOCKING_STATUSES = %w[resolved closed cancelled].freeze
 
   # Acoes que "Automacao de Estagio" (Configuracoes > Estagios) pode rodar
   # sozinha quando um ticket ENTRA nesta coluna - ver TicketColumnAutomationListener
@@ -148,12 +151,11 @@ class TicketColumn < ApplicationRecord
     self.position = (team&.ticket_columns&.maximum(:position) || -1) + 1
   end
 
-  # Ticket encerrado ou cancelado nao trava a exclusao: ele nunca mais volta ao quadro e nao
-  # ha trabalho a mover. So os abertos e resolvidos (e os em triagem) impedem. Os encerrados
-  # e cancelados que sobram vao para o Estagio "Finalizado" da Mesa (todo ticket precisa de
-  # um Estagio) - e' para la que encerrar e cancelar ja levam o ticket.
+  # So ticket ABERTO trava a exclusao. Resolvido, encerrado e cancelado ja saíram do quadro e
+  # nao ha trabalho a mover: os que sobram vao para o Estagio "Finalizado" da Mesa (todo ticket
+  # precisa de um Estagio) - e' para la que encerrar e cancelar ja levam o ticket.
   def ensure_no_tickets
-    blocking_count = tickets.where.not(status: TicketFinalizable::FINALIZED_STATUSES).count
+    blocking_count = tickets.where.not(status: NON_BLOCKING_STATUSES).count
     if blocking_count.positive?
       errors.add(:base, I18n.t('errors.ticket_column.has_tickets', count: blocking_count))
       throw :abort
@@ -163,7 +165,7 @@ class TicketColumn < ApplicationRecord
   end
 
   def move_finished_tickets
-    finished = Ticket.where(status: TicketFinalizable::FINALIZED_STATUSES, ticket_column_id: id)
+    finished = Ticket.where(status: NON_BLOCKING_STATUSES, ticket_column_id: id)
     return unless finished.exists?
 
     destination = team.ticket_columns.where(kind: 'completed').where.not(id: id).first

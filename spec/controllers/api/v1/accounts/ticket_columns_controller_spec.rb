@@ -112,8 +112,9 @@ RSpec.describe 'Ticket Columns API', type: :request do
       expect(response.parsed_body['ticket_columns'].pluck('id')).to eq([second.id, first.id])
     end
 
-    it 'counts the tickets that block deletion (resolved ones too, closed and cancelled not) in blocking_tickets_count' do
+    it 'counts only open tickets in blocking_tickets_count (resolved, closed and cancelled do not block)' do
       column = create(:ticket_column, team: team)
+      create(:ticket, ticket_column: column)
       create(:ticket, ticket_column: column, status: :resolved)
       create(:ticket, ticket_column: column, status: :closed)
       create(:ticket, ticket_column: column, status: :cancelled)
@@ -124,7 +125,7 @@ RSpec.describe 'Ticket Columns API', type: :request do
             as: :json
 
       rendered = response.parsed_body['ticket_columns'].find { |item| item['id'] == column.id }
-      expect(rendered['tickets']).to be_empty
+      expect(rendered['tickets'].size).to eq(1)
       expect(rendered['blocking_tickets_count']).to eq(1)
     end
   end
@@ -153,10 +154,11 @@ RSpec.describe 'Ticket Columns API', type: :request do
       expect(TicketColumn.exists?(column.id)).to be(true)
     end
 
-    it 'does not let closed or cancelled tickets block the deletion: they move to the Finalizado Estagio' do
+    it 'does not let resolved, closed or cancelled tickets block the deletion: they move to the Finalizado Estagio' do
       column = create(:ticket_column, team: team)
       cancelled = create(:ticket, ticket_column: column, team: team, status: :cancelled)
       closed = create(:ticket, ticket_column: column, team: team, status: :closed)
+      resolved = create(:ticket, ticket_column: column, team: team, status: :resolved)
       finalizado = team.ticket_columns.find_by!(kind: 'completed')
 
       delete "/api/v1/accounts/#{account.id}/teams/#{team.id}/ticket_columns/#{column.id}",
@@ -167,11 +169,12 @@ RSpec.describe 'Ticket Columns API', type: :request do
       expect(TicketColumn.exists?(column.id)).to be(false)
       expect(cancelled.reload.ticket_column_id).to eq(finalizado.id)
       expect(closed.reload.ticket_column_id).to eq(finalizado.id)
+      expect(resolved.reload.ticket_column_id).to eq(finalizado.id)
     end
 
-    it 'still blocks on resolved tickets, counting only the blocking ones' do
+    it 'still blocks on open tickets, counting only the blocking ones' do
       column = create(:ticket_column, team: team)
-      create(:ticket, ticket_column: column, team: team, status: :resolved)
+      create(:ticket, ticket_column: column, team: team)
       create_list(:ticket, 2, ticket_column: column, team: team, status: :closed)
 
       delete "/api/v1/accounts/#{account.id}/teams/#{team.id}/ticket_columns/#{column.id}",
