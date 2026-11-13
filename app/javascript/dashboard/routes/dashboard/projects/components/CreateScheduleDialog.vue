@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import ProjectsAPI from 'dashboard/api/projects';
+import ProjectModulesAPI from 'dashboard/api/projectModules';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -38,8 +39,104 @@ const rows = ref([emptyRow()]);
 
 const ticketOptions = computed(() => props.tickets || []);
 
+// Tickets ja' usados em alguma linha "Ticket existente" - ficam de fora do
+// seletor de importacao em lote, pra nao duplicar a mesma tarefa no
+// cronograma (pedido explicito: "Evitar a inclusao duplicada da mesma
+// tarefa"). Linha vazia (ainda sem ticket escolhido) nao conta.
+const usedTicketIds = computed(
+  () =>
+    new Set(
+      rows.value
+        .filter(row => row.ticketMode === 'existing' && row.ticket_id)
+        .map(row => Number(row.ticket_id))
+    )
+);
+
+const importableTickets = computed(() =>
+  ticketOptions.value.filter(ticket => !usedTicketIds.value.has(ticket.id))
+);
+
+// Painel de importacao em lote ("Importar tarefas" / "Importar modulo") -
+// pedido da Ingrid, 2026-11-14: evitar ter que adicionar tarefa por tarefa
+// manualmente. Os dois botoes abrem o MESMO painel de selecao multipla; a
+// diferenca e' so' que "Importar modulo" pre-marca as tarefas daquele
+// modulo em vez de deixar tudo desmarcado.
+const showImportPanel = ref(false);
+const selectedImportIds = ref([]);
+const projectModules = ref([]);
+const isLoadingModules = ref(false);
+const selectedModuleId = ref('');
+
+const openImportPanel = async () => {
+  showImportPanel.value = true;
+  selectedImportIds.value = [];
+  selectedModuleId.value = '';
+  if (projectModules.value.length) return;
+
+  isLoadingModules.value = true;
+  try {
+    const { data } = await ProjectModulesAPI.get();
+    projectModules.value = data || [];
+  } catch (error) {
+    useAlert(parseAPIErrorResponse(error) || t('PROJECTS.SCHEDULE.IMPORT.MODULES_ERROR'));
+  } finally {
+    isLoadingModules.value = false;
+  }
+};
+
+const closeImportPanel = () => {
+  showImportPanel.value = false;
+};
+
+// Tarefas deste projeto cujo modelo pertence ao modulo escolhido - so'
+// filtra o que ja' existe no projeto (nunca cria ticket novo aqui, pedido
+// explicito: "Manter o vinculo com as tarefas originais, sem criar novos
+// tickets desnecessariamente").
+const moduleTaskTemplateIds = computed(() => {
+  const selected = projectModules.value.find(
+    projectModule => projectModule.id === Number(selectedModuleId.value)
+  );
+  return new Set((selected?.task_templates || []).map(template => template.id));
+});
+
+const onModuleSelect = () => {
+  if (!selectedModuleId.value) {
+    selectedImportIds.value = [];
+    return;
+  }
+  selectedImportIds.value = importableTickets.value
+    .filter(ticket => moduleTaskTemplateIds.value.has(ticket.project_task_template_id))
+    .map(ticket => ticket.id);
+};
+
+// Tira a linha em branco inicial do caminho, pra nao sobrar um cartao vazio
+// junto das tarefas importadas.
+const isPristineRow = row =>
+  row.ticketMode === 'existing' && !row.ticket_id && !row.new_ticket_title && !row.start_at;
+
+const confirmImport = () => {
+  if (!selectedImportIds.value.length) {
+    closeImportPanel();
+    return;
+  }
+  if (rows.value.length === 1 && isPristineRow(rows.value[0])) {
+    rows.value = [];
+  }
+  selectedImportIds.value.forEach(ticketId => {
+    const ticket = importableTickets.value.find(candidate => candidate.id === ticketId);
+    if (!ticket) return;
+    rows.value.push({
+      ...emptyRow(),
+      ticket_id: ticket.id,
+      responsible_user_id: ticket.assignee_id || '',
+    });
+  });
+  closeImportPanel();
+};
+
 const open = () => {
   rows.value = [emptyRow()];
+  showImportPanel.value = false;
   dialogRef.value?.open();
 };
 
@@ -196,15 +293,102 @@ defineExpose({ open, close });
         </div>
       </div>
 
-      <NextButton
-        icon="i-lucide-plus"
-        size="sm"
-        faded
-        slate
-        class="w-fit"
-        :label="t('PROJECTS.SCHEDULE.ADD_ROW')"
-        @click="addRow"
-      />
+      <div class="flex flex-wrap gap-2">
+        <NextButton
+          icon="i-lucide-plus"
+          size="sm"
+          faded
+          slate
+          :label="t('PROJECTS.SCHEDULE.ADD_ROW')"
+          @click="addRow"
+        />
+        <NextButton
+          icon="i-lucide-list-checks"
+          size="sm"
+          faded
+          slate
+          :label="t('PROJECTS.SCHEDULE.IMPORT.BUTTON')"
+          @click="openImportPanel"
+        />
+      </div>
+
+      <!-- Importar tarefas / modulo - um unico painel de selecao multipla;
+           escolher um modulo so' pre-marca as tarefas dele, nunca cria
+           ticket novo (pedido: so' vincula o que ja' existe no projeto). -->
+      <div
+        v-if="showImportPanel"
+        class="flex flex-col gap-3 p-3 border rounded-lg border-n-weak bg-n-alpha-1"
+      >
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-n-slate-12">
+            {{ t('PROJECTS.SCHEDULE.IMPORT.TITLE') }}
+          </span>
+          <button
+            type="button"
+            :aria-label="t('PROJECTS.SCHEDULE.REMOVE_ROW')"
+            class="text-n-slate-10 hover:text-n-ruby-11"
+            @click="closeImportPanel"
+          >
+            <Icon icon="i-lucide-x" class="size-4" />
+          </button>
+        </div>
+
+        <label class="flex flex-col gap-1 text-xs text-n-slate-11">
+          {{ t('PROJECTS.SCHEDULE.IMPORT.MODULE_LABEL') }}
+          <select
+            v-model="selectedModuleId"
+            class="h-9 w-full text-sm"
+            :disabled="isLoadingModules"
+            @change="onModuleSelect"
+          >
+            <option value="">{{ t('PROJECTS.SCHEDULE.IMPORT.MODULE_PLACEHOLDER') }}</option>
+            <option
+              v-for="projectModule in projectModules"
+              :key="projectModule.id"
+              :value="projectModule.id"
+            >
+              {{ projectModule.name }}
+            </option>
+          </select>
+        </label>
+
+        <div v-if="isLoadingModules" class="text-xs text-n-slate-10">
+          {{ t('PROJECTS.SCHEDULE.IMPORT.LOADING') }}
+        </div>
+        <div
+          v-else-if="!importableTickets.length"
+          class="text-xs text-n-slate-10"
+        >
+          {{ t('PROJECTS.SCHEDULE.IMPORT.NO_TICKETS') }}
+        </div>
+        <div v-else class="flex flex-col gap-1 overflow-y-auto max-h-48">
+          <label
+            v-for="ticket in importableTickets"
+            :key="ticket.id"
+            class="flex items-center gap-2 px-2 py-1.5 text-sm rounded-md cursor-pointer hover:bg-n-alpha-2 text-n-slate-12"
+          >
+            <input
+              v-model="selectedImportIds"
+              type="checkbox"
+              :value="ticket.id"
+              class="shrink-0"
+            />
+            <span class="truncate">#{{ ticket.display_id || ticket.id }} - {{ ticket.title }}</span>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-n-slate-10">
+            {{ t('PROJECTS.SCHEDULE.IMPORT.SELECTED_COUNT', { count: selectedImportIds.length }) }}
+          </span>
+          <NextButton
+            size="sm"
+            :label="t('PROJECTS.SCHEDULE.IMPORT.CONFIRM')"
+            :disabled="!selectedImportIds.length"
+            @click="confirmImport"
+          />
+        </div>
+      </div>
     </div>
 
     <template #footer>

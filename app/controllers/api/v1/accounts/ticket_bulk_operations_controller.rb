@@ -120,16 +120,24 @@ class Api::V1::Accounts::TicketBulkOperationsController < Api::V1::Accounts::Bas
 
   # Os tickets escolhidos na tela (ate 200) ou todos do filtro (ate 500).
   def resolve_tickets
-    if params[:ticket_ids].present?
-      ids = Array(params[:ticket_ids]).map(&:to_i).uniq
-      raise_limit(TicketBulkOperation::SELECTION_LIMIT) if ids.size > TicketBulkOperation::SELECTION_LIMIT
-      Current.account.tickets.where(id: ids).to_a
-    else
-      relation = TicketFinder.new(scope: Current.account.tickets, params: ActionController::Parameters.new(filters_param),
-                                  current_user: Current.user).perform
-      raise_limit(TicketBulkOperation::FILTER_LIMIT) if relation.count > TicketBulkOperation::FILTER_LIMIT
-      relation.distinct.to_a
-    end
+    tickets = if params[:ticket_ids].present?
+                ids = Array(params[:ticket_ids]).map(&:to_i).uniq
+                raise_limit(TicketBulkOperation::SELECTION_LIMIT) if ids.size > TicketBulkOperation::SELECTION_LIMIT
+                Current.account.tickets.where(id: ids).to_a
+              else
+                relation = TicketFinder.new(scope: Current.account.tickets, params: ActionController::Parameters.new(filters_param),
+                                            current_user: Current.user).perform
+                raise_limit(TicketBulkOperation::FILTER_LIMIT) if relation.count > TicketBulkOperation::FILTER_LIMIT
+                relation.distinct.to_a
+              end
+    exclude_finalized? ? tickets.reject(&:finalized?) : tickets
+  end
+
+  # So' a troca de categoria pergunta "tambem nos fechados/cancelados?" na
+  # tela (ver TicketBulkPanel.vue) - quem escolhe "so' os abertos" manda este
+  # sinalizador, e os ja finalizados saem do escopo antes de criar os itens.
+  def exclude_finalized?
+    ActiveModel::Type::Boolean.new.cast(params[:exclude_finalized])
   end
 
   def raise_limit(limit)

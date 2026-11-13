@@ -53,6 +53,15 @@ class TicketPolicy < ApplicationPolicy
     administrator? || assigned_to_user? || team_member?
   end
 
+  # Troca de categoria em lote precisa valer tambem pra ticket fechado/
+  # cancelado - reclassificar historico sem precisar reabrir (pedido da
+  # Ingrid, 2026-11-14, com confirmacao explicita na tela antes). So' essa
+  # acao ignora `editable?`; o resto do ticket continua travado por
+  # TicketFinalizable no model, que e' quem de fato impede.
+  def update_category?
+    permitted_to_handle?
+  end
+
   def move?
     update?
   end

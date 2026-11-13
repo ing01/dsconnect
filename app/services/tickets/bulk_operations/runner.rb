@@ -8,7 +8,9 @@ class Tickets::BulkOperations::Runner
   # Qual regra da TicketPolicy vale para cada acao.
   POLICY_QUERY = {
     'stage' => :move?, 'team' => :move?, 'assignee' => :assign?, 'resolve' => :resolve?, 'close' => :close?,
-    'cancel' => :cancel?, 'reopen' => :reopen?, 'comment' => :show?
+    'cancel' => :cancel?, 'reopen' => :reopen?, 'comment' => :show?,
+    # So' categoria alcanca ticket fechado/cancelado (ver TicketPolicy#update_category?)
+    'category' => :update_category?
   }.freeze
 
   pattr_initialize [:operation!]

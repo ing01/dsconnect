@@ -162,7 +162,18 @@
       "SAVE": "Criar cronograma",
       "SUCCESS": "{count} agendamento(s) criado(s) com sucesso",
       "PARTIAL_FAILURE": "{createdCount} de {totalCount} agendamento(s) criado(s). Falharam: {failedSummary}",
-      "ERROR": "Erro ao criar o cronograma"
+      "ERROR": "Erro ao criar o cronograma",
+      "IMPORT": {
+        "BUTTON": "Importar tarefas",
+        "TITLE": "Importar tarefas do projeto",
+        "MODULE_LABEL": "Importar módulo (opcional)",
+        "MODULE_PLACEHOLDER": "Selecione um módulo para marcar as tarefas dele",
+        "LOADING": "Carregando módulos...",
+        "NO_TICKETS": "Não há mais tarefas do projeto para importar.",
+        "SELECTED_COUNT": "{count} selecionada(s)",
+        "CONFIRM": "Adicionar selecionadas",
+        "MODULES_ERROR": "Não foi possível carregar os módulos"
+      }
     },
     "LOADING": "Carregando projetos...",
     "HELP": {
