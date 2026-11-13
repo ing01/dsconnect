@@ -11,6 +11,8 @@ class Api::V1::Accounts::TicketImportsController < Api::V1::Accounts::BaseContro
   before_action -> { authorize(Current.account, :update?) }
   before_action :fetch_ticket_import, only: [:show]
 
+  rescue_from StandardError, with: :render_unexpected_error
+
   def index
     ticket_imports = Current.account.ticket_imports.recent_first.limit(LOG_LIMIT).includes(:user)
     render json: ticket_imports.map(&:push_event_data)
@@ -38,5 +40,11 @@ class Api::V1::Accounts::TicketImportsController < Api::V1::Accounts::BaseContro
 
   def render_missing_file
     render json: { error: 'Nenhum arquivo enviado' }, status: :unprocessable_entity
+  end
+
+  def render_unexpected_error(exception)
+    Rails.logger.error("[TicketImportsController] #{exception.class}: #{exception.message}")
+    render json: { error: 'Não foi possível importar a planilha. Confira o arquivo e tente novamente, ou contate o suporte.' },
+           status: :internal_server_error
   end
 end

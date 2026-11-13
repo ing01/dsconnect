@@ -181,6 +181,7 @@ pt_BR:
       empty: nenhum ticket para esta operação
       limit_exceeded: "tickets demais: o limite é %{limit} por operação"
       not_undoable: esta operação não pode mais ser desfeita
+      unexpected_error: "Não foi possível concluir a operação em lote. Tente novamente ou contate o suporte."
       related_tickets: "Tickets relacionados: %{numbers}"
       reasons:
         not_found: ticket não encontrado
@@ -263,6 +264,8 @@ pt_BR:
       reply_requires_claim: "Esta conversa ainda está na fila, sem atendente. Você só pode atender a PRIMEIRA conversa da fila - use o botão \"Pegar próximo da fila\" para assumi-la."
       clear_queue_not_allowed: "Somente um Administrador pode tirar uma conversa da fila."
       distribution_failed: "Não foi possível distribuir as conversas. Tente novamente ou contate o suporte."
+    calendar_event:
+      unexpected_error: "Não foi possível concluir a operação na Agenda. Tente novamente ou contate o suporte."
     account:
       not_authorized: Você não está autorizado a acessar esta conta
       email_limit_exceeded: O limite diário de envio de e-mails desta conta foi atingido
@@ -290,6 +293,11 @@ pt_BR:
       tickets_pending: Este projeto não pode ser finalizado enquanto ainda houver tickets em aberto.
       cannot_cancel_finalized: Um projeto finalizado não pode ser cancelado.
       tasks_not_generated: Não foi possível gerar as tarefas do projeto, então nada foi criado. Confira se a Equipe tem etapas e categorias e tente novamente.
+      unexpected_error: "Não foi possível concluir a operação. Tente novamente ou contate o suporte."
+      schedule:
+        untitled_item: "agendamento"
+        ticket_not_found: "Ticket não encontrado - pode ter sido excluído ou já não pertence a este projeto"
+        internal_error: "Não foi possível criar este agendamento (erro interno) - tente novamente"
     suggestion:
       too_many_attachments: não pode ter mais de %{count} anexos
       attachment_too_large: é maior que o limite de %{size} MB

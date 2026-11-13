@@ -4,6 +4,11 @@ class Api::V1::Accounts::TicketBulkOperationsController < Api::V1::Accounts::Bas
   before_action :fetch_operation, only: [:show, :undo, :retry_failed]
   before_action :check_authorization
 
+  # Rede de seguranca pra erro inesperado (bug) - o que ja tem tratamento
+  # proprio (RecordInvalid, RecordNotFound, etc) nunca chega aqui, resolvido
+  # antes pelo `handle_with_exception` da ApplicationController.
+  rescue_from StandardError, with: :render_unexpected_error
+
   RECENT_LIMIT = 30
 
   def index
@@ -31,8 +36,16 @@ class Api::V1::Accounts::TicketBulkOperationsController < Api::V1::Accounts::Bas
 
     operation = build_operation(action_param, operation_params, filters: filters_param)
     operation.save!
-    tickets.each { |ticket| operation.items.create!(ticket_id: ticket.id, display_id: ticket.display_id) }
-    operation.update!(total: tickets.size)
+    # Um ticket com dado ruim (ex: display_id inconsistente) nao pode
+    # derrubar o lote inteiro - sem o rescue, a operacao ja salva ficava
+    # com uma fracao dos itens e a tela so' mostrava erro cru. O total
+    # reflete so' os itens que realmente entraram.
+    tickets.each do |ticket|
+      operation.items.create!(ticket_id: ticket.id, display_id: ticket.display_id)
+    rescue StandardError => e
+      Rails.logger.error("[TicketBulkOperationsController] item do ticket ##{ticket.display_id} falhou: #{e.class} #{e.message}")
+    end
+    operation.update!(total: operation.items.count)
     Tickets::BulkOperationJob.perform_later(operation.id)
     render json: operation.push_event_data, status: :created
   end
@@ -45,6 +58,8 @@ class Api::V1::Accounts::TicketBulkOperationsController < Api::V1::Accounts::Bas
     undo_operation.save!
     @operation.items.succeeded.find_each do |item|
       undo_operation.items.create!(ticket_id: item.ticket_id, display_id: item.display_id, before: item.before)
+    rescue StandardError => e
+      Rails.logger.error("[TicketBulkOperationsController] item de desfazer ##{item.display_id} falhou: #{e.class} #{e.message}")
     end
     undo_operation.update!(total: undo_operation.items.count)
     @operation.update!(undone_at: Time.current)
@@ -58,7 +73,11 @@ class Api::V1::Accounts::TicketBulkOperationsController < Api::V1::Accounts::Bas
 
     retry_operation = build_operation(@operation.action, @operation.params, filters: @operation.filters)
     retry_operation.save!
-    failed.find_each { |item| retry_operation.items.create!(ticket_id: item.ticket_id, display_id: item.display_id) }
+    failed.find_each do |item|
+      retry_operation.items.create!(ticket_id: item.ticket_id, display_id: item.display_id)
+    rescue StandardError => e
+      Rails.logger.error("[TicketBulkOperationsController] item de retentativa ##{item.display_id} falhou: #{e.class} #{e.message}")
+    end
     retry_operation.update!(total: retry_operation.items.count)
     Tickets::BulkOperationJob.perform_later(retry_operation.id)
     render json: retry_operation.push_event_data, status: :created
@@ -119,5 +138,11 @@ class Api::V1::Accounts::TicketBulkOperationsController < Api::V1::Accounts::Bas
 
   def render_error(message, code)
     render json: { error: message, code: code }, status: :unprocessable_entity
+  end
+
+  def render_unexpected_error(exception)
+    Rails.logger.error("[TicketBulkOperationsController] #{exception.class}: #{exception.message}")
+    render json: { error: I18n.t('tickets.bulk.unexpected_error', default: 'Não foi possível concluir a operação em lote. Tente novamente ou contate o suporte.') },
+           status: :internal_server_error
   end
 end

@@ -156,6 +156,7 @@
       "REMOVE_ROW": "Remove row",
       "SAVE": "Create schedule",
       "SUCCESS": "{count} appointment(s) successfully created",
+      "PARTIAL_FAILURE": "{createdCount} of {totalCount} appointment(s) created. Failed: {failedSummary}",
       "ERROR": "Failed to create the schedule"
     },
     "LOADING": "Loading projects...",

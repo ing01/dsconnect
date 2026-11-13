@@ -11,42 +11,72 @@ module Projects
   class CreateScheduleService
     pattr_initialize [:account!, :project!, :user!, :items]
 
-    Result = Struct.new(:ticket, :calendar_event, keyword_init: true)
+    Result = Struct.new(:success, :label, :ticket, :calendar_event, :error_message, keyword_init: true)
 
     def perform
       return [] if items.blank?
 
-      ActiveRecord::Base.transaction do
-        items.map { |item_data| process(item_data.with_indifferent_access) }
-      end
+      items.map { |item_data| process(item_data.with_indifferent_access) }
     end
 
     private
 
+    # Cada linha processada na sua PROPRIA transacao - uma linha com dado
+    # ruim (ticket inexistente, numero invalido, etc) nao pode derrubar as
+    # outras linhas validas do mesmo cronograma, mesma logica ja aplicada
+    # em Conversations::ForceDistributionService (bug relatado pela Ingrid,
+    # 2026-11-13: "Internal Server Error" sem explicacao nenhuma travava o
+    # cronograma inteiro).
     def process(item)
-      ticket = ticket_for(item)
+      ActiveRecord::Base.transaction do
+        ticket = ticket_for(item)
 
-      responsible_id = item[:responsible_user_id].presence || ticket.assignee_id
-      responsible_id = nil unless responsible_id.present? && project.team.members.exists?(id: responsible_id)
+        responsible_id = item[:responsible_user_id].presence || ticket.assignee_id
+        responsible_id = nil unless responsible_id.present? && project.team.members.exists?(id: responsible_id)
 
-      ticket.update!(
-        scheduled_at: start_at(item),
-        assignee_id: responsible_id || ticket.assignee_id
-      )
+        ticket.update!(
+          scheduled_at: start_at(item),
+          assignee_id: responsible_id || ticket.assignee_id
+        )
 
-      calendar_event = account.calendar_events.create!(
-        title: item[:title].presence || ticket.title,
-        description: item[:description],
-        start_at: start_at(item),
-        end_at: end_at(item),
-        team_id: project.team_id,
-        event_type: :event,
-        created_by: user,
-        ticket_ids: [ticket.id],
-        attendee_ids: responsible_id ? [responsible_id] : []
-      )
+        calendar_event = account.calendar_events.create!(
+          title: item[:title].presence || ticket.title,
+          description: item[:description],
+          start_at: start_at(item),
+          end_at: end_at(item),
+          team_id: project.team_id,
+          event_type: :event,
+          created_by: user,
+          ticket_ids: [ticket.id],
+          attendee_ids: responsible_id ? [responsible_id] : []
+        )
 
-      Result.new(ticket: ticket, calendar_event: calendar_event)
+        Result.new(success: true, label: item_label(item, ticket), ticket: ticket, calendar_event: calendar_event)
+      end
+    rescue StandardError => e
+      Rails.logger.error("[Projects::CreateScheduleService] item falhou: #{e.class} #{e.message}")
+      Result.new(success: false, label: item_label(item), error_message: friendly_error_message(e))
+    end
+
+    def item_label(item, ticket = nil)
+      ticket&.title.presence || item[:new_ticket_title].presence || item[:title].presence ||
+        (item[:ticket_id].present? ? "##{item[:ticket_id]}" : I18n.t('errors.project.schedule.untitled_item', default: 'agendamento'))
+    end
+
+    # Mensagens de validacao do Rails (RecordInvalid) ja vem traduzidas pro
+    # pt-BR (locale padrao da conta) - repassar direto e' amigavel o
+    # suficiente. Qualquer outro erro (bug, dado inesperado) vira uma frase
+    # generica so' pra essa linha, sem vazar detalhe tecnico (stacktrace,
+    # classe da excecao) pro usuario - quem precisa disso e' o log acima.
+    def friendly_error_message(exception)
+      case exception
+      when ActiveRecord::RecordInvalid
+        exception.record.errors.full_messages.join(', ')
+      when ActiveRecord::RecordNotFound
+        I18n.t('errors.project.schedule.ticket_not_found', default: 'Ticket não encontrado - pode ter sido excluído ou já não pertence a este projeto')
+      else
+        I18n.t('errors.project.schedule.internal_error', default: 'Não foi possível criar este agendamento (erro interno) - tente novamente')
+      end
     end
 
     def ticket_for(item)

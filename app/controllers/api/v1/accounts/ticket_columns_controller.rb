@@ -3,6 +3,8 @@ class Api::V1::Accounts::TicketColumnsController < Api::V1::Accounts::BaseContro
   before_action :fetch_ticket_column, only: [:update, :destroy]
   before_action :check_authorization
 
+  rescue_from StandardError, with: :render_unexpected_error
+
   # Deliberately lean: just the Estagios, without the tickets that
   # `_ticket_column` inlines. Callers that only need the list of stages (the
   # Ticket detail page's Estagio select) would otherwise have to pull the whole
@@ -86,5 +88,11 @@ class Api::V1::Accounts::TicketColumnsController < Api::V1::Accounts::BaseContro
     return {} unless params.dig(:ticket_column, :automation_actions)
 
     { automation_actions: params[:ticket_column][:automation_actions].map { |action| action.permit!.to_h } }
+  end
+
+  def render_unexpected_error(exception)
+    Rails.logger.error("[TicketColumnsController] #{exception.class}: #{exception.message}")
+    render json: { error: 'Não foi possível concluir a operação neste Estágio. Tente novamente ou contate o suporte.' },
+           status: :internal_server_error
   end
 end

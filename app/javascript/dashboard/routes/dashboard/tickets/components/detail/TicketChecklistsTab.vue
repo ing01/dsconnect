@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import OpenChecklistSettingsButton from 'dashboard/components-next/checklist/OpenChecklistSettingsButton.vue';
@@ -51,7 +52,7 @@ const attachChecklist = async () => {
     });
     selectedChecklistId.value = '';
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.CHECKLISTS.ADD_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.CHECKLISTS.ADD_ERROR'));
   } finally {
     isSubmitting.value = false;
   }
@@ -64,7 +65,7 @@ const toggleItem = async item => {
       itemId: item.id,
     });
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.CHECKLISTS.TOGGLE_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.CHECKLISTS.TOGGLE_ERROR'));
   }
 };
 
@@ -75,7 +76,7 @@ const removeItem = async item => {
       itemId: item.id,
     });
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.CHECKLISTS.DELETE_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.CHECKLISTS.DELETE_ERROR'));
   }
 };
 
@@ -90,7 +91,7 @@ const updateValue = async (item, value) => {
       value,
     });
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.CHECKLISTS.TOGGLE_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.CHECKLISTS.TOGGLE_ERROR'));
   }
 };
 

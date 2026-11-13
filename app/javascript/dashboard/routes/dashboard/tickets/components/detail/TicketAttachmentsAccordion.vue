@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { formatBytes } from 'shared/helpers/FileHelper';
 import { downloadFile } from '@chatwoot/utils';
 import { downloadBlob } from 'dashboard/helper/downloadHelper';
@@ -254,7 +255,7 @@ const remove = async attachmentId => {
       attachmentId,
     });
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.ATTACHMENTS.DELETE_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.ATTACHMENTS.DELETE_ERROR'));
   }
 };
 

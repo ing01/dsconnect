@@ -161,6 +161,7 @@
       "REMOVE_ROW": "Remover linha",
       "SAVE": "Criar cronograma",
       "SUCCESS": "{count} agendamento(s) criado(s) com sucesso",
+      "PARTIAL_FAILURE": "{createdCount} de {totalCount} agendamento(s) criado(s). Falharam: {failedSummary}",
       "ERROR": "Erro ao criar o cronograma"
     },
     "LOADING": "Carregando projetos...",
