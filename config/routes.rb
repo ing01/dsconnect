@@ -134,7 +134,14 @@ Rails.application.routes.draw do
             resource :contact_merge, only: [:create]
           end
           resource :bulk_actions, only: [:create]
-          resource :conversation_distribution, only: [:create]
+          # `controller:` explicito - sem isso o Rails infere o controller no
+          # PLURAL (ConversationDistributionsController) mesmo pra um
+          # `resource` singular, e como a classe real e' singular
+          # (Api::V1::Accounts::ConversationDistributionController), a rota
+          # ficava registrada apontando pra uma classe inexistente - 404
+          # "Not Found" mesmo com a rota presente (bug relatado pela Ingrid,
+          # 2026-11-13).
+          resource :conversation_distribution, only: [:create], controller: 'conversation_distribution'
           resource :onboarding, only: [:update] do
             get :help_center_generation
           end
