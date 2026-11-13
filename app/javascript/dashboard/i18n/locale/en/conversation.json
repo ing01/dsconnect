@@ -324,6 +324,7 @@
       "MESSAGING_RESTRICTED_QUEUE": "Conversation in the queue: use \"Pick up next in queue\" to take the first conversation before replying.",
       "MESSAGING_RESTRICTED_ASSIGNED": "This conversation is assigned to {name}. Assign it to yourself to reply.",
       "MESSAGING_RESTRICTED_RESOLVED": "This conversation is resolved. Reopen it to reply.",
+      "MESSAGING_RESTRICTED_OFFLINE": "You can only send messages to the customer while your status is Online. You can still write a private note.",
       "MESSAGE_SIGNATURE_NOT_CONFIGURED": "Message signature is not configured, please configure it in profile settings.",
       "COPILOT_MSG_INPUT": "Give copilot additional prompts, or ask anything else... Press enter to send follow-up",
       "CLICK_HERE": "Click here to update",

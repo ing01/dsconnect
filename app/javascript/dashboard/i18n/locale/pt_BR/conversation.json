@@ -282,6 +282,7 @@
       "MESSAGING_RESTRICTED_QUEUE": "Conversa na fila: clique em \"Pegar próximo da fila\" para atender a primeira conversa antes de responder.",
       "MESSAGING_RESTRICTED_ASSIGNED": "Esta conversa está atribuída a {name}. Atribua a você mesmo para responder.",
       "MESSAGING_RESTRICTED_RESOLVED": "Esta conversa está resolvida. Reabra-a para responder.",
+      "MESSAGING_RESTRICTED_OFFLINE": "Você só pode enviar mensagens para o cliente enquanto estiver com o status Online. Você pode escrever uma nota privada.",
       "MESSAGE_SIGNATURE_NOT_CONFIGURED": "A assinatura da mensagem não está configurada. Por favor, configure-a nas configurações do perfil.",
       "COPILOT_MSG_INPUT": "Pergunte algo ao DueBot... Pressione Enter para enviar",
       "CLICK_HERE": "Clique aqui para atualizar",

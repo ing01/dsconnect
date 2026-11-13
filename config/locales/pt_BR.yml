@@ -281,6 +281,7 @@ pt_BR:
     conversation:
       must_be_assigned_to_reply: Esta conversa está atribuída a outro atendente. Atribua a você mesmo para responder.
       must_reopen_to_reply: Esta conversa está resolvida. Reabra-a para responder.
+      must_be_online_to_reply: "Você só pode enviar mensagens para o cliente enquanto estiver com o status Online. Você pode continuar escrevendo notas privadas."
     copilot_feedback:
       only_assistant: Só é possível avaliar uma resposta do DueBot.
     chat_message:
