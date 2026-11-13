@@ -31,7 +31,11 @@ class Channel::Whatsapp < ApplicationRecord
   encrypts :business_management_token if Chatwoot.encryption_configured?
 
   # default at the moment is 360dialog lets change later.
-  PROVIDERS = %w[default whatsapp_cloud astere_zap].freeze
+  PROVIDERS = %w[default whatsapp_cloud astere_zap expxwhats].freeze
+  # Providers que sao so' uma sessao de WhatsApp Web comum (QR code), nao a
+  # WhatsApp Business Platform oficial da Meta - sem conceito de template
+  # aprovado nem janela de atendimento de 24h. Ver docs/whatsapp_expxwhats_setup.md.
+  UNOFFICIAL_WEB_PROVIDERS = %w[astere_zap expxwhats].freeze
   before_validation :ensure_webhook_verify_token
 
   validates :provider, inclusion: { in: PROVIDERS }
@@ -74,9 +78,15 @@ class Channel::Whatsapp < ApplicationRecord
       Whatsapp::Providers::WhatsappCloudService.new(whatsapp_channel: self)
     when 'astere_zap'
       Whatsapp::Providers::WhatsappAsterezapService.new(whatsapp_channel: self)
+    when 'expxwhats'
+      Whatsapp::Providers::WhatsappExpxwhatsService.new(whatsapp_channel: self)
     else
       Whatsapp::Providers::Whatsapp360DialogService.new(whatsapp_channel: self)
     end
+  end
+
+  def unofficial_whatsapp_web?
+    UNOFFICIAL_WEB_PROVIDERS.include?(provider)
   end
 
   def template_access_token

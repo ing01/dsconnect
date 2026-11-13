@@ -43,12 +43,12 @@ class Conversations::MessageWindowService
     @conversation.inbox.channel.additional_attributes['agent_reply_time_window'].to_i.hours
   end
 
-  # AstereZap e' uma sessao comum de WhatsApp Web pareada por QR code, sem o
-  # conceito de template aprovado nem a janela de atendimento de 24h da Meta -
-  # essa regra so vale pros providers que falam com a WhatsApp Business
-  # Platform de verdade (360dialog/'default' e a Cloud API da Meta).
+  # AstereZap e ExpxWhats sao sessoes comuns de WhatsApp Web pareadas por QR
+  # code, sem o conceito de template aprovado nem a janela de atendimento de
+  # 24h da Meta - essa regra so vale pros providers que falam com a WhatsApp
+  # Business Platform de verdade (360dialog/'default' e a Cloud API da Meta).
   def whatsapp_messaging_window
-    @conversation.inbox.channel.provider == 'astere_zap' ? nil : MESSAGING_WINDOW_24_HOURS
+    @conversation.inbox.channel.unofficial_whatsapp_web? ? nil : MESSAGING_WINDOW_24_HOURS
   end
 
   # Check medium of the inbox to determine the messaging window

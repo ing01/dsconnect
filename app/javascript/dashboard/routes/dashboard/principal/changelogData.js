@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-expxwhats-provider-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'feature',
+    platform: 'web',
+    title: 'Novo provedor de WhatsApp: ExpxWhats (servidor próprio)',
+    description:
+      'Ao criar uma caixa de entrada de WhatsApp, agora é possível conectar via ExpxWhats - um servidor próprio da empresa, sem depender de um serviço de terceiros. Veja a documentação completa de instalação, pareamento do número e cuidados para reduzir o risco de bloqueio.',
+  },
+  {
+    id: 'distribute-conversations-isolated-failures-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'fix',
+    platform: 'web',
+    title: 'Distribuir conversas: uma falha não trava mais as outras',
+    description:
+      'No botão "Distribuir conversas" (administradores), uma conversa com algum problema travava a distribuição de todas as outras e só aparecia um erro genérico, sem motivo. Agora cada conversa é processada separadamente: se uma falhar, ela aparece na lista de "não distribuídas" com o motivo, e as demais são distribuídas normalmente.',
+  },
+  {
     id: 'kanban-agent-filter-persist-2026-11-12',
     date: '12 de novembro de 2026',
     isoDate: '2026-11-12',

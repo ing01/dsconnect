@@ -20,6 +20,7 @@ import ConversationResolveAttributesModal from 'dashboard/components-next/Conver
 
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useAlert } from 'dashboard/composables';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import { useAdmin } from 'dashboard/composables/useAdmin';
 import { useBulkActions } from 'dashboard/composables/chatlist/useBulkActions';
 import ConversationDistributionAPI from 'dashboard/api/conversationDistribution';
@@ -875,7 +876,7 @@ async function distributeConversations() {
     if (!currentPage.value) fetchConversations();
     distributionResultDialogRef.value?.open();
   } catch (error) {
-    useAlert(t('CHAT_LIST.DISTRIBUTE.ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('CHAT_LIST.DISTRIBUTE.ERROR'));
   } finally {
     isDistributingConversations.value = false;
   }

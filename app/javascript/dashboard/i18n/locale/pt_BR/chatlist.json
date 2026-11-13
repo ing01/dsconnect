@@ -30,7 +30,8 @@
         "NO_TEAM": "Fila sem equipe configurada",
         "NO_QUEUE": "Conversa sem fila/caixa de distribuição automática",
         "MANUAL_QUEUE": "Fila configurada como distribuição manual",
-        "NO_MEMBERS": "A equipe da fila não tem agentes"
+        "NO_MEMBERS": "A equipe da fila não tem agentes",
+        "INTERNAL_ERROR": "Erro interno ao processar esta conversa - verifique os logs ou tente novamente"
       },
       "CLOSE": "Fechar"
     },

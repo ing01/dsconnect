@@ -6,6 +6,7 @@ import Twilio from './Twilio.vue';
 import ThreeSixtyDialogWhatsapp from './360DialogWhatsapp.vue';
 import CloudWhatsapp from './CloudWhatsapp.vue';
 import AsterezapWhatsapp from './AsterezapWhatsapp.vue';
+import ExpxwhatsWhatsapp from './ExpxwhatsWhatsapp.vue';
 import WhatsappEmbeddedSignup from './WhatsappEmbeddedSignup.vue';
 import ChannelSelector from 'dashboard/components/ChannelSelector.vue';
 import Banner from 'dashboard/components-next/banner/Banner.vue';
@@ -32,6 +33,7 @@ const PROVIDER_TYPES = {
   WHATSAPP_MANUAL: 'whatsapp_manual',
   THREE_SIXTY_DIALOG: '360dialog',
   ASTEREZAP: 'astere_zap',
+  EXPXWHATS: 'expxwhats',
 };
 
 const hasWhatsappAppId = computed(() => {
@@ -93,6 +95,12 @@ const availableProviders = computed(() => [
     key: PROVIDER_TYPES.ASTEREZAP,
     title: t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.ASTEREZAP'),
     description: t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.ASTEREZAP_DESC'),
+    icon: 'i-woot-whatsapp',
+  },
+  {
+    key: PROVIDER_TYPES.EXPXWHATS,
+    title: t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.EXPXWHATS'),
+    description: t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.EXPXWHATS_DESC'),
     icon: 'i-woot-whatsapp',
   },
 ]);
@@ -279,6 +287,9 @@ const requestEmbeddedSignupAccess = () => {
         />
         <AsterezapWhatsapp
           v-else-if="selectedProvider === PROVIDER_TYPES.ASTEREZAP"
+        />
+        <ExpxwhatsWhatsapp
+          v-else-if="selectedProvider === PROVIDER_TYPES.EXPXWHATS"
         />
         <CloudWhatsapp v-else />
       </div>
