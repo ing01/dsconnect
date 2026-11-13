@@ -92,10 +92,13 @@ export function useBacklog() {
     selectTeam(exists ? saved : devTeams.value[0].id);
   };
 
-  const loadBucketTickets = async () => {
+  // `silent`: busca de novo SEM ligar o `isLoading` - a tela troca as listas no lugar, sem
+  // sumir com os baldes e mostrar o carregando (que parece uma pagina recarregada e ainda
+  // fecha os baldes abertos). Usado depois de arrastar um ticket.
+  const loadBucketTickets = async ({ silent = false } = {}) => {
     if (!state.selectedTeamId) return;
 
-    state.isLoading = true;
+    if (!silent) state.isLoading = true;
     try {
       // `status: 'open'` pelo mesmo motivo do Kanban: um ticket resolvido,
       // fechado ou cancelado sai do fluxo operacional - aqui tambem, nao so'
@@ -129,7 +132,7 @@ export function useBacklog() {
         ])
       );
     } finally {
-      state.isLoading = false;
+      if (!silent) state.isLoading = false;
     }
   };
 
@@ -198,17 +201,25 @@ export function useBacklog() {
   // Arrastar um cartao entre baldes so' muda `sprint_id` - a mesma troca de
   // propriedade que a tela de detalhe ja faz, so' que aqui e' o
   // arrastar-e-soltar quem decide o valor. O `vuedraggable` ja tirou o
-  // cartao de um balde e colocou no outro ANTES deste metodo rodar - se o
-  // servidor recusar (por exemplo, um agente sem permissao sobre aquele
-  // ticket), recarregar os baldes desfaz a mudanca visual, em vez de deixar
-  // o cartao no lugar errado sem avisar ninguem.
+  // cartao de um balde e colocou no outro ANTES deste metodo rodar, entao dando certo
+  // nao ha nada a recarregar: so' o proprio cartao ganha o Sprint novo. Recarregar
+  // tudo (com o carregando na tela) era o "reload" que a pessoa via a cada arrasto.
+  // Se o servidor recusar (por exemplo, um agente sem permissao sobre aquele
+  // ticket), a recarga - esta sim - desfaz a mudanca visual, em vez de deixar o
+  // cartao no lugar errado sem avisar ninguem; mesmo assim, sem o carregando.
   const moveTicketToSprint = async (ticketId, sprintId) => {
     try {
       await TicketsAPI.update(ticketId, { ticket: { sprint_id: sprintId } });
+      const moved = [
+        state.backlogTickets,
+        ...Object.values(state.ticketsBySprint),
+      ]
+        .flat()
+        .find(ticket => ticket.id === ticketId);
+      if (moved) moved.sprint_id = sprintId;
     } catch (error) {
       useAlert(t('TICKET.API.ERROR_MESSAGE'));
-    } finally {
-      await loadBucketTickets();
+      await loadBucketTickets({ silent: true });
     }
   };
 
@@ -229,7 +240,8 @@ export function useBacklog() {
     } catch (error) {
       useAlert(parseAPIErrorResponse(error) || t('TICKET.API.MOVE_ERROR'));
     } finally {
-      await loadBucketTickets();
+      // Sem o carregando: o seletor da linha troca o Estagio no lugar.
+      await loadBucketTickets({ silent: true });
     }
   };
 

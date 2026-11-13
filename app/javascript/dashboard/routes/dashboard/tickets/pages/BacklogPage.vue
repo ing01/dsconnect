@@ -273,50 +273,6 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
         class="ltr:ml-auto rtl:mr-auto"
         @click="showSprintForm = !showSprintForm"
       />
-
-      <template v-if="state.selectedTeamId && viewMode === 'board'">
-        <select
-          :value="state.boardSprintId"
-          class="mb-0 h-8 ltr:ml-auto rtl:mr-auto"
-          @change="selectBoardSprint($event.target.value)"
-        >
-          <option
-            v-for="sprint in sortedSprints"
-            :key="sprint.id"
-            :value="sprint.id"
-          >
-            {{ sprint.name }}
-          </option>
-        </select>
-        <ConfirmButton
-          v-if="boardSprint"
-          size="sm"
-          color="slate"
-          confirm-color="ruby"
-          :label="t('TICKET.BACKLOG.CONCLUDE_SPRINT')"
-          :confirm-label="t('TICKET.BACKLOG.CONCLUDE_SPRINT_CONFIRM')"
-          @click="concludeSprint(boardSprint.id)"
-        />
-        <NextButton
-          v-tooltip="
-            isCompact
-              ? t('TICKET.BOARD.DENSITY_COMFORTABLE')
-              : t('TICKET.BOARD.DENSITY_COMPACT')
-          "
-          :icon="
-            isCompact ? 'i-lucide-unfold-vertical' : 'i-lucide-fold-vertical'
-          "
-          faded
-          slate
-          size="sm"
-          :aria-label="
-            isCompact
-              ? t('TICKET.BOARD.DENSITY_COMFORTABLE')
-              : t('TICKET.BOARD.DENSITY_COMPACT')
-          "
-          @click="toggleDensity"
-        />
-      </template>
     </div>
 
     <p v-if="!devTeams.length" class="text-sm text-n-slate-10">
@@ -364,17 +320,32 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
       v-if="state.selectedTeamId"
       class="flex items-center flex-wrap gap-2 rounded-lg border border-n-weak p-2"
     >
-      <input
-        v-model="filters.query"
-        type="text"
-        class="mb-0 h-8 w-48"
-        :placeholder="t('TICKET.BACKLOG.FILTER_SEARCH_PLACEHOLDER')"
-      />
+      <select
+        v-if="viewMode === 'board'"
+        :value="state.boardSprintId"
+        class="mb-0 h-8 !w-36 flex-shrink-0"
+        :aria-label="t('TICKET.BACKLOG.VIEW_BOARD')"
+        @change="selectBoardSprint($event.target.value)"
+      >
+        <option
+          v-for="sprint in sortedSprints"
+          :key="sprint.id"
+          :value="sprint.id"
+        >
+          {{ sprint.name }}
+        </option>
+      </select>
       <TicketAvatarFilterRow
         :agents="mesaAgents"
         :selected-agent-ids="filters.assigneeIds"
         class="flex-1 min-w-[14rem]"
         @select="ids => (filters.assigneeIds = ids)"
+      />
+      <input
+        v-model="filters.query"
+        type="text"
+        class="mb-0 h-8 !w-44 flex-shrink-0"
+        :placeholder="t('TICKET.BACKLOG.FILTER_SEARCH_PLACEHOLDER')"
       />
       <TicketSelect
         v-model="filters.priority"
@@ -383,7 +354,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
         :clear-label="t('TICKET.BACKLOG.FILTER_ALL_PRIORITIES')"
         :placeholder="t('TICKET.BACKLOG.FILTER_ALL_PRIORITIES')"
         :aria-label="t('TICKET.FORM.PRIORITY.LABEL')"
-        class="w-40"
+        class="!w-40 flex-shrink-0 [&>button]:!h-8"
       />
       <TicketSelect
         v-model="filters.columnId"
@@ -392,8 +363,40 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
         :clear-label="t('TICKET.BACKLOG.FILTER_ALL_STAGES')"
         :placeholder="t('TICKET.BACKLOG.FILTER_ALL_STAGES')"
         :aria-label="t('TICKET.DETAIL.PROPERTIES.STAGE')"
-        class="w-44"
+        class="!w-44 flex-shrink-0 [&>button]:!h-8"
       />
+      <template v-if="viewMode === 'board'">
+        <ConfirmButton
+          v-if="boardSprint"
+          size="sm"
+          color="slate"
+          confirm-color="ruby"
+          class="flex-shrink-0"
+          :label="t('TICKET.BACKLOG.CONCLUDE_SPRINT')"
+          :confirm-label="t('TICKET.BACKLOG.CONCLUDE_SPRINT_CONFIRM')"
+          @click="concludeSprint(boardSprint.id)"
+        />
+        <NextButton
+          v-tooltip="
+            isCompact
+              ? t('TICKET.BOARD.DENSITY_COMFORTABLE')
+              : t('TICKET.BOARD.DENSITY_COMPACT')
+          "
+          :icon="
+            isCompact ? 'i-lucide-unfold-vertical' : 'i-lucide-fold-vertical'
+          "
+          faded
+          slate
+          size="sm"
+          class="flex-shrink-0"
+          :aria-label="
+            isCompact
+              ? t('TICKET.BOARD.DENSITY_COMFORTABLE')
+              : t('TICKET.BOARD.DENSITY_COMPACT')
+          "
+          @click="toggleDensity"
+        />
+      </template>
     </div>
 
     <PageLoader v-if="state.isLoading" />

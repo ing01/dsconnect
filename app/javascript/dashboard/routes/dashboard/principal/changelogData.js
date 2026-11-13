@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'sprint-board-toolbar-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'design',
+    platform: 'web',
+    title: 'Sprint ativo: barra de filtros em uma linha só',
+    description:
+      'No Sprint ativo, o seletor de Sprint, os agentes, a busca, os filtros de prioridade e estágio e os botões "Concluir sprint" e tamanho dos cards agora ficam agrupados na mesma linha, em vez de um embaixo do outro. Só quebra de linha se a tela for realmente estreita.',
+  },
+  {
+    id: 'backlog-drag-no-reload-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Backlog: arrastar ticket para o Sprint sem recarregar a tela',
+    description:
+      'Ao arrastar um ticket do Backlog para um Sprint (ou entre Sprints), ele agora vai direto para o destino sem recarregar a lista: os Sprints que você deixou abertos ou fechados continuam como estavam e a tela não pisca. Se o servidor recusar a mudança, o ticket volta ao lugar de antes e aparece o aviso. O mesmo vale para trocar o estágio pelo seletor da linha.',
+  },
+  {
     id: 'kanban-compact-density-2026-11-12',
     date: '12 de novembro de 2026',
     isoDate: '2026-11-12',
