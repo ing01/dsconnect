@@ -15,12 +15,10 @@
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
-import ClientAreaAPI from 'dashboard/api/clientArea';
 import {
   clientPushPermission,
   clientPushSupported,
   disableClientPush,
-  ensureClientPushSubscribed,
   isClientPushEnabled,
   requestClientPushPermission,
 } from 'dashboard/helper/clientPushHelper';
@@ -73,27 +71,6 @@ const toggle = async () => {
   }
 };
 
-// Garante a inscricao e manda um aviso de verdade: e' a prova de que as
-// notificacoes reais chegam neste aparelho.
-const isTesting = ref(false);
-
-const sendTest = async () => {
-  isTesting.value = true;
-  try {
-    await ensureClientPushSubscribed();
-    const { data } = await ClientAreaAPI.testPushSubscription();
-    useAlert(
-      data.devices
-        ? t('CLIENT_AREA.PUSH_TOGGLE.TEST_SENT', { count: data.devices })
-        : t('CLIENT_AREA.PUSH_TOGGLE.TEST_NO_DEVICE')
-    );
-  } catch (error) {
-    useAlert(t('CLIENT_AREA.PUSH_TOGGLE.TEST_ERROR'));
-  } finally {
-    isTesting.value = false;
-  }
-};
-
 const label = computed(() =>
   enabled.value
     ? t('CLIENT_AREA.PUSH_TOGGLE.ON')
@@ -121,18 +98,6 @@ onMounted(refresh);
       :aria-pressed="enabled"
       data-testid="client-push-toggle"
       @click="toggle"
-    />
-    <Button
-      v-if="enabled"
-      faded
-      slate
-      size="sm"
-      icon="i-lucide-send"
-      :label="t('CLIENT_AREA.PUSH_TOGGLE.TEST')"
-      :title="t('CLIENT_AREA.PUSH_TOGGLE.TEST_TITLE')"
-      :is-loading="isTesting"
-      data-testid="client-push-test"
-      @click="sendTest"
     />
   </div>
 </template>

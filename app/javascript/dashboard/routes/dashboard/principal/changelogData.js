@@ -15,7 +15,7 @@ export const CHANGELOG_ENTRIES = [
     platform: 'web',
     title: 'Notificações do cliente mais confiáveis',
     description:
-      'Revisamos as notificações da Área do Cliente: a segunda mensagem da mesma conversa agora também aparece no sistema (antes substituía a anterior sem avisar), uma inscrição antiga de outra chave é refeita sozinha, o app instalado confere a inscrição ao voltar para a janela e as falhas de envio passam a ficar registradas. Novo botão "Testar" ao lado de "Notificações ativas" manda uma notificação de verdade para provar que chega.',
+      'Revisamos as notificações da Área do Cliente: a segunda mensagem da mesma conversa agora também aparece no sistema (antes substituía a anterior sem avisar), uma inscrição antiga de outra chave é refeita sozinha, o app instalado confere a inscrição ao voltar para a janela e as falhas de envio passam a ficar registradas.',
   },
   {
     id: 'client-push-toggle-and-tutorials-2026-11-13',

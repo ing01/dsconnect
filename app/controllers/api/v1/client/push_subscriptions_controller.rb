@@ -25,16 +25,6 @@ class Api::V1::Client::PushSubscriptionsController < Api::V1::Client::BaseContro
     head :ok
   end
 
-  # O botao "Testar" da Area do Cliente: o aviso sai pelo MESMO caminho das notificacoes
-  # reais, entao se ele chega, as reais chegam. `devices: 0` quer dizer que nada esta
-  # inscrito (a tela se reinscreve e avisa).
-  def test_notification
-    devices = current_contact.client_push_subscriptions.count
-    Client::TestPushNotificationService.new(contact: current_contact, push_account: Current.account).perform if devices.positive?
-
-    render json: { devices: devices }
-  end
-
   private
 
   def create_browser_subscription

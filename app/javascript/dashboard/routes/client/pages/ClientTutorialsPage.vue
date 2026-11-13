@@ -14,7 +14,7 @@ const tutorials = computed(() =>
   TUTORIALS.map(tutorial => ({
     ...tutorial,
     video: resolveTutorialVideo(tutorial.videoUrl),
-    steps: [1, 2, 3, 4, 5].map(n =>
+    steps: [1, 2, 3, 4].map(n =>
       t(`CLIENT_AREA.TUTORIALS.${tutorial.key}.STEP_${n}`)
     ),
   }))

@@ -229,12 +229,7 @@
       "DISABLED": "Notifications turned off in this browser. To stop the browser from allowing them, use the site settings.",
       "NOT_ENABLED": "Notifications were not enabled.",
       "BLOCKED": "Notifications are blocked in the browser. Click the padlock next to the site address and allow notifications.",
-      "SEE_TUTORIAL": "See tutorial",
-      "TEST": "Test",
-      "TEST_TITLE": "Sends a test notification to this device",
-      "TEST_SENT": "Test notification sent to {count} device(s). If it does not show up in a few seconds, check the Windows/Chrome notification settings.",
-      "TEST_NO_DEVICE": "No device subscribed. Turn notifications off and on again.",
-      "TEST_ERROR": "Could not send the test notification."
+      "SEE_TUTORIAL": "See tutorial"
     },
     "TUTORIALS": {
       "TITLE": "Tutorials",
@@ -246,8 +241,7 @@
         "STEP_1": "Click the \"Enable notifications\" button at the top of the screen.",
         "STEP_2": "When the browser asks, click \"Allow\".",
         "STEP_3": "Done: the button now reads \"Notifications on\".",
-        "STEP_4": "If the browser blocked it, click the padlock next to the site address, allow notifications and click the button again.",
-        "STEP_5": "Click \"Test\": a test notification should appear within a few seconds. If it does not, check that Chrome notifications are on in the Windows settings and that Do Not Disturb (Focus Assist) is off."
+        "STEP_4": "If the browser blocked it, click the padlock next to the site address, allow notifications and click the button again."
       }
     },
     "CHAT": {

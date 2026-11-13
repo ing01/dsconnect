@@ -279,16 +279,6 @@ export default {
     );
   },
 
-  // Manda uma notificacao de teste para os aparelhos do contato; devolve
-  // quantos aparelhos estao inscritos (`devices`).
-  testPushSubscription() {
-    return cliente.post(
-      `${BASE}/push_subscription/test`,
-      {},
-      { headers: headers() }
-    );
-  },
-
   // Cancela a inscricao deste navegador (o botao de desligar as notificacoes).
   unregisterPushSubscription(endpoint) {
     return cliente.delete(`${BASE}/push_subscription`, {

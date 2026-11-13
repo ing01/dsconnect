@@ -662,10 +662,6 @@ en:
       push_body_fallback: You received a new chat message.
       push_attachment_body: Sent a file in the chat.
       push_action_open: Open conversation
-    push_test:
-      title: Notification test
-      body: All good! DSConnect notifications reach this device.
-      action_open: Open tutorials
     notifications:
       moved_to_team: 'Now with the team: %{team}'
     chat_blocked: You do not have permission to use the support chat. Please call (18) 3916-7600.
