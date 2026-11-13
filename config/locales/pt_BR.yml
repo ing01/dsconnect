@@ -262,6 +262,7 @@ pt_BR:
       out_of_order_assignment: "Não é possível atribuir esta conversa. Você só pode atender a PRIMEIRA conversa da fila - use o botão \"Pegar próximo da fila\"."
       reply_requires_claim: "Esta conversa ainda está na fila, sem atendente. Você só pode atender a PRIMEIRA conversa da fila - use o botão \"Pegar próximo da fila\" para assumi-la."
       clear_queue_not_allowed: "Somente um Administrador pode tirar uma conversa da fila."
+      distribution_failed: "Não foi possível distribuir as conversas. Tente novamente ou contate o suporte."
     account:
       not_authorized: Você não está autorizado a acessar esta conta
       email_limit_exceeded: O limite diário de envio de e-mails desta conta foi atingido

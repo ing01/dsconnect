@@ -82,6 +82,8 @@ class Webhooks::WhatsappEventsJob < MutexApplicationJob
       Whatsapp::IncomingMessageWhatsappCloudService.new(inbox: channel.inbox, params: params).perform
     when 'astere_zap'
       Whatsapp::IncomingMessageAsterezapService.new(inbox: channel.inbox, params: params).perform
+    when 'expxwhats'
+      Whatsapp::IncomingMessageExpxwhatsService.new(inbox: channel.inbox, params: params).perform
     else
       Whatsapp::IncomingMessageService.new(inbox: channel.inbox, params: params).perform
     end
@@ -101,12 +103,21 @@ class Webhooks::WhatsappEventsJob < MutexApplicationJob
     # vivo: 2 conversas com created_at identico pro mesmo contato).
     return value[:phone].to_s.gsub(/\D/, '').presence if value[:messages].blank? && value[:phone].present?
 
+    # Payload do ExpxWhats vem embrulhado em {instance, event, data, time} -
+    # mesmo risco de concorrencia do AstereZap acima se nao tratado aqui.
+    return contact_sender_id_from_expxwhats(value[:data]) if value[:data].present?
+
     contact_sender_id_from_messages(value[:messages], value[:contacts])
   end
 
   # Echo payloads are outbound messages from the WhatsApp Business app, so `to`
   # points to the contact. Prefer parent BSUID when present so payloads that have
   # both regular+parent BSUIDs serialize with parent-BSUID-only payloads.
+  def contact_sender_id_from_expxwhats(data)
+    phone = data[:sender_pn].presence || data[:sender].to_s.split('@').first
+    phone.to_s.gsub(/\D/, '').presence
+  end
+
   def contact_sender_id_from_message_echoes(message_echoes)
     message = message_echoes&.first
     return if message.blank?

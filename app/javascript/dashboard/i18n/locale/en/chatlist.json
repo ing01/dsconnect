@@ -30,7 +30,8 @@
         "NO_TEAM": "Queue has no team configured",
         "NO_QUEUE": "Conversation has no queue/auto-assignment inbox",
         "MANUAL_QUEUE": "Queue is configured as manual distribution",
-        "NO_MEMBERS": "The queue's team has no agents"
+        "NO_MEMBERS": "The queue's team has no agents",
+        "INTERNAL_ERROR": "Internal error while processing this conversation - check the logs or try again"
       },
       "CLOSE": "Close"
     },

@@ -326,7 +326,9 @@
           "TWILIO_DESC": "Connect via Twilio credentials",
           "360_DIALOG": "360Dialog",
           "ASTEREZAP": "AstereZap",
-          "ASTEREZAP_DESC": "Connect via an AstereZap instance (WhatsApp Web)"
+          "ASTEREZAP_DESC": "Connect via an AstereZap instance (WhatsApp Web)",
+          "EXPXWHATS": "ExpxWhats",
+          "EXPXWHATS_DESC": "Connect via your own ExpxWhats server (self-hosted WhatsApp Web)"
         },
         "SELECT_PROVIDER": {
           "TITLE": "Select your API provider",
@@ -379,6 +381,24 @@
           "TOKEN": {
             "LABEL": "Token",
             "PLACEHOLDER": "Instance token, from the \"Dados\" tab of the AstereZap panel",
+            "ERROR": "This field is required"
+          }
+        },
+        "EXPXWHATS": {
+          "HELP": "Before creating the channel here, create and pair the number in your ExpxWhats server's /admin panel (see docs/whatsapp_expxwhats_setup.md). The three fields below come from there.",
+          "BASE_URL": {
+            "LABEL": "Server address",
+            "PLACEHOLDER": "E.g.: https://whatsapp.yourcompany.com",
+            "ERROR": "This field is required"
+          },
+          "INSTANCE_NAME": {
+            "LABEL": "Instance name",
+            "PLACEHOLDER": "Name given when creating the instance in the ExpxWhats panel",
+            "ERROR": "This field is required"
+          },
+          "TOKEN": {
+            "LABEL": "Instance token",
+            "PLACEHOLDER": "X-Instance-Token shown when the instance was created",
             "ERROR": "This field is required"
           }
         },

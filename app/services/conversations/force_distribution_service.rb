@@ -31,6 +31,13 @@ class Conversations::ForceDistributionService
     @account.conversations.open.where(assignee_id: nil).where.not(queue_id: nil).includes(queue: :team)
   end
 
+  # Uma conversa com dado inconsistente (ex: fila sem Mesa, Mesa sem membros
+  # validos) nao pode derrubar o lote inteiro - sem o rescue aqui, UMA
+  # conversa problematica fazia a requisicao inteira voltar 500 e o admin via
+  # so' "Nao foi possivel distribuir as conversas", sem saber nem quais nem
+  # por que (bug relatado pela Ingrid, 2026-11-13). Com o rescue, essa
+  # conversa aparece como "nao distribuida" com o motivo, e as demais seguem
+  # normalmente.
   def process(conversation)
     service = Queues::DistributionService.new(conversation)
     service.perform
@@ -41,6 +48,12 @@ class Conversations::ForceDistributionService
     else
       ConversationOutcome.new(display_id: conversation.display_id, assigned: false, agent_name: nil, agent_outcomes: agent_outcomes_for(service))
     end
+  rescue StandardError => e
+    Rails.logger.error("[ForceDistributionService] conversa ##{conversation.display_id} falhou: #{e.class} #{e.message}")
+    ConversationOutcome.new(
+      display_id: conversation.display_id, assigned: false, agent_name: nil,
+      agent_outcomes: [AgentOutcome.new(agent_name: nil, reason_key: 'internal_error', reason_params: {})]
+    )
   end
 
   def agent_outcomes_for(service)
