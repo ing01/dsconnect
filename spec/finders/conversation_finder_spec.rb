@@ -285,6 +285,31 @@ describe ConversationFinder do
       end
     end
 
+    # A pausa por inatividade tira o atendente (assignee_id vazio) e guarda quem era em
+    # paused_assignee_id: a aba "Minhas" lista essas conversas, e o contador tem de contar as mesmas.
+    context 'with paused conversations' do
+      let(:params) { { status: 'snoozed', assignee_type: 'me' } }
+
+      before do
+        create(:conversation, account: account, inbox: inbox, status: :snoozed,
+                              additional_attributes: { 'paused_at' => Time.current.iso8601, 'paused_assignee_id' => user_1.id })
+        create(:conversation, account: account, inbox: inbox, status: :snoozed,
+                              additional_attributes: { 'paused_at' => Time.current.iso8601, 'paused_assignee_id' => user_2.id })
+      end
+
+      it 'counts the ones I was attending in mine_count, like the list does' do
+        result = conversation_finder.perform
+
+        expect(result[:conversations].length).to be 1
+        expect(result[:count][:mine_count]).to be 1
+        expect(result[:count][:all_count]).to be 2
+      end
+
+      it 'returns the same mine_count from perform_meta_only' do
+        expect(conversation_finder.perform_meta_only[:count][:mine_count]).to be 1
+      end
+    end
+
     context 'with unattended' do
       let(:params) { { status: 'open', assignee_type: 'me', conversation_type: 'unattended' } }
 

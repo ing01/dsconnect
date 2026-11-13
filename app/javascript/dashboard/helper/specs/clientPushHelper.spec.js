@@ -1,7 +1,10 @@
 import ClientAreaAPI from 'dashboard/api/clientArea';
 
 vi.mock('dashboard/api/clientArea', () => ({
-  default: { registerPushSubscription: vi.fn(() => Promise.resolve()) },
+  default: {
+    registerPushSubscription: vi.fn(() => Promise.resolve()),
+    unregisterPushSubscription: vi.fn(() => Promise.resolve()),
+  },
 }));
 
 // `btoa`/`Uint8Array` existem no jsdom, mas `getKey` da inscricao real nao -
@@ -54,6 +57,7 @@ describe('o push do Portal do Cliente', () => {
   });
 
   afterEach(() => {
+    window.localStorage.clear();
     clearServiceWorker();
     clearNotification();
     clearPushManager();
@@ -153,6 +157,107 @@ describe('o push do Portal do Cliente', () => {
       );
 
       await expect(ensureClientPushSubscribed()).resolves.toBe(false);
+    });
+  });
+
+  describe('chave VAPID diferente da inscricao antiga', () => {
+    it('cancels the old subscription and subscribes again instead of giving up', async () => {
+      const stale = { unsubscribe: vi.fn(() => Promise.resolve(true)) };
+      const subscribe = vi
+        .fn()
+        .mockRejectedValueOnce(
+          Object.assign(new Error('chave diferente'), {
+            name: 'InvalidStateError',
+          })
+        )
+        .mockResolvedValueOnce(fakeSubscription);
+      const registration = {
+        pushManager: {
+          subscribe,
+          getSubscription: vi.fn(() => Promise.resolve(stale)),
+        },
+      };
+      Object.defineProperty(window.navigator, 'serviceWorker', {
+        configurable: true,
+        value: {
+          register: vi.fn(() => Promise.resolve(registration)),
+          ready: Promise.resolve(registration),
+        },
+      });
+      mockNotification('granted');
+      const { ensureClientPushSubscribed } = await import(
+        '../clientPushHelper'
+      );
+
+      expect(await ensureClientPushSubscribed()).toBe(true);
+      expect(stale.unsubscribe).toHaveBeenCalled();
+      expect(subscribe).toHaveBeenCalledTimes(2);
+      expect(ClientAreaAPI.registerPushSubscription).toHaveBeenCalled();
+    });
+  });
+
+  describe('desligar pelo botao', () => {
+    const mockActiveSubscription = () => {
+      const unsubscribe = vi.fn(() => Promise.resolve(true));
+      const subscription = { ...fakeSubscription, unsubscribe };
+      const registration = {
+        pushManager: {
+          subscribe: vi.fn(() => Promise.resolve(subscription)),
+          getSubscription: vi.fn(() => Promise.resolve(subscription)),
+        },
+      };
+      Object.defineProperty(window.navigator, 'serviceWorker', {
+        configurable: true,
+        value: {
+          register: vi.fn(() => Promise.resolve(registration)),
+          getRegistration: vi.fn(() => Promise.resolve(registration)),
+          ready: Promise.resolve(registration),
+        },
+      });
+      return unsubscribe;
+    };
+
+    it('forgets the subscription on the server and cancels it in the browser', async () => {
+      const unsubscribe = mockActiveSubscription();
+      mockNotification('granted');
+      const { disableClientPush } = await import('../clientPushHelper');
+
+      expect(await disableClientPush()).toBe(true);
+      expect(ClientAreaAPI.unregisterPushSubscription).toHaveBeenCalledWith(
+        'https://push.exemplo/abc'
+      );
+      expect(unsubscribe).toHaveBeenCalled();
+    });
+
+    it('is no longer enabled and the next boot does not subscribe again', async () => {
+      mockActiveSubscription();
+      mockNotification('granted');
+      const {
+        disableClientPush,
+        isClientPushEnabled,
+        ensureClientPushSubscribed,
+      } = await import('../clientPushHelper');
+      expect(isClientPushEnabled()).toBe(true);
+
+      await disableClientPush();
+
+      expect(isClientPushEnabled()).toBe(false);
+      expect(await ensureClientPushSubscribed()).toBe(false);
+      expect(ClientAreaAPI.registerPushSubscription).not.toHaveBeenCalled();
+    });
+
+    it('turning on again clears the choice and subscribes', async () => {
+      mockActiveSubscription();
+      mockNotification('granted');
+      const {
+        disableClientPush,
+        requestClientPushPermission,
+        isClientPushEnabled,
+      } = await import('../clientPushHelper');
+      await disableClientPush();
+
+      expect(await requestClientPushPermission()).toBe(true);
+      expect(isClientPushEnabled()).toBe(true);
     });
   });
 

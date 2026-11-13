@@ -85,6 +85,13 @@ const itens = computed(() => [
     activeOn: ['client_notifications'],
     badgeCount: notificationsCount.value,
   },
+  {
+    name: 'client_tutorials',
+    label: t('CLIENT_AREA.MENU.TUTORIALS'),
+    icon: 'i-lucide-circle-play',
+    to: { name: 'client_tutorials' },
+    activeOn: ['client_tutorials'],
+  },
 ]);
 
 const isActive = item => item.activeOn.includes(route.name);

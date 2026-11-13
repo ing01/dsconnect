@@ -73,7 +73,10 @@ Rails.application.routes.draw do
         end
         # O historico: sessoes de chat ja resolvidas, so leitura.
         resources :chat_history, only: [:index, :show]
-        resource :push_subscription, only: [:create, :destroy], controller: 'push_subscriptions'
+        resource :push_subscription, only: [:create, :destroy], controller: 'push_subscriptions' do
+          # "Testar notificacao": manda um aviso de verdade para os aparelhos do contato.
+          post :test, action: :test_notification, on: :member
+        end
         resources :teams, only: [:index]
         # Rascunho de ticket por IA (texto livre ou audio transcrito) - so
         # devolve categoria/titulo/descricao sugeridos, nunca cria o ticket.

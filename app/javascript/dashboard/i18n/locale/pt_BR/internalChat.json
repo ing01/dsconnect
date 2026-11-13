@@ -76,6 +76,7 @@
       "UPLOAD_FAILED": "Não foi possível enviar {name}.",
       "FILE_TOO_LARGE": "{name} passa do limite de {size} MB.",
       "TOO_MANY_FILES": "No máximo {count} arquivos por mensagem.",
+      "DROP_HERE": "Solte para anexar à mensagem",
       "READ_ONLY": "Somente as pessoas autorizadas podem escrever neste canal."
     },
     "NEW_CONVERSATION": {

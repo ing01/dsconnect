@@ -50,6 +50,7 @@ describe('ClientSidebar', () => {
       'CLIENT_AREA.MENU.SAC',
       'CLIENT_AREA.MENU.CHAT',
       'CLIENT_AREA.MENU.NOTIFICATIONS',
+      'CLIENT_AREA.MENU.TUTORIALS',
     ]);
   });
 

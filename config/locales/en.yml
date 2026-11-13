@@ -546,6 +546,7 @@ en:
     attachment: 'Attachment'
     no_content: 'No content'
   conversations:
+    paused: 'This customer has conversation #%{id} paused for inactivity. Open it and use "Reopen" to resume the attendance instead of starting a new one.'
     waiting_in_queue: 'This customer is already waiting in the queue (conversation #%{id}). Use "Pick up next in queue" to attend them in order.'
     in_attendance: 'This customer is already being attended by %{agent} (conversation #%{id}). You cannot start another conversation with them while that one is open.'
     cancel:
@@ -661,6 +662,10 @@ en:
       push_body_fallback: You received a new chat message.
       push_attachment_body: Sent a file in the chat.
       push_action_open: Open conversation
+    push_test:
+      title: Notification test
+      body: All good! DSConnect notifications reach this device.
+      action_open: Open tutorials
     notifications:
       moved_to_team: 'Now with the team: %{team}'
     chat_blocked: You do not have permission to use the support chat. Please call (18) 3916-7600.

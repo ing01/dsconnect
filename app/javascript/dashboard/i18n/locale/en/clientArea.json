@@ -215,9 +215,40 @@
       "SAC": "Customer feedback",
       "CHAT": "Chat",
       "NOTIFICATIONS": "Notifications",
+      "TUTORIALS": "Tutorials",
       "COLLAPSE": "Collapse menu",
       "EXPAND": "Expand menu",
       "TOGGLE": "Menu"
+    },
+    "PUSH_TOGGLE": {
+      "ON": "Notifications on",
+      "OFF": "Enable notifications",
+      "TITLE_ON": "Click to turn off notifications in this browser",
+      "TITLE_OFF": "Click to turn on notifications in this browser",
+      "ENABLED": "Notifications enabled in this browser.",
+      "DISABLED": "Notifications turned off in this browser. To stop the browser from allowing them, use the site settings.",
+      "NOT_ENABLED": "Notifications were not enabled.",
+      "BLOCKED": "Notifications are blocked in the browser. Click the padlock next to the site address and allow notifications.",
+      "SEE_TUTORIAL": "See tutorial",
+      "TEST": "Test",
+      "TEST_TITLE": "Sends a test notification to this device",
+      "TEST_SENT": "Test notification sent to {count} device(s). If it does not show up in a few seconds, check the Windows/Chrome notification settings.",
+      "TEST_NO_DEVICE": "No device subscribed. Turn notifications off and on again.",
+      "TEST_ERROR": "Could not send the test notification."
+    },
+    "TUTORIALS": {
+      "TITLE": "Tutorials",
+      "DESCRIPTION": "Short videos with step-by-step guides to the Portal features.",
+      "VIDEO_SOON": "Video coming soon",
+      "NOTIFICATIONS": {
+        "TITLE": "How to enable notifications",
+        "DESCRIPTION": "Get DSConnect alerts in your browser, even with the tab in the background.",
+        "STEP_1": "Click the \"Enable notifications\" button at the top of the screen.",
+        "STEP_2": "When the browser asks, click \"Allow\".",
+        "STEP_3": "Done: the button now reads \"Notifications on\".",
+        "STEP_4": "If the browser blocked it, click the padlock next to the site address, allow notifications and click the button again.",
+        "STEP_5": "Click \"Test\": a test notification should appear within a few seconds. If it does not, check that Chrome notifications are on in the Windows settings and that Do Not Disturb (Focus Assist) is off."
+      }
     },
     "CHAT": {
       "BLOCKED": "You do not have permission to use the support chat. Please call (18) 3916-7600.",

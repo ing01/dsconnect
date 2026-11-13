@@ -3,6 +3,10 @@
 // como CONTATO (`ClientAreaAPI.registerPushSubscription`), e nao como usuario
 // interno - por isso um arquivo proprio, em vez de reaproveitar aquele.
 import ClientAreaAPI from 'dashboard/api/clientArea';
+import {
+  isClientPushOptedOut,
+  setClientPushOptedOut,
+} from 'dashboard/helper/clientSession';
 
 const generateKeys = str =>
   btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
@@ -15,18 +19,32 @@ const subscriptionPayload = subscription => ({
   auth: generateKeys(subscription.getKey('auth')),
 });
 
+// Uma inscricao antiga feita com OUTRA chave VAPID faz o navegador recusar a nova
+// (InvalidStateError) - e a pessoa ficava sem notificacao para sempre, porque a
+// antiga ja nao e' aceita pelo servidor. Cancela a velha e inscreve de novo.
+const subscribeToPush = registration => {
+  const options = {
+    userVisibleOnly: true,
+    applicationServerKey: window.chatwootConfig.vapidPublicKey,
+  };
+
+  return registration.pushManager.subscribe(options).catch(error => {
+    if (error?.name !== 'InvalidStateError') throw error;
+
+    return registration.pushManager
+      .getSubscription()
+      .then(existing => existing?.unsubscribe())
+      .then(() => registration.pushManager.subscribe(options));
+  });
+};
+
 const registerSubscription = () => {
   if (!window.chatwootConfig?.vapidPublicKey) return Promise.resolve();
 
   return navigator.serviceWorker
     .register('/sw.js')
     .then(() => navigator.serviceWorker.ready)
-    .then(registration =>
-      registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: window.chatwootConfig.vapidPublicKey,
-      })
-    )
+    .then(subscribeToPush)
     .then(subscription =>
       ClientAreaAPI.registerPushSubscription(subscriptionPayload(subscription))
     );
@@ -61,6 +79,8 @@ export const clientPushPermission = () =>
 export const ensureClientPushSubscribed = () => {
   if (!clientPushSupported()) return Promise.resolve(false);
   if (Notification.permission !== 'granted') return Promise.resolve(false);
+  // Quem desligou pelo botao do cabecalho nao pode ser religado no proximo boot.
+  if (isClientPushOptedOut()) return Promise.resolve(false);
 
   return registerSubscription()
     .then(() => true)
@@ -70,10 +90,43 @@ export const ensureClientPushSubscribed = () => {
     });
 };
 
+// Ligadas = permissao concedida E a pessoa nao desligou pelo botao.
+export const isClientPushEnabled = () =>
+  clientPushPermission() === 'granted' && !isClientPushOptedOut();
+
+// Desliga as notificacoes DESTE navegador: o servidor esquece a inscricao e o
+// navegador a cancela. A permissao em si so' a pessoa revoga (configuracoes do
+// navegador) - por isso fica guardado o "desliguei", para o boot nao religar.
+export const disableClientPush = async () => {
+  setClientPushOptedOut(true);
+  if (!clientPushSupported()) return false;
+
+  try {
+    const registration =
+      await navigator.serviceWorker.getRegistration('/sw.js');
+    const subscription = await registration?.pushManager.getSubscription();
+    if (subscription) {
+      // Se o servidor falhar, cancela mesmo assim: a inscricao morta se limpa
+      // sozinha na proxima tentativa de envio.
+      await ClientAreaAPI.unregisterPushSubscription(
+        subscription.endpoint
+      ).catch(() => {});
+      await subscription.unsubscribe();
+    }
+    return true;
+  } catch (error) {
+    console.error('Client push unsubscribe failed:', error);
+    return false;
+  }
+};
+
 // So chamado a partir de um clique - pedir permissao sem gesto do usuario e'
 // ignorado (ou pior, queima a unica chance) na maioria dos navegadores.
 export const requestClientPushPermission = () => {
   if (!clientPushSupported()) return Promise.resolve(false);
+
+  // Pedir/ligar e' escolha explicita: vale mais que um "desliguei" anterior.
+  if (Notification.permission !== 'denied') setClientPushOptedOut(false);
 
   if (Notification.permission === 'granted') {
     return registerSubscription()

@@ -556,6 +556,7 @@ pt_BR:
     attachment: 'Anexo'
     no_content: 'Sem conteúdo'
   conversations:
+    paused: 'Este cliente tem a conversa #%{id} pausada por falta de interação. Abra essa conversa e use "Reabrir" para retomar o atendimento, em vez de iniciar uma nova.'
     waiting_in_queue: 'Este cliente já está aguardando na fila de atendimento (conversa #%{id}). Use "Pegar próximo da fila" para atendê-lo na ordem.'
     in_attendance: 'Este cliente já está em atendimento com %{agent} (conversa #%{id}). Não é possível iniciar outra conversa com ele enquanto esse atendimento estiver aberto.'
     cancel:
@@ -674,6 +675,10 @@ pt_BR:
       push_body_fallback: Você recebeu uma nova mensagem no chat.
       push_attachment_body: Enviou um arquivo no chat.
       push_action_open: Abrir conversa
+    push_test:
+      title: Teste de notificação
+      body: Está tudo certo! As notificações do DSConnect chegam neste aparelho.
+      action_open: Abrir tutoriais
     notifications:
       moved_to_team: 'Agora com a equipe: %{team}'
     chat_blocked: Você não tem permissão para acessar o suporte via chat, ligue no telefone (18) 3916-7600.

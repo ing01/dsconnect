@@ -115,7 +115,11 @@ export const actions = {
       // quem e qual conversa. A tela precisa desse texto (e do link) - sem ele
       // aparecia so' "nao foi possivel criar a conversa".
       const dados = error?.response?.data;
-      const bloqueios = ['contact_in_attendance', 'contact_waiting_in_queue'];
+      const bloqueios = [
+        'contact_in_attendance',
+        'contact_waiting_in_queue',
+        'contact_paused',
+      ];
       if (bloqueios.includes(dados?.code)) {
         const bloqueio = new ExceptionWithMessage(dados.error);
         bloqueio.conversationId = dados.conversation_id;

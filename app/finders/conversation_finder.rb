@@ -175,13 +175,23 @@ class ConversationFinder
   # "Minhas": as atribuidas a mim e, na aba Pausadas, as que EU atendia quando a
   # pausa por inatividade tirou o atendente (a pausa guarda quem era em
   # `paused_assignee_id`).
-  def mine_conversations
-    return @conversations.assigned_to(current_user) unless params[:status] == 'snoozed'
+  def mine_conversations(scope = @conversations)
+    return scope.assigned_to(current_user) unless params[:status] == 'snoozed'
 
-    @conversations.where(
+    scope.where(
       "conversations.assignee_id = :id OR (conversations.additional_attributes ->> 'paused_assignee_id') = :text_id",
       id: current_user.id, text_id: current_user.id.to_s
     )
+  end
+
+  # O contador "Minhas" precisa ter o MESMO criterio da lista: na aba Pausadas a
+  # pausa tira o atendente (assignee_id fica vazio), entao contar so assignee_id
+  # mostrava 0 com as conversas do agente listadas logo abaixo.
+  def mine_count_sql
+    mine = "assignee_id = #{current_user.id.to_i}"
+    return mine unless params[:status] == 'snoozed'
+
+    "#{mine} OR (additional_attributes ->> 'paused_assignee_id') = '#{current_user.id.to_i}'"
   end
 
   def filter_by_status
@@ -219,7 +229,7 @@ class ConversationFinder
     return legacy_count_for_all_conversations if @conversations.limit_value || @conversations.offset_value || @conversations.eager_loading?
 
     counts = @conversations.unscope(:order).pick(
-      Arel.sql("COUNT(*) FILTER (WHERE assignee_id = #{current_user.id})"),
+      Arel.sql("COUNT(*) FILTER (WHERE #{mine_count_sql})"),
       Arel.sql('COUNT(*) FILTER (WHERE assignee_id IS NULL AND assignee_agent_bot_id IS NULL)'),
       Arel.sql('COUNT(*)'),
       Arel.sql('COUNT(*) FILTER (WHERE queue_id IS NOT NULL AND assignee_id IS NULL AND status <> 3)')
@@ -229,7 +239,7 @@ class ConversationFinder
 
   def legacy_count_for_all_conversations
     [
-      @conversations.assigned_to(current_user).count,
+      mine_conversations.count,
       @conversations.unassigned.count,
       @conversations.count,
       @conversations.queued.count

@@ -8,6 +8,7 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   before_action :inbox, :contact, :contact_inbox, only: [:create]
   before_action :ensure_contact_not_in_attendance, only: [:create]
   before_action :find_waiting_conversation, only: [:create]
+  before_action :ensure_contact_not_paused, only: [:create]
 
   ATTACHMENT_RESULTS_PER_PAGE = 100
 
@@ -399,6 +400,28 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     return take_over_waiting_conversation(@waiting_conversation) if @waiting_conversation
 
     ConversationBuilder.new(params: params, contact_inbox: @contact_inbox).perform
+  end
+
+  # Cliente PAUSADO por inatividade (status "Pausada", sem agente) nesta caixa: abrir uma
+  # segunda conversa deixava a pausada esquecida e, sem resposta do cliente, a nova tambem
+  # era pausada - duas "Pausadas" do mesmo cliente. Recusa e avisa, com o link da conversa:
+  # reabrir a pausada (botao Reabrir) retoma o atendimento e avisa o cliente.
+  def ensure_contact_not_paused
+    return unless Current.user.is_a?(User)
+    return if @waiting_conversation
+
+    paused = Current.account.conversations
+                    .where(inbox_id: @contact_inbox.inbox_id, contact_id: @contact_inbox.contact_id, status: :snoozed)
+                    .where("additional_attributes ->> 'paused_at' IS NOT NULL")
+                    .order(created_at: :desc, id: :desc).first
+    return if paused.blank?
+
+    render json: {
+      error: I18n.t('conversations.paused', id: paused.display_id),
+      code: 'contact_paused',
+      conversation_id: paused.display_id,
+      account_id: paused.account_id
+    }, status: :unprocessable_entity
   end
 
   def take_over_waiting_conversation(conversation)

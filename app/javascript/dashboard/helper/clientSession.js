@@ -59,9 +59,13 @@ export const mustChangeClientPassword = () =>
 export const markClientPasswordChanged = () => {
   const sessao = getClientSession();
   if (!sessao) return;
-  Cookies.set(CHAVE, JSON.stringify({ ...sessao, passwordChangeRequired: false }), {
-    expires: 30,
-  });
+  Cookies.set(
+    CHAVE,
+    JSON.stringify({ ...sessao, passwordChangeRequired: false }),
+    {
+      expires: 30,
+    }
+  );
 };
 
 export const clearClientSession = () => Cookies.remove(CHAVE);
@@ -104,6 +108,32 @@ export const setSidebarCollapsed = valor => {
     window.localStorage.setItem(CHAVE_MENU, String(valor));
   } catch {
     // Não poder lembrar a preferência não pode derrubar a tela.
+  }
+};
+
+/**
+ * Se a pessoa DESLIGOU as notificações pelo botão do cabeçalho.
+ *
+ * O navegador não deixa a página revogar a permissão: depois de desligar, ela
+ * continua "concedida". Sem lembrar da escolha, a inscrição automática do boot
+ * (`ensureClientPushSubscribed`) religaria tudo na próxima visita. Vale para o
+ * navegador, não para o contato.
+ */
+const CHAVE_PUSH_DESLIGADO = 'cw_client_push_opted_out';
+
+export const isClientPushOptedOut = () => {
+  try {
+    return window.localStorage.getItem(CHAVE_PUSH_DESLIGADO) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+export const setClientPushOptedOut = valor => {
+  try {
+    window.localStorage.setItem(CHAVE_PUSH_DESLIGADO, String(valor));
+  } catch {
+    // Não poder lembrar a escolha não pode derrubar a tela.
   }
 };
 

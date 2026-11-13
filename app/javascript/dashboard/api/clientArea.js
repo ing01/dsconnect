@@ -66,7 +66,10 @@ cliente.interceptors.response.use(
     const exigeTroca =
       erro?.response?.status === 403 &&
       erro?.response?.data?.code === 'password_change_required';
-    if (exigeTroca && window.location.pathname !== CLIENT_PASSWORD_CHANGE_PATH) {
+    if (
+      exigeTroca &&
+      window.location.pathname !== CLIENT_PASSWORD_CHANGE_PATH
+    ) {
       window.location.assign(CLIENT_PASSWORD_CHANGE_PATH);
     }
 
@@ -274,6 +277,24 @@ export default {
       { subscription_attributes: subscriptionAttributes },
       { headers: headers() }
     );
+  },
+
+  // Manda uma notificacao de teste para os aparelhos do contato; devolve
+  // quantos aparelhos estao inscritos (`devices`).
+  testPushSubscription() {
+    return cliente.post(
+      `${BASE}/push_subscription/test`,
+      {},
+      { headers: headers() }
+    );
+  },
+
+  // Cancela a inscricao deste navegador (o botao de desligar as notificacoes).
+  unregisterPushSubscription(endpoint) {
+    return cliente.delete(`${BASE}/push_subscription`, {
+      headers: headers(),
+      params: { endpoint },
+    });
   },
 
   // A resposta da pesquisa de satisfacao mandada ao encerrar o chat.

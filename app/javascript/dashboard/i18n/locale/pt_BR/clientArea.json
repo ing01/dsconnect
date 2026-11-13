@@ -215,9 +215,40 @@
       "SAC": "SAC e Sugestões",
       "CHAT": "Chat",
       "NOTIFICATIONS": "Notificações",
+      "TUTORIALS": "Tutoriais",
       "COLLAPSE": "Recolher menu",
       "EXPAND": "Expandir menu",
       "TOGGLE": "Menu"
+    },
+    "PUSH_TOGGLE": {
+      "ON": "Notificações ativas",
+      "OFF": "Ativar notificações",
+      "TITLE_ON": "Clique para desativar as notificações deste navegador",
+      "TITLE_OFF": "Clique para ativar as notificações deste navegador",
+      "ENABLED": "Notificações ativadas neste navegador.",
+      "DISABLED": "Notificações desativadas neste navegador. Para o navegador deixar de permitir, use as configurações do site.",
+      "NOT_ENABLED": "As notificações não foram ativadas.",
+      "BLOCKED": "As notificações estão bloqueadas no navegador. Clique no cadeado ao lado do endereço do site e permita as notificações.",
+      "SEE_TUTORIAL": "Ver tutorial",
+      "TEST": "Testar",
+      "TEST_TITLE": "Envia uma notificação de teste para este aparelho",
+      "TEST_SENT": "Notificação de teste enviada para {count} aparelho(s). Se ela não aparecer em alguns segundos, veja as configurações de notificações do Windows/Chrome.",
+      "TEST_NO_DEVICE": "Nenhum aparelho inscrito. Desative e ative as notificações de novo.",
+      "TEST_ERROR": "Não foi possível enviar a notificação de teste."
+    },
+    "TUTORIALS": {
+      "TITLE": "Tutoriais",
+      "DESCRIPTION": "Vídeos curtos com o passo a passo dos recursos do Portal.",
+      "VIDEO_SOON": "Vídeo em breve",
+      "NOTIFICATIONS": {
+        "TITLE": "Como ativar as notificações",
+        "DESCRIPTION": "Receba os avisos do DSConnect no seu navegador, mesmo com a aba em segundo plano.",
+        "STEP_1": "Clique no botão \"Ativar notificações\", no topo da tela.",
+        "STEP_2": "Quando o navegador perguntar, clique em \"Permitir\".",
+        "STEP_3": "Pronto: o botão passa a mostrar \"Notificações ativas\".",
+        "STEP_4": "Se o navegador tiver bloqueado, clique no cadeado ao lado do endereço do site, permita as notificações e clique no botão de novo.",
+        "STEP_5": "Clique em \"Testar\": uma notificação de teste deve aparecer em alguns segundos. Se não aparecer, confira se as notificações do Chrome estão ligadas nas configurações do Windows e se o modo \"Não incomodar\" (Assistência de foco) está desligado."
+      }
     },
     "CHAT": {
       "BLOCKED": "Você não tem permissão para acessar o suporte via chat, ligue no telefone (18) 3916-7600.",

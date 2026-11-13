@@ -73,6 +73,48 @@ RSpec.describe 'Conversations API', type: :request do
       end
     end
 
+    # Cliente pausado por inatividade: iniciar conversa avisa e nao abre uma segunda (que
+    # tambem seria pausada, deixando duas "Pausadas" do mesmo cliente).
+    context 'when the contact has a conversation paused by inactivity' do
+      let!(:paused) do
+        create(:conversation, account: account, inbox: inbox, contact: contact, status: :snoozed, assignee: nil,
+                              additional_attributes: { 'paused_at' => 1.hour.ago.iso8601, 'pause_count' => 1,
+                                                       'paused_assignee_id' => agent.id })
+      end
+
+      def start_conversation(extra = {})
+        post "/api/v1/accounts/#{account.id}/conversations",
+             params: { contact_id: contact.id, inbox_id: inbox.id }.merge(extra),
+             headers: agent.create_new_auth_token,
+             as: :json
+      end
+
+      it 'refuses and tells which conversation is paused, without creating another one' do
+        expect { start_conversation }.not_to change(Conversation, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['code']).to eq('contact_paused')
+        expect(response.parsed_body['conversation_id']).to eq(paused.display_id)
+        expect(paused.reload.status).to eq('snoozed')
+      end
+
+      it 'does not block when the paused conversation is of another contact' do
+        paused.update_columns(contact_id: create(:contact, account: account).id) # rubocop:disable Rails/SkipsModelValidations
+
+        expect { start_conversation }.to change(Conversation, :count).by(1)
+
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'does not block when the snoozed conversation was not paused by inactivity' do
+        paused.update_columns(additional_attributes: {}) # rubocop:disable Rails/SkipsModelValidations
+
+        start_conversation
+
+        expect(response).to have_http_status(:success)
+      end
+    end
+
     # Cliente que ja chamou e espera sem agente: quem inicia a conversa PUXA essa
     # conversa da fila e fica com ela, em vez de abrir uma segunda.
     context 'when the contact is already waiting without an agent' do

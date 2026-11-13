@@ -3,8 +3,9 @@
 # um usuario. Dois tipos: `browser_push` (VAPID, o Portal no navegador) e
 # `fcm` (o app mobile do cliente final).
 #
-# `destroy` e' so' do app mobile: ao SAIR da conta o aparelho se desinscreve e
-# para de receber os avisos desse contato. Uma inscricao invalida (navegador ou
+# `destroy` cancela a inscricao de UM aparelho: o app mobile (`device_id`), ao SAIR da
+# conta, e o navegador (`endpoint`), quando a pessoa desliga as notificacoes pelo
+# botao do Portal. Uma inscricao invalida (navegador ou
 # app desinstalado, permissao revogada) continua se auto-limpando quando o
 # envio falha (`Client::PushNotificationDeliverable`).
 class Api::V1::Client::PushSubscriptionsController < Api::V1::Client::BaseController
@@ -14,11 +15,24 @@ class Api::V1::Client::PushSubscriptionsController < Api::V1::Client::BaseContro
 
   # Escopo no contato logado: um aparelho nunca desinscreve o de outra pessoa.
   def destroy
-    current_contact.client_push_subscriptions.fcm
-                   .where("subscription_attributes ->> 'device_id' = ?", params[:device_id])
-                   .destroy_all
+    subscriptions = current_contact.client_push_subscriptions
+    if params[:endpoint].present?
+      subscriptions.browser_push.where("subscription_attributes ->> 'endpoint' = ?", params[:endpoint]).destroy_all
+    else
+      subscriptions.fcm.where("subscription_attributes ->> 'device_id' = ?", params[:device_id]).destroy_all
+    end
 
     head :ok
+  end
+
+  # O botao "Testar" da Area do Cliente: o aviso sai pelo MESMO caminho das notificacoes
+  # reais, entao se ele chega, as reais chegam. `devices: 0` quer dizer que nada esta
+  # inscrito (a tela se reinscreve e avisa).
+  def test_notification
+    devices = current_contact.client_push_subscriptions.count
+    Client::TestPushNotificationService.new(contact: current_contact, push_account: Current.account).perform if devices.positive?
+
+    render json: { devices: devices }
   end
 
   private

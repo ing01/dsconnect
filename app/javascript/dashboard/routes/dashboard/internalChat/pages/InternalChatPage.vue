@@ -19,6 +19,7 @@ import ChatSidebar from '../components/ChatSidebar.vue';
 import ChatHeader from '../components/ChatHeader.vue';
 import ChatMessage from '../components/ChatMessage.vue';
 import ChatComposer from '../components/ChatComposer.vue';
+import { useFileDrop } from '../composables/useFileDrop';
 import NewConversationDialog from '../components/NewConversationDialog.vue';
 import CreateChannelDialog from '../components/CreateChannelDialog.vue';
 import ManageMembersDialog from '../components/ManageMembersDialog.vue';
@@ -60,6 +61,7 @@ const activeRoomId = ref(null);
 const showConversationOnMobile = ref(false);
 const messageQuery = ref('');
 const replyTo = ref(null);
+const composerRef = ref(null);
 const lightboxAttachment = ref(null);
 const scrollerRef = ref(null);
 
@@ -179,6 +181,14 @@ watch(activeRoomId, () => {
 // Sair da tela não deixa uma sala marcada como aberta: dali em diante toda
 // mensagem que chegar deve contar como não lida.
 onBeforeUnmount(() => store.dispatch('internalChat/setActiveRoom', null));
+
+// Arrastar um arquivo do computador para qualquer ponto da conversa anexa na hora,
+// como no Discord. Fica de fora a sala somente leitura (nao ha composer).
+const { isDragging, onDragEnter, onDragOver, onDragLeave, onDrop } =
+  useFileDrop({
+    isEnabled: () => !!composerRef.value,
+    onFiles: files => composerRef.value?.attachFiles(files),
+  });
 
 const send = async payload => {
   await store.dispatch('internalChat/sendMessage', {
@@ -426,9 +436,24 @@ const unreadDividerIndex = computed(() => {
     </div>
 
     <section
-      class="flex-col w-full h-full min-w-0 min-h-0 grow bg-n-solid-1"
+      class="relative flex-col w-full h-full min-w-0 min-h-0 grow bg-n-solid-1"
       :class="showConversationOnMobile ? 'flex' : 'hidden md:flex'"
+      @dragenter="onDragEnter"
+      @dragover="onDragOver"
+      @dragleave="onDragLeave"
+      @drop="onDrop"
     >
+      <!-- Aviso de soltar: cobre a conversa, mas deixa o evento passar (o drop
+           e tratado pela section). -->
+      <div
+        v-if="isDragging"
+        class="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 m-2 text-base font-medium border-2 border-dashed rounded-lg pointer-events-none border-n-brand bg-n-solid-1/90 text-n-slate-12"
+        data-testid="file-drop-overlay"
+      >
+        <Icon icon="i-lucide-upload" class="size-8 text-n-brand" />
+        {{ t('INTERNAL_CHAT.COMPOSER.DROP_HERE') }}
+      </div>
+
       <template v-if="activeRoom">
         <ChatHeader
           :room="activeRoom"
@@ -541,6 +566,7 @@ const unreadDividerIndex = computed(() => {
 
         <ChatComposer
           v-else
+          ref="composerRef"
           :channel-id="activeRoomId"
           :users="users"
           :reply-to="replyTo"

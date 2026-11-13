@@ -22,6 +22,7 @@ import ClientManifestationDetailPage from './pages/ClientManifestationDetailPage
 import ClientPasswordEditPage from './pages/ClientPasswordEditPage.vue';
 import ClientPasswordChangePage from './pages/ClientPasswordChangePage.vue';
 import ClientInstallPage from './pages/ClientInstallPage.vue';
+import ClientTutorialsPage from './pages/ClientTutorialsPage.vue';
 
 // A definicao de nova senha e o link de instalacao rodam SEM sessao - o
 // primeiro e o token do e-mail que autoriza, o segundo e de proposito (um
@@ -113,6 +114,12 @@ export default {
           path: 'notifications',
           name: 'client_notifications',
           component: ClientNotificationsPage,
+        },
+        {
+          // Videos de passo a passo (ex.: ativar as notificacoes).
+          path: 'tutorials',
+          name: 'client_tutorials',
+          component: ClientTutorialsPage,
         },
       ],
     },

@@ -175,6 +175,9 @@ const attachFiles = async chosen => {
   }
 };
 
+// A pagina entrega aqui os arquivos soltos (arrastar e soltar) sobre a conversa.
+defineExpose({ attachFiles });
+
 const onFilesChosen = event => {
   const chosen = Array.from(event.target.files || []);
   event.target.value = '';

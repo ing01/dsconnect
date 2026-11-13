@@ -55,6 +55,10 @@ self.addEventListener('push', event => {
       return self.registration.showNotification(notification.title, {
         body: notification.body,
         tag: notification.tag,
+        // Mesma etiqueta = o aviso novo SUBSTITUI o anterior. Sem `renotify` a
+        // substituicao e' silenciosa (sem som nem pop-up): a segunda mensagem da mesma
+        // conversa chegava ao sistema mas ninguem via. Exige `tag`.
+        ...(notification.tag ? { renotify: true } : {}),
         // A logo do sistema. O servidor manda o CAMINHO; resolvemos contra a
         // origem deste worker, pela mesma razao do clique (ver `absoluteUrl`).
         ...(notification.icon ? { icon: absoluteUrl(notification.icon) } : {}),

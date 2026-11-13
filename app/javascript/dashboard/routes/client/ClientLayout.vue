@@ -6,7 +6,7 @@
  * mesmo Button): para o cliente é outro sistema, mas é o mesmo produto, e uma
  * segunda linguagem visual só faria parecer remendo.
  */
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import ClientAreaAPI from 'dashboard/api/clientArea';
@@ -28,6 +28,7 @@ import {
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ClientSidebar from './ClientSidebar.vue';
+import ClientPushToggle from './components/ClientPushToggle.vue';
 import ClientMonthlySurveyDialog from './components/ClientMonthlySurveyDialog.vue';
 
 // O idioma é definido no boot (vide `entrypoints/dashboard.js`), antes de
@@ -179,10 +180,32 @@ const verificarAvaliacaoMensal = async () => {
 const { refresh: atualizarContagemNotificacoes } =
   useClientNotificationsCount();
 
+// O app instalado fica aberto por dias: so' re-inscrever no boot deixava a pessoa sem
+// aviso se o servidor descartasse a inscricao (ou o navegador a trocasse) depois
+// da abertura. Ao voltar para a janela, confere de novo - no maximo a cada 10 min,
+// e e' idempotente dos dois lados (ver `ensureClientPushSubscribed`).
+const INTERVALO_RESYNC_PUSH = 10 * 60 * 1000;
+let ultimoResyncPush = Date.now();
+
+const resincronizarPush = () => {
+  if (document.visibilityState !== 'visible') return;
+  if (Date.now() - ultimoResyncPush < INTERVALO_RESYNC_PUSH) return;
+
+  ultimoResyncPush = Date.now();
+  ensureClientPushSubscribed();
+};
+
 onMounted(() => {
   ensureClientPushSubscribed();
   verificarAvaliacaoMensal();
   atualizarContagemNotificacoes();
+  document.addEventListener('visibilitychange', resincronizarPush);
+  window.addEventListener('focus', resincronizarPush);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', resincronizarPush);
+  window.removeEventListener('focus', resincronizarPush);
 });
 </script>
 
@@ -218,6 +241,7 @@ onMounted(() => {
         <span class="hidden text-sm sm:inline text-n-slate-11">
           {{ contact.name }}
         </span>
+        <ClientPushToggle />
         <Button
           v-if="!surveyAnswered"
           faded
@@ -262,7 +286,9 @@ onMounted(() => {
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-n-slate-12/50"
         @click.self="fecharDialogExcluir"
       >
-        <div class="w-full max-w-md rounded-xl bg-n-solid-2 shadow-xl border border-n-weak p-6 flex flex-col gap-4">
+        <div
+          class="w-full max-w-md rounded-xl bg-n-solid-2 shadow-xl border border-n-weak p-6 flex flex-col gap-4"
+        >
           <div class="flex items-start justify-between gap-3">
             <div class="flex flex-col gap-1">
               <h2 class="text-base font-semibold text-n-slate-12 m-0">
@@ -288,11 +314,15 @@ onMounted(() => {
             <input
               v-model="deletePassword"
               type="password"
-              :placeholder="t('CLIENT_AREA.DELETE_ACCOUNT.PASSWORD_PLACEHOLDER')"
+              :placeholder="
+                t('CLIENT_AREA.DELETE_ACCOUNT.PASSWORD_PLACEHOLDER')
+              "
               class="w-full rounded-lg border border-n-weak bg-n-solid-1 px-3 py-2 text-sm text-n-slate-12 outline-none focus:border-n-brand focus:ring-1 focus:ring-n-brand"
               @keyup.enter="excluirConta"
             />
-            <p v-if="deleteError" class="text-xs text-n-ruby-9 mt-1 m-0">{{ deleteError }}</p>
+            <p v-if="deleteError" class="text-xs text-n-ruby-9 mt-1 m-0">
+              {{ deleteError }}
+            </p>
           </div>
 
           <div class="flex justify-end gap-2">

@@ -8,6 +8,47 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-push-hardening-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'fix',
+    platform: 'web',
+    title: 'Notificações do cliente mais confiáveis',
+    description:
+      'Revisamos as notificações da Área do Cliente: a segunda mensagem da mesma conversa agora também aparece no sistema (antes substituía a anterior sem avisar), uma inscrição antiga de outra chave é refeita sozinha, o app instalado confere a inscrição ao voltar para a janela e as falhas de envio passam a ficar registradas. Novo botão "Testar" ao lado de "Notificações ativas" manda uma notificação de verdade para provar que chega.',
+  },
+  {
+    id: 'client-push-toggle-and-tutorials-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'feature',
+    platform: 'web',
+    title: 'Área do Cliente: botão de notificações e aba Tutoriais',
+    description:
+      'No cabeçalho da Área do Cliente (web) agora há um botão para ativar ou desativar as notificações do navegador: ao ativar, o navegador mostra o aviso de permissão; ao desativar, este navegador deixa de receber. Se estiver bloqueado, o aviso leva ao tutorial. Também foi criada a aba Tutoriais, com o passo a passo de ativação e espaço para o vídeo (definido em tutorialsData.js).',
+  },
+  {
+    id: 'paused-counter-and-no-duplicate-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'fix',
+    platform: 'web',
+    title:
+      'Pausadas: contador "Minhas" correto e aviso ao iniciar conversa com cliente pausado',
+    description:
+      'Na aba Pausadas, o contador "Minhas" mostrava 0 mesmo com conversas suas listadas; agora conta as mesmas conversas da lista. Além disso, ao iniciar uma conversa com um cliente que está pausado por inatividade, o DSConnect agora avisa (com o link da conversa pausada) em vez de abrir uma segunda, que também acabava pausada e deixava o mesmo cliente duas vezes em Pausadas. Para retomar, abra a conversa pausada e use Reabrir.',
+  },
+  {
+    id: 'internal-chat-drag-drop-files-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'feature',
+    platform: 'web',
+    title: 'Chat interno: arraste e solte arquivos na conversa',
+    description:
+      'Agora dá para arrastar um ou mais arquivos do computador e soltar em qualquer ponto da conversa do chat interno, como no Discord, sem precisar copiar e colar. Eles entram como anexos da mensagem, com os mesmos limites de tamanho (25 MB) e quantidade (10) de sempre. Em canais somente leitura o arraste não faz nada.',
+  },
+  {
     id: 'whatsapp-expxwhats-provider-2026-11-13',
     date: '13 de novembro de 2026',
     isoDate: '2026-11-13',

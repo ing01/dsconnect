@@ -60,11 +60,16 @@ module Client::PushNotificationDeliverable
       open_timeout: 5,
       read_timeout: 5
     )
-  rescue WebPush::ExpiredSubscription, WebPush::InvalidSubscription, WebPush::Unauthorized
+  rescue WebPush::ExpiredSubscription, WebPush::InvalidSubscription, WebPush::Unauthorized => e
+    # Rastro do porque: sem ele, uma inscricao que some do servidor (e o cliente que
+    # para de receber) nao deixava pista nenhuma.
+    Rails.logger.warn "[Client::PushNotificationDeliverable] removing subscription #{subscription.id} " \
+                      "(contact #{contact.id}): #{e.class.name}"
     subscription.destroy!
   rescue Errno::ECONNRESET, Net::OpenTimeout, Net::ReadTimeout, Socket::ResolutionError => e
-    Rails.logger.error "[Client::PushNotificationDeliverable] #{e.message}"
+    Rails.logger.error "[Client::PushNotificationDeliverable] subscription #{subscription.id}: #{e.message}"
   rescue StandardError => e
+    Rails.logger.error "[Client::PushNotificationDeliverable] subscription #{subscription.id}: #{e.class.name}: #{e.message}"
     ChatwootExceptionTracker.new(e, account: push_account).capture_exception
   end
 
