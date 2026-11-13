@@ -28,11 +28,23 @@ export default {
       type: [String, Number],
       default: '',
     },
+    // So' usado pelo card da lista de conversas (ConversationCard) - os
+    // outros usos deste componente (ex: ReportDrilldownCard) continuam com
+    // o visual de sempre, sem essas duas linhas.
+    showWaitingTime: {
+      type: Boolean,
+      default: false,
+    },
+    waitingSinceTimestamp: {
+      type: [String, Date, Number],
+      default: '',
+    },
   },
   data() {
     return {
       lastActivityAtTimeAgo: dynamicTime(this.lastActivityTimestamp),
       createdAtTimeAgo: dynamicTime(this.createdAtTimestamp),
+      waitingSinceTimeAgo: dynamicTime(this.waitingSinceTimestamp),
       timer: null,
     };
   },
@@ -42,6 +54,9 @@ export default {
     },
     createdAtTime() {
       return shortTimestamp(this.createdAtTimeAgo);
+    },
+    waitingTime() {
+      return shortTimestamp(this.waitingSinceTimeAgo);
     },
     createdAt() {
       const createdTimeDiff = Date.now() - this.createdAtTimestamp * 1000;
@@ -78,10 +93,14 @@ export default {
     createdAtTimestamp() {
       this.createdAtTimeAgo = dynamicTime(this.createdAtTimestamp);
     },
+    waitingSinceTimestamp() {
+      this.waitingSinceTimeAgo = dynamicTime(this.waitingSinceTimestamp);
+    },
     conversationId() {
       // Reset display values and timer when the row is recycled to a different conversation.
       this.lastActivityAtTimeAgo = dynamicTime(this.lastActivityTimestamp);
       this.createdAtTimeAgo = dynamicTime(this.createdAtTimestamp);
+      this.waitingSinceTimeAgo = dynamicTime(this.waitingSinceTimestamp);
       if (this.isAutoRefreshEnabled) {
         clearTimeout(this.timer);
         this.createTimer();
@@ -101,6 +120,7 @@ export default {
       this.timer = setTimeout(() => {
         this.lastActivityAtTimeAgo = dynamicTime(this.lastActivityTimestamp);
         this.createdAtTimeAgo = dynamicTime(this.createdAtTimestamp);
+        this.waitingSinceTimeAgo = dynamicTime(this.waitingSinceTimestamp);
         this.createTimer();
       }, this.refreshTime());
     },
@@ -127,6 +147,14 @@ export default {
     }"
     class="ml-auto leading-4 text-xxs text-n-slate-10 hover:text-n-slate-11"
   >
-    <span>{{ lastActivityTime }}</span>
+    <div v-if="showWaitingTime" class="flex flex-col items-end gap-0.5">
+      <span v-if="waitingSinceTimestamp" class="font-medium text-n-ruby-11">
+        {{ $t('CHAT_LIST.CHAT_TIME_STAMP.WAITING_SINCE') }} {{ waitingTime }}
+      </span>
+      <span>
+        {{ $t('CHAT_LIST.CHAT_TIME_STAMP.LAST_MESSAGE') }} {{ lastActivityTime }}
+      </span>
+    </div>
+    <span v-else>{{ lastActivityTime }}</span>
   </div>
 </template>
