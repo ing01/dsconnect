@@ -2,6 +2,7 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
   before_action :ensure_api_inbox, only: :update
   before_action :ensure_conversation_not_resolved, only: :create
   before_action :ensure_reply_assignment, only: :create
+  before_action :ensure_agent_online, only: :create
 
   def index
     @messages = message_finder.perform
@@ -125,6 +126,21 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
 
   def render_reply_requires_claim
     render json: { error: I18n.t('errors.queues.reply_requires_claim') }, status: :forbidden
+  end
+
+  # So' quem esta' ONLINE pode mandar mensagem PUBLICA pro cliente - nota
+  # privada continua liberada (e' interna, o cliente nunca ve). Administrador
+  # fica de fora da trava de proposito (pedido da Ingrid, 2026-11-14), mesma
+  # excecao que `ensure_reply_assignment` ja da'. So' vale pra um agente de
+  # verdade mandando pela tela (Current.user) - automacao/API/bot ficam de
+  # fora, mesmo criterio das checagens acima.
+  def ensure_agent_online
+    return if Current.user.blank?
+    return if reply_private?
+    return if Current.account_user&.administrator?
+    return if Current.account_user&.availability_status == 'online'
+
+    render json: { error: I18n.t('errors.conversation.must_be_online_to_reply') }, status: :forbidden
   end
 
   def reply_private?

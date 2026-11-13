@@ -160,6 +160,7 @@ export default {
       accountId: 'getCurrentAccountId',
       isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
       currentRole: 'getCurrentRole',
+      currentUserAvailability: 'getCurrentUserAvailability',
     }),
     isMacrosEnabled() {
       return this.isFeatureEnabledonAccount(
@@ -262,6 +263,16 @@ export default {
 
       return !!this.currentChat?.meta?.queue && !this.assignedAgent;
     },
+    // So' quem esta' Online pode mandar mensagem publica pro cliente - nota
+    // privada continua liberada (e' interna, o cliente nunca ve). Administrador
+    // fica de fora da trava de proposito, mesma excecao de
+    // `isAssignedToAnotherAgent`/`isAwaitingQueueClaim` - pedido da Ingrid,
+    // 2026-11-14.
+    isAgentOffline() {
+      if (this.currentRole === 'administrator') return false;
+
+      return this.currentUserAvailability !== 'online';
+    },
     isBotOwnedPendingConversation() {
       return (
         this.currentChat?.status === wootConstants.STATUS_TYPE.PENDING &&
@@ -291,6 +302,9 @@ export default {
           return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_ASSIGNED', {
             name: this.assignedAgent?.name,
           });
+        }
+        if (this.isAgentOffline) {
+          return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_OFFLINE');
         }
         if (this.isAWhatsAppChannel) {
           return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED_WHATSAPP');
@@ -528,6 +542,7 @@ export default {
       if (this.isConversationResolved) return true;
       if (this.isAssignedToAnotherAgent && !this.isOnPrivateNote) return true;
       if (this.isAwaitingQueueClaim && !this.isOnPrivateNote) return true;
+      if (this.isAgentOffline && !this.isOnPrivateNote) return true;
 
       return (
         (this.isAWhatsAppChannel || this.isAPIInbox) &&
