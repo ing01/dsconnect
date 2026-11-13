@@ -257,9 +257,14 @@ const target = () =>
     ? { ticketIds: props.selectedIds }
     : { filters: toSearchParams(props.filters) };
 
-const request = () => ({
+// Trocar categoria em lote agora tambem alcanca ticket fechado/cancelado
+// (pedido da Ingrid, 2026-11-14) - mas precisa ser uma escolha explicita, nao
+// um efeito colateral silencioso. `excludeFinalized` manda o backend pular os
+// ja finalizados mesmo que estejam no escopo (selecionados ou filtro).
+const request = (excludeFinalized = false) => ({
   action: action.value,
   operation: operationPayload.value,
+  excludeFinalized,
   ...target(),
 });
 
@@ -319,10 +324,10 @@ const track = created => {
   poll(created.id);
 };
 
-const confirm = async () => {
+const confirm = async (excludeFinalized = false) => {
   isBusy.value = true;
   try {
-    const { data } = await BulkAPI.run(request());
+    const { data } = await BulkAPI.run(request(excludeFinalized));
     track(data);
   } catch (error) {
     useAlert(apiError(error));
@@ -716,8 +721,43 @@ onBeforeUnmount(stopPolling);
         <strong v-if="action === 'close'" class="text-n-ruby-11">
           {{ t('TICKET.BULK.CLOSE.WARNING', { count: preview.total }) }}
         </strong>
+        <!-- Troca de categoria agora alcanca ticket fechado/cancelado, mas
+             isso precisa ser uma escolha explicita de quem pediu a acao, nao
+             um efeito colateral silencioso - pedido da Ingrid, 2026-11-14. -->
+        <strong
+          v-if="action === 'category' && preview.finalized"
+          class="text-n-amber-11"
+        >
+          {{ t('TICKET.BULK.CATEGORY_FINALIZED_QUESTION', { count: preview.finalized }) }}
+        </strong>
       </div>
-      <div class="flex justify-end gap-2">
+      <div
+        v-if="action === 'category' && preview.finalized"
+        class="flex justify-end gap-2"
+      >
+        <NextButton
+          ghost
+          slate
+          size="sm"
+          :label="t('TICKET.BULK.BACK')"
+          @click="reset"
+        />
+        <NextButton
+          ghost
+          slate
+          size="sm"
+          :is-loading="isBusy"
+          :label="t('TICKET.BULK.CATEGORY_FINALIZED_EXCLUDE')"
+          @click="confirm(true)"
+        />
+        <NextButton
+          size="sm"
+          :is-loading="isBusy"
+          :label="t('TICKET.BULK.CATEGORY_FINALIZED_INCLUDE')"
+          @click="confirm(false)"
+        />
+      </div>
+      <div v-else class="flex justify-end gap-2">
         <NextButton
           ghost
           slate
@@ -729,7 +769,7 @@ onBeforeUnmount(stopPolling);
           size="sm"
           :is-loading="isBusy"
           :label="t('TICKET.BULK.CONFIRM', { count: preview.total })"
-          @click="confirm"
+          @click="confirm()"
         />
       </div>
     </template>

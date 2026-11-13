@@ -16,7 +16,7 @@ module Projects
     def perform
       return [] if items.blank?
 
-      items.map { |item_data| process(item_data.with_indifferent_access) }
+      items.map { |item_data| process(item_data) }
     end
 
     private
@@ -26,8 +26,12 @@ module Projects
     # outras linhas validas do mesmo cronograma, mesma logica ja aplicada
     # em Conversations::ForceDistributionService (bug relatado pela Ingrid,
     # 2026-11-13: "Internal Server Error" sem explicacao nenhuma travava o
-    # cronograma inteiro).
-    def process(item)
+    # cronograma inteiro). A normalizacao do item (`with_indifferent_access`)
+    # tambem precisa estar DENTRO do rescue - um item mal formado quebrando
+    # ali escapava do isolamento e derrubava a requisicao inteira de novo
+    # (bug relatado pela Ingrid, 2026-11-14).
+    def process(raw_item)
+      item = raw_item.with_indifferent_access
       ActiveRecord::Base.transaction do
         ticket = ticket_for(item)
 
@@ -58,7 +62,12 @@ module Projects
       Result.new(success: false, label: item_label(item), error_message: friendly_error_message(e))
     end
 
+    # `item` pode vir nil aqui (ex: o proprio `raw_item.with_indifferent_access`
+    # falhou antes de terminar) - por isso o `||= {}`, pra este metodo nunca
+    # ser a SEGUNDA excecao escapando do rescue de `process` (o que derrubaria
+    # a requisicao inteira de novo, igual o bug original).
     def item_label(item, ticket = nil)
+      item ||= {}
       ticket&.title.presence || item[:new_ticket_title].presence || item[:title].presence ||
         (item[:ticket_id].present? ? "##{item[:ticket_id]}" : I18n.t('errors.project.schedule.untitled_item', default: 'agendamento'))
     end

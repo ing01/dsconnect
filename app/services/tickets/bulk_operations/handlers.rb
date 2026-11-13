@@ -72,7 +72,14 @@ module Tickets::BulkOperations::Handlers
     ticket.assign_attributes(attrs)
     skip!('unchanged') unless ticket.changed?
 
-    ticket.save!
+    # So' categoria tem licenca de mexer em ticket ja fechado/cancelado -
+    # TicketFinalizable bloquearia o save normal (`unchanged_once_finalized`).
+    # As outras acoes de campo continuam batendo nessa trava normalmente.
+    if action == 'category' && ticket.finalized?
+      ticket.as_administrative_change { ticket.save! }
+    else
+      ticket.save!
+    end
     { 'before' => before, 'after' => ticket.reload.slice(*keys).transform_values { |value| normalize(value) } }
   end
 

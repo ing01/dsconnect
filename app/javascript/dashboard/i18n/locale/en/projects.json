@@ -157,7 +157,18 @@
       "SAVE": "Create schedule",
       "SUCCESS": "{count} appointment(s) successfully created",
       "PARTIAL_FAILURE": "{createdCount} of {totalCount} appointment(s) created. Failed: {failedSummary}",
-      "ERROR": "Failed to create the schedule"
+      "ERROR": "Failed to create the schedule",
+      "IMPORT": {
+        "BUTTON": "Import tasks",
+        "TITLE": "Import project tasks",
+        "MODULE_LABEL": "Import module (optional)",
+        "MODULE_PLACEHOLDER": "Select a module to check its tasks",
+        "LOADING": "Loading modules...",
+        "NO_TICKETS": "There are no more project tasks to import.",
+        "SELECTED_COUNT": "{count} selected",
+        "CONFIRM": "Add selected",
+        "MODULES_ERROR": "Could not load modules"
+      }
     },
     "LOADING": "Loading projects...",
     "HELP": {

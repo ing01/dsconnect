@@ -23,6 +23,16 @@ class ProjectPolicy < ApplicationPolicy
     true
   end
 
+  # Faltava este metodo - toda chamada ao botao "Criar cronograma" quebrava
+  # no `check_authorization` (Pundit chama `create_schedule?`, que nao
+  # existia nem aqui nem em ApplicationPolicy) com um NoMethodError cru,
+  # ANTES de qualquer linha do cronograma ser processada - por isso falhava
+  # sempre, independente dos dados digitados. Bug relatado pela Ingrid,
+  # 2026-11-14.
+  def create_schedule?
+    true
+  end
+
   def cancel?
     true
   end
