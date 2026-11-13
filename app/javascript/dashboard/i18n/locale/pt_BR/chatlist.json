@@ -25,6 +25,7 @@
       "REASON": {
         "OFFLINE": "{name} está offline",
         "ONLINE_LOAD": "{name} está online (com {count} conversa(s) em aberto)",
+        "MAX_OPEN_CHATS_REACHED": "{name} já atingiu o limite de conversas abertas ({count})",
         "EXCLUDED": "{name} está na exceção de distribuição",
         "LUNCH_BLACKOUT": "{name} está no horário de bloqueio de almoço",
         "NO_TEAM": "Fila sem equipe configurada",

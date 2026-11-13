@@ -37,6 +37,8 @@ class Queues::DistributionService
         { agent: agent, reason: :lunch_blackout }
       elsif !online_ids.include?(agent.id)
         { agent: agent, reason: :offline }
+      elsif !within_open_chats_limit?(agent)
+        { agent: agent, reason: :max_open_chats_reached, open_count: inbox_open_chats_count(agent) }
       else
         { agent: agent, reason: :online, open_count: open_conversation_count(agent) }
       end
@@ -66,6 +68,7 @@ class Queues::DistributionService
   def eligible_agents
     agents = @queue.team.members.to_a
     agents = agents.reject { |agent| excluded_agent_ids.include?(agent.id) } if excluded_agent_ids.present?
+    agents = agents.select { |agent| within_open_chats_limit?(agent) }
 
     online_ids = online_agent_ids
     agents.select { |agent| online_ids.include?(agent.id) }
@@ -80,6 +83,39 @@ class Queues::DistributionService
             account.client_portal_auto_assignment_excluded_agent_ids
           end
     Array(ids).map(&:to_i)
+  end
+
+  # Mesmo "Excecao da distribuicao" (Colaboradores/Automacao) ja aplicada ao
+  # rodizio comum da inbox (`AutoAssignmentHandler#apply_distribution_exceptions`)
+  # - a fila so' checava a lista de agentes excluidos, nunca o limite de
+  # conversas abertas, entao um agente ja no teto continuava recebendo
+  # conversa atras de conversa toda vez que "Distribuir conversas" rodava em
+  # lote. Bug URGENTE relatado pela Ingrid, 2026-11-14 ("enviou um monte pros
+  # agentes").
+  def within_open_chats_limit?(agent)
+    limit = distribution_max_open_chats
+    return true unless limit.positive?
+
+    inbox_open_chats_count(agent) < limit
+  end
+
+  def distribution_max_open_chats
+    inbox = @conversation.inbox
+    account = @conversation.account
+    if inbox.whatsapp?
+      account.whatsapp_auto_assignment_max_open_chats.to_i
+    elsif inbox.client_portal?
+      account.client_portal_auto_assignment_max_open_chats.to_i
+    else
+      0
+    end
+  end
+
+  # Conta na INBOX inteira (todas as filas/conversas daquela caixa), nao so'
+  # nesta fila - mesmo escopo do rodizio comum (`inbox.conversations.open`),
+  # senao um agente em varias filas da mesma caixa furava o limite.
+  def inbox_open_chats_count(agent)
+    @conversation.inbox.conversations.open.where(assignee_id: agent.id).count
   end
 
   # Mesmo criterio estrito das demais atribuicoes automaticas: so' 'online'

@@ -66,6 +66,8 @@ class Conversations::ForceDistributionService
     case diagnostic[:reason]
     when :online
       AgentOutcome.new(agent_name: agent.name, reason_key: 'online_load', reason_params: { count: diagnostic[:open_count] })
+    when :max_open_chats_reached
+      AgentOutcome.new(agent_name: agent.name, reason_key: 'max_open_chats_reached', reason_params: { count: diagnostic[:open_count] })
     when :offline
       AgentOutcome.new(agent_name: agent.name, reason_key: 'offline', reason_params: {})
     when :excluded

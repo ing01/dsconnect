@@ -25,6 +25,7 @@
       "REASON": {
         "OFFLINE": "{name} is offline",
         "ONLINE_LOAD": "{name} is online (with {count} open conversation(s))",
+        "MAX_OPEN_CHATS_REACHED": "{name} has already reached the open chats limit ({count})",
         "EXCLUDED": "{name} is in the distribution exception list",
         "LUNCH_BLACKOUT": "{name} is in the lunch blackout window",
         "NO_TEAM": "Queue has no team configured",
