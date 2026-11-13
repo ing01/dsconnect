@@ -99,7 +99,9 @@
       "LAST_ACTIVITY": {
         "NOT_ACTIVE": "Última atividade:",
         "ACTIVE": "Última atividade"
-      }
+      },
+      "WAITING_SINCE": "Aguardando há:",
+      "LAST_MESSAGE": "Última mensagem:"
     },
     "SORT_ORDER_ITEMS": {
       "last_activity_at_asc": {

@@ -40,6 +40,20 @@ const unreadCount = computed(() => props.chat.unread_count);
 const hasUnread = computed(() => unreadCount.value > 0);
 const lastMessageInChat = computed(() => getLastMessage(props.chat));
 
+// "Aguardando ha" (so' aparece enquanto o cliente tem mensagem sem
+// resposta - Conversation#waiting_since zera assim que um agente/bot
+// responde ou a conversa e' resolvida) separado de "Ultima mensagem"
+// (qualquer mensagem, de quem for - usa a mesma mensagem ja' calculada
+// acima pro preview, em vez da `chat.timestamp`/`last_activity_at`, que
+// tambem muda por causa de evento/etiqueta/status, nao so' mensagem).
+// Pedido da Ingrid, 2026-11-13: deixar claro o tempo que o cliente espera.
+const waitingSinceTimestamp = computed(
+  () => props.chat.waitingSince ?? props.chat.waiting_since
+);
+const lastMessageTimestamp = computed(
+  () => lastMessageInChat.value?.created_at ?? props.chat.timestamp
+);
+
 const voiceCallData = computed(() => {
   const last = lastMessageInChat.value;
   if (last?.content_type !== 'voice_call' || !last.call) {
@@ -242,9 +256,11 @@ watch(
         <div class="flex flex-col items-end flex-shrink-0 gap-1 ltr:mr-2 rtl:ml-2">
           <span class="font-normal leading-4 text-xxs text-n-slate-10">
             <TimeAgo
-              :last-activity-timestamp="chat.timestamp"
+              :last-activity-timestamp="lastMessageTimestamp"
               :created-at-timestamp="chat.created_at"
               :conversation-id="chat.id"
+              :waiting-since-timestamp="waitingSinceTimestamp"
+              show-waiting-time
             />
           </span>
           <UnreadBadge v-if="hasUnread" :count="unreadCount" />
