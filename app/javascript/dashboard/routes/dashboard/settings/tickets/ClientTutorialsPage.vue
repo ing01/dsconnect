@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Configurações > Tickets > Tutoriais do Portal.
+ * Configurações > Tutoriais do Portal.
  *
  * O administrador cadastra o que o cliente vê na aba "Tutoriais" da Área do
  * Cliente: título, texto e o vídeo - um link (YouTube/Vimeo) OU um arquivo MP4
@@ -18,7 +18,9 @@ import { setDirectUploadAuthHeaders } from 'dashboard/helper/directUploadsHelper
 import { resolveTutorialVideo } from 'dashboard/helper/tutorialVideo';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import ClientTutorialsAPI from 'dashboard/api/clientTutorials';
+import ClientTutorialModulesAPI from 'dashboard/api/clientTutorialModules';
 
+import ClientTutorialModulesSection from './ClientTutorialModulesSection.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -30,6 +32,7 @@ const VIDEO_TYPES = ['video/mp4', 'video/webm'];
 const { t } = useI18n();
 
 const tutorials = ref([]);
+const modules = ref([]);
 const isLoading = ref(true);
 const isSubmitting = ref(false);
 
@@ -39,6 +42,8 @@ const editing = ref(null);
 const title = ref('');
 const description = ref('');
 const active = ref(true);
+// Módulo (card) em que o tutorial fica; '' = sem módulo (card "Geral").
+const moduleId = ref('');
 // 'link' ou 'file': o servidor guarda um OU o outro.
 const source = ref('link');
 const videoUrl = ref('');
@@ -58,6 +63,15 @@ const aviso = error =>
       t('TICKET.SETTINGS.CLIENT_TUTORIALS.API.ERROR')
   );
 
+const fetchModules = async () => {
+  try {
+    const { data } = await ClientTutorialModulesAPI.get();
+    modules.value = data;
+  } catch (error) {
+    aviso(error);
+  }
+};
+
 const fetchTutorials = async () => {
   isLoading.value = true;
   try {
@@ -70,11 +84,19 @@ const fetchTutorials = async () => {
   }
 };
 
+// Mudou um módulo: recarrega os dois (excluir um módulo solta os vídeos dele).
+const onModulesChanged = () => Promise.all([fetchModules(), fetchTutorials()]);
+
+const moduleName = tutorial =>
+  modules.value.find(item => item.id === tutorial.client_tutorial_module_id)
+    ?.name;
+
 const resetForm = () => {
   editing.value = null;
   title.value = '';
   description.value = '';
   active.value = true;
+  moduleId.value = '';
   source.value = 'link';
   videoUrl.value = '';
   savedFile.value = null;
@@ -94,6 +116,7 @@ const openEdit = tutorial => {
   title.value = tutorial.title;
   description.value = tutorial.description || '';
   active.value = tutorial.active;
+  moduleId.value = tutorial.client_tutorial_module_id || '';
   if (tutorial.video_file_url) {
     source.value = 'file';
     savedFile.value = {
@@ -177,6 +200,7 @@ const buildPayload = () => {
       title: title.value.trim(),
       description: description.value.trim(),
       active: active.value,
+      client_tutorial_module_id: moduleId.value || null,
     },
   };
 
@@ -277,7 +301,7 @@ const sourceLabel = tutorial => {
 
 const linkPreview = computed(() => resolveTutorialVideo(videoUrl.value));
 
-onMounted(fetchTutorials);
+onMounted(() => Promise.all([fetchModules(), fetchTutorials()]));
 </script>
 
 <template>
@@ -292,6 +316,7 @@ onMounted(fetchTutorials);
             size="sm"
             icon="i-lucide-plus"
             :label="t('TICKET.SETTINGS.CLIENT_TUTORIALS.ADD')"
+            data-testid="tutorial-add"
             @click="openCreate"
           />
         </template>
@@ -300,6 +325,15 @@ onMounted(fetchTutorials);
 
     <template #body>
       <div class="flex flex-col gap-4 min-w-0">
+        <ClientTutorialModulesSection
+          :modules="modules"
+          @changed="onModulesChanged"
+        />
+
+        <h3 class="m-0 text-base font-medium text-n-slate-12">
+          {{ t('TICKET.SETTINGS.CLIENT_TUTORIALS.LIST.HEADING') }}
+        </h3>
+
         <!-- Criar e editar usam o mesmo formulário. -->
         <form
           v-if="showForm"
@@ -320,6 +354,24 @@ onMounted(fetchTutorials);
                 t('TICKET.SETTINGS.CLIENT_TUTORIALS.FORM.TITLE_PLACEHOLDER')
               "
             />
+          </label>
+
+          <label class="flex flex-col gap-1">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ t('TICKET.SETTINGS.CLIENT_TUTORIALS.FORM.MODULE') }}
+            </span>
+            <select
+              v-model="moduleId"
+              class="w-full mb-0"
+              data-testid="tutorial-module"
+            >
+              <option value="">
+                {{ t('TICKET.SETTINGS.CLIENT_TUTORIALS.FORM.NO_MODULE') }}
+              </option>
+              <option v-for="item in modules" :key="item.id" :value="item.id">
+                {{ item.name }}
+              </option>
+            </select>
           </label>
 
           <label class="flex flex-col gap-1">
@@ -483,6 +535,16 @@ onMounted(fetchTutorials);
               </span>
               <span class="text-xs truncate text-n-slate-11">
                 {{ sourceLabel(tutorial) }}
+              </span>
+              <span
+                v-if="moduleName(tutorial)"
+                class="text-xs truncate text-n-slate-11"
+              >
+                {{
+                  t('TICKET.SETTINGS.CLIENT_TUTORIALS.LIST.MODULE', {
+                    name: moduleName(tutorial),
+                  })
+                }}
               </span>
             </div>
 

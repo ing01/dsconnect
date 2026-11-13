@@ -11,10 +11,12 @@
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  account_id  :bigint           not null
+#  client_tutorial_module_id :bigint
 #
 # Indexes
 #
 #  index_client_tutorials_on_account_id  (account_id)
+#  index_client_tutorials_on_client_tutorial_module_id  (client_tutorial_module_id)
 #
 
 # Um tutorial da aba "Tutoriais" da Area do Cliente. O video e' um link (YouTube,
@@ -24,12 +26,16 @@ class ClientTutorial < ApplicationRecord
   MAXIMUM_VIDEO_SIZE = 500.megabytes
 
   belongs_to :account
+  # Opcional: sem modulo, o tutorial aparece no card "Geral".
+  belongs_to :tutorial_module, class_name: 'ClientTutorialModule', foreign_key: :client_tutorial_module_id,
+                               optional: true, inverse_of: :client_tutorials
   has_one_attached :video_file
 
   validates :title, presence: true, length: { maximum: 200 }
   validates :video_url, format: { with: %r{\Ahttps?://\S+\z}i }, length: { maximum: 500 }, allow_blank: true
   validate :single_video_source
   validate :video_file_acceptable
+  validate :module_from_same_account
 
   scope :ordered, -> { order(:position, :id) }
   scope :visible, -> { where(active: true) }
@@ -41,6 +47,12 @@ class ClientTutorial < ApplicationRecord
   end
 
   private
+
+  def module_from_same_account
+    return if tutorial_module.blank? || tutorial_module.account_id == account_id
+
+    errors.add(:tutorial_module, :invalid)
+  end
 
   def single_video_source
     return unless video_url.present? && video_file.attached?

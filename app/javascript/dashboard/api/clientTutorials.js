@@ -1,7 +1,7 @@
 import ApiClient from './ApiClient';
 
 // Os tutoriais da Area do Cliente, editados por administradores em
-// Configuracoes > Tickets > Tutoriais do Portal.
+// Configuracoes > Tutoriais do Portal.
 class ClientTutorialsAPI extends ApiClient {
   constructor() {
     super('client_tutorials', { accountScoped: true });

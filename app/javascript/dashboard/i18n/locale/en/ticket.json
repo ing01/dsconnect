@@ -1060,10 +1060,40 @@
           "FILE_REMOVE": "Remove",
           "UPLOADING": "Uploading… {progress}%",
           "ACTIVE": "Visible to customers",
+          "MODULE": "Module",
+          "NO_MODULE": "No module (shown under \"General\")",
           "SAVE": "Save",
           "CANCEL": "Cancel"
         },
+        "MODULES": {
+          "TITLE": "Modules",
+          "DESCRIPTION": "Each module (e.g. DS Connect, DS Comercial) becomes a card in the Tutorials tab; clicking it shows its videos.",
+          "ADD": "New module",
+          "EMPTY": "No modules yet. Without modules, videos are shown directly in a list.",
+          "CONFIRM_DELETE": "Confirm - videos move to \"General\"",
+          "FORM": {
+            "NAME": "Module name",
+            "NAME_PLACEHOLDER": "E.g.: DS Comercial",
+            "DESCRIPTION": "Description (shown on the card)",
+            "DESCRIPTION_PLACEHOLDER": "E.g.: Orders, quotes and customers",
+            "LOGO": "Card logo",
+            "LOGO_PICK": "Choose image",
+            "LOGO_REPLACE": "Replace image",
+            "LOGO_SENDING": "Uploading…",
+            "LOGO_HINT": "PNG, JPG, WebP or GIF, up to 5 MB. Without a logo, the card shows an icon."
+          },
+          "ERRORS": {
+            "LOGO_TYPE": "Upload a PNG, JPG, WebP or GIF image.",
+            "LOGO_SIZE": "The image is over the {size} MB limit."
+          },
+          "API": {
+            "SAVED": "Module saved.",
+            "DELETED": "Module deleted."
+          }
+        },
         "LIST": {
+          "HEADING": "Tutorials",
+          "MODULE": "Module: {name}",
           "FILE": "File: {name}",
           "NO_VIDEO": "No video yet",
           "ACTIVE": "Visible",

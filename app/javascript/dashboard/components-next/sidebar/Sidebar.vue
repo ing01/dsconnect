@@ -923,12 +923,6 @@ const menuItems = computed(() => {
               activeOn: ['ticket_api_key_settings'],
               to: accountScopedRoute('ticket_api_key_settings'),
             },
-            {
-              name: 'Settings Client Tutorials',
-              label: t('SIDEBAR.CLIENT_TUTORIALS'),
-              activeOn: ['client_tutorials_settings'],
-              to: accountScopedRoute('client_tutorials_settings'),
-            },
           ],
         },
         {
@@ -973,6 +967,13 @@ const menuItems = computed(() => {
             'settings_inboxes_add_agents',
           ],
           to: accountScopedRoute('settings_inbox_list'),
+        },
+        {
+          name: 'Settings Client Tutorials',
+          label: t('SIDEBAR.CLIENT_TUTORIALS'),
+          icon: 'i-lucide-circle-play',
+          activeOn: ['client_tutorials_settings'],
+          to: accountScopedRoute('client_tutorials_settings'),
         },
         {
           name: 'Settings Templates',

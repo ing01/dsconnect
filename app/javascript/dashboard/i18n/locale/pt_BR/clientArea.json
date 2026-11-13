@@ -235,6 +235,9 @@
       "TITLE": "Tutoriais",
       "DESCRIPTION": "Vídeos curtos com o passo a passo dos recursos do Portal.",
       "VIDEO_SOON": "Vídeo em breve",
+      "BACK": "Voltar aos módulos",
+      "GENERAL": "Geral",
+      "VIDEO_COUNT": "{count} vídeo | {count} vídeos",
       "EMPTY": "Ainda não há tutoriais por aqui.",
       "ERROR": "Não foi possível carregar os tutoriais."
     },

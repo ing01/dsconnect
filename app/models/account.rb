@@ -177,6 +177,7 @@ class Account < ApplicationRecord
   has_many :categories, dependent: :destroy_async, class_name: '::Category'
   has_many :client_push_subscriptions, dependent: :destroy_async
   has_many :client_tutorials, dependent: :destroy_async
+  has_many :client_tutorial_modules, dependent: :destroy_async
   has_many :contacts, dependent: :destroy_async
   has_many :conversations, dependent: :destroy_async
   has_many :csat_survey_responses, dependent: :destroy_async

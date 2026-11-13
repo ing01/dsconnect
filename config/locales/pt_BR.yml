@@ -673,6 +673,8 @@ pt_BR:
       single_source: Informe um link OU envie um arquivo de vídeo, não os dois.
       video_type: precisa ser um vídeo MP4 ou WebM.
       video_size: passa do limite de 500 MB.
+      logo_type: precisa ser uma imagem PNG, JPG, WebP ou GIF.
+      logo_size: passa do limite de 5 MB.
   client_area:
     communication:
       empty: Escreva uma mensagem antes de enviar.

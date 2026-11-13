@@ -659,6 +659,7 @@ Rails.application.routes.draw do
           resources :suggestion_categories, only: [:index, :create, :update, :destroy]
           # Tutoriais da aba "Tutoriais" da Area do Cliente (so' administrador).
           resources :client_tutorials, only: [:index, :create, :update, :destroy]
+          resources :client_tutorial_modules, only: [:index, :create, :update, :destroy]
           # O video vai direto ao storage; a aplicacao so' registra o blob.
           resource :client_tutorial_uploads, only: [:create], controller: 'client_tutorials/direct_uploads'
 

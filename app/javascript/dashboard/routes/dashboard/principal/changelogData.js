@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-tutorial-modules-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'feature',
+    platform: 'web',
+    title: 'Tutoriais do Portal agrupados em módulos',
+    description:
+      'Na aba Tutoriais da Área do Cliente, os vídeos agora ficam em módulos (ex.: DS Connect, DS Comercial): cada módulo é um card (com o logo que você enviar) e, ao clicar, abre os vídeos dele. Os módulos são criados e ordenados em Configurações > Tutoriais do Portal (agora um item próprio do menu, logo abaixo de Caixas de entrada), e cada tutorial escolhe o seu módulo. Vídeo sem módulo aparece no card "Geral".',
+  },
+  {
     id: 'client-tutorials-admin-2026-11-13',
     date: '13 de novembro de 2026',
     isoDate: '2026-11-13',
@@ -15,7 +25,7 @@ export const CHANGELOG_ENTRIES = [
     platform: 'web',
     title: 'Tutoriais do Portal editáveis em Configurações',
     description:
-      'Nova tela em Configurações > Tickets > Tutoriais do Portal: o administrador cadastra título, descrição e vídeo (link do YouTube/Vimeo ou arquivo MP4 enviado direto pela tela) dos tutoriais que o cliente vê na aba Tutoriais. Tudo é editável: trocar o vídeo, reordenar, ocultar sem apagar e excluir.',
+      'Nova tela em Configurações > Tutoriais do Portal: o administrador cadastra título, descrição e vídeo (link do YouTube/Vimeo ou arquivo MP4 enviado direto pela tela) dos tutoriais que o cliente vê na aba Tutoriais. Tudo é editável: trocar o vídeo, reordenar, ocultar sem apagar e excluir.',
   },
   {
     id: 'client-push-hardening-2026-11-13',

@@ -1160,10 +1160,40 @@
           "FILE_REMOVE": "Remover",
           "UPLOADING": "Enviando… {progress}%",
           "ACTIVE": "Visível para o cliente",
+          "MODULE": "Módulo",
+          "NO_MODULE": "Sem módulo (aparece em \"Geral\")",
           "SAVE": "Salvar",
           "CANCEL": "Cancelar"
         },
+        "MODULES": {
+          "TITLE": "Módulos",
+          "DESCRIPTION": "Cada módulo (ex.: DS Connect, DS Comercial) vira um card na aba Tutoriais; ao clicar, o cliente vê os vídeos dele.",
+          "ADD": "Novo módulo",
+          "EMPTY": "Nenhum módulo ainda. Sem módulos, os vídeos aparecem direto em uma lista.",
+          "CONFIRM_DELETE": "Confirmar - os vídeos ficam em \"Geral\"",
+          "FORM": {
+            "NAME": "Nome do módulo",
+            "NAME_PLACEHOLDER": "Ex.: DS Comercial",
+            "DESCRIPTION": "Descrição (aparece no card)",
+            "DESCRIPTION_PLACEHOLDER": "Ex.: Pedidos, orçamentos e clientes",
+            "LOGO": "Logo do card",
+            "LOGO_PICK": "Escolher imagem",
+            "LOGO_REPLACE": "Trocar imagem",
+            "LOGO_SENDING": "Enviando…",
+            "LOGO_HINT": "PNG, JPG, WebP ou GIF, até 5 MB. Sem logo, o card mostra um ícone."
+          },
+          "ERRORS": {
+            "LOGO_TYPE": "Envie uma imagem PNG, JPG, WebP ou GIF.",
+            "LOGO_SIZE": "A imagem passa do limite de {size} MB."
+          },
+          "API": {
+            "SAVED": "Módulo salvo.",
+            "DELETED": "Módulo excluído."
+          }
+        },
         "LIST": {
+          "HEADING": "Tutoriais",
+          "MODULE": "Módulo: {name}",
           "FILE": "Arquivo: {name}",
           "NO_VIDEO": "Sem vídeo ainda",
           "ACTIVE": "Visível",

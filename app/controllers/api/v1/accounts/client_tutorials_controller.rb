@@ -1,4 +1,4 @@
-# A tela de Configuracoes > Tickets > Tutoriais do Portal: o administrador cadastra
+# A tela de Configuracoes > Tutoriais do Portal: o administrador cadastra
 # o titulo, o texto e o video (link ou arquivo) que o cliente ve na aba Tutoriais.
 #
 # O arquivo NAO passa por aqui: o navegador o envia direto ao storage
@@ -39,7 +39,7 @@ class Api::V1::Accounts::ClientTutorialsController < Api::V1::Accounts::BaseCont
   end
 
   def tutorial_params
-    params.require(:client_tutorial).permit(:title, :description, :video_url, :position, :active)
+    params.require(:client_tutorial).permit(:title, :description, :video_url, :position, :active, :client_tutorial_module_id)
   end
 
   # Um OU o outro: arquivo novo limpa o link; link novo (ou "remover arquivo") tira o arquivo.

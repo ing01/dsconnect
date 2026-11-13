@@ -235,6 +235,9 @@
       "TITLE": "Tutorials",
       "DESCRIPTION": "Short videos with step-by-step guides to the Portal features.",
       "VIDEO_SOON": "Video coming soon",
+      "BACK": "Back to modules",
+      "GENERAL": "General",
+      "VIDEO_COUNT": "{count} video | {count} videos",
       "EMPTY": "There are no tutorials here yet.",
       "ERROR": "Could not load the tutorials."
     },

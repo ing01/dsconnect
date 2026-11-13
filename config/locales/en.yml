@@ -654,6 +654,8 @@ en:
       single_source: Provide a link OR upload a video file, not both.
       video_type: must be an MP4 or WebM video.
       video_size: is over the 500 MB limit.
+      logo_type: must be a PNG, JPG, WebP or GIF image.
+      logo_size: is over the 5 MB limit.
   client_area:
     communication:
       empty: Write a message before sending.

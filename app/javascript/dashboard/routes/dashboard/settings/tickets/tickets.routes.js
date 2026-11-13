@@ -121,8 +121,16 @@ export default {
           },
           component: ApiKeyPage,
         },
+      ],
+    },
+    // Tutoriais do Portal moram fora dos Tickets: sao da Area do Cliente como um
+    // todo (modulos e videos), nao de uma mesa de tickets.
+    {
+      path: frontendURL('accounts/:accountId/settings/client-tutorials'),
+      component: SettingsWrapper,
+      children: [
         {
-          path: 'client-tutorials',
+          path: '',
           name: 'client_tutorials_settings',
           meta: {
             permissions: ['administrator'],
