@@ -1,24 +1,37 @@
 <script setup>
 /**
- * A aba "Tutoriais" da Área do Cliente: vídeos curtos com o passo a passo de
- * recursos do Portal. A lista e os vídeos vêm de `tutorialsData.js`.
+ * A aba "Tutoriais" da Área do Cliente: vídeos e textos cadastrados pela equipe
+ * em Configurações > Tickets > Tutoriais do Portal. Só os ativos, na ordem
+ * definida pelo administrador.
  */
-import { computed } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import ClientAreaAPI from 'dashboard/api/clientArea';
+import { tutorialVideo } from 'dashboard/helper/tutorialVideo';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
-import { TUTORIALS, resolveTutorialVideo } from '../tutorialsData';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const { t } = useI18n();
 
-const tutorials = computed(() =>
-  TUTORIALS.map(tutorial => ({
-    ...tutorial,
-    video: resolveTutorialVideo(tutorial.videoUrl),
-    steps: [1, 2, 3, 4].map(n =>
-      t(`CLIENT_AREA.TUTORIALS.${tutorial.key}.STEP_${n}`)
-    ),
-  }))
-);
+const tutorials = ref([]);
+const isLoading = ref(true);
+const hasError = ref(false);
+
+const load = async () => {
+  try {
+    const { data } = await ClientAreaAPI.tutorials();
+    tutorials.value = data.map(tutorial => ({
+      ...tutorial,
+      video: tutorialVideo(tutorial),
+    }));
+  } catch {
+    hasError.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(load);
 </script>
 
 <template>
@@ -32,27 +45,35 @@ const tutorials = computed(() =>
       </p>
     </div>
 
+    <PageLoader v-if="isLoading" />
+
+    <p v-else-if="hasError" class="m-0 text-sm text-n-ruby-11">
+      {{ t('CLIENT_AREA.TUTORIALS.ERROR') }}
+    </p>
+
+    <p
+      v-else-if="!tutorials.length"
+      class="m-0 text-sm text-n-slate-11"
+      data-testid="tutorials-empty"
+    >
+      {{ t('CLIENT_AREA.TUTORIALS.EMPTY') }}
+    </p>
+
     <article
       v-for="tutorial in tutorials"
       :key="tutorial.id"
       class="flex flex-col w-full max-w-3xl gap-3 p-4 border rounded-xl border-n-weak bg-n-solid-1"
       :data-testid="`tutorial-${tutorial.id}`"
     >
-      <div class="flex items-center gap-2">
-        <Icon :icon="tutorial.icon" class="flex-shrink-0 size-5 text-n-brand" />
-        <h3 class="m-0 text-base font-medium text-n-slate-12">
-          {{ t(`CLIENT_AREA.TUTORIALS.${tutorial.key}.TITLE`) }}
-        </h3>
-      </div>
-      <p class="m-0 text-sm text-n-slate-11">
-        {{ t(`CLIENT_AREA.TUTORIALS.${tutorial.key}.DESCRIPTION`) }}
-      </p>
+      <h3 class="m-0 text-base font-medium text-n-slate-12">
+        {{ tutorial.title }}
+      </h3>
 
       <div class="overflow-hidden rounded-lg aspect-video bg-n-solid-2">
         <iframe
           v-if="tutorial.video?.type === 'iframe'"
           :src="tutorial.video.src"
-          :title="t(`CLIENT_AREA.TUTORIALS.${tutorial.key}.TITLE`)"
+          :title="tutorial.title"
           class="w-full h-full border-0"
           allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
           allowfullscreen
@@ -74,11 +95,12 @@ const tutorials = computed(() =>
         </div>
       </div>
 
-      <ol class="flex flex-col gap-1 pl-5 m-0 text-sm text-n-slate-12">
-        <li v-for="(step, index) in tutorial.steps" :key="index">
-          {{ step }}
-        </li>
-      </ol>
+      <p
+        v-if="tutorial.description"
+        class="m-0 text-sm whitespace-pre-line text-n-slate-12"
+      >
+        {{ tutorial.description }}
+      </p>
     </article>
   </div>
 </template>

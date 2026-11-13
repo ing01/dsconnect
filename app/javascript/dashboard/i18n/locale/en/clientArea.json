@@ -235,14 +235,8 @@
       "TITLE": "Tutorials",
       "DESCRIPTION": "Short videos with step-by-step guides to the Portal features.",
       "VIDEO_SOON": "Video coming soon",
-      "NOTIFICATIONS": {
-        "TITLE": "How to enable notifications",
-        "DESCRIPTION": "Get DSConnect alerts in your browser, even with the tab in the background.",
-        "STEP_1": "Click the \"Enable notifications\" button at the top of the screen.",
-        "STEP_2": "When the browser asks, click \"Allow\".",
-        "STEP_3": "Done: the button now reads \"Notifications on\".",
-        "STEP_4": "If the browser blocked it, click the padlock next to the site address, allow notifications and click the button again."
-      }
+      "EMPTY": "There are no tutorials here yet.",
+      "ERROR": "Could not load the tutorials."
     },
     "CHAT": {
       "BLOCKED": "You do not have permission to use the support chat. Please call (18) 3916-7600.",

@@ -75,6 +75,8 @@ Rails.application.routes.draw do
         resources :chat_history, only: [:index, :show]
         resource :push_subscription, only: [:create, :destroy], controller: 'push_subscriptions'
         resources :teams, only: [:index]
+        # A aba "Tutoriais": so' leitura - quem edita e' o administrador, em Configuracoes.
+        resources :tutorials, only: [:index]
         # Rascunho de ticket por IA (texto livre ou audio transcrito) - so
         # devolve categoria/titulo/descricao sugeridos, nunca cria o ticket.
         resources :ticket_drafts, only: [:create] do
@@ -655,6 +657,10 @@ Rails.application.routes.draw do
           end
           resources :suggestion_priorities, only: [:index, :create, :update, :destroy]
           resources :suggestion_categories, only: [:index, :create, :update, :destroy]
+          # Tutoriais da aba "Tutoriais" da Area do Cliente (so' administrador).
+          resources :client_tutorials, only: [:index, :create, :update, :destroy]
+          # O video vai direto ao storage; a aplicacao so' registra o blob.
+          resource :client_tutorial_uploads, only: [:create], controller: 'client_tutorials/direct_uploads'
 
           resources :projects do
             collection do

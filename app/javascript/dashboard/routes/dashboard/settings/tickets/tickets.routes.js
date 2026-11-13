@@ -12,6 +12,7 @@ import AttendanceSchedulePage from './AttendanceSchedulePage.vue';
 import ClientPortalRoutingPage from './ClientPortalRoutingPage.vue';
 import ImportTicketsPage from './ImportTicketsPage.vue';
 import ApiKeyPage from './ApiKeyPage.vue';
+import ClientTutorialsPage from './ClientTutorialsPage.vue';
 
 // One page per subject rather than a single scrolling screen: Estagios and
 // Categorias belong to a Mesa, the Catalogo is account-wide, and mixing them
@@ -119,6 +120,14 @@ export default {
             permissions: ['administrator'],
           },
           component: ApiKeyPage,
+        },
+        {
+          path: 'client-tutorials',
+          name: 'client_tutorials_settings',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: ClientTutorialsPage,
         },
       ],
     },

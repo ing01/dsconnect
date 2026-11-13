@@ -923,6 +923,12 @@ const menuItems = computed(() => {
               activeOn: ['ticket_api_key_settings'],
               to: accountScopedRoute('ticket_api_key_settings'),
             },
+            {
+              name: 'Settings Client Tutorials',
+              label: t('SIDEBAR.CLIENT_TUTORIALS'),
+              activeOn: ['client_tutorials_settings'],
+              to: accountScopedRoute('client_tutorials_settings'),
+            },
           ],
         },
         {

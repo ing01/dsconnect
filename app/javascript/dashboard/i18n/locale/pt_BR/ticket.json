@@ -1141,6 +1141,50 @@
           }
         }
       },
+      "CLIENT_TUTORIALS": {
+        "TITLE": "Tutoriais do Portal",
+        "DESCRIPTION": "Vídeos e textos que o cliente vê na aba Tutoriais da Área do Cliente. Use um link do YouTube/Vimeo ou envie um arquivo MP4.",
+        "ADD": "Novo tutorial",
+        "EMPTY": "Nenhum tutorial cadastrado. Clique em \"Novo tutorial\" para criar o primeiro.",
+        "FORM": {
+          "TITLE": "Título",
+          "TITLE_PLACEHOLDER": "Ex.: Como ativar as notificações",
+          "DESCRIPTION": "Descrição (aparece abaixo do vídeo)",
+          "DESCRIPTION_PLACEHOLDER": "Explique o passo a passo. Quebras de linha são mantidas.",
+          "SOURCE": "Vídeo",
+          "SOURCE_LINK": "Link (YouTube, Vimeo ou arquivo)",
+          "SOURCE_FILE": "Enviar arquivo MP4",
+          "LINK_PLACEHOLDER": "https://www.youtube.com/watch?v=...",
+          "FILE_PICK": "Escolher vídeo",
+          "FILE_REPLACE": "Trocar vídeo",
+          "FILE_REMOVE": "Remover",
+          "UPLOADING": "Enviando… {progress}%",
+          "ACTIVE": "Visível para o cliente",
+          "SAVE": "Salvar",
+          "CANCEL": "Cancelar"
+        },
+        "LIST": {
+          "FILE": "Arquivo: {name}",
+          "NO_VIDEO": "Sem vídeo ainda",
+          "ACTIVE": "Visível",
+          "INACTIVE": "Oculto",
+          "MOVE_UP": "Mover para cima",
+          "MOVE_DOWN": "Mover para baixo",
+          "EDIT": "Editar",
+          "DELETE": "Excluir",
+          "CONFIRM_DELETE": "Confirmar exclusão"
+        },
+        "ERRORS": {
+          "FILE_TYPE": "Envie um vídeo MP4 ou WebM.",
+          "FILE_TOO_LARGE": "O vídeo passa do limite de {size} MB.",
+          "UPLOAD_FAILED": "Não foi possível enviar o vídeo. Tente novamente."
+        },
+        "API": {
+          "ERROR": "Não foi possível concluir a operação.",
+          "SAVED": "Tutorial salvo.",
+          "DELETED": "Tutorial excluído."
+        }
+      },
       "API_KEY": {
         "TITLE": "API de Tickets",
         "DESCRIPTION": "Uma chave para um sistema externo ler e rotear os tickets desta conta - pensada para conectar uma IA de triagem. A documentação completa (Swagger) fica em /swagger.",

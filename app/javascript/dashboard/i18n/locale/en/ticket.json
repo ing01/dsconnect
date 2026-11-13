@@ -1041,6 +1041,50 @@
           "ROW_MESSAGE": "Row {row}: {message}"
         }
       },
+      "CLIENT_TUTORIALS": {
+        "TITLE": "Portal tutorials",
+        "DESCRIPTION": "Videos and text customers see in the Tutorials tab of the Customer Area. Use a YouTube/Vimeo link or upload an MP4 file.",
+        "ADD": "New tutorial",
+        "EMPTY": "No tutorials yet. Click \"New tutorial\" to create the first one.",
+        "FORM": {
+          "TITLE": "Title",
+          "TITLE_PLACEHOLDER": "E.g.: How to enable notifications",
+          "DESCRIPTION": "Description (shown below the video)",
+          "DESCRIPTION_PLACEHOLDER": "Explain the steps. Line breaks are kept.",
+          "SOURCE": "Video",
+          "SOURCE_LINK": "Link (YouTube, Vimeo or file)",
+          "SOURCE_FILE": "Upload an MP4 file",
+          "LINK_PLACEHOLDER": "https://www.youtube.com/watch?v=...",
+          "FILE_PICK": "Choose video",
+          "FILE_REPLACE": "Replace video",
+          "FILE_REMOVE": "Remove",
+          "UPLOADING": "Uploading… {progress}%",
+          "ACTIVE": "Visible to customers",
+          "SAVE": "Save",
+          "CANCEL": "Cancel"
+        },
+        "LIST": {
+          "FILE": "File: {name}",
+          "NO_VIDEO": "No video yet",
+          "ACTIVE": "Visible",
+          "INACTIVE": "Hidden",
+          "MOVE_UP": "Move up",
+          "MOVE_DOWN": "Move down",
+          "EDIT": "Edit",
+          "DELETE": "Delete",
+          "CONFIRM_DELETE": "Confirm deletion"
+        },
+        "ERRORS": {
+          "FILE_TYPE": "Upload an MP4 or WebM video.",
+          "FILE_TOO_LARGE": "The video is over the {size} MB limit.",
+          "UPLOAD_FAILED": "Could not upload the video. Please try again."
+        },
+        "API": {
+          "ERROR": "Could not complete the operation.",
+          "SAVED": "Tutorial saved.",
+          "DELETED": "Tutorial deleted."
+        }
+      },
       "API_KEY": {
         "TITLE": "Ticket API",
         "DESCRIPTION": "A key for an external system to read and route this account's tickets - meant for connecting a triage AI. Full documentation (Swagger) lives at /swagger.",

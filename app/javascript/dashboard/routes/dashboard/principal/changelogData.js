@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-tutorials-admin-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'feature',
+    platform: 'web',
+    title: 'Tutoriais do Portal editáveis em Configurações',
+    description:
+      'Nova tela em Configurações > Tickets > Tutoriais do Portal: o administrador cadastra título, descrição e vídeo (link do YouTube/Vimeo ou arquivo MP4 enviado direto pela tela) dos tutoriais que o cliente vê na aba Tutoriais. Tudo é editável: trocar o vídeo, reordenar, ocultar sem apagar e excluir.',
+  },
+  {
     id: 'client-push-hardening-2026-11-13',
     date: '13 de novembro de 2026',
     isoDate: '2026-11-13',

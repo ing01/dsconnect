@@ -649,6 +649,11 @@ en:
       transcript_subject: 'Conversation Transcript'
     survey:
       response: 'Please rate this conversation, %{link}'
+  client_tutorials:
+    errors:
+      single_source: Provide a link OR upload a video file, not both.
+      video_type: must be an MP4 or WebM video.
+      video_size: is over the 500 MB limit.
   client_area:
     communication:
       empty: Write a message before sending.

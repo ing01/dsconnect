@@ -667,6 +667,11 @@ pt_BR:
       transcript_subject: 'Transcrição da conversa'
     survey:
       response: 'Por favor, classifique esta conversa, %{link}'
+  client_tutorials:
+    errors:
+      single_source: Informe um link OU envie um arquivo de vídeo, não os dois.
+      video_type: precisa ser um vídeo MP4 ou WebM.
+      video_size: passa do limite de 500 MB.
   client_area:
     communication:
       empty: Escreva uma mensagem antes de enviar.

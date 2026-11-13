@@ -1,10 +1,4 @@
-import { mount } from '@vue/test-utils';
-import { resolveTutorialVideo, TUTORIALS } from '../tutorialsData';
-import ClientTutorialsPage from '../pages/ClientTutorialsPage.vue';
-
-vi.mock('vue-i18n', () => ({
-  useI18n: () => ({ t: key => key }),
-}));
+import { resolveTutorialVideo, tutorialVideo } from '../tutorialVideo';
 
 describe('resolveTutorialVideo', () => {
   it('is null without an address', () => {
@@ -35,26 +29,24 @@ describe('resolveTutorialVideo', () => {
   });
 
   it('plays any other address as a video file', () => {
-    expect(resolveTutorialVideo('/tutoriais/ativar.mp4')).toEqual({
+    expect(resolveTutorialVideo('https://x.com/a.mp4')).toEqual({
       type: 'video',
-      src: '/tutoriais/ativar.mp4',
+      src: 'https://x.com/a.mp4',
     });
   });
 });
 
-describe('ClientTutorialsPage', () => {
-  it('lists the notifications tutorial, with "coming soon" while it has no video', () => {
-    expect(TUTORIALS.map(t => t.id)).toContain('notifications');
-
-    const wrapper = mount(ClientTutorialsPage, {
-      global: { stubs: { Icon: true } },
-    });
-
+describe('tutorialVideo', () => {
+  it('prefers the uploaded file over the link', () => {
     expect(
-      wrapper.find('[data-testid="tutorial-notifications"]').exists()
-    ).toBe(true);
-    expect(wrapper.find('[data-testid="tutorial-video-soon"]').exists()).toBe(
-      TUTORIALS.find(t => t.id === 'notifications').videoUrl === ''
-    );
+      tutorialVideo({
+        video_file_url: '/f.mp4',
+        video_url: 'https://youtu.be/dQw4w9WgXcQ',
+      })
+    ).toEqual({ type: 'video', src: '/f.mp4' });
+  });
+
+  it('is null for a tutorial without video', () => {
+    expect(tutorialVideo({ video_file_url: null, video_url: null })).toBeNull();
   });
 });

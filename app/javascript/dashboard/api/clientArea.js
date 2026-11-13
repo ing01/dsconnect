@@ -279,6 +279,11 @@ export default {
     );
   },
 
+  // Os tutoriais ativos da aba "Tutoriais".
+  tutorials() {
+    return cliente.get(`${BASE}/tutorials`, { headers: headers() });
+  },
+
   // Cancela a inscricao deste navegador (o botao de desligar as notificacoes).
   unregisterPushSubscription(endpoint) {
     return cliente.delete(`${BASE}/push_subscription`, {
