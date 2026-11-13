@@ -40,7 +40,7 @@ const load = async () => {
     const { data } = await TicketProposalsAPI.getProposals(props.ticketId);
     proposals.value = data;
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.PROPOSALS.LOAD_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.PROPOSALS.LOAD_ERROR'));
   }
 };
 
@@ -78,7 +78,7 @@ const downloadPdf = async proposal => {
       response.headers?.['content-disposition']
     );
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.PROPOSALS.PDF_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.PROPOSALS.PDF_ERROR'));
   } finally {
     busyId.value = null;
   }

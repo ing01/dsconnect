@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 
@@ -35,7 +36,7 @@ const submitComment = async () => {
     });
     newComment.value = '';
   } catch (error) {
-    useAlert(t('TICKET.COMMENTS.ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.COMMENTS.ERROR'));
   }
 };
 
@@ -46,7 +47,7 @@ const removeComment = async commentId => {
       commentId,
     });
   } catch (error) {
-    useAlert(t('TICKET.COMMENTS.ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.COMMENTS.ERROR'));
   }
 };
 

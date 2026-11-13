@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import CalendarEventFormDialog from 'dashboard/components-next/Agenda/CalendarEventFormDialog.vue';
@@ -44,7 +45,7 @@ const submitEvent = async payload => {
     closeForm();
     load();
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.APPOINTMENTS.CREATE_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.APPOINTMENTS.CREATE_ERROR'));
   }
 };
 

@@ -3,6 +3,8 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
   before_action :build_queue, only: [:create]
   before_action :check_authorization
 
+  rescue_from StandardError, with: :render_unexpected_error
+
   def index
     @queues = Current.account.queues.includes(:team)
     @queues = @queues.where(team_id: params[:team_id]) if params[:team_id].present?
@@ -83,5 +85,11 @@ class Api::V1::Accounts::QueuesController < Api::V1::Accounts::BaseController
   # `ServiceQueue` class the generic `check_authorization` would otherwise use.
   def check_authorization(model = nil)
     super(model || @queue || ServiceQueue)
+  end
+
+  def render_unexpected_error(exception)
+    Rails.logger.error("[QueuesController] #{exception.class}: #{exception.message}")
+    render json: { error: 'Não foi possível concluir a operação na Fila. Tente novamente ou contate o suporte.' },
+           status: :internal_server_error
   end
 end

@@ -97,7 +97,7 @@ onMounted(async () => {
     if (data.items?.length) items.value = data.items;
     companyId.value = data.company_id;
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.PROPOSALS.DEFAULTS_ERROR'));
+    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.PROPOSALS.DEFAULTS_ERROR'));
   }
 });
 

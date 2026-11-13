@@ -2,6 +2,11 @@ class Api::V1::Accounts::CalendarEventsController < Api::V1::Accounts::BaseContr
   before_action :fetch_calendar_event, only: [:show, :update, :destroy]
   before_action :check_authorization
 
+  # Rede de seguranca pra erro inesperado (bug) - o que ja tem tratamento
+  # proprio (RecordInvalid, RecordNotFound, etc) nunca chega aqui, resolvido
+  # antes pelo `handle_with_exception` da ApplicationController.
+  rescue_from StandardError, with: :render_unexpected_error
+
   # Scoped by Mesa (the calendar page) or by Ticket (the Compromissos tab).
   # One of the two is required so the endpoint can never dump the whole account.
   def index
@@ -45,6 +50,12 @@ class Api::V1::Accounts::CalendarEventsController < Api::V1::Accounts::BaseContr
   end
 
   private
+
+  def render_unexpected_error(exception)
+    Rails.logger.error("[CalendarEventsController] #{exception.class}: #{exception.message}")
+    render json: { error: I18n.t('errors.calendar_event.unexpected_error', default: 'Não foi possível concluir a operação na Agenda. Tente novamente ou contate o suporte.') },
+           status: :internal_server_error
+  end
 
   def windowed?(params)
     parsed_date(params[:since]) && parsed_date(params[:until])

@@ -69,6 +69,10 @@ const buildItems = () =>
     responsible_user_id: row.responsible_user_id || undefined,
   }));
 
+// O backend isola cada linha (uma com problema nao derruba as outras), entao
+// a resposta sempre separa o que deu certo (`created_count`) do que falhou
+// (`failed`, com o motivo de cada um) - pedido da Ingrid, 2026-11-13: parar
+// de mostrar "Internal Server Error" sem explicacao nenhuma.
 const save = async () => {
   const items = buildItems();
   if (!items.length) return;
@@ -76,9 +80,26 @@ const save = async () => {
   isSaving.value = true;
   try {
     const { data } = await ProjectsAPI.createSchedule(props.projectId, items);
-    useAlert(t('PROJECTS.SCHEDULE.SUCCESS', { count: data.created_count }));
-    emit('created');
-    close();
+
+    if (data.failed?.length) {
+      const failedSummary = data.failed
+        .map(item => `"${item.label}": ${item.error}`)
+        .join(' | ');
+      useAlert(
+        t('PROJECTS.SCHEDULE.PARTIAL_FAILURE', {
+          createdCount: data.created_count,
+          totalCount: data.created_count + data.failed.length,
+          failedSummary,
+        })
+      );
+    } else {
+      useAlert(t('PROJECTS.SCHEDULE.SUCCESS', { count: data.created_count }));
+    }
+
+    if (data.created_count > 0) {
+      emit('created');
+      close();
+    }
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('PROJECTS.SCHEDULE.ERROR'));
   } finally {

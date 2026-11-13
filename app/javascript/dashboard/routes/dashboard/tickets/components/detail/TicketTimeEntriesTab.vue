@@ -169,7 +169,9 @@ const removeEntry = async entry => {
       entryId: entry.id,
     });
   } catch (error) {
-    useAlert(t('TICKET.DETAIL.TIME_ENTRIES.DELETE_ERROR'));
+    useAlert(
+      parseAPIErrorResponse(error) || t('TICKET.DETAIL.TIME_ENTRIES.DELETE_ERROR')
+    );
   }
 };
 
