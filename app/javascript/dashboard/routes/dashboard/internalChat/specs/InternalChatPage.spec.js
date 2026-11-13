@@ -111,10 +111,22 @@ const MESSAGES = [
 // descreviam um estado que ja nao existia.
 const freshState = () => structuredClone(internalChat.state);
 
-const mountPage = async () => {
+// `slowRooms`: a lista de salas ja esta no store (o menu lateral a carrega), mas a
+// resposta que a tela do Chat espera so chega quando o exemplo mandar - como na
+// vida real, com a lista a vista e a tela ainda carregando.
+const mountPage = async ({ slowRooms = false } = {}) => {
   holder.push = vi.fn();
 
-  InternalChatAPI.get.mockResolvedValue({ data: { payload: ROOMS } });
+  let resolveRooms;
+  if (slowRooms) {
+    InternalChatAPI.get.mockReturnValue(
+      new Promise(resolve => {
+        resolveRooms = () => resolve({ data: { payload: ROOMS } });
+      })
+    );
+  } else {
+    InternalChatAPI.get.mockResolvedValue({ data: { payload: ROOMS } });
+  }
   InternalChatAPI.getMessages.mockResolvedValue({
     data: { payload: MESSAGES },
   });
@@ -146,6 +158,12 @@ const mountPage = async () => {
       },
     },
   });
+
+  if (slowRooms) {
+    store.commit('internalChat/SET_INTERNAL_CHAT_ROOMS', ROOMS);
+    await flushPromises();
+    return { wrapper, store, resolveRooms };
+  }
 
   // Duas idas ao servidor antes da tela ficar pronta - as salas e depois o
   // histórico da primeira -, então uma rodada de promessas não basta.
@@ -275,6 +293,26 @@ describe('InternalChatPage', () => {
     await flushPromises();
 
     expect(InternalChatAPI.getMessages).toHaveBeenCalledWith(7);
+  });
+
+  it('keeps the conversation the person clicked while the screen is still loading', async () => {
+    const { wrapper, store, resolveRooms } = await mountPage({
+      slowRooms: true,
+    });
+
+    const channelButton = wrapper
+      .findAll('aside button')
+      .find(button => button.text().includes('suporte'));
+    await channelButton.trigger('click');
+    await flushPromises();
+
+    // Só agora a tela termina de carregar - e não pode voltar para a primeira.
+    resolveRooms();
+    await flushPromises();
+    await flushPromises();
+
+    expect(store.state.internalChat.activeRoomId).toBe(7);
+    expect(InternalChatAPI.getMessages).not.toHaveBeenCalledWith(5);
   });
 
   it('asks the server to toggle a reaction', async () => {

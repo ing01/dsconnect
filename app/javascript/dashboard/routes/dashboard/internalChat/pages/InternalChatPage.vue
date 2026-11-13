@@ -141,6 +141,10 @@ const openRoom = async entrada => {
   // O histórico vem do servidor ao abrir a sala, e não junto da lista: assim a
   // primeira tela não carrega toda a conversa de todo mundo.
   await store.dispatch('internalChat/fetchMessages', roomId);
+  // Trocou de sala enquanto o historico vinha: o resto e' da sala que a pessoa
+  // deixou, e nao deve marcar lida nem rolar a que esta a vista.
+  if (activeRoomId.value !== roomId) return;
+
   store.dispatch('internalChat/markRead', roomId);
   store.dispatch('internalChat/fetchPinnedMessages', roomId);
   showPinnedMessages.value = false;
@@ -152,6 +156,12 @@ onMounted(async () => {
   await store.dispatch('agents/get');
   store.dispatch('internalChat/setDirectory');
   await store.dispatch('internalChat/fetchRooms');
+
+  // A lista pode aparecer (o menu lateral ja carregou as salas) enquanto isto ainda
+  // espera o servidor. Se a pessoa clicou numa conversa nesse intervalo, a escolha
+  // dela vale: abrir a primeira aqui a jogava de volta e a mensagem seguinte ia
+  // para a conversa errada.
+  if (activeRoomId.value) return;
 
   const initial =
     route.query.room || directs.value[0]?.id || channels.value[0]?.id;

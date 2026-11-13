@@ -1088,7 +1088,8 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
     :where(.resizable-editor-wrapper .resizable-editor-body)
   ) {
   /* Altura fixa (nao min/max) - a caixa de mensagem nao deve crescer/encolher
-     conforme o texto, so rolar internamente (`overflow-auto` acima). */
+     conforme o texto, so rolar internamente (`overflow-auto` acima). A caixa de
+     resposta da conversa muda isso em ReplyBox.vue. */
   @apply h-16;
 }
 

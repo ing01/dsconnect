@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'reply-box-auto-grow-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'design',
+    platform: 'web',
+    title: 'Caixa de mensagem da conversa começa menor e cresce com o texto',
+    description:
+      'A caixa de escrever a resposta numa conversa agora começa com uma linha só, sobrando mais espaço para ler a conversa, e vai aumentando conforme você digita, até um limite. Passando dele, a caixa rola por dentro.',
+  },
+  {
+    id: 'internal-chat-keeps-clicked-room-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'fix',
+    platform: 'web',
+    title: 'Chat interno não volta mais para a primeira conversa',
+    description:
+      'Ao entrar no Chat interno e clicar numa conversa antes da tela terminar de carregar, o sistema voltava para a primeira conversa da lista e a mensagem seguinte podia ser enviada para a pessoa errada. Agora a conversa que você clicou é mantida.',
+  },
+  {
     id: 'client-tutorial-modules-2026-11-13',
     date: '13 de novembro de 2026',
     isoDate: '2026-11-13',

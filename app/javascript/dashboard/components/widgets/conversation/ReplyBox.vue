@@ -1637,6 +1637,13 @@ export default {
   @apply mb-0;
 }
 
+// A caixa de resposta comeca de uma linha so e cresce conforme o texto, ate o teto:
+// dai em diante rola por dentro em vez de empurrar a conversa. So aqui - o mesmo
+// editor em Respostas prontas, assinatura etc. segue com altura fixa.
+.reply-box :deep(.ProseMirror-woot-style:not(.resizable-editor-body)) {
+  @apply h-auto min-h-7 max-h-48;
+}
+
 .reply-box {
   @apply relative mb-2 mx-2 border border-n-weak rounded-xl bg-n-solid-1;
 
