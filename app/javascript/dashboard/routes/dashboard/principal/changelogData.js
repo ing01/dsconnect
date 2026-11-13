@@ -28,6 +28,16 @@ export const CHANGELOG_ENTRIES = [
       'No botão "Distribuir conversas" (administradores), uma conversa com algum problema travava a distribuição de todas as outras e só aparecia um erro genérico, sem motivo. Agora cada conversa é processada separadamente: se uma falhar, ela aparece na lista de "não distribuídas" com o motivo, e as demais são distribuídas normalmente.',
   },
   {
+    id: 'agent-filter-facepile-2026-11-13',
+    date: '13 de novembro de 2026',
+    isoDate: '2026-11-13',
+    type: 'design',
+    platform: 'web',
+    title: 'Filtro de agentes: avatares mais juntos',
+    description:
+      'Os avatares do filtro de agentes (Kanban, Backlog e Sprint ativo) agora ficam sobrepostos, como uma pilha de rostos, em vez de bem espaçados. Cabem mais agentes na linha, o agente filtrado sobe por cima com o anel azul e passar o mouse mostra o nome.',
+  },
+  {
     id: 'sprint-board-toolbar-2026-11-13',
     date: '13 de novembro de 2026',
     isoDate: '2026-11-13',

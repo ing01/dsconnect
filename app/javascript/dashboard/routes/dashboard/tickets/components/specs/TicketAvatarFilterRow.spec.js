@@ -204,11 +204,11 @@ describe('TicketAvatarFilterRow em tela estreita', () => {
   });
 
   it('mostra menos avatares e manda o resto para o +N conforme a largura', () => {
-    rowWidth.value = 300;
+    rowWidth.value = 200;
     const wrapper = mountRow({ agents: oito() });
 
-    expect(wrapper.findAll('[data-name]')).toHaveLength(5);
-    expect(wrapper.text()).toContain('+3');
+    expect(wrapper.findAll('[data-name]')).toHaveLength(4);
+    expect(wrapper.text()).toContain('+4');
   });
 
   it('com largura de sobra, volta ao limite de 6', () => {

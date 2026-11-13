@@ -26,7 +26,10 @@ const MAX_VISIBLE_AGENTS = 6;
 // comiam a altura do Kanban): quantos avatares cabem vem da largura que a linha
 // recebe, e quem nao cabe vai para o "+N". Medidas em px: avatar de 28 + espaco,
 // botao "Todos", botao "+N" e botao "Limpar" (so' com filtro), cada um com o espaco.
-const AVATAR_SLOT_WIDTH = 34;
+// Os avatares se sobrepoem (28 px, 8 px por cima do vizinho): cada um a mais ocupa 20 px, e o
+// primeiro inteiro. Por isso a conta e' 8 + 20 por avatar.
+const AVATAR_SLOT_WIDTH = 20;
+const AVATAR_GROUP_PADDING = 8;
 const ALL_BUTTON_WIDTH = 60;
 const OVERFLOW_BUTTON_WIDTH = 46;
 const CLEAR_BUTTON_WIDTH = 66;
@@ -54,9 +57,12 @@ const maxVisibleAgents = computed(() => {
   if (!rowWidth.value) return MAX_VISIBLE_AGENTS;
 
   const fixed = ALL_BUTTON_WIDTH + (hasFilter.value ? CLEAR_BUTTON_WIDTH : 0);
-  const fitsAll = Math.floor((rowWidth.value - fixed) / AVATAR_SLOT_WIDTH);
+  const fitsAll = Math.floor(
+    (rowWidth.value - fixed - AVATAR_GROUP_PADDING) / AVATAR_SLOT_WIDTH
+  );
   const fitsWithOverflow = Math.floor(
-    (rowWidth.value - fixed - OVERFLOW_BUTTON_WIDTH) / AVATAR_SLOT_WIDTH
+    (rowWidth.value - fixed - AVATAR_GROUP_PADDING - OVERFLOW_BUTTON_WIDTH) /
+      AVATAR_SLOT_WIDTH
   );
   const capacity = props.agents.length <= fitsAll ? fitsAll : fitsWithOverflow;
 
@@ -117,29 +123,35 @@ const handleMenuAction = ({ value }) => toggleAgent(value);
       {{ t('TICKET.FILTERS.ALL_AGENTS') }}
     </button>
 
-    <button
-      v-for="agent in visibleAgents"
-      :key="agent.id"
-      v-tooltip="agent.name"
-      type="button"
-      class="flex-shrink-0 rounded-full transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
-      :class="
-        isSelected(agent.id)
-          ? 'ring-2 ring-n-brand ring-offset-2 ring-offset-n-background'
-          : 'opacity-60 hover:opacity-100'
-      "
-      :aria-label="agent.name"
-      :aria-pressed="isSelected(agent.id)"
-      @click="toggleAgent(agent.id)"
-    >
-      <Avatar
-        :name="agent.name"
-        :src="agent.thumbnail"
-        :size="28"
-        rounded-full
-        hide-offline-status
-      />
-    </button>
+    <!-- Avatares sobrepostos, como numa pilha de rostos. O `p-0` e' necessario: o CSS base
+         do sistema poe 10 px de margem interna em todo `button`, e era isso que deixava os
+         avatares tao afastados. O escolhido sobe por cima (`z-10`) com o anel da marca; os
+         demais ficam mais escuros em vez de translucidos, para nao aparecer o vizinho por tras. -->
+    <div v-if="visibleAgents.length" class="flex items-center">
+      <button
+        v-for="agent in visibleAgents"
+        :key="agent.id"
+        v-tooltip="agent.name"
+        type="button"
+        class="relative flex-shrink-0 p-0 -ml-2 first:ml-0 rounded-full transition-all hover:z-10 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+        :class="
+          isSelected(agent.id)
+            ? 'z-10 ring-2 ring-n-brand'
+            : 'outline outline-2 outline-n-background brightness-75 hover:brightness-100'
+        "
+        :aria-label="agent.name"
+        :aria-pressed="isSelected(agent.id)"
+        @click="toggleAgent(agent.id)"
+      >
+        <Avatar
+          :name="agent.name"
+          :src="agent.thumbnail"
+          :size="28"
+          rounded-full
+          hide-offline-status
+        />
+      </button>
+    </div>
 
     <div v-if="overflowAgents.length" ref="menuContainer" class="relative">
       <button
