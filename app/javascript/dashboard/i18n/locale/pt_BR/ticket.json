@@ -1656,6 +1656,8 @@
       "BULK_MOVE_TO_SPRINT": "Sprint",
       "BULK_PARTIAL_ERROR": "{count} de {total} ticket(s) não puderam ser alterados.",
       "ESTIMATE_HOURS_SHORT": "{hours}h",
+      "TOTAL_HOURS": "Total: {hours}h",
+      "TOTAL_HOURS_TITLE": "Soma das horas estimadas dos tickets exibidos (respeita os filtros)",
       "BULK_EDIT": {
         "TITLE": "Edição em massa",
         "DESCRIPTION": "Altere qualquer um dos campos abaixo para os {count} ticket(s) selecionados. Campos deixados como \"Manter como está\" não são alterados.",

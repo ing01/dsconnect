@@ -4,7 +4,12 @@ import Draggable from 'vuedraggable';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import BacklogTicketRow from './BacklogTicketRow.vue';
+import { useI18n } from 'vue-i18n';
 import { ticketMatchesFilters } from '../../helpers/ticketFilters';
+import {
+  formatEstimateHours,
+  sumEstimateHours,
+} from '../../helpers/ticketEstimate';
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -26,6 +31,8 @@ const emit = defineEmits([
   'selectMany',
 ]);
 
+const { t } = useI18n();
+
 const isCollapsed = ref(false);
 
 // Filtro e' so' visual (v-show), nunca tira item da lista que o Draggable
@@ -35,6 +42,12 @@ const isVisible = ticket => ticketMatchesFilters(ticket, props.filters);
 
 const visibleTickets = computed(() => props.tickets.filter(isVisible));
 const visibleCount = computed(() => visibleTickets.value.length);
+
+// Horas estimadas SO' dos tickets visiveis: a soma acompanha os filtros (agente,
+// Categoria, Prioridade, Estagio, busca...), porque sai da mesma lista filtrada.
+const totalHours = computed(() =>
+  formatEstimateHours(sumEstimateHours(visibleTickets.value))
+);
 
 const isSelected = id => props.selectedIds.includes(id);
 
@@ -99,8 +112,13 @@ const onChange = evt => {
           {{ subtitle }}
         </span>
         <span
-          class="text-xs text-n-slate-10 ltr:ml-auto rtl:mr-auto flex-shrink-0"
+          class="text-xs font-medium text-n-slate-11 ltr:ml-auto rtl:mr-auto flex-shrink-0"
+          :title="t('TICKET.BACKLOG.TOTAL_HOURS_TITLE')"
+          data-testid="bucket-total-hours"
         >
+          {{ t('TICKET.BACKLOG.TOTAL_HOURS', { hours: totalHours }) }}
+        </span>
+        <span class="text-xs text-n-slate-10 flex-shrink-0">
           {{ visibleCount }}/{{ tickets.length }}
         </span>
       </button>

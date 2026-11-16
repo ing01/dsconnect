@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'backlog-total-hours-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'feature',
+    platform: 'web',
+    title: 'Total de horas estimadas no Backlog e nos Sprints',
+    description:
+      'No cabeçalho do Backlog e de cada Sprint agora aparece "Total: Xh", a soma das horas estimadas dos tickets exibidos. A soma acompanha os filtros (agente, Categoria, Prioridade, Estágio e busca): ao filtrar, o total muda na hora. Ticket sem estimativa conta como zero.',
+  },
+  {
     id: 'mood-checkin-permission-2026-11-16',
     date: '16 de novembro de 2026',
     isoDate: '2026-11-16',
