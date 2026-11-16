@@ -31,6 +31,10 @@ export function ticketMatchesFilters(ticket, filters = {}) {
   if (filters.columnId && ticket.ticket_column_id !== filters.columnId) {
     return false;
   }
+  // Categoria da Mesa - filtro do Backlog/Sprint ativo.
+  if (filters.categoryId && ticket.ticket_category_id !== filters.categoryId) {
+    return false;
+  }
   if (filters.query) {
     const query = filters.query.trim().toLowerCase();
     if (query) {

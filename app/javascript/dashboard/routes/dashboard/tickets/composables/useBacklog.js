@@ -77,6 +77,12 @@ export function useBacklog() {
     () => store.getters['ticketColumns/getColumns'](state.selectedTeamId) || []
   );
 
+  // Categorias da Mesa - para o filtro por Categoria.
+  const categories = computed(
+    () =>
+      store.getters['ticketColumns/getCategories'](state.selectedTeamId) || []
+  );
+
   const selectTeam = teamId => {
     state.selectedTeamId = teamId ? Number(teamId) : null;
     if (state.selectedTeamId) {
@@ -155,6 +161,7 @@ export function useBacklog() {
       await Promise.all([
         store.dispatch('ticketColumns/fetchSprints', state.selectedTeamId),
         store.dispatch('ticketColumns/fetchColumns', state.selectedTeamId),
+        store.dispatch('ticketColumns/fetchCategories', state.selectedTeamId),
         store.dispatch('teamMembers/get', { teamId: state.selectedTeamId }),
       ]);
       await loadBucketTickets();
@@ -372,6 +379,7 @@ export function useBacklog() {
     currentSprint,
     mesaAgents,
     columns,
+    categories,
     state,
     selectTeam,
     selectBoardSprint,

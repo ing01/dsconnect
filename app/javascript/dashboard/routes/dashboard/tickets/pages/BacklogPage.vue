@@ -30,6 +30,7 @@ const {
   board,
   mesaAgents,
   columns,
+  categories,
   state,
   selectTeam,
   selectBoardSprint,
@@ -120,7 +121,18 @@ const filters = ref({
   assigneeIds: [],
   priority: '',
   columnId: null,
+  categoryId: null,
 });
+
+// Estagios e Categorias pertencem a uma Mesa: o escolhido na Mesa anterior nao
+// existe na nova e esconderia todos os tickets.
+watch(
+  () => state.selectedTeamId,
+  () => {
+    filters.value.columnId = null;
+    filters.value.categoryId = null;
+  }
+);
 
 const priorityOptions = computed(() =>
   PRIORITIES.map(value => ({
@@ -131,6 +143,13 @@ const priorityOptions = computed(() =>
 
 const columnOptions = computed(() =>
   columns.value.map(column => ({ value: column.id, label: column.name }))
+);
+
+const categoryOptions = computed(() =>
+  categories.value.map(category => ({
+    value: category.id,
+    label: category.name,
+  }))
 );
 
 // "Backlog": a lista por Sprint, com arrastar-e-soltar entre eles.
@@ -326,7 +345,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
       <select
         v-if="viewMode === 'board'"
         :value="state.boardSprintId"
-        class="mb-0 h-8 !w-36 flex-shrink-0"
+        class="mb-0 !h-8 !w-36 flex-shrink-0 !py-0 text-sm"
         :aria-label="t('TICKET.BACKLOG.VIEW_BOARD')"
         @change="selectBoardSprint($event.target.value)"
       >
@@ -347,7 +366,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
       <input
         v-model="filters.query"
         type="text"
-        class="mb-0 h-8 !w-44 flex-shrink-0"
+        class="mb-0 !h-8 !w-56 flex-shrink-0 !py-0 text-sm"
         :placeholder="t('TICKET.BACKLOG.FILTER_SEARCH_PLACEHOLDER')"
       />
       <TicketSelect
@@ -357,7 +376,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
         :clear-label="t('TICKET.BACKLOG.FILTER_ALL_PRIORITIES')"
         :placeholder="t('TICKET.BACKLOG.FILTER_ALL_PRIORITIES')"
         :aria-label="t('TICKET.FORM.PRIORITY.LABEL')"
-        class="!w-40 flex-shrink-0 [&>button]:!h-8"
+        class="!w-48 flex-shrink-0 [&>button]:!h-8"
       />
       <TicketSelect
         v-model="filters.columnId"
@@ -366,7 +385,16 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
         :clear-label="t('TICKET.BACKLOG.FILTER_ALL_STAGES')"
         :placeholder="t('TICKET.BACKLOG.FILTER_ALL_STAGES')"
         :aria-label="t('TICKET.DETAIL.PROPERTIES.STAGE')"
-        class="!w-44 flex-shrink-0 [&>button]:!h-8"
+        class="!w-48 flex-shrink-0 [&>button]:!h-8"
+      />
+      <TicketSelect
+        v-model="filters.categoryId"
+        :options="categoryOptions"
+        clearable
+        :clear-label="t('TICKET.BACKLOG.FILTER_ALL_CATEGORIES')"
+        :placeholder="t('TICKET.BACKLOG.FILTER_ALL_CATEGORIES')"
+        :aria-label="t('TICKET.CREATE.CATEGORY')"
+        class="!w-48 flex-shrink-0 [&>button]:!h-8"
       />
       <template v-if="viewMode === 'board'">
         <ConfirmButton

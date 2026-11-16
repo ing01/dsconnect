@@ -1639,6 +1639,7 @@
       "FILTER_SEARCH_PLACEHOLDER": "Buscar por número ou título",
       "FILTER_ALL_PRIORITIES": "Todas Prioridades",
       "FILTER_ALL_STAGES": "Todos Estágios",
+      "FILTER_ALL_CATEGORIES": "Todas Categorias",
       "BULK_SELECTED_COUNT": "{count} selecionado(s)",
       "BULK_CLEAR_SELECTION": "Limpar seleção",
       "BULK_EDIT_FIELDS": "Editar campos",

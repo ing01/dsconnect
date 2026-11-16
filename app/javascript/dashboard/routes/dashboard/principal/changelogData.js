@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'backlog-category-filter-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'feature',
+    platform: 'web',
+    title: 'Filtro por Categoria no Backlog e no Sprint ativo',
+    description:
+      'Na tela de Backlog agora há o filtro "Todas Categorias", ao lado dos filtros de Prioridade e Estágio. Ele vale para a lista do Backlog, para os Sprints e para o quadro do Sprint ativo, e mostra as categorias da Mesa escolhida.',
+  },
+  {
+    id: 'push-brave-message-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'fix',
+    platform: 'web',
+    title: 'Aviso de notificações em português, com a dica para o Brave',
+    description:
+      'Quando não dá para ativar as notificações neste navegador, o aviso agora vem em português e explica o caminho no Brave (brave://settings/privacy, "Usar o Google Services para mensagens push"). Ao abrir o sistema, o re-registro automático das notificações não mostra mais aviso nenhum.',
+  },
+  {
     id: 'kanban-ctrl-click-new-tab-2026-11-16',
     date: '16 de novembro de 2026',
     isoDate: '2026-11-16',
