@@ -2,15 +2,18 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAccount } from 'dashboard/composables/useAccount';
+import { usePolicy } from 'dashboard/composables/usePolicy';
 import ReportHubCard from './components/ReportHubCard.vue';
 
 const { t } = useI18n();
 const { accountScopedRoute } = useAccount();
+const { checkPermissions } = usePolicy();
+const REPORT_PERMISSIONS = ['administrator', 'report_manage'];
 
 // Um card por relatorio - cada um so' linka pra rota que ja existia (nada
 // foi duplicado), so' deixou de aparecer como uma lista longa dentro do
 // menu lateral.
-const cards = computed(() => [
+const allCards = computed(() => [
   {
     key: 'overview',
     icon: 'i-lucide-layout-dashboard',
@@ -104,6 +107,7 @@ const cards = computed(() => [
   },
   {
     key: 'mood_checkins',
+    permissions: ['administrator', 'mood_checkin_manage'],
     icon: 'i-lucide-smile',
     title: t('SIDEBAR.MOOD_CHECKINS'),
     description: t('REPORT.HUB.CARDS.MOOD_CHECKINS'),
@@ -117,6 +121,14 @@ const cards = computed(() => [
     to: accountScopedRoute('monthly_satisfaction_surveys_index'),
   },
 ]);
+
+// Cada card aparece so' para quem pode abrir o relatorio. O padrao e' o de
+// Relatorios (admin ou report_manage); o Humor da equipe tem a permissao propria.
+const cards = computed(() =>
+  allCards.value.filter(card =>
+    checkPermissions(card.permissions || REPORT_PERMISSIONS)
+  )
+);
 </script>
 
 <template>

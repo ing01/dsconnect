@@ -151,7 +151,12 @@ export default {
         {
           path: 'hub',
           name: 'reports_hub',
-          meta,
+          // Quem so' tem `mood_checkin_manage` (gestor do Humor da equipe)
+          // entra no hub, mas la ve apenas o card dele - ver ReportsHub.vue.
+          meta: {
+            ...meta,
+            permissions: [...meta.permissions, 'mood_checkin_manage'],
+          },
           component: ReportsHub,
         },
         {

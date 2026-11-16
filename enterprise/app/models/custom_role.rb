@@ -36,6 +36,7 @@
 # - 'company_manage': Can access Companies and Contracts.
 # - 'internal_chat_manage': Can access the Internal Chat.
 # - 'suggestion_manage': Can move suggestions between columns and configure the Suggestions board.
+# - 'mood_checkin_manage': Can see the "Humor da equipe" report (administrators always can).
 # - 'commercial_manage': Can access the Painel Comercial (CRM) - clients, sales and contracts.
 #   Unlike every other permission above, this one is checked WITHOUT an administrator bypass
 #   (see Crm::ClientPolicy/Crm::SalePolicy) - commercial data is deliberately restricted to
@@ -69,6 +70,7 @@ class CustomRole < ApplicationRecord
     internal_chat_manage
     suggestion_manage
     commercial_manage
+    mood_checkin_manage
   ].freeze
 
   validates :name, presence: true

@@ -18,6 +18,7 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'internal_chat_manage',
   'suggestion_manage',
   'commercial_manage',
+  'mood_checkin_manage',
 ];
 
 export const COMMERCIAL_PERMISSIONS = 'commercial_manage';

@@ -8,6 +8,17 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'mood-checkin-permission-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'feature',
+    platform: 'web',
+    title:
+      'Permissão para ver o Humor da equipe, e o relatório abre no dia de hoje',
+    description:
+      'Agora existe a permissão "Ver o relatório Humor da equipe" nas funções personalizadas, para liberar o relatório aos gestores; administradores continuam vendo sempre. Quem tem só essa permissão enxerga, em Relatórios, apenas o card do Humor da equipe. Ao abrir o relatório, ele já vem filtrado no dia de hoje (de hoje até hoje).',
+  },
+  {
     id: 'backlog-category-filter-2026-11-16',
     date: '16 de novembro de 2026',
     isoDate: '2026-11-16',

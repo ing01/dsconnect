@@ -2,7 +2,6 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import format from 'date-fns/format';
-import subDays from 'date-fns/subDays';
 import { useMapGetter } from 'dashboard/composables/store';
 import { useMoodEntriesStore } from 'dashboard/stores/moodEntries';
 import { MOOD_OPTIONS, getMoodOption } from 'dashboard/constants/moods';
@@ -17,8 +16,9 @@ const { t } = useI18n();
 const moodEntriesStore = useMoodEntriesStore();
 const agents = useMapGetter('agents/getAgents');
 
-const customDateRange = ref([subDays(new Date(), 29), new Date()]);
-const selectedDateRangeType = ref(DATE_RANGE_TYPES.LAST_30_DAYS);
+// Abre direto no dia de hoje (de hoje ate hoje); o periodo muda no seletor.
+const customDateRange = ref([new Date(), new Date()]);
+const selectedDateRangeType = ref(DATE_RANGE_TYPES.CUSTOM_RANGE);
 const selectedAgentId = ref('');
 const selectedMoods = ref([]);
 
@@ -31,7 +31,9 @@ const agentOptions = computed(() => [
 ]);
 
 const moodCounts = computed(() => {
-  const counts = Object.fromEntries(MOOD_OPTIONS.map(({ value }) => [value, 0]));
+  const counts = Object.fromEntries(
+    MOOD_OPTIONS.map(({ value }) => [value, 0])
+  );
   entries.value.forEach(entry => {
     if (counts[entry.mood] !== undefined) counts[entry.mood] += 1;
   });
@@ -115,7 +117,10 @@ onMounted(fetchEntries);
 
     <PageLoader v-if="isFetching" />
 
-    <div v-else-if="entries.length > 0" class="flex flex-col divide-y divide-n-weak">
+    <div
+      v-else-if="entries.length > 0"
+      class="flex flex-col divide-y divide-n-weak"
+    >
       <div
         v-for="entry in entries"
         :key="entry.id"
@@ -128,7 +133,9 @@ onMounted(fetchEntries);
             :size="24"
             rounded-full
           />
-          <span class="text-sm text-n-slate-12 truncate">{{ entry.user.name }}</span>
+          <span class="text-sm text-n-slate-12 truncate">{{
+            entry.user.name
+          }}</span>
         </div>
         <div class="flex items-center gap-1.5 text-sm text-n-slate-12">
           <span>{{ getMoodOption(entry.mood)?.emoji }}</span>

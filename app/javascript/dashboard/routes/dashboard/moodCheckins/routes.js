@@ -2,7 +2,7 @@ import { frontendURL } from '../../../helper/URLHelper';
 import MoodCheckinsIndex from './pages/MoodCheckinsIndex.vue';
 
 const commonMeta = {
-  permissions: ['administrator'],
+  permissions: ['administrator', 'mood_checkin_manage'],
 };
 
 export const routes = [
