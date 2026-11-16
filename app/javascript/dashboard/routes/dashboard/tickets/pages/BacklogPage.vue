@@ -345,7 +345,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
       <select
         v-if="viewMode === 'board'"
         :value="state.boardSprintId"
-        class="mb-0 !h-8 !w-36 flex-shrink-0 !py-0 text-sm"
+        class="!mb-0 !h-8 !w-36 flex-shrink-0 !py-0 text-sm"
         :aria-label="t('TICKET.BACKLOG.VIEW_BOARD')"
         @change="selectBoardSprint($event.target.value)"
       >
@@ -366,7 +366,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
       <input
         v-model="filters.query"
         type="text"
-        class="mb-0 !h-8 !w-56 flex-shrink-0 !py-0 text-sm"
+        class="!mb-0 !h-8 !w-56 flex-shrink-0 !py-0 text-sm"
         :placeholder="t('TICKET.BACKLOG.FILTER_SEARCH_PLACEHOLDER')"
       />
       <TicketSelect
