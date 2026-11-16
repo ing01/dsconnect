@@ -34,6 +34,8 @@ json.contact_id resource.contact_id
 json.service_catalog_item_id resource.service_catalog_item_id
 json.ticket_category_id resource.ticket_category_id
 json.ticket_category_name resource.ticket_category&.name
+# Cor do selo da Categoria no card do Kanban (Configuracoes > Tickets > Categorias).
+json.ticket_category_color resource.ticket_category&.color
 json.ticket_complexity_id resource.ticket_complexity_id
 json.ticket_complexity_name resource.ticket_complexity&.name
 json.company_id resource.company_id

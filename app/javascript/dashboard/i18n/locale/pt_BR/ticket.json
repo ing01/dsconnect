@@ -832,7 +832,11 @@
         "CLIENT_VISIBLE": "Mostrar na Área do Cliente",
         "CLIENT_VISIBLE_HELP": "O cliente escolhe apenas a categoria, nunca a Mesa. Como as mesmas categorias existem em cada Mesa, marque só a desta Mesa para o nome não se repetir na lista dele.",
         "CLIENT_VISIBLE_COLUMN": "Área do Cliente",
-        "CLIENT_VISIBLE_BADGE": "Visível"
+        "CLIENT_VISIBLE_BADGE": "Visível",
+        "DEFAULT_STAGE": "Estágio padrão ao fechar",
+        "DEFAULT_STAGE_NONE": "Nenhum",
+        "DEFAULT_STAGE_HELP": "Ao fechar um ticket desta categoria, a tela de encerramento já sugere este estágio (e a Mesa desta categoria) - o agente pode trocar antes de confirmar.",
+        "COLOR": "Cor do selo no Kanban"
       },
       "CATALOG": {
         "TITLE": "Catálogo de Serviços",
@@ -1522,6 +1526,12 @@
       "DETAILS_DESCRIPTION": "Descrição",
       "SUMMARIZE": "Resumir conversa com IA",
       "DETAILS_HINT": "Você pode ajustar o assunto e a descrição antes de fechar. A alteração é salva junto com o fechamento.",
+      "STEP_ROUTING": "Categorização e encaminhamento",
+      "ROUTING_CATEGORY": "Categoria",
+      "ROUTING_CATEGORY_NONE": "Sem categoria",
+      "ROUTING_TEAM": "Mesa",
+      "ROUTING_STAGE": "Estágio",
+      "ROUTING_STAGE_NONE": "Nenhum",
       "STEP_CLASSIFICATION": "1. Classificação",
       "STEP_RESOLUTION": "2. Resolução",
       "STEP_COMMUNICATION": "3. Comunicação com cliente",

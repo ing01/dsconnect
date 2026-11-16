@@ -123,10 +123,19 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
 
   # Moves the ticket between Mesas/Estagios and optionally reassigns status,
   # priority and owner as one auditable operation. See Tickets::TransferService.
+  #
+  # Quando o fechamento vem com troca de Mesa/Estagio/Categoria (TicketCloseDialog),
+  # o status 'closed' entra em `transfer_params` e vai embutido nesta mesma
+  # chamada (ver TransferService#apply_status_transition) - por isso precisa do
+  # MESMO rescue que `#close` ja tem, senao falta de Resolucao/Catalogo/Comunicacao
+  # vazava como erro cru em vez do aviso amigavel de sempre.
   def transfer
     Tickets::TransferService.new(ticket: @ticket, user: Current.user, attributes: transfer_params).perform
     fetch_ticket
     render 'show'
+  rescue TicketClosing::NotAllowed => e
+    render json: { error: I18n.t('tickets.close.blocked'), code: 'close_requirements_missing', missing: e.missing },
+           status: :unprocessable_entity
   end
 
   def create_child

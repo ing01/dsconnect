@@ -358,7 +358,20 @@ export default {
       "
       class="flex items-center flex-wrap gap-1.5"
     >
-      <!-- Impedido vem primeiro entre os selos: e a informacao que muda o
+      <!-- Categoria primeiro: e a classificacao do ticket, bate o olho antes
+           de qualquer selo de fluxo (status/prioridade/impedimento). So'
+           aqui quando NAO compacto - o compacto mostra a mesma categoria na
+           sua propria linha (mais abaixo), nunca as duas ao mesmo tempo. Cor
+           configurada em Configuracoes > Tickets > Categorias - sem cor
+           definida, cai no cinza padrao do WootLabel. Pedido da Ingrid,
+           2026-11-16. -->
+      <WootLabel
+        v-if="ticket.ticket_category_name && !compact"
+        :label="ticket.ticket_category_name"
+        :color="ticket.ticket_category_color || 'slate'"
+        compact
+      />
+      <!-- Impedido vem logo depois da Categoria: e a informacao que muda o
              que a pessoa faz com o cartao. Status e prioridade continuam ali,
              porque o ticket segue aberto. -->
       <WootLabel
@@ -410,6 +423,12 @@ export default {
          do responsavel fica no tooltip do avatar. -->
     <div v-if="compact" class="flex items-center justify-between gap-2 min-w-0">
       <div class="flex items-center flex-wrap gap-x-2 gap-y-1 min-w-0">
+        <WootLabel
+          v-if="ticket.ticket_category_name"
+          :label="ticket.ticket_category_name"
+          :color="ticket.ticket_category_color || 'slate'"
+          compact
+        />
         <WootLabel
           v-if="ticket.priority"
           :label="priorityLabel"
