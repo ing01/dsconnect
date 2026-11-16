@@ -86,6 +86,14 @@ const ativarNesteNavegador = () => {
     onSuccess: () => {
       inscritoAqui.value = true;
     },
+    onError: motivo =>
+      useAlert(
+        t(
+          motivo === 'unsupported'
+            ? 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.BROWSER_UNSUPPORTED'
+            : 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.BROWSER_PUSH_FAILED'
+        )
+      ),
   });
 };
 

@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import NotificationSubscriptions from '../api/notificationSubscription';
 import auth from '../api/auth';
-import { useAlert } from 'dashboard/composables';
 
 export const verifyServiceWorkerExistence = (callback = () => {}) => {
   if (!('serviceWorker' in navigator)) {
@@ -53,7 +52,13 @@ export const sendRegistrationToServer = subscription => {
   return null;
 };
 
-export const registerSubscription = (onSuccess = () => {}) => {
+// `onError` recebe o motivo ('unsupported' | 'subscribe_failed') e quem chama
+// decide o texto (traduzido). Sem ele a falha é silenciosa: o re-registro
+// automático ao abrir o app não deve avisar a cada carregamento.
+export const registerSubscription = (
+  onSuccess = () => {},
+  onError = () => {}
+) => {
   if (!window.chatwootConfig.vapidPublicKey) {
     return;
   }
@@ -71,21 +76,21 @@ export const registerSubscription = (onSuccess = () => {}) => {
     .catch(error => {
       // eslint-disable-next-line no-console
       console.error('Push subscription registration failed:', error);
-      useAlert('This browser does not support desktop notification');
+      onError('subscribe_failed');
     });
 };
 
-export const requestPushPermissions = ({ onSuccess }) => {
+export const requestPushPermissions = ({ onSuccess, onError = () => {} }) => {
   if (!('Notification' in window)) {
     // eslint-disable-next-line no-console
     console.warn('Notification is not supported');
-    useAlert('This browser does not support desktop notification');
+    onError('unsupported');
   } else if (Notification.permission === 'granted') {
-    registerSubscription(onSuccess);
+    registerSubscription(onSuccess, onError);
   } else if (Notification.permission !== 'denied') {
     Notification.requestPermission(permission => {
       if (permission === 'granted') {
-        registerSubscription(onSuccess);
+        registerSubscription(onSuccess, onError);
       }
     });
   }

@@ -183,7 +183,9 @@
         "SAVE": "Save",
         "BROWSER_PENDING": "You already enabled notifications in your profile. This browser still needs permission.",
         "BROWSER_ENABLE": "Enable in this browser",
-        "BROWSER_READY": "This browser is allowed to receive notifications."
+        "BROWSER_READY": "This browser is allowed to receive notifications.",
+        "BROWSER_UNSUPPORTED": "This browser does not support desktop notifications.",
+        "BROWSER_PUSH_FAILED": "Could not enable notifications in this browser. In Brave, open brave://settings/privacy, turn on \"Use Google Services for Push Messaging\", restart the browser and try again."
       },
       "API": {
         "UPDATE_SUCCESS": "Your notification preferences are updated successfully",

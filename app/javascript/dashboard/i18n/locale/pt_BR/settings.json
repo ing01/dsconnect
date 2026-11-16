@@ -185,7 +185,9 @@
         "SAVE": "Salvar",
         "BROWSER_PENDING": "Você já ativou as notificações no seu perfil. Falta liberar neste navegador.",
         "BROWSER_ENABLE": "Ativar neste navegador",
-        "BROWSER_READY": "Este navegador está liberado para receber notificações."
+        "BROWSER_READY": "Este navegador está liberado para receber notificações.",
+        "BROWSER_UNSUPPORTED": "Este navegador não suporta notificações na área de trabalho.",
+        "BROWSER_PUSH_FAILED": "Não foi possível ativar as notificações neste navegador. No Brave, abra brave://settings/privacy, ative \"Usar o Google Services para mensagens push\", reinicie o navegador e tente de novo."
       },
       "API": {
         "UPDATE_SUCCESS": "Suas preferências de notificação foram atualizadas com sucesso",
