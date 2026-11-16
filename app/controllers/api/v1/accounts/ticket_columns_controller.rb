@@ -1,4 +1,6 @@
 class Api::V1::Accounts::TicketColumnsController < Api::V1::Accounts::BaseController
+  include TeamBoardLoading
+
   before_action :fetch_team
   before_action :fetch_ticket_column, only: [:update, :destroy]
   before_action :check_authorization
@@ -32,7 +34,9 @@ class Api::V1::Accounts::TicketColumnsController < Api::V1::Accounts::BaseContro
 
   def reorder
     TicketColumn.reorder!(@team, params[:column_ids])
-    @team.reload
+    # Mesma carga da tela do quadro (com pre-carregamento): `@team.reload` deixava a
+    # renderizacao consultar o banco por associacao de cada ticket.
+    @team = load_team_board(@team.id)
     render 'api/v1/accounts/teams/show', formats: [:json]
   end
 

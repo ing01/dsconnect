@@ -1,4 +1,6 @@
 class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
+  include TeamBoardLoading
+
   before_action :fetch_team, only: [:show, :update, :destroy]
   before_action :check_authorization
 
@@ -22,26 +24,10 @@ class Api::V1::Accounts::TeamsController < Api::V1::Accounts::BaseController
     head :ok
   end
 
-  # `_ticket` reads all of these; without the preload the board fires a query per
-  # association per ticket. `ticket_conversations` and `ticket_checklist_items`
-  # matter most: a column with a few hundred cards turned into a few hundred
-  # extra queries just for those two (the partial used `.pluck`/`.ordered`,
-  # which hit the database even when the association is preloaded - fixed
-  # alongside this in `_ticket.json.jbuilder`).
-  BOARD_TICKET_INCLUDES = [:team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact,
-                           :project, :blocked_by, :ticket_conversations, :ticket_checklist_items, :sprint,
-                           *AssigneeLeveled.assignee_associations,
-                           { conversations: :contact }].freeze
-
   private
 
   def fetch_team
-    @team = Current.account.teams.includes(:ticket_columns).find(params[:id])
-    # Carrega `board_tickets` de cada Estagio numa query so' que respeita o
-    # limite POR COLUNA (ver TicketColumn.preload_board_tickets!) - encadear
-    # `board_tickets` dentro do `includes(ticket_columns: {...})` acima faria o
-    # Rails misturar as colunas numa unica query e aplicar o LIMIT na Mesa toda.
-    TicketColumn.preload_board_tickets!(@team.ticket_columns, includes: BOARD_TICKET_INCLUDES)
+    @team = load_team_board(params[:id])
   end
 
   def team_params
