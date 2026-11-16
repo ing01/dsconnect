@@ -270,7 +270,7 @@ export default {
   <div
     class="drag-handle group relative flex flex-col rounded-xl border cursor-pointer hover:shadow-sm transition-shadow"
     :class="[cardClass, compact ? 'gap-1 px-2 py-1.5' : 'gap-2 p-3']"
-    @click="$emit('click', ticket)"
+    @click="$emit('click', ticket, $event)"
   >
     <Icon
       v-if="isCompleted"

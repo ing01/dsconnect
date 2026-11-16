@@ -15,6 +15,7 @@ import BacklogBucket from '../components/backlog/BacklogBucket.vue';
 import BacklogBulkActionsBar from '../components/backlog/BacklogBulkActionsBar.vue';
 import BacklogBulkEditDialog from '../components/backlog/BacklogBulkEditDialog.vue';
 import { useBacklog } from '../composables/useBacklog';
+import { openInWorkspaceTab } from '../helpers/openInWorkspaceTab';
 import { useBoardDensity } from '../composables/useBoardDensity';
 
 const { t } = useI18n();
@@ -168,10 +169,12 @@ const sortedSprints = computed(() =>
 
 const sprintSubtitle = sprint => `${sprint.starts_on} - ${sprint.ends_on}`;
 
-const openTicket = ticket => {
-  router.push(
-    frontendURL(`accounts/${route.params.accountId}/tickets/${ticket.id}`)
+const openTicket = (ticket, event) => {
+  const path = frontendURL(
+    `accounts/${route.params.accountId}/tickets/${ticket.id}`
   );
+  if (openInWorkspaceTab(ticket, event)) return;
+  router.push(path);
 };
 
 const showSprintForm = ref(false);

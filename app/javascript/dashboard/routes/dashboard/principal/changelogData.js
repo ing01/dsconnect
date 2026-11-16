@@ -8,6 +8,36 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-ctrl-click-new-tab-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'feature',
+    platform: 'web',
+    title: 'Ctrl + clique no card abre o ticket numa aba interna',
+    description:
+      'Nos quadros Kanban (Tickets e Backlog), segurar Ctrl (ou Cmd no Mac) e clicar num card adiciona o ticket à barra de abas do DSConnect sem sair do quadro, para ler depois. O clique normal continua abrindo o ticket na tela.',
+  },
+  {
+    id: 'manifestation-delete-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'feature',
+    platform: 'web',
+    title: 'Excluir SAC pelo detalhe da manifestação',
+    description:
+      'Administradores agora têm o botão "Excluir SAC" na tela de detalhe da manifestação. Ele pergunta antes de apagar e leva junto as mensagens, o histórico e os anexos; se o SAC virou ticket ou sugestão, esse registro continua existindo. Quem não é administrador não vê o botão.',
+  },
+  {
+    id: 'internal-chat-loads-complete-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Chat interno abre já completo e mais rápido',
+    description:
+      'Ao abrir o Chat interno, uma tela de carregamento fica por cima até as conversas, as mensagens da primeira conversa e as fotos estarem prontas — antes a tela abria vazia, sem fotos e sem mensagens, e ia se preenchendo. Também ficou mais rápido: os agentes e as conversas agora são buscados ao mesmo tempo, e as mensagens fixadas junto com o histórico.',
+  },
+  {
     id: 'reply-box-auto-grow-2026-11-13',
     date: '13 de novembro de 2026',
     isoDate: '2026-11-13',

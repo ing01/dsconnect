@@ -188,7 +188,7 @@ export default {
             :full-subject="fullSubject"
             :compact="compact"
             :is-completed="column.kind === 'completed'"
-            @click="$emit('openTicket', element)"
+            @click="(ticket, event) => $emit('openTicket', element, event)"
             @menu-action="$emit('menuAction', $event)"
           />
         </template>

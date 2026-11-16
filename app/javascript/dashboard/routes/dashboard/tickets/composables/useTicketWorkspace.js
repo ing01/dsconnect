@@ -104,7 +104,9 @@ export function useTicketWorkspace() {
 
   // Opening an already-open Ticket activates its tab instead of adding a second
   // one - the bar is keyed by Ticket id, so duplicates cannot occur.
-  const openTab = ticket => {
+  // `activate: false` só põe a aba na barra (Ctrl+clique num card do Kanban) e
+  // deixa a tela e a aba ativa onde estavam.
+  const openTab = (ticket, { activate = true } = {}) => {
     const id = Number(ticket?.id ?? ticket);
     if (!Number.isFinite(id)) return;
 
@@ -114,7 +116,7 @@ export function useTicketWorkspace() {
         typeof ticket === 'object' ? toTab(ticket) : emptyTab(id)
       );
     }
-    state.activeId = id;
+    if (activate) state.activeId = id;
     persist();
   };
 

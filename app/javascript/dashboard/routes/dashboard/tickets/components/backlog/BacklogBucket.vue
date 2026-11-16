@@ -85,7 +85,10 @@ const onChange = evt => {
           "
           class="size-4 text-n-slate-10 flex-shrink-0"
         />
-        <span class="text-sm font-medium text-n-slate-12 truncate" :title="title">
+        <span
+          class="text-sm font-medium text-n-slate-12 truncate"
+          :title="title"
+        >
           {{ title }}
         </span>
         <span
@@ -120,7 +123,7 @@ const onChange = evt => {
           :agents="agents"
           :columns="columns"
           :selected="isSelected(element.id)"
-          @click="emit('openTicket', element)"
+          @click="(ticket, event) => emit('openTicket', element, event)"
           @move-to-column="value => emit('moveToColumn', element.id, value)"
           @toggle-select="emit('toggleSelect', element.id)"
         />

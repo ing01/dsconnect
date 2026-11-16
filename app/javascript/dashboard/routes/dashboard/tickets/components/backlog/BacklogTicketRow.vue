@@ -69,7 +69,7 @@ const onColumnAction = ({ value }) => {
     :class="
       selected ? 'border-n-brand bg-n-blue-2' : 'border-n-weak bg-n-solid-1'
     "
-    @click="$emit('click', ticket)"
+    @click="$emit('click', ticket, $event)"
   >
     <Checkbox
       :model-value="selected"

@@ -149,7 +149,7 @@ export default {
         :compact="compact"
         @toggle-collapse="toggleColumn"
         @add-ticket="$emit('addTicket', $event)"
-        @open-ticket="$emit('openTicket', $event)"
+        @open-ticket="(ticket, event) => $emit('openTicket', ticket, event)"
         @move-ticket="$emit('moveTicket', $event)"
         @menu-action="$emit('menuAction', $event)"
       />

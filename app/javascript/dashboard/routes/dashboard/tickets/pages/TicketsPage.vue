@@ -14,6 +14,7 @@ import TicketAvatarFilterRow from '../components/TicketAvatarFilterRow.vue';
 import TicketMesaSelector from '../components/TicketMesaSelector.vue';
 import TicketSortMenu from '../components/TicketSortMenu.vue';
 import { readSortPreference, writeSortPreference } from '../helpers/ticketSort';
+import { openInWorkspaceTab } from '../helpers/openInWorkspaceTab';
 import {
   keepCurrentMembers,
   readAgentFilter,
@@ -191,10 +192,12 @@ export default {
       this.sort = sort;
       writeSortPreference(this.currentAccountId, this.selectedTeamId, sort);
     },
-    openTicketDetail(ticket) {
-      this.$router.push(
-        frontendURL(`accounts/${this.currentAccountId}/tickets/${ticket.id}`)
+    openTicketDetail(ticket, event) {
+      const path = frontendURL(
+        `accounts/${this.currentAccountId}/tickets/${ticket.id}`
       );
+      if (openInWorkspaceTab(ticket, event)) return;
+      this.$router.push(path);
     },
     async applyTransition(action, ticket) {
       try {
