@@ -341,7 +341,7 @@ describe('unreadAssigned', () => {
       actions.scheduleRefresh({ dispatch });
       actions.scheduleRefresh({ dispatch });
       actions.scheduleRefresh({ dispatch });
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(10000);
 
       expect(dispatch).toHaveBeenCalledTimes(1);
       expect(dispatch).toHaveBeenCalledWith('fetch');
@@ -351,9 +351,9 @@ describe('unreadAssigned', () => {
       const dispatch = vi.fn();
 
       actions.scheduleRefresh({ dispatch });
-      vi.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(5000);
       actions.scheduleRefresh({ dispatch }); // outro evento antes de buscar
-      vi.advanceTimersByTime(600);
+      vi.advanceTimersByTime(5000);
 
       expect(dispatch).toHaveBeenCalledTimes(1);
     });
@@ -361,10 +361,10 @@ describe('unreadAssigned', () => {
     it('depois de buscar, um evento novo agenda outra busca', () => {
       const dispatch = vi.fn();
       actions.scheduleRefresh({ dispatch });
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(10000);
 
       actions.scheduleRefresh({ dispatch });
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(10000);
 
       expect(dispatch).toHaveBeenCalledTimes(2);
     });
@@ -375,7 +375,7 @@ describe('unreadAssigned', () => {
       actions.scheduleRefresh({ dispatch });
 
       actions.clear({ commit });
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(10000);
 
       expect(commit).toHaveBeenCalledWith('SET_CONVERSATION_IDS', []);
       expect(dispatch).not.toHaveBeenCalled();

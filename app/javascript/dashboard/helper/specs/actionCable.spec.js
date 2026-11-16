@@ -22,6 +22,16 @@ global.chatwootConfig = {
 const mockRetryJitter = value =>
   vi.spyOn(Math, 'random').mockReturnValue(value);
 
+// O dispatch tambem recebe outras acoes (ex.: unreadAssigned/scheduleRefresh):
+// o que estes testes medem e' so' a busca dos contadores.
+const countUnreadFetches = dispatch =>
+  dispatch.mock.calls.filter(
+    ([action]) => action === 'conversationUnreadCounts/get'
+  ).length;
+
+// Intervalo minimo entre duas buscas dos contadores (actionCable.js).
+const UNREAD_THROTTLE_MS = 15000;
+
 describe('ActionCableConnector - Copilot Tests', () => {
   let store;
   let actionCable;
@@ -100,13 +110,10 @@ describe('ActionCableConnector - Copilot Tests', () => {
       expect(mockDispatch).toHaveBeenCalledWith('conversationUnreadCounts/get');
 
       vi.advanceTimersByTime(37499);
-      expect(mockDispatch).toHaveBeenCalledTimes(1);
+      expect(countUnreadFetches(mockDispatch)).toBe(1);
 
       vi.advanceTimersByTime(1);
-      expect(mockDispatch).toHaveBeenCalledTimes(2);
-      expect(mockDispatch).toHaveBeenLastCalledWith(
-        'conversationUnreadCounts/get'
-      );
+      expect(countUnreadFetches(mockDispatch)).toBe(2);
     });
 
     it('does not retry unread count changes when filtered counts are disabled', () => {
@@ -124,10 +131,10 @@ describe('ActionCableConnector - Copilot Tests', () => {
         data: { account_id: 1 },
       });
 
-      expect(mockDispatch).toHaveBeenCalledTimes(1);
+      expect(countUnreadFetches(mockDispatch)).toBe(1);
 
       vi.advanceTimersByTime(45000);
-      expect(mockDispatch).toHaveBeenCalledTimes(1);
+      expect(countUnreadFetches(mockDispatch)).toBe(1);
     });
 
     it('delays unread count refetch when a conversation is mentioned', () => {
@@ -339,16 +346,13 @@ describe('ActionCableConnector - Copilot Tests', () => {
         data: { account_id: 1 },
       });
 
-      expect(mockDispatch).toHaveBeenCalledTimes(1);
+      expect(countUnreadFetches(mockDispatch)).toBe(1);
 
-      vi.advanceTimersByTime(4999);
-      expect(mockDispatch).toHaveBeenCalledTimes(1);
+      vi.advanceTimersByTime(UNREAD_THROTTLE_MS - 1);
+      expect(countUnreadFetches(mockDispatch)).toBe(1);
 
       vi.advanceTimersByTime(1);
-      expect(mockDispatch).toHaveBeenCalledTimes(2);
-      expect(mockDispatch).toHaveBeenLastCalledWith(
-        'conversationUnreadCounts/get'
-      );
+      expect(countUnreadFetches(mockDispatch)).toBe(2);
     });
 
     it('clears pending unread count refetch before immediate refetch', () => {
@@ -366,16 +370,16 @@ describe('ActionCableConnector - Copilot Tests', () => {
         data: { account_id: 1 },
       });
 
-      vi.setSystemTime(new Date('2026-01-01T00:00:06Z'));
+      vi.setSystemTime(new Date('2026-01-01T00:00:16Z'));
       actionCable.onReceived({
         event: 'conversation.unread_count_changed',
         data: { account_id: 1 },
       });
 
-      expect(mockDispatch).toHaveBeenCalledTimes(2);
+      expect(countUnreadFetches(mockDispatch)).toBe(2);
 
-      vi.advanceTimersByTime(4000);
-      expect(mockDispatch).toHaveBeenCalledTimes(2);
+      vi.advanceTimersByTime(UNREAD_THROTTLE_MS - 1000);
+      expect(countUnreadFetches(mockDispatch)).toBe(2);
     });
   });
 });

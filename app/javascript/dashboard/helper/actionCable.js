@@ -18,11 +18,12 @@ import { VOICE_CALL_DIRECTION } from 'dashboard/components-next/message/constant
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 const { isImpersonating } = useImpersonation();
-const UNREAD_COUNTS_REFETCH_THROTTLE_MS = 5000;
+// Cada busca de contadores custa caro no servidor (e todos os agentes recebem o
+// mesmo evento), entao no maximo uma a cada 15 s por navegador.
+const UNREAD_COUNTS_REFETCH_THROTTLE_MS = 15000;
 const FILTERED_UNREAD_COUNTS_REFRESH_RETRY_MS = 30000;
 const FILTERED_UNREAD_COUNTS_REFRESH_RETRY_JITTER_MS = 15000;
-const MENTION_UNREAD_COUNTS_REFETCH_DELAY_MS =
-  UNREAD_COUNTS_REFETCH_THROTTLE_MS;
+const MENTION_UNREAD_COUNTS_REFETCH_DELAY_MS = 5000;
 const TRIAGE_COUNT_REFETCH_THROTTLE_MS = 5000;
 const getFilteredUnreadCountsRefreshRetryDelay = () =>
   FILTERED_UNREAD_COUNTS_REFRESH_RETRY_MS +

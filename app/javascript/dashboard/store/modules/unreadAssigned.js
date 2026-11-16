@@ -25,9 +25,9 @@ export const getters = {
 };
 
 // Varios eventos seguidos (ler, atribuir, mudar status, "nao lidas mudou") viram uma
-// busca so, no maximo uma a cada 1,5 s. O relogio NAO reinicia a cada evento: numa conta
+// busca so, no maximo uma a cada 10 s. O relogio NAO reinicia a cada evento: numa conta
 // movimentada os eventos nunca param, e reiniciar adiaria a busca para sempre.
-const REFRESH_DELAY_MS = 1500;
+const REFRESH_DELAY_MS = 10000;
 let refreshTimer = null;
 
 // Tipos de mensagem do servidor: 0 = do cliente, 1 = da equipe, 2 = atividade, 3 = modelo.

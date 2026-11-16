@@ -26,7 +26,9 @@ const fetchMetaData = async (commit, params) => {
   }
 };
 
-const debouncedFetchMetaData = debounce(fetchMetaData, 1000, false, 5000);
+// Contas pequenas: no maximo uma busca a cada 15 s (era 5 s) - cada busca e uma
+// consulta de contagem por aba, repetida por todos os agentes a cada evento.
+const debouncedFetchMetaData = debounce(fetchMetaData, 5000, false, 15000);
 const longDebouncedFetchMetaData = debounce(fetchMetaData, 7500, false, 20000);
 const superLongDebouncedFetchMetaData = debounce(
   fetchMetaData,
