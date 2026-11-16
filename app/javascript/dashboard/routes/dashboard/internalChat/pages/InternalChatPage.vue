@@ -32,6 +32,8 @@ import {
   dayLabel,
   startsNewDay,
 } from '../helpers/messageParser';
+import { preloadImages } from '../helpers/preloadImages';
+import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const { t, locale } = useI18n();
 const store = useStore();
@@ -139,33 +141,49 @@ const openRoom = async entrada => {
   replyTo.value = null;
 
   // O histórico vem do servidor ao abrir a sala, e não junto da lista: assim a
-  // primeira tela não carrega toda a conversa de todo mundo.
+  // primeira tela não carrega toda a conversa de todo mundo. As fixadas saem na
+  // mesma hora, em paralelo - não dependem do histórico.
+  store.dispatch('internalChat/fetchPinnedMessages', roomId);
   await store.dispatch('internalChat/fetchMessages', roomId);
   // Trocou de sala enquanto o historico vinha: o resto e' da sala que a pessoa
   // deixou, e nao deve marcar lida nem rolar a que esta a vista.
   if (activeRoomId.value !== roomId) return;
 
   store.dispatch('internalChat/markRead', roomId);
-  store.dispatch('internalChat/fetchPinnedMessages', roomId);
   showPinnedMessages.value = false;
   scrollToBottom();
 };
 
+// Enquanto a tela monta, um carregamento cobre tudo: antes ela abria vazia - sem
+// fotos, sem mensagens - e ia se preenchendo aos poucos.
+const isInitializing = ref(true);
+
 // Os agentes da conta são o diretório do Chat - é com eles que se conversa.
 onMounted(async () => {
-  await store.dispatch('agents/get');
-  store.dispatch('internalChat/setDirectory');
-  await store.dispatch('internalChat/fetchRooms');
+  try {
+    // Agentes e salas não dependem um do outro: em paralelo, o tempo é o do mais
+    // lento, e não a soma dos dois.
+    await Promise.all([
+      store
+        .dispatch('agents/get')
+        .then(() => store.dispatch('internalChat/setDirectory')),
+      store.dispatch('internalChat/fetchRooms'),
+    ]);
 
-  // A lista pode aparecer (o menu lateral ja carregou as salas) enquanto isto ainda
-  // espera o servidor. Se a pessoa clicou numa conversa nesse intervalo, a escolha
-  // dela vale: abrir a primeira aqui a jogava de volta e a mensagem seguinte ia
-  // para a conversa errada.
-  if (activeRoomId.value) return;
+    // Se a pessoa já escolheu uma conversa enquanto isto carregava (a notificação
+    // ou um clique), a escolha dela vale: abrir a primeira aqui a jogava de volta e
+    // a mensagem seguinte ia para a conversa errada.
+    if (!activeRoomId.value) {
+      const initial =
+        route.query.room || directs.value[0]?.id || channels.value[0]?.id;
+      if (initial) await openRoom(initial);
+    }
 
-  const initial =
-    route.query.room || directs.value[0]?.id || channels.value[0]?.id;
-  if (initial) await openRoom(initial);
+    // As fotos entram antes da tela aparecer, para não surgirem uma a uma.
+    await preloadImages(users.value.map(user => user.thumbnail));
+  } finally {
+    isInitializing.value = false;
+  }
 });
 
 // A notificacao pode chegar com a tela do Chat JA aberta. Nesse caso o router
@@ -423,7 +441,17 @@ const unreadDividerIndex = computed(() => {
 </script>
 
 <template>
-  <div class="flex w-full h-full min-h-0 bg-n-solid-2">
+  <div class="relative flex w-full h-full min-h-0 bg-n-solid-2">
+    <!-- Cobre a tela até as salas, a primeira conversa e as fotos chegarem. Fica
+         por cima (e não no lugar) para a tela montar por baixo e já ir baixando. -->
+    <div
+      v-if="isInitializing"
+      class="absolute inset-0 z-40 flex items-center justify-center bg-n-solid-1"
+      data-testid="internal-chat-loading"
+    >
+      <PageLoader :message="t('INTERNAL_CHAT.LOADING')" />
+    </div>
+
     <!-- Barra lateral própria do módulo: no celular ela é a tela inteira até
          alguém escolher uma conversa. -->
     <div

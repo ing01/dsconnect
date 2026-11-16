@@ -295,6 +295,24 @@ describe('InternalChatPage', () => {
     expect(InternalChatAPI.getMessages).toHaveBeenCalledWith(7);
   });
 
+  it('covers the screen with a loader until the rooms and the first conversation are ready', async () => {
+    const { wrapper, resolveRooms } = await mountPage({ slowRooms: true });
+
+    expect(wrapper.find('[data-testid="internal-chat-loading"]').exists()).toBe(
+      true
+    );
+
+    resolveRooms();
+    await flushPromises();
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="internal-chat-loading"]').exists()).toBe(
+      false
+    );
+    // Já abre com a primeira conversa e o histórico dela na tela.
+    expect(wrapper.text()).toContain('Estou olhando agora.');
+  });
+
   it('keeps the conversation the person clicked while the screen is still loading', async () => {
     const { wrapper, store, resolveRooms } = await mountPage({
       slowRooms: true,

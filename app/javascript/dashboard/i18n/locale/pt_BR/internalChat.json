@@ -1,5 +1,6 @@
 {
   "INTERNAL_CHAT": {
+    "LOADING": "Carregando o Chat interno...",
     "SIDEBAR": {
       "MARK_UNREAD": "Marcar como não lida",
       "SEARCH": "Buscar conversas",
