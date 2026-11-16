@@ -25,6 +25,14 @@ const isLoading = ref(true);
 const hasError = ref(false);
 // Card aberto: id do módulo, 'general', ou null (mostrando os cards).
 const selected = ref(null);
+// Vídeos expandidos (ids). Todos começam recolhidos para caber mais na tela.
+const expanded = ref([]);
+const isExpanded = id => expanded.value.includes(id);
+const toggleTutorial = id => {
+  expanded.value = isExpanded(id)
+    ? expanded.value.filter(item => item !== id)
+    : [...expanded.value, id];
+};
 
 const load = async () => {
   try {
@@ -73,6 +81,16 @@ const visibleTutorials = computed(() => {
   return openCard.value ? tutorialsOf(openCard.value.id) : [];
 });
 
+// Trocar de card recolhe tudo de novo.
+const openModule = id => {
+  expanded.value = [];
+  selected.value = id;
+};
+const closeCard = () => {
+  expanded.value = [];
+  selected.value = null;
+};
+
 onMounted(load);
 </script>
 
@@ -84,7 +102,7 @@ onMounted(load);
         type="button"
         class="flex items-center self-start gap-1 p-0 text-sm text-n-slate-11 hover:text-n-slate-12"
         data-testid="tutorials-back"
-        @click="selected = null"
+        @click="closeCard"
       >
         <Icon icon="i-lucide-arrow-left" class="size-4" />
         {{ t('CLIENT_AREA.TUTORIALS.BACK') }}
@@ -126,7 +144,7 @@ onMounted(load);
         type="button"
         class="flex flex-col items-start gap-2 p-4 text-left border rounded-xl border-n-weak bg-n-solid-1 hover:border-n-brand hover:bg-n-alpha-1"
         :data-testid="`tutorial-module-${card.id}`"
-        @click="selected = card.id"
+        @click="openModule(card.id)"
       >
         <img
           v-if="card.logo_url"
@@ -151,48 +169,74 @@ onMounted(load);
       </button>
     </div>
 
+    <!-- Cada vídeo começa recolhido (só o título); ao clicar, expande. O player
+         só é montado quando aberto: não carrega vídeo que ninguém pediu. -->
     <article
       v-for="tutorial in visibleTutorials"
       :key="tutorial.id"
-      class="flex flex-col w-full max-w-3xl gap-3 p-4 border rounded-xl border-n-weak bg-n-solid-1"
+      class="w-full max-w-3xl border rounded-xl border-n-weak bg-n-solid-1"
       :data-testid="`tutorial-${tutorial.id}`"
     >
-      <h3 class="m-0 text-base font-medium text-n-slate-12">
-        {{ tutorial.title }}
-      </h3>
-
-      <div class="overflow-hidden rounded-lg aspect-video bg-n-solid-2">
-        <iframe
-          v-if="tutorial.video?.type === 'iframe'"
-          :src="tutorial.video.src"
-          :title="tutorial.title"
-          class="w-full h-full border-0"
-          allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
-          allowfullscreen
-        />
-        <video
-          v-else-if="tutorial.video?.type === 'video'"
-          :src="tutorial.video.src"
-          class="w-full h-full"
-          controls
-          preload="metadata"
-        />
-        <div
-          v-else
-          class="flex flex-col items-center justify-center h-full gap-2 text-sm text-n-slate-10"
-          data-testid="tutorial-video-soon"
-        >
-          <Icon icon="i-lucide-circle-play" class="size-10" />
-          {{ t('CLIENT_AREA.TUTORIALS.VIDEO_SOON') }}
-        </div>
-      </div>
-
-      <p
-        v-if="tutorial.description"
-        class="m-0 text-sm whitespace-pre-line text-n-slate-12"
+      <button
+        type="button"
+        class="flex items-center w-full gap-3 px-4 py-3 text-left"
+        :aria-expanded="isExpanded(tutorial.id)"
+        :data-testid="`tutorial-toggle-${tutorial.id}`"
+        @click="toggleTutorial(tutorial.id)"
       >
-        {{ tutorial.description }}
-      </p>
+        <span
+          class="flex-1 min-w-0 text-base font-medium truncate text-n-slate-12"
+        >
+          {{ tutorial.title }}
+        </span>
+        <Icon
+          :icon="
+            isExpanded(tutorial.id)
+              ? 'i-lucide-chevron-up'
+              : 'i-lucide-chevron-down'
+          "
+          class="size-4 shrink-0 text-n-slate-10"
+        />
+      </button>
+
+      <div
+        v-if="isExpanded(tutorial.id)"
+        class="flex flex-col gap-3 px-4 pb-4"
+        :data-testid="`tutorial-body-${tutorial.id}`"
+      >
+        <div class="overflow-hidden rounded-lg aspect-video bg-n-solid-2">
+          <iframe
+            v-if="tutorial.video?.type === 'iframe'"
+            :src="tutorial.video.src"
+            :title="tutorial.title"
+            class="w-full h-full border-0"
+            allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
+            allowfullscreen
+          />
+          <video
+            v-else-if="tutorial.video?.type === 'video'"
+            :src="tutorial.video.src"
+            class="w-full h-full"
+            controls
+            preload="metadata"
+          />
+          <div
+            v-else
+            class="flex flex-col items-center justify-center h-full gap-2 text-sm text-n-slate-10"
+            data-testid="tutorial-video-soon"
+          >
+            <Icon icon="i-lucide-circle-play" class="size-10" />
+            {{ t('CLIENT_AREA.TUTORIALS.VIDEO_SOON') }}
+          </div>
+        </div>
+
+        <p
+          v-if="tutorial.description"
+          class="m-0 text-sm whitespace-pre-line text-n-slate-12"
+        >
+          {{ tutorial.description }}
+        </p>
+      </div>
     </article>
   </div>
 </template>

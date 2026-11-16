@@ -31,6 +31,9 @@ const tutorial = (id, extra = {}) => ({
 const existe = (wrapper, testid) =>
   wrapper.find(`[data-testid="${testid}"]`).exists();
 
+const expandir = (wrapper, id) =>
+  wrapper.find(`[data-testid="tutorial-toggle-${id}"]`).trigger('click');
+
 describe('ClientTutorialsPage', () => {
   it('shows the empty message when there are no tutorials', async () => {
     const wrapper = await montar();
@@ -38,7 +41,7 @@ describe('ClientTutorialsPage', () => {
     expect(existe(wrapper, 'tutorials-empty')).toBe(true);
   });
 
-  it('lists the videos directly when there are no modules', async () => {
+  it('lists the videos directly when there are no modules, collapsed', async () => {
     const wrapper = await montar({
       tutorials: [
         tutorial(1, {
@@ -49,6 +52,17 @@ describe('ClientTutorialsPage', () => {
         tutorial(3),
       ],
     });
+
+    // Recolhidos: só o título aparece, sem player nem texto.
+    expect(wrapper.find('[data-testid="tutorial-1"]').text()).toContain(
+      'Tutorial 1'
+    );
+    expect(existe(wrapper, 'tutorial-body-1')).toBe(false);
+    expect(wrapper.find('iframe').exists()).toBe(false);
+
+    await expandir(wrapper, 1);
+    await expandir(wrapper, 2);
+    await expandir(wrapper, 3);
 
     expect(
       wrapper.find('[data-testid="tutorial-1"] iframe').attributes('src')
@@ -64,6 +78,32 @@ describe('ClientTutorialsPage', () => {
         .find('[data-testid="tutorial-3"] [data-testid="tutorial-video-soon"]')
         .exists()
     ).toBe(true);
+  });
+
+  it('expands a video on click and collapses it on the next click', async () => {
+    const wrapper = await montar({
+      tutorials: [tutorial(1, { video_url: 'https://youtu.be/dQw4w9WgXcQ' })],
+    });
+    const toggle = wrapper.find('[data-testid="tutorial-toggle-1"]');
+
+    expect(toggle.attributes('aria-expanded')).toBe('false');
+
+    await toggle.trigger('click');
+    expect(toggle.attributes('aria-expanded')).toBe('true');
+    expect(existe(wrapper, 'tutorial-body-1')).toBe(true);
+
+    await toggle.trigger('click');
+    expect(existe(wrapper, 'tutorial-body-1')).toBe(false);
+  });
+
+  it('keeps several videos open at once', async () => {
+    const wrapper = await montar({ tutorials: [tutorial(1), tutorial(2)] });
+
+    await expandir(wrapper, 1);
+    await expandir(wrapper, 2);
+
+    expect(existe(wrapper, 'tutorial-body-1')).toBe(true);
+    expect(existe(wrapper, 'tutorial-body-2')).toBe(true);
   });
 
   describe('with modules', () => {
@@ -125,6 +165,19 @@ describe('ClientTutorialsPage', () => {
 
       expect(existe(wrapper, 'tutorial-module-20')).toBe(true);
       expect(existe(wrapper, 'tutorial-2')).toBe(false);
+    });
+
+    it('collapses everything again when another card is opened', async () => {
+      const wrapper = await montar(dados);
+
+      await wrapper.find('[data-testid="tutorial-module-20"]').trigger('click');
+      await expandir(wrapper, 2);
+      expect(existe(wrapper, 'tutorial-body-2')).toBe(true);
+
+      await wrapper.find('[data-testid="tutorials-back"]').trigger('click');
+      await wrapper.find('[data-testid="tutorial-module-20"]').trigger('click');
+
+      expect(existe(wrapper, 'tutorial-body-2')).toBe(false);
     });
 
     it('does not show the "Geral" card when every video has a module', async () => {

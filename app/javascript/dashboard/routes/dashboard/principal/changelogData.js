@@ -8,6 +8,37 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-tutorials-collapsed-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'improvement',
+    platform: 'web',
+    title:
+      'Tutoriais da Área do Cliente: vídeos recolhidos que expandem ao clicar',
+    description:
+      'Dentro de cada módulo, os vídeos agora aparecem recolhidos, só com o título, e expandem ao clicar (dá para abrir mais de um). Cabem muito mais itens na tela, e o vídeo só é carregado quando a pessoa abre.',
+  },
+  {
+    id: 'stage-reorder-fast-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'fix',
+    platform: 'web',
+    title: 'Reordenar os Estágios de uma Mesa deixou de travar',
+    description:
+      'Arrastar os Estágios para mudar a ordem podia levar cerca de 14 segundos e até falhar com erro. A tela refazia o quadro inteiro consultando o servidor ticket por ticket; agora usa a mesma carga otimizada da tela do Kanban e responde quase de imediato.',
+  },
+  {
+    id: 'less-polling-faster-server-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'improvement',
+    platform: 'web',
+    title: 'DSConnect mais rápido: menos buscas repetidas ao servidor',
+    description:
+      'O sistema refazia a busca das conversas atribuídas a você, dos contadores de não lidas e dos totais das abas a cada evento, o que sobrecarregava o servidor e deixava as telas lentas. Agora essas buscas são agrupadas (no máximo uma a cada 10 a 15 segundos por navegador). Os avisos continuam acendendo na hora ao chegar uma mensagem ou ao abrir uma conversa; só a confirmação do servidor é que passou a vir um pouco depois.',
+  },
+  {
     id: 'backlog-total-hours-2026-11-16',
     date: '16 de novembro de 2026',
     isoDate: '2026-11-16',
