@@ -152,6 +152,14 @@
       "DONE": "Manifestação {reference} registrada.",
       "INTRO": "Conte o que podemos melhorar. A empresa e o solicitante são preenchidos automaticamente."
     },
+    "DELETE": {
+      "ACTION": "Excluir SAC",
+      "TITLE": "Excluir este SAC?",
+      "DESCRIPTION": "A manifestação {reference} será excluída de vez, junto com as mensagens, o histórico e os anexos. Se ela virou ticket ou sugestão, esse registro continua existindo. Esta ação não pode ser desfeita.",
+      "CONFIRM": "Excluir",
+      "CANCEL": "Cancelar",
+      "DONE": "Manifestação {reference} excluída."
+    },
     "API": {
       "ERROR": "Não foi possível concluir. Tente novamente."
     }

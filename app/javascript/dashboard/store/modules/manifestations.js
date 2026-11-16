@@ -21,6 +21,7 @@ export const state = {
     isFetchingItem: false,
     isUpdating: false,
     isConverting: false,
+    isDeleting: false,
   },
 };
 
@@ -114,6 +115,19 @@ export const actions = {
     }
   },
 
+  // Excluir não tem volta: só o administrador consegue (o servidor recusa os
+  // demais). Tira da listagem e fecha o detalhe aqui mesmo, para voltar à lista
+  // não mostrar uma manifestação que já não existe.
+  destroy: async ({ commit }, id) => {
+    commit(types.SET_MANIFESTATION_UI_FLAG, { isDeleting: true });
+    try {
+      await ManifestationsAPI.delete(id);
+      commit(types.REMOVE_MANIFESTATION, id);
+    } finally {
+      commit(types.SET_MANIFESTATION_UI_FLAG, { isDeleting: false });
+    }
+  },
+
   create: async ({ commit, dispatch }, atributos) => {
     commit(types.SET_MANIFESTATION_UI_FLAG, { isUpdating: true });
     try {
@@ -141,6 +155,19 @@ export const mutations = {
 
   [types.SET_MANIFESTATION_DETAIL](_state, manifestation) {
     _state.detail = manifestation || null;
+  },
+
+  [types.REMOVE_MANIFESTATION](_state, id) {
+    const antes = _state.records.length;
+    _state.records = _state.records.filter(item => item.id !== id);
+    // O contador do topo acompanha, sem esperar a próxima leitura da lista.
+    if (_state.records.length < antes) {
+      _state.counts = {
+        ..._state.counts,
+        total: Math.max(0, _state.counts.total - 1),
+      };
+    }
+    if (_state.detail?.id === id) _state.detail = null;
   },
 
   // Mantém a LISTAGEM em pé depois de uma alteração feita no detalhe, para que

@@ -152,6 +152,14 @@
       "DONE": "Record {reference} registered.",
       "INTRO": "Tell us what we can improve. Company and requester are filled in automatically."
     },
+    "DELETE": {
+      "ACTION": "Delete SAC",
+      "TITLE": "Delete this SAC?",
+      "DESCRIPTION": "Manifestation {reference} will be permanently deleted, along with its messages, history and attachments. If it became a ticket or a suggestion, that record stays. This cannot be undone.",
+      "CONFIRM": "Delete",
+      "CANCEL": "Cancel",
+      "DONE": "Manifestation {reference} deleted."
+    },
     "API": {
       "ERROR": "Could not complete. Please try again."
     }

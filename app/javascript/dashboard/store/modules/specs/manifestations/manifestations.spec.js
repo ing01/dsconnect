@@ -11,6 +11,7 @@ vi.mock('dashboard/api/manifestations', () => ({
     reply: vi.fn(),
     convert: vi.fn(),
     convertToSuggestion: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -51,7 +52,10 @@ describe('o SAC no store', () => {
         data: { payload: [], meta: {} },
       });
 
-      await actions.fetch({ commit: vi.fn() }, { status: 'received', kind: 'complaint' });
+      await actions.fetch(
+        { commit: vi.fn() },
+        { status: 'received', kind: 'complaint' }
+      );
 
       expect(ManifestationsAPI.list).toHaveBeenCalledWith({
         status: 'received',
@@ -97,7 +101,10 @@ describe('o SAC no store', () => {
         data: { id: 1, status: 'in_progress' },
       });
 
-      await actions.update({ commit: vi.fn() }, { id: 1, status: 'in_progress' });
+      await actions.update(
+        { commit: vi.fn() },
+        { id: 1, status: 'in_progress' }
+      );
 
       expect(ManifestationsAPI.update).toHaveBeenCalledWith(1, {
         status: 'in_progress',
@@ -199,6 +206,54 @@ describe('o SAC no store', () => {
       mutations[types.UPDATE_MANIFESTATION](chatState, { id: 99, status: 'x' });
 
       expect(chatState.records).toHaveLength(2);
+    });
+  });
+
+  describe('excluir', () => {
+    it('deletes on the server and removes it from the store', async () => {
+      ManifestationsAPI.delete.mockResolvedValue({});
+      const commit = vi.fn();
+
+      await actions.destroy({ commit }, 1);
+
+      expect(ManifestationsAPI.delete).toHaveBeenCalledWith(1);
+      expect(commit).toHaveBeenCalledWith(types.REMOVE_MANIFESTATION, 1);
+      expect(commit).toHaveBeenLastCalledWith(types.SET_MANIFESTATION_UI_FLAG, {
+        isDeleting: false,
+      });
+    });
+
+    // Se o servidor recusar (não é administrador), nada some da tela.
+    it('keeps everything when the server refuses', async () => {
+      ManifestationsAPI.delete.mockRejectedValue(new Error('403'));
+      const commit = vi.fn();
+
+      await expect(actions.destroy({ commit }, 1)).rejects.toThrow('403');
+
+      expect(commit).not.toHaveBeenCalledWith(types.REMOVE_MANIFESTATION, 1);
+      expect(commit).toHaveBeenLastCalledWith(types.SET_MANIFESTATION_UI_FLAG, {
+        isDeleting: false,
+      });
+    });
+
+    it('drops it from the list, closes the detail and lowers the total', () => {
+      const chatState = estado();
+      chatState.detail = { id: 1, reference: 'SAC-1' };
+
+      mutations[types.REMOVE_MANIFESTATION](chatState, 1);
+
+      expect(chatState.records.map(item => item.id)).toEqual([2]);
+      expect(chatState.detail).toBeNull();
+      expect(chatState.counts.total).toBe(1);
+    });
+
+    it('keeps the open detail when another one is removed', () => {
+      const chatState = estado();
+      chatState.detail = { id: 2 };
+
+      mutations[types.REMOVE_MANIFESTATION](chatState, 1);
+
+      expect(chatState.detail).toEqual({ id: 2 });
     });
   });
 

@@ -28,6 +28,7 @@ import {
 } from '../helpers/manifestationLabels';
 import ManifestationConvertDialog from '../components/ManifestationConvertDialog.vue';
 import ManifestationConvertToSuggestionDialog from '../components/ManifestationConvertToSuggestionDialog.vue';
+import ManifestationDeleteDialog from '../components/ManifestationDeleteDialog.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -42,6 +43,7 @@ const currentRole = computed(() => getters.getCurrentRole?.value);
 
 const convertDialogRef = ref(null);
 const convertSuggestionDialogRef = ref(null);
+const deleteDialogRef = ref(null);
 const texto = ref('');
 const ehAnotacao = ref(false);
 const aguardarCliente = ref(false);
@@ -55,6 +57,12 @@ const anexos = computed(() => manifestacao.value?.attachments || []);
 // regra do `ManifestationPolicy#convert?`. A tela esconde o botão; o servidor é
 // que recusa.
 const podeConverter = computed(() => currentRole.value === 'administrator');
+
+// Excluir também é do administrador (`ManifestationPolicy#destroy?`) - e vale para
+// qualquer manifestação, convertida ou não.
+const podeExcluir = computed(() => currentRole.value === 'administrator');
+
+const voltarParaLista = () => router.push({ name: 'manifestations_index' });
 
 const dataHora = segundos =>
   segundos ? new Date(segundos * 1000).toLocaleString() : '';
@@ -237,6 +245,17 @@ onMounted(async () => {
               @click="convertSuggestionDialogRef?.open()"
             />
           </template>
+
+          <Button
+            v-if="podeExcluir"
+            variant="faded"
+            color="ruby"
+            size="sm"
+            icon="i-lucide-trash-2"
+            :label="t('MANIFESTATION.DELETE.ACTION')"
+            data-testid="manifestation-delete"
+            @click="deleteDialogRef?.open()"
+          />
         </div>
       </div>
 
@@ -433,6 +452,12 @@ onMounted(async () => {
       <ManifestationConvertToSuggestionDialog
         ref="convertSuggestionDialogRef"
         :manifestation="manifestacao"
+      />
+      <ManifestationDeleteDialog
+        v-if="podeExcluir"
+        ref="deleteDialogRef"
+        :manifestation="manifestacao"
+        @deleted="voltarParaLista"
       />
     </template>
   </div>
