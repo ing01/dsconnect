@@ -1,7 +1,11 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useStore, useMapGetter } from 'dashboard/composables/store';
+import {
+  useStore,
+  useMapGetter,
+  useStoreGetters,
+} from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
@@ -28,9 +32,62 @@ const emit = defineEmits(['closed', 'left-open', 'cancel']);
 
 const { t } = useI18n();
 const store = useStore();
+const getters = useStoreGetters();
 
 const dialogRef = ref(null);
 const isWorking = ref(false);
+
+// Categoria/Mesa/Estagio para onde o ticket vai ser encaminhado ao fechar -
+// parte confirmando/trocando a Categoria, escolher uma de outra Mesa
+// preenche Mesa e Estagio automaticamente (o padrao configurado em
+// Configuracoes > Tickets > Categorias), mas os tres continuam editaveis
+// de forma independente antes de confirmar. Pedido da Ingrid, 2026-11-16.
+const categoryId = ref(null);
+const teamId = ref(null);
+const columnId = ref(null);
+
+const teams = useMapGetter('teams/getTeams');
+
+// Categorias de TODAS as Mesas, agrupadas por Mesa no select - precisa ser
+// assim (e nao so' as da Mesa atual) porque escolher uma categoria de outra
+// Mesa e' o jeito de encaminhar o ticket pra ela nesta tela.
+const categoriesByTeam = computed(() =>
+  teams.value.map(team => ({
+    team,
+    categories: getters['ticketColumns/getCategories'].value(team.id) || [],
+  }))
+);
+const allCategories = computed(() =>
+  categoriesByTeam.value.flatMap(group => group.categories)
+);
+const stageOptions = computed(
+  () => getters['ticketColumns/getColumns'].value(teamId.value) || []
+);
+
+const onCategorySelect = () => {
+  const category = allCategories.value.find(
+    candidate => candidate.id === Number(categoryId.value)
+  );
+  if (!category) return;
+
+  teamId.value = category.team_id;
+  if (category.default_ticket_column_id) {
+    columnId.value = category.default_ticket_column_id;
+  }
+};
+
+// So' usa o caminho de transferencia (Mesa/Estagio/Categoria + fechar numa
+// chamada so') quando algo realmente mudou - o fechamento comum (sem mexer
+// em nada disso) continua exatamente como sempre foi.
+const routingChanged = computed(
+  () =>
+    (categoryId.value ? Number(categoryId.value) : null) !==
+      (props.ticket.ticket_category_id ?? null) ||
+    (teamId.value ? Number(teamId.value) : null) !==
+      (props.ticket.team_id ?? null) ||
+    (columnId.value ? Number(columnId.value) : null) !==
+      (props.ticket.ticket_column_id ?? null)
+);
 
 const catalogId = ref(null);
 const areaId = ref(null);
@@ -115,9 +172,18 @@ const open = () => {
   notificarCliente.value = true;
   title.value = props.ticket.title || '';
   description.value = props.ticket.description || '';
+  categoryId.value = props.ticket.ticket_category_id || null;
+  teamId.value = props.ticket.team_id || null;
+  columnId.value = props.ticket.ticket_column_id || null;
   summaryRun += 1;
   isSummarizing.value = false;
   store.dispatch('serviceCatalogs/fetch');
+  store.dispatch('teams/get').then(() => {
+    teams.value.forEach(team => {
+      store.dispatch('ticketColumns/fetchCategories', team.id);
+      store.dispatch('ticketColumns/fetchColumns', team.id);
+    });
+  });
   dialogRef.value?.open();
 };
 
@@ -187,10 +253,26 @@ const submit = async () => {
 
     // A Resolucao vai no proprio fechamento: o servidor so' a grava se o ticket
     // fechar, entao uma recusa nao deixa texto solto no ticket.
-    await store.dispatch('tickets/closeTicket', {
-      id: props.ticket.id,
-      resolution: needsResolution.value ? resolution.value.trim() : undefined,
-    });
+    //
+    // Mesa/Estagio/Categoria mudaram? Vai tudo numa unica chamada de
+    // transferencia com o fechamento embutido (Tickets::TransferService ja
+    // aplica a mudanca ANTES de fechar, na ordem certa) - sem mexer em nada
+    // disso, o fechamento continua exatamente como sempre foi.
+    if (routingChanged.value) {
+      await store.dispatch('tickets/transferTicket', {
+        id: props.ticket.id,
+        team_id: teamId.value,
+        ticket_column_id: columnId.value || undefined,
+        ticket_category_id: categoryId.value || null,
+        status: 'closed',
+        resolution: needsResolution.value ? resolution.value.trim() : undefined,
+      });
+    } else {
+      await store.dispatch('tickets/closeTicket', {
+        id: props.ticket.id,
+        resolution: needsResolution.value ? resolution.value.trim() : undefined,
+      });
+    }
     // Avisa a decisao ANTES de fechar o dialogo: fechar dispara `cancel`, e quem
     // escuta (ResolveAction) so' ignora esse `cancel` se ja' soube da decisao.
     emit('closed');
@@ -224,6 +306,9 @@ watch(
     areaId.value = null;
     itemId.value = null;
     resolution.value = '';
+    categoryId.value = props.ticket.ticket_category_id || null;
+    teamId.value = props.ticket.team_id || null;
+    columnId.value = props.ticket.ticket_column_id || null;
   }
 );
 
@@ -316,6 +401,75 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
 
         <div class="h-px bg-n-weak" />
       </template>
+
+      <!-- Categoria, Mesa e Estagio para onde o ticket vai ser encaminhado -
+           confirma ou troca a Categoria; trocar pra uma de outra Mesa ja'
+           preenche Mesa e Estagio com o padrao configurado nela, mas os tres
+           continuam editaveis de forma independente. Pedido da Ingrid,
+           2026-11-16. -->
+      <section class="flex flex-col gap-3 min-w-0">
+        <h3 class="text-sm font-medium text-n-slate-12">
+          {{ t('TICKET.CLOSE.STEP_ROUTING') }}
+        </h3>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <label class="flex flex-col gap-1 min-w-0">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ t('TICKET.CLOSE.ROUTING_CATEGORY') }}
+            </span>
+            <select
+              v-model="categoryId"
+              class="w-full mb-0 text-sm"
+              @change="onCategorySelect"
+            >
+              <option :value="null">
+                {{ t('TICKET.CLOSE.ROUTING_CATEGORY_NONE') }}
+              </option>
+              <optgroup
+                v-for="group in categoriesByTeam"
+                :key="group.team.id"
+                :label="group.team.name"
+              >
+                <option
+                  v-for="category in group.categories"
+                  :key="category.id"
+                  :value="category.id"
+                >
+                  {{ category.name }}
+                </option>
+              </optgroup>
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 min-w-0">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ t('TICKET.CLOSE.ROUTING_TEAM') }}
+            </span>
+            <select v-model="teamId" class="w-full mb-0 text-sm">
+              <option v-for="team in teams" :key="team.id" :value="team.id">
+                {{ team.name }}
+              </option>
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 min-w-0">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ t('TICKET.CLOSE.ROUTING_STAGE') }}
+            </span>
+            <select v-model="columnId" class="w-full mb-0 text-sm">
+              <option :value="null">
+                {{ t('TICKET.CLOSE.ROUTING_STAGE_NONE') }}
+              </option>
+              <option
+                v-for="stage in stageOptions"
+                :key="stage.id"
+                :value="stage.id"
+              >
+                {{ stage.name }}
+              </option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <div class="h-px bg-n-weak" />
 
       <!-- Step 1: classification. Already done shows as done rather than
            asking again. -->

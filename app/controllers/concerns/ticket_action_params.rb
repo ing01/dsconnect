@@ -22,7 +22,7 @@ module TicketActionParams
   ASSIGNEE_PARAMS = AssigneeLeveled::ALL_LEVELS.map { |level| AssigneeLeveled.assignee_column(level) }.freeze
 
   def transfer_params
-    params.require(:ticket).permit(:team_id, :ticket_column_id, :status, :priority, :resolution,
+    params.require(:ticket).permit(:team_id, :ticket_column_id, :ticket_category_id, :status, :priority, :resolution,
                                    *ASSIGNEE_PARAMS).to_h.symbolize_keys
   end
 

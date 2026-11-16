@@ -68,7 +68,9 @@
         "ENDS": "Ends",
         "NEVER": "Never",
         "ON_DATE": "On a date",
-        "AFTER_COUNT": "After this many occurrences"
+        "AFTER_COUNT": "After this many occurrences",
+        "PREVIEW_TITLE": "{count} occurrence(s) will be created:",
+        "PREVIEW_CONTINUES": "...and keeps repeating with no end date."
       },
       "REMINDER": {
         "LABEL": "Remind me before",

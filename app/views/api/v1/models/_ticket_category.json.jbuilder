@@ -8,3 +8,6 @@ json.require_attachment resource.require_attachment
 # Aparece no select da Area do Cliente? So a tela de Configuracoes usa isso - o
 # formulario do agente mostra todas as Categorias da Mesa.
 json.client_visible resource.client_visible
+# Estagio sugerido no fechamento (TicketCloseDialog) e cor do selo no Kanban.
+json.default_ticket_column_id resource.default_ticket_column_id
+json.color resource.color

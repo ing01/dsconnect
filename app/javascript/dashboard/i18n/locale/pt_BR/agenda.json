@@ -74,7 +74,9 @@
         "ENDS": "Termina",
         "NEVER": "Nunca",
         "ON_DATE": "Em uma data",
-        "AFTER_COUNT": "Depois de tantas ocorrências"
+        "AFTER_COUNT": "Depois de tantas ocorrências",
+        "PREVIEW_TITLE": "{count} ocorrência(s) serão criadas:",
+        "PREVIEW_CONTINUES": "...e continua se repetindo sem data de término."
       },
       "REMINDER": {
         "LABEL": "Lembrar-me antes",

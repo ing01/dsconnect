@@ -3,7 +3,15 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
-import { format, parseISO, addMinutes } from 'date-fns';
+import {
+  format,
+  parseISO,
+  addMinutes,
+  addDays,
+  addWeeks,
+  addMonths,
+  addYears,
+} from 'date-fns';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import { colorForAgent } from './helpers/agentColorHelper';
@@ -42,6 +50,7 @@ const store = useStore();
 const isEditing = computed(() => !!props.event);
 const teamMembers = useMapGetter('teamMembers/getTeamMembers');
 const teams = useMapGetter('teams/getTeams');
+const currentUserId = useMapGetter('getCurrentUserID');
 // A agenda e' escolhida ao criar (vazia, obrigatoria) e pode ser trocada ao
 // editar, caso tenha sido posta na errada. So' criar a partir de um Ticket
 // mantem o time do ticket, sem escolha.
@@ -171,17 +180,34 @@ const loadTeamData = async teamId => {
   teamTickets.value = data.payload;
 };
 
+// Ao CRIAR (nunca ao editar - um compromisso ja' salvo nao deve ter seus
+// participantes mexidos so' por reabrir o formulario), quem esta logado
+// entra marcado como participante de cara - continua editavel pra
+// adicionar outras pessoas ou tirar a si mesmo. So' marca se a pessoa
+// realmente for membro da Mesa escolhida (senao o toggle nem aparece pra
+// desmarcar). Pedido da Ingrid, 2026-11-16: "ao incluir uma tarefa na
+// agenda, ficar atribuida automaticamente a quem esta criando".
+const applyDefaultAttendee = teamId => {
+  if (isEditing.value || form.attendee_ids.length || !teamId) return;
+
+  const members = teamMembers.value(teamId) || [];
+  if (members.some(member => member.id === currentUserId.value)) {
+    form.attendee_ids = [currentUserId.value];
+  }
+};
+
 // Trocar a agenda muda quem pode participar e quais tickets existem: o que
 // foi marcado antes deixa de valer.
 watch(
   () => form.team_id,
-  (teamId, previousTeamId) => {
+  async (teamId, previousTeamId) => {
     teamError.value = '';
     if (previousTeamId) {
       form.attendee_ids = [];
       form.ticket_ids = [];
     }
-    loadTeamData(teamId);
+    await loadTeamData(teamId);
+    applyDefaultAttendee(teamId);
   }
 );
 
@@ -236,9 +262,71 @@ const handleSubmit = () => {
   emit('submit', payload);
 };
 
+// Lista de datas que a repeticao vai gerar, pra conferir ANTES de salvar -
+// mesma matematica de CalendarEvents::OccurrenceExpansionService#dates_for
+// (anchor + intervalo*ocorrencia, mes/ano ancorado no dia do inicio). Sem
+// data-fim nem numero de ocorrencias ("nunca termina"), mostra so' uma
+// amostra - o resto so' existe conforme as semanas/meses forem passando.
+// Pedido da Ingrid, 2026-11-16: "ao incluir uma repeticao mostrar todas
+// ocorrencias na agenda na visualizacao".
+const PREVIEW_CAP = 60;
+const PREVIEW_CAP_NEVER_ENDS = 12;
+
+const stepDate = (start, frequency, interval, index) => {
+  switch (frequency) {
+    case 'daily':
+      return addDays(start, interval * index);
+    case 'weekly':
+      return addWeeks(start, interval * index);
+    case 'monthly':
+      return addMonths(start, interval * index);
+    case 'yearly':
+      return addYears(start, interval * index);
+    default:
+      return start;
+  }
+};
+
+const recurrencePreview = computed(() => {
+  if (form.recurrence_frequency === 'single' || !form.start_at) {
+    return { dates: [], truncated: false };
+  }
+
+  const start = new Date(form.start_at);
+  if (Number.isNaN(start.getTime())) return { dates: [], truncated: false };
+
+  const interval = Math.max(1, Number(form.recurrence_interval) || 1);
+  const endAt =
+    form.recurrence_end_type === 'on_date' && form.recurrence_end_at
+      ? new Date(`${form.recurrence_end_at}T23:59:59`)
+      : null;
+  const count =
+    form.recurrence_end_type === 'after_count'
+      ? Number(form.recurrence_count) || 0
+      : null;
+  const cap =
+    form.recurrence_end_type === 'never' ? PREVIEW_CAP_NEVER_ENDS : PREVIEW_CAP;
+
+  const dates = [];
+  let index = 0;
+  while (index < cap) {
+    if (count !== null && index >= count) break;
+    const date = stepDate(start, form.recurrence_frequency, interval, index);
+    if (endAt && date > endAt) break;
+    dates.push(date);
+    index += 1;
+  }
+
+  return {
+    dates,
+    truncated: form.recurrence_end_type === 'never' && dates.length === cap,
+  };
+});
+
 onMounted(async () => {
   if (canPickTeam.value) await store.dispatch('teams/get');
   await loadTeamData(form.team_id);
+  applyDefaultAttendee(form.team_id);
 });
 </script>
 
@@ -420,6 +508,33 @@ onMounted(async () => {
                     :disabled="form.recurrence_end_type !== 'after_count'"
                   />
                 </label>
+              </div>
+
+              <!-- Resumo das datas que a repeticao vai gerar, pra conferir
+                   antes de salvar - "nunca termina" so' mostra uma amostra. -->
+              <div
+                v-if="recurrencePreview.dates.length"
+                class="flex flex-col gap-1 p-2 text-xs rounded-lg bg-n-alpha-1"
+              >
+                <span class="font-medium text-n-slate-12">
+                  {{
+                    t('AGENDA.FORM.RECURRENCE.PREVIEW_TITLE', {
+                      count: recurrencePreview.dates.length,
+                    })
+                  }}
+                </span>
+                <div class="flex flex-wrap gap-1.5">
+                  <span
+                    v-for="date in recurrencePreview.dates"
+                    :key="date.toISOString()"
+                    class="px-1.5 py-0.5 rounded bg-n-alpha-2 text-n-slate-11"
+                  >
+                    {{ format(date, 'dd/MM/yyyy') }}
+                  </span>
+                </div>
+                <span v-if="recurrencePreview.truncated" class="text-n-slate-10">
+                  {{ t('AGENDA.FORM.RECURRENCE.PREVIEW_CONTINUES') }}
+                </span>
               </div>
             </template>
           </div>

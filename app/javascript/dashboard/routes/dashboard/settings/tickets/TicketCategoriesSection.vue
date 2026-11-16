@@ -7,6 +7,7 @@ import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
+import WootLabel from 'dashboard/components-next/label/Label.vue';
 import {
   BaseTable,
   BaseTableRow,
@@ -32,11 +33,26 @@ const requireAttachment = ref(false);
 // existem em cada uma - sem esta marca, cada nome se repetia uma vez por Mesa na
 // lista do cliente. Aqui se escolhe QUAL "Erro" ele ve.
 const clientVisible = ref(false);
+// Estagio sugerido ao fechar um ticket desta Categoria (TicketCloseDialog
+// preenche Mesa + Estagio automaticamente ao escolher a Categoria, editavel
+// antes de confirmar) e cor do selo no Kanban - pedido da Ingrid, 2026-11-16.
+const defaultTicketColumnId = ref('');
+const color = ref('');
 const isSaving = ref(false);
+
+// Mesmas cores que o WootLabel aceita (Label.vue) - reaproveitado pro selo
+// da Categoria no card do Kanban, sem paleta nova.
+const COLOR_OPTIONS = ['slate', 'amber', 'teal', 'ruby', 'blue', 'iris'];
 
 // Categories are scoped to the Mesa, exactly like the Estagios above.
 const categories = computed(
   () => getters['ticketColumns/getCategories'].value(props.teamId) || []
+);
+
+// Estagios da mesma Mesa da Categoria - o padrao sugerido tem que ser um
+// deles, senao a Mesa (a da propria Categoria) e o Estagio nunca bateriam.
+const stageOptions = computed(
+  () => getters['ticketColumns/getColumns'].value(props.teamId) || []
 );
 
 const headers = computed(() => [
@@ -51,6 +67,8 @@ const openForm = category => {
   name.value = category?.name || '';
   requireAttachment.value = Boolean(category?.require_attachment);
   clientVisible.value = Boolean(category?.client_visible);
+  defaultTicketColumnId.value = category?.default_ticket_column_id || '';
+  color.value = category?.color || '';
   formDialog.value?.open();
 };
 
@@ -60,19 +78,22 @@ const save = async () => {
 
   isSaving.value = true;
   try {
+    const payload = {
+      name: trimmed,
+      require_attachment: requireAttachment.value,
+      client_visible: clientVisible.value,
+      default_ticket_column_id: defaultTicketColumnId.value || null,
+      color: color.value || null,
+    };
     const action = editing.value
       ? store.dispatch('ticketColumns/updateCategory', {
           teamId: props.teamId,
           categoryId: editing.value.id,
-          name: trimmed,
-          require_attachment: requireAttachment.value,
-          client_visible: clientVisible.value,
+          ...payload,
         })
       : store.dispatch('ticketColumns/createCategory', {
           teamId: props.teamId,
-          name: trimmed,
-          require_attachment: requireAttachment.value,
-          client_visible: clientVisible.value,
+          ...payload,
         });
     await action;
     formDialog.value?.close();
@@ -105,7 +126,10 @@ const remove = async () => {
 watch(
   () => props.teamId,
   teamId => {
-    if (teamId) store.dispatch('ticketColumns/fetchCategories', teamId);
+    if (teamId) {
+      store.dispatch('ticketColumns/fetchCategories', teamId);
+      store.dispatch('ticketColumns/fetchColumns', teamId);
+    }
   },
   { immediate: true }
 );
@@ -136,8 +160,9 @@ watch(
         >
           <template #default>
             <BaseTableCell>
-              <span class="text-body-main text-n-slate-12">
-                {{ category.name }}
+              <span class="inline-flex items-center gap-2 text-body-main text-n-slate-12">
+                <WootLabel v-if="category.color" :label="category.name" :color="category.color" compact />
+                <template v-else>{{ category.name }}</template>
               </span>
             </BaseTableCell>
             <BaseTableCell>
@@ -237,6 +262,45 @@ watch(
           </span>
         </span>
       </label>
+
+      <!-- Estagio sugerido ao fechar um ticket desta Categoria - o
+           TicketCloseDialog preenche Mesa (a da propria Categoria) + este
+           Estagio automaticamente, editavel antes de confirmar. -->
+      <label class="flex flex-col gap-1 mt-4">
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ t('TICKET.SETTINGS.CATEGORIES.DEFAULT_STAGE') }}
+        </span>
+        <select v-model="defaultTicketColumnId" class="w-full mb-0">
+          <option value="">{{ t('TICKET.SETTINGS.CATEGORIES.DEFAULT_STAGE_NONE') }}</option>
+          <option v-for="stage in stageOptions" :key="stage.id" :value="stage.id">
+            {{ stage.name }}
+          </option>
+        </select>
+        <span class="text-xs text-n-slate-11">
+          {{ t('TICKET.SETTINGS.CATEGORIES.DEFAULT_STAGE_HELP') }}
+        </span>
+      </label>
+
+      <!-- Cor do selo desta Categoria no card do Kanban. -->
+      <div class="flex flex-col gap-1 mt-4">
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ t('TICKET.SETTINGS.CATEGORIES.COLOR') }}
+        </span>
+        <div class="flex items-center flex-wrap gap-2">
+          <button
+            v-for="option in COLOR_OPTIONS"
+            :key="option"
+            type="button"
+            class="rounded-full size-7 border-2 transition-colors"
+            :class="[
+              `bg-n-${option}-9`,
+              color === option ? 'border-n-slate-12' : 'border-transparent',
+            ]"
+            :aria-label="option"
+            @click="color = color === option ? '' : option"
+          />
+        </div>
+      </div>
     </Dialog>
 
     <Dialog

@@ -9,7 +9,7 @@
 class Tickets::TransferService
   # Kept in the order the form asks for them, which is also the order they must
   # be validated in: the Estagio and the Responsavel both depend on the Mesa.
-  AUDITED_FIELDS = %w[team_id ticket_column_id status priority assignee_id].freeze
+  AUDITED_FIELDS = %w[team_id ticket_column_id ticket_category_id status priority assignee_id].freeze
 
   pattr_initialize [:ticket!, :user!, :attributes!]
 
@@ -64,6 +64,9 @@ class Tickets::TransferService
   def assign_scalars
     ticket.assign_attributes(assignee_id: assignee_id) if attributes.key?(:assignee_id)
     ticket.assign_attributes(priority: attributes[:priority]) if attributes[:priority].present?
+    # Categoria escolhida/confirmada junto com Mesa e Estagio na tela de
+    # fechamento (TicketCloseDialog) - pedido da Ingrid, 2026-11-16.
+    ticket.assign_attributes(ticket_category_id: attributes[:ticket_category_id]) if attributes.key?(:ticket_category_id)
   end
 
   def target_column
