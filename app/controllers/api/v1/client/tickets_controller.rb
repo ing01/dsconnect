@@ -205,23 +205,6 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
             .map { |id, name, team_id| { id: id, name: name, team_id: team_id } }
   end
 
-  # Onde o chamado do cliente entra: o Estagio "Pendente" da Mesa quando existe -
-  # e o que a propria Mesa define como entrada -, senao o primeiro da fila.
-  def entry_column(team)
-    team.ticket_columns.find_by(kind: 'pending') || team.ticket_columns.order(:position, :id).first
-  end
-
-  # A Categoria e obrigatoria no ticket. Quando o cliente nao escolhe, a
-  # primeira da Mesa responde por ela: a triagem interna reclassifica depois, e
-  # isso e melhor do que barrar a abertura por uma escolha que e nossa.
-  def default_category(team)
-    # A marcada para o cliente primeiro: e a que quem administra escolheu como
-    # porta de entrada. Sem nenhuma marcada, qualquer uma da Mesa serve - barrar
-    # a abertura por uma escolha que e nossa seria pior.
-    team.ticket_categories.client_visible.first ||
-      team.ticket_categories.order(:position, :id).first
-  end
-
   # O que o cliente escolheu, mais o que ele nao escolhe: Mesa de entrada,
   # Estagio, prioridade, Empresa e solicitante saem daqui, nunca dos parametros.
   #
@@ -233,18 +216,12 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   # nenhum dos dois casos isso dispensa a aprovacao manual.
   def build_ticket(categoria)
     empresa = company_for_new_ticket
-    regra = routing_rule_for(empresa)
-    team = regra&.team || categoria&.team || client_teams.first
-    # A regra de prioridade decide a MESA, nao a Categoria - uma Categoria de
-    # outra Mesa nao pode sobreviver a troca (validacao
-    # `ticket_category_belongs_to_team`), entao a entrada padrao da Mesa da
-    # regra assume o lugar da escolha do cliente.
-    categoria = nil if regra.present? && categoria&.team_id != team&.id
+    resolved = Tickets::PortalRoutingService.new(account: Current.account, company_id: empresa, category: categoria).resolve
 
     ticket = Current.account.tickets.new(permitted_ticket_params)
-    ticket.team = team
-    ticket.ticket_column = entry_column(team)
-    ticket.ticket_category = categoria || default_category(team)
+    ticket.team = resolved[:team]
+    ticket.ticket_column = resolved[:ticket_column]
+    ticket.ticket_category = resolved[:ticket_category]
     # Prioridade e obrigatoria no ticket, e deixou de ser escolha do cliente:
     # quem atende define depois. "Media" e o ponto de partida neutro.
     ticket.priority = 'medium'
@@ -255,15 +232,6 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
     # para o Kanban da equipe depois que um agente aprovar.
     ticket.pending_triage = true
     ticket
-  end
-
-  def routing_rule_for(company_id)
-    return if company_id.blank?
-
-    company = Company.find_by(id: company_id, account_id: Current.account.id)
-    return if company.blank?
-
-    Current.account.ticket_routing_rules.find_by(client_level: company.client_level)
   end
 
   # Os arquivos enviados junto do formulario. Multipart, porque o cliente manda
