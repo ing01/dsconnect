@@ -402,6 +402,7 @@
         "SAVE": "Save",
         "CANCEL": "Cancel",
         "USE_TEMPLATE": "Use template",
+        "EDIT_DIALOG_TITLE": "Edit description",
         "PLACEHOLDER": "Describe the ticket...",
         "SUMMARIZE": "Summarize conversation",
         "SUMMARIZE_EMPTY": "The AI returned no summary. Please try again.",

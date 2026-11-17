@@ -1,9 +1,10 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import MessageFormatter from 'shared/helpers/MessageFormatter';
 import { useAlert } from 'dashboard/composables';
 import Button from 'dashboard/components-next/button/Button.vue';
+import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import FullEditor from 'dashboard/components/widgets/WootWriter/FullEditor.vue';
 import TicketsAPI from 'dashboard/api/tickets';
 import { TICKET_DESCRIPTION_TEMPLATE } from '../../helpers/descriptionTemplate';
@@ -38,6 +39,9 @@ const DESCRIPTION_MENU_OPTIONS = [
 
 const { t } = useI18n();
 
+// A edicao acontece num modal grande (mais area visivel, fonte menor): a caixa
+// inline mostrava so' umas tres linhas da descricao.
+const dialogRef = ref(null);
 const isEditing = ref(false);
 const draft = ref('');
 const isSummarizing = ref(false);
@@ -66,16 +70,26 @@ const renderedDescription = computed(
 );
 
 const startEditing = (seed = null) => {
+  const wasEditing = isEditing.value;
   draft.value = seed ?? props.ticket.description ?? '';
   summarizedTitle.value = null;
   isEditing.value = true;
+  // `Resumir conversa` chama isto com o modal ja' aberto: so' abre se estiver fechado.
+  if (!wasEditing) nextTick(() => dialogRef.value?.open());
 };
 
-const cancel = () => {
+// Limpa o estado da edicao. Roda quando o modal fecha - pelo Cancelar, pelo Esc,
+// pelo clique fora ou depois de salvar (ver `closeDialog`).
+const resetEditing = () => {
   isEditing.value = false;
   draft.value = '';
   summarizedTitle.value = null;
   justSavedDescription = null;
+};
+
+const closeDialog = () => {
+  if (dialogRef.value) dialogRef.value.close();
+  else resetEditing();
 };
 
 const save = () => {
@@ -116,7 +130,9 @@ const summarizeConversation = async () => {
 watch(
   () => props.ticket.description,
   newDescription => {
-    if (isEditing.value && newDescription === justSavedDescription) cancel();
+    if (isEditing.value && newDescription === justSavedDescription) {
+      closeDialog();
+    }
   }
 );
 </script>
@@ -129,7 +145,7 @@ watch(
       <h2 class="text-sm font-medium text-n-slate-12">
         {{ t('TICKET.DETAIL.DESCRIPTION.TITLE') }}
       </h2>
-      <div v-if="!isEditing && canUpdate" class="flex items-center gap-2">
+      <div v-if="canUpdate" class="flex items-center gap-2">
         <Button
           v-if="hasLinkedConversation"
           variant="ghost"
@@ -160,60 +176,73 @@ watch(
       </div>
     </div>
 
-    <template v-if="isEditing">
-      <!-- So' aparece depois de "Resumir conversa": a IA tambem sugere um
-           titulo, revisavel aqui antes de ir junto no mesmo Salvar. -->
-      <label
-        v-if="summarizedTitle !== null"
-        class="flex flex-col gap-1 min-w-0"
-      >
-        <span class="text-xs font-medium text-n-slate-11">
-          {{ t('TICKET.DETAIL.DESCRIPTION.SUMMARIZED_TITLE_LABEL') }}
-        </span>
-        <input
-          v-model="summarizedTitle"
-          type="text"
-          maxlength="255"
-          class="w-full mb-0"
+    <Dialog
+      ref="dialogRef"
+      :title="t('TICKET.DETAIL.DESCRIPTION.EDIT_DIALOG_TITLE')"
+      width="3xl"
+      @confirm="save"
+      @close="resetEditing"
+    >
+      <template v-if="isEditing">
+        <!-- So' aparece depois de "Resumir conversa": a IA tambem sugere um
+             titulo, revisavel aqui antes de ir junto no mesmo Salvar. -->
+        <label
+          v-if="summarizedTitle !== null"
+          class="flex flex-col gap-1 min-w-0"
+        >
+          <span class="text-xs font-medium text-n-slate-11">
+            {{ t('TICKET.DETAIL.DESCRIPTION.SUMMARIZED_TITLE_LABEL') }}
+          </span>
+          <input
+            v-model="summarizedTitle"
+            type="text"
+            maxlength="255"
+            class="w-full mb-0"
+          />
+        </label>
+        <FullEditor
+          v-model="draft"
+          :editor-id="`ticket-description-${ticket.id}`"
+          :placeholder="t('TICKET.DETAIL.DESCRIPTION.PLACEHOLDER')"
+          :enabled-menu-options="DESCRIPTION_MENU_OPTIONS"
+          class="ticket-description-editor min-w-0"
         />
-      </label>
-      <FullEditor
-        v-model="draft"
-        :editor-id="`ticket-description-${ticket.id}`"
-        :placeholder="t('TICKET.DETAIL.DESCRIPTION.PLACEHOLDER')"
-        :enabled-menu-options="DESCRIPTION_MENU_OPTIONS"
-        class="min-w-0"
-      />
-      <div class="flex justify-end gap-2">
-        <Button
-          v-if="hasLinkedConversation"
-          variant="faded"
-          color="slate"
-          size="sm"
-          icon="i-fluent-text-bullet-list-square-sparkle-32-regular"
-          :is-loading="isSummarizing"
-          :label="t('TICKET.DETAIL.DESCRIPTION.SUMMARIZE')"
-          class="mr-auto"
-          @click="summarizeConversation"
-        />
-        <Button
-          variant="faded"
-          color="slate"
-          size="sm"
-          :label="t('TICKET.DETAIL.DESCRIPTION.CANCEL')"
-          @click="cancel"
-        />
-        <Button
-          size="sm"
-          :is-loading="isSaving"
-          :label="t('TICKET.DETAIL.DESCRIPTION.SAVE')"
-          @click="save"
-        />
-      </div>
-    </template>
+      </template>
+      <template #footer>
+        <div class="flex items-center justify-end w-full gap-2">
+          <Button
+            v-if="hasLinkedConversation"
+            variant="faded"
+            color="slate"
+            size="sm"
+            type="button"
+            icon="i-fluent-text-bullet-list-square-sparkle-32-regular"
+            :is-loading="isSummarizing"
+            :label="t('TICKET.DETAIL.DESCRIPTION.SUMMARIZE')"
+            class="mr-auto"
+            @click="summarizeConversation"
+          />
+          <Button
+            variant="faded"
+            color="slate"
+            size="sm"
+            type="button"
+            :label="t('TICKET.DETAIL.DESCRIPTION.CANCEL')"
+            @click="closeDialog"
+          />
+          <Button
+            size="sm"
+            type="button"
+            :is-loading="isSaving"
+            :label="t('TICKET.DETAIL.DESCRIPTION.SAVE')"
+            @click="save"
+          />
+        </div>
+      </template>
+    </Dialog>
 
     <div
-      v-else-if="hasDescription"
+      v-if="hasDescription"
       v-dompurify-html="renderedDescription"
       class="prose-sm max-w-none text-sm text-n-slate-12 break-words"
     />
@@ -223,3 +252,19 @@ watch(
     </p>
   </section>
 </template>
+
+<style scoped>
+/* Area de escrita grande e com fonte menor, para caber mais texto de uma vez. */
+.ticket-description-editor :deep(.ProseMirror-woot-style) {
+  height: 52vh;
+  min-height: 16rem;
+  max-height: none;
+  overflow-y: auto;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.ticket-description-editor :deep(.ProseMirror-woot-style p) {
+  margin: 0 0 0.5rem;
+}
+</style>

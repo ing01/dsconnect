@@ -2,6 +2,10 @@ import { mount } from '@vue/test-utils';
 import TicketDescriptionCard from '../TicketDescriptionCard.vue';
 import { TICKET_DESCRIPTION_TEMPLATE } from '../../../helpers/descriptionTemplate';
 
+// O modal real so' monta o conteudo quando aberto; aqui o stub expoe o que o
+// componente usa dele (open/close) e emite `close` como o Dialog de verdade.
+const openDialog = vi.fn();
+
 const mountCard = (props = {}) =>
   mount(TicketDescriptionCard, {
     props: { ticket: { id: 1, description: '' }, ...props },
@@ -15,6 +19,18 @@ const mountCard = (props = {}) =>
             '<button :data-label="label" v-bind="$attrs">{{ label }}</button>',
         },
         FullEditor: { template: '<div class="editor" />' },
+        Dialog: {
+          emits: ['close', 'confirm'],
+          template: '<div class="dialog"><slot /><slot name="footer" /></div>',
+          methods: {
+            open() {
+              openDialog();
+            },
+            close() {
+              this.$emit('close');
+            },
+          },
+        },
       },
     },
   });
@@ -23,6 +39,8 @@ const templateButton = wrapper =>
   wrapper.find('[data-label="TICKET.DETAIL.DESCRIPTION.USE_TEMPLATE"]');
 
 describe('TicketDescriptionCard', () => {
+  beforeEach(() => openDialog.mockClear());
+
   it('starts in view mode', () => {
     expect(mountCard().find('.editor').exists()).toBe(false);
   });
@@ -53,6 +71,33 @@ describe('TicketDescriptionCard', () => {
       .trigger('click');
 
     expect(wrapper.vm.draft).toBe('Texto atual');
+  });
+
+  it('opens the edit modal when editing starts, once', async () => {
+    const wrapper = mountCard({
+      ticket: { id: 1, description: 'Texto atual' },
+    });
+    await wrapper
+      .find('[data-label="TICKET.DETAIL.DESCRIPTION.EDIT"]')
+      .trigger('click');
+    await wrapper.vm.$nextTick();
+
+    expect(openDialog).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the modal and drops the draft on Cancel', async () => {
+    const wrapper = mountCard({
+      ticket: { id: 1, description: 'Texto atual' },
+    });
+    await wrapper
+      .find('[data-label="TICKET.DETAIL.DESCRIPTION.EDIT"]')
+      .trigger('click');
+    await wrapper
+      .find('[data-label="TICKET.DETAIL.DESCRIPTION.CANCEL"]')
+      .trigger('click');
+
+    expect(wrapper.find('.editor').exists()).toBe(false);
+    expect(wrapper.vm.draft).toBe('');
   });
 
   it('hides the edit affordances without permission', () => {

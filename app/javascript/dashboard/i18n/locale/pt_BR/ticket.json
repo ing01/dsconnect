@@ -436,6 +436,7 @@
         "SAVE": "Salvar",
         "CANCEL": "Cancelar",
         "USE_TEMPLATE": "Usar template",
+        "EDIT_DIALOG_TITLE": "Editar descrição",
         "PLACEHOLDER": "Descreva o ticket...",
         "SUMMARIZE": "Resumir conversa",
         "SUMMARIZE_EMPTY": "A IA não retornou nenhum resumo. Tente novamente.",

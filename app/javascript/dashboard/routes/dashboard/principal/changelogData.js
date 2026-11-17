@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-long-description-fix-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'fix',
+    platform: 'web',
+    title: 'Corrigido erro ao editar descrições grandes do ticket',
+    description:
+      'Editar a descrição de um ticket com mais de 255 caracteres falhava com a mensagem "Previous value is too long (maximum is 255 characters)". O histórico do ticket guardava o antes e o depois com um limite curto demais; agora aceita os textos longos e a edição salva normalmente. O mesmo vale para motivos de impedimento e notas de automação grandes.',
+  },
+  {
+    id: 'ticket-description-modal-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Editar a descrição do ticket agora abre um modal grande',
+    description:
+      'Ao clicar em Editar na descrição do ticket, a edição abre num modal com muito mais área visível (antes eram só umas três linhas) e com a fonte menor, para caber mais texto de uma vez. Cancelar, Salvar e Resumir conversa continuam no mesmo lugar, agora no rodapé do modal.',
+  },
+  {
     id: 'reply-box-auto-grow-2026-11-17',
     date: '17 de novembro de 2026',
     isoDate: '2026-11-17',
