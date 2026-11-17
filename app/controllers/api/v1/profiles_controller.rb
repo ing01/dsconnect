@@ -1,5 +1,5 @@
 class Api::V1::ProfilesController < Api::BaseController
-  AGENDA_COLOR_FORMAT = /A#h{6}z/
+  AGENDA_COLOR_FORMAT = /\A#\h{6}\z/
 
   before_action :set_user
 
