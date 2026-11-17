@@ -67,6 +67,9 @@ class Company < ApplicationRecord
   # Segunda lista de opcoes com criacao livre, separada de `company_category`
   # (pedido da Ingrid, 2026-11-09 - "Nicho" nao e' a mesma coisa que "Categoria").
   belongs_to :company_niche, optional: true
+  # Subnicho - segunda classificacao, INDEPENDENTE do Nicho acima (nao e' um
+  # filho obrigatorio dele; pedido da Ingrid, 2026-11-17).
+  belongs_to :company_sub_niche, optional: true
   # Agente responsavel pela Empresa - so' uma marcacao informativa, nao muda
   # quem pode ver/editar a Empresa nem os tickets dela.
   belongs_to :specialist, class_name: 'User', optional: true

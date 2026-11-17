@@ -36,10 +36,10 @@ class DataImport < ApplicationRecord
   ACTIVE_INTERCOM_IMPORT_RUN_ID_KEY = 'active_intercom_import_run_id'.freeze
   IMPORT_STALLED_AFTER = 15.minutes
   INTERCOM_STALLED_AFTER = IMPORT_STALLED_AFTER
-  LEGACY_DATA_TYPES = %w[contacts clientes solicitantes company_priority company_classification company_cnpj_check
-                         service_catalog].freeze
-  UPLOAD_DATA_TYPES = %w[clientes solicitantes company_priority company_classification company_cnpj_check
-                         service_catalog].freeze
+  LEGACY_DATA_TYPES = %w[contacts clientes solicitantes company_priority company_classification company_niche
+                         company_cnpj_check service_catalog].freeze
+  UPLOAD_DATA_TYPES = %w[clientes solicitantes company_priority company_classification company_niche
+                         company_cnpj_check service_catalog].freeze
   INTEGRATION_DATA_TYPES = %w[freshdesk intercom].freeze
   IMPORT_TYPES = %w[contacts conversations].freeze
 
@@ -99,6 +99,14 @@ class DataImport < ApplicationRecord
   # Prioridade automatica - ver CompanyClassificationImportJob).
   def company_classification_import?
     data_type == 'company_classification' && source_provider.blank?
+  end
+
+  # Quarta opcao de importacao de Empresa - CNPJ, Nicho, Subnicho, Nivel
+  # (`classification_level`) e Especialista responsavel, numa planilha so
+  # (pedido da Ingrid, 2026-11-17). So ATUALIZA empresa ja existente, casando
+  # SOMENTE por CNPJ (ver CompanyNicheImportJob).
+  def company_niche_import?
+    data_type == 'company_niche' && source_provider.blank?
   end
 
   # Nao grava nada - so compara os CNPJs da planilha contra as empresas ja
@@ -179,6 +187,7 @@ class DataImport < ApplicationRecord
     return SolicitantesImportJob.set(wait: 1.minute).perform_later(self) if solicitantes_import?
     return CompanyPriorityImportJob.set(wait: 1.minute).perform_later(self) if company_priority_import?
     return CompanyClassificationImportJob.set(wait: 1.minute).perform_later(self) if company_classification_import?
+    return CompanyNicheImportJob.set(wait: 1.minute).perform_later(self) if company_niche_import?
     return CompanyCnpjCheckJob.set(wait: 1.minute).perform_later(self) if company_cnpj_check_import?
     return ServiceCatalogImportJob.set(wait: 1.minute).perform_later(self) if service_catalog_import?
   end
