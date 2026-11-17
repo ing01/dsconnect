@@ -360,15 +360,17 @@ onMounted(() => {
               class="inline-flex items-center gap-1 max-w-full py-0.5 pl-2 pr-1 text-xs border rounded-full border-n-strong bg-n-alpha-1 text-n-slate-12"
             >
               <span class="truncate">{{ chip.label }}</span>
-              <button
+              <NextButton
                 type="button"
-                class="flex items-center justify-center rounded-full size-4 text-n-slate-11 hover:text-n-ruby-11"
+                ghost
+                ruby
+                xs
+                icon="i-lucide-x"
+                class="!size-5 shrink-0"
                 :aria-label="chip.label"
                 :data-testid="`company-remove-${chip.value}`"
                 @click.prevent="removeCompany(chip.value)"
-              >
-                <span class="i-lucide-x size-3" />
-              </button>
+              />
             </li>
           </ul>
         </label>
@@ -400,15 +402,17 @@ onMounted(() => {
               class="inline-flex items-center gap-1 max-w-full py-0.5 pl-2 pr-1 text-xs border rounded-full border-n-strong bg-n-alpha-1 text-n-slate-12"
             >
               <span class="truncate">{{ chip.label }}</span>
-              <button
+              <NextButton
                 type="button"
-                class="flex items-center justify-center rounded-full size-4 text-n-slate-11 hover:text-n-ruby-11"
+                ghost
+                ruby
+                xs
+                icon="i-lucide-x"
+                class="!size-5 shrink-0"
                 :aria-label="chip.label"
                 :data-testid="`contact-remove-${chip.value}`"
                 @click.prevent="removeContact(chip.value)"
-              >
-                <span class="i-lucide-x size-3" />
-              </button>
+              />
             </li>
           </ul>
         </label>
