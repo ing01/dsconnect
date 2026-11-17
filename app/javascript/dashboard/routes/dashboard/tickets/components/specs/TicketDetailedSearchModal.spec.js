@@ -36,7 +36,16 @@ vi.mock('dashboard/composables/store', async () => {
 
 vi.mock('dashboard/api/companies', () => ({
   default: {
-    get: vi.fn(() => Promise.resolve({ data: { payload: [] } })),
+    get: vi.fn(() =>
+      Promise.resolve({
+        data: {
+          payload: [
+            { id: 7, name: 'Farinha A' },
+            { id: 8, name: 'Farinha B' },
+          ],
+        },
+      })
+    ),
     search: vi.fn(),
   },
 }));
@@ -152,6 +161,25 @@ describe('TicketDetailedSearchModal', () => {
     ].forEach(label =>
       expect(field(wrapper, label).attributes('data-multiple')).toBe('true')
     );
+  });
+
+  it('lets each chosen company be removed on its own with an x', async () => {
+    const wrapper = await mountModal();
+    const label = 'TICKET.SEARCH.COMPANY';
+
+    expect(wrapper.find('[data-testid="company-chips"]').exists()).toBe(false);
+
+    await choose(wrapper, label, 7);
+    await choose(wrapper, label, 8);
+    expect(wrapper.findAll('[data-testid="company-chips"] li')).toHaveLength(2);
+
+    await wrapper.find('[data-testid="company-remove-7"]').trigger('click');
+
+    expect(modelOf(wrapper, label)).toEqual([8]);
+    expect(wrapper.findAll('[data-testid="company-chips"] li')).toHaveLength(1);
+    const chips = wrapper.find('[data-testid="company-chips"]').text();
+    expect(chips).toContain('Farinha B');
+    expect(chips).not.toContain('Farinha A');
   });
 
   it('offers only the stages of the chosen Mesa', async () => {
