@@ -1089,7 +1089,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
   ) {
   /* Altura fixa (nao min/max) - a caixa de mensagem nao deve crescer/encolher
      conforme o texto, so rolar internamente (`overflow-auto` acima). A caixa de
-     resposta da conversa muda isso em ReplyBox.vue. */
+     resposta da conversa tem altura automatica: ver ResizableEditorWrapper.vue. */
   @apply h-16;
 }
 

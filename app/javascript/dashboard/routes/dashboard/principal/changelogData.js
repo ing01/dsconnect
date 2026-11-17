@@ -8,6 +8,17 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'reply-box-auto-grow-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'fix',
+    platform: 'web',
+    title:
+      'Caixa de resposta da conversa agora começa pequena e cresce com o texto',
+    description:
+      'A caixa de escrever a mensagem ficava sempre alta (cerca de 120 px) mesmo vazia, tomando espaço da conversa. Agora ela começa com duas linhas e vai aumentando sozinha conforme você escreve, até um limite; passando dele, rola por dentro. A alça de arrastar continua funcionando e o tamanho que você puxar é respeitado.',
+  },
+  {
     id: 'client-tutorials-collapsed-2026-11-16',
     date: '16 de novembro de 2026',
     isoDate: '2026-11-16',

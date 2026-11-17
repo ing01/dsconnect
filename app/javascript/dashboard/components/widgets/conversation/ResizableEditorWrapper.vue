@@ -15,8 +15,11 @@ const props = defineProps({
   containerHeight: { type: Number, default: 0 },
 });
 
-const DEFAULT_HEIGHT = 120;
-const MIN_HEIGHT = 80;
+// A caixa de resposta comeca pequena (cerca de duas linhas) e cresce sozinha com o
+// texto - ver o CSS no fim do arquivo. Estes sao so os pisos: o arraste da alca
+// pode aumentar, e o texto longo empurra a caixa ate o teto.
+const DEFAULT_HEIGHT = 44;
+const MIN_HEIGHT = 36;
 const MIN_MESSAGES_HEIGHT = 200;
 const EXPAND_RATIO = 0.5;
 const RESET_DELAY_MS = 120;
@@ -184,13 +187,19 @@ defineExpose({ toggleEditorExpand, resetEditorHeight });
   .resizable-editor-body {
     @apply overflow-auto;
 
-    height: clamp(
-      var(--editor-min-allowed, 5rem),
-      var(--editor-height, 5rem),
+    /* Altura AUTOMATICA: o piso (min-height) e o da alca/padrao, e o texto empurra
+       a caixa ate o teto (max-height); dai em diante rola por dentro. Antes era uma
+       altura fixa de 120px mesmo com uma linha so. O piso arrastado pela pessoa
+       (--editor-height) sempre vence o teto. */
+    height: auto;
+    min-height: clamp(
+      var(--editor-min-allowed, 2.25rem),
+      var(--editor-height, 2.75rem),
       var(--editor-max-allowed, 7.5rem)
     );
+    max-height: max(12rem, var(--editor-height, 0px));
     transition:
-      height var(--editor-height-transition),
+      min-height var(--editor-height-transition),
       opacity var(--editor-height-transition);
   }
 }
