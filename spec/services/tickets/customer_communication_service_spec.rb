@@ -107,11 +107,11 @@ RSpec.describe Tickets::CustomerCommunicationService do
       expect(ticket.reload.closing_communication_sent?).to be(true)
     end
 
-    # Ordinary correspondence is recorded but does not unlock the close.
-    it 'does not satisfy it when the message is not a closing one' do
+    # Qualquer mensagem enviada ao cliente no ticket dispensa a de encerramento.
+    it 'also satisfies it when the message is not a closing one' do
       with_smtp { perform(closing: false) }
 
-      expect(ticket.reload.closing_communication_sent?).to be(false)
+      expect(ticket.reload.closing_communication_sent?).to be(true)
     end
   end
 

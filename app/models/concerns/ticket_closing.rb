@@ -60,8 +60,13 @@ module TicketClosing
   # e-mail quando a equipe ja falou com ele por outro meio. Nos dois casos o
   # texto esta no chamado e visivel na Area do Cliente; o que nao vale e a
   # tentativa que falhou.
+  #
+  # Conta qualquer mensagem da equipe ao cliente neste ticket, nao so a enviada
+  # pela etapa de encerramento: quem ja falou com ele direto no ticket nao e
+  # obrigado a repetir a comunicacao ao fechar. Resposta do CLIENTE (inbound)
+  # nao conta, porque nao e a equipe falando.
   def closing_communication_sent?
-    ticket_customer_communications.closing_registered.exists?
+    ticket_customer_communications.outbound.registered.exists?
   end
 
   # The address the closing message would go to. Nil NAO bloqueia o fechamento:

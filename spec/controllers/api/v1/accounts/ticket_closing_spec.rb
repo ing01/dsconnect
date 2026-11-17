@@ -155,10 +155,20 @@ RSpec.describe 'Ticket closing requirements', type: :request do
       expect(ticket.reload.status).to eq('open')
     end
 
-    # Only a closing message satisfies the rule; ordinary correspondence does not.
-    it 'does not accept a non-closing communication' do
+    # Quem ja falou com o cliente direto no ticket nao precisa repetir ao fechar.
+    it 'accepts a communication already sent outside the closing step' do
       ticket.update!(service_catalog_item: item)
       record_sent_communication(closing: false)
+
+      close_ticket
+
+      expect(response).to have_http_status(:success)
+      expect(ticket.reload.status).to eq('closed')
+    end
+
+    it 'does not count a reply from the customer' do
+      ticket.update!(service_catalog_item: item)
+      record_sent_communication(closing: false).update!(direction: 'inbound')
 
       close_ticket
 
