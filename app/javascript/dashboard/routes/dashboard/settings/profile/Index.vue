@@ -11,6 +11,8 @@ import UserProfilePicture from './UserProfilePicture.vue';
 import UserBasicDetails from './UserBasicDetails.vue';
 import MessageSignature from './MessageSignature.vue';
 import FontSize from './FontSize.vue';
+import AgendaColor from './AgendaColor.vue';
+import { EVENT_COLOR_OPTIONS } from 'dashboard/components-next/Agenda/constants';
 import UserLanguageSelect from './UserLanguageSelect.vue';
 import ChangePassword from './ChangePassword.vue';
 import NotificationPreferences from './NotificationPreferences.vue';
@@ -28,6 +30,7 @@ export default {
     MessageSignature,
     SectionLayout,
     FontSize,
+    AgendaColor,
     UserLanguageSelect,
     UserProfilePicture,
     UserBasicDetails,
@@ -112,6 +115,14 @@ export default {
         this.$t('PROFILE_SETTINGS.FORM.ACCESS_TOKEN.NOTE')
       );
     },
+    agendaColor() {
+      return this.currentUser?.custom_attributes?.agenda_color || '';
+    },
+    automaticAgendaColor() {
+      return EVENT_COLOR_OPTIONS[
+        Number(this.currentUserId) % EVENT_COLOR_OPTIONS.length
+      ];
+    },
     isMfaEnabled() {
       return parseBoolean(window.chatwootConfig?.isMfaEnabled);
     },
@@ -169,6 +180,15 @@ export default {
           : this.$t('PROFILE_SETTINGS.UPDATE_SUCCESS'),
         this.$t('RESET_PASSWORD.API.ERROR_MESSAGE')
       );
+    },
+    async updateAgendaColor(color) {
+      const saved = await this.dispatchUpdate(
+        { agenda_color: color, displayName: this.displayName },
+        this.$t('PROFILE_SETTINGS.FORM.AGENDA_COLOR.API_SUCCESS'),
+        this.$t('PROFILE_SETTINGS.FORM.AGENDA_COLOR.API_ERROR')
+      );
+      // A agenda lê a cor da lista de agentes; recarrega para refletir já.
+      if (saved) this.$store.dispatch('agents/get');
     },
     async updateSignature(signature) {
       const payload = { message_signature: signature };
@@ -267,6 +287,17 @@ export default {
           "
         />
       </div>
+    </SectionLayout>
+    <SectionLayout
+      with-border
+      :title="$t('PROFILE_SETTINGS.FORM.AGENDA_COLOR.TITLE')"
+      :description="$t('PROFILE_SETTINGS.FORM.AGENDA_COLOR.NOTE')"
+    >
+      <AgendaColor
+        :value="agendaColor"
+        :automatic-color="automaticAgendaColor"
+        @change="updateAgendaColor"
+      />
     </SectionLayout>
     <SectionLayout
       with-border

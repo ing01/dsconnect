@@ -1,9 +1,13 @@
 class Api::V1::ProfilesController < Api::BaseController
+  AGENDA_COLOR_FORMAT = /A#h{6}z/
+
   before_action :set_user
 
   def show; end
 
   def update
+    return render_could_not_create_error('Cor da agenda inválida') unless valid_agenda_color?
+
     if password_params[:password].present?
       render_could_not_create_error('Invalid current password') and return unless @user.valid_password?(password_params[:current_password])
 
@@ -11,7 +15,8 @@ class Api::V1::ProfilesController < Api::BaseController
     end
 
     @user.assign_attributes(profile_params)
-    @user.custom_attributes.merge!(custom_attributes_params)
+    @user.custom_attributes.merge!(custom_attributes_params.to_h.except('agenda_color'))
+    assign_agenda_color
     @user.save!
   end
 
@@ -70,7 +75,25 @@ class Api::V1::ProfilesController < Api::BaseController
   end
 
   def custom_attributes_params
-    params.require(:profile).permit(:phone_number)
+    params.require(:profile).permit(:phone_number, :agenda_color)
+  end
+
+  # Cor escolhida pela pessoa para os eventos dela na agenda (#rrggbb).
+  # Vazio volta para a cor automática.
+  def valid_agenda_color?
+    color = custom_attributes_params[:agenda_color]
+    color.blank? || color.match?(AGENDA_COLOR_FORMAT)
+  end
+
+  def assign_agenda_color
+    return unless custom_attributes_params.key?(:agenda_color)
+
+    color = custom_attributes_params[:agenda_color]
+    if color.blank?
+      @user.custom_attributes.delete('agenda_color')
+    else
+      @user.custom_attributes['agenda_color'] = color.downcase
+    end
   end
 
   def password_params

@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'agenda-color-profile-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'feature',
+    platform: 'web',
+    title: 'Escolha a sua cor na Agenda',
+    description:
+      'Em Configurações do perfil, na nova seção "Cor na agenda", cada pessoa escolhe a cor que a identifica: os eventos criados por você e o ponto ao lado do seu nome na Agenda passam a aparecer nessa cor para todos. Quem não escolher continua com a cor automática.',
+  },
+  {
+    id: 'ticket-search-remove-chips-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Busca detalhada: remover empresas e solicitantes um a um',
+    description:
+      'Ao filtrar por várias empresas (ou solicitantes) na busca detalhada de tickets, cada uma aparece agora como uma etiqueta com um "x". Clique no "x" para tirar só aquela do filtro, sem precisar limpar todas.',
+  },
+  {
     id: 'ticket-long-description-fix-2026-11-17',
     date: '17 de novembro de 2026',
     isoDate: '2026-11-17',

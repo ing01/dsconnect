@@ -60,6 +60,14 @@
           "USE_ACCOUNT_DEFAULT": "Usar padrão da conta"
         }
       },
+      "AGENDA_COLOR": {
+        "TITLE": "Cor na agenda",
+        "NOTE": "Escolha a cor que identifica você na Agenda. Os eventos que você criar e o ponto ao lado do seu nome aparecem nessa cor para todos. Sem escolha, usamos uma cor automática.",
+        "CUSTOM": "Outra cor",
+        "RESET": "Voltar para a cor automática",
+        "API_SUCCESS": "Cor da agenda salva com sucesso",
+        "API_ERROR": "Não foi possível salvar a cor da agenda. Tente novamente"
+      },
       "MESSAGE_SIGNATURE_SECTION": {
         "TITLE": "Assinatura de mensagens pessoais",
         "NOTE": "Crie uma assinatura de mensagem única para aparecer no final de cada mensagem que você enviar de qualquer caixa de entrada. Você também pode incluir uma imagem anexada, suportada em live-chat, e-mail e caixas de entrada de API.",

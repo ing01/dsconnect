@@ -115,6 +115,38 @@ RSpec.describe 'Profile API', type: :request do
         expect(agent.custom_attributes['phone_number']).to eq('+123456789')
       end
 
+      it 'saves the agenda color chosen by the agent' do
+        put '/api/v1/profile',
+            params: { profile: { agenda_color: '#7C3AED' } },
+            headers: agent.create_new_auth_token,
+            as: :json
+
+        expect(response).to have_http_status(:success)
+        expect(agent.reload.custom_attributes['agenda_color']).to eq('#7c3aed')
+      end
+
+      it 'removes the agenda color when it is sent blank' do
+        agent.update!(custom_attributes: { 'agenda_color' => '#7c3aed' })
+
+        put '/api/v1/profile',
+            params: { profile: { agenda_color: '' } },
+            headers: agent.create_new_auth_token,
+            as: :json
+
+        expect(response).to have_http_status(:success)
+        expect(agent.reload.custom_attributes).not_to have_key('agenda_color')
+      end
+
+      it 'rejects an agenda color that is not #rrggbb' do
+        put '/api/v1/profile',
+            params: { profile: { agenda_color: 'red' } },
+            headers: agent.create_new_auth_token,
+            as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(agent.reload.custom_attributes).not_to have_key('agenda_color')
+      end
+
       it 'updates the message_signature' do
         put '/api/v1/profile',
             params: { profile: { name: 'test', message_signature: 'Thanks\nMy Signature' } },
