@@ -517,6 +517,7 @@
       "SOLICITANTES": "Contatos/Solicitantes",
       "COMPANY_PRIORITY": "Código/CNPJ/Prioridade",
       "COMPANY_CLASSIFICATION": "Código/CNPJ/Classificação",
+      "COMPANY_NICHE": "Nicho/Subnicho/Nível/Especialista",
       "COMPANY_CNPJ_CHECK": "Comparativo de CNPJ",
       "SERVICE_CATALOG": "Catálogo de Serviços"
     },
@@ -549,6 +550,10 @@
       "COMPANY_CLASSIFICATION": {
         "TITLE": "Importar Código/CNPJ/Classificação",
         "DESCRIPTION": "Atualiza empresas já cadastradas com o Código de referência, CNPJ e Classificação (1 a 5), casando por Código ou CNPJ. Não cria empresas novas."
+      },
+      "COMPANY_NICHE": {
+        "TITLE": "Importar Nicho/Subnicho/Nível/Especialista",
+        "DESCRIPTION": "Atualiza empresas já cadastradas com Nicho, Subnicho, Nível (1 a 5) e Especialista responsável, casando SOMENTE por CNPJ. Nicho e Subnicho são criados automaticamente se ainda não existirem. Especialista não encontrado não impede o restante da linha de ser salvo. Não cria empresas novas."
       },
       "COMPANY_CNPJ_CHECK": {
         "TITLE": "Comparar planilha de CNPJ",

@@ -513,6 +513,7 @@
       "SOLICITANTES": "Contacts/Requesters",
       "COMPANY_PRIORITY": "Code/Tax ID/Priority",
       "COMPANY_CLASSIFICATION": "Code/Tax ID/Classification",
+      "COMPANY_NICHE": "Niche/Sub-niche/Level/Specialist",
       "COMPANY_CNPJ_CHECK": "Tax ID Comparison",
       "SERVICE_CATALOG": "Service Catalog"
     },
@@ -545,6 +546,10 @@
       "COMPANY_CLASSIFICATION": {
         "TITLE": "Import Code/Tax ID/Classification",
         "DESCRIPTION": "Updates existing companies with a reference Code, Tax ID and Classification (1 to 5), matching by Code or Tax ID. Does not create new companies."
+      },
+      "COMPANY_NICHE": {
+        "TITLE": "Import Niche/Sub-niche/Level/Specialist",
+        "DESCRIPTION": "Updates existing companies with Niche, Sub-niche, Level (1 to 5) and the responsible specialist, matching ONLY by Tax ID. Niche and Sub-niche are created automatically if they don't exist yet. A specialist not found does not block the rest of the row from being saved. Does not create new companies."
       },
       "COMPANY_CNPJ_CHECK": {
         "TITLE": "Compare Tax ID spreadsheet",

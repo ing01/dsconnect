@@ -86,6 +86,9 @@ const importTypeLabel = dataImport =>
       if (type === 'company_classification') {
         return t('DATA_IMPORTS.TYPES.COMPANY_CLASSIFICATION');
       }
+      if (type === 'company_niche') {
+        return t('DATA_IMPORTS.TYPES.COMPANY_NICHE');
+      }
       if (type === 'company_cnpj_check') {
         return t('DATA_IMPORTS.TYPES.COMPANY_CNPJ_CHECK');
       }
@@ -311,6 +314,14 @@ onBeforeUnmount(() => {
           "
           template-url="/downloads/codigo-cnpj-classificacao-modelo.xlsx"
           template-filename="codigo-cnpj-classificacao-modelo.xlsx"
+        />
+        <SpreadsheetImportCard
+          data-type="company_niche"
+          icon="i-lucide-tags"
+          :title="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_NICHE.TITLE')"
+          :description="$t('DATA_IMPORTS.SPREADSHEETS.COMPANY_NICHE.DESCRIPTION')"
+          template-url="/downloads/cnpj-nicho-subnicho-nivel-especialista-modelo.xlsx"
+          template-filename="cnpj-nicho-subnicho-nivel-especialista-modelo.xlsx"
         />
         <SpreadsheetImportCard
           data-type="company_cnpj_check"
