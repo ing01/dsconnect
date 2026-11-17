@@ -103,6 +103,7 @@ module Projects
         contact: project.contact,
         project: project,
         title: item[:new_ticket_title].presence || item[:title],
+        description: item[:description],
         priority: :medium
       )
     end

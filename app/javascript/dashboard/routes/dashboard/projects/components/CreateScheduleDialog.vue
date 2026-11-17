@@ -30,6 +30,7 @@ const emptyRow = () => ({
   ticketMode: 'existing',
   ticket_id: '',
   new_ticket_title: '',
+  new_ticket_description: '',
   start_at: '',
   end_at: '',
   responsible_user_id: '',
@@ -78,7 +79,10 @@ const openImportPanel = async () => {
     const { data } = await ProjectModulesAPI.get();
     projectModules.value = data || [];
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('PROJECTS.SCHEDULE.IMPORT.MODULES_ERROR'));
+    useAlert(
+      parseAPIErrorResponse(error) ||
+        t('PROJECTS.SCHEDULE.IMPORT.MODULES_ERROR')
+    );
   } finally {
     isLoadingModules.value = false;
   }
@@ -105,14 +109,19 @@ const onModuleSelect = () => {
     return;
   }
   selectedImportIds.value = importableTickets.value
-    .filter(ticket => moduleTaskTemplateIds.value.has(ticket.project_task_template_id))
+    .filter(ticket =>
+      moduleTaskTemplateIds.value.has(ticket.project_task_template_id)
+    )
     .map(ticket => ticket.id);
 };
 
 // Tira a linha em branco inicial do caminho, pra nao sobrar um cartao vazio
 // junto das tarefas importadas.
 const isPristineRow = row =>
-  row.ticketMode === 'existing' && !row.ticket_id && !row.new_ticket_title && !row.start_at;
+  row.ticketMode === 'existing' &&
+  !row.ticket_id &&
+  !row.new_ticket_title &&
+  !row.start_at;
 
 const confirmImport = () => {
   if (!selectedImportIds.value.length) {
@@ -123,7 +132,9 @@ const confirmImport = () => {
     rows.value = [];
   }
   selectedImportIds.value.forEach(ticketId => {
-    const ticket = importableTickets.value.find(candidate => candidate.id === ticketId);
+    const ticket = importableTickets.value.find(
+      candidate => candidate.id === ticketId
+    );
     if (!ticket) return;
     rows.value.push({
       ...emptyRow(),
@@ -146,12 +157,18 @@ const addRow = () => rows.value.push(emptyRow());
 const removeRow = index => rows.value.splice(index, 1);
 
 const onTicketSelect = row => {
-  const ticket = ticketOptions.value.find(t2 => t2.id === Number(row.ticket_id));
+  const ticket = ticketOptions.value.find(
+    t2 => t2.id === Number(row.ticket_id)
+  );
   row.responsible_user_id = ticket?.assignee_id || '';
 };
 
 const isRowValid = row => {
-  const hasTicket = row.ticketMode === 'existing' ? !!row.ticket_id : !!row.new_ticket_title.trim();
+  // Ticket novo precisa de título e descrição (o ticket exige os dois).
+  const hasTicket =
+    row.ticketMode === 'existing'
+      ? !!row.ticket_id
+      : !!row.new_ticket_title.trim() && !!row.new_ticket_description.trim();
   return hasTicket && !!row.start_at;
 };
 
@@ -160,7 +177,10 @@ const canSave = computed(() => rows.value.some(isRowValid));
 const buildItems = () =>
   rows.value.filter(isRowValid).map(row => ({
     ticket_id: row.ticketMode === 'existing' ? row.ticket_id : undefined,
-    new_ticket_title: row.ticketMode === 'new' ? row.new_ticket_title.trim() : undefined,
+    new_ticket_title:
+      row.ticketMode === 'new' ? row.new_ticket_title.trim() : undefined,
+    description:
+      row.ticketMode === 'new' ? row.new_ticket_description.trim() : undefined,
     start_at: row.start_at,
     end_at: row.end_at || undefined,
     responsible_user_id: row.responsible_user_id || undefined,
@@ -224,11 +244,17 @@ defineExpose({ open, close });
         class="flex flex-col gap-2 p-3 border rounded-lg border-n-weak bg-n-alpha-1"
       >
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-1 p-0.5 rounded-lg bg-n-slate-3 w-fit">
+          <div
+            class="flex items-center gap-1 p-0.5 rounded-lg bg-n-slate-3 w-fit"
+          >
             <button
               type="button"
               class="px-2 py-1 text-xs rounded-md"
-              :class="row.ticketMode === 'existing' ? 'bg-n-solid-1 text-n-slate-12' : 'text-n-slate-11'"
+              :class="
+                row.ticketMode === 'existing'
+                  ? 'bg-n-solid-1 text-n-slate-12'
+                  : 'text-n-slate-11'
+              "
               @click="row.ticketMode = 'existing'"
             >
               {{ t('PROJECTS.SCHEDULE.EXISTING_TICKET') }}
@@ -236,7 +262,11 @@ defineExpose({ open, close });
             <button
               type="button"
               class="px-2 py-1 text-xs rounded-md"
-              :class="row.ticketMode === 'new' ? 'bg-n-solid-1 text-n-slate-12' : 'text-n-slate-11'"
+              :class="
+                row.ticketMode === 'new'
+                  ? 'bg-n-solid-1 text-n-slate-12'
+                  : 'text-n-slate-11'
+              "
               @click="row.ticketMode = 'new'"
             >
               {{ t('PROJECTS.SCHEDULE.NEW_TICKET') }}
@@ -260,7 +290,11 @@ defineExpose({ open, close });
           @change="onTicketSelect(row)"
         >
           <option value="">{{ t('PROJECTS.SCHEDULE.SELECT_TICKET') }}</option>
-          <option v-for="ticket in ticketOptions" :key="ticket.id" :value="ticket.id">
+          <option
+            v-for="ticket in ticketOptions"
+            :key="ticket.id"
+            :value="ticket.id"
+          >
             #{{ ticket.display_id || ticket.id }} - {{ ticket.title }}
           </option>
         </select>
@@ -271,21 +305,48 @@ defineExpose({ open, close });
           :placeholder="t('PROJECTS.SCHEDULE.NEW_TICKET_PLACEHOLDER')"
           class="h-9 w-full text-sm"
         />
+        <textarea
+          v-if="row.ticketMode === 'new'"
+          v-model="row.new_ticket_description"
+          rows="3"
+          :placeholder="
+            t('PROJECTS.SCHEDULE.NEW_TICKET_DESCRIPTION_PLACEHOLDER')
+          "
+          class="w-full text-sm"
+          data-testid="new-ticket-description"
+        />
 
         <div class="grid grid-cols-3 gap-2">
           <label class="flex flex-col gap-1 text-xs text-n-slate-11">
             {{ t('PROJECTS.SCHEDULE.START_AT') }}
-            <input v-model="row.start_at" type="datetime-local" class="h-9 w-full text-xs" />
+            <input
+              v-model="row.start_at"
+              type="datetime-local"
+              class="h-9 w-full text-xs"
+            />
           </label>
           <label class="flex flex-col gap-1 text-xs text-n-slate-11">
             {{ t('PROJECTS.SCHEDULE.END_AT') }}
-            <input v-model="row.end_at" type="datetime-local" class="h-9 w-full text-xs" />
+            <input
+              v-model="row.end_at"
+              type="datetime-local"
+              class="h-9 w-full text-xs"
+            />
           </label>
           <label class="flex flex-col gap-1 text-xs text-n-slate-11">
             {{ t('PROJECTS.SCHEDULE.RESPONSIBLE') }}
-            <select v-model="row.responsible_user_id" class="h-9 w-full text-xs">
-              <option value="">{{ t('PROJECTS.SCHEDULE.NO_RESPONSIBLE') }}</option>
-              <option v-for="agent in agentOptions" :key="agent.value" :value="agent.value">
+            <select
+              v-model="row.responsible_user_id"
+              class="h-9 w-full text-xs"
+            >
+              <option value="">
+                {{ t('PROJECTS.SCHEDULE.NO_RESPONSIBLE') }}
+              </option>
+              <option
+                v-for="agent in agentOptions"
+                :key="agent.value"
+                :value="agent.value"
+              >
                 {{ agent.label }}
               </option>
             </select>
@@ -341,7 +402,9 @@ defineExpose({ open, close });
             :disabled="isLoadingModules"
             @change="onModuleSelect"
           >
-            <option value="">{{ t('PROJECTS.SCHEDULE.IMPORT.MODULE_PLACEHOLDER') }}</option>
+            <option value="">
+              {{ t('PROJECTS.SCHEDULE.IMPORT.MODULE_PLACEHOLDER') }}
+            </option>
             <option
               v-for="projectModule in projectModules"
               :key="projectModule.id"
@@ -379,7 +442,11 @@ defineExpose({ open, close });
 
         <div class="flex items-center justify-between">
           <span class="text-xs text-n-slate-10">
-            {{ t('PROJECTS.SCHEDULE.IMPORT.SELECTED_COUNT', { count: selectedImportIds.length }) }}
+            {{
+              t('PROJECTS.SCHEDULE.IMPORT.SELECTED_COUNT', {
+                count: selectedImportIds.length,
+              })
+            }}
           </span>
           <NextButton
             size="sm"

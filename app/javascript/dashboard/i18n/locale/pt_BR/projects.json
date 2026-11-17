@@ -153,6 +153,7 @@
       "NEW_TICKET": "Novo ticket",
       "SELECT_TICKET": "Selecione um ticket",
       "NEW_TICKET_PLACEHOLDER": "Título do novo ticket",
+      "NEW_TICKET_DESCRIPTION_PLACEHOLDER": "Descrição do novo ticket (obrigatória)",
       "START_AT": "Início",
       "END_AT": "Fim",
       "RESPONSIBLE": "Responsável",
