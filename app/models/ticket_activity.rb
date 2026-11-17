@@ -76,6 +76,16 @@ class TicketActivity < ApplicationRecord
   # Api::V1::Client::NotificationsController).
   CLIENT_MOVE_TYPES = %w[triaged team_changed transferred].freeze
 
+  # O valor antes/depois guarda o que mudou: a descricao (cortada em 500, ver
+  # Ticket#activity_value), o motivo de um impedimento, a nota de uma automacao.
+  # As colunas sao `string` sem limite no banco, mas a validacao generica do
+  # ApplicationRecord trata toda `string` como no maximo 255 caracteres - e foi ela
+  # que barrou a edicao de qualquer descricao maior que isso ("Previous value is
+  # too long (maximum is 255 characters)"). Um validador de tamanho proprio
+  # dispensa a generica; o teto continua existindo, so' que realista.
+  MAX_VALUE_LENGTH = 10_000
+  validates :previous_value, :new_value, length: { maximum: MAX_VALUE_LENGTH }, allow_nil: true
+
   after_create_commit :ping_client, if: -> { CLIENT_MOVE_TYPES.include?(activity_type) }
 
   def push_event_data

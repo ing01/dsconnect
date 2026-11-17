@@ -7,6 +7,25 @@ RSpec.describe TicketActivity do
     it { is_expected.to belong_to(:user).optional }
   end
 
+  # Regressao: editar uma descricao com mais de 255 caracteres falhava com
+  # 'Previous value is too long (maximum is 255 characters)' - a descricao vai
+  # para o Historico cortada em 500, e a validacao generica de string barrava.
+  describe 'before/after values' do
+    it 'accepts the 500-character description snapshot (past the generic 255 limit)' do
+      activity = build(:ticket_activity, activity_type: :description_changed,
+                                         previous_value: 'a' * 500, new_value: 'b' * 500)
+
+      expect(activity).to be_valid
+    end
+
+    it 'still caps absurdly long values' do
+      activity = build(:ticket_activity, new_value: 'x' * (described_class::MAX_VALUE_LENGTH + 1))
+
+      expect(activity).not_to be_valid
+      expect(activity.errors[:new_value]).to be_present
+    end
+  end
+
   describe 'activity_type enum' do
     it {
       expect(subject).to define_enum_for(:activity_type).with_values(
