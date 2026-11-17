@@ -47,6 +47,13 @@ vi.mock('dashboard/api/companies', () => ({
       })
     ),
     search: vi.fn(),
+    listContacts: vi.fn(id =>
+      Promise.resolve({
+        data: {
+          payload: [{ id: id * 10, name: `Contato ${id}`, company_id: id }],
+        },
+      })
+    ),
   },
 }));
 vi.mock('dashboard/api/contacts', () => ({
@@ -180,6 +187,40 @@ describe('TicketDetailedSearchModal', () => {
     const chips = wrapper.find('[data-testid="company-chips"]').text();
     expect(chips).toContain('Farinha B');
     expect(chips).not.toContain('Farinha A');
+  });
+
+  it('keeps the requester disabled until a company is chosen', async () => {
+    const wrapper = await mountModal();
+    const label = 'TICKET.SEARCH.CONTACT';
+
+    expect(field(wrapper, label).attributes('data-disabled')).toBe('true');
+
+    await choose(wrapper, 'TICKET.SEARCH.COMPANY', 7);
+    await flushPromises();
+
+    expect(field(wrapper, label).attributes('data-disabled')).toBe('false');
+  });
+
+  it('lists only the requesters of the chosen companies and drops them with the company', async () => {
+    const wrapper = await mountModal();
+    const label = 'TICKET.SEARCH.CONTACT';
+    const company = 'TICKET.SEARCH.COMPANY';
+
+    await choose(wrapper, company, 7);
+    await choose(wrapper, company, 8);
+    await flushPromises();
+    expect(field(wrapper, label).text()).toContain('Contato 7');
+    expect(field(wrapper, label).text()).toContain('Contato 8');
+
+    await choose(wrapper, label, 70);
+    await choose(wrapper, label, 80);
+    expect(modelOf(wrapper, label)).toEqual([70, 80]);
+
+    await wrapper.find('[data-testid="company-remove-7"]').trigger('click');
+    await flushPromises();
+
+    expect(modelOf(wrapper, label)).toEqual([80]);
+    expect(field(wrapper, label).text()).not.toContain('Contato 7');
   });
 
   it('offers only the stages of the chosen Mesa', async () => {

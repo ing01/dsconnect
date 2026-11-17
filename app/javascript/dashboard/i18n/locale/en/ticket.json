@@ -217,6 +217,7 @@
       "TITLE_FIELD": "Title",
       "COMPANY": "Client/Company",
       "CONTACT": "Requester/Contact",
+      "CONTACT_NEEDS_COMPANY": "Choose the company first",
       "ASSIGNEE": "Agent",
       "MESA": "Mesa",
       "ALL_MESAS": "All Mesas",

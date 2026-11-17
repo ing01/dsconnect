@@ -222,6 +222,7 @@
       "TITLE_FIELD": "Título",
       "COMPANY": "Cliente/Empresa",
       "CONTACT": "Solicitante/Contato",
+      "CONTACT_NEEDS_COMPANY": "Escolha a empresa primeiro",
       "ASSIGNEE": "Atendente",
       "MESA": "Mesa de Serviço",
       "ALL_MESAS": "Todas as Mesas",

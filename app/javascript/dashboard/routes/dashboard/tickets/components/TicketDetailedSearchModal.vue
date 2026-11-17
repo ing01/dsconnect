@@ -3,7 +3,6 @@ import { computed, reactive, ref, onMounted, watch } from 'vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import CompaniesAPI from 'dashboard/api/companies';
-import ContactAPI from 'dashboard/api/contacts';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import TicketListView from './TicketListView.vue';
 import TicketSelect from './TicketSelect.vue';
@@ -120,20 +119,44 @@ const searchCompanies = async (query = '') => {
   }
 };
 
+// O Solicitante e uma pessoa DA empresa: a lista vem dos contatos das empresas
+// escolhidas (uma leitura por empresa, juntadas sem repetir). Sem empresa nao ha
+// o que listar e o campo fica desabilitado.
+let contactsSearchToken = 0;
 const searchContacts = async (query = '') => {
+  contactsSearchToken += 1;
+  const token = contactsSearchToken;
+  const companyIds = [...draft.companyIds];
+  if (!companyIds.length) {
+    contactOptions.value = [];
+    isSearchingContacts.value = false;
+    return;
+  }
+
   isSearchingContacts.value = true;
   try {
-    const response = query
-      ? await ContactAPI.search(query)
-      : await ContactAPI.get(1);
-    contactOptions.value = (response.data?.payload ?? []).map(contact => ({
-      value: contact.id,
-      label: contact.name,
-    }));
+    const responses = await Promise.all(
+      companyIds.map(id => CompaniesAPI.listContacts(id, 1, query))
+    );
+    // Uma busca antiga e mais lenta nao pode sobrescrever a mais nova.
+    if (token !== contactsSearchToken) return;
+    const byId = new Map();
+    responses.forEach(response =>
+      (response.data?.payload ?? []).forEach(contact =>
+        byId.set(contact.id, {
+          value: contact.id,
+          label: contact.name || contact.email || `#${contact.id}`,
+          companyId: contact.company_id,
+        })
+      )
+    );
+    contactOptions.value = [...byId.values()].sort((a, b) =>
+      a.label.localeCompare(b.label)
+    );
   } catch (error) {
-    contactOptions.value = [];
+    if (token === contactsSearchToken) contactOptions.value = [];
   } finally {
-    isSearchingContacts.value = false;
+    if (token === contactsSearchToken) isSearchingContacts.value = false;
   }
 };
 
@@ -232,6 +255,27 @@ const removeContact = value => {
   );
   onContactsChange(draft.contactIds);
 };
+
+// Mudou a empresa: recarrega os solicitantes e tira do filtro os que nao
+// pertencem mais a nenhuma empresa escolhida.
+watch(
+  () => draft.companyIds,
+  async companyIds => {
+    const allowed = new Set(companyIds.map(String));
+    const known = mergeChosen(contactOptions.value, chosenContacts.value);
+    const stays = known.filter(contact =>
+      allowed.has(String(contact.companyId))
+    );
+    chosenContacts.value = chosenContacts.value.filter(contact =>
+      allowed.has(String(contact.companyId))
+    );
+    draft.contactIds = draft.contactIds.filter(id =>
+      stays.some(contact => String(contact.value) === String(id))
+    );
+    await searchContacts();
+  },
+  { deep: true }
+);
 
 // Tickets marcados na lista para o painel em lote.
 const selectedIds = ref([]);
@@ -386,7 +430,12 @@ onMounted(() => {
             disable-local-filtering
             :options="mergeChosen(contactOptions, chosenContacts)"
             :is-searching="isSearchingContacts"
-            :placeholder="t('TICKET.SEARCH.CONTACT')"
+            :disabled="!draft.companyIds.length"
+            :placeholder="
+              draft.companyIds.length
+                ? t('TICKET.SEARCH.CONTACT')
+                : t('TICKET.SEARCH.CONTACT_NEEDS_COMPANY')
+            "
             :aria-label="t('TICKET.SEARCH.CONTACT')"
             @search="searchContacts"
             @select="onContactsChange"
