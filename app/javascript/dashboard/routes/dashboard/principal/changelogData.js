@@ -8,6 +8,46 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'catalog-select-wide-menu-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Catálogo de Serviços: nomes completos na lista',
+    description:
+      'Ao classificar o ticket (Área e Item do Catálogo), a lista de opções agora é mais larga e os nomes longos aparecem inteiros, em mais de uma linha se precisar, em vez de cortados com "...".',
+  },
+  {
+    id: 'close-ticket-communication-already-sent-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'fix',
+    platform: 'web',
+    title: 'Fechar ticket não pede comunicação se o cliente já foi avisado',
+    description:
+      'Se já foi enviada (ou registrada) uma comunicação ao cliente diretamente no ticket, o fechamento não exige mais a comunicação de encerramento. Antes, só valia a mensagem enviada pela própria etapa de fechamento. Respostas do cliente não contam.',
+  },
+  {
+    id: 'ticket-search-contact-by-company-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Busca detalhada: solicitante conforme a empresa',
+    description:
+      'Na busca detalhada de tickets, o filtro de Solicitante/Contato agora é liberado ao escolher uma ou mais empresas e mostra apenas os solicitantes dessas empresas. Ao tirar uma empresa do filtro, os solicitantes dela saem junto.',
+  },
+  {
+    id: 'project-schedule-description-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'fix',
+    platform: 'web',
+    title: 'Cronograma do projeto: descrição do novo ticket',
+    description:
+      'Ao criar um cronograma com "Novo ticket", agora há um campo de descrição. Antes o ticket era criado sem descrição e o agendamento falhava com a mensagem "Description can be blank" (descrição em branco).',
+  },
+  {
     id: 'agenda-color-profile-2026-11-17',
     date: '17 de novembro de 2026',
     isoDate: '2026-11-17',

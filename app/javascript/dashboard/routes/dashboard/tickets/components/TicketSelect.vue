@@ -44,6 +44,11 @@ const props = defineProps({
   // corta a lista na borda - esta opção vira o menu pra cima, sem mudar
   // nenhum uso existente.
   openUpward: { type: Boolean, default: false },
+  // Menu mais largo que o campo, para opcoes de texto longo aparecerem inteiras
+  // (ate um limite). `alignMenuEnd` ancora o menu na borda direita do campo, para
+  // ele crescer para a esquerda quando o campo esta no fim da linha.
+  wideMenu: { type: Boolean, default: false },
+  alignMenuEnd: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:modelValue', 'search', 'select']);
@@ -182,10 +187,29 @@ defineExpose({ close });
       :is-searching="isSearching"
       :search-placeholder="searchPlaceholder"
       :empty-state-message="emptyMessage"
-      class="ltr:left-0 rtl:right-0 w-full max-h-72"
-      :class="openUpward ? 'mb-1 bottom-full' : 'mt-1 top-full'"
+      class="max-h-72"
+      :class="[
+        openUpward ? 'mb-1 bottom-full' : 'mt-1 top-full',
+        alignMenuEnd ? 'ltr:right-0 rtl:left-0' : 'ltr:left-0 rtl:right-0',
+        wideMenu
+          ? 'w-max min-w-full max-w-[min(34rem,calc(100vw-3rem))] wide-menu'
+          : 'w-full',
+      ]"
       @search="value => emit('search', value)"
       @action="handleAction"
     />
   </OnClickOutside>
 </template>
+
+<style scoped>
+/* Opcao longa quebra em mais de uma linha em vez de ser cortada com "...". */
+.wide-menu :deep(button) {
+  height: auto;
+  min-height: 2rem;
+}
+.wide-menu :deep(.truncate) {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+</style>

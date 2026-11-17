@@ -92,6 +92,7 @@ watch(
             : t('TICKET.CATALOG.NEEDS_CATALOG')
         "
         :aria-label="t('TICKET.CATALOG.AREA')"
+        wide-menu
         show-search
         :search-placeholder="t('TICKET.CATALOG.SEARCH')"
         @update:model-value="value => emit('update:areaId', value)"
@@ -110,6 +111,8 @@ watch(
           areaId ? t('TICKET.CATALOG.SELECT') : t('TICKET.CATALOG.NEEDS_AREA')
         "
         :aria-label="t('TICKET.CATALOG.ITEM')"
+        wide-menu
+        align-menu-end
         show-search
         :search-placeholder="t('TICKET.CATALOG.SEARCH')"
         @update:model-value="value => emit('update:itemId', value)"
