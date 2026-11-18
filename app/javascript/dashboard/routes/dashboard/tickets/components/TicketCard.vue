@@ -87,6 +87,10 @@ export default {
     statusColor() {
       return statusColor(this.ticket.status);
     },
+    // O selo so faz sentido enquanto o pai segue aberto.
+    hasChildCompleted() {
+      return !!this.ticket.child_completed_at && this.ticket.status === 'open';
+    },
     statusLabel() {
       return this.ticket.status
         ? this.$t(`TICKET.STATUS.${this.ticket.status.toUpperCase()}`)
@@ -258,6 +262,11 @@ export default {
       window.removeEventListener('scroll', this.closeMenu, true);
       window.removeEventListener('resize', this.closeMenu);
     },
+    // O selo some para todo mundo: o servidor limpa o campo e o evento ao vivo
+    // atualiza o cartao.
+    acknowledgeChildCompleted() {
+      this.$store.dispatch('tickets/acknowledgeChildCompleted', this.ticket.id);
+    },
     onMenuAction({ value }) {
       this.closeMenu();
       this.$emit('menuAction', { action: value, ticket: this.ticket });
@@ -354,6 +363,7 @@ export default {
       v-if="
         !compact ||
         ticket.blocked ||
+        hasChildCompleted ||
         (ticket.status && ticket.status !== 'open')
       "
       class="flex items-center flex-wrap gap-1.5"
@@ -380,6 +390,24 @@ export default {
         color="amber"
         compact
       />
+      <!-- Um ticket FILHO de desenvolvimento foi concluido: quem acompanha o
+           quadro ve aqui, sem abrir nada. Clicar da o visto e tira o selo. -->
+      <button
+        v-if="hasChildCompleted"
+        type="button"
+        class="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-medium border rounded-md border-n-teal-6 bg-n-teal-3 text-n-teal-11 hover:bg-n-teal-4"
+        :title="
+          $t('TICKET.CARD.CHILD_COMPLETED_TITLE', {
+            id: ticket.child_completed_display_id,
+          })
+        "
+        data-testid="child-completed-badge"
+        @click.stop="acknowledgeChildCompleted"
+      >
+        <Icon icon="i-lucide-circle-check-big" class="size-3" />
+        {{ $t('TICKET.CARD.CHILD_COMPLETED') }}
+        <Icon icon="i-lucide-x" class="size-3 opacity-70" />
+      </button>
       <WootLabel
         v-if="ticket.status && (!compact || ticket.status !== 'open')"
         :label="statusLabel"

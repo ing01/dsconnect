@@ -63,7 +63,11 @@ class TicketsAPI extends ApiClient {
   }
 
   summarizeConversation(id, signal) {
-    return axios.post(`${this.url}/${id}/summarize_conversation`, {}, { signal });
+    return axios.post(
+      `${this.url}/${id}/summarize_conversation`,
+      {},
+      { signal }
+    );
   }
 
   getComments(ticketId) {
@@ -185,6 +189,10 @@ class TicketsAPI extends ApiClient {
 
   unblock(id) {
     return axios.patch(`${this.url}/${id}/unblock`);
+  }
+
+  acknowledgeChildCompleted(id) {
+    return axios.patch(`${this.url}/${id}/acknowledge_child_completed`);
   }
 
   cancel(id, reason) {

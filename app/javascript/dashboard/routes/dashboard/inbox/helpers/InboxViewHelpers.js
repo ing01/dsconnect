@@ -25,4 +25,5 @@ export const NOTIFICATION_TYPES_MAPPING = {
     'text-n-blue-11',
   ],
   TICKET_PROPOSAL_ANSWERED: ['i-lucide-file-check', 'text-n-teal-11'],
+  TICKET_CHILD_COMPLETED: ['i-lucide-circle-check-big', 'text-n-teal-11'],
 };

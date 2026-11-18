@@ -14,7 +14,8 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   # rubocop:disable Rails/LexicallyScopedActionFilter
   before_action :fetch_ticket, only: [:show, :update, :destroy, :move, :resolve, :reopen, :close, :cancel, :classify,
                                       :transfer, :create_child, :set_parent, :merge, :duplicate, :assign_to_me,
-                                      :add_sla_hours, :block, :unblock, :approve_triage, :summarize_conversation]
+                                      :add_sla_hours, :block, :unblock, :approve_triage, :summarize_conversation,
+                                      :acknowledge_child_completed]
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :check_authorization
 
@@ -87,6 +88,12 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
 
   def reopen
     @ticket.reopen!(Current.user)
+    render 'show'
+  end
+
+  # O analista viu que um ticket filho foi concluido: o selo do cartao sai.
+  def acknowledge_child_completed
+    @ticket.update!(child_completed_at: nil, child_completed_display_id: nil)
     render 'show'
   end
 

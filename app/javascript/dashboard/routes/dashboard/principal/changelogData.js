@@ -8,6 +8,27 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-child-completed-badge-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'feature',
+    platform: 'web',
+    title: 'Kanban: selo "Filho concluído" no ticket pai',
+    description:
+      'Quando um ticket filho de uma Mesa de desenvolvimento é concluído, o cartão do ticket pai no Kanban ganha o selo verde "Filho concluído", ao vivo e para todo mundo que acompanha o quadro. Clique no selo para marcar como visto e tirá-lo do cartão.',
+  },
+  {
+    id: 'child-ticket-completed-notice-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'feature',
+    platform: 'web',
+    title:
+      'Aviso ao ticket pai quando o ticket filho de desenvolvimento é concluído',
+    description:
+      'Quando um ticket filho de uma Mesa com o módulo de desenvolvimento é concluído (status finalizado), o responsável pelo ticket pai recebe uma notificação que abre o pai, e o Histórico do pai ganha uma nota com o número e o título do filho. A notificação pode ser desligada em Configurações do perfil > Notificações.',
+  },
+  {
     id: 'client-announcements-board-2026-11-18',
     date: '18 de novembro de 2026',
     isoDate: '2026-11-18',

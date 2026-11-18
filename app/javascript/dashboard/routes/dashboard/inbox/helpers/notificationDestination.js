@@ -40,6 +40,17 @@ export const notificationDestinationFor = (notificationItem, accountId) => {
   // decisao sobre a proposta, a aba Valorizacao; os demais avisos de Ticket
   // (hoje so' a Triagem) levam pra fila, sem um ticket especifico pra abrir.
   if (primaryActorType === 'Ticket') {
+    // O ator principal e o ticket PAI: o analista abre o pai para ver que o
+    // filho foi concluido.
+    if (notificationType === 'ticket_child_completed') {
+      if (!primaryActor?.id) return null;
+
+      return {
+        name: 'ticket_detail',
+        params: { accountId, ticketId: primaryActor.id },
+      };
+    }
+
     if (notificationType === 'ticket_proposal_answered') {
       if (!primaryActor?.id) return null;
 

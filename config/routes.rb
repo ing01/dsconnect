@@ -594,6 +594,8 @@ Rails.application.routes.draw do
               patch :cancel
               patch :block
               patch :unblock
+              # Da o visto no selo "filho concluido" do cartao.
+              patch :acknowledge_child_completed
               # Triagem: aceitar o chamado do cliente e encaminha-lo.
               patch :approve_triage
               patch :classify

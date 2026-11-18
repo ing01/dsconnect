@@ -28,6 +28,7 @@ module NotificationPushContent
       'suggestion_created' => 'notifications.notification_title.suggestion_created',
       'ticket_customer_communication_received' => 'notifications.notification_title.ticket_customer_communication_received',
       'ticket_proposal_answered' => 'notifications.notification_title.ticket_proposal_answered',
+      'ticket_child_completed' => 'notifications.notification_title.ticket_child_completed',
       'article_published' => 'notifications.notification_title.article_published',
       'portal_created' => 'notifications.notification_title.portal_created'
     }
@@ -76,6 +77,8 @@ module NotificationPushContent
       { display_id: primary_actor.display_id,
         company_name: secondary_actor.company_name,
         decision: I18n.t("notifications.proposal_decision.#{secondary_actor.status}") }
+    when 'ticket_child_completed'
+      { display_id: primary_actor.display_id, child_display_id: secondary_actor.display_id }
     when 'suggestion_created'
       { user_name: primary_actor.user&.name.to_s }
     when 'article_published'
@@ -125,6 +128,7 @@ module NotificationPushContent
     return primary_actor.name if notification_type == 'portal_created'
     return ticket_customer_communication_preview if notification_type == 'ticket_customer_communication_received'
     return primary_actor.title if notification_type == 'ticket_proposal_answered'
+    return secondary_actor.title if notification_type == 'ticket_child_completed'
 
     ''
   end

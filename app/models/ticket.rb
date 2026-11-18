@@ -8,6 +8,7 @@ class Ticket < ApplicationRecord
   include TicketCustomer
   include TicketOpening
   include TicketRelatable
+  include TicketParentNotifiable
   include TicketCategoryAttachments
   include TicketTriage
   include TicketSlaExtendable

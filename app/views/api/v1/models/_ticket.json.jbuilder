@@ -73,6 +73,10 @@ json.blocked_by do
 end
 json.jira_key resource.jira_key
 json.parent_id resource.parent_id
+# Selo "filho concluido" no cartao do Kanban: um ticket filho de desenvolvimento
+# foi concluido e o analista do pai ainda nao deu o visto.
+json.child_completed_at resource.child_completed_at&.to_i
+json.child_completed_display_id resource.child_completed_display_id
 json.merged_into_id resource.merged_into_id
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i

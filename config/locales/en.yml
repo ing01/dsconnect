@@ -539,6 +539,7 @@ en:
       suggestion_created: 'New improvement suggestion from %{user_name}'
       ticket_customer_communication_received: 'New reply from %{company_name} on ticket #%{display_id}'
       ticket_proposal_answered: '%{company_name} %{decision} the proposal on ticket #%{display_id}'
+      ticket_child_completed: 'Child ticket #%{child_display_id} was completed (parent #%{display_id})'
     proposal_decision:
       approved: 'approved'
       refused: 'refused'

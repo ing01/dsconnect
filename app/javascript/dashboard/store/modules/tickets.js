@@ -178,6 +178,11 @@ export const actions = {
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },
+  acknowledgeChildCompleted: async ({ commit }, id) => {
+    const response = await TicketsAPI.acknowledgeChildCompleted(id);
+    commit(types.SET_TICKET_ITEM, response.data);
+    return response.data;
+  },
   cancelTicket: async ({ commit }, { id, reason }) => {
     const response = await TicketsAPI.cancel(id, reason);
     commit(types.SET_TICKET_ITEM, response.data);

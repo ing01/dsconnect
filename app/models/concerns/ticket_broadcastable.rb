@@ -158,6 +158,8 @@ module TicketBroadcastable
   def relation_event_data
     {
       parent_id: parent_id, merged_into_id: merged_into_id,
+      # Selo "filho concluido" do cartao do Kanban; `nil` apaga o selo ao vivo.
+      child_completed_at: child_completed_at&.to_i, child_completed_display_id: child_completed_display_id,
       conversation_ids: ticket_conversations.pluck(:conversation_id),
       slas: current_slas.map(&:push_event_data)
     }

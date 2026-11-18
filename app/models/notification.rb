@@ -66,7 +66,10 @@ class Notification < ApplicationRecord
     portal_created: 16,
     # O cliente aprovou ou recusou uma proposta pela Area do Cliente - avisa so'
     # o responsavel do ticket (ver Tickets::ProposalNotificationBuilder).
-    ticket_proposal_answered: 17
+    ticket_proposal_answered: 17,
+    # O ticket FILHO de uma Mesa de desenvolvimento foi concluido - avisa o
+    # responsavel pelo ticket PAI (ver Tickets::ChildCompletedNotificationBuilder).
+    ticket_child_completed: 18
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES

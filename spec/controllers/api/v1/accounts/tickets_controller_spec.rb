@@ -373,4 +373,22 @@ RSpec.describe 'Tickets API', type: :request do
       expect(bare_account.teams.pluck(:name)).to eq(['suporte'])
     end
   end
+
+  describe 'PATCH /api/v1/accounts/{account.id}/tickets/{id}/acknowledge_child_completed' do
+    let(:ticket) do
+      create(:ticket, account: account, ticket_column: ticket_column, team: team,
+                      child_completed_at: Time.zone.now, child_completed_display_id: 99)
+    end
+
+    it 'clears the Kanban mark of the completed child' do
+      patch "/api/v1/accounts/#{account.id}/tickets/#{ticket.id}/acknowledge_child_completed",
+            headers: administrator.create_new_auth_token,
+            as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['child_completed_at']).to be_nil
+      expect(ticket.reload.child_completed_at).to be_nil
+      expect(ticket.child_completed_display_id).to be_nil
+    end
+  end
 end

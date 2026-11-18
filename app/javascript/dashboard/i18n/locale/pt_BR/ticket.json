@@ -176,6 +176,8 @@
       "CANCEL": "Cancelar"
     },
     "CARD": {
+      "CHILD_COMPLETED": "Filho concluído",
+      "CHILD_COMPLETED_TITLE": "O ticket filho #{id} foi concluído. Clique para marcar como visto.",
       "CONVERSATIONS_LINKED": "{n} conversa vinculada | {n} conversas vinculadas",
       "DUE_DATE": "Vencimento",
       "SCHEDULED_AT": "Agendado",

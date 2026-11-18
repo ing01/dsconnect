@@ -172,6 +172,8 @@
       "CANCEL": "Cancel"
     },
     "CARD": {
+      "CHILD_COMPLETED": "Child completed",
+      "CHILD_COMPLETED_TITLE": "Child ticket #{id} was completed. Click to mark as seen.",
       "CONVERSATIONS_LINKED": "{n} linked conversation | {n} linked conversations",
       "DUE_DATE": "Due",
       "SCHEDULED_AT": "Scheduled",

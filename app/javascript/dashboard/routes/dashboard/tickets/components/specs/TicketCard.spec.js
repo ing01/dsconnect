@@ -242,6 +242,82 @@ describe('TicketCard compacto', () => {
     expect(wrapper.find('[title="Ana"]').exists()).toBe(true);
   });
 
+  describe('selo "filho concluido"', () => {
+    const badge = wrapper =>
+      wrapper.find('[data-testid="child-completed-badge"]');
+
+    it('aparece no pai aberto quando um filho foi concluido', () => {
+      const wrapper = mountCard({
+        ticket: ticket({
+          child_completed_at: 1,
+          child_completed_display_id: 77,
+        }),
+      });
+
+      expect(badge(wrapper).exists()).toBe(true);
+      expect(badge(wrapper).text()).toContain('TICKET.CARD.CHILD_COMPLETED');
+    });
+
+    it('aparece tambem no cartao compacto', () => {
+      const wrapper = mountCard({
+        ticket: ticket({
+          child_completed_at: 1,
+          child_completed_display_id: 77,
+        }),
+        compact: true,
+      });
+
+      expect(badge(wrapper).exists()).toBe(true);
+    });
+
+    it('nao aparece sem filho concluido, nem no pai ja encerrado', () => {
+      expect(badge(mountCard({ ticket: ticket() })).exists()).toBe(false);
+      expect(
+        badge(
+          mountCard({
+            ticket: ticket({ child_completed_at: 1, status: 'closed' }),
+          })
+        ).exists()
+      ).toBe(false);
+    });
+
+    it('clicar da o visto no servidor sem abrir o cartao', async () => {
+      const dispatch = vi.fn();
+      const wrapper = mount(TicketCard, {
+        props: {
+          ticket: ticket({
+            child_completed_at: 1,
+            child_completed_display_id: 77,
+          }),
+          agents: [],
+        },
+        global: {
+          mocks: {
+            $t: key => key,
+            $store: { getters: { getCurrentRole: 'agent' }, dispatch },
+          },
+          stubs: {
+            teleport: true,
+            Icon: true,
+            Avatar: true,
+            WootLabel: true,
+            NextButton: { template: '<button />' },
+            OnClickOutside: { template: '<div><slot /></div>' },
+            DropdownMenu: true,
+          },
+        },
+      });
+
+      await badge(wrapper).trigger('click');
+
+      expect(dispatch).toHaveBeenCalledWith(
+        'tickets/acknowledgeChildCompleted',
+        11
+      );
+      expect(wrapper.emitted('click')).toBeUndefined();
+    });
+  });
+
   it('um ticket impedido continua mostrando o selo de impedimento', () => {
     const wrapper = mountCard({
       ticket: ticket({ blocked: true }),

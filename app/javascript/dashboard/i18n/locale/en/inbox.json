@@ -41,6 +41,7 @@
       "TICKET_TRIAGE_PENDING": "Ticket waiting for triage",
       "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "Customer replied",
       "TICKET_PROPOSAL_ANSWERED": "Proposal answered",
+      "TICKET_CHILD_COMPLETED": "Child ticket completed",
       "SNOOZED_UNTIL": "Snoozed for {time}",
       "SNOOZED_ENDS": "Snooze ended"
     },
