@@ -1695,6 +1695,7 @@
         "SKIPPED": "Sem e-mail"
       },
       "FROM_CUSTOMER": "Resposta de {name}",
+      "AUTOMATED": "Mensagem de automação",
       "NOTIFY": "Enviar e-mail ao cliente",
       "NOTIFY_HINT": "Desmarque para apenas registrar a mensagem no chamado. Ela continua visível para o cliente na Área do Cliente, mas nenhum e-mail é enviado.",
       "REGISTER": "Registrar sem enviar",

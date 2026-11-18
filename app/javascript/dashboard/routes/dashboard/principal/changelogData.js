@@ -8,6 +8,27 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-push-company-viewers-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'fix',
+    platform: 'mobile',
+    title:
+      'App do cliente: notificação push chega a quem vê o chamado pela empresa',
+    description:
+      'A resposta da equipe num chamado só gerava notificação push (fora do app) para o solicitante do ticket, enquanto o aviso dentro do app aparecia para todos que enxergam os chamados da empresa. Agora o push chega também a esses contatos. Além disso, o botão "Ver" do aviso dentro do app passa a abrir o chamado antes de qualquer outra ação.',
+  },
+  {
+    id: 'communication-automation-label-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'fix',
+    platform: 'web',
+    title: 'Comunicações automáticas aparecem como "Mensagem de automação"',
+    description:
+      'Na lista de comunicações enviadas ao cliente, as mensagens disparadas por automação (Estágio ou troca de Mesa) mostravam "null" no lugar de quem enviou. Agora aparece "Mensagem de automação".',
+  },
+  {
     id: 'api-stage-automation-2026-11-18',
     date: '18 de novembro de 2026',
     isoDate: '2026-11-18',

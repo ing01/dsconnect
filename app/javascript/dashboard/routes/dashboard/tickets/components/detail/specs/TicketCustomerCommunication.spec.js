@@ -115,6 +115,32 @@ describe('TicketCustomerCommunication', () => {
     expect(rotuloDoBotao(wrapper)).toBe('TICKET.COMMUNICATION.REGISTER');
   });
 
+  // Mensagem de automacao (Estagio, troca de Mesa) nao tem agente: a lista nao
+  // pode escrever "null".
+  it('names an automation message instead of printing null', () => {
+    const wrapper = montar({
+      ticket: ticket({
+        customer_communications: [
+          {
+            id: 2,
+            status: 'sent',
+            notify_customer: true,
+            direction: 'outbound',
+            body: 'Seu ticket foi movido',
+            user_name: null,
+            to_email: 'cliente@exemplo.com',
+            created_at: 1,
+          },
+        ],
+      }),
+    });
+
+    expect(wrapper.text()).toContain(
+      'TICKET.COMMUNICATION.AUTOMATED → cliente@exemplo.com'
+    );
+    expect(wrapper.text()).not.toContain('null');
+  });
+
   // `skipped` nao e falha nem pendencia - e escolha de quem enviou, e a lista
   // precisa dizer isso em vez de parecer um erro.
   it('labels a registered message as having no e-mail', () => {

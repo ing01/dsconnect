@@ -222,7 +222,7 @@ const send = async () => {
                       name:
                         communication.author_name || communication.contact_name,
                     })
-                  : `${communication.user_name} → ${communication.to_email}`
+                  : `${communication.user_name || t('TICKET.COMMUNICATION.AUTOMATED')} → ${communication.to_email}`
               }}
             </span>
             <WootLabel
