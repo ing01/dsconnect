@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -106,5 +107,86 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.byType(ClientTicketDetailScreen), findsOneWidget);
+  });
+
+  // Tocar na notificacao push (app em segundo plano, fechado ou aberto) tem de abrir o
+  // chamado em que a equipe respondeu - antes so abria o app onde ele estava.
+  group('toque na notificacao', () {
+    Future<(ProviderContainer, PushNotificationService)> abrir(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final previousOnError = FlutterError.onError;
+      FlutterError.onError = (details) {
+        if (details.exceptionAsString().contains('overflowed')) return;
+        previousOnError?.call(details);
+      };
+      addTearDown(() => FlutterError.onError = previousOnError);
+
+      final push = PushNotificationService(Dio());
+      final container = ProviderContainer(
+        overrides: [
+          sessionProvider.overrideWith(_FakeSession.new),
+          biometricLockProvider.overrideWith(_FakeBiometric.new),
+          dismissedNotificationsProvider.overrideWith(_FakeDismissed.new),
+          pushNotificationServiceProvider.overrideWithValue(push),
+          clientNotificationsProvider.overrideWith((ref) async => <ClientNotification>[]),
+          clientTicketDetailProvider.overrideWith(() => _NeverLoadingDetail(0)),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      return (container, push);
+    }
+
+    Map<String, dynamic> aviso(int ticketId) => {
+          'payload': jsonEncode({
+            'tag': 'client_ticket_communication_$ticketId',
+            'url': '/app/client/tickets/$ticketId',
+          }),
+        };
+
+    testWidgets('com o app ja aberto, abre o chamado', (tester) async {
+      final (container, push) = await abrir(tester);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(container: container, child: const MaterialApp(home: ClientHomeShell())),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+
+      push.handleNotificationTap(aviso(49371));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(const Duration(seconds: 2));
+
+      expect(find.byType(ClientTicketDetailScreen), findsOneWidget);
+    });
+
+    testWidgets('com o app fechado, o toque que o abriu leva ao chamado', (tester) async {
+      final (container, push) = await abrir(tester);
+      // O toque chega ANTES de a tela existir (o FCM entrega a notificacao que abriu o app).
+      push.handleNotificationTap(aviso(49371));
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(container: container, child: const MaterialApp(home: ClientHomeShell())),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.byType(ClientTicketDetailScreen), findsOneWidget);
+    });
+
+    testWidgets('um toque ilegivel so abre o app', (tester) async {
+      final (container, push) = await abrir(tester);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(container: container, child: const MaterialApp(home: ClientHomeShell())),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+
+      push.handleNotificationTap({'payload': 'lixo'});
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.byType(ClientTicketDetailScreen), findsNothing);
+    });
   });
 }

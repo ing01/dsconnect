@@ -30,3 +30,53 @@ bool isClientChatPush(Map<String, dynamic> data) {
 bool shouldShowForegroundPush(Map<String, dynamic> data, {required bool chatTabOpen}) {
   return !(chatTabOpen && isClientChatPush(data));
 }
+
+// Para onde o toque numa notificacao do cliente leva.
+sealed class PushTarget {
+  const PushTarget();
+}
+
+// O chamado em que a equipe respondeu.
+class TicketPushTarget extends PushTarget {
+  const TicketPushTarget(this.ticketId);
+
+  final int ticketId;
+}
+
+// A conversa do Chat com a equipe.
+class ChatPushTarget extends PushTarget {
+  const ChatPushTarget();
+}
+
+const _ticketTagPrefix = 'client_ticket_communication_';
+final _ticketUrl = RegExp(r'/tickets/(\d+)');
+
+// Le o destino do `data.payload` do push (ver Client::PushNotificationDeliverable,
+// no servidor): o aviso de ticket traz a tag `client_ticket_communication_<id>` e a
+// url `/app/client/tickets/<id>`; o de chat, a tag `client_chat_<id>`. Qualquer
+// outra coisa (sem payload, JSON quebrado, aviso do colaborador) devolve null - o
+// toque so abre o app, como antes.
+PushTarget? parsePushTarget(Map<String, dynamic> data) {
+  final raw = data['payload'];
+  if (raw is! String) return null;
+
+  try {
+    final payload = jsonDecode(raw);
+    if (payload is! Map) return null;
+
+    final tag = payload['tag'];
+    if (tag is String && tag.startsWith(_chatTagPrefix)) return const ChatPushTarget();
+
+    if (tag is String && tag.startsWith(_ticketTagPrefix)) {
+      final id = int.tryParse(tag.substring(_ticketTagPrefix.length));
+      if (id != null) return TicketPushTarget(id);
+    }
+
+    final url = payload['url'];
+    final match = url is String ? _ticketUrl.firstMatch(url) : null;
+    final id = match == null ? null : int.tryParse(match.group(1)!);
+    return id == null ? null : TicketPushTarget(id);
+  } catch (_) {
+    return null;
+  }
+}

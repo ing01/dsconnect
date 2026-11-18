@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -61,6 +62,29 @@ class PushNotificationService {
   // o aviso de CONVERSA nao e' mostrado (ela ja esta na tela), e o de ticket
   // continua aparecendo (ver `shouldShowForegroundPush`).
   bool chatTabOpen = false;
+
+  // A pessoa TOCOU numa notificacao: o shell do cliente escuta isto e abre o
+  // chamado (ou o Chat). Sem isto, tocar so' abria o app onde ele estava.
+  final _tapController = StreamController<PushTarget>.broadcast();
+  Stream<PushTarget> get onNotificationTapped => _tapController.stream;
+
+  // O toque que ABRIU o app (estava fechado) chega antes de a tela existir: fica
+  // guardado aqui ate o shell pegar.
+  PushTarget? _pendingTarget;
+  PushTarget? takePendingTarget() {
+    final target = _pendingTarget;
+    _pendingTarget = null;
+    return target;
+  }
+
+  @visibleForTesting
+  void handleNotificationTap(Map<String, dynamic> data) {
+    final target = parsePushTarget(data);
+    if (target == null) return;
+
+    _pendingTarget = target;
+    _tapController.add(target);
+  }
 
   // So estes dois estados contam como "o sistema permite avisos" - qualquer
   // outra coisa (negado, ou negado sem dialogo nenhum - ver `_isAuthorized`)
@@ -163,6 +187,18 @@ class PushNotificationService {
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         iOS: DarwinInitializationSettings(),
       ),
+      // Toque na notificacao que o proprio app mostrou (app aberto).
+      onDidReceiveNotificationResponse: (response) {
+        final payload = response.payload;
+        if (payload == null || payload.isEmpty) return;
+
+        try {
+          final data = jsonDecode(payload);
+          if (data is Map) handleNotificationTap(Map<String, dynamic>.from(data));
+        } catch (error) {
+          debugPrint('Payload de notificacao ilegivel: $error');
+        }
+      },
     );
 
     if (Platform.isAndroid) {
@@ -172,6 +208,15 @@ class PushNotificationService {
     }
 
     FirebaseMessaging.onMessage.listen(_showForegroundNotification);
+    // Toque na notificacao do SISTEMA, com o app em segundo plano...
+    FirebaseMessaging.onMessageOpenedApp.listen((message) => handleNotificationTap(message.data));
+    // ...e com o app fechado: a notificacao que o abriu.
+    try {
+      final initial = await FirebaseMessaging.instance.getInitialMessage();
+      if (initial != null) handleNotificationTap(initial.data);
+    } catch (error) {
+      debugPrint('Falha ao ler a notificacao que abriu o app: $error');
+    }
   }
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {
@@ -186,6 +231,7 @@ class PushNotificationService {
       id: notification.hashCode,
       title: notification.title,
       body: notification.body,
+      payload: jsonEncode(message.data),
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           _androidChannel.id,

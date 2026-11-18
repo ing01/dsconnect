@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/auth/biometric_lock.dart';
 import '../../core/auth/biometric_menu_item.dart';
+import '../../core/push/push_filter.dart';
 import '../../core/push/push_menu_item.dart';
 import '../../core/push/push_notification_service.dart';
 import '../../core/realtime/action_cable_client.dart';
@@ -52,6 +53,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
   // do colaborador só porque o cliente logou.
   final _visited = <int>{0};
   StreamSubscription<void>? _pushSubscription;
+  StreamSubscription<PushTarget>? _tapSubscription;
   Timer? _notificationsTimer;
   ActionCableClient? _cable;
   // Ids ja vistos na lista de notificacoes. A primeira lista so popula; dai em
@@ -79,6 +81,13 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
     // `build`, que vale para qualquer caminho que traga dados novos (push,
     // WebSocket do chat, relogio, volta do segundo plano).
     _pushSubscription = _push.onMessageReceived.listen((_) => _refreshNotifications());
+    // Tocou numa notificacao: abre o chamado em que a equipe respondeu (ou o Chat).
+    _tapSubscription = _push.onNotificationTapped.listen((target) {
+      _push.takePendingTarget();
+      _openPushTarget(target);
+    });
+    // O toque que abriu o app (estava fechado) ja pode ter chegado antes desta tela.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openPushTarget(_push.takePendingTarget()));
   }
 
   // O numero no icone diz QUANTAS coisas novas esperam; so a bolinha nao diz
@@ -153,6 +162,21 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
     );
   }
 
+  void _openPushTarget(PushTarget? target) {
+    if (target == null || !mounted) return;
+
+    switch (target) {
+      case TicketPushTarget(:final ticketId):
+        // Sai da tela de entrada: quem tocou no aviso quer o chamado, nao os tres botoes.
+        setState(() => _showEntry = false);
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => ClientTicketDetailScreen(ticketId: ticketId)),
+        );
+      case ChatPushTarget():
+        _selectTab(_chatTabIndex);
+    }
+  }
+
   void _dismissQuietly(String id) {
     try {
       ref.read(dismissedNotificationsProvider.notifier).dismiss(id).ignore();
@@ -207,6 +231,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
     _notificationsTimer?.cancel();
     _cable?.dispose();
     _pushSubscription?.cancel();
+    _tapSubscription?.cancel();
     // Sair desta tela (ex.: logout) nao pode deixar o aviso de conversa
     // suprimido para o proximo login.
     _push.chatTabOpen = false;
