@@ -22,6 +22,12 @@ module Enterprise::Concerns::Account
     has_many :companies, dependent: :destroy_async
     has_many :company_credentials, dependent: :destroy_async
     has_many :company_categories, dependent: :destroy_async
+    # Faltava aqui - sem isso, `Current.account.company_niches` (usado pelo
+    # CompanyNichesController) explodia com NoMethodError, deixando o
+    # seletor de Nicho sempre vazio na tela da Empresa (achado ao investigar
+    # por que o Nicho importado nao aparecia - 2026-11-18).
+    has_many :company_niches, dependent: :destroy_async
+    has_many :company_sub_niches, dependent: :destroy_async
     has_many :system_modules, dependent: :destroy_async
     has_many :products, dependent: :destroy_async
     has_many :product_groups, dependent: :destroy_async

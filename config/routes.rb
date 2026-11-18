@@ -348,6 +348,7 @@ Rails.application.routes.draw do
           resources :system_modules, only: [:index, :create]
           resources :company_categories, only: [:index, :create]
           resources :company_niches, only: [:index, :create]
+          resources :company_sub_niches, only: [:index, :create]
           resources :products, only: [:index, :create, :update, :destroy]
           resources :product_groups, only: [:index, :create, :update, :destroy]
           resources :contracts, only: [:index, :show, :create, :update, :destroy] do
