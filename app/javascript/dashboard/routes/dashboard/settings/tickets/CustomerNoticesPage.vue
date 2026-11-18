@@ -55,6 +55,14 @@ const emptyForm = () => ({
   notify_customer: true,
   active: true,
 });
+// As chaves duplas entram como valor do parametro: escritas no texto da
+// traducao, o vue-i18n as trata como sintaxe invalida e a tela nao renderiza.
+const bodyPlaceholder = computed(() =>
+  t('TICKET.SETTINGS.NOTICES.FORM.BODY_PLACEHOLDER', {
+    solicitante: '{{solicitante}}',
+    numero: '{{numero}}',
+  })
+);
 const form = ref(emptyForm());
 const showForm = ref(false);
 const bodyField = ref(null);
@@ -434,7 +442,7 @@ onBeforeMount(load);
               v-model="form.body"
               rows="6"
               class="w-full mb-0"
-              :placeholder="t('TICKET.SETTINGS.NOTICES.FORM.BODY_PLACEHOLDER')"
+              :placeholder="bodyPlaceholder"
               data-testid="notice-body"
             />
             <div class="flex flex-col gap-1">

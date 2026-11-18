@@ -691,7 +691,7 @@
           "CHOOSE": "Select",
           "CHOOSE_TEAM_FIRST": "Choose the desk first",
           "BODY": "Message",
-          "BODY_PLACEHOLDER": "E.g.: Hello {{solicitante}}, your ticket #{{numero}} was approved for development.",
+          "BODY_PLACEHOLDER": "E.g.: Hello {solicitante}, your ticket #{numero} was approved for development.",
           "VARIABLES_HINT": "Click to insert into the text. They are replaced with the ticket data when sent:",
           "NOTIFY": "Email the customer",
           "NOTIFY_HINT": "Uncheck to only record the message on the ticket (still visible in the Client Area).",

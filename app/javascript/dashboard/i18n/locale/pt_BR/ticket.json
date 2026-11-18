@@ -778,7 +778,7 @@
           "CHOOSE": "Selecione",
           "CHOOSE_TEAM_FIRST": "Escolha a Mesa primeiro",
           "BODY": "Mensagem",
-          "BODY_PLACEHOLDER": "Ex.: Olá {{solicitante}}, o seu ticket #{{numero}} foi aprovado para desenvolvimento.",
+          "BODY_PLACEHOLDER": "Ex.: Olá {solicitante}, o seu ticket #{numero} foi aprovado para desenvolvimento.",
           "VARIABLES_HINT": "Clique para inserir no texto. Elas são trocadas pelos dados do ticket no envio:",
           "NOTIFY": "Enviar e-mail ao cliente",
           "NOTIFY_HINT": "Desmarque para apenas registrar a mensagem no chamado (ela continua visível na Área do Cliente).",

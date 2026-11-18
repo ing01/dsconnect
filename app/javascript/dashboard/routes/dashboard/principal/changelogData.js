@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'api-stage-automation-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'fix',
+    platform: 'web',
+    title: 'API: mudar o Estágio do ticket agora roda a automação do Estágio',
+    description:
+      'Ao alterar o Estágio de um ticket pela API (por exemplo, para Finalizado na Mesa Desenvolvimento), a automação configurada nesse Estágio, como mudar o status do ticket, não era executada. Agora ela roda, o mesmo valendo para as mensagens automáticas ao cliente e para a transferência feita pela tela de fechamento.',
+  },
+  {
     id: 'ticket-customer-notices-2026-11-17',
     date: '17 de novembro de 2026',
     isoDate: '2026-11-17',
