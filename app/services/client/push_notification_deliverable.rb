@@ -4,7 +4,8 @@
 # cada inscricao e' de navegador (VAPID) ou de app mobile (FCM) e manda pelo
 # canal certo, numa unica chamada (`deliver_push!`).
 #
-# Quem inclui so' precisa definir tres metodos: `contact` (quem recebe),
+# Quem inclui so' precisa definir tres metodos: `contact` (quem recebe; ou
+# `push_recipients`, quando mais de um contato deve ser avisado),
 # `push_message` (hash com `title`/`body`/`tag`/`url`/`actions`) e
 # `push_account` (pra onde relatar um erro inesperado de envio).
 module Client::PushNotificationDeliverable
@@ -14,7 +15,8 @@ module Client::PushNotificationDeliverable
   BADGE_PATH = '/favicon-badge-96x96.png'.freeze
 
   def deliver_push!
-    return if contact.blank?
+    recipients = push_recipients.compact.uniq
+    return if recipients.empty?
 
     # PORTUGUES, sempre - a mesma regra do e-mail (`ForcedPortugueseLocale`) e
     # da Area do Cliente (`ClientAreaLocale`). O push e montado num job de
@@ -22,11 +24,25 @@ module Client::PushNotificationDeliverable
     # sozinho - sem isto o aviso saia em INGLES (o `I18n.default_locale` da
     # instalacao).
     I18n.with_locale(ClientAreaLocale::LOCALE) do
-      contact.client_push_subscriptions.find_each { |subscription| deliver_to(subscription) }
+      recipients.each do |recipient|
+        @push_recipient = recipient
+        recipient.client_push_subscriptions.find_each { |subscription| deliver_to(subscription) }
+      end
     end
   end
 
   private
+
+  # Quem recebe o aviso. Por padrao, so' o `contact`; quem precisa avisar mais
+  # de um contato sobrescreve.
+  def push_recipients
+    [contact]
+  end
+
+  # O contato da assinatura que esta sendo entregue agora (para os logs).
+  def push_recipient
+    @push_recipient || contact
+  end
 
   def deliver_to(subscription)
     if subscription.browser_push?
@@ -64,7 +80,7 @@ module Client::PushNotificationDeliverable
     # Rastro do porque: sem ele, uma inscricao que some do servidor (e o cliente que
     # para de receber) nao deixava pista nenhuma.
     Rails.logger.warn "[Client::PushNotificationDeliverable] removing subscription #{subscription.id} " \
-                      "(contact #{contact.id}): #{e.class.name}"
+                      "(contact #{push_recipient.id}): #{e.class.name}"
     subscription.destroy!
   rescue Errno::ECONNRESET, Net::OpenTimeout, Net::ReadTimeout, Socket::ResolutionError => e
     Rails.logger.error "[Client::PushNotificationDeliverable] subscription #{subscription.id}: #{e.message}"
@@ -84,7 +100,7 @@ module Client::PushNotificationDeliverable
     # iPhone) passava por sucesso e o token morto nunca era removido.
     Notification::FcmSender.new(
       subscription: subscription, options: fcm_options(subscription), account: push_account,
-      description: "para o contato #{contact.id}"
+      description: "para o contato #{push_recipient.id}"
     ).deliver
   end
 

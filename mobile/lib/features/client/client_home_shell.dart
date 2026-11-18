@@ -137,10 +137,13 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
           label: 'Ver',
           onPressed: () {
             if (isTicket && latest.ticketId != null) {
-              ref.read(dismissedNotificationsProvider.notifier).dismiss(latest.id);
+              // Abre o chamado PRIMEIRO: marcar a notificacao como vista grava no
+              // armazenamento do aparelho, e uma falha ali nao pode impedir a
+              // navegacao.
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => ClientTicketDetailScreen(ticketId: latest.ticketId!)),
               );
+              _dismissQuietly(latest.id);
             } else {
               _selectTab(_chatTabIndex);
             }
@@ -148,6 +151,14 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
         ),
       ),
     );
+  }
+
+  void _dismissQuietly(String id) {
+    try {
+      ref.read(dismissedNotificationsProvider.notifier).dismiss(id).ignore();
+    } catch (_) {
+      // So' a bolinha deixa de sumir; o chamado ja abriu.
+    }
   }
 
   void _refreshNotifications() {

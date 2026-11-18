@@ -25,6 +25,23 @@ class Client::TicketCommunicationPushNotificationService
     @contact ||= communication.contact || ticket.requester_contact
   end
 
+  # O solicitante e TAMBEM quem enxerga o chamado pela empresa (ver
+  # ContactClientAccess#visible_tickets): a aba Notificacoes do app mostra a
+  # resposta a todos eles, e so' o solicitante recebia o push - quem via o aviso
+  # dentro do app nao era avisado fora dele.
+  def push_recipients
+    [contact, *company_viewers]
+  end
+
+  def company_viewers
+    return [] if ticket.company_id.blank?
+
+    ticket.account.contacts.with_client_access.sees_company.where(
+      'contacts.company_id = :id OR contacts.id IN (SELECT contact_id FROM company_contacts WHERE company_id = :id)',
+      id: ticket.company_id
+    )
+  end
+
   def push_message
     {
       title: I18n.t('client_area.ticket_communication.push_title', display_id: ticket.display_id),

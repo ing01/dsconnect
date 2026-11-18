@@ -86,4 +86,41 @@ RSpec.describe Client::TicketCommunicationPushNotificationService do
 
     expect(ClientPushSubscription.exists?(subscription.id)).to be(false)
   end
+
+  # A aba Notificacoes do app mostra a resposta a todo contato que enxerga o
+  # chamado pela empresa; o push precisa chegar a eles tambem.
+  describe 'contatos que enxergam o chamado pela empresa' do
+    def company_contact(visibility:, access: true)
+      create(:contact, account: account, company: company, email: "#{SecureRandom.hex(4)}@empresa.com",
+                       client_access_enabled: access, client_tickets_visibility: visibility)
+    end
+
+    it 'avisa tambem quem ve os chamados da empresa toda' do
+      viewer = company_contact(visibility: :company)
+      create_subscription!(viewer)
+      create_subscription!
+      enviados = []
+      allow(WebPush).to receive(:payload_send) { |args| enviados << args[:endpoint] }
+
+      perform
+
+      expect(enviados.size).to eq(2)
+    end
+
+    it 'nao avisa quem so ve os proprios chamados' do
+      create_subscription!(company_contact(visibility: :own))
+      expect(WebPush).not_to receive(:payload_send)
+
+      perform
+    end
+
+    it 'nao avisa contato de outra empresa' do
+      outsider = create(:contact, account: account, company: create(:company, account: account),
+                                  client_access_enabled: true, client_tickets_visibility: :company)
+      create_subscription!(outsider)
+      expect(WebPush).not_to receive(:payload_send)
+
+      perform
+    end
+  end
 end
