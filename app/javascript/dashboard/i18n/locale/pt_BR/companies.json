@@ -284,6 +284,7 @@
           "CLIENT_LEVEL": "Prioridade do cliente",
           "CATEGORY": "Categoria",
           "NICHE": "Nicho",
+          "SUB_NICHE": "Subnicho",
           "SPECIALIST": "Especialista",
           "CLASSIFICATION_LEVEL": "Nível de classificação (1 a 5)",
           "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha"
@@ -302,6 +303,11 @@
         "NICHE": {
           "NONE": "Nenhum",
           "ADD_PLACEHOLDER": "Nome do novo nicho",
+          "ADD_BUTTON": "Adicionar"
+        },
+        "SUB_NICHE": {
+          "NONE": "Nenhum",
+          "ADD_PLACEHOLDER": "Nome do novo subnicho",
           "ADD_BUTTON": "Adicionar"
         },
         "SPECIALIST": {

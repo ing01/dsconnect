@@ -80,7 +80,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       filter_by_company_niche(
         filter_by_classification_level(
           filter_by_client_level(
-            Current.account.companies.includes(:system_modules, :company_category, :company_niche, :specialist)
+            Current.account.companies.includes(:system_modules, :company_category, :company_niche, :company_sub_niche, :specialist)
           )
         )
       )
@@ -167,6 +167,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :blocked,
       :company_category_id,
       :company_niche_id,
+      :company_sub_niche_id,
       :specialist_id,
       :classification_level,
       *allowed_billing_attrs,

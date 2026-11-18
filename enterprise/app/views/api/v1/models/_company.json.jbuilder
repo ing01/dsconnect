@@ -44,6 +44,8 @@ json.company_category_id resource.company_category_id
 json.company_category (resource.company_category ? { id: resource.company_category.id, name: resource.company_category.name } : nil)
 json.company_niche_id resource.company_niche_id
 json.company_niche (resource.company_niche ? { id: resource.company_niche.id, name: resource.company_niche.name } : nil)
+json.company_sub_niche_id resource.company_sub_niche_id
+json.company_sub_niche (resource.company_sub_niche ? { id: resource.company_sub_niche.id, name: resource.company_sub_niche.name } : nil)
 json.specialist_id resource.specialist_id
 json.specialist (resource.specialist ? { id: resource.specialist.id, name: resource.specialist.name } : nil)
 json.last_activity_at resource.last_activity_at.to_i if resource[:last_activity_at].present?

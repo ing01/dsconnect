@@ -284,6 +284,7 @@
           "CLIENT_LEVEL": "Client priority",
           "CATEGORY": "Category",
           "NICHE": "Niche",
+          "SUB_NICHE": "Sub-niche",
           "SPECIALIST": "Specialist",
           "CLASSIFICATION_LEVEL": "Classification level (1 to 5)",
           "CAMPAIGN_OPT_IN": "Receive automatic campaign messages"
@@ -302,6 +303,11 @@
         "NICHE": {
           "NONE": "None",
           "ADD_PLACEHOLDER": "New niche name",
+          "ADD_BUTTON": "Add"
+        },
+        "SUB_NICHE": {
+          "NONE": "None",
+          "ADD_PLACEHOLDER": "New sub-niche name",
           "ADD_BUTTON": "Add"
         },
         "SPECIALIST": {

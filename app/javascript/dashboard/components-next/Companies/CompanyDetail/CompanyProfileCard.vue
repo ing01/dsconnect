@@ -14,6 +14,7 @@ import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import CompanyModulesField from 'dashboard/components-next/Companies/CompanyDetail/CompanyModulesField.vue';
 import CompanyCategoryField from 'dashboard/components-next/Companies/CompanyDetail/CompanyCategoryField.vue';
 import CompanyNicheField from 'dashboard/components-next/Companies/CompanyDetail/CompanyNicheField.vue';
+import CompanySubNicheField from 'dashboard/components-next/Companies/CompanyDetail/CompanySubNicheField.vue';
 import { useCompaniesStore } from 'dashboard/stores/companies';
 
 const props = defineProps({
@@ -86,6 +87,7 @@ const form = reactive({
   addressState: '',
   companyCategoryId: 0,
   companyNicheId: 0,
+  companySubNicheId: 0,
   specialistId: 0,
   classificationLevel: 0,
   campaignOptIn: false,
@@ -131,6 +133,8 @@ const hasChanges = computed(
     ) ||
     (form.companyCategoryId || 0) !== (props.company?.companyCategoryId || 0) ||
     (form.companyNicheId || 0) !== (props.company?.companyNicheId || 0) ||
+    (form.companySubNicheId || 0) !==
+      (props.company?.companySubNicheId || 0) ||
     (form.specialistId || 0) !== (props.company?.specialistId || 0) ||
     (form.classificationLevel || 0) !==
       (props.company?.classificationLevel || 0) ||
@@ -164,6 +168,7 @@ const syncForm = company => {
   });
   form.companyCategoryId = company?.companyCategoryId || 0;
   form.companyNicheId = company?.companyNicheId || 0;
+  form.companySubNicheId = company?.companySubNicheId || 0;
   form.specialistId = company?.specialistId || 0;
   form.classificationLevel = company?.classificationLevel || 0;
   form.campaignOptIn = Boolean(company?.campaignOptIn);
@@ -185,6 +190,7 @@ watch(
     props.company?.clientLevel,
     props.company?.companyCategoryId,
     props.company?.companyNicheId,
+    props.company?.companySubNicheId,
     props.company?.specialistId,
     props.company?.classificationLevel,
     props.company?.campaignOptIn,
@@ -236,6 +242,7 @@ const handleUpdateCompany = async () => {
       }, {}),
       companyCategoryId: form.companyCategoryId || null,
       companyNicheId: form.companyNicheId || null,
+      companySubNicheId: form.companySubNicheId || null,
       specialistId: form.specialistId || null,
       classificationLevel: form.classificationLevel || null,
       campaignOptIn: form.campaignOptIn,
@@ -442,6 +449,15 @@ onMounted(() => {
             </label>
             <CompanyNicheField
               v-model="form.companyNicheId"
+              :disabled="isUpdating"
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm text-n-slate-11">
+              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.SUB_NICHE') }}
+            </label>
+            <CompanySubNicheField
+              v-model="form.companySubNicheId"
               :disabled="isUpdating"
             />
           </div>
