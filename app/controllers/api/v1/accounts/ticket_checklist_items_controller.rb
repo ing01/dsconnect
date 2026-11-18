@@ -1,6 +1,6 @@
 class Api::V1::Accounts::TicketChecklistItemsController < Api::V1::Accounts::BaseController
   before_action :fetch_ticket
-  before_action :fetch_checklist_item, only: [:update, :toggle, :destroy]
+  before_action :fetch_checklist_item, only: [:update, :toggle, :fill_form, :destroy]
   before_action :check_authorization
 
   def index
@@ -20,6 +20,24 @@ class Api::V1::Accounts::TicketChecklistItemsController < Api::V1::Accounts::Bas
 
   def toggle
     @checklist_item.toggle!(Current.user)
+    render 'show'
+  end
+
+  # Preenche o item de checklist tipo 'form': cria o FormResponse e um
+  # FormAnswer por pergunta (texto/data/opcoes em `answers`, arquivo em
+  # `files` - ambos um hash field_id => valor), e marca o item como
+  # completo (ver FormResponse#attach_to_checklist_item!).
+  def fill_form
+    return render_wrong_item_type unless @checklist_item.item_type == 'form'
+
+    ActiveRecord::Base.transaction do
+      form_response = @checklist_item.form.form_responses.create!(
+        account: Current.account, ticket: @ticket, ticket_checklist_item: @checklist_item,
+        filled_by: Current.user
+      )
+      build_answers!(form_response)
+      form_response.attach_to_checklist_item!
+    end
     render 'show'
   end
 
@@ -50,5 +68,23 @@ class Api::V1::Accounts::TicketChecklistItemsController < Api::V1::Accounts::Bas
 
   def checklist_item_params
     params.require(:checklist_item).permit(:title, :completed, :position, :item_type, :required, :value, options: [])
+  end
+
+  def build_answers!(form_response)
+    (params[:answers] || {}).each do |field_id, value|
+      next if value.blank?
+
+      form_response.form_answers.create!(account: Current.account, field_id: field_id, value: value)
+    end
+    (params[:files] || {}).each do |field_id, file|
+      next if file.blank?
+
+      answer = form_response.form_answers.create!(account: Current.account, field_id: field_id)
+      answer.file.attach(file)
+    end
+  end
+
+  def render_wrong_item_type
+    render json: { error: 'This checklist item is not a form' }, status: :unprocessable_entity
   end
 end

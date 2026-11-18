@@ -80,6 +80,20 @@ export const actions = {
       commit('SET_UI_FLAG', { isDeleting: false });
     }
   },
+  fillForm: async ({ commit }, { ticketId, itemId, answers, files }) => {
+    commit('SET_UI_FLAG', { isUpdating: true });
+    try {
+      const response = await TicketChecklistItemsAPI.fillForm(
+        ticketId,
+        itemId,
+        { answers, files }
+      );
+      commit('UPDATE_ITEM', { ticketId, item: response.data });
+      return response.data;
+    } finally {
+      commit('SET_UI_FLAG', { isUpdating: false });
+    }
+  },
   attachChecklist: async ({ commit }, { ticketId, checklistId }) => {
     commit('SET_UI_FLAG', { isCreating: true });
     try {
