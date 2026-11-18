@@ -52,6 +52,11 @@ properties:
     type:
       - string
       - 'null'
+  company_classification_level:
+    type:
+      - number
+      - 'null'
+    description: Nivel da Empresa do ticket, de 1 a 5.
   assignee_id:
     type:
       - number

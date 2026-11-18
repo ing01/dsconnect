@@ -71,6 +71,8 @@ if resource.company
   json.company do
     json.id resource.company.id
     json.name resource.company.name
+    # Nivel da Empresa, de 1 a 5 (nulo quando nao classificada).
+    json.classification_level resource.company.classification_level
   end
 else
   json.company nil

@@ -66,7 +66,11 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     @ticket.origin = 'integration_api'
     @ticket.team_id ||= @ticket.ticket_column&.team_id
     validate_new_dev_fields!
-    @ticket.save!
+    validate_new_company!
+    ActiveRecord::Base.transaction do
+      @ticket.save!
+      apply_company_level(@ticket.company, create_params)
+    end
     @ticket.reload
     render :show, status: :created
   end
@@ -84,6 +88,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
       apply_classification
       apply_category_and_complexity
       apply_assignee
+      apply_company
       apply_priority
       apply_dev_fields
       apply_custom_attributes
@@ -256,6 +261,49 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     sprint.id
   end
 
+  # A Empresa do ticket (`company_id`) e o Nivel dela (`company_classification_level`,
+  # de 1 a 5, o campo manual da Empresa - em branco limpa). Empresa de outra conta ou
+  # inexistente: 404. O nivel e' da EMPRESA, entao vale para todos os tickets dela.
+  def apply_company
+    return unless route_params.key?(:company_id) || route_params.key?(:company_classification_level)
+
+    company = checked_company(route_params[:company_id])
+    @ticket.update!(company: company) if company
+    apply_company_level(@ticket.company, route_params)
+  end
+
+  # Na criacao a Empresa ja veio em `company_id`; so' falta recusar (404) a de outra
+  # conta e o nivel fora de 1 a 5 ANTES de gravar o ticket.
+  def validate_new_company!
+    checked_company(create_params[:company_id])
+    checked_company_level(create_params[:company_classification_level]) if create_params.key?(:company_classification_level)
+  end
+
+  def checked_company(value)
+    return nil if value.blank?
+
+    current_account.companies.find(value)
+  end
+
+  # Em branco = sem nivel. Qualquer coisa fora de 1 a 5 e' 422 com o campo recusado.
+  def checked_company_level(value)
+    return nil if value.blank?
+
+    level = Integer(value.to_s, exception: false)
+    return level if level && (1..5).cover?(level)
+
+    raise InvalidRequest.new('company_classification_level must be a number from 1 to 5', field: 'company_classification_level')
+  end
+
+  def apply_company_level(company, source)
+    return unless source.key?(:company_classification_level)
+
+    level = checked_company_level(source[:company_classification_level])
+    raise InvalidRequest.new('company_classification_level needs the ticket to have a company (company_id)', field: 'company_id') if company.blank?
+
+    company.update!(classification_level: level)
+  end
+
   def apply_priority
     return if route_params[:priority].blank?
 
@@ -281,7 +329,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   end
 
   def create_attributes
-    base = create_params.except(*DEV_FIELDS, :custom_attributes).to_h
+    base = create_params.except(*DEV_FIELDS, :custom_attributes, :company_classification_level).to_h
     custom = merged_custom_attributes(create_params)
     custom.present? ? base.merge(custom_attributes: custom) : base
   end
@@ -311,6 +359,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   def route_params
     params.permit(:team_id, :ticket_column_id, :service_catalog_item_id, :ticket_category_id,
                   :ticket_complexity_id, :assignee_id, :priority, :note, :triage, :sprint_id, :development_type,
+                  :company_id, :company_classification_level,
                   *DEV_FIELDS, custom_attributes: {})
   end
 
@@ -318,7 +367,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     params.require(:ticket).permit(
       :title, :description, :priority, :team_id, :ticket_column_id, :company_id, :contact_id,
       :ticket_category_id, :ticket_complexity_id, :assignee_id, :due_date, :sprint_id, :development_type,
-      *DEV_FIELDS, custom_attributes: {}
+      :company_classification_level, *DEV_FIELDS, custom_attributes: {}
     )
   end
 

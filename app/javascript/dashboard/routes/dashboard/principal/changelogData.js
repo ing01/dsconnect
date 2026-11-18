@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-push-tap-opens-ticket-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'fix',
+    platform: 'mobile',
+    title: 'App do cliente: tocar na notificação abre o chamado da resposta',
+    description:
+      'Ao tocar numa notificação push de resposta da equipe, o app agora abre direto o chamado em que houve a comunicação (e a notificação do Chat abre o Chat), esteja o app aberto, em segundo plano ou fechado. Antes o toque só abria o app onde ele estava.',
+  },
+  {
+    id: 'api-company-level-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'improvement',
+    platform: 'web',
+    title: 'API de Integração: empresa do ticket e Nível da empresa',
+    description:
+      'Na API de Integração, criar ou atualizar um ticket aceita agora `company_id` (a empresa do ticket) e `company_classification_level` (o Nível da empresa, de 1 a 5). Nas respostas, o ticket traz o Nível da empresa (`company.classification_level` no detalhe e `company_classification_level` na lista). O Nível é um campo da empresa, então vale para todos os tickets dela.',
+  },
+  {
     id: 'kanban-child-completed-badge-2026-11-18',
     date: '18 de novembro de 2026',
     isoDate: '2026-11-18',

@@ -22,6 +22,7 @@ json.payload do
     json.ticket_category_name ticket.ticket_category&.name
     json.company_id ticket.company_id
     json.company_name ticket.company&.name
+    json.company_classification_level ticket.company&.classification_level
     json.assignee_id ticket.assignee_id
     json.assignee_name ticket.assignee&.name
     json.created_at ticket.created_at.iso8601

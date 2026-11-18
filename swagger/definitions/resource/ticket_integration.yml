@@ -82,6 +82,11 @@ properties:
         type: number
       name:
         type: string
+      classification_level:
+        type:
+          - number
+          - 'null'
+        description: Nivel da Empresa, de 1 a 5 (nulo quando ainda nao classificada).
   assignee:
     type:
       - object
