@@ -7,6 +7,10 @@ class ServiceCatalogItem < ApplicationRecord
   # Admins deactivate it instead, which keeps it out of the pickers while every
   # ticket that used it stays readable.
   has_many :tickets, dependent: :restrict_with_error
+  # Formularios que entram automaticamente no checklist do ticket quando ele e'
+  # classificado com este item (ver Ticket#classify!).
+  has_many :service_catalog_item_forms, dependent: :destroy
+  has_many :forms, through: :service_catalog_item_forms
 
   validates :name, presence: true, uniqueness: { scope: :service_catalog_area_id }
 

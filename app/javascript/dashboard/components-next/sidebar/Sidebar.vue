@@ -961,6 +961,23 @@ const menuItems = computed(() => {
           ],
         },
         {
+          name: 'Settings Forms',
+          label: t('SIDEBAR.FORM_SETTINGS'),
+          icon: 'i-lucide-file-text',
+          activeOn: ['forms_list', 'forms_new', 'forms_edit'],
+          collapsible: true,
+          showTreeLine: true,
+          asMenuItem: true,
+          children: [
+            {
+              name: 'Settings Forms List',
+              label: t('SIDEBAR.FORMS_LIST'),
+              activeOn: ['forms_list', 'forms_new', 'forms_edit'],
+              to: accountScopedRoute('forms_list'),
+            },
+          ],
+        },
+        {
           name: 'Settings Inboxes',
           label: t('SIDEBAR.INBOXES'),
           icon: 'i-lucide-inbox',

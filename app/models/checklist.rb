@@ -27,16 +27,19 @@ class Checklist < ApplicationRecord
   end
 
   # A Checklist's `items` jsonb array holds plain hashes (string keys, since
-  # they round-trip through JSON) - `{ title:, type:, required:, options: }`.
-  # `type` is renamed to `item_type` here because `type` on an ActiveRecord
-  # attribute is reserved for single-table inheritance.
+  # they round-trip through JSON) - `{ title:, type:, required:, options:,
+  # form_id: }`. `type` is renamed to `item_type` here because `type` on an
+  # ActiveRecord attribute is reserved for single-table inheritance.
+  # `form_id` so' faz sentido quando `type == 'form'` - ver TicketChecklistItem.
   def self.item_attributes_from(item)
     item = item.is_a?(Hash) ? item.with_indifferent_access : {}
+    item_type = TicketChecklistItem::ITEM_TYPES.include?(item[:type]) ? item[:type] : 'checkbox'
     {
       title: item[:title].to_s,
-      item_type: TicketChecklistItem::ITEM_TYPES.include?(item[:type]) ? item[:type] : 'checkbox',
+      item_type: item_type,
       required: ActiveModel::Type::Boolean.new.cast(item[:required]) || false,
-      options: item[:options].is_a?(Array) ? item[:options] : []
+      options: item[:options].is_a?(Array) ? item[:options] : [],
+      form_id: item_type == 'form' ? item[:form_id].presence : nil
     }
   end
 end

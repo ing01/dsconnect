@@ -2,18 +2,25 @@ class TicketChecklistItem < ApplicationRecord
   belongs_to :account
   belongs_to :ticket
   belongs_to :completed_by, class_name: 'User', optional: true
+  # Presente so' quando item_type == 'form': qual Formulario preencher.
+  belongs_to :form, optional: true
+  # So' gravado quando ja' foi preenchido - e' isso que marca o item como
+  # completo (ver FormResponse#attach_to_checklist_item!), nunca `value`.
+  belongs_to :form_response, optional: true
 
   # `checkbox` is the only type completed by manual toggle (see #toggle!).
-  # The others are completed automatically from whatever the agent fills in
-  # `value` - a free text answer, a number, or one of `options` - so the
-  # checklist can ask for actual information, not just a yes/no.
-  ITEM_TYPES = %w[checkbox text single_select number].freeze
+  # `form` is completed by FormResponse#attach_to_checklist_item! (ve-lo em
+  # `form_response_id`, nunca em `value`). The remaining types are completed
+  # automatically from whatever the agent fills in `value` - a free text
+  # answer, a number, or one of `options` - so the checklist can ask for
+  # actual information, not just a yes/no.
+  ITEM_TYPES = %w[checkbox text single_select number form].freeze
 
   validates :title, presence: true
   validates :item_type, inclusion: { in: ITEM_TYPES }
 
   before_validation :set_default_position, on: :create
-  before_save :sync_completed_from_value, unless: :checkbox?
+  before_save :sync_completed_from_value, if: -> { !checkbox? && item_type != 'form' }
 
   # So a conclusao e a reabertura contam: editar o texto ou reordenar nao muda o
   # andamento do ticket.

@@ -19,6 +19,10 @@ class TicketChecklistItemPolicy < ApplicationPolicy
     true
   end
 
+  def fill_form?
+    true
+  end
+
   def attach_checklist?
     true
   end

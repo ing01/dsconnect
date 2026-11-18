@@ -28,6 +28,7 @@ import queues from './queues/queues.routes';
 import conversationFlows from './conversationFlows/conversationFlows.routes';
 import ticketSettings from './tickets/tickets.routes';
 import projectSettings from './projects/projects.routes';
+import formSettings from './forms/forms.routes';
 import suggestionColumnSettings from './suggestions/suggestions.routes';
 import customRoles from './customRoles/customRole.routes';
 import profile from './profile/profile.routes';
@@ -79,6 +80,7 @@ export default {
     ...conversationFlows.routes,
       ...ticketSettings.routes,
     ...projectSettings.routes,
+    ...formSettings.routes,
     ...suggestionColumnSettings.routes,
     ...customRoles.routes,
     ...profile.routes,

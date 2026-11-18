@@ -548,7 +548,14 @@
         "PENDING_HINT": "Existem itens obrigatórios pendentes no checklist. Conclua-os ou registre um Compromisso para liberar a conclusão desta tarefa.",
         "ADD_ERROR": "Erro ao adicionar item ao checklist",
         "TOGGLE_ERROR": "Erro ao atualizar item do checklist",
-        "DELETE_ERROR": "Erro ao remover item do checklist"
+        "DELETE_ERROR": "Erro ao remover item do checklist",
+        "FORM": {
+          "FILL_BUTTON": "Preencher formulário",
+          "VIEW_RESPONSE": "Ver respostas",
+          "SUBMIT": "Enviar",
+          "SUBMIT_ERROR": "Não foi possível enviar o formulário.",
+          "EMPTY": "Este formulário não tem perguntas."
+        }
       },
       "PROPOSALS": {
         "TITLE": "Propostas de melhoria",
@@ -931,7 +938,9 @@
         "SAVE": "Salvar",
         "EMPTY": "Nenhum catálogo cadastrado.",
         "NO_AREAS": "Nenhuma área neste catálogo.",
-        "NO_ITEMS": "Nenhum item nesta área."
+        "NO_ITEMS": "Nenhum item nesta área.",
+        "LINKED_FORMS": "Formulários vinculados",
+        "LINKED_FORMS_EMPTY": "Nenhum formulário criado ainda - crie em Configurações > Formulários."
       },
       "STAGES": {
         "HEADER": "Estágios",

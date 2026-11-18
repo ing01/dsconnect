@@ -1,0 +1,74 @@
+{
+  "FORMS": {
+    "LIST": {
+      "HEADER": "Formulários",
+      "DESCRIPTION": "Crie formulários personalizados para coletar informações nos chamados - vincule a um item do Catálogo de Serviços para anexar automaticamente no checklist, ou a um Artigo da Central de Ajuda.",
+      "LOADING": "Carregando formulários",
+      "ADD_BUTTON": "Criar formulário",
+      "EMPTY": "Nenhum formulário criado ainda.",
+      "EDIT_TOOLTIP": "Editar",
+      "DELETE_TOOLTIP": "Excluir",
+      "TABLE": {
+        "NAME": "Nome",
+        "STATUS": "Status",
+        "FIELDS": "Perguntas",
+        "ACTIONS": "Ações"
+      },
+      "DELETE": {
+        "SUCCESS": "Formulário excluído.",
+        "ERROR": "Não foi possível excluir o formulário.",
+        "TITLE": "Excluir formulário",
+        "MESSAGE": "Tem certeza que deseja excluir o formulário",
+        "CONFIRM": "Excluir",
+        "CANCEL": "Cancelar"
+      }
+    },
+    "STATUS": {
+      "PUBLISHED": "Publicado",
+      "DRAFT": "Rascunho"
+    },
+    "BUILDER": {
+      "NEW_TITLE": "Novo formulário",
+      "EDIT_TITLE": "Editar formulário",
+      "DESCRIPTION": "Monte as perguntas, vincule ao Catálogo de Serviços ou a um Artigo, e publique quando estiver pronto.",
+      "BACK": "Voltar",
+      "SAVE_DRAFT": "Salvar rascunho",
+      "PUBLISH": "Publicar",
+      "SAVE_SUCCESS": "Formulário salvo.",
+      "SAVE_ERROR": "Não foi possível salvar o formulário.",
+      "NAME_PLACEHOLDER": "Nome do formulário",
+      "DESCRIPTION_PLACEHOLDER": "Descrição (opcional)",
+      "TABS": {
+        "QUESTIONS": "Perguntas",
+        "RESPONSES": "Respostas",
+        "SETTINGS": "Configurações"
+      },
+      "FIELD_LABEL_PLACEHOLDER": "Pergunta",
+      "FIELD_DESCRIPTION_PLACEHOLDER": "Descrição (opcional)",
+      "OPTION_PLACEHOLDER": "Opção {number}",
+      "ADD_OPTION": "Adicionar opção",
+      "REQUIRED": "Obrigatório",
+      "DUPLICATE": "Duplicar",
+      "REMOVE_FIELD": "Excluir pergunta",
+      "NO_FIELDS": "Nenhuma pergunta ainda - escolha um tipo abaixo para adicionar.",
+      "FIELD_TYPES": {
+        "SHORT_TEXT": "Resposta curta",
+        "PARAGRAPH": "Parágrafo",
+        "SINGLE_CHOICE": "Múltipla escolha",
+        "MULTIPLE_CHOICE": "Caixas de seleção",
+        "DROPDOWN": "Lista suspensa",
+        "DATE": "Data",
+        "FILE_UPLOAD": "Upload de arquivo"
+      },
+      "RESPONSES_NEEDS_SAVE": "Salve o formulário para ver as respostas.",
+      "RESPONSES_EMPTY": "Nenhuma resposta registrada ainda.",
+      "RESPONSE_TICKET": "Chamado #{number}",
+      "LINKED_ARTICLE": "Artigo de referência (POP)",
+      "LINKED_ARTICLE_NONE": "Nenhum",
+      "LINKED_CATALOG": "Catálogo de Serviços",
+      "LINKED_CATALOG_COUNT": "Vinculado a {count} item(ns) do catálogo.",
+      "LINKED_CATALOG_NONE": "Não vinculado a nenhum item do catálogo ainda.",
+      "LINKED_CATALOG_HINT": "O vínculo é feito na tela do Catálogo de Serviços, ao editar o item."
+    }
+  }
+}

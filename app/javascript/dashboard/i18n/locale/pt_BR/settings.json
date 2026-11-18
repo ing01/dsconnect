@@ -493,6 +493,8 @@
     "PROJECT_MODULES": "Módulos",
     "PROJECT_TASKS": "Tarefas",
     "CHECKLISTS": "Checklists",
+    "FORM_SETTINGS": "Formulários",
+    "FORMS_LIST": "Todos os formulários",
     "INTERNAL_CHAT": "Chat interno",
     "TICKET_TRIAGE": "Triagem",
     "TICKET_COMPLEXITY": "Complexidade",

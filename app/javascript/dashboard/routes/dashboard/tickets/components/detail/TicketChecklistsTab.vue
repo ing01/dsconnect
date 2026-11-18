@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
@@ -7,6 +7,7 @@ import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import OpenChecklistSettingsButton from 'dashboard/components-next/checklist/OpenChecklistSettingsButton.vue';
+import FormFillDialog from './FormFillDialog.vue';
 
 const props = defineProps({
   ticketId: { type: [Number, String], required: true },
@@ -17,6 +18,8 @@ const store = useStore();
 
 const selectedChecklistId = ref('');
 const isSubmitting = ref(false);
+const formFillDialogRef = ref(null);
+const activeFormItem = ref(null);
 
 const items = computed(
   () =>
@@ -93,6 +96,11 @@ const updateValue = async (item, value) => {
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.CHECKLISTS.TOGGLE_ERROR'));
   }
+};
+
+const openFormDialog = item => {
+  activeFormItem.value = item;
+  nextTick(() => formFillDialogRef.value?.open());
 };
 
 onMounted(load);
@@ -188,6 +196,21 @@ watch(() => props.ticketId, load);
               {{ opt }}
             </option>
           </select>
+
+          <div v-if="item.item_type === 'form'">
+            <button
+              type="button"
+              class="text-xs font-medium"
+              :class="item.completed ? 'text-n-blue-11' : 'text-n-slate-11 underline'"
+              @click="openFormDialog(item)"
+            >
+              {{
+                item.completed
+                  ? t('TICKET.DETAIL.CHECKLISTS.FORM.VIEW_RESPONSE')
+                  : t('TICKET.DETAIL.CHECKLISTS.FORM.FILL_BUTTON')
+              }}
+            </button>
+          </div>
         </div>
 
         <button
@@ -220,5 +243,11 @@ watch(() => props.ticketId, load);
         :is-loading="isSubmitting"
       />
     </form>
+
+    <FormFillDialog
+      ref="formFillDialogRef"
+      :ticket-id="ticketId"
+      :item="activeFormItem"
+    />
   </section>
 </template>

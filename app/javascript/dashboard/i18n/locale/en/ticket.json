@@ -501,7 +501,14 @@
         "PENDING_HINT": "There are pending required checklist items. Complete them, or record a Compromisso to allow closing this ticket anyway.",
         "ADD_ERROR": "Failed to add checklist item",
         "TOGGLE_ERROR": "Failed to update checklist item",
-        "DELETE_ERROR": "Failed to remove checklist item"
+        "DELETE_ERROR": "Failed to remove checklist item",
+        "FORM": {
+          "FILL_BUTTON": "Fill form",
+          "VIEW_RESPONSE": "View responses",
+          "SUBMIT": "Submit",
+          "SUBMIT_ERROR": "Could not submit the form.",
+          "EMPTY": "This form has no questions."
+        }
       },
       "PROPOSALS": {
         "TITLE": "Improvement proposals",
@@ -842,7 +849,9 @@
         "SAVE": "Save",
         "EMPTY": "No catalogue yet.",
         "NO_AREAS": "No area in this catalogue.",
-        "NO_ITEMS": "No item in this area."
+        "NO_ITEMS": "No item in this area.",
+        "LINKED_FORMS": "Linked forms",
+        "LINKED_FORMS_EMPTY": "No form created yet - create one under Settings > Forms."
       },
       "STAGES": {
         "HEADER": "Stages",

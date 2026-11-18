@@ -10,5 +10,9 @@ json.completed_at resource.completed_at&.iso8601
 json.completed_by_id resource.completed_by_id
 json.completed_by_name resource.completed_by&.name
 json.position resource.position
+json.form_id resource.form_id
+json.form_name resource.form&.name
+json.form_fields resource.form&.fields
+json.form_response_id resource.form_response_id
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i

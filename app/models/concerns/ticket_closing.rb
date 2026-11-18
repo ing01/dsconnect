@@ -49,6 +49,26 @@ module TicketClosing
         new_value: item&.full_path&.join(' > '),
         meta: { service_catalog_item_id: item&.id }.compact
       )
+      attach_catalog_item_forms!(item)
+    end
+  end
+
+  # Os Formularios vinculados ao item do Catalogo entram automaticamente no
+  # checklist do ticket, igual um Checklist anexado (mesma logica de posicao
+  # continua) - sem duplicar quando o ticket ja tem aquele Formulario.
+  def attach_catalog_item_forms!(item)
+    return if item.blank?
+
+    already_attached = ticket_checklist_items.where.not(form_id: nil).pluck(:form_id)
+    pending_forms = item.forms.where.not(id: already_attached)
+    return if pending_forms.none?
+
+    base_position = ticket_checklist_items.maximum(:position) || -1
+    pending_forms.each_with_index do |form, index|
+      ticket_checklist_items.create!(
+        account_id: account_id, title: form.name, item_type: 'form', form: form,
+        position: base_position + index + 1
+      )
     end
   end
 
