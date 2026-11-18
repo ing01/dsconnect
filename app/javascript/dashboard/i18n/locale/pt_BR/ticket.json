@@ -1234,7 +1234,7 @@
           "COMPANY_SEARCH_EMPTY": "Nenhuma empresa encontrada.",
           "NICHES": "Nichos",
           "SUB_NICHES": "Subnichos",
-          "LEVELS": "Prioridade do cliente",
+          "LEVELS": "Nível",
           "PREVIEW": "Prévia para o cliente",
           "CANCEL": "Cancelar",
           "SAVE": "Salvar aviso"
@@ -1246,9 +1246,11 @@
           "urgent": "Urgente"
         },
         "LEVEL": {
-          "1": "Baixa",
-          "2": "Média",
-          "3": "Alta"
+          "1": "1 - Básico",
+          "2": "2",
+          "3": "3",
+          "4": "4",
+          "5": "5 - Maior prioridade"
         },
         "STATUS": {
           "live": "No ar",

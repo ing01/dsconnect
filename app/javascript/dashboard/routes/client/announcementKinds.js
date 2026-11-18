@@ -25,5 +25,12 @@ export const ANNOUNCEMENT_KINDS = {
   },
 };
 
+// "18/11/2026" - a data do aviso, no formato do Portal (sempre pt-BR).
+export const formatAnnouncementDate = iso => {
+  if (!iso) return '';
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('pt-BR');
+};
+
 export const announcementKind = kind =>
   ANNOUNCEMENT_KINDS[kind] || ANNOUNCEMENT_KINDS.info;

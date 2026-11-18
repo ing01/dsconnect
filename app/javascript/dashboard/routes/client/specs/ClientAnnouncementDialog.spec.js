@@ -5,7 +5,11 @@ import { useClientAnnouncements } from 'dashboard/composables/useClientAnnouncem
 import ClientAnnouncementDialog from '../components/ClientAnnouncementDialog.vue';
 import ClientAnnouncementBoard from '../components/ClientAnnouncementBoard.vue';
 
-vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key, params) => (params?.date ? `${key} ${params.date}` : key),
+  }),
+}));
 vi.mock('dashboard/api/clientArea', () => ({
   default: { announcements: vi.fn() },
 }));
@@ -95,6 +99,16 @@ describe('ClientAnnouncementDialog', () => {
     expect(existe(second, 'announcement-dialog')).toBe(true);
   });
 
+  it('shows the announcement date', async () => {
+    const wrapper = await montar(ClientAnnouncementDialog, [
+      aviso(1, { published_at: '2026-11-18T12:00:00Z' }),
+    ]);
+
+    expect(wrapper.find('[data-testid="announcement-date"]').text()).toContain(
+      '18/11/2026'
+    );
+  });
+
   it('renders the link opening in a new tab without opener', async () => {
     const wrapper = await montar(ClientAnnouncementDialog, [
       aviso(1, { link_url: 'https://exemplo.com', link_label: 'Ver' }),
@@ -112,6 +126,16 @@ describe('ClientAnnouncementBoard', () => {
     const wrapper = await montar(ClientAnnouncementBoard, []);
 
     expect(existe(wrapper, 'announcement-board')).toBe(false);
+  });
+
+  it('shows the date on each card', async () => {
+    const wrapper = await montar(ClientAnnouncementBoard, [
+      aviso(1, { published_at: '2026-11-18T12:00:00Z' }),
+    ]);
+
+    expect(
+      wrapper.find('[data-testid="announcement-date-1"]').text()
+    ).toContain('18/11/2026');
   });
 
   it('lists every announcement in effect', async () => {

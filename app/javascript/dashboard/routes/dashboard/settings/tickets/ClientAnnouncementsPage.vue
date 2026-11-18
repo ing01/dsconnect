@@ -25,7 +25,7 @@ import ConfirmButton from 'dashboard/components-next/button/ConfirmButton.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 const KINDS = ['info', 'warning', 'success', 'urgent'];
-const LEVELS = [1, 2, 3];
+const LEVELS = [1, 2, 3, 4, 5];
 const STATUS_CLASSES = {
   live: 'bg-n-teal-3 text-n-teal-11',
   scheduled: 'bg-n-blue-3 text-n-blue-11',
@@ -179,7 +179,7 @@ const openEdit = item => {
   companyIds.value = [...item.company_ids];
   nicheIds.value = [...item.company_niche_ids];
   subNicheIds.value = [...item.company_sub_niche_ids];
-  levels.value = [...item.client_levels];
+  levels.value = [...item.classification_levels];
   selectedCompanies.value = (item.companies || []).map(company => ({
     id: company.id,
     name: company.name,
@@ -253,7 +253,7 @@ const buildPayload = () => ({
     company_niche_ids: audience.value === 'segmented' ? nicheIds.value : [],
     company_sub_niche_ids:
       audience.value === 'segmented' ? subNicheIds.value : [],
-    client_levels: audience.value === 'segmented' ? levels.value : [],
+    classification_levels: audience.value === 'segmented' ? levels.value : [],
   },
 });
 

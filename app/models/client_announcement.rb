@@ -6,7 +6,7 @@
 #  active                :boolean          default(TRUE), not null
 #  audience              :string           default("all"), not null
 #  body                  :text
-#  client_levels         :integer          default([]), not null, is an Array
+#  classification_levels :integer          default([]), not null, is an Array
 #  company_ids           :bigint           default([]), not null, is an Array
 #  company_niche_ids     :bigint           default([]), not null, is an Array
 #  company_sub_niche_ids :bigint           default([]), not null, is an Array
@@ -89,7 +89,7 @@ class ClientAnnouncement < ApplicationRecord
     dimension_match?(company_ids, company.id) &&
       dimension_match?(company_niche_ids, company.company_niche_id) &&
       dimension_match?(company_sub_niche_ids, company.company_sub_niche_id) &&
-      dimension_match?(client_levels, company.client_level)
+      dimension_match?(classification_levels, company.classification_level)
   end
 
   def dimension_match?(allowed, value)
@@ -100,7 +100,7 @@ class ClientAnnouncement < ApplicationRecord
     self.company_ids = Array(company_ids).map(&:to_i).uniq
     self.company_niche_ids = Array(company_niche_ids).map(&:to_i).uniq
     self.company_sub_niche_ids = Array(company_sub_niche_ids).map(&:to_i).uniq
-    self.client_levels = Array(client_levels).map(&:to_i).uniq
+    self.classification_levels = Array(classification_levels).map(&:to_i).uniq
     self.link_label = nil if link_url.blank?
   end
 
@@ -113,7 +113,7 @@ class ClientAnnouncement < ApplicationRecord
   # "Segmentado" sem nenhum filtro nao teria publico nenhum: e' erro, nao um aviso invisivel.
   def segmentation_present
     return unless segmented?
-    return if [company_ids, company_niche_ids, company_sub_niche_ids, client_levels].any?(&:present?)
+    return if [company_ids, company_niche_ids, company_sub_niche_ids, classification_levels].any?(&:present?)
 
     errors.add(:audience, I18n.t('client_announcements.errors.segmentation_empty'))
   end

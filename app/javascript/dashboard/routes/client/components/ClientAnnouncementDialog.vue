@@ -19,7 +19,7 @@ import {
 } from 'dashboard/helper/clientSession';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
-import { announcementKind } from '../announcementKinds';
+import { announcementKind, formatAnnouncementDate } from '../announcementKinds';
 
 const { t } = useI18n({ useScope: 'global' });
 const { announcements, load } = useClientAnnouncements();
@@ -83,6 +83,17 @@ onMounted(() => load());
             >
               {{ current.title }}
             </h2>
+            <span
+              v-if="current.published_at"
+              class="text-xs text-n-slate-11"
+              data-testid="announcement-date"
+            >
+              {{
+                t('CLIENT_AREA.ANNOUNCEMENTS.DATE', {
+                  date: formatAnnouncementDate(current.published_at),
+                })
+              }}
+            </span>
           </div>
         </div>
 

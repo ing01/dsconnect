@@ -17,6 +17,7 @@
       "UNDERSTOOD": "Entendi",
       "NEXT": "Próximo aviso",
       "REMAINING": "mais {count} aviso(s)",
+      "DATE": "Aviso de {date}",
       "OPEN_LINK": "Saiba mais",
       "KIND": {
         "info": "Informativo",

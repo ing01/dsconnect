@@ -44,11 +44,11 @@ RSpec.describe 'Api::V1::Accounts::ClientAnnouncements', type: :request do
     end
 
     it 'creates a segmented announcement' do
-      post base, params: { client_announcement: { title: 'Segmentado', audience: 'segmented', client_levels: [3] } },
+      post base, params: { client_announcement: { title: 'Segmentado', audience: 'segmented', classification_levels: [3] } },
                  headers: admin.create_new_auth_token, as: :json
 
       expect(response).to have_http_status(:ok)
-      expect(account.client_announcements.last.client_levels).to eq([3])
+      expect(account.client_announcements.last.classification_levels).to eq([3])
     end
 
     it 'rejects a segmented announcement without any filter' do
@@ -75,14 +75,14 @@ RSpec.describe 'Api::V1::Accounts::ClientAnnouncements', type: :request do
 
   describe 'PATCH update' do
     it 'updates and can clear the segmentation back to everyone' do
-      announcement = create(:client_announcement, account: account, audience: 'segmented', client_levels: [1])
+      announcement = create(:client_announcement, account: account, audience: 'segmented', classification_levels: [1])
 
       patch "#{base}/#{announcement.id}",
-            params: { client_announcement: { audience: 'all', client_levels: [] } },
+            params: { client_announcement: { audience: 'all', classification_levels: [] } },
             headers: admin.create_new_auth_token, as: :json
 
       expect(response).to have_http_status(:ok)
-      expect(announcement.reload).to have_attributes(audience: 'all', client_levels: [])
+      expect(announcement.reload).to have_attributes(audience: 'all', classification_levels: [])
     end
 
     it 'does not touch another account announcement' do

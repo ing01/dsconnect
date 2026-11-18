@@ -34,7 +34,7 @@ class Api::V1::Accounts::ClientAnnouncementsController < Api::V1::Accounts::Base
     params.require(:client_announcement).permit(
       :title, :body, :kind, :starts_at, :ends_at, :link_url, :link_label,
       :position, :active, :audience,
-      company_ids: [], company_niche_ids: [], company_sub_niche_ids: [], client_levels: []
+      company_ids: [], company_niche_ids: [], company_sub_niche_ids: [], classification_levels: []
     )
   end
 end

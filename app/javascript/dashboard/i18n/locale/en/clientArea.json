@@ -17,6 +17,7 @@
       "UNDERSTOOD": "Got it",
       "NEXT": "Next notice",
       "REMAINING": "{count} more notice(s)",
+      "DATE": "Notice from {date}",
       "OPEN_LINK": "Learn more",
       "KIND": {
         "info": "Information",

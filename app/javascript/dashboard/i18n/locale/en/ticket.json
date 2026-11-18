@@ -1134,7 +1134,7 @@
           "COMPANY_SEARCH_EMPTY": "No company found.",
           "NICHES": "Niches",
           "SUB_NICHES": "Sub-niches",
-          "LEVELS": "Customer priority",
+          "LEVELS": "Level",
           "PREVIEW": "Customer preview",
           "CANCEL": "Cancel",
           "SAVE": "Save notice"
@@ -1146,9 +1146,11 @@
           "urgent": "Urgent"
         },
         "LEVEL": {
-          "1": "Low",
-          "2": "Medium",
-          "3": "High"
+          "1": "1 - Basic",
+          "2": "2",
+          "3": "3",
+          "4": "4",
+          "5": "5 - Highest priority"
         },
         "STATUS": {
           "live": "Live",
