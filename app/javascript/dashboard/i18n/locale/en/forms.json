@@ -1,0 +1,74 @@
+{
+  "FORMS": {
+    "LIST": {
+      "HEADER": "Forms",
+      "DESCRIPTION": "Build custom forms to collect information on tickets - link one to a Service Catalog item to attach it automatically to the checklist, or to a Help Center article.",
+      "LOADING": "Loading forms",
+      "ADD_BUTTON": "Create form",
+      "EMPTY": "No form created yet.",
+      "EDIT_TOOLTIP": "Edit",
+      "DELETE_TOOLTIP": "Delete",
+      "TABLE": {
+        "NAME": "Name",
+        "STATUS": "Status",
+        "FIELDS": "Questions",
+        "ACTIONS": "Actions"
+      },
+      "DELETE": {
+        "SUCCESS": "Form deleted.",
+        "ERROR": "Could not delete the form.",
+        "TITLE": "Delete form",
+        "MESSAGE": "Are you sure you want to delete the form",
+        "CONFIRM": "Delete",
+        "CANCEL": "Cancel"
+      }
+    },
+    "STATUS": {
+      "PUBLISHED": "Published",
+      "DRAFT": "Draft"
+    },
+    "BUILDER": {
+      "NEW_TITLE": "New form",
+      "EDIT_TITLE": "Edit form",
+      "DESCRIPTION": "Build the questions, link it to the Service Catalog or to an Article, and publish when ready.",
+      "BACK": "Back",
+      "SAVE_DRAFT": "Save draft",
+      "PUBLISH": "Publish",
+      "SAVE_SUCCESS": "Form saved.",
+      "SAVE_ERROR": "Could not save the form.",
+      "NAME_PLACEHOLDER": "Form name",
+      "DESCRIPTION_PLACEHOLDER": "Description (optional)",
+      "TABS": {
+        "QUESTIONS": "Questions",
+        "RESPONSES": "Responses",
+        "SETTINGS": "Settings"
+      },
+      "FIELD_LABEL_PLACEHOLDER": "Question",
+      "FIELD_DESCRIPTION_PLACEHOLDER": "Description (optional)",
+      "OPTION_PLACEHOLDER": "Option {number}",
+      "ADD_OPTION": "Add option",
+      "REQUIRED": "Required",
+      "DUPLICATE": "Duplicate",
+      "REMOVE_FIELD": "Remove question",
+      "NO_FIELDS": "No questions yet - pick a type below to add one.",
+      "FIELD_TYPES": {
+        "SHORT_TEXT": "Short answer",
+        "PARAGRAPH": "Paragraph",
+        "SINGLE_CHOICE": "Multiple choice",
+        "MULTIPLE_CHOICE": "Checkboxes",
+        "DROPDOWN": "Dropdown",
+        "DATE": "Date",
+        "FILE_UPLOAD": "File upload"
+      },
+      "RESPONSES_NEEDS_SAVE": "Save the form to see its responses.",
+      "RESPONSES_EMPTY": "No responses yet.",
+      "RESPONSE_TICKET": "Ticket #{number}",
+      "LINKED_ARTICLE": "Reference article",
+      "LINKED_ARTICLE_NONE": "None",
+      "LINKED_CATALOG": "Service Catalog",
+      "LINKED_CATALOG_COUNT": "Linked to {count} catalog item(s).",
+      "LINKED_CATALOG_NONE": "Not linked to any catalog item yet.",
+      "LINKED_CATALOG_HINT": "The link is set on the Service Catalog screen, when editing the item."
+    }
+  }
+}

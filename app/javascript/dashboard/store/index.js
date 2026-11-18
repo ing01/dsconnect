@@ -68,6 +68,7 @@ import projects from './modules/projects';
 import projectModules from './modules/projectModules';
 import projectTaskTemplates from './modules/projectTaskTemplates';
 import checklists from './modules/checklists';
+import forms from './modules/forms';
 import ticketChecklistItems from './modules/ticketChecklistItems';
 import ticketTimeEntries from './modules/ticketTimeEntries';
 import userNotificationSettings from './modules/userNotificationSettings';
@@ -157,6 +158,7 @@ export default createStore({
     projectModules,
     projectTaskTemplates,
     checklists,
+    forms,
     ticketChecklistItems,
     ticketTimeEntries,
     userNotificationSettings,

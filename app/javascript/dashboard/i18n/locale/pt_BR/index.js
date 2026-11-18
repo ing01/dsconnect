@@ -57,6 +57,7 @@ import clientArea from './clientArea.json';
 import ticket from './ticket.json';
 import ticketTimeReports from './ticketTimeReports.json';
 import chatDetailReports from './chatDetailReports.json';
+import forms from './forms.json';
 import ticketSlaReports from './ticketSlaReports.json';
 import ticketReports from './ticketReports.json';
 import webhooks from './webhooks.json';
@@ -125,6 +126,7 @@ export default {
   ...ticket,
   ...ticketTimeReports,
   ...chatDetailReports,
+  ...forms,
   ...ticketSlaReports,
   ...ticketReports,
   ...webhooks,
