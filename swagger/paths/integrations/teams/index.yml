@@ -28,6 +28,18 @@ responses:
                       type: number
                     name:
                       type: string
+                    requires:
+                      type: object
+                      description: What a ticket entering the stage must have. When true, send it in the same PATCH (assignee_id, due_date, scheduled_at) or the move answers 422. `appointment` needs a calendar appointment on the ticket, which only the dashboard can create.
+                      properties:
+                        assignee:
+                          type: boolean
+                        due_date:
+                          type: boolean
+                        scheduled_at:
+                          type: boolean
+                        appointment:
+                          type: boolean
   '401':
     description: Unauthorized
     content:

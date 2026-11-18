@@ -577,6 +577,18 @@
 /api/v1/integrations/teams:
   get:
     $ref: ./integrations/teams/index.yml
+/api/v1/integrations/companies:
+  get:
+    $ref: ./integrations/companies/index.yml
+/api/v1/integrations/companies/{id}:
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: number
+  get:
+    $ref: ./integrations/companies/show.yml
 /api/v1/integrations/ticket_categories:
   get:
     $ref: ./integrations/ticket_categories/index.yml

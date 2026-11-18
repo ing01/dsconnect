@@ -118,6 +118,7 @@ Rails.application.routes.draw do
           resources :attachments, controller: 'ticket_attachments', only: [:index, :create]
         end
         resources :teams, only: [:index]
+        resources :companies, only: [:index, :show]
         resources :ticket_categories, only: [:index]
         resources :ticket_complexities, only: [:index]
         resources :service_catalog_items, only: [:index]

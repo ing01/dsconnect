@@ -48,6 +48,11 @@ properties:
     type:
       - string
       - 'null'
+  estimativa_original_horas:
+    type:
+      - number
+      - 'null'
+    description: Estimativa original (horas); nula quando nao preenchida.
   company_id:
     type:
       - number

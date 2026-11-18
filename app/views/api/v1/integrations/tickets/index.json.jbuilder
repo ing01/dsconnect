@@ -32,5 +32,6 @@ json.payload do
     Ticket::LONG_TEXT_CUSTOM_ATTRIBUTES.each do |field|
       json.set! field, ticket.custom_attributes[field]
     end
+    json.estimativa_original_horas ticket.custom_attributes['estimativa_original_horas']
   end
 end

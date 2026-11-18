@@ -1,0 +1,33 @@
+type: object
+description: Uma empresa da conta da chave - o `id` e' o que vai em `company_id`.
+properties:
+  id:
+    type: number
+  name:
+    type: string
+  legal_name:
+    type:
+      - string
+      - 'null'
+  cnpj:
+    type:
+      - string
+      - 'null'
+    description: So' os digitos
+  codigo:
+    type:
+      - string
+      - 'null'
+  domain:
+    type:
+      - string
+      - 'null'
+  classification_level:
+    type:
+      - number
+      - 'null'
+    minimum: 1
+    maximum: 5
+    description: O Nivel da empresa; nulo quando ainda nao classificada
+  blocked:
+    type: boolean

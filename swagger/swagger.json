@@ -8093,7 +8093,14 @@
                         "description": "Must be available for the target Mesa"
                       },
                       "company_id": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "A company of the account (another account or unknown -> 404)."
+                      },
+                      "company_classification_level": {
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 5,
+                        "description": "Sets the Nivel (1 to 5) of the ticket's company - it is a field of the COMPANY, so it applies to all its tickets. Blank clears it; outside 1-5 is 422; without a company is 422."
                       },
                       "contact_id": {
                         "type": "number",
@@ -8106,6 +8113,15 @@
                       "due_date": {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      "observation": {
+                        "type": "string",
+                        "description": "Observacao livre do ticket (qualquer Mesa). Blank is stored as no observation."
+                      },
+                      "estimativa_original_horas": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Estimativa original (horas) do Modulo de Desenvolvimento. Accepts 2.5 or \"2,5\"; blank (`\"\"` or `null`) REMOVES it; omit the key to leave it as it was; a negative or non-numeric value is 422."
                       },
                       "development_type": {
                         "type": "string",
@@ -8331,7 +8347,17 @@
                   },
                   "assignee_id": {
                     "type": "number",
-                    "description": "Sets the ticket's Nivel 1 responsavel. Must be a user of the same account."
+                    "description": "Sets the ticket's Nivel 1 responsavel. Must be a user of the same account. Applied together with the stage move, so a stage that requires an assignee accepts the move."
+                  },
+                  "due_date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The deadline (ISO 8601; blank clears). Applied before the stage move, so a stage that requires it accepts the move. See `requires` in GET /teams."
+                  },
+                  "scheduled_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The scheduling date/time (ISO 8601; blank clears). Applied before the stage move, so a stage that requires it accepts the move."
                   },
                   "priority": {
                     "type": "string",
@@ -8341,6 +8367,25 @@
                       "high",
                       "urgent"
                     ]
+                  },
+                  "company_id": {
+                    "type": "number",
+                    "description": "Changes the ticket's company (another account or unknown -> 404)."
+                  },
+                  "company_classification_level": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Sets the Nivel (1 to 5) of the ticket's company - it is a field of the COMPANY, so it applies to all its tickets. Blank clears it; outside 1-5 is 422."
+                  },
+                  "observation": {
+                    "type": "string",
+                    "description": "Observacao livre do ticket (qualquer Mesa). Sends text to insert or change it; blank (`\"\"`) or `null` REMOVES it; omit the key to leave it as it was."
+                  },
+                  "estimativa_original_horas": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Estimativa original (horas) do Modulo de Desenvolvimento. Accepts 2.5 or \"2,5\"; blank (`\"\"` or `null`) REMOVES it; omit the key to leave it as it was; a negative or non-numeric value is 422."
                   },
                   "development_type": {
                     "type": "string",
@@ -8504,7 +8549,17 @@
                   },
                   "assignee_id": {
                     "type": "number",
-                    "description": "Sets the ticket's Nivel 1 responsavel. Must be a user of the same account."
+                    "description": "Sets the ticket's Nivel 1 responsavel. Must be a user of the same account. Applied together with the stage move, so a stage that requires an assignee accepts the move."
+                  },
+                  "due_date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The deadline (ISO 8601; blank clears). Applied before the stage move, so a stage that requires it accepts the move. See `requires` in GET /teams."
+                  },
+                  "scheduled_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The scheduling date/time (ISO 8601; blank clears). Applied before the stage move, so a stage that requires it accepts the move."
                   },
                   "priority": {
                     "type": "string",
@@ -8514,6 +8569,25 @@
                       "high",
                       "urgent"
                     ]
+                  },
+                  "company_id": {
+                    "type": "number",
+                    "description": "Changes the ticket's company (another account or unknown -> 404)."
+                  },
+                  "company_classification_level": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Sets the Nivel (1 to 5) of the ticket's company - it is a field of the COMPANY, so it applies to all its tickets. Blank clears it; outside 1-5 is 422."
+                  },
+                  "observation": {
+                    "type": "string",
+                    "description": "Observacao livre do ticket (qualquer Mesa). Sends text to insert or change it; blank (`\"\"`) or `null` REMOVES it; omit the key to leave it as it was."
+                  },
+                  "estimativa_original_horas": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Estimativa original (horas) do Modulo de Desenvolvimento. Accepts 2.5 or \"2,5\"; blank (`\"\"` or `null`) REMOVES it; omit the key to leave it as it was; a negative or non-numeric value is 422."
                   },
                   "development_type": {
                     "type": "string",
@@ -8934,6 +9008,24 @@
                             },
                             "name": {
                               "type": "string"
+                            },
+                            "requires": {
+                              "type": "object",
+                              "description": "What a ticket entering the stage must have. When true, send it in the same PATCH (assignee_id, due_date, scheduled_at) or the move answers 422. `appointment` needs a calendar appointment on the ticket, which only the dashboard can create.",
+                              "properties": {
+                                "assignee": {
+                                  "type": "boolean"
+                                },
+                                "due_date": {
+                                  "type": "boolean"
+                                },
+                                "scheduled_at": {
+                                  "type": "boolean"
+                                },
+                                "appointment": {
+                                  "type": "boolean"
+                                }
+                              }
                             }
                           }
                         }
@@ -8975,6 +9067,185 @@
                   "limit": 120,
                   "period_seconds": 60,
                   "retry_after": 23
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/companies": {
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "list-companies-for-integration",
+        "summary": "Find companies (and their level)",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "The companies of the key's account - the valid `company_id` values, with the Nivel da empresa (`classification_level`, 1 to 5, null when not classified). Combine the filters to find one company by name, CNPJ or code. Paginated (`page`, `per_page` up to 100).",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Part of the name, legal name, domain or code (case-insensitive).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cnpj",
+            "in": "query",
+            "description": "The whole document, with or without punctuation.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "codigo",
+            "in": "query",
+            "description": "The exact code.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classified",
+            "in": "query",
+            "description": "`true` only the companies that already have a level; `false` only the ones without.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/integration_company"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number"
+                        },
+                        "current_page": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid `X-Ticket-Api-Key`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current window resets",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_rate_limit_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/companies/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Ticket Routing"
+        ],
+        "operationId": "show-company-for-integration",
+        "summary": "Show one company",
+        "security": [
+          {
+            "ticketApiKey": []
+          }
+        ],
+        "description": "One company of the key's account, with its Nivel (`classification_level`). A company of another account, or one that does not exist, answers 404.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/integration_company"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid `X-Ticket-Api-Key`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company not found (does not exist, or belongs to another account)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
                 }
               }
             }
@@ -13023,6 +13294,13 @@
               },
               "name": {
                 "type": "string"
+              },
+              "classification_level": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "Nivel da Empresa, de 1 a 5 (nulo quando ainda nao classificada)."
               }
             }
           },
@@ -13083,6 +13361,20 @@
                 "type": "string"
               }
             }
+          },
+          "observation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacao livre do ticket (nula quando nao ha)."
+          },
+          "estimativa_original_horas": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimativa original (horas); nula quando nao preenchida."
           },
           "company": {
             "type": [
@@ -13240,6 +13532,19 @@
               "null"
             ]
           },
+          "observation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "estimativa_original_horas": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimativa original (horas); nula quando nao preenchida."
+          },
           "company_id": {
             "type": [
               "number",
@@ -13251,6 +13556,13 @@
               "string",
               "null"
             ]
+          },
+          "company_classification_level": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Nivel da Empresa do ticket, de 1 a 5."
           },
           "assignee_id": {
             "type": [
@@ -13369,6 +13681,55 @@
             ]
           },
           "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "integration_company": {
+        "type": "object",
+        "description": "Uma empresa da conta da chave - o `id` e' o que vai em `company_id`.",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "legal_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cnpj": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "So' os digitos"
+          },
+          "codigo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "domain": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "classification_level": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 5,
+            "description": "O Nivel da empresa; nulo quando ainda nao classificada"
+          },
+          "blocked": {
             "type": "boolean"
           }
         }

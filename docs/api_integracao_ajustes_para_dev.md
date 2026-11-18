@@ -213,9 +213,10 @@ curl -L "$ATTACHMENT_URL" -H "X-Ticket-Api-Key: $KEY" -o arquivo
   aceito**: se enviado, é ignorado (sem erro).
 - **Mover para o Estágio "Finalizado" só muda `ticket_column_id`; o `status` não
   muda** (continua `open`), a menos que o Estágio tenha automação configurada.
-  Hoje os Estágios "Finalizado" **não têm automação**: mover para lá **não**
-  encerra o ticket. Considere na migração: ticket "Done" no Jira fica na coluna
-  Finalizado, mas com `status: "open"`.
+  Desde 18/11/2026 a mudança de Estágio feita pela API **executa a automação do
+  Estágio de destino**, como no painel: se o Finalizado da Mesa tiver automação
+  que altera o status, o ticket é encerrado. Sem automação configurada, mover
+  para lá **não** encerra o ticket (`status: "open"`).
 - Pelo painel, fechar exige classificação no Catálogo, a **Resolução** e a
   comunicação ao cliente. Se a migração precisar de tickets já encerrados, é
   preciso combinar uma operação de fechamento com a Duesoft — hoje ela não existe.

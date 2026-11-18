@@ -1,0 +1,26 @@
+tags:
+  - Ticket Routing
+operationId: show-company-for-integration
+summary: Show one company
+security:
+  - ticketApiKey: []
+description: One company of the key's account, with its Nivel (`classification_level`). A company of another account, or one that does not exist, answers 404.
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/integration_company'
+  '401':
+    description: Unauthorized - missing or invalid `X-Ticket-Api-Key`
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '404':
+    description: Company not found (does not exist, or belongs to another account)
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

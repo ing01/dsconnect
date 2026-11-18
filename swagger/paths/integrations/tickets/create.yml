@@ -62,6 +62,10 @@ requestBody:
               observation:
                 type: string
                 description: Observacao livre do ticket (qualquer Mesa). Blank is stored as no observation.
+              estimativa_original_horas:
+                type: number
+                minimum: 0
+                description: "Estimativa original (horas) do Modulo de Desenvolvimento. Accepts 2.5 or \"2,5\"; blank (`\"\"` or `null`) REMOVES it; omit the key to leave it as it was; a negative or non-numeric value is 422."
               development_type:
                 type: string
                 enum: [bug, task, story]

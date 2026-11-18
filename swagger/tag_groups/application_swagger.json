@@ -9761,6 +9761,13 @@
           "display_id": {
             "type": "number"
           },
+          "jira_key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "A key do card no Jira ligada na aba Desenvolvimento (ex. DM-3634), ou null."
+          },
           "title": {
             "type": "string"
           },
@@ -9875,6 +9882,13 @@
               },
               "name": {
                 "type": "string"
+              },
+              "classification_level": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "Nivel da Empresa, de 1 a 5 (nulo quando ainda nao classificada)."
               }
             }
           },
@@ -9935,6 +9949,20 @@
                 "type": "string"
               }
             }
+          },
+          "observation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Observacao livre do ticket (nula quando nao ha)."
+          },
+          "estimativa_original_horas": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimativa original (horas); nula quando nao preenchida."
           },
           "company": {
             "type": [
@@ -10028,6 +10056,13 @@
           "display_id": {
             "type": "number"
           },
+          "jira_key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "A key do card no Jira ligada na aba Desenvolvimento (ex. DM-3634), ou null."
+          },
           "title": {
             "type": "string"
           },
@@ -10085,6 +10120,19 @@
               "null"
             ]
           },
+          "observation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "estimativa_original_horas": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimativa original (horas); nula quando nao preenchida."
+          },
           "company_id": {
             "type": [
               "number",
@@ -10096,6 +10144,13 @@
               "string",
               "null"
             ]
+          },
+          "company_classification_level": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Nivel da Empresa do ticket, de 1 a 5."
           },
           "assignee_id": {
             "type": [
@@ -10214,6 +10269,55 @@
             ]
           },
           "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "integration_company": {
+        "type": "object",
+        "description": "Uma empresa da conta da chave - o `id` e' o que vai em `company_id`.",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "legal_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cnpj": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "So' os digitos"
+          },
+          "codigo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "domain": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "classification_level": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 5,
+            "description": "O Nivel da empresa; nulo quando ainda nao classificada"
+          },
+          "blocked": {
             "type": "boolean"
           }
         }

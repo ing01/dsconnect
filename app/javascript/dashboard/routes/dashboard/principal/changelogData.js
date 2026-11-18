@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'integration-api-companies-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    platform: 'web',
+    type: 'feature',
+    title: 'API de Integração: consulta de empresas e movimento para estágios com regras',
+    description:
+      'A API passa a ter a consulta de empresas (por nome, CNPJ ou código), já com o Nível da empresa, e a Estimativa original (horas) do ticket pode ser consultada e alterada. Ao mover um ticket pela API, o responsável, o prazo e o agendamento enviados na mesma chamada valem para os estágios que os exigem, e a lista de Mesas mostra o que cada estágio exige.',
+  },
+  {
     id: 'chat-detail-report-2026-11-18',
     date: '18 de novembro de 2026',
     isoDate: '2026-11-18',

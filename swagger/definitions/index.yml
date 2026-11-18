@@ -80,6 +80,8 @@ integration_user:
   $ref: ./resource/integration_user.yml
 integration_sprint:
   $ref: ./resource/integration_sprint.yml
+integration_company:
+  $ref: ./resource/integration_company.yml
 integration_validation_error:
   $ref: ./resource/integration_validation_error.yml
 integration_rate_limit_error:

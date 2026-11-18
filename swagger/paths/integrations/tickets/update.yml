@@ -28,7 +28,15 @@ requestBody:
             type: number
           assignee_id:
             type: number
-            description: Sets the ticket's Nivel 1 responsavel. Must be a user of the same account.
+            description: Sets the ticket's Nivel 1 responsavel. Must be a user of the same account. Applied together with the stage move, so a stage that requires an assignee accepts the move.
+          due_date:
+            type: string
+            format: date-time
+            description: The deadline (ISO 8601; blank clears). Applied before the stage move, so a stage that requires it accepts the move. See `requires` in GET /teams.
+          scheduled_at:
+            type: string
+            format: date-time
+            description: The scheduling date/time (ISO 8601; blank clears). Applied before the stage move, so a stage that requires it accepts the move.
           priority:
             type: string
             enum: [low, medium, high, urgent]
@@ -43,6 +51,10 @@ requestBody:
           observation:
             type: string
             description: Observacao livre do ticket (qualquer Mesa). Sends text to insert or change it; blank (`""`) or `null` REMOVES it; omit the key to leave it as it was.
+          estimativa_original_horas:
+            type: number
+            minimum: 0
+            description: "Estimativa original (horas) do Modulo de Desenvolvimento. Accepts 2.5 or \"2,5\"; blank (`\"\"` or `null`) REMOVES it; omit the key to leave it as it was; a negative or non-numeric value is 422."
           development_type:
             type: string
             enum: [bug, task, story]

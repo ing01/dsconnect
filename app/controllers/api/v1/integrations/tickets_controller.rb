@@ -13,6 +13,10 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   # conhecer onde ficam.
   DEV_FIELDS = Ticket::LONG_TEXT_CUSTOM_ATTRIBUTES
 
+  # "Estimativa original (horas)" do Modulo de Desenvolvimento: tambem em `custom_attributes`,
+  # mas como numero e exposta como campo de primeiro nivel.
+  ESTIMATE_FIELD = 'estimativa_original_horas'.freeze
+
   TRIAGE_NOTE_PREFIX = 'Direcionado automaticamente pela IA de triagem:'.freeze
 
   # Uma regra do pedido violada (Estagio fora da Mesa, sprint de outra Mesa, valor
@@ -84,10 +88,14 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     # Numa transacao so': um erro no meio (sprint de outra Mesa, categoria de outra
     # Mesa...) desfaz o que ja tinha sido aplicado, em vez de deixar o ticket meio alterado.
     ActiveRecord::Base.transaction do
+      # Prazo e agendamento vem ANTES da mudanca de Estagio: o Estagio de destino pode exigi-los,
+      # e a regra e' checada na hora do movimento. O responsavel segue junto com a transferencia
+      # (mesmo motivo), por isso nao tem passo proprio depois dela.
+      apply_dates
       apply_transfer
       apply_classification
       apply_category_and_complexity
-      apply_assignee
+      apply_assignee_without_move
       apply_observation
       apply_company
       apply_priority
@@ -156,8 +164,33 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
 
     guard_sprint_on_team_change!(team_id)
     Tickets::TransferService.new(
-      ticket: @ticket, user: nil, attributes: { team_id: team_id, ticket_column_id: column_id }
+      ticket: @ticket, user: nil, attributes: { team_id: team_id, ticket_column_id: column_id }.merge(transfer_assignee)
     ).perform
+  end
+
+  # O responsavel enviado entra na MESMA transferencia, antes de o ticket entrar no Estagio:
+  # um Estagio com `require_assignee` recusaria o movimento se ele so' fosse aplicado depois.
+  def transfer_assignee
+    return {} if route_params[:assignee_id].blank?
+
+    { assignee_id: current_account.users.find(route_params[:assignee_id]).id }
+  end
+
+  # `due_date` e `scheduled_at` (data/hora ISO 8601; em branco limpa). So' quando a chave vem.
+  def apply_dates
+    attributes = {}
+    %i[due_date scheduled_at].each do |field|
+      attributes[field] = checked_time(route_params[field], field) if route_params.key?(field)
+    end
+    @ticket.update!(attributes) if attributes.any?
+  end
+
+  def checked_time(value, field)
+    return nil if value.blank?
+
+    Time.zone.parse(value.to_s) || raise(ArgumentError)
+  rescue ArgumentError
+    raise InvalidRequest.new("#{field} must be a date/time in ISO 8601 (e.g. 2026-11-30T18:00:00-03:00)", field: field.to_s)
   end
 
   # Para onde o ticket vai - a MESMA regra do `create`, que ja deduzia a Mesa:
@@ -223,8 +256,10 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   # So' o Nivel 1 (`assignee_id`) - os niveis 2-5 do Modulo de Responsaveis
   # continuam so' pelo painel por ora, ninguem pediu roteamento externo por
   # nivel ainda.
-  def apply_assignee
+  def apply_assignee_without_move
     return if route_params[:assignee_id].blank?
+    # Quando o ticket mudou de Estagio, o responsavel ja foi aplicado pela transferencia.
+    return if @ticket.assignee_id == route_params[:assignee_id].to_i
 
     @ticket.update!(assignee: current_account.users.find(route_params[:assignee_id]))
   end
@@ -334,11 +369,26 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   # `custom_attributes` + os campos do Jira vindos como primeiro nivel (estes
   # ganham se a mesma chave vier nos dois).
   def merged_custom_attributes(source)
-    source[:custom_attributes].to_h.merge(source.slice(*DEV_FIELDS).to_h)
+    merged = source[:custom_attributes].to_h.merge(source.slice(*DEV_FIELDS).to_h)
+    merged[ESTIMATE_FIELD] = checked_estimate(source[ESTIMATE_FIELD]) if source.key?(ESTIMATE_FIELD)
+    # Pela chave solta dentro de custom_attributes tambem: o mesmo numero, nunca texto solto.
+    merged[ESTIMATE_FIELD] = checked_estimate(merged[ESTIMATE_FIELD]) if merged.key?(ESTIMATE_FIELD)
+    merged
+  end
+
+  # Estimativa original, em horas: numero >= 0 (aceita "2,5"); em branco remove. Guardada como
+  # numero, que e' o que a soma do Backlog espera.
+  def checked_estimate(value)
+    return nil if value.blank?
+
+    hours = value.is_a?(Numeric) ? value : Float(value.to_s.tr(',', '.'), exception: false)
+    return hours.to_f.round(2) if hours && hours.to_f >= 0 && hours.to_f <= 99_999
+
+    raise InvalidRequest.new("#{ESTIMATE_FIELD} must be a number of hours (0 or more, e.g. 2.5)", field: ESTIMATE_FIELD)
   end
 
   def create_attributes
-    base = create_params.except(*DEV_FIELDS, :custom_attributes, :company_classification_level).to_h
+    base = create_params.except(*DEV_FIELDS, ESTIMATE_FIELD, :custom_attributes, :company_classification_level).to_h
     custom = merged_custom_attributes(create_params)
     custom.present? ? base.merge(custom_attributes: custom) : base
   end
@@ -368,15 +418,15 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   def route_params
     params.permit(:team_id, :ticket_column_id, :service_catalog_item_id, :ticket_category_id,
                   :ticket_complexity_id, :assignee_id, :priority, :note, :triage, :sprint_id, :development_type,
-                  :company_id, :company_classification_level, :observation,
-                  *DEV_FIELDS, custom_attributes: {})
+                  :company_id, :company_classification_level, :observation, :due_date, :scheduled_at,
+                  ESTIMATE_FIELD, *DEV_FIELDS, custom_attributes: {})
   end
 
   def create_params
     params.require(:ticket).permit(
       :title, :description, :priority, :team_id, :ticket_column_id, :company_id, :contact_id,
       :ticket_category_id, :ticket_complexity_id, :assignee_id, :due_date, :sprint_id, :development_type,
-      :company_classification_level, :observation, *DEV_FIELDS, custom_attributes: {}
+      :company_classification_level, :observation, ESTIMATE_FIELD, *DEV_FIELDS, custom_attributes: {}
     )
   end
 

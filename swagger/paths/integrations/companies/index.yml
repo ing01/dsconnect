@@ -1,0 +1,72 @@
+tags:
+  - Ticket Routing
+operationId: list-companies-for-integration
+summary: Find companies (and their level)
+security:
+  - ticketApiKey: []
+description: "The companies of the key's account - the valid `company_id` values, with the Nivel da empresa (`classification_level`, 1 to 5, null when not classified). Combine the filters to find one company by name, CNPJ or code. Paginated (`page`, `per_page` up to 100)."
+parameters:
+  - name: query
+    in: query
+    description: Part of the name, legal name, domain or code (case-insensitive).
+    schema:
+      type: string
+  - name: cnpj
+    in: query
+    description: The whole document, with or without punctuation.
+    schema:
+      type: string
+  - name: codigo
+    in: query
+    description: The exact code.
+    schema:
+      type: string
+  - name: classified
+    in: query
+    description: "`true` only the companies that already have a level; `false` only the ones without."
+    schema:
+      type: boolean
+  - name: page
+    in: query
+    schema:
+      type: number
+  - name: per_page
+    in: query
+    schema:
+      type: number
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            payload:
+              type: array
+              items:
+                $ref: '#/components/schemas/integration_company'
+            meta:
+              type: object
+              properties:
+                count:
+                  type: number
+                current_page:
+                  type: number
+  '401':
+    description: Unauthorized - missing or invalid `X-Ticket-Api-Key`
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '429':
+    description: Too many requests - the limit is 120 per minute for each API key. Wait `Retry-After` seconds before trying again.
+    headers:
+      Retry-After:
+        description: Seconds until the current window resets
+        schema:
+          type: integer
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/integration_rate_limit_error'

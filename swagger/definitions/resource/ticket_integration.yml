@@ -130,6 +130,11 @@ properties:
       - string
       - 'null'
     description: Observacao livre do ticket (nula quando nao ha).
+  estimativa_original_horas:
+    type:
+      - number
+      - 'null'
+    description: Estimativa original (horas); nula quando nao preenchida.
   company:
     type:
       - object

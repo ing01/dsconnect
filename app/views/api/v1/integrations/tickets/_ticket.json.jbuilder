@@ -30,6 +30,8 @@ json.custom_attributes resource.custom_attributes
 Ticket::LONG_TEXT_CUSTOM_ATTRIBUTES.each do |field|
   json.set! field, resource.custom_attributes[field]
 end
+# Estimativa original (horas): numero, ou nulo quando nao preenchida.
+json.estimativa_original_horas resource.custom_attributes['estimativa_original_horas']
 
 json.team do
   json.id resource.team_id
