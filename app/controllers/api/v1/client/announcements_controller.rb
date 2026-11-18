@@ -19,6 +19,9 @@ class Api::V1::Client::AnnouncementsController < Api::V1::Client::BaseController
       kind: announcement.kind,
       link_url: announcement.link_url,
       link_label: announcement.link_label,
+      # A data mostrada ao cliente: quando o aviso entrou no ar (inicio do
+      # periodo) ou, sem inicio, quando foi cadastrado.
+      published_at: announcement.starts_at || announcement.created_at,
       starts_at: announcement.starts_at,
       ends_at: announcement.ends_at
     }

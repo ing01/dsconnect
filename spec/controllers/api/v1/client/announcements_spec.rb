@@ -6,7 +6,7 @@ require 'rails_helper'
 RSpec.describe 'Client announcements', type: :request do
   let(:account) { create(:account) }
   let(:nicho) { CompanyNiche.create!(account: account, name: 'Varejo') }
-  let(:empresa) { create(:company, account: account, company_niche: nicho) }
+  let(:empresa) { create(:company, account: account, company_niche: nicho, classification_level: 3) }
 
   let(:cliente) do
     contato = create(:contact, account: account, email: 'cliente@exemplo.com.br', company: empresa)
@@ -94,16 +94,16 @@ RSpec.describe 'Client announcements', type: :request do
       expect(listar).to eq(['Do nicho'])
     end
 
-    it 'filters by client level' do
-      aviso(title: 'Do nivel', audience: 'segmented', client_levels: [empresa.client_level])
-      aviso(title: 'Outro nivel', audience: 'segmented', client_levels: [empresa.client_level + 1])
+    it 'filters by classification level' do
+      aviso(title: 'Do nivel', audience: 'segmented', classification_levels: [empresa.classification_level])
+      aviso(title: 'Outro nivel', audience: 'segmented', classification_levels: [empresa.classification_level + 1])
 
       expect(listar).to eq(['Do nivel'])
     end
 
     it 'requires every filled filter to match (AND between filters)' do
       aviso(title: 'Nicho certo, nivel errado', audience: 'segmented',
-            company_niche_ids: [nicho.id], client_levels: [empresa.client_level + 1])
+            company_niche_ids: [nicho.id], classification_levels: [empresa.classification_level + 1])
 
       expect(listar).to be_empty
     end

@@ -9,6 +9,42 @@
 // card, então os dois precisam ficar em sincronia.
 export const PRINCIPAL_ENTRIES = [
   {
+    id: 'client-announcements-board-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'feature',
+    title: 'Mural de Avisos',
+    description:
+      'Agora a equipe publica comunicados importantes aqui na tela Principal, no Mural de Avisos, com a data de cada aviso. Ao entrar no Portal, o aviso em vigor abre em uma janela: é só ler e tocar em "Entendi" para continuar.',
+  },
+  {
+    id: 'client-push-company-viewers-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'fix',
+    title: 'Aviso de resposta no chamado chega a toda a sua empresa',
+    description:
+      'Quando a equipe responde um chamado, a notificação do celular agora chega também às outras pessoas da empresa que acompanham os chamados, e não só a quem abriu. O botão "Ver" no aviso do app passa a abrir o chamado.',
+  },
+  {
+    id: 'client-dua-triage-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'improvement',
+    title: 'Chat: a Dua pode abrir o chamado para você',
+    description:
+      'Depois de entender o seu problema na conversa, a Dua pode registrar o chamado já encaminhado para a equipe certa, sem você precisar preencher o formulário de novo.',
+  },
+  {
+    id: 'client-tutorials-collapsed-2026-11-16',
+    date: '16 de novembro de 2026',
+    isoDate: '2026-11-16',
+    type: 'improvement',
+    title: 'Tutoriais: vídeos recolhidos que abrem ao clicar',
+    description:
+      'Na aba Tutoriais, dentro de cada módulo, os vídeos aparecem só com o título e abrem ao clicar. Dá para abrir mais de um, e o vídeo só carrega quando você abre.',
+  },
+  {
     id: 'client-mobile-biometric-login',
     date: '27 de outubro de 2026',
     isoDate: '2026-10-27',

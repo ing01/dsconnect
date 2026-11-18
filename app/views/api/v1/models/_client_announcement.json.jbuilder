@@ -14,4 +14,4 @@ json.company_ids resource.company_ids
 json.companies Company.where(account_id: resource.account_id, id: resource.company_ids).order(:name).pluck(:id, :name).map { |id, name| { id: id, name: name } }
 json.company_niche_ids resource.company_niche_ids
 json.company_sub_niche_ids resource.company_sub_niche_ids
-json.client_levels resource.client_levels
+json.classification_levels resource.classification_levels

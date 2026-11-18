@@ -8,7 +8,7 @@ import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useClientAnnouncements } from 'dashboard/composables/useClientAnnouncements';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
-import { announcementKind } from '../announcementKinds';
+import { announcementKind, formatAnnouncementDate } from '../announcementKinds';
 
 const { t } = useI18n({ useScope: 'global' });
 const { announcements, load } = useClientAnnouncements();
@@ -43,6 +43,17 @@ onMounted(() => load());
           <h3 class="m-0 text-base font-semibold break-words text-n-slate-12">
             {{ item.title }}
           </h3>
+          <span
+            v-if="item.published_at"
+            class="text-xs text-n-slate-11"
+            :data-testid="`announcement-date-${item.id}`"
+          >
+            {{
+              t('CLIENT_AREA.ANNOUNCEMENTS.DATE', {
+                date: formatAnnouncementDate(item.published_at),
+              })
+            }}
+          </span>
           <p
             v-if="item.body"
             class="m-0 text-sm break-words whitespace-pre-line text-n-slate-12"

@@ -8,6 +8,36 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-announcements-board-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'feature',
+    platform: 'web',
+    title: 'Mural de Avisos no Portal do Cliente',
+    description:
+      'Em Configurações > Avisos do Portal (só administrador), publique comunicados para os clientes: título, texto, tipo (informativo, atenção, novidade ou urgente), período, link opcional e público. O público pode ser todos os clientes ou só quem combina com Empresa, Nicho, Subnicho e Nível. Dentro do período, o aviso aparece na tela Principal do Portal e abre em uma janela a cada login, que o cliente precisa fechar antes de continuar.',
+  },
+  {
+    id: 'company-niche-select-and-subniche-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'fix',
+    platform: 'web',
+    title: 'Empresa: seletor de Nicho voltou a funcionar e Subnicho na tela',
+    description:
+      'Na tela da Empresa, a lista de Nicho aparecia sempre vazia e o botão de adicionar um Nicho novo não funcionava. Corrigido. A tela da Empresa também ganhou o campo Subnicho, que funciona como o Nicho: escolha um existente ou crie um novo na hora.',
+  },
+  {
+    id: 'dua-playground-image-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'feature',
+    platform: 'web',
+    title: 'Dua: anexe imagens no Playground para testar',
+    description:
+      'No teste do assistente (Playground), o botão de anexar permite enviar até 3 imagens por mensagem, de até 6 MB cada. A Dua enxerga a imagem de verdade na resposta, como acontece com o cliente no Portal e no WhatsApp.',
+  },
+  {
     id: 'client-push-company-viewers-2026-11-18',
     date: '18 de novembro de 2026',
     isoDate: '2026-11-18',
@@ -37,6 +67,26 @@ export const CHANGELOG_ENTRIES = [
     title: 'API: mudar o Estágio do ticket agora roda a automação do Estágio',
     description:
       'Ao alterar o Estágio de um ticket pela API (por exemplo, para Finalizado na Mesa Desenvolvimento), a automação configurada nesse Estágio, como mudar o status do ticket, não era executada. Agora ela roda, o mesmo valendo para as mensagens automáticas ao cliente e para a transferência feita pela tela de fechamento.',
+  },
+  {
+    id: 'dua-portal-triage-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'feature',
+    platform: 'web',
+    title: 'Dua faz a triagem no chat do Portal do Cliente',
+    description:
+      'No chat do Portal do Cliente, a Dua agora pode abrir o chamado direto no Kanban, já com Mesa, Estágio, Categoria e Prioridade definidos pela conversa, como se um atendente tivesse criado o ticket, sem passar pela fila de Triagem. A Dua também pode consultar o DueRules (somente leitura) para entender termos e telas do sistema, sem tentar resolver o problema.',
+  },
+  {
+    id: 'company-niche-import-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'feature',
+    platform: 'web',
+    title: 'Importar Nicho, Subnicho, Nível e Especialista por planilha',
+    description:
+      'Em Configurações > Dados > Planilhas há uma nova importação de Empresa com as colunas CNPJ, Nicho, Subnicho, Nível (1 a 5) e Especialista. A empresa é encontrada somente pelo CNPJ e só é atualizada, nunca criada. Nicho e Subnicho que ainda não existem são criados na hora, e um Especialista não encontrado não impede o resto da linha de ser salvo (aparece nos registros ignorados).',
   },
   {
     id: 'ticket-customer-notices-2026-11-17',
@@ -908,6 +958,26 @@ export const CHANGELOG_ENTRIES = [
     title: 'Ticket: botão "Abrir conversa" na aba Comunicação',
     description:
       'Na aba Comunicação do ticket, o botão "Abrir conversa" cria uma nova conversa com o solicitante do ticket, já vinculada a ele. Basta escolher a caixa de entrada e escrever a primeira mensagem; a conversa aparece em "Conversas vinculadas". Se o cliente já tiver um chat em andamento com outro agente, a aba avisa com o nome do agente e leva até essa conversa, em vez de deixar abrir outra.',
+  },
+  {
+    id: 'company-classification-niche-specialist-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'feature',
+    platform: 'web',
+    title: 'Empresas: Classificação, Nicho e Especialista com filtros',
+    description:
+      'A Empresa ganhou três campos independentes: Classificação (1 a 5, definida manualmente), Nicho (lista com criação livre, separada da Categoria) e Especialista (o agente responsável). Os três podem ser usados como filtro na lista de Empresas, e a Classificação também pode ser importada por planilha em Dados > Planilhas.',
+  },
+  {
+    id: 'tickets-advanced-management-button-2026-11-09',
+    date: '9 de novembro de 2026',
+    isoDate: '2026-11-09',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Tickets: Gestão avançada com botão ao lado do título',
+    description:
+      'A Gestão avançada de tickets (Busca detalhada e ações em lote) agora abre por um botão ao lado do título "Tickets". Não há mais entrada nova no menu lateral. Também é possível criar, em cada Estágio, a ação "Enviar mensagem padrão ao cliente" (por e-mail ou só registrada no chamado).',
   },
   {
     id: 'client-first-password-rules-2026-11-09',
