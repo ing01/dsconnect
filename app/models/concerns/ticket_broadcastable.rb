@@ -10,6 +10,16 @@ module TicketBroadcastable
   # deixaram de enxerga-los ao mudar de arquivo.
   include Events::Types
 
+  included do
+    # Dentro da transacao, logo apos cada salvamento: guarda que o ticket mudou de
+    # Estagio. O `saved_change_to_*` NAO serve para isso depois do commit - um
+    # `reload` (Tickets::TransferService termina com um) ou outro salvamento na
+    # mesma transacao (a rota da API de Integracao faz varios) apagam o registro, e
+    # o evento saia como `ticket.updated`: a Automacao de Estagio nunca rodava.
+    after_update :remember_column_move
+    after_rollback { @column_move = nil }
+  end
+
   def push_event_data
     core_event_data
       .merge(classification_event_data)
@@ -35,6 +45,16 @@ module TicketBroadcastable
     event_name = ticket_update_event_name
     enqueue_customer_notices if event_name == TICKET_MOVED
     dispatcher_dispatch(event_name)
+  ensure
+    @column_move = nil
+  end
+
+  def remember_column_move
+    return unless saved_change_to_attribute?('ticket_column_id')
+
+    # A Mesa de ORIGEM e a de antes do primeiro movimento da transacao.
+    from_team_id = @column_move ? @column_move[:from_team_id] : (saved_change_to_attribute('team_id')&.first || team_id)
+    @column_move = { from_team_id: from_team_id }
   end
 
   # Mensagens automaticas ao cliente (Configuracoes > Tickets > Mensagens ao
@@ -45,12 +65,13 @@ module TicketBroadcastable
   def enqueue_customer_notices
     return unless TicketCustomerNoticeRule.active.exists?(account_id: account_id)
 
-    team_change = saved_change_to_attribute('team_id')
-    Tickets::CustomerNoticeJob.perform_later(id, ticket_column_id, team_change&.first, team_change&.last)
+    from_team_id = @column_move&.dig(:from_team_id)
+    team_args = from_team_id.present? && from_team_id != team_id ? [from_team_id, team_id] : [nil, nil]
+    Tickets::CustomerNoticeJob.perform_later(id, ticket_column_id, *team_args)
   end
 
   def ticket_update_event_name
-    return TICKET_MOVED if saved_change_to_attribute?('ticket_column_id')
+    return TICKET_MOVED if @column_move.present? || saved_change_to_attribute?('ticket_column_id')
     return status_event_name if saved_change_to_attribute?('status')
 
     TICKET_UPDATED
