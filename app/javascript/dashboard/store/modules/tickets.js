@@ -271,10 +271,14 @@ export const actions = {
       commit(types.SET_TICKETS_UI_FLAG, { isFetchingComments: false });
     }
   },
-  createComment: async ({ commit }, { ticketId, content }) => {
+  createComment: async ({ commit }, { ticketId, content, attachments }) => {
     commit(types.SET_TICKETS_UI_FLAG, { isCreatingComment: true });
     try {
-      const response = await TicketsAPI.createComment(ticketId, content);
+      const response = await TicketsAPI.createComment(
+        ticketId,
+        content,
+        attachments
+      );
       commit(types.ADD_TICKET_COMMENT, { ticketId, comment: response.data });
       return response.data;
     } finally {

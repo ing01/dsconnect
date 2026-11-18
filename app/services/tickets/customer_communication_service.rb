@@ -17,10 +17,11 @@ class Tickets::CustomerCommunicationService
   # positive the closing rule must not have.
   class NotDelivered < StandardError; end
 
-  pattr_initialize [:ticket!, :user!, :body!, :closing!, :notify_customer]
+  pattr_initialize [:ticket!, :user!, :body!, :closing!, :notify_customer, :attachments]
 
   def perform
     communication = build_communication
+    attach_files!(communication)
     notify_customer? ? deliver(communication) : register_only(communication)
     communication
   end
@@ -46,6 +47,20 @@ class Tickets::CustomerCommunicationService
       to_email: ticket.customer_email, subject: ticket.display_subject, body: body,
       closing: closing, status: 'pending', notify_customer: notify_customer?
     )
+  end
+
+  # Gravados ANTES do envio, de proposito: o mailer le `communication.ticket_attachments`
+  # pra anexar de verdade no e-mail (ver TicketCustomerMailer) - teriam que
+  # existir antes dessa leitura de qualquer jeito.
+  def attach_files!(communication)
+    Array(attachments).reject(&:blank?).each do |arquivo|
+      anexo = ticket.ticket_attachments.new(account_id: ticket.account_id, user: user, ticket_customer_communication: communication)
+      anexo.file.attach(arquivo)
+      anexo.save!
+    end
+  rescue StandardError => e
+    communication.mark_failed!(e.message)
+    raise
   end
 
   # Sem e-mail: a mensagem passa a existir do mesmo jeito - fica no chamado e

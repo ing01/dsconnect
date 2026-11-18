@@ -17,7 +17,8 @@ class Api::V1::Accounts::TicketCustomerCommunicationsController < Api::V1::Accou
 
     @communication = Tickets::CustomerCommunicationService.new(
       ticket: @ticket, user: Current.user, body: params[:body],
-      closing: closing_param, notify_customer: notify_customer_param
+      closing: closing_param, notify_customer: notify_customer_param,
+      attachments: params[:attachments]
     ).perform
     render 'show', status: :created
   rescue StandardError => e

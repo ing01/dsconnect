@@ -163,6 +163,7 @@ en:
       greeting_without_company: "Hello %{contact}."
       intro: 'There is a new message on your ticket:'
       message_label: 'Message sent:'
+      attachments_label: 'Attachments:'
       sent_at: 'Sent on: %{datetime}'
       closing_line: If you have any questions we are at your disposal.
       regards: Kind regards,

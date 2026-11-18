@@ -8,3 +8,6 @@ json.user do
   json.name resource.user.name
   json.avatar_url resource.user.avatar_url
 end
+json.attachments resource.ticket_attachments do |anexo|
+  json.partial! 'api/v1/models/ticket_attachment', formats: [:json], resource: anexo
+end

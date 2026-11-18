@@ -15,6 +15,7 @@ class TicketCustomerMailer < ApplicationMailer
     prepare(communication)
     return unless smtp_config_set_or_development?
 
+    attach_files(communication)
     mail(to: communication.to_email, subject: communication.subject)
   end
 
@@ -23,10 +24,47 @@ class TicketCustomerMailer < ApplicationMailer
     prepare(communication)
     return unless smtp_config_set_or_development?
 
+    attach_files(communication)
     mail(to: communication.to_email, subject: communication.subject)
   end
 
   private
+
+  # Mesmo limite de ConversationReplyMailerAttachmentHelper (respostas de
+  # conversa): ate 20MB no total vao de verdade no e-mail; acima disso, o
+  # anexo e pulado (o cliente ainda ve ele no chamado pelo Portal, so nao vem
+  # junto do e-mail). Precisa rodar ANTES do `mail(...)` final - e isso que
+  # grava os anexos na mensagem.
+  MAX_ATTACHMENTS_TOTAL_SIZE = 20.megabytes
+
+  def attach_files(communication)
+    total_size = 0
+    communication.ticket_attachments.each do |attachment|
+      total_size = attach_file(attachment, total_size)
+    end
+  end
+
+  def attach_file(attachment, total_size)
+    blob = attachment.file.blob
+    return total_size if blob.blank?
+    return total_size if total_size + blob.byte_size > MAX_ATTACHMENTS_TOTAL_SIZE
+
+    mail.attachments[attachment.file.filename.to_s] = {
+      mime_type: attachment.file.content_type || 'application/octet-stream',
+      content: read_blob_content(blob)
+    }
+    total_size + blob.byte_size
+  end
+
+  def read_blob_content(blob)
+    buffer = +''
+    blob.open do |file|
+      while (chunk = file.read(64.kilobytes))
+        buffer << chunk
+      end
+    end
+    buffer
+  end
 
   def prepare(communication)
     @communication = communication
