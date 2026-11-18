@@ -5,6 +5,10 @@ class TicketComment < ApplicationRecord
 
   validates :content, presence: true
 
+  # Os arquivos anexados junto do comentario - so' visiveis aqui dentro, como
+  # o resto do Comentario interno (pedido da Ingrid, 2026-11-18).
+  has_many :ticket_attachments, dependent: :nullify
+
   # Ticket finalizado nao recebe mais nada: e registro historico. A checagem e
   # `on: :create` porque o que se impede e acrescentar depois do fim - o que ja
   # existia continua la, e continua legivel.

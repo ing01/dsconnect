@@ -8,8 +8,11 @@ class Api::V1::Accounts::TicketCommentsController < Api::V1::Accounts::BaseContr
   end
 
   def create
-    @ticket_comment = @ticket.ticket_comments.new(ticket_comment_params.merge(user: Current.user))
-    @ticket_comment.save!
+    ActiveRecord::Base.transaction do
+      @ticket_comment = @ticket.ticket_comments.new(ticket_comment_params.except(:attachments).merge(user: Current.user))
+      @ticket_comment.save!
+      attach_uploaded_files!
+    end
   end
 
   def destroy
@@ -34,6 +37,14 @@ class Api::V1::Accounts::TicketCommentsController < Api::V1::Accounts::BaseContr
   end
 
   def ticket_comment_params
-    params.require(:ticket_comment).permit(:content)
+    params.require(:ticket_comment).permit(:content, attachments: [])
+  end
+
+  def attach_uploaded_files!
+    Array(ticket_comment_params[:attachments]).reject(&:blank?).each do |arquivo|
+      anexo = @ticket.ticket_attachments.new(account_id: @ticket.account_id, user: Current.user, ticket_comment: @ticket_comment)
+      anexo.file.attach(arquivo)
+      anexo.save!
+    end
   end
 end

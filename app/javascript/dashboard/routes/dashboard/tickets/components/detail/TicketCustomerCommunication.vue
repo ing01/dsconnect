@@ -10,6 +10,7 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 import FullEditor from 'dashboard/components/widgets/WootWriter/FullEditor.vue';
+import TicketFileInput from 'dashboard/routes/dashboard/tickets/components/create/TicketFileInput.vue';
 
 const props = defineProps({
   ticket: { type: Object, required: true },
@@ -25,6 +26,7 @@ const isSending = ref(false);
 // do Cliente, e serve para quando a equipe ja falou com ele por telefone ou
 // WhatsApp e quer deixar isso no chamado.
 const notificarCliente = ref(true);
+const attachments = ref([]);
 
 // Messages that went TO the customer, kept apart from the internal thread.
 const communications = computed(
@@ -90,8 +92,10 @@ const send = async () => {
       body: body.value,
       closing: false,
       notifyCustomer: notificarCliente.value,
+      attachments: attachments.value,
     });
     body.value = '';
+    attachments.value = [];
   } catch (error) {
     useAlert(error?.response?.data?.error || t('TICKET.API.ERROR_MESSAGE'));
   } finally {
@@ -159,6 +163,8 @@ const send = async () => {
           class="min-w-0 [&_.ProseMirror]:min-h-[8rem]"
           :placeholder="t('TICKET.CLOSE.MESSAGE_PLACEHOLDER')"
         />
+
+        <TicketFileInput v-model="attachments" />
 
         <!-- A escolha fica JUNTO do botao, e nao no topo do bloco: e a ultima
              coisa decidida antes de enviar, e o rotulo do botao muda com ela. -->
@@ -255,6 +261,23 @@ const send = async () => {
           <p v-if="communication.error_message" class="text-xs text-n-ruby-11">
             {{ communication.error_message }}
           </p>
+
+          <ul
+            v-if="communication.attachments?.length"
+            class="flex flex-wrap gap-2 m-0"
+          >
+            <li v-for="anexo in communication.attachments" :key="anexo.id">
+              <a
+                :href="anexo.file_url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 px-2 py-1 text-xs border rounded-md border-n-weak text-n-slate-11 hover:text-n-brand"
+              >
+                <Icon icon="i-lucide-paperclip" class="size-3" />
+                {{ anexo.filename }}
+              </a>
+            </li>
+          </ul>
         </li>
       </ul>
     </div>

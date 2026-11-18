@@ -6,6 +6,8 @@ import { useAlert } from 'dashboard/composables';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
+import TicketFileInput from 'dashboard/routes/dashboard/tickets/components/create/TicketFileInput.vue';
 
 const props = defineProps({
   ticketId: {
@@ -19,6 +21,7 @@ const store = useStore();
 const currentUserId = useMapGetter('getCurrentUserID');
 
 const newComment = ref('');
+const newAttachments = ref([]);
 
 const comments = computed(() =>
   store.getters['tickets/getComments'](props.ticketId)
@@ -33,8 +36,10 @@ const submitComment = async () => {
     await store.dispatch('tickets/createComment', {
       ticketId: props.ticketId,
       content: newComment.value.trim(),
+      attachments: newAttachments.value,
     });
     newComment.value = '';
+    newAttachments.value = [];
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('TICKET.COMMENTS.ERROR'));
   }
@@ -96,6 +101,22 @@ onMounted(() => store.dispatch('tickets/fetchComments', props.ticketId));
         <p class="text-sm text-n-slate-12 whitespace-pre-wrap">
           {{ comment.content }}
         </p>
+        <ul
+          v-if="comment.attachments?.length"
+          class="flex flex-wrap gap-2 m-0"
+        >
+          <li v-for="anexo in comment.attachments" :key="anexo.id">
+            <a
+              :href="anexo.file_url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 px-2 py-1 text-xs border rounded-md border-n-weak text-n-slate-11 hover:text-n-brand"
+            >
+              <Icon icon="i-lucide-paperclip" class="size-3" />
+              {{ anexo.filename }}
+            </a>
+          </li>
+        </ul>
       </li>
     </ul>
 
@@ -106,6 +127,7 @@ onMounted(() => store.dispatch('tickets/fetchComments', props.ticketId));
         class="w-full rounded-xl border border-n-strong bg-transparent px-3 py-2 text-sm"
         :placeholder="t('TICKET.COMMENTS.PLACEHOLDER')"
       />
+      <TicketFileInput v-model="newAttachments" />
       <div class="flex justify-end">
         <NextButton
           size="sm"

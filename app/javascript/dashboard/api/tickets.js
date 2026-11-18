@@ -70,9 +70,20 @@ class TicketsAPI extends ApiClient {
     return axios.get(`${this.url}/${ticketId}/comments`);
   }
 
-  createComment(ticketId, content) {
-    return axios.post(`${this.url}/${ticketId}/comments`, {
-      ticket_comment: { content },
+  createComment(ticketId, content, attachments = []) {
+    if (!attachments.length) {
+      return axios.post(`${this.url}/${ticketId}/comments`, {
+        ticket_comment: { content },
+      });
+    }
+
+    const formData = new FormData();
+    formData.append('ticket_comment[content]', content);
+    attachments.forEach(file =>
+      formData.append('ticket_comment[attachments][]', file)
+    );
+    return axios.post(`${this.url}/${ticketId}/comments`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   }
 
@@ -152,12 +163,23 @@ class TicketsAPI extends ApiClient {
   // servidor entende do mesmo jeito.
   sendCustomerCommunication(
     ticketId,
-    { body, closing, notifyCustomer = true }
+    { body, closing, notifyCustomer = true, attachments = [] }
   ) {
-    return axios.post(`${this.url}/${ticketId}/customer_communications`, {
-      body,
-      closing,
-      notify_customer: notifyCustomer,
+    if (!attachments.length) {
+      return axios.post(`${this.url}/${ticketId}/customer_communications`, {
+        body,
+        closing,
+        notify_customer: notifyCustomer,
+      });
+    }
+
+    const formData = new FormData();
+    formData.append('body', body);
+    formData.append('closing', closing);
+    formData.append('notify_customer', notifyCustomer);
+    attachments.forEach(file => formData.append('attachments[]', file));
+    return axios.post(`${this.url}/${ticketId}/customer_communications`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   }
 

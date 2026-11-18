@@ -172,6 +172,7 @@ pt_BR:
       greeting_without_company: "Olá %{contact}."
       intro: 'Há uma nova mensagem enviada através do ticket:'
       message_label: 'Mensagem enviada:'
+      attachments_label: 'Anexos:'
       sent_at: 'Data/hora do envio: %{datetime}'
       closing_line: Qualquer dúvida estamos à disposição.
       regards: Atenciosamente,

@@ -12,6 +12,15 @@
     and drops scripts - ApplicationMailer already includes SanitizeHelper. %>
 <blockquote><%= sanitize(@communication.body) %></blockquote>
 
+<% if @communication.ticket_attachments.any? %>
+  <p>
+    <%= t('.attachments_label') %>
+    <% @communication.ticket_attachments.each do |anexo| %>
+      <br /><%= anexo.file.filename.to_s %>
+    <% end %>
+  </p>
+<% end %>
+
 <p><%= t('.sent_at', datetime: @sent_at) %></p>
 
 <p><%= t('.closing_line') %></p>
