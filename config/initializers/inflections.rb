@@ -14,3 +14,15 @@
 # ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.acronym 'RESTful'
 # end
+
+# A regra generica do Rails pra plural -> singular em "...ches" assume que o
+# "ch" faz parte do radical (ex.: "watches" -> "watch", certo), mas "niche"
+# termina em "che" - a mesma regra devolve "nich" (errado) em vez de "niche".
+# Isso quebrava `controller_name.classify` em
+# `Api::BaseController#check_authorization` pros controllers
+# CompanyNichesController/CompanySubNichesController (NameError: uninitialized
+# constant CompanyNich), deixando o seletor de Nicho/Subnicho sempre vazio -
+# achado ao investigar por que o Nicho importado nao aparecia (2026-11-18).
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.irregular 'niche', 'niches'
+end
