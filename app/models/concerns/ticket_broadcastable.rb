@@ -32,7 +32,21 @@ module TicketBroadcastable
   def dispatch_ticket_updated_event
     return if skip_realtime_dispatch
 
-    dispatcher_dispatch(ticket_update_event_name)
+    event_name = ticket_update_event_name
+    enqueue_customer_notices if event_name == TICKET_MOVED
+    dispatcher_dispatch(event_name)
+  end
+
+  # Mensagens automaticas ao cliente (Configuracoes > Tickets > Mensagens ao
+  # cliente). Lido aqui, e nao no listener, porque so neste ponto o que mudou
+  # neste save (`saved_change_to_*`) ainda e confiavel: outros listeners rodam
+  # depois e podem salvar o ticket de novo. A consulta barata evita enfileirar um
+  # job a cada movimento quando a conta nao tem nenhuma regra.
+  def enqueue_customer_notices
+    return unless TicketCustomerNoticeRule.active.exists?(account_id: account_id)
+
+    team_change = saved_change_to_attribute('team_id')
+    Tickets::CustomerNoticeJob.perform_later(id, ticket_column_id, team_change&.first, team_change&.last)
   end
 
   def ticket_update_event_name

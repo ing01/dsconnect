@@ -731,6 +731,63 @@
       "COLUMN_DELETE_ERROR": "Não foi possível apagar o estágio"
     },
     "SETTINGS": {
+      "NOTICES": {
+        "TITLE": "Mensagens ao cliente",
+        "DESCRIPTION": "Avise o cliente automaticamente quando o ticket dele mudar de Estágio ou de Mesa. Escreva a mensagem uma vez e o DSConnect envia ao solicitante do ticket.",
+        "ADD": "Nova mensagem",
+        "EDIT": "Editar",
+        "DELETE": "Excluir",
+        "DELETE_CONFIRM": "Excluir a mensagem \"{name}\"? Ela deixa de ser enviada.",
+        "ACTIVATE": "Ativar",
+        "DEACTIVATE": "Desativar",
+        "INACTIVE": "Desativada",
+        "EMPTY": "Nenhuma mensagem criada ainda. Clique em \"Nova mensagem\" para começar.",
+        "BY_EMAIL": "Envia e-mail ao cliente",
+        "REGISTER_ONLY": "Só registra no chamado",
+        "WHEN_STAGE": "Quando o ticket entrar em \"{stage}\" ({team})",
+        "WHEN_TEAM": "Quando o ticket passar para a Mesa {to}",
+        "WHEN_TEAM_FROM": "Quando o ticket passar da Mesa {from} para {to}",
+        "API": {
+          "ERROR": "Não foi possível concluir a operação. Tente novamente."
+        },
+        "KIND": {
+          "STAGE": "Ticket entra em um Estágio",
+          "TEAM": "Ticket muda de Mesa"
+        },
+        "VARIABLES": {
+          "NUMERO": "Número do ticket",
+          "TITULO": "Título",
+          "CLIENTE": "Cliente/Empresa",
+          "SOLICITANTE": "Solicitante",
+          "RESPONSAVEL": "Responsável",
+          "ESTAGIO": "Estágio atual",
+          "MESA": "Mesa atual",
+          "MESA_ANTERIOR": "Mesa anterior"
+        },
+        "FORM": {
+          "NEW_TITLE": "Nova mensagem ao cliente",
+          "EDIT_TITLE": "Editar mensagem",
+          "NAME": "Nome (só para você identificar)",
+          "NAME_PLACEHOLDER": "Ex.: Melhoria aprovada para desenvolvimento",
+          "WHEN": "Quando enviar",
+          "TEAM": "Mesa do Estágio",
+          "TO_TEAM": "Mesa de destino",
+          "FROM_TEAM": "Vindo da Mesa (opcional)",
+          "ANY_TEAM": "Qualquer Mesa",
+          "STAGE": "Estágio",
+          "CHOOSE": "Selecione",
+          "CHOOSE_TEAM_FIRST": "Escolha a Mesa primeiro",
+          "BODY": "Mensagem",
+          "BODY_PLACEHOLDER": "Ex.: Olá {{solicitante}}, o seu ticket #{{numero}} foi aprovado para desenvolvimento.",
+          "VARIABLES_HINT": "Clique para inserir no texto. Elas são trocadas pelos dados do ticket no envio:",
+          "NOTIFY": "Enviar e-mail ao cliente",
+          "NOTIFY_HINT": "Desmarque para apenas registrar a mensagem no chamado (ela continua visível na Área do Cliente).",
+          "ACTIVE": "Mensagem ativa",
+          "CREATE": "Criar mensagem",
+          "SAVE": "Salvar",
+          "CANCEL": "Cancelar"
+        }
+      },
       "HEADER": "Tickets",
       "DESCRIPTION": "Gerencie os estágios do Kanban de cada Mesa de Serviço. Estágios criados aqui aparecem no quadro de Tickets da Mesa correspondente.",
       "LOADING": "Carregando estágios...",

@@ -1,0 +1,9 @@
+json.id resource.id
+json.kind resource.kind
+json.name resource.name
+json.ticket_column_id resource.ticket_column_id
+json.team_id resource.team_id
+json.from_team_id resource.from_team_id
+json.body resource.body
+json.notify_customer resource.notify_customer
+json.active resource.active

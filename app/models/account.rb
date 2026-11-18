@@ -214,6 +214,7 @@ class Account < ApplicationRecord
   # A Complexidade e da CONTA, e nao da Mesa: o nome e o mesmo em toda a empresa,
   # e quais Mesas oferecem cada nivel mora em `ticket_complexity_teams`.
   has_many :ticket_complexities, dependent: :destroy_async
+  has_many :ticket_customer_notice_rules, dependent: :destroy_async
   # Estagios live under a Mesa; reached through it so account-scoped lookups
   # (a transfer target, a stage select) don't have to join by hand.
   has_many :ticket_columns, through: :teams

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-customer-notices-2026-11-17',
+    date: '17 de novembro de 2026',
+    isoDate: '2026-11-17',
+    type: 'feature',
+    platform: 'web',
+    title: 'Mensagens automáticas ao cliente por Estágio e por Mesa',
+    description:
+      'Em Configurações > Tickets > Mensagens ao cliente, crie mensagens que o DSConnect envia sozinho ao solicitante quando o ticket entra em um Estágio (ex.: melhoria aprovada para desenvolvimento, finalizado) ou passa de uma Mesa para outra. O texto aceita variáveis como o número do ticket, o cliente e o Estágio atual, e cada mensagem pode ser ativada, desativada ou só registrada no chamado, sem e-mail.',
+  },
+  {
     id: 'catalog-select-wide-menu-2026-11-17',
     date: '17 de novembro de 2026',
     isoDate: '2026-11-17',

@@ -706,6 +706,8 @@ Rails.application.routes.draw do
           # Os niveis de Complexidade do ticket. Lista da CONTA, como o catalogo -
           # quais Mesas oferecem cada nivel vai no proprio registro.
           resources :ticket_complexities, only: [:index, :create, :update, :destroy]
+          # Mensagens automaticas ao cliente, por Estagio ou por troca de Mesa.
+          resources :ticket_customer_notice_rules, only: [:index, :create, :update, :destroy]
           # A chave usada pela API de Integracao de Tickets (ver
           # Api::V1::Integrations) - singular de proposito, uma por conta.
           resource :ticket_api_key, only: [:show, :create, :destroy]

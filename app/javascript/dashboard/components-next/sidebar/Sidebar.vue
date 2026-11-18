@@ -888,6 +888,12 @@ const menuItems = computed(() => {
               to: accountScopedRoute('ticket_complexity_list'),
             },
             {
+              name: 'Settings Ticket Customer Notices',
+              label: t('SIDEBAR.TICKET_CUSTOMER_NOTICES'),
+              activeOn: ['ticket_customer_notices'],
+              to: accountScopedRoute('ticket_customer_notices'),
+            },
+            {
               name: 'Settings Ticket Automation',
               label: t('SIDEBAR.TICKET_AUTOMATION'),
               activeOn: ['ticket_automation_settings'],

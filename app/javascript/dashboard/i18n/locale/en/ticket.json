@@ -644,6 +644,63 @@
       "COLUMN_DELETE_ERROR": "Could not delete the stage"
     },
     "SETTINGS": {
+      "NOTICES": {
+        "TITLE": "Customer messages",
+        "DESCRIPTION": "Automatically notify the customer when their ticket changes Stage or Desk. Write the message once and DSConnect sends it to the ticket requester.",
+        "ADD": "New message",
+        "EDIT": "Edit",
+        "DELETE": "Delete",
+        "DELETE_CONFIRM": "Delete the message \"{name}\"? It will stop being sent.",
+        "ACTIVATE": "Activate",
+        "DEACTIVATE": "Deactivate",
+        "INACTIVE": "Inactive",
+        "EMPTY": "No messages yet. Click \"New message\" to start.",
+        "BY_EMAIL": "Emails the customer",
+        "REGISTER_ONLY": "Only recorded on the ticket",
+        "WHEN_STAGE": "When the ticket enters \"{stage}\" ({team})",
+        "WHEN_TEAM": "When the ticket moves to Desk {to}",
+        "WHEN_TEAM_FROM": "When the ticket moves from Desk {from} to {to}",
+        "API": {
+          "ERROR": "Could not complete the operation. Please try again."
+        },
+        "KIND": {
+          "STAGE": "Ticket enters a Stage",
+          "TEAM": "Ticket changes Desk"
+        },
+        "VARIABLES": {
+          "NUMERO": "Ticket number",
+          "TITULO": "Title",
+          "CLIENTE": "Customer/Company",
+          "SOLICITANTE": "Requester",
+          "RESPONSAVEL": "Assignee",
+          "ESTAGIO": "Current stage",
+          "MESA": "Current desk",
+          "MESA_ANTERIOR": "Previous desk"
+        },
+        "FORM": {
+          "NEW_TITLE": "New customer message",
+          "EDIT_TITLE": "Edit message",
+          "NAME": "Name (only to identify it)",
+          "NAME_PLACEHOLDER": "E.g.: Improvement approved for development",
+          "WHEN": "When to send",
+          "TEAM": "Stage desk",
+          "TO_TEAM": "Destination desk",
+          "FROM_TEAM": "Coming from desk (optional)",
+          "ANY_TEAM": "Any desk",
+          "STAGE": "Stage",
+          "CHOOSE": "Select",
+          "CHOOSE_TEAM_FIRST": "Choose the desk first",
+          "BODY": "Message",
+          "BODY_PLACEHOLDER": "E.g.: Hello {{solicitante}}, your ticket #{{numero}} was approved for development.",
+          "VARIABLES_HINT": "Click to insert into the text. They are replaced with the ticket data when sent:",
+          "NOTIFY": "Email the customer",
+          "NOTIFY_HINT": "Uncheck to only record the message on the ticket (still visible in the Client Area).",
+          "ACTIVE": "Message active",
+          "CREATE": "Create message",
+          "SAVE": "Save",
+          "CANCEL": "Cancel"
+        }
+      },
       "HEADER": "Tickets",
       "DESCRIPTION": "Manage the Kanban stages of each service desk. Stages created here show up on the Tickets board of the matching desk.",
       "LOADING": "Loading stages...",

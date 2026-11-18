@@ -4,6 +4,7 @@ import SettingsWrapper from '../SettingsWrapper.vue';
 import StagesPage from './StagesPage.vue';
 import CategoriesPage from './CategoriesPage.vue';
 import ComplexityPage from './ComplexityPage.vue';
+import CustomerNoticesPage from './CustomerNoticesPage.vue';
 import CatalogPage from './CatalogPage.vue';
 import PrioritiesPage from './PrioritiesPage.vue';
 import AutomationPage from './AutomationPage.vue';
@@ -64,6 +65,14 @@ export default {
             permissions: ['administrator'],
           },
           component: ComplexityPage,
+        },
+        {
+          path: 'customer-notices',
+          name: 'ticket_customer_notices',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: CustomerNoticesPage,
         },
         {
           path: 'catalog',
