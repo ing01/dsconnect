@@ -30,6 +30,7 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ClientSidebar from './ClientSidebar.vue';
 import ClientPushToggle from './components/ClientPushToggle.vue';
 import ClientMonthlySurveyDialog from './components/ClientMonthlySurveyDialog.vue';
+import ClientAnnouncementDialog from './components/ClientAnnouncementDialog.vue';
 
 // O idioma é definido no boot (vide `entrypoints/dashboard.js`), antes de
 // qualquer tela montar.
@@ -392,5 +393,8 @@ onBeforeUnmount(() => {
       ref="monthlySurveyRef"
       @answered="surveyAnswered = true"
     />
+
+    <!-- Mural de Avisos: abre a cada login enquanto o aviso estiver no periodo. -->
+    <ClientAnnouncementDialog />
   </div>
 </template>

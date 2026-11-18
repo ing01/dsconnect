@@ -11,6 +11,20 @@
       "NOT_READY_YET": "A instalação ainda está carregando - aguarde alguns segundos e atualize a página. No iPhone/iPad, use Compartilhar > Adicionar à Tela de Início.",
       "GO_TO_LOGIN": "Já tenho o app, ir para o login"
     },
+    "ANNOUNCEMENTS": {
+      "TITLE": "Mural de Avisos",
+      "SUBTITLE": "Comunicados importantes da equipe para você.",
+      "UNDERSTOOD": "Entendi",
+      "NEXT": "Próximo aviso",
+      "REMAINING": "mais {count} aviso(s)",
+      "OPEN_LINK": "Saiba mais",
+      "KIND": {
+        "info": "Informativo",
+        "warning": "Atenção",
+        "success": "Novidade",
+        "urgent": "Urgente"
+      }
+    },
     "PRINCIPAL": {
       "GREETING_MORNING": "Bom dia, {name}!",
       "GREETING_AFTERNOON": "Boa tarde, {name}!",

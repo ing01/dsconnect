@@ -11,6 +11,20 @@
       "NOT_READY_YET": "Install is still loading - wait a few seconds and refresh the page. On iPhone/iPad, use Share > Add to Home Screen.",
       "GO_TO_LOGIN": "I already have the app, go to login"
     },
+    "ANNOUNCEMENTS": {
+      "TITLE": "Notice board",
+      "SUBTITLE": "Important announcements from the team.",
+      "UNDERSTOOD": "Got it",
+      "NEXT": "Next notice",
+      "REMAINING": "{count} more notice(s)",
+      "OPEN_LINK": "Learn more",
+      "KIND": {
+        "info": "Information",
+        "warning": "Attention",
+        "success": "News",
+        "urgent": "Urgent"
+      }
+    },
     "PRINCIPAL": {
       "GREETING_MORNING": "Good morning, {name}!",
       "GREETING_AFTERNOON": "Good afternoon, {name}!",

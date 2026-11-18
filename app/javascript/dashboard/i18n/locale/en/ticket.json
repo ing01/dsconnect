@@ -1107,6 +1107,75 @@
           "ROW_MESSAGE": "Row {row}: {message}"
         }
       },
+      "CLIENT_ANNOUNCEMENTS": {
+        "TITLE": "Portal notices",
+        "DESCRIPTION": "Notices for the Notice Board customers see on the Portal home screen. Within the period, the notice also opens in a modal at every login and the customer must close it to continue.",
+        "ADD": "New notice",
+        "EMPTY": "No notices yet. Click \"New notice\" to create the first one.",
+        "FORM": {
+          "TITLE": "Title",
+          "TITLE_PLACEHOLDER": "E.g.: Scheduled maintenance on Saturday",
+          "BODY": "Notice text",
+          "BODY_HELP": "Plain text. Line breaks are kept.",
+          "KIND": "Type",
+          "STARTS_AT": "Start",
+          "ENDS_AT": "End",
+          "PERIOD_HELP": "Leave blank to start now or to have no end date.",
+          "LINK_URL": "Link (optional)",
+          "LINK_PLACEHOLDER": "https://example.com/notice",
+          "LINK_LABEL": "Link button text",
+          "ACTIVE": "Active (visible to customers within the period)",
+          "AUDIENCE": "Who sees it",
+          "AUDIENCE_ALL": "All customers",
+          "AUDIENCE_SEGMENTED": "Selected customers only",
+          "SEGMENT_HELP": "Each filter narrows the audience; within one filter matching a single item is enough. Leave blank what you do not want to filter.",
+          "COMPANIES": "Companies",
+          "COMPANY_SEARCH": "Search company by name...",
+          "COMPANY_SEARCH_EMPTY": "No company found.",
+          "NICHES": "Niches",
+          "SUB_NICHES": "Sub-niches",
+          "LEVELS": "Customer priority",
+          "PREVIEW": "Customer preview",
+          "CANCEL": "Cancel",
+          "SAVE": "Save notice"
+        },
+        "KIND": {
+          "info": "Information",
+          "warning": "Attention",
+          "success": "News",
+          "urgent": "Urgent"
+        },
+        "LEVEL": {
+          "1": "Low",
+          "2": "Medium",
+          "3": "High"
+        },
+        "STATUS": {
+          "live": "Live",
+          "scheduled": "Scheduled",
+          "expired": "Expired",
+          "inactive": "Inactive"
+        },
+        "LIST": {
+          "PERIOD": "{start} to {end}",
+          "NO_START": "now",
+          "NO_END": "no end date",
+          "AUDIENCE_ALL": "All customers",
+          "AUDIENCE_SEGMENTED": "Selected customers",
+          "EDIT": "Edit",
+          "DELETE": "Delete",
+          "CONFIRM_DELETE": "Confirm deletion",
+          "ACTIVE": "Active",
+          "INACTIVE": "Inactive",
+          "MOVE_UP": "Move up",
+          "MOVE_DOWN": "Move down"
+        },
+        "API": {
+          "SAVED": "Notice saved.",
+          "DELETED": "Notice deleted.",
+          "ERROR": "Could not complete the operation."
+        }
+      },
       "CLIENT_TUTORIALS": {
         "TITLE": "Portal tutorials",
         "DESCRIPTION": "Videos and text customers see in the Tutorials tab of the Customer Area. Use a YouTube/Vimeo link or upload an MP4 file.",

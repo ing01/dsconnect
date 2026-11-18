@@ -9,6 +9,47 @@ import Cookies from 'js-cookie';
 
 const CHAVE = 'cw_client_session';
 
+/**
+ * Os avisos do Mural que a pessoa ja fechou NESTA sessao.
+ *
+ * `sessionStorage` de proposito: o aviso deve voltar a cada login (e ao abrir
+ * uma aba nova), ate o fim do periodo - so' nao pode insistir a cada troca de
+ * tela. O login (`setClientSession`) zera a lista.
+ */
+const CHAVE_AVISOS_VISTOS = 'cw_client_announcements_seen';
+
+export const getSeenAnnouncementIds = () => {
+  try {
+    const ids = JSON.parse(
+      window.sessionStorage.getItem(CHAVE_AVISOS_VISTOS) || '[]'
+    );
+    return Array.isArray(ids) ? ids : [];
+  } catch {
+    return [];
+  }
+};
+
+export const markAnnouncementSeen = id => {
+  try {
+    const ids = new Set(getSeenAnnouncementIds());
+    ids.add(id);
+    window.sessionStorage.setItem(
+      CHAVE_AVISOS_VISTOS,
+      JSON.stringify([...ids])
+    );
+  } catch {
+    // Nao poder lembrar so' faz o modal voltar na proxima carga.
+  }
+};
+
+export const clearSeenAnnouncements = () => {
+  try {
+    window.sessionStorage.removeItem(CHAVE_AVISOS_VISTOS);
+  } catch {
+    // Sem armazenamento, nao ha o que limpar.
+  }
+};
+
 // O prefixo das rotas da Área do Cliente. Fica aqui para a guarda de rotas e o
 // boot do painel perguntarem a mesma coisa do mesmo lugar.
 export const CLIENT_PATH = '/app/client';
@@ -24,6 +65,8 @@ export const setClientSession = ({
   contact,
   password_change_required: passwordChangeRequired = false,
 }) => {
+  // Um login novo e' um Mural novo: os avisos voltam a abrir em modal.
+  clearSeenAnnouncements();
   Cookies.set(
     CHAVE,
     JSON.stringify({

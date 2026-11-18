@@ -649,6 +649,10 @@ en:
       transcript_subject: 'Conversation Transcript'
     survey:
       response: 'Please rate this conversation, %{link}'
+  client_announcements:
+    errors:
+      ends_before_start: must be after the start.
+      segmentation_empty: Choose at least one filter (company, niche, sub-niche or level) or use "All clients".
   client_tutorials:
     errors:
       single_source: Provide a link OR upload a video file, not both.

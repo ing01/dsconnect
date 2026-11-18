@@ -11,6 +11,7 @@ import { useI18n } from 'vue-i18n';
 import { getClientSession } from 'dashboard/helper/clientSession';
 import ChangelogEntryCard from 'dashboard/routes/dashboard/principal/components/ChangelogEntryCard.vue';
 import { getVisiblePrincipalEntries } from '../principalData';
+import ClientAnnouncementBoard from '../components/ClientAnnouncementBoard.vue';
 
 const { t } = useI18n();
 
@@ -45,6 +46,8 @@ const visibleEntries = computed(() => getVisiblePrincipalEntries());
         {{ t('CLIENT_AREA.PRINCIPAL.DESCRIPTION') }}
       </p>
     </div>
+
+    <ClientAnnouncementBoard />
 
     <div>
       <h2 class="mb-1 text-lg font-semibold text-n-slate-12">

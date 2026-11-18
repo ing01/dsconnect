@@ -14,6 +14,7 @@ import ClientPortalRoutingPage from './ClientPortalRoutingPage.vue';
 import ImportTicketsPage from './ImportTicketsPage.vue';
 import ApiKeyPage from './ApiKeyPage.vue';
 import ClientTutorialsPage from './ClientTutorialsPage.vue';
+import ClientAnnouncementsPage from './ClientAnnouncementsPage.vue';
 
 // One page per subject rather than a single scrolling screen: Estagios and
 // Categorias belong to a Mesa, the Catalogo is account-wide, and mixing them
@@ -145,6 +146,20 @@ export default {
             permissions: ['administrator'],
           },
           component: ClientTutorialsPage,
+        },
+      ],
+    },
+    {
+      path: frontendURL('accounts/:accountId/settings/client-announcements'),
+      component: SettingsWrapper,
+      children: [
+        {
+          path: '',
+          name: 'client_announcements_settings',
+          meta: {
+            permissions: ['administrator'],
+          },
+          component: ClientAnnouncementsPage,
         },
       ],
     },

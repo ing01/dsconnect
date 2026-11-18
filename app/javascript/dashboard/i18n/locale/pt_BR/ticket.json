@@ -1207,6 +1207,75 @@
           }
         }
       },
+      "CLIENT_ANNOUNCEMENTS": {
+        "TITLE": "Avisos do Portal",
+        "DESCRIPTION": "Avisos do Mural de Avisos que o cliente vê na tela Principal do Portal. Dentro do período, o aviso também abre em um modal a cada login, e o cliente precisa fechá-lo para seguir.",
+        "ADD": "Novo aviso",
+        "EMPTY": "Nenhum aviso cadastrado. Clique em \"Novo aviso\" para criar o primeiro.",
+        "FORM": {
+          "TITLE": "Título",
+          "TITLE_PLACEHOLDER": "Ex.: Manutenção programada no sábado",
+          "BODY": "Texto do aviso",
+          "BODY_HELP": "Texto simples. As quebras de linha são mantidas.",
+          "KIND": "Tipo",
+          "STARTS_AT": "Início",
+          "ENDS_AT": "Fim",
+          "PERIOD_HELP": "Deixe em branco para começar já ou não ter data final.",
+          "LINK_URL": "Link (opcional)",
+          "LINK_PLACEHOLDER": "https://exemplo.com.br/aviso",
+          "LINK_LABEL": "Texto do botão do link",
+          "ACTIVE": "Ativo (visível para o cliente dentro do período)",
+          "AUDIENCE": "Quem vê",
+          "AUDIENCE_ALL": "Todos os clientes",
+          "AUDIENCE_SEGMENTED": "Apenas clientes selecionados",
+          "SEGMENT_HELP": "Cada filtro restringe o público; dentro do mesmo filtro basta combinar com um item. Deixe em branco o que não quiser filtrar.",
+          "COMPANIES": "Empresas",
+          "COMPANY_SEARCH": "Buscar empresa por nome...",
+          "COMPANY_SEARCH_EMPTY": "Nenhuma empresa encontrada.",
+          "NICHES": "Nichos",
+          "SUB_NICHES": "Subnichos",
+          "LEVELS": "Prioridade do cliente",
+          "PREVIEW": "Prévia para o cliente",
+          "CANCEL": "Cancelar",
+          "SAVE": "Salvar aviso"
+        },
+        "KIND": {
+          "info": "Informativo",
+          "warning": "Atenção",
+          "success": "Novidade",
+          "urgent": "Urgente"
+        },
+        "LEVEL": {
+          "1": "Baixa",
+          "2": "Média",
+          "3": "Alta"
+        },
+        "STATUS": {
+          "live": "No ar",
+          "scheduled": "Agendado",
+          "expired": "Expirado",
+          "inactive": "Inativo"
+        },
+        "LIST": {
+          "PERIOD": "{start} até {end}",
+          "NO_START": "agora",
+          "NO_END": "sem data final",
+          "AUDIENCE_ALL": "Todos os clientes",
+          "AUDIENCE_SEGMENTED": "Clientes selecionados",
+          "EDIT": "Editar",
+          "DELETE": "Excluir",
+          "CONFIRM_DELETE": "Confirmar exclusão",
+          "ACTIVE": "Ativo",
+          "INACTIVE": "Inativo",
+          "MOVE_UP": "Subir",
+          "MOVE_DOWN": "Descer"
+        },
+        "API": {
+          "SAVED": "Aviso salvo.",
+          "DELETED": "Aviso excluído.",
+          "ERROR": "Não foi possível concluir a operação."
+        }
+      },
       "CLIENT_TUTORIALS": {
         "TITLE": "Tutoriais do Portal",
         "DESCRIPTION": "Vídeos e textos que o cliente vê na aba Tutoriais da Área do Cliente. Use um link do YouTube/Vimeo ou envie um arquivo MP4.",

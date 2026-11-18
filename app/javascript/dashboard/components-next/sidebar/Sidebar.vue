@@ -982,6 +982,13 @@ const menuItems = computed(() => {
           to: accountScopedRoute('client_tutorials_settings'),
         },
         {
+          name: 'Settings Client Announcements',
+          label: t('SIDEBAR.CLIENT_ANNOUNCEMENTS'),
+          icon: 'i-lucide-megaphone',
+          activeOn: ['client_announcements_settings'],
+          to: accountScopedRoute('client_announcements_settings'),
+        },
+        {
           name: 'Settings Templates',
           label: t('SIDEBAR.WHATSAPP_TEMPLATES'),
           icon: 'i-lucide-layout-template',
