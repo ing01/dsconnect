@@ -12,12 +12,16 @@ const { t } = useI18n();
 const store = useStore();
 
 const catalogs = useMapGetter('serviceCatalogs/getCatalogs');
+const forms = useMapGetter('forms/getForms');
 
 const formDialog = ref(null);
 const expanded = ref({});
 // What is being edited: the level, the record itself, and where it hangs.
 const editing = ref({ level: 'catalog', record: null, catalogId: null, areaId: null });
 const name = ref('');
+// Formularios anexados automaticamente no checklist do ticket quando este
+// item e' classificado - so' faz sentido no nivel 'item' (ver Ticket#classify!).
+const linkedFormIds = ref([]);
 const isSaving = ref(false);
 
 const isExpanded = id => !!expanded.value[id];
@@ -35,7 +39,14 @@ const dialogTitle = computed(() => {
 const openForm = (level, { record = null, catalogId = null, areaId = null } = {}) => {
   editing.value = { level, record, catalogId, areaId };
   name.value = record?.name || '';
+  linkedFormIds.value = record?.form_ids ? [...record.form_ids] : [];
   formDialog.value?.open();
+};
+
+const toggleLinkedForm = formId => {
+  linkedFormIds.value = linkedFormIds.value.includes(formId)
+    ? linkedFormIds.value.filter(id => id !== formId)
+    : [...linkedFormIds.value, formId];
 };
 
 const ACTIONS = {
@@ -77,9 +88,13 @@ const save = async () => {
 
   const ctx = editing.value;
   const handler = ACTIONS[ctx.level];
+  const data =
+    ctx.level === 'item'
+      ? { name: trimmed, form_ids: linkedFormIds.value }
+      : { name: trimmed };
   isSaving.value = true;
   try {
-    await (ctx.record ? handler.update({ name: trimmed }, ctx) : handler.create({ name: trimmed }, ctx));
+    await (ctx.record ? handler.update(data, ctx) : handler.create(data, ctx));
     formDialog.value?.close();
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('TICKET.API.ERROR_MESSAGE'));
@@ -99,7 +114,10 @@ const toggleActive = async (level, record, ctx = {}) => {
   }
 };
 
-onBeforeMount(() => store.dispatch('serviceCatalogs/fetch'));
+onBeforeMount(() => {
+  store.dispatch('serviceCatalogs/fetch');
+  store.dispatch('forms/get');
+});
 </script>
 
 <template>
@@ -272,6 +290,27 @@ onBeforeMount(() => store.dispatch('serviceCatalogs/fetch'));
         </span>
         <input v-model="name" type="text" class="w-full mb-0" @keyup.enter="save" />
       </label>
+
+      <div v-if="editing.level === 'item'" class="flex flex-col gap-1 mt-3 min-w-0">
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ t('TICKET.SETTINGS.CATALOG.LINKED_FORMS') }}
+        </span>
+        <p v-if="!forms.length" class="text-xs text-n-slate-10">
+          {{ t('TICKET.SETTINGS.CATALOG.LINKED_FORMS_EMPTY') }}
+        </p>
+        <label
+          v-for="form in forms"
+          :key="form.id"
+          class="flex items-center gap-2 text-sm cursor-pointer"
+        >
+          <input
+            type="checkbox"
+            :checked="linkedFormIds.includes(form.id)"
+            @change="toggleLinkedForm(form.id)"
+          />
+          {{ form.name }}
+        </label>
+      </div>
     </Dialog>
   </section>
 </template>

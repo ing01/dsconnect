@@ -5,10 +5,12 @@ class Api::V1::Accounts::ServiceCatalogItemsController < Api::V1::Accounts::Base
 
   def create
     @service_catalog_item = @service_catalog_area.service_catalog_items.create!(item_params)
+    assign_forms!
   end
 
   def update
     @service_catalog_item.update!(item_params)
+    assign_forms!
   end
 
   # `has_many :tickets, dependent: :restrict_with_error` refuses this once a
@@ -35,5 +37,15 @@ class Api::V1::Accounts::ServiceCatalogItemsController < Api::V1::Accounts::Base
 
   def item_params
     params.require(:service_catalog_item).permit(:name, :active, :position)
+  end
+
+  # So' aceita id de Formulario da MESMA conta - escolhido a dedo, em vez de
+  # `form_ids=` direto, pra nao deixar o id de um Formulario de outra conta
+  # passar sem querer.
+  def assign_forms!
+    return unless params[:service_catalog_item].key?(:form_ids)
+
+    ids = Array(params[:service_catalog_item][:form_ids]).compact_blank
+    @service_catalog_item.form_ids = Current.account.forms.where(id: ids).ids
   end
 end
