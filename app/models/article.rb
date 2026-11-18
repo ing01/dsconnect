@@ -52,6 +52,9 @@ class Article < ApplicationRecord
   belongs_to :category, optional: true
   belongs_to :portal
   belongs_to :author, class_name: 'User', inverse_of: :articles
+  # Formularios que documentam este Artigo (POP) - o vinculo fica no
+  # Formulario (`Form#article_id`), mostrado aqui so' como leitura.
+  has_many :forms, dependent: :nullify
 
   before_validation :ensure_account_id
   before_validation :ensure_article_slug

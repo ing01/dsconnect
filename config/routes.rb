@@ -624,6 +624,7 @@ Rails.application.routes.draw do
             resources :checklist_items, controller: 'ticket_checklist_items', only: [:index, :create, :update, :destroy] do
               member do
                 patch :toggle
+                post :fill_form
               end
               collection do
                 post :attach_checklist
@@ -689,6 +690,9 @@ Rails.application.routes.draw do
           resources :project_modules
           resources :project_task_templates
           resources :checklists
+          resources :forms do
+            resources :form_responses, only: [:index, :show]
+          end
 
           # Painel Comercial (CRM) - cadastro proprio, acesso restrito via
           # `commercial_manage` (ver Crm::ClientPolicy/Crm::SalePolicy).
