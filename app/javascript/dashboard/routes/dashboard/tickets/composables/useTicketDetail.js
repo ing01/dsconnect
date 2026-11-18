@@ -210,8 +210,8 @@ export function useTicketDetail(ticketId) {
   const block = reason =>
     runUpdate('tickets/blockTicket', { id: ticketId.value, reason });
 
-  const unblock = () =>
-    runUpdate('tickets/unblockTicket', { id: ticketId.value });
+  const unblock = resolution =>
+    runUpdate('tickets/unblockTicket', { id: ticketId.value, resolution });
 
   // These two return a DIFFERENT ticket than the one in view, so they do not go
   // through `runUpdate` (which refreshes this ticket's history): the caller

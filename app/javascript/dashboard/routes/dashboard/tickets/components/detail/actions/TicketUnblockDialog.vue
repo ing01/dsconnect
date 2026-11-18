@@ -14,11 +14,15 @@ const { t } = useI18n();
 
 const dialogRef = ref(null);
 
-// Retirar o impedimento nao pede motivo: o que interessa ao historico e quem
-// retirou e quando, e isso o servidor registra sozinho. Pedir um texto aqui so
-// criaria atrito para desfazer algo que ja esta explicado no comentario que
-// originou o impedimento.
-const handleConfirm = () => emit('submit');
+// Quem retirou e quando o servidor registra sozinho. A RESOLUCAO - como o impedimento
+// foi resolvido - e' opcional (nao trava quem so' precisa liberar), mas quando vem
+// fica nos comentarios e no historico do ticket e do pai que sai junto com ele.
+const resolution = ref('');
+
+const handleConfirm = () => {
+  emit('submit', resolution.value.trim());
+  resolution.value = '';
+};
 
 defineExpose({
   open: () => dialogRef.value?.open(),
@@ -51,5 +55,20 @@ defineExpose({
         {{ ticket.blocked_reason }}
       </p>
     </div>
+    <label class="flex flex-col gap-1 mt-3">
+      <span class="text-xs font-medium text-n-slate-11">
+        {{ t('TICKET.ACTIONS.UNBLOCK_DIALOG.RESOLUTION') }}
+      </span>
+      <textarea
+        v-model="resolution"
+        rows="3"
+        class="w-full mb-0"
+        :placeholder="t('TICKET.ACTIONS.UNBLOCK_DIALOG.RESOLUTION_PLACEHOLDER')"
+        data-testid="unblock-resolution"
+      />
+      <span class="text-xs text-n-slate-10">
+        {{ t('TICKET.ACTIONS.UNBLOCK_DIALOG.RESOLUTION_HINT') }}
+      </span>
+    </label>
   </Dialog>
 </template>

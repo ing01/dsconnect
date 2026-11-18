@@ -182,9 +182,13 @@ class TicketsAPI extends ApiClient {
     formData.append('closing', closing);
     formData.append('notify_customer', notifyCustomer);
     attachments.forEach(file => formData.append('attachments[]', file));
-    return axios.post(`${this.url}/${ticketId}/customer_communications`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return axios.post(
+      `${this.url}/${ticketId}/customer_communications`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
   }
 
   // Impedimento: o ticket para de andar mas continua aberto, entao isto nao
@@ -209,8 +213,8 @@ class TicketsAPI extends ApiClient {
     return axios.patch(`${this.url}/${id}/block`, { reason });
   }
 
-  unblock(id) {
-    return axios.patch(`${this.url}/${id}/unblock`);
+  unblock(id, resolution = null) {
+    return axios.patch(`${this.url}/${id}/unblock`, { resolution });
   }
 
   acknowledgeChildCompleted(id) {

@@ -77,6 +77,15 @@ RSpec.describe 'Ticket impediment', type: :request do
       expect(ticket.reload).not_to be_blocked
     end
 
+    it 'records the resolution sent with the removal' do
+      act(:unblock, ticket, { resolution: 'Fornecedor corrigiu o cadastro' })
+
+      expect(response).to have_http_status(:success)
+      expect(ticket.reload).not_to be_blocked
+      expect(ticket.ticket_activities.find_by(activity_type: :unblocked).new_value).to eq('Fornecedor corrigiu o cadastro')
+      expect(ticket.ticket_comments.order(:id).last.content).to include('Fornecedor corrigiu o cadastro')
+    end
+
     it 'records the removal in the history and in the comments' do
       expect { act(:unblock, ticket) }
         .to change { ticket.ticket_activities.where(activity_type: :unblocked).count }.by(1)

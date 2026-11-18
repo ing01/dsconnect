@@ -75,6 +75,10 @@ class Ticket < ApplicationRecord
   # validacao generica barrava.
   validates :jira_key, length: { maximum: ApplicationRecord::MAX_TEXT_COLUMN_LENGTH }
   validates :description, length: { maximum: 100_000 }
+  # Observacao livre (qualquer Mesa). Em branco e' o mesmo que sem observacao: `nil`, para
+  # que remover pela API ("" ou null) e esvaziar o editor da tela deem no mesmo.
+  validates :observation, length: { maximum: 100_000 }
+  before_validation { self.observation = nil if observation.blank? }
 
   enum priority: { low: 0, medium: 1, high: 2, urgent: 3 }
   # Lifecycle status. Intentionally independent from `ticket_column` (which
@@ -166,6 +170,7 @@ class Ticket < ApplicationRecord
     'due_date' => :due_date_changed,
     'scheduled_at' => :scheduled_at_changed,
     'description' => :description_changed,
+    'observation' => :observation_changed,
     'resolution' => :resolution_changed,
     'ticket_complexity_id' => :complexity_changed,
     'assignee_2_id' => :assignee_level_changed,
@@ -448,7 +453,7 @@ class Ticket < ApplicationRecord
   def activity_value(attribute, value)
     return nil if value.nil?
     return value.iso8601 if value.respond_to?(:iso8601)
-    return value.to_s.truncate(500) if %w[description resolution].include?(attribute)
+    return value.to_s.truncate(500) if %w[description resolution observation].include?(attribute)
 
     value.to_s
   end

@@ -304,6 +304,7 @@
         "DUE_DATE_CHANGED": "Ticket alterado",
         "SCHEDULED_AT_CHANGED": "Ticket alterado",
         "DESCRIPTION_CHANGED": "Ticket alterado",
+        "OBSERVATION_CHANGED": "Ticket alterado",
         "RESOLUTION_CHANGED": "Resolução registrada",
         "COMPLEXITY_CHANGED": "Ticket alterado",
         "ASSIGNEE_LEVEL_CHANGED": "Ticket alterado",
@@ -332,10 +333,11 @@
         "STATUS_CHANGED": "Status",
         "TEAM_CHANGED": "Mesa",
         "TITLE_CHANGED": "Título",
-        "UNBLOCKED": "Motivo anterior",
+        "UNBLOCKED": "Impedimento (motivo → resolução)",
         "DUE_DATE_CHANGED": "Data de entrega",
         "SCHEDULED_AT_CHANGED": "Data de agendamento",
         "DESCRIPTION_CHANGED": "Descrição",
+        "OBSERVATION_CHANGED": "Observação",
         "RESOLUTION_CHANGED": "Resolução",
         "COMPLEXITY_CHANGED": "Complexidade",
         "ASSIGNEE_LEVEL_CHANGED": "Responsável (nível)",
@@ -361,6 +363,17 @@
       "ERROR": "Não foi possível salvar o comentário"
     },
     "DETAIL": {
+      "OBSERVATION": {
+        "TITLE": "Observação",
+        "ADD": "Adicionar",
+        "EDIT": "Editar",
+        "REMOVE": "Remover observação",
+        "EMPTY": "Nenhuma observação neste ticket.",
+        "EDIT_DIALOG_TITLE": "Observação do ticket",
+        "PLACEHOLDER": "Escreva uma observação sobre este ticket...",
+        "CANCEL": "Cancelar",
+        "SAVE": "Salvar"
+      },
       "BACK": "Voltar para tickets",
       "COPY_TITLE": "Copiar número e título",
       "COPY_TITLE_SUCCESS": "Número e título copiados",
@@ -1593,6 +1606,9 @@
         "CONFIRM": "Registrar impedimento"
       },
       "UNBLOCK_DIALOG": {
+        "RESOLUTION": "Resolução do impedimento",
+        "RESOLUTION_PLACEHOLDER": "Como o impedimento foi resolvido?",
+        "RESOLUTION_HINT": "Opcional. Fica registrada nos comentários e no histórico deste ticket (e do ticket pai, quando ele é liberado junto).",
         "TITLE": "Retirar o impedimento do ticket #{number}",
         "DESCRIPTION": "O ticket volta a ser tratado normalmente e sai da lista de impedidos.",
         "CURRENT_REASON": "Motivo registrado",

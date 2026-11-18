@@ -221,6 +221,11 @@ pt_BR:
       recorded_comment: 'Impedimento registrado: %{reason}'
       reason_required: O motivo do impedimento é obrigatório.
       released_comment: Impedimento retirado por %{user_name}.
+      released_from_child_comment: Impedimento retirado por %{user_name} (o ticket filho #%{display_id} foi liberado).
+      resolution_label: 'Resolução: %{resolution}'
+      from_child_reason: 'Ticket filho #%{display_id}: %{reason}'
+      child_also_blocked: 'O ticket filho #%{display_id} também foi impedido: %{reason}'
+      child_released_still_blocked: 'O ticket filho #%{display_id} foi liberado, mas o impedimento continua pelo ticket filho #%{other_id}.'
     close:
       blocked: Este ticket ainda não pode ser fechado.
     cancel:
@@ -324,6 +329,8 @@ pt_BR:
         pending: Esta Mesa já possui um estágio "Pendente".
         completed: Esta Mesa já possui um estágio "Finalizado".
         in_progress: Esta Mesa já possui um estágio "Em atendimento".
+    chat_detail_report:
+      too_many_rows: Este período tem mais de %{limit} chats. Restrinja o período ou os filtros.
     ticket_export:
       empty: Nenhum ticket disponível para exportação.
       too_many: Esta busca retorna mais de %{limit} tickets. Restrinja o período ou os filtros antes de exportar.

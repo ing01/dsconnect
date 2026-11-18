@@ -8,6 +8,8 @@ json.id resource.id
 json.display_id resource.display_id
 json.title resource.title
 json.description resource.description
+# Observacao livre do ticket (nula quando nao ha).
+json.observation resource.observation
 json.status resource.status
 json.priority resource.priority
 # Campos do desenvolvimento: `story` (Historia) alem de bug/task; `sprint_id` nil = Backlog.

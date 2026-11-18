@@ -69,7 +69,9 @@ class TicketActivity < ApplicationRecord
     checklist_item_completed: 42,
     checklist_item_reopened: 43,
     # A Resolucao do ticket (o que foi feito para resolver), registrada ao fechar.
-    resolution_changed: 44
+    resolution_changed: 44,
+    # A Observacao livre do ticket (qualquer Mesa).
+    observation_changed: 45
   }
 
   # Mudancas de Mesa que o cliente ve como notificacao (ver

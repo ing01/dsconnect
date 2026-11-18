@@ -49,6 +49,22 @@ class Tickets::ExportService
     COLUMNS.pluck(:label)
   end
 
+  # A planilha COMPLETA (so' o Excel): todos os dados do ticket, uma coluna para cada.
+  # O PDF segue com o resumo acima - sessenta colunas nao cabem numa pagina.
+  def full_headers
+    Tickets::Export::FullSheet.headers
+  end
+
+  # Em lotes menores que os do resumo: cada ticket traz muito mais registros ligados.
+  def each_full_row
+    return to_enum(:each_full_row) unless block_given?
+
+    raise TooManyRows if count > MAX_ROWS
+
+    sheet = Tickets::Export::FullSheet.new(account: account)
+    scope.includes(*Tickets::Export::FullSheet::INCLUDES).find_each(batch_size: 200) { |ticket| yield sheet.row(ticket) }
+  end
+
   # De qual tabela vem o nome de cada filtro escolhido, para o cabecalho do
   # relatorio impresso.
   NAMED_FILTERS = [

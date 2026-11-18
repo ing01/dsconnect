@@ -59,6 +59,9 @@ requestBody:
               due_date:
                 type: string
                 format: date-time
+              observation:
+                type: string
+                description: Observacao livre do ticket (qualquer Mesa). Blank is stored as no observation.
               development_type:
                 type: string
                 enum: [bug, task, story]

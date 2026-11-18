@@ -1,0 +1,31 @@
+{
+  "CHAT_DETAIL_REPORTS": {
+    "TITLE": "Detailed chats",
+    "DESC": "One row per chat: who started it, when it was taken, wait, duration, assignee, linked ticket and rating. With the period summary and Excel export.",
+    "HUB_DESC": "Every chat of the period, one per row, with wait, duration, assignee, ticket and rating. Exports to Excel.",
+    "EXPORT": "Export Excel",
+    "ERROR": "Could not load the report.",
+    "EXPORT_ERROR": "Could not generate the file.",
+    "EMPTY": "No chats in the chosen period and filters.",
+    "PAGE_OF": "Page {page} of {pages} - {count} chats",
+    "PREVIOUS": "Previous",
+    "NEXT": "Next",
+    "FILTERS": {
+      "FROM": "From",
+      "TO": "To",
+      "ASSIGNEE": "Assignee",
+      "TEAM": "Agent group",
+      "INBOX": "Origin (inbox)",
+      "STATUS": "Status",
+      "ALL": "All",
+      "APPLY": "Apply",
+      "CLEAR": "Clear filters"
+    },
+    "STATUS": {
+      "OPEN": "Open",
+      "PENDING": "Pending",
+      "SNOOZED": "Snoozed",
+      "RESOLVED": "Closed"
+    }
+  }
+}

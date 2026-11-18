@@ -1,0 +1,31 @@
+{
+  "CHAT_DETAIL_REPORTS": {
+    "TITLE": "Chat detalhado",
+    "DESC": "Uma linha por chat: quem iniciou, quando foi assumido, espera, duração, responsável, ticket vinculado e avaliação. Com o resumo do período e exportação para Excel.",
+    "HUB_DESC": "Todos os chats do período, um por linha, com espera, duração, responsável, ticket e avaliação. Exporta para Excel.",
+    "EXPORT": "Exportar Excel",
+    "ERROR": "Não foi possível carregar o relatório.",
+    "EXPORT_ERROR": "Não foi possível gerar o arquivo.",
+    "EMPTY": "Nenhum chat no período e nos filtros escolhidos.",
+    "PAGE_OF": "Página {page} de {pages} - {count} chats",
+    "PREVIOUS": "Anterior",
+    "NEXT": "Próxima",
+    "FILTERS": {
+      "FROM": "De",
+      "TO": "Até",
+      "ASSIGNEE": "Responsável",
+      "TEAM": "Grupo de atendente",
+      "INBOX": "Origem (caixa de entrada)",
+      "STATUS": "Status",
+      "ALL": "Todos",
+      "APPLY": "Aplicar",
+      "CLEAR": "Limpar filtros"
+    },
+    "STATUS": {
+      "OPEN": "Aberto",
+      "PENDING": "Pendente",
+      "SNOOZED": "Adiado",
+      "RESOLVED": "Fechado"
+    }
+  }
+}

@@ -88,6 +88,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
       apply_classification
       apply_category_and_complexity
       apply_assignee
+      apply_observation
       apply_company
       apply_priority
       apply_dev_fields
@@ -261,6 +262,14 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     sprint.id
   end
 
+  # Observacao livre do ticket: inserir, alterar ou REMOVER (`""` ou `null`). So' e'
+  # aplicada quando a chave vem na chamada - sem ela, a observacao fica como estava.
+  def apply_observation
+    return unless route_params.key?(:observation)
+
+    @ticket.update!(observation: route_params[:observation])
+  end
+
   # A Empresa do ticket (`company_id`) e o Nivel dela (`company_classification_level`,
   # de 1 a 5, o campo manual da Empresa - em branco limpa). Empresa de outra conta ou
   # inexistente: 404. O nivel e' da EMPRESA, entao vale para todos os tickets dela.
@@ -359,7 +368,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   def route_params
     params.permit(:team_id, :ticket_column_id, :service_catalog_item_id, :ticket_category_id,
                   :ticket_complexity_id, :assignee_id, :priority, :note, :triage, :sprint_id, :development_type,
-                  :company_id, :company_classification_level,
+                  :company_id, :company_classification_level, :observation,
                   *DEV_FIELDS, custom_attributes: {})
   end
 
@@ -367,7 +376,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     params.require(:ticket).permit(
       :title, :description, :priority, :team_id, :ticket_column_id, :company_id, :contact_id,
       :ticket_category_id, :ticket_complexity_id, :assignee_id, :due_date, :sprint_id, :development_type,
-      :company_classification_level, *DEV_FIELDS, custom_attributes: {}
+      :company_classification_level, :observation, *DEV_FIELDS, custom_attributes: {}
     )
   end
 

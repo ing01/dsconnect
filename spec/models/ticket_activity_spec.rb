@@ -73,7 +73,8 @@ RSpec.describe TicketActivity do
         time_entry_removed: 41,
         checklist_item_completed: 42,
         checklist_item_reopened: 43,
-        resolution_changed: 44
+        resolution_changed: 44,
+        observation_changed: 45
       )
     }
   end

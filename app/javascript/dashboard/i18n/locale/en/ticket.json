@@ -336,6 +336,17 @@
       "ERROR": "Could not save the comment"
     },
     "DETAIL": {
+      "OBSERVATION": {
+        "TITLE": "Observation",
+        "ADD": "Add",
+        "EDIT": "Edit",
+        "REMOVE": "Remove observation",
+        "EMPTY": "No observation on this ticket.",
+        "EDIT_DIALOG_TITLE": "Ticket observation",
+        "PLACEHOLDER": "Write an observation about this ticket...",
+        "CANCEL": "Cancel",
+        "SAVE": "Save"
+      },
       "BACK": "Back to tickets",
       "COPY_TITLE": "Copy number and title",
       "COPY_TITLE_SUCCESS": "Number and title copied",
@@ -1492,6 +1503,9 @@
         "CONFIRM": "Record impediment"
       },
       "UNBLOCK_DIALOG": {
+        "RESOLUTION": "Impediment resolution",
+        "RESOLUTION_PLACEHOLDER": "How was the impediment resolved?",
+        "RESOLUTION_HINT": "Optional. It is recorded in the comments and history of this ticket (and of the parent ticket, when it is released with it).",
         "TITLE": "Remove the impediment from ticket #{number}",
         "DESCRIPTION": "The ticket goes back to normal handling and leaves the blocked list.",
         "CURRENT_REASON": "Recorded reason",

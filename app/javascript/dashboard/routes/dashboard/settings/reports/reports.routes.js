@@ -22,6 +22,7 @@ import TeamReports from './TeamReports.vue';
 import TicketTimeReports from './TicketTimeReports.vue';
 import TicketSlaReports from './TicketSlaReports.vue';
 import TicketReports from './TicketReports.vue';
+import ChatDetailReports from './ChatDetailReports.vue';
 
 import CsatResponses from './CsatResponses.vue';
 import BotReports from './BotReports.vue';
@@ -73,6 +74,14 @@ const oldReportRoutes = [
     name: 'ticket_reports',
     meta,
     component: TicketReports,
+  },
+  {
+    // Uma linha por chat (conversa), com espera, duracao, responsavel, ticket e
+    // avaliacao - mais o resumo do periodo e a exportacao para Excel.
+    path: 'chat_detail',
+    name: 'chat_detail_reports',
+    meta,
+    component: ChatDetailReports,
   },
   {
     // Cumprimento do SLA dos tickets, por agente e por Cliente - combinado ou

@@ -85,6 +85,13 @@ const allCards = computed(() => [
     to: accountScopedRoute('ticket_sla_reports'),
   },
   {
+    key: 'chat_detail',
+    icon: 'i-lucide-messages-square',
+    title: t('CHAT_DETAIL_REPORTS.TITLE'),
+    description: t('CHAT_DETAIL_REPORTS.HUB_DESC'),
+    to: accountScopedRoute('chat_detail_reports'),
+  },
+  {
     key: 'csat',
     icon: 'i-lucide-star',
     title: t('SIDEBAR.CSAT'),

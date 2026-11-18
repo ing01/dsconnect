@@ -148,6 +148,7 @@ const activeTab = ref(
   VALID_TAB_VALUES.includes(route.query.tab) ? route.query.tab : 'overview'
 );
 const isSavingDescription = ref(false);
+const isSavingObservation = ref(false);
 
 const tabs = computed(() => [
   { value: 'overview', label: t('TICKET.DETAIL.TABS.OVERVIEW') },
@@ -185,6 +186,16 @@ const saveDescription = async ({ description, title }) => {
     await updateProperty({ description, ...(title ? { title } : {}) });
   } finally {
     isSavingDescription.value = false;
+  }
+};
+
+// A Observacao vai sozinha no PATCH; vazia remove (o servidor guarda `nil`).
+const saveObservation = async ({ observation }) => {
+  isSavingObservation.value = true;
+  try {
+    await updateProperty({ observation });
+  } finally {
+    isSavingObservation.value = false;
   }
 };
 
@@ -274,7 +285,8 @@ const submitSlaAdjustment = payload =>
 const submitCatalog = classification =>
   runAction(() => classify(classification), catalogDialog);
 const submitBlock = reason => runAction(() => block(reason), blockDialog);
-const submitUnblock = () => runAction(() => unblock(), unblockDialog);
+const submitUnblock = resolution =>
+  runAction(() => unblock(resolution), unblockDialog);
 const submitCancel = reason => runAction(() => cancel(reason), cancelDialog);
 
 // Escolher "Cancelado" no seletor de status nao cancela na hora: o motivo e
@@ -351,8 +363,10 @@ const submitContact = contactId =>
         :is-dev-mesa="isDevMesa"
         :can-update="canUpdate"
         :is-saving-description="isSavingDescription"
+        :is-saving-observation="isSavingObservation"
         @edit-catalog="handleAction('editCatalog')"
         @save-description="saveDescription"
+        @save-observation="saveObservation"
         @update-property="updateProperty"
         @update-custom-attribute="updateCustomAttribute"
         @move-to-column="moveToColumn"

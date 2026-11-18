@@ -5,6 +5,7 @@ import TicketRelationshipsCard from './TicketRelationshipsCard.vue';
 import TicketCatalogCard from './TicketCatalogCard.vue';
 import TicketCompanyTicketsAccordion from './TicketCompanyTicketsAccordion.vue';
 import TicketDescriptionCard from './TicketDescriptionCard.vue';
+import TicketObservationCard from './TicketObservationCard.vue';
 import TicketDevFieldsCard from './TicketDevFieldsCard.vue';
 import TicketAttachmentsAccordion from './TicketAttachmentsAccordion.vue';
 import TicketPropertiesCard from './TicketPropertiesCard.vue';
@@ -22,11 +23,13 @@ defineProps({
   isDevMesa: { type: Boolean, default: false },
   canUpdate: { type: Boolean, default: true },
   isSavingDescription: { type: Boolean, default: false },
+  isSavingObservation: { type: Boolean, default: false },
 });
 
 defineEmits([
   'editCatalog',
   'saveDescription',
+  'saveObservation',
   'updateProperty',
   'updateCustomAttribute',
   'moveToColumn',
@@ -92,6 +95,15 @@ defineEmits([
           :can-update="canUpdate"
           :is-saving="isSavingDescription"
           @save="$emit('saveDescription', $event)"
+        />
+        <!-- Observacao livre: so' nas Mesas comuns. A Mesa de Desenvolvimento tem os
+             campos proprios do card do Jira (TicketDevFieldsCard). -->
+        <TicketObservationCard
+          v-if="!isDevMesa"
+          :ticket="ticket"
+          :can-update="canUpdate"
+          :is-saving="isSavingObservation"
+          @save="$emit('saveObservation', $event)"
         />
         <!-- O que foi feito para resolver, escrito ao fechar. So aparece quando
              existe: um ticket aberto ainda nao tem resolucao para mostrar. -->

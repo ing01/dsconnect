@@ -100,7 +100,7 @@ module TicketBroadcastable
 
   def core_event_data
     {
-      id: id, display_id: display_id, title: title, description: description,
+      id: id, display_id: display_id, title: title, description: description, observation: observation,
       priority: priority, status: status, position: position, account_id: account_id,
       ticket_column_id: ticket_column_id, assignee_id: assignee_id, team_id: team_id,
       # Carried here too, otherwise a ticket arriving over the wire would be

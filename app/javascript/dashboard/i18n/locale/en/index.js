@@ -47,6 +47,7 @@ import internalChat from './internalChat.json';
 import clientArea from './clientArea.json';
 import ticket from './ticket.json';
 import ticketTimeReports from './ticketTimeReports.json';
+import chatDetailReports from './chatDetailReports.json';
 import ticketSlaReports from './ticketSlaReports.json';
 import ticketReports from './ticketReports.json';
 import whatsappTemplates from './whatsappTemplates.json';
@@ -113,6 +114,7 @@ export default {
   ...clientArea,
   ...ticket,
   ...ticketTimeReports,
+  ...chatDetailReports,
   ...ticketSlaReports,
   ...ticketReports,
   ...whatsappTemplates,

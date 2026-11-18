@@ -8,6 +8,47 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'chat-detail-report-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'feature',
+    platform: 'web',
+    title: 'Novo relatório: Chat detalhado',
+    description:
+      'Em Relatórios, o novo "Chat detalhado" lista cada chat em uma linha (cliente, origem, quem iniciou, quando foi assumido, espera, duração, responsável, grupo, departamento, status, telefone, avaliação, catálogo e ticket vinculado), com o resumo do período (chats atendidos, cancelados, tickets vinculados, média de atendimento e de espera, tempo total). Dá para filtrar por período, responsável, grupo, origem e status, e exportar para Excel com as abas Chat Detalhado e Resumo.',
+  },
+  {
+    id: 'ticket-export-full-excel-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Exportação para Excel com todos os dados do ticket',
+    description:
+      'Na Busca detalhada, a exportação para Excel agora traz todos os dados do ticket em colunas próprias: descrição, observação, resolução, empresa (com razão social, CNPJ e nível), solicitante, todos os responsáveis, pai e filhos, impedimento, datas, SLA, campos do desenvolvimento, e o resumo de anexos, comunicações, comentários, apontamentos, checklist, compromissos e histórico. O que não estiver preenchido fica vazio. O PDF continua com o resumo.',
+  },
+  {
+    id: 'impediment-parent-child-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'feature',
+    platform: 'web',
+    title:
+      'Impedimento do ticket filho sobe para o pai (e a resolução fica registrada)',
+    description:
+      'Ao registrar um impedimento num ticket filho, o ticket pai também fica impedido (com a indicação do filho de origem). Ao retirar o impedimento do filho, o do pai sai junto, a menos que outro filho continue impedido. Ao retirar, dá para informar a resolução do impedimento (opcional): ela fica nos comentários e no histórico do filho e do pai.',
+  },
+  {
+    id: 'ticket-observation-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    type: 'feature',
+    platform: 'web',
+    title: 'Observação no ticket (e na API)',
+    description:
+      'Os tickets das Mesas comuns ganharam o campo Observação, logo abaixo da Descrição, escrito no mesmo editor (formatação, modal grande) e com botão para remover. O cartão fica minimizado quando não há observação e aberto quando há (dá para abrir e fechar pelo título). Na API de Integração, a observação sai ao consultar o ticket (detalhe e lista) e pode ser inserida, alterada ou removida (enviando vazio ou null) ao criar ou alterar o ticket. As mudanças aparecem no Histórico.',
+  },
+  {
     id: 'client-push-tap-opens-ticket-2026-11-18',
     date: '18 de novembro de 2026',
     isoDate: '2026-11-18',

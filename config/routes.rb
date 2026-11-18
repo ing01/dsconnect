@@ -155,6 +155,11 @@ Rails.application.routes.draw do
           # Relatorio de tickets: uma linha por ticket, filtravel por cliente,
           # status, responsavel, catalogo e periodo. So leitura.
           resources :ticket_reports, only: [:index]
+          # Relatorio "Chat detalhado": uma linha por conversa + resumo do periodo, e o mesmo
+          # em Excel (`export`). So leitura.
+          resources :chat_detail_reports, only: [:index] do
+            get :export, on: :collection
+          end
           resources :agents, only: [:index, :create, :update, :destroy] do
             post :bulk_create, on: :collection
             # Atalho administrativo: a redefinicao normal depende do e-mail de

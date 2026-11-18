@@ -40,6 +40,9 @@ requestBody:
             minimum: 1
             maximum: 5
             description: Sets the Nivel (1 to 5) of the ticket's company - it is a field of the COMPANY, so it applies to all its tickets. Blank clears it; outside 1-5 is 422.
+          observation:
+            type: string
+            description: Observacao livre do ticket (qualquer Mesa). Sends text to insert or change it; blank (`""`) or `null` REMOVES it; omit the key to leave it as it was.
           development_type:
             type: string
             enum: [bug, task, story]

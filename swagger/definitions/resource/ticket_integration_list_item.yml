@@ -44,6 +44,10 @@ properties:
     type:
       - string
       - 'null'
+  observation:
+    type:
+      - string
+      - 'null'
   company_id:
     type:
       - number

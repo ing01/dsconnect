@@ -18,7 +18,7 @@ module TicketImpedimentActions
   end
 
   def unblock
-    @ticket.unblock!(Current.user)
+    @ticket.unblock!(Current.user, resolution: params[:resolution])
     render 'show'
   end
 end

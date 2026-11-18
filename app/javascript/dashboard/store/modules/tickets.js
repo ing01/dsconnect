@@ -173,8 +173,8 @@ export const actions = {
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },
-  unblockTicket: async ({ commit }, { id }) => {
-    const response = await TicketsAPI.unblock(id);
+  unblockTicket: async ({ commit }, { id, resolution }) => {
+    const response = await TicketsAPI.unblock(id, resolution);
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },

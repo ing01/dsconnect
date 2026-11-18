@@ -33,6 +33,7 @@ const ACTIVITY_ICONS = {
   due_date_changed: 'i-lucide-calendar-clock',
   scheduled_at_changed: 'i-lucide-calendar',
   description_changed: 'i-lucide-text',
+  observation_changed: 'i-lucide-message-square-text',
   resolution_changed: 'i-lucide-check-check',
   complexity_changed: 'i-lucide-gauge',
   assignee_level_changed: 'i-lucide-user-cog',

@@ -211,6 +211,11 @@ en:
       recorded_comment: 'Impediment recorded: %{reason}'
       reason_required: The impediment reason is required.
       released_comment: Impediment removed by %{user_name}.
+      released_from_child_comment: Impediment removed by %{user_name} (child ticket #%{display_id} was released).
+      resolution_label: 'Resolution: %{resolution}'
+      from_child_reason: 'Child ticket #%{display_id}: %{reason}'
+      child_also_blocked: 'Child ticket #%{display_id} was also blocked: %{reason}'
+      child_released_still_blocked: 'Child ticket #%{display_id} was released, but the impediment remains because of child ticket #%{other_id}.'
     close:
       blocked: This ticket cannot be closed yet.
     cancel:
@@ -306,6 +311,8 @@ en:
         pending: This service desk already has a Pendente stage.
         completed: This service desk already has a Finalizado stage.
         in_progress: This service desk already has an Em atendimento stage.
+    chat_detail_report:
+      too_many_rows: This period has more than %{limit} chats. Narrow the period or the filters.
     ticket_export:
       empty: No tickets available to export.
       too_many: This search returns more than %{limit} tickets. Narrow the period or the filters before exporting.

@@ -2,6 +2,8 @@ json.id resource.id
 json.display_id resource.display_id
 json.title resource.title
 json.description resource.description
+# Observacao livre do ticket (qualquer Mesa); nula quando nao ha.
+json.observation resource.observation
 json.priority resource.priority
 json.status resource.status
 json.position resource.position

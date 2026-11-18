@@ -111,14 +111,19 @@ Onde enviar:
   `description`, `priority`, `ticket_category_id` e `ticket_column_id`. Aceita
   também `team_id`, `company_id`, `contact_id`, `ticket_complexity_id`,
   `assignee_id`, `due_date`, `development_type`, `sprint_id`, os campos do
-  desenvolvimento, `custom_attributes` e `company_classification_level` (o Nível
-  da empresa, de 1 a 5). Responde **201** com o ticket.
+  desenvolvimento, `custom_attributes`, `observation` (a observação do ticket) e
+  `company_classification_level` (o Nível da empresa, de 1 a 5). Responde **201** com o ticket.
 - **`PATCH /tickets/:id`** é o mesmo que **`PATCH /tickets/:id/route`**: corpo
   no nível raiz, **todos os campos opcionais**, cada um aplicado só se enviado:
   `team_id`, `ticket_column_id`, `service_catalog_item_id`, `ticket_category_id`,
   `ticket_complexity_id`, `assignee_id`, `priority`, `development_type`,
-  `sprint_id`, `company_id`, `company_classification_level`, os campos do desenvolvimento, `custom_attributes` (**mescla**, não
+  `sprint_id`, `company_id`, `company_classification_level`, `observation`, os campos do desenvolvimento, `custom_attributes` (**mescla**, não
   substitui), `note` e `triage`. Responde **200** com o ticket.
+- **Observação:** `observation` é um texto livre do ticket (qualquer Mesa, fora do
+  módulo de desenvolvimento), escrito como a descrição. Enviar o texto **insere ou
+  altera**; enviar `""` ou `null` **remove**; omitir a chave deixa como está. Sai no
+  detalhe e na lista (`observation`, nulo quando não há). Em ticket finalizado, como
+  qualquer campo, não pode ser alterado.
 - **Empresa e Nível da empresa:** `company_id` troca a empresa do ticket (de outra
   conta ou inexistente: **404**). `company_classification_level` grava o **Nível da
   empresa**, de 1 a 5 (em branco limpa; fora de 1–5 ou sem empresa no ticket: **422**).

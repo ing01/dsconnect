@@ -125,6 +125,11 @@ properties:
         type: number
       name:
         type: string
+  observation:
+    type:
+      - string
+      - 'null'
+    description: Observacao livre do ticket (nula quando nao ha).
   company:
     type:
       - object
