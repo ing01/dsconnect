@@ -116,6 +116,12 @@ const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
 // The server is the authority on what is still missing; the dialog reads its
 // verdict rather than re-deriving the rules here.
 const missing = computed(() => props.ticket.missing_close_requirements || []);
+// Categoria sempre foi exigencia do servidor pra fechar (`missing_close_requirements`
+// ja incluia `ticket_category` antes desta tela ganhar o seletor proprio) - sem
+// isto aqui, o botao ficava liberado mesmo com a Categoria vazia, e o fechamento
+// so' falhava DEPOIS, la no servidor. Achado ao investigar "Erro ao salvar" no
+// fechamento quando a Categoria do ticket estava vazia (2026-11-18).
+const needsCategory = computed(() => missing.value.includes('ticket_category'));
 const needsCatalog = computed(() => missing.value.includes('service_catalog'));
 const needsResolution = computed(() => missing.value.includes('resolution'));
 const needsCommunication = computed(() =>
@@ -133,6 +139,7 @@ const noEmail = computed(() => !props.ticket.customer_email);
 
 const classification = computed(() => props.ticket.service_catalog_item);
 
+const categoryReady = computed(() => !needsCategory.value || !!categoryId.value);
 const catalogReady = computed(() => !needsCatalog.value || !!itemId.value);
 const resolutionReady = computed(
   () => !needsResolution.value || !!resolution.value.trim()
@@ -157,6 +164,7 @@ const detailsChanged = computed(
 const canSubmit = computed(
   () =>
     detailsReady.value &&
+    categoryReady.value &&
     catalogReady.value &&
     resolutionReady.value &&
     communicationReady.value &&
@@ -408,13 +416,21 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
            continuam editaveis de forma independente. Pedido da Ingrid,
            2026-11-16. -->
       <section class="flex flex-col gap-3 min-w-0">
-        <h3 class="text-sm font-medium text-n-slate-12">
+        <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
+          <Icon
+            :icon="
+              needsCategory ? 'i-lucide-circle-alert' : 'i-lucide-circle-check'
+            "
+            class="flex-shrink-0 size-4"
+            :class="needsCategory ? 'text-n-amber-11' : 'text-n-teal-11'"
+          />
           {{ t('TICKET.CLOSE.STEP_ROUTING') }}
         </h3>
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <label class="flex flex-col gap-1 min-w-0">
             <span class="text-sm font-medium text-n-slate-12">
-              {{ t('TICKET.CLOSE.ROUTING_CATEGORY') }}
+              {{ t('TICKET.CLOSE.ROUTING_CATEGORY')
+              }}<span v-if="needsCategory" class="text-n-ruby-11">*</span>
             </span>
             <select
               v-model="categoryId"
