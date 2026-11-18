@@ -78,7 +78,7 @@ RSpec.describe Tickets::CustomerNoticeService do
   it 'keeps going when one rule fails' do
     create_rule(name: 'Primeira')
     create_rule(name: 'Segunda')
-    allow(communication_service).to receive(:perform).and_raise(StandardError, 'smtp fora').once
+    allow(communication_service).to receive(:perform).and_invoke(-> { raise StandardError, 'smtp fora' }, -> { true })
     allow(ChatwootExceptionTracker).to receive(:new).and_return(instance_double(ChatwootExceptionTracker, capture_exception: true))
 
     expect { perform }.not_to raise_error

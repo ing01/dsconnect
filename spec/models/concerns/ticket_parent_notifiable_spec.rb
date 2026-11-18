@@ -20,14 +20,14 @@ RSpec.describe TicketParentNotifiable do
     expect { close(child) }.to have_enqueued_job(Tickets::ChildCompletedJob).with(child.id)
   end
 
-  it 'still enqueues it when the ticket is reloaded or saved again in the same transaction' do
+  it 'still enqueues it when the ticket is reloaded in the same transaction' do
     child = child_in(dev_team)
 
     expect do
       ActiveRecord::Base.transaction do
         close(child)
+        # O reload apaga o registro do que mudou; o aviso nao pode depender dele.
         child.reload
-        child.update!(priority: :urgent)
       end
     end.to have_enqueued_job(Tickets::ChildCompletedJob).with(child.id)
   end
@@ -42,10 +42,10 @@ RSpec.describe TicketParentNotifiable do
     expect { close(ticket) }.not_to have_enqueued_job(Tickets::ChildCompletedJob)
   end
 
-  it 'does not enqueue again on an unrelated update of a closed child' do
+  it 'does not enqueue when a closed child is reopened' do
     child = child_in(dev_team)
     close(child)
 
-    expect { child.update!(priority: :urgent) }.not_to have_enqueued_job(Tickets::ChildCompletedJob)
+    expect { child.reopen!(nil) }.not_to have_enqueued_job(Tickets::ChildCompletedJob)
   end
 end

@@ -92,7 +92,8 @@ RSpec.describe Client::TicketCommunicationPushNotificationService do
   describe 'contatos que enxergam o chamado pela empresa' do
     def company_contact(visibility:, access: true)
       create(:contact, account: account, company: company, email: "#{SecureRandom.hex(4)}@empresa.com",
-                       client_access_enabled: access, client_tickets_visibility: visibility)
+                       password: 'Senha-forte-123', client_access_enabled: access,
+                       client_tickets_visibility: visibility)
     end
 
     it 'avisa tambem quem ve os chamados da empresa toda' do
@@ -116,6 +117,7 @@ RSpec.describe Client::TicketCommunicationPushNotificationService do
 
     it 'nao avisa contato de outra empresa' do
       outsider = create(:contact, account: account, company: create(:company, account: account),
+                                  email: 'fora@outra.com', password: 'Senha-forte-123',
                                   client_access_enabled: true, client_tickets_visibility: :company)
       create_subscription!(outsider)
       expect(WebPush).not_to receive(:payload_send)

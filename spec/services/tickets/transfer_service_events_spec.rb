@@ -26,6 +26,7 @@ RSpec.describe Tickets::TransferService do
   end
 
   it 'still dispatches ticket.moved when the ticket is saved again in the same transaction' do
+    ticket # criado antes da transacao
     ActiveRecord::Base.transaction do
       transfer(team_id: team.id, ticket_column_id: finished.id)
       ticket.update!(priority: :urgent)
