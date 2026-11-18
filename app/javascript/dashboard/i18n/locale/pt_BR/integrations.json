@@ -584,7 +584,12 @@
       "MESSAGE_PLACEHOLDER": "Digite sua mensagem...",
       "HEADER": "Área de testes",
       "DESCRIPTION": "Use este playground para enviar mensagens para seu assistente e verificar se ele responde com precisão, rápido e no tom que você espera.",
-      "CREDIT_NOTE": "As mensagens enviadas aqui usam os créditos da sua Dua."
+      "CREDIT_NOTE": "As mensagens enviadas aqui usam os créditos da sua Dua.",
+      "ATTACH_IMAGE": "Anexar imagem",
+      "REMOVE_IMAGE": "Remover imagem",
+      "TOO_MANY_IMAGES": "No máximo {max} imagens por mensagem.",
+      "IMAGE_TOO_LARGE": "Essa imagem é grande demais (máximo 6MB).",
+      "SEND_ERROR": "Não foi possível enviar a mensagem. Tente novamente."
     },
     "PAYWALL": {
       "TITLE": "Atualize para usar a Dua IA",

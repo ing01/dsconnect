@@ -584,7 +584,12 @@
       "MESSAGE_PLACEHOLDER": "Type your message...",
       "HEADER": "Playground",
       "DESCRIPTION": "Use this playground to send messages to your assistant and check if it responds accurately, quickly, and in the tone you expect.",
-      "CREDIT_NOTE": "Messages sent here will count toward your Captain credits."
+      "CREDIT_NOTE": "Messages sent here will count toward your Captain credits.",
+      "ATTACH_IMAGE": "Attach image",
+      "REMOVE_IMAGE": "Remove image",
+      "TOO_MANY_IMAGES": "Up to {max} images per message.",
+      "IMAGE_TOO_LARGE": "This image is too large (6MB max).",
+      "SEND_ERROR": "Could not send the message. Please try again."
     },
     "PAYWALL": {
       "TITLE": "Upgrade to use Captain AI",

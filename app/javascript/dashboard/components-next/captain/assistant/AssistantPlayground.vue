@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useAlert } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import MessageList from './MessageList.vue';
 import CaptainAssistant from 'dashboard/api/captain/assistant';
@@ -16,6 +17,52 @@ const { t } = useI18n();
 const messages = ref([]);
 const newMessage = ref('');
 const isLoading = ref(false);
+
+// So' pro teste no Playground - a conversa real nunca passa por aqui, ela
+// anexa a imagem como Message de verdade (ver Captain::OpenAiMessageBuilderService).
+const MAX_PLAYGROUND_IMAGES = 3;
+const MAX_PLAYGROUND_IMAGE_BYTES = 6 * 1024 * 1024;
+const pendingImages = ref([]);
+const fileInput = ref(null);
+
+const readFileAsDataUrl = file =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+const openFilePicker = () => fileInput.value?.click();
+
+const handleFilesSelected = async event => {
+  const files = Array.from(event.target.files || []);
+  event.target.value = '';
+  if (!files.length) return;
+
+  if (pendingImages.value.length + files.length > MAX_PLAYGROUND_IMAGES) {
+    useAlert(t('CAPTAIN.PLAYGROUND.TOO_MANY_IMAGES', { max: MAX_PLAYGROUND_IMAGES }));
+    return;
+  }
+
+  const oversized = files.find(file => file.size > MAX_PLAYGROUND_IMAGE_BYTES);
+  if (oversized) {
+    useAlert(t('CAPTAIN.PLAYGROUND.IMAGE_TOO_LARGE'));
+    return;
+  }
+
+  const readImages = await Promise.all(
+    files.map(async file => ({
+      name: file.name,
+      dataUrl: await readFileAsDataUrl(file),
+    }))
+  );
+  pendingImages.value.push(...readImages);
+};
+
+const removePendingImage = index => {
+  pendingImages.value.splice(index, 1);
+};
 
 const formatMessagesForApi = () => {
   return messages.value.map(message => {
@@ -35,6 +82,7 @@ const formatMessagesForApi = () => {
 const resetConversation = () => {
   messages.value = [];
   newMessage.value = '';
+  pendingImages.value = [];
 };
 
 // Watch for assistant ID changes and reset conversation
@@ -48,16 +96,20 @@ watch(
 );
 
 const sendMessage = async () => {
-  if (!newMessage.value.trim() || isLoading.value) return;
+  const hasImages = pendingImages.value.length > 0;
+  if ((!newMessage.value.trim() && !hasImages) || isLoading.value) return;
 
   const userMessage = {
     content: newMessage.value,
+    images: pendingImages.value.map(image => image.dataUrl),
     sender: 'user',
     timestamp: new Date().toISOString(),
   };
   messages.value.push(userMessage);
   const currentMessage = newMessage.value;
+  const currentImages = userMessage.images;
   newMessage.value = '';
+  pendingImages.value = [];
 
   try {
     isLoading.value = true;
@@ -65,6 +117,7 @@ const sendMessage = async () => {
       assistantId,
       messageContent: currentMessage,
       messageHistory: formatMessagesForApi(),
+      images: currentImages,
     });
 
     messages.value.push({
@@ -74,6 +127,12 @@ const sendMessage = async () => {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
+    messages.value.pop();
+    newMessage.value = currentMessage;
+    pendingImages.value = currentImages.map(dataUrl => ({ dataUrl, name: '' }));
+    useAlert(
+      error?.response?.data?.error || t('CAPTAIN.PLAYGROUND.SEND_ERROR')
+    );
     // eslint-disable-next-line no-console
     console.error('Error getting assistant response:', error);
   } finally {
@@ -113,8 +172,49 @@ const handleEnterKey = event => {
     <MessageList :messages="messages" :is-loading="isLoading" />
 
     <div
+      v-if="pendingImages.length"
+      class="flex flex-wrap gap-2 mx-6 mb-2"
+    >
+      <div
+        v-for="(image, index) in pendingImages"
+        :key="image.dataUrl"
+        class="relative"
+      >
+        <img
+          :src="image.dataUrl"
+          :alt="image.name"
+          class="size-12 rounded-md object-cover outline outline-1 outline-n-weak"
+        />
+        <button
+          type="button"
+          class="absolute -top-1.5 -right-1.5 flex items-center justify-center size-4 rounded-full bg-n-slate-12 text-n-slate-1"
+          :title="t('CAPTAIN.PLAYGROUND.REMOVE_IMAGE')"
+          @click="removePendingImage(index)"
+        >
+          <span class="i-lucide-x size-2.5" />
+        </button>
+      </div>
+    </div>
+
+    <div
       class="flex items-center mx-6 bg-n-background outline outline-1 outline-n-weak rounded-xl p-3"
     >
+      <input
+        ref="fileInput"
+        type="file"
+        accept="image/*"
+        multiple
+        class="hidden"
+        @change="handleFilesSelected"
+      />
+      <NextButton
+        ghost
+        sm
+        slate
+        icon="i-lucide-image-plus"
+        :title="t('CAPTAIN.PLAYGROUND.ATTACH_IMAGE')"
+        @click="openFilePicker"
+      />
       <input
         v-model="newMessage"
         class="flex-1 bg-transparent border-none focus:outline-none text-sm mb-0 text-n-slate-12 placeholder:text-n-slate-10"
@@ -124,7 +224,7 @@ const handleEnterKey = event => {
       <NextButton
         ghost
         sm
-        :disabled="!newMessage.trim()"
+        :disabled="!newMessage.trim() && !pendingImages.length"
         icon="i-lucide-send"
         @click="sendMessage"
       />

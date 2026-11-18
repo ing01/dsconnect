@@ -73,7 +73,18 @@ watch(() => props.messages.length, scrollToBottom);
           class="px-4 py-3 text-sm [overflow-wrap:break-word]"
           :class="getMessageStyle(message.sender)"
         >
-          <div v-html="formatMessage(message.content)" />
+          <div
+            v-if="message.images && message.images.length"
+            class="flex flex-wrap gap-1.5 mb-2"
+          >
+            <img
+              v-for="(image, imageIndex) in message.images"
+              :key="imageIndex"
+              :src="image"
+              class="size-20 rounded-md object-cover"
+            />
+          </div>
+          <div v-if="message.content" v-html="formatMessage(message.content)" />
         </div>
       </div>
     </div>
