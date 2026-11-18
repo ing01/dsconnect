@@ -77,6 +77,8 @@ Rails.application.routes.draw do
         resources :teams, only: [:index]
         # A aba "Tutoriais": so' leitura - quem edita e' o administrador, em Configuracoes.
         resources :tutorials, only: [:index]
+        # O Mural de Avisos: so' leitura - quem edita e' o administrador, em Configuracoes.
+        resources :announcements, only: [:index]
         # Rascunho de ticket por IA (texto livre ou audio transcrito) - so
         # devolve categoria/titulo/descricao sugeridos, nunca cria o ticket.
         resources :ticket_drafts, only: [:create] do
@@ -661,6 +663,8 @@ Rails.application.routes.draw do
           # Tutoriais da aba "Tutoriais" da Area do Cliente (so' administrador).
           resources :client_tutorials, only: [:index, :create, :update, :destroy]
           resources :client_tutorial_modules, only: [:index, :create, :update, :destroy]
+          # Mural de Avisos do Portal do Cliente (so' administrador).
+          resources :client_announcements, only: [:index, :create, :update, :destroy]
           # O video vai direto ao storage; a aplicacao so' registra o blob.
           resource :client_tutorial_uploads, only: [:create], controller: 'client_tutorials/direct_uploads'
 

@@ -668,6 +668,10 @@ pt_BR:
       transcript_subject: 'Transcrição da conversa'
     survey:
       response: 'Por favor, classifique esta conversa, %{link}'
+  client_announcements:
+    errors:
+      ends_before_start: precisa ser depois do início.
+      segmentation_empty: Escolha ao menos um filtro (empresa, nicho, subnicho ou nível) ou use "Todos os clientes".
   client_tutorials:
     errors:
       single_source: Informe um link OU envie um arquivo de vídeo, não os dois.

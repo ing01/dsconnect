@@ -284,6 +284,11 @@ export default {
     return cliente.get(`${BASE}/tutorials`, { headers: headers() });
   },
 
+  // O Mural de Avisos: os avisos em vigor para as Empresas deste contato.
+  announcements() {
+    return cliente.get(`${BASE}/announcements`, { headers: headers() });
+  },
+
   // Cancela a inscricao deste navegador (o botao de desligar as notificacoes).
   unregisterPushSubscription(endpoint) {
     return cliente.delete(`${BASE}/push_subscription`, {
