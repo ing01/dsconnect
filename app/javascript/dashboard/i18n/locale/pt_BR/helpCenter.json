@@ -331,8 +331,8 @@
       }
     },
     "TABLE": {
-      "LOADING_MESSAGE": "Carregando artigos...",
       "404": "Nenhum artigo corresponde à sua pesquisa 🔍",
+      "LOADING_MESSAGE": "Carregando artigos...",
       "NO_ARTICLES": "Não há artigos disponíveis",
       "HEADERS": {
         "TITLE": "Título",
@@ -1121,6 +1121,113 @@
       "FROM_DOCUMENT": "A partir do documento",
       "NO_CONTENT": "Nenhum conteúdo gerado disponível. Envie um documento PDF para começar.",
       "LOADING": "Carregando conteúdo gerado..."
+    },
+    "KB_TREE": {
+      "VIEW": {
+        "TREE": "Árvore",
+        "LIST": "Lista"
+      },
+      "SEARCH_PLACEHOLDER": "Buscar na base...",
+      "SEARCH_RESULTS": "Resultados da busca",
+      "SEARCH_EMPTY": "Nenhum artigo encontrado.",
+      "NEW_ARTICLE": "Novo artigo",
+      "NEW_FOLDER": "Nova pasta",
+      "NEW_SUBFOLDER": "Nova subpasta",
+      "NEW_CHILD": "Novo subartigo",
+      "EXPAND_ALL": "Expandir tudo",
+      "COLLAPSE_ALL": "Recolher tudo",
+      "NO_FOLDER": "Sem pasta",
+      "LOCALE": "Idioma",
+      "EMPTY_TITLE": "A base ainda está vazia",
+      "EMPTY_SUBTITLE": "Crie uma pasta e o primeiro artigo para começar a organizar os procedimentos.",
+      "SELECT_ARTICLE": "Selecione um artigo na árvore para ver o conteúdo.",
+      "LOADING_ERROR": "Não foi possível carregar a árvore.",
+      "ARTICLE_ERROR": "Não foi possível abrir o artigo.",
+      "ARTICLE_UNPUBLISHED": "Rascunho — ainda não está no portal.",
+      "MENU": {
+        "EDIT": "Editar",
+        "MOVE": "Mover para...",
+        "UP": "Subir",
+        "DOWN": "Descer",
+        "MORE": "Mais ações",
+        "DRAG": "Arraste para outra pasta ou para dentro de outro artigo",
+        "EXPAND": "Expandir",
+        "COLLAPSE": "Recolher"
+      },
+      "MOVE": {
+        "TITLE": "Mover artigo",
+        "DESCRIPTION": "Escolha a pasta ou o artigo de destino. Os subartigos acompanham o artigo.",
+        "TARGET": "Destino",
+        "CONFIRM": "Mover",
+        "SUCCESS": "Artigo movido.",
+        "ERROR": "Não foi possível mover o artigo."
+      },
+      "FOLDER": {
+        "TITLE": "Nova pasta",
+        "NAME": "Nome da pasta",
+        "NAME_PLACEHOLDER": "Ex.: Processos (POPs)",
+        "PARENT": "Dentro de",
+        "NO_PARENT": "Nenhuma (pasta principal)",
+        "CONFIRM": "Criar pasta",
+        "SUCCESS": "Pasta criada.",
+        "ERROR": "Não foi possível criar a pasta."
+      },
+      "VIEWER": {
+        "UPDATED": "Atualizado em {date}",
+        "VIEWS": "{count} visualizações",
+        "EDIT": "Editar",
+        "BROKEN_REFERENCE": "Este item referenciado não existe mais ou foi movido para outro idioma.",
+        "EMPTY_CONTENT": "Este artigo ainda não tem conteúdo.",
+        "CHILDREN": "Neste procedimento",
+        "BREADCRUMB": "Caminho do artigo"
+      },
+      "STATUS": {
+        "PUBLISHED": "Publicado",
+        "DRAFT": "Rascunho",
+        "ARCHIVED": "Arquivado"
+      },
+      "DETAILS": {
+        "TITLE": "Detalhes do Artigo",
+        "CATEGORY": "Pasta",
+        "STATUS": "Situação",
+        "UPDATED_AT": "Atualizado em",
+        "AUTHOR": "Responsável",
+        "TAGS": "Tags",
+        "STRUCTURE": "Estrutura do item",
+        "NO_CHILDREN": "Este artigo não tem subartigos.",
+        "NONE": "—"
+      },
+      "FORMS": {
+        "TITLE": "Formulários",
+        "EMPTY": "Nenhum formulário publicado vinculado a este artigo.",
+        "CONSULT": "Consultar",
+        "FILL": "Preencher",
+        "QUESTIONS": "{count} perguntas"
+      },
+      "FORM_DIALOG": {
+        "TITLE": "Formulário: {name}",
+        "PREVIEW_HINT": "Estas são as perguntas do formulário. Para preencher, use o botão Preencher.",
+        "TICKET": "Número do chamado (opcional)",
+        "TICKET_PLACEHOLDER": "Ex.: 35369",
+        "TICKET_HELP": "Informe só se quiser registrar as respostas no histórico de um chamado; sem número, ficam guardadas na lista de respostas do formulário.",
+        "REQUIRED": "obrigatória",
+        "SUBMIT": "Enviar respostas",
+        "SUCCESS": "Respostas registradas.",
+        "ERROR": "Não foi possível enviar o formulário.",
+        "MISSING_TICKET": "Informe o número do chamado.",
+        "CLOSE": "Fechar",
+        "CHOOSE": "Selecione"
+      },
+      "REFERENCE": {
+        "BUTTON": "Inserir referência",
+        "TITLE": "Inserir referência",
+        "DESCRIPTION": "Insira no texto um link para outro artigo (POP) ou para um formulário.",
+        "SEARCH": "Buscar artigo ou formulário...",
+        "ARTICLES": "Artigos",
+        "FORMS": "Formulários",
+        "EMPTY": "Nada encontrado.",
+        "INSERT": "Inserir"
+      }
     }
   }
 }

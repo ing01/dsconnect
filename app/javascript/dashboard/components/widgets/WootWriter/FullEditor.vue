@@ -303,6 +303,25 @@ export default {
       this.emitOnChange();
       editorView.focus();
     },
+    // Insere no cursor um link (texto + endereco), usado para as referencias a outros
+    // artigos/formularios da Base de Conhecimento. Com texto selecionado, o link o envolve.
+    insertReference({ text, href }) {
+      if (!editorView || !text || !href) return;
+
+      const { schema, selection } = editorView.state;
+      const linkMark = schema.marks.link.create({ href });
+      const label = selection.empty
+        ? text
+        : editorView.state.doc.textBetween(selection.from, selection.to);
+      const tr = editorView.state.tr.replaceSelectionWith(
+        schema.text(label || text, [linkMark]),
+        false
+      );
+      editorView.dispatch(tr.scrollIntoView());
+      state = editorView.state;
+      this.emitOnChange();
+      editorView.focus();
+    },
     cancelVideoInput() {
       this.showVideoInput = false;
       this.videoInputPosition = null;

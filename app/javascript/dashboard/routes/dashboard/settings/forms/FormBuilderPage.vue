@@ -45,6 +45,8 @@ const form = reactive({
   description: '',
   status: 'draft',
   article_id: null,
+  access_mode: 'login',
+  success_message: '',
   fields: [],
 });
 const isSaving = ref(false);
@@ -76,6 +78,8 @@ const syncForm = source => {
   form.description = source?.description || '';
   form.status = source?.status || 'draft';
   form.article_id = source?.article_id || null;
+  form.access_mode = source?.access_mode || 'login';
+  form.success_message = source?.success_message || '';
   form.fields = (source?.fields || []).map(field => ({ ...field }));
 };
 
@@ -123,6 +127,8 @@ const save = async publish => {
       description: form.description,
       status: publish ? 'published' : form.status,
       article_id: form.article_id || null,
+      access_mode: form.access_mode,
+      success_message: form.success_message,
       fields: form.fields,
     };
 
@@ -140,6 +146,45 @@ const save = async publish => {
     isSaving.value = false;
   }
 };
+
+// Os links para o cliente preencher: so' existem com o formulario publicado e salvo.
+const shareLinks = computed(() => {
+  const saved = existingForm.value;
+  if (!saved || saved.status !== 'published') return [];
+  return [
+    {
+      key: 'client',
+      label: t('FORMS.BUILDER.LINK_CLIENT'),
+      url: saved.client_url,
+    },
+    {
+      key: 'public',
+      label: t('FORMS.BUILDER.LINK_PUBLIC'),
+      url: saved.public_url,
+    },
+  ].filter(link => link.url);
+});
+
+const copyLink = async url => {
+  try {
+    await navigator.clipboard.writeText(url);
+    useAlert(t('FORMS.BUILDER.LINK_COPIED'));
+  } catch (error) {
+    useAlert(url);
+  }
+};
+
+const responseSourceLabel = response =>
+  t(
+    `FORMS.BUILDER.RESPONSE_SOURCE.${String(response.source || 'ticket').toUpperCase()}`
+  );
+
+const responseAuthor = response =>
+  response.filled_by_name ||
+  response.contact_name ||
+  response.respondent_name ||
+  response.respondent_email ||
+  '';
 
 const formatDate = timestamp =>
   timestamp ? new Date(timestamp * 1000).toLocaleString() : '—';
@@ -237,7 +282,9 @@ onMounted(async () => {
             class="flex flex-col gap-3"
           >
             <template #item="{ element: field, index }">
-              <div class="flex flex-col gap-2 p-3 border rounded-xl border-n-weak">
+              <div
+                class="flex flex-col gap-2 p-3 border rounded-xl border-n-weak"
+              >
                 <div class="flex items-start gap-2">
                   <Icon
                     icon="i-lucide-grip-vertical"
@@ -259,7 +306,10 @@ onMounted(async () => {
                       "
                     />
 
-                    <div v-if="isChoiceType(field.field_type)" class="flex flex-col gap-1">
+                    <div
+                      v-if="isChoiceType(field.field_type)"
+                      class="flex flex-col gap-1"
+                    >
                       <div
                         v-for="(_option, optionIndex) in field.options"
                         :key="optionIndex"
@@ -365,10 +415,20 @@ onMounted(async () => {
               class="flex items-center justify-between gap-2 p-3 border rounded-lg border-n-weak"
             >
               <span class="text-sm text-n-slate-12">
-                {{ t('FORMS.BUILDER.RESPONSE_TICKET', { number: response.ticket_display_id }) }}
+                {{
+                  response.ticket_display_id
+                    ? t('FORMS.BUILDER.RESPONSE_TICKET', {
+                        number: response.ticket_display_id,
+                      })
+                    : t('FORMS.BUILDER.RESPONSE_NO_TICKET')
+                }}
+                <span class="text-xs text-n-slate-10">
+                  · {{ responseSourceLabel(response) }}
+                </span>
               </span>
               <span class="text-xs text-n-slate-10">
-                {{ response.filled_by_name }} · {{ formatDate(response.created_at) }}
+                {{ responseAuthor(response) }} ·
+                {{ formatDate(response.created_at) }}
               </span>
             </li>
           </ul>
@@ -393,6 +453,87 @@ onMounted(async () => {
               </option>
             </select>
           </label>
+
+          <fieldset class="flex flex-col gap-2 p-0 m-0 border-0">
+            <legend class="p-0 mb-1 text-sm font-medium text-n-slate-12">
+              {{ t('FORMS.BUILDER.ACCESS_TITLE') }}
+            </legend>
+            <label class="flex items-start gap-2 text-sm text-n-slate-12">
+              <input
+                v-model="form.access_mode"
+                type="radio"
+                value="login"
+                class="mt-1 mb-0"
+                data-testid="access-login"
+              />
+              <span>
+                {{ t('FORMS.BUILDER.ACCESS_LOGIN') }}
+                <span class="block text-xs text-n-slate-11">
+                  {{ t('FORMS.BUILDER.ACCESS_LOGIN_HINT') }}
+                </span>
+              </span>
+            </label>
+            <label class="flex items-start gap-2 text-sm text-n-slate-12">
+              <input
+                v-model="form.access_mode"
+                type="radio"
+                value="open"
+                class="mt-1 mb-0"
+                data-testid="access-open"
+              />
+              <span>
+                {{ t('FORMS.BUILDER.ACCESS_OPEN') }}
+                <span class="block text-xs text-n-slate-11">
+                  {{ t('FORMS.BUILDER.ACCESS_OPEN_HINT') }}
+                </span>
+              </span>
+            </label>
+          </fieldset>
+
+          <label class="flex flex-col gap-1">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ t('FORMS.BUILDER.SUCCESS_MESSAGE') }}
+            </span>
+            <textarea
+              v-model="form.success_message"
+              rows="2"
+              class="w-full mb-0 text-sm"
+              :placeholder="t('FORMS.BUILDER.SUCCESS_MESSAGE_PLACEHOLDER')"
+            />
+          </label>
+
+          <div class="flex flex-col gap-2" data-testid="share-links">
+            <span class="text-sm font-medium text-n-slate-12">
+              {{ t('FORMS.BUILDER.LINKS_TITLE') }}
+            </span>
+            <p v-if="!shareLinks.length" class="m-0 text-xs text-n-slate-11">
+              {{ t('FORMS.BUILDER.LINKS_NEED_PUBLISH') }}
+            </p>
+            <div
+              v-for="link in shareLinks"
+              :key="link.key"
+              class="flex flex-col gap-1"
+            >
+              <span class="text-xs text-n-slate-11">{{ link.label }}</span>
+              <div class="flex gap-2">
+                <input
+                  :value="link.url"
+                  readonly
+                  class="w-full mb-0 text-xs"
+                  :data-testid="`link-${link.key}`"
+                />
+                <Button
+                  type="button"
+                  variant="faded"
+                  color="slate"
+                  size="sm"
+                  icon="i-lucide-copy"
+                  :label="t('FORMS.BUILDER.LINK_COPY')"
+                  @click="copyLink(link.url)"
+                />
+              </div>
+            </div>
+          </div>
 
           <div v-if="!isNew" class="flex flex-col gap-1">
             <span class="text-sm font-medium text-n-slate-12">

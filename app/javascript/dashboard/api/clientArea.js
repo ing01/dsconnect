@@ -13,6 +13,7 @@
  * requisição não há id de conta para trocar.
  */
 import axios from 'axios';
+import { buildSubmissionBody } from 'dashboard/components-next/forms/formFields';
 import {
   getClientSession,
   clearClientSession,
@@ -275,6 +276,19 @@ export default {
     return cliente.post(
       `${BASE}/push_subscription`,
       { subscription_attributes: subscriptionAttributes },
+      { headers: headers() }
+    );
+  },
+
+  // Os formularios publicados na Central de Ajuda, preenchidos pelo cliente logado.
+  form(id) {
+    return cliente.get(`${BASE}/forms/${id}`, { headers: headers() });
+  },
+
+  submitForm(id, { answers, files }) {
+    return cliente.post(
+      `${BASE}/forms/${id}/form_responses`,
+      buildSubmissionBody({ answers, files }),
       { headers: headers() }
     );
   },

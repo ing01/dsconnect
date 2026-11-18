@@ -242,3 +242,32 @@ export const setMonthlySurveyDismissed = (contactId, referenceMonth) => {
     // pode insistir de novo na proxima troca de tela.
   }
 };
+
+/**
+ * Para onde voltar depois do login: o cliente que clicou em "Preencher formulario" na Central de
+ * Ajuda sem estar logado vai ao login e, entrando, volta ao formulario (e nao a tela inicial).
+ *
+ * `sessionStorage`: vale so' para esta aba e some ao fechar. Guarda so' enderecos de formulario da
+ * propria Area do Cliente - nunca um endereco qualquer, para nao virar redirecionamento aberto.
+ */
+const CHAVE_VOLTAR_PARA = 'cw_client_return_to';
+const PREFIXO_FORMULARIO = '/app/client/forms/';
+
+export const rememberClientReturnTo = path => {
+  if (!String(path || '').startsWith(PREFIXO_FORMULARIO)) return;
+  try {
+    window.sessionStorage.setItem(CHAVE_VOLTAR_PARA, path);
+  } catch {
+    // Sem armazenamento: o cliente cai na tela inicial depois do login, e abre o link de novo.
+  }
+};
+
+export const takeClientReturnTo = () => {
+  try {
+    const path = window.sessionStorage.getItem(CHAVE_VOLTAR_PARA);
+    window.sessionStorage.removeItem(CHAVE_VOLTAR_PARA);
+    return String(path || '').startsWith(PREFIXO_FORMULARIO) ? path : null;
+  } catch {
+    return null;
+  }
+};

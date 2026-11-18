@@ -8,12 +8,33 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'published-forms-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    platform: 'web',
+    type: 'feature',
+    title: 'Formulários publicados na Central de Ajuda, para clientes e equipe',
+    description:
+      'Ao publicar um formulário e vinculá-lo a um artigo, ele aparece na Central de Ajuda com o botão Preencher, e o cliente completa o passo a passo sem sair do artigo. Em cada formulário você escolhe se só o cliente logado preenche ou se o link é aberto, define a mensagem de depois do envio e copia os links. As respostas ficam guardadas na lista do formulário, sem criar chamado, e mostram quem respondeu e de onde veio. A equipe também preenche direto do artigo no painel, com o número do chamado opcional.',
+  },
+  {
+    id: 'knowledge-base-tree-2026-11-18',
+    date: '18 de novembro de 2026',
+    isoDate: '2026-11-18',
+    platform: 'web',
+    type: 'feature',
+    title: 'Base de Conhecimento em árvore: pastas, subartigos e referências',
+    description:
+      'A tela de Artigos agora mostra a estrutura em árvore, com pastas, subpastas e subartigos que abrem e recolhem. Ao escolher um artigo, o conteúdo aparece no centro e os detalhes, a estrutura e os formulários vinculados ficam ao lado. Dá para arrastar para reorganizar (ou usar Mover para...), inserir no texto links para outros artigos e formulários, e consultar ou preencher o formulário direto do artigo. A busca continua a mesma e a lista de antes está no botão Lista.',
+  },
+  {
     id: 'integration-api-companies-2026-11-18',
     date: '18 de novembro de 2026',
     isoDate: '2026-11-18',
     platform: 'web',
     type: 'feature',
-    title: 'API de Integração: consulta de empresas e movimento para estágios com regras',
+    title:
+      'API de Integração: consulta de empresas e movimento para estágios com regras',
     description:
       'A API passa a ter a consulta de empresas (por nome, CNPJ ou código), já com o Nível da empresa, e a Estimativa original (horas) do ticket pode ser consultada e alterada. Ao mover um ticket pela API, o responsável, o prazo e o agendamento enviados na mesma chamada valem para os estágios que os exigem, e a lista de Mesas mostra o que cada estágio exige.',
   },

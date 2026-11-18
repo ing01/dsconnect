@@ -21,7 +21,13 @@ const selectedCategoryId = ref(null);
 const currentUserId = useMapGetter('getCurrentUserID');
 const categories = useMapGetter('categories/allCategories');
 
+// Vindo da arvore da Base de Conhecimento: `?folder=<id da pasta>` e `?parent=<id do artigo-pai>`
+// (subartigo: o servidor o coloca na pasta do pai).
+const parentArticleId = computed(() => Number(route.query.parent) || null);
+const folderId = computed(() => Number(route.query.folder) || null);
+
 const categoryId = computed(() => {
+  if (folderId.value) return folderId.value;
   const { categorySlug } = route.params;
   if (categorySlug) {
     const matched = categories.value?.find(c => c.slug === categorySlug);
@@ -63,6 +69,7 @@ const createNewArticle = async ({ title, content }) => {
       locale: locale,
       authorId: selectedAuthorId.value || currentUserId.value,
       categoryId: resolvedCategoryId,
+      parentArticleId: parentArticleId.value,
     });
 
     useTrack(PORTALS_EVENTS.CREATE_ARTICLE, { locale });

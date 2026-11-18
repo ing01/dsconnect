@@ -334,6 +334,12 @@ class Rack::Attack
     "#{user_identifier}:#{match_data[:account_id]}" if user_identifier.present?
   end
 
+  ## O formulario ABERTO da Central de Ajuda (sem login) e' uma porta publica de gravacao: limita
+  ## os envios por IP, para ninguem encher a lista de respostas nem o armazenamento de arquivos.
+  throttle('public/forms/responses/ip', limit: ENV.fetch('RATE_LIMIT_PUBLIC_FORMS', '10').to_i, period: 10.minutes) do |req|
+    req.ip if req.post? && req.path.match?(%r{\A/public/api/v1/forms/[^/]+/responses\z})
+  end
+
   ## A API de Integracao de Tickets e' chamada por um sistema EXTERNO com uma
   ## chave fixa (nao um IP de usuario variando) - sem isto, o throttle generico
   ## de 'req/ip' seria o unico limite, compartilhado com qualquer outra coisa

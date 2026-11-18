@@ -1,0 +1,29 @@
+<%# locals: (forms:) %>
+<%# Os formularios publicados vinculados ao artigo: o cliente abre e preenche sem sair do passo a passo.
+    Formulario "aberto" abre direto; o de "so' cliente logado" leva ao login (e volta ao formulario). %>
+<section id="cw-article-forms" class="max-w-3xl mx-auto w-full mt-8 pb-12 px-4 md:px-8 font-inter">
+  <h2 class="text-lg font-semibold text-n-slate-12 mb-3">
+    <%= t('public_portal.article_forms.title', default: 'Formulários') %>
+  </h2>
+  <ul class="list-none m-0 p-0 grid gap-3">
+    <% forms.each do |form| %>
+      <li class="flex flex-wrap items-center justify-between gap-3 p-4 border border-solid border-n-weak rounded-xl">
+        <div class="min-w-0">
+          <p class="m-0 font-medium text-n-slate-12"><%= form.name %></p>
+          <% if form.description.present? %>
+            <p class="m-0 mt-1 text-sm text-n-slate-11"><%= form.description %></p>
+          <% end %>
+          <% unless form.open_access? %>
+            <p class="m-0 mt-1 text-xs text-n-slate-11">
+              <%= t('public_portal.article_forms.login_hint', default: 'Entre com o seu login de cliente para responder.') %>
+            </p>
+          <% end %>
+        </div>
+        <a href="<%= Forms::Links.fill_url(form) %>" rel="noopener"
+           class="px-4 py-2 text-sm font-medium text-white rounded-lg no-underline bg-n-brand">
+          <%= t('public_portal.article_forms.fill', default: 'Preencher formulário') %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+</section>

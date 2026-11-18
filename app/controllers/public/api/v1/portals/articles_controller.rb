@@ -24,6 +24,7 @@ class Public::Api::V1::Portals::ArticlesController < Public::Api::V1::Portals::B
   def show
     @og_image_url = helpers.set_og_image_url(@portal.name, @article.title)
     @parsed_content = render_article_content(@article.content.to_s)
+    @article_forms = @article.forms.published.order(:name).to_a
   end
 
   def show_markdown
@@ -93,7 +94,9 @@ class Public::Api::V1::Portals::ArticlesController < Public::Api::V1::Portals::B
   end
 
   def render_article_content(content)
-    ChatwootMarkdownRenderer.new(content).render_article
+    html = ChatwootMarkdownRenderer.new(content).render_article
+    # Referencias da Base de Conhecimento: artigo publicado vira o link publico; o resto vira texto.
+    ::Articles::ReferenceResolver.new(html: html, portal: @portal, mode: :public).call
   end
 end
 

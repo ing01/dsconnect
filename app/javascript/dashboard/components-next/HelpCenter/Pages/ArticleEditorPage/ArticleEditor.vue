@@ -10,6 +10,8 @@ import FullEditor from 'dashboard/components/widgets/WootWriter/FullEditor.vue';
 import ArticleEditorHeader from 'dashboard/components-next/HelpCenter/Pages/ArticleEditorPage/ArticleEditorHeader.vue';
 import ArticleEditorControls from 'dashboard/components-next/HelpCenter/Pages/ArticleEditorPage/ArticleEditorControls.vue';
 import ArticleDiffPanel from 'dashboard/components-next/HelpCenter/Pages/ArticleEditorPage/ArticleDiffPanel.vue';
+import ArticleReferenceDialog from 'dashboard/components-next/HelpCenter/Pages/ArticleEditorPage/ArticleReferenceDialog.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   article: {
@@ -54,6 +56,12 @@ const localTitle = ref(effectiveTitle());
 const localContent = ref(effectiveContent());
 
 const diffPanelRef = ref(null);
+const editorRef = ref(null);
+const referenceDialogRef = ref(null);
+
+// Coloca no texto o link para outro artigo (POP) ou formulario escolhido no dialogo.
+const insertReference = reference =>
+  editorRef.value?.insertReference(reference);
 
 // Autosave 500ms after the last edit. It sends both title and content so an
 // edit to one never drops a recent edit to the other. `stop` cancels a queued
@@ -183,7 +191,19 @@ const handleCreateArticle = event => {
           @set-category="setCategoryId"
         />
       </div>
+      <div class="flex pl-4 mb-2 rtl:pr-4 rtl:pl-0">
+        <Button
+          sm
+          faded
+          slate
+          icon="i-lucide-link-2"
+          :label="t('HELP_CENTER.KB_TREE.REFERENCE.BUTTON')"
+          data-testid="insert-reference"
+          @click="referenceDialogRef?.open()"
+        />
+      </div>
       <FullEditor
+        ref="editorRef"
         v-model="articleContent"
         class="py-0 pb-10 pl-4 rtl:pr-4 rtl:pl-0 h-fit"
         :placeholder="
@@ -192,6 +212,12 @@ const handleCreateArticle = event => {
         :enabled-menu-options="ARTICLE_EDITOR_MENU_OPTIONS"
         :autofocus="!isNewArticle"
         full-height
+      />
+      <ArticleReferenceDialog
+        ref="referenceDialogRef"
+        :current-article-id="article?.id"
+        :locale="article?.locale"
+        @insert="insertReference"
       />
     </template>
   </HelpCenterLayout>

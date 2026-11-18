@@ -75,6 +75,10 @@ Rails.application.routes.draw do
         resources :chat_history, only: [:index, :show]
         resource :push_subscription, only: [:create, :destroy], controller: 'push_subscriptions'
         resources :teams, only: [:index]
+        # Os formularios publicados na Central de Ajuda, preenchidos pelo cliente logado.
+        resources :forms, only: [:show] do
+          resources :form_responses, only: [:create]
+        end
         # A aba "Tutoriais": so' leitura - quem edita e' o administrador, em Configuracoes.
         resources :tutorials, only: [:index]
         # O Mural de Avisos: so' leitura - quem edita e' o administrador, em Configuracoes.
@@ -692,7 +696,7 @@ Rails.application.routes.draw do
           resources :project_task_templates
           resources :checklists
           resources :forms do
-            resources :form_responses, only: [:index, :show]
+            resources :form_responses, only: [:index, :show, :create]
           end
 
           # Painel Comercial (CRM) - cadastro proprio, acesso restrito via
@@ -847,6 +851,8 @@ Rails.application.routes.draw do
             end
             resources :articles do
               post :reorder, on: :collection
+              get :tree, on: :collection
+              patch :move, on: :member
             end
           end
 
@@ -1033,6 +1039,11 @@ Rails.application.routes.draw do
         end
 
         resources :csat_survey, only: [:show, :update]
+
+        # O formulario ABERTO (sem login): o codigo do link e' o `public_token`, nao o id.
+        resources :forms, only: [:show], param: :token do
+          post :responses, on: :member, action: :create
+        end
       end
     end
   end

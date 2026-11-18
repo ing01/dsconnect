@@ -1,7 +1,12 @@
 json.id resource.id
 json.form_id resource.form_id
 json.ticket_id resource.ticket_id
-json.ticket_display_id resource.ticket.display_id
+json.ticket_display_id resource.ticket&.display_id
+json.source resource.source
+# Quem respondeu: o agente, o cliente logado, ou (formulario aberto) o nome/e-mail opcionais.
+json.contact_name resource.contact&.name
+json.respondent_name resource.respondent_name
+json.respondent_email resource.respondent_email
 json.filled_by_name resource.filled_by&.name
 json.created_at resource.created_at.to_i
 json.answers resource.form_answers do |answer|

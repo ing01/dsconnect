@@ -17,3 +17,5 @@
             [&_tr:last-child_td]:!border-b-0">
   <%= parsed_content %>
 </div>
+<%# Formularios publicados vinculados ao artigo (set em Public::Api::V1::Portals::ArticlesController#show). %>
+<%= render 'public/api/v1/portals/articles/forms', forms: @article_forms if @article_forms.present? %>

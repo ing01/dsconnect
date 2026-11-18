@@ -18,15 +18,22 @@
  * descrição, anexos e "Abrir com IA"), sem passar pela lista antes. Ao criar,
  * leva para a lista, onde o chamado novo já aparece.
  */
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import ClientAreaAPI from 'dashboard/api/clientArea';
+import { takeClientReturnTo } from 'dashboard/helper/clientSession';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ClientTicketDialog from '../components/ClientTicketDialog.vue';
 
 const { t } = useI18n();
 const router = useRouter();
+
+// Quem veio de um formulario da Central de Ajuda sem estar logado volta a ele depois do login.
+onMounted(() => {
+  const returnTo = takeClientReturnTo();
+  if (returnTo) router.replace(returnTo);
+});
 
 const novoTicketDialog = ref(null);
 const categorias = ref([]);

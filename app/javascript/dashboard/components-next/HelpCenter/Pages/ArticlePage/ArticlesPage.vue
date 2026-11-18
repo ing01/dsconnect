@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n';
 import { OnClickOutside } from '@vueuse/components';
 import { useStore, useMapGetter } from 'dashboard/composables/store.js';
 import { useConfig } from 'dashboard/composables/useConfig';
+import { usePolicy } from 'dashboard/composables/usePolicy';
+import { PORTAL_PERMISSIONS } from 'dashboard/constants/permissions';
 import { debounce } from '@chatwoot/utils';
 import {
   ARTICLE_TABS,
@@ -29,6 +31,7 @@ import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 import BulkTranslateDialog from './BulkTranslateDialog.vue';
 import ImportMarkdownDialog from './ImportMarkdownDialog.vue';
+import ArticleTreeBoard from '../ArticleTree/ArticleTreeBoard.vue';
 
 const props = defineProps({
   articles: {
@@ -85,6 +88,32 @@ const searchQuery = ref(route.query.search || '');
 const debouncedSearch = debounce(() => emit('search', searchQuery.value), 500);
 
 const { isEnterprise } = useConfig();
+const { checkPermissions } = usePolicy();
+
+// Arvore (pastas, artigos e subartigos) ou a lista de sempre. A escolha fica salva neste navegador.
+const VIEW_STORAGE_KEY = 'kb-articles-view';
+const readSavedView = () => {
+  try {
+    return localStorage.getItem(VIEW_STORAGE_KEY) === 'list' ? 'list' : 'tree';
+  } catch (error) {
+    return 'tree';
+  }
+};
+const viewMode = ref(readSavedView());
+const setViewMode = mode => {
+  viewMode.value = mode;
+  try {
+    localStorage.setItem(VIEW_STORAGE_KEY, mode);
+  } catch (error) {
+    // sem armazenamento: a escolha vale so' ate recarregar
+  }
+};
+const isTreeView = computed(
+  () => viewMode.value === 'tree' && !props.isCategoryArticles
+);
+const canManageTree = computed(() =>
+  checkPermissions(['administrator', PORTAL_PERMISSIONS])
+);
 
 const isTranslationAvailable = computed(
   () =>
@@ -129,6 +158,7 @@ const hasNoArticlesInPortal = computed(
 );
 
 const shouldShowPaginationFooter = computed(() => {
+  if (isTreeView.value) return false;
   return !(isFetching.value || isSwitchingPortal.value || hasNoArticles.value);
 });
 
@@ -353,8 +383,33 @@ watch(
     @update:current-page="handlePageChange"
   >
     <template #title-actions>
+      <div
+        v-if="!isCategoryArticles"
+        class="flex items-center gap-1 p-0.5 border rounded-lg border-n-weak"
+        role="group"
+        data-testid="kb-view-toggle"
+      >
+        <Button
+          xs
+          :faded="viewMode !== 'tree'"
+          :slate="viewMode !== 'tree'"
+          icon="i-lucide-list-tree"
+          :label="t('HELP_CENTER.KB_TREE.VIEW.TREE')"
+          data-testid="kb-view-tree"
+          @click="setViewMode('tree')"
+        />
+        <Button
+          xs
+          :faded="viewMode !== 'list'"
+          :slate="viewMode !== 'list'"
+          icon="i-lucide-list"
+          :label="t('HELP_CENTER.KB_TREE.VIEW.LIST')"
+          data-testid="kb-view-list"
+          @click="setViewMode('list')"
+        />
+      </div>
       <Input
-        v-if="!isSwitchingPortal"
+        v-if="!isSwitchingPortal && !isTreeView"
         v-model="searchQuery"
         :placeholder="
           t('HELP_CENTER.ARTICLES_PAGE.ARTICLES_HEADER.SEARCH_PLACEHOLDER')
@@ -366,7 +421,7 @@ watch(
       />
     </template>
     <template #header-actions>
-      <div class="flex items-end justify-between">
+      <div v-if="!isTreeView" class="flex items-end justify-between">
         <ArticleHeaderControls
           v-if="showArticleHeaderControls"
           :categories="categories"
@@ -389,7 +444,15 @@ watch(
       </div>
     </template>
     <template #content>
-      <PageLoader v-if="isLoading && !isArticleDragging" />
+      <ArticleTreeBoard
+        v-if="isTreeView"
+        :portal-slug="route.params.portalSlug"
+        :locale="route.params.locale"
+        :allowed-locales="allowedLocales"
+        :can-manage="canManageTree"
+        @locale-change="handleLocaleAction"
+      />
+      <PageLoader v-else-if="isLoading && !isArticleDragging" />
       <template v-else-if="!hasNoArticles">
         <div
           v-if="selectedArticleIds.size > 0"

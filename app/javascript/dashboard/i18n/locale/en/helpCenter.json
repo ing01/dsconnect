@@ -331,8 +331,8 @@
       }
     },
     "TABLE": {
-      "LOADING_MESSAGE": "Loading articles...",
       "404": "No articles matches your search 🔍",
+      "LOADING_MESSAGE": "Loading articles...",
       "NO_ARTICLES": "There are no available articles",
       "HEADERS": {
         "TITLE": "Title",
@@ -1100,6 +1100,113 @@
       "FROM_DOCUMENT": "From document",
       "NO_CONTENT": "No generated content available. Upload a PDF document to get started.",
       "LOADING": "Loading generated content..."
+    },
+    "KB_TREE": {
+      "VIEW": {
+        "TREE": "Tree",
+        "LIST": "List"
+      },
+      "SEARCH_PLACEHOLDER": "Search the knowledge base...",
+      "SEARCH_RESULTS": "Search results",
+      "SEARCH_EMPTY": "No articles found.",
+      "NEW_ARTICLE": "New article",
+      "NEW_FOLDER": "New folder",
+      "NEW_SUBFOLDER": "New subfolder",
+      "NEW_CHILD": "New sub-article",
+      "EXPAND_ALL": "Expand all",
+      "COLLAPSE_ALL": "Collapse all",
+      "NO_FOLDER": "No folder",
+      "LOCALE": "Language",
+      "EMPTY_TITLE": "The knowledge base is empty",
+      "EMPTY_SUBTITLE": "Create a folder and the first article to start organizing procedures.",
+      "SELECT_ARTICLE": "Select an article in the tree to see its content.",
+      "LOADING_ERROR": "Could not load the tree.",
+      "ARTICLE_ERROR": "Could not open the article.",
+      "ARTICLE_UNPUBLISHED": "Draft - not in the portal yet.",
+      "MENU": {
+        "EDIT": "Edit",
+        "MOVE": "Move to...",
+        "UP": "Move up",
+        "DOWN": "Move down",
+        "MORE": "More actions",
+        "DRAG": "Drag to another folder or into another article",
+        "EXPAND": "Expand",
+        "COLLAPSE": "Collapse"
+      },
+      "MOVE": {
+        "TITLE": "Move article",
+        "DESCRIPTION": "Choose the destination folder or article. Sub-articles move with it.",
+        "TARGET": "Destination",
+        "CONFIRM": "Move",
+        "SUCCESS": "Article moved.",
+        "ERROR": "Could not move the article."
+      },
+      "FOLDER": {
+        "TITLE": "New folder",
+        "NAME": "Folder name",
+        "NAME_PLACEHOLDER": "E.g.: Processes (SOPs)",
+        "PARENT": "Inside",
+        "NO_PARENT": "None (top-level folder)",
+        "CONFIRM": "Create folder",
+        "SUCCESS": "Folder created.",
+        "ERROR": "Could not create the folder."
+      },
+      "VIEWER": {
+        "UPDATED": "Updated on {date}",
+        "VIEWS": "{count} views",
+        "EDIT": "Edit",
+        "BROKEN_REFERENCE": "This referenced item no longer exists or was moved to another language.",
+        "EMPTY_CONTENT": "This article has no content yet.",
+        "CHILDREN": "In this procedure",
+        "BREADCRUMB": "Article path"
+      },
+      "STATUS": {
+        "PUBLISHED": "Published",
+        "DRAFT": "Draft",
+        "ARCHIVED": "Archived"
+      },
+      "DETAILS": {
+        "TITLE": "Article details",
+        "CATEGORY": "Folder",
+        "STATUS": "Status",
+        "UPDATED_AT": "Updated on",
+        "AUTHOR": "Owner",
+        "TAGS": "Tags",
+        "STRUCTURE": "Item structure",
+        "NO_CHILDREN": "This article has no sub-articles.",
+        "NONE": "-"
+      },
+      "FORMS": {
+        "TITLE": "Forms",
+        "EMPTY": "No published form linked to this article.",
+        "CONSULT": "View",
+        "FILL": "Fill in",
+        "QUESTIONS": "{count} questions"
+      },
+      "FORM_DIALOG": {
+        "TITLE": "Form: {name}",
+        "PREVIEW_HINT": "These are the questions of the form. To answer, use the Fill in button.",
+        "TICKET": "Ticket number (optional)",
+        "TICKET_PLACEHOLDER": "E.g.: 35369",
+        "TICKET_HELP": "Fill it only to record the answers in a ticket history; without it, they are kept in the form answers list.",
+        "REQUIRED": "required",
+        "SUBMIT": "Send answers",
+        "SUCCESS": "Answers recorded.",
+        "ERROR": "Could not send the form.",
+        "MISSING_TICKET": "Enter the ticket number.",
+        "CLOSE": "Close",
+        "CHOOSE": "Select"
+      },
+      "REFERENCE": {
+        "BUTTON": "Insert reference",
+        "TITLE": "Insert reference",
+        "DESCRIPTION": "Insert a link to another article (SOP) or to a form.",
+        "SEARCH": "Search article or form...",
+        "ARTICLES": "Articles",
+        "FORMS": "Forms",
+        "EMPTY": "Nothing found.",
+        "INSERT": "Insert"
+      }
     }
   }
 }

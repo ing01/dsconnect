@@ -36,6 +36,9 @@
 class Article < ApplicationRecord
   include PgSearch::Model
   include LlmFormattable
+  # Subartigos da Base de Conhecimento (arvore). Entra antes dos callbacks abaixo: o filho herda a
+  # pasta do pai antes de o idioma ser deduzido dela.
+  include ArticleTree
 
   has_many :associated_articles,
            class_name: :Article,

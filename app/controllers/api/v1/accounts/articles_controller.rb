@@ -1,7 +1,7 @@
 class Api::V1::Accounts::ArticlesController < Api::V1::Accounts::BaseController
   before_action :portal
   before_action :check_authorization
-  before_action :fetch_article, except: [:index, :create, :reorder]
+  before_action :fetch_article, except: [:index, :create, :reorder, :tree]
   before_action :set_current_page, only: [:index]
   before_action :validate_author, only: [:create]
   before_action :discard_invalid_author, only: [:update]
@@ -34,6 +34,22 @@ class Api::V1::Accounts::ArticlesController < Api::V1::Accounts::BaseController
   def update
     persist_article_changes if params[:article].present?
     render json: { message: @article.errors.full_messages.to_sentence }, status: :unprocessable_entity and return unless @article.valid?
+  end
+
+  # A arvore inteira de um idioma (pastas + artigos, so os campos leves), para a tela montar a
+  # hierarquia sem paginar. A busca continua sendo a do `index` (acha o artigo em qualquer posicao).
+  def tree
+    @locale = params[:locale].presence || @portal.default_locale
+    @categories = @portal.categories.where(locale: @locale).order(:position, :id)
+    @articles = @portal.articles.where(locale: @locale).order(:position, :id)
+  end
+
+  # Reorganiza: leva o artigo (e os subartigos) para outra pasta ou para baixo de outro artigo.
+  def move
+    ::Articles::TreeMover.new(article: @article, parent: move_parent, category: move_category, index: params[:index]).perform
+    render :show
+  rescue ::Articles::TreeMover::InvalidMove => e
+    render json: { message: e.message }, status: :unprocessable_entity
   end
 
   def destroy
@@ -87,6 +103,22 @@ class Api::V1::Accounts::ArticlesController < Api::V1::Accounts::BaseController
     author_id.to_s.match?(/\A\d+\z/) && Current.account.users.exists?(id: author_id.to_i)
   end
 
+  # `show` alimenta o painel central da arvore, que qualquer um da conta abre; criar, editar e
+  # reorganizar continuam pelas regras de cada acao.
+  def check_authorization(model = nil)
+    return authorize(Article, :tree?) if action_name == 'show'
+
+    super
+  end
+
+  def move_parent
+    @portal.articles.find(params[:parent_article_id]) if params[:parent_article_id].present?
+  end
+
+  def move_category
+    @portal.categories.find(params[:category_id]) if params[:category_id].present?
+  end
+
   def portal
     @portal ||= Current.account.portals.find_by!(slug: params[:portal_id])
   end
@@ -108,6 +140,7 @@ class Api::V1::Accounts::ArticlesController < Api::V1::Accounts::BaseController
   def article_params
     params.require(:article).permit(
       :title, :slug, :position, :content, :description, :category_id, :author_id, :associated_article_id, :status,
+      :parent_article_id,
       :locale, :draft_title, :draft_content, meta: [:title,
                                                     :description,
                                                     { tags: [] }]

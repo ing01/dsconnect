@@ -6,6 +6,9 @@
 class Form < ApplicationRecord
   STATUSES = %w[draft published].freeze
   FIELD_TYPES = %w[short_text paragraph single_choice multiple_choice dropdown date file_upload].freeze
+  # Quem pode preencher quando o formulario e' publicado na Central de Ajuda:
+  # `login` (so' cliente logado na Area do Cliente - o padrao) ou `open` (qualquer pessoa com o link).
+  ACCESS_MODES = %w[login open].freeze
 
   belongs_to :account
   belongs_to :article, optional: true
@@ -17,12 +20,20 @@ class Form < ApplicationRecord
 
   validates :name, presence: true
   validates :status, inclusion: { in: STATUSES }
+  validates :access_mode, inclusion: { in: ACCESS_MODES }
+
+  # O codigo do link do formulario aberto: aleatorio, nao e' o id do banco.
+  has_secure_token :public_token
 
   scope :ordered, -> { order(:name) }
   scope :published, -> { where(status: 'published') }
 
   def published?
     status == 'published'
+  end
+
+  def open_access?
+    access_mode == 'open'
   end
 
   # Cada pergunta do `fields` jsonb: `{id, label, description, field_type,

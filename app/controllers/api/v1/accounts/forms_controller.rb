@@ -34,7 +34,7 @@ class Api::V1::Accounts::FormsController < Api::V1::Accounts::BaseController
 
   def form_params
     params.require(:form).permit(
-      :name, :description, :status, :article_id, theme: {},
+      :name, :description, :status, :article_id, :access_mode, :success_message, theme: {},
                                                    fields: [:id, :label, :description, :field_type, :required, options: []]
     )
   end

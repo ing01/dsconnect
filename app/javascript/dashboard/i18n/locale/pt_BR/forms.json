@@ -68,7 +68,46 @@
       "LINKED_CATALOG": "Catálogo de Serviços",
       "LINKED_CATALOG_COUNT": "Vinculado a {count} item(ns) do catálogo.",
       "LINKED_CATALOG_NONE": "Não vinculado a nenhum item do catálogo ainda.",
-      "LINKED_CATALOG_HINT": "O vínculo é feito na tela do Catálogo de Serviços, ao editar o item."
+      "LINKED_CATALOG_HINT": "O vínculo é feito na tela do Catálogo de Serviços, ao editar o item.",
+      "ACCESS_TITLE": "Quem pode preencher na Central de Ajuda",
+      "ACCESS_LOGIN": "Somente cliente logado",
+      "ACCESS_LOGIN_HINT": "O cliente entra com o login da Área do Cliente; quem não está logado vai para o login e volta ao formulário.",
+      "ACCESS_OPEN": "Aberto, sem login",
+      "ACCESS_OPEN_HINT": "Qualquer pessoa com o link preenche. Há limite de envios por IP e as respostas ficam sem chamado.",
+      "SUCCESS_MESSAGE": "Mensagem depois do envio",
+      "SUCCESS_MESSAGE_PLACEHOLDER": "Ex.: Recebemos! Retornaremos em até 1 dia útil.",
+      "LINKS_TITLE": "Links do formulário",
+      "LINK_CLIENT": "Link para clientes logados",
+      "LINK_PUBLIC": "Link aberto (sem login)",
+      "LINK_COPY": "Copiar",
+      "LINK_COPIED": "Link copiado.",
+      "LINKS_NEED_PUBLISH": "Publique o formulário para gerar os links. Vinculado a um artigo, ele aparece sozinho na Central de Ajuda.",
+      "RESPONSE_SOURCE": {
+        "TICKET": "Chamado",
+        "INTERNAL": "Equipe",
+        "CLIENT": "Cliente logado",
+        "PUBLIC": "Formulário aberto"
+      },
+      "RESPONSE_BY": "Respondido por",
+      "RESPONSE_NO_TICKET": "Sem chamado"
+    },
+    "FILL": {
+      "CHOOSE": "Selecione",
+      "REQUIRED_ERROR": "Resposta obrigatória.",
+      "SUBMIT": "Enviar respostas",
+      "SENDING": "Enviando...",
+      "SUCCESS_TITLE": "Recebemos suas respostas",
+      "SUCCESS_DEFAULT": "Obrigado! Suas respostas foram registradas.",
+      "SEND_ANOTHER": "Enviar outra resposta",
+      "NOT_FOUND_TITLE": "Formulário indisponível",
+      "NOT_FOUND_TEXT": "Este formulário não existe, não está publicado ou o link está incorreto.",
+      "LOAD_ERROR": "Não foi possível carregar o formulário.",
+      "SUBMIT_ERROR": "Não foi possível enviar o formulário.",
+      "YOUR_NAME": "Seu nome (opcional)",
+      "YOUR_EMAIL": "Seu e-mail (opcional)",
+      "REQUIRED_NOTE": "* Pergunta obrigatória",
+      "LOADING": "Carregando formulário...",
+      "TOO_MANY": "Muitos envios seguidos. Aguarde alguns minutos e tente de novo."
     }
   }
 }

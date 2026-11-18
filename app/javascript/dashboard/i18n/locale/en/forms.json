@@ -68,7 +68,46 @@
       "LINKED_CATALOG": "Service Catalog",
       "LINKED_CATALOG_COUNT": "Linked to {count} catalog item(s).",
       "LINKED_CATALOG_NONE": "Not linked to any catalog item yet.",
-      "LINKED_CATALOG_HINT": "The link is set on the Service Catalog screen, when editing the item."
+      "LINKED_CATALOG_HINT": "The link is set on the Service Catalog screen, when editing the item.",
+      "ACCESS_TITLE": "Who can fill it in the Help Center",
+      "ACCESS_LOGIN": "Logged-in customers only",
+      "ACCESS_LOGIN_HINT": "The customer signs in with the Customer Area login; anyone not signed in goes to the login and comes back to the form.",
+      "ACCESS_OPEN": "Open, no login",
+      "ACCESS_OPEN_HINT": "Anyone with the link can fill it. There is a send limit per IP and the answers are kept without a ticket.",
+      "SUCCESS_MESSAGE": "Message after sending",
+      "SUCCESS_MESSAGE_PLACEHOLDER": "E.g.: Received! We will reply within 1 business day.",
+      "LINKS_TITLE": "Form links",
+      "LINK_CLIENT": "Link for logged-in customers",
+      "LINK_PUBLIC": "Open link (no login)",
+      "LINK_COPY": "Copy",
+      "LINK_COPIED": "Link copied.",
+      "LINKS_NEED_PUBLISH": "Publish the form to generate the links. Linked to an article, it shows up on its own in the Help Center.",
+      "RESPONSE_SOURCE": {
+        "TICKET": "Ticket",
+        "INTERNAL": "Team",
+        "CLIENT": "Logged-in customer",
+        "PUBLIC": "Open form"
+      },
+      "RESPONSE_BY": "Answered by",
+      "RESPONSE_NO_TICKET": "No ticket"
+    },
+    "FILL": {
+      "CHOOSE": "Select",
+      "REQUIRED_ERROR": "This answer is required.",
+      "SUBMIT": "Send answers",
+      "SENDING": "Sending...",
+      "SUCCESS_TITLE": "We received your answers",
+      "SUCCESS_DEFAULT": "Thank you! Your answers were recorded.",
+      "SEND_ANOTHER": "Send another answer",
+      "NOT_FOUND_TITLE": "Form unavailable",
+      "NOT_FOUND_TEXT": "This form does not exist, is not published or the link is wrong.",
+      "LOAD_ERROR": "Could not load the form.",
+      "SUBMIT_ERROR": "Could not send the form.",
+      "YOUR_NAME": "Your name (optional)",
+      "YOUR_EMAIL": "Your e-mail (optional)",
+      "REQUIRED_NOTE": "* Required question",
+      "LOADING": "Loading form...",
+      "TOO_MANY": "Too many submissions. Wait a few minutes and try again."
     }
   }
 }

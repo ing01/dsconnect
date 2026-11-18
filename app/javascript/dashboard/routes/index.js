@@ -3,11 +3,15 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { frontendURL } from '../helper/URLHelper';
 import dashboard from './dashboard/dashboard.routes';
 import clientArea, { CLIENT_PUBLIC_PATHS } from './client/client.routes';
+import publicForms, {
+  PUBLIC_FORM_PATH_PREFIX,
+} from './publicForms/publicForms.routes';
 import {
   CLIENT_PATH,
   CLIENT_PASSWORD_CHANGE_PATH,
   hasClientSession,
   mustChangeClientPassword,
+  rememberClientReturnTo,
 } from '../helper/clientSession';
 import store from 'dashboard/store';
 import { validateLoggedInRoutes } from '../helper/routeHelpers';
@@ -15,7 +19,11 @@ import { isOnOnboardingView } from 'v3/helpers/RouteHelper';
 import AnalyticsHelper from '../helper/AnalyticsHelper';
 
 const ONBOARDING_STEPS = ['account_details', 'enrichment', 'inbox_setup'];
-const routes = [...dashboard.routes, ...clientArea.routes];
+const routes = [
+  ...dashboard.routes,
+  ...clientArea.routes,
+  ...publicForms.routes,
+];
 
 // A Área do Cliente tem sessão própria (contato), não a do usuário interno.
 const isClientRoute = to => String(to.path || '').startsWith(CLIENT_PATH);
@@ -28,6 +36,9 @@ export const router = createRouter({ history: createWebHistory(), routes });
 export const validateAuthenticateRoutePermission = async (to, next) => {
   const { isLoggedIn, getCurrentUser: user } = store.getters;
 
+  // O formulario aberto da Central de Ajuda nao pede sessao de ninguem.
+  if (String(to.path || '').startsWith(PUBLIC_FORM_PATH_PREFIX)) return next();
+
   // As rotas do cliente são avaliadas ANTES de qualquer checagem de usuário
   // interno: o contato não tem conta, papel nem onboarding, e as regras abaixo
   // o mandariam embora.
@@ -37,15 +48,14 @@ export const validateAuthenticateRoutePermission = async (to, next) => {
     if (CLIENT_PUBLIC_PATHS.includes(to.path)) return next();
 
     if (!hasClientSession()) {
+      // Quem veio de um formulario da Central de Ajuda volta a ele depois do login.
+      rememberClientReturnTo(to.fullPath);
       window.location.assign('/app/login');
       return '';
     }
 
     // Senha padrao: nenhuma outra tela da Area do Cliente ate a troca.
-    if (
-      mustChangeClientPassword() &&
-      to.path !== CLIENT_PASSWORD_CHANGE_PATH
-    ) {
+    if (mustChangeClientPassword() && to.path !== CLIENT_PASSWORD_CHANGE_PATH) {
       return next(CLIENT_PASSWORD_CHANGE_PATH);
     }
     return next();

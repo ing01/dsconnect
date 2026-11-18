@@ -55,13 +55,32 @@ class ArticlesAPI extends PortalsAPI {
   }
 
   createArticle({ portalSlug, articleObj }) {
-    const { content, title, authorId, categoryId, locale } = articleObj;
+    const { content, title, authorId, categoryId, locale, parentArticleId } =
+      articleObj;
     return axios.post(`${this.url}/${portalSlug}/articles`, {
       content,
       title,
       author_id: authorId,
       category_id: categoryId,
       locale,
+      // Subartigo: o servidor o coloca na pasta do pai.
+      ...(parentArticleId ? { parent_article_id: parentArticleId } : {}),
+    });
+  }
+
+  // A arvore inteira do idioma (pastas + artigos, so os campos leves).
+  getTree({ portalSlug, locale }) {
+    return axios.get(`${this.url}/${portalSlug}/articles/tree`, {
+      params: { locale },
+    });
+  }
+
+  // Reorganiza: leva o artigo (e os subartigos) para outra pasta ou para baixo de outro artigo.
+  moveArticle({ portalSlug, articleId, parentArticleId, categoryId, index }) {
+    return axios.patch(`${this.url}/${portalSlug}/articles/${articleId}/move`, {
+      parent_article_id: parentArticleId || null,
+      category_id: categoryId || null,
+      index,
     });
   }
 
