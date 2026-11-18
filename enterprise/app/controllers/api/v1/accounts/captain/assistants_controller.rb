@@ -27,7 +27,19 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
     head :no_content
   end
 
+  # So' o teste do Playground - a mensagem real do Portal/WhatsApp ja' manda a
+  # imagem como anexo de verdade (ver Captain::OpenAiMessageBuilderService).
+  # Aqui a imagem vem direto do navegador em base64 (nunca existiu um Message
+  # nem um Attachment por tras do teste), entao o limite e' so' pra nao deixar
+  # o teste mandar um payload gigante pro LLM.
+  MAX_PLAYGROUND_IMAGES = 3
+  MAX_PLAYGROUND_IMAGE_LENGTH = 8_000_000 # ~6MB de imagem antes do base64
+
   def playground
+    current_images = Array(playground_params[:images]).compact_blank
+    return render_too_many_playground_images if current_images.size > MAX_PLAYGROUND_IMAGES
+    return render_playground_image_too_large if current_images.any? { |img| img.to_s.length > MAX_PLAYGROUND_IMAGE_LENGTH }
+
     response = if captain_v2_enabled?
                  Captain::Assistant::AgentRunnerService.new(assistant: @assistant, source: 'playground').generate_response(
                    message_history: playground_message_history
@@ -158,7 +170,7 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
   end
 
   def playground_params
-    params.require(:assistant).permit(:message_content, message_history: [:role, :content, :agent_name])
+    params.require(:assistant).permit(:message_content, images: [], message_history: [:role, :content, :agent_name])
   end
 
   def message_history
@@ -174,12 +186,34 @@ class Api::V1::Accounts::Captain::AssistantsController < Api::V1::Accounts::Base
   def playground_message_history
     history = message_history
     current_message = playground_params[:message_content]
-    return history if current_message.blank?
+    current_images = Array(playground_params[:images]).compact_blank
+    return history if current_message.blank? && current_images.blank?
 
-    current_user_message = { role: 'user', content: current_message }
+    current_user_message = { role: 'user', content: playground_user_content(current_message, current_images) }
     return history if history.last == current_user_message
 
     history + [current_user_message]
+  end
+
+  # Com imagem, o conteudo vira o mesmo formato multimodal que
+  # Captain::OpenAiMessageBuilderService ja usa pra mensagem real (texto +
+  # image_url) - e' o unico formato que Captain::Assistant::AgentRunnerService
+  # sabe reconstruir com imagem de verdade pro LLM.
+  def playground_user_content(message, images)
+    return message if images.blank?
+
+    parts = []
+    parts << { type: 'text', text: message } if message.present?
+    parts.concat(images.map { |data_url| { type: 'image_url', image_url: { url: data_url } } })
+    parts
+  end
+
+  def render_too_many_playground_images
+    render json: { error: "Máximo de #{MAX_PLAYGROUND_IMAGES} imagens por mensagem no Playground." }, status: :unprocessable_entity
+  end
+
+  def render_playground_image_too_large
+    render json: { error: 'Uma das imagens é grande demais para o teste no Playground.' }, status: :unprocessable_entity
   end
 
   def captain_v2_enabled?
