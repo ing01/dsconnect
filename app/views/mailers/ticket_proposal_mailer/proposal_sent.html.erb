@@ -1,0 +1,26 @@
+<%# Tudo sai da propria proposta e do ticket - nada e' guardado uma segunda vez para montar o e-mail. %>
+<p><%= @contact&.name.present? ? t('.greeting', contact: @contact.name, company: @company_name) : t('.greeting_without_name', company: @company_name) %></p>
+
+<p><%= t('.intro', number: @ticket.display_id) %></p>
+
+<p><strong><%= @proposal.summary %></strong></p>
+
+<ul>
+  <li><%= t('.total') %> <strong><%= number_to_currency(@proposal.amount, unit: 'R$ ', separator: ',', delimiter: '.', format: '%u%n') %></strong></li>
+  <li><%= t('.valid_until', date: @proposal.valid_until.strftime('%d/%m/%Y')) %></li>
+  <li><%= t('.deadline', days: @proposal.deadline_days) %></li>
+</ul>
+
+<p><%= t('.attachment') %></p>
+
+<% if @client_url.present? %>
+  <p><%= t('.approve') %><br /><%= link_to @client_url, @client_url %></p>
+<% end %>
+
+<p><%= t('.closing_line') %></p>
+
+<p>
+  <%= t('.regards') %><br />
+  <% if @agent_name.present? %><%= @agent_name %><br /><% end %>
+  <%= t('.company_name') %>
+</p>

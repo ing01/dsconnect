@@ -27,7 +27,9 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
       location: DEFAULT_LOCATION,
       payment_terms: DEFAULT_PAYMENT_TERMS,
       signer_name: Current.user.name,
-      proposal_date: Time.zone.today
+      proposal_date: Time.zone.today,
+      # Para o formulario avisar, antes de salvar, que nao ha para onde mandar o e-mail.
+      requester_email: @ticket.requester_contact&.email.presence
     }
   end
 
@@ -35,6 +37,9 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
     @ticket_proposal = TicketProposal.new(proposal_params.merge(account: Current.account, user: Current.user, ticket: @ticket))
     @ticket_proposal.tickets = linked_tickets
     @ticket_proposal.save!
+    # Marcar "enviar por e-mail" manda a proposta (PDF em anexo) ao solicitante logo depois de salvar.
+    # O resultado volta junto: a proposta fica salva mesmo quando o e-mail nao pode sair.
+    @email_result = Tickets::Proposals::EmailService.new(proposal: @ticket_proposal).perform if send_email?
     render 'show'
   end
 
@@ -56,6 +61,10 @@ class Api::V1::Accounts::TicketProposalsController < Api::V1::Accounts::BaseCont
   end
 
   private
+
+  def send_email?
+    ActiveModel::Type::Boolean.new.cast(params.dig(:ticket_proposal, :send_email)) == true
+  end
 
   def check_authorization(model = nil)
     super(model || @ticket_proposal || TicketProposal)

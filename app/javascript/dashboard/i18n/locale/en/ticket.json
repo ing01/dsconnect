@@ -557,7 +557,16 @@
         "DEFAULTS_ERROR": "Could not prefill the company data",
         "SAVE_ERROR": "Failed to save the proposal",
         "PDF_ERROR": "Failed to generate the PDF",
-        "DELETE_ERROR": "Failed to remove the proposal"
+        "DELETE_ERROR": "Failed to remove the proposal",
+        "EMAIL": {
+          "CHECKBOX": "Send the proposal by e-mail to the requester",
+          "HINT": "It goes to {email}, with the PDF attached, as soon as the proposal is created.",
+          "NO_ADDRESS": "The requester of this ticket has no e-mail address, so there is nowhere to send it.",
+          "SENT": "Proposal created and sent to {email}.",
+          "NO_EMAIL": "Proposal created, but the requester has no e-mail: it was not sent.",
+          "NOT_SENT": "Proposal created, but the e-mail could not be sent. Download the PDF and send it another way.",
+          "EMAILED": "Sent by e-mail to {email} on {date}."
+        }
       },
       "TIME_ENTRIES": {
         "TITLE": "Apontamento",

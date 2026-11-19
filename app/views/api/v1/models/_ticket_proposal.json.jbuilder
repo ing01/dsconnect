@@ -24,3 +24,5 @@ json.decided_at resource.decided_at&.to_i
 json.decided_by_name resource.decided_by_contact&.name
 json.user_name resource.user&.name
 json.created_at resource.created_at.to_i
+json.emailed_at resource.emailed_at&.to_i
+json.emailed_to resource.emailed_to

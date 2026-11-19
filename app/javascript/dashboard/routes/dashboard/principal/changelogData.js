@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'proposal-send-email-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'feature',
+    title: 'Enviar a proposta de melhoria por e-mail ao criá-la',
+    description:
+      'Na aba Valorização, a nova proposta tem uma caixinha para enviar ou não a proposta por e-mail ao solicitante, com o PDF em anexo. A caixinha vem marcada, e a proposta mostra quando e para qual e-mail foi enviada. Sem e-mail do solicitante, a caixinha fica desligada.',
+  },
+  {
     id: 'estimated-hours-regular-tickets-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

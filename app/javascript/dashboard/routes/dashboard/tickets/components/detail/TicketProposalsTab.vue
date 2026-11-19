@@ -40,7 +40,9 @@ const load = async () => {
     const { data } = await TicketProposalsAPI.getProposals(props.ticketId);
     proposals.value = data;
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.PROPOSALS.LOAD_ERROR'));
+    useAlert(
+      parseAPIErrorResponse(error) || t('TICKET.DETAIL.PROPOSALS.LOAD_ERROR')
+    );
   }
 };
 
@@ -78,7 +80,9 @@ const downloadPdf = async proposal => {
       response.headers?.['content-disposition']
     );
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.PROPOSALS.PDF_ERROR'));
+    useAlert(
+      parseAPIErrorResponse(error) || t('TICKET.DETAIL.PROPOSALS.PDF_ERROR')
+    );
   } finally {
     busyId.value = null;
   }
@@ -186,6 +190,21 @@ watch(
               from: day(proposal.proposal_date),
               to: day(proposal.valid_until),
               days: proposal.deadline_days,
+            })
+          }}
+        </span>
+
+        <span
+          v-if="proposal.emailed_at"
+          class="text-xs text-n-slate-10"
+          data-testid="proposal-emailed"
+        >
+          {{
+            t('TICKET.DETAIL.PROPOSALS.EMAIL.EMAILED', {
+              email: proposal.emailed_to,
+              date: new Date(proposal.emailed_at * 1000).toLocaleString(
+                'pt-BR'
+              ),
             })
           }}
         </span>

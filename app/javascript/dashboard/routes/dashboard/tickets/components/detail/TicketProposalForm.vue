@@ -36,6 +36,12 @@ const form = reactive({
 const items = ref([{ title: '', description: '', amount: '' }]);
 const isSubmitting = ref(false);
 
+// Enviar a proposta por e-mail ao solicitante (com o PDF), ao salvar. Marcada de saida: o caso
+// comum e' mandar. Sem e-mail do solicitante nao ha para onde enviar - a caixa fica desligada.
+const sendEmail = ref(true);
+const requesterEmail = ref(null);
+const canSendEmail = computed(() => !!requesterEmail.value);
+
 // Outros tickets a que a proposta tambem vale. So' os da mesma empresa sao
 // oferecidos: a proposta aparece no portal de quem enxerga qualquer um deles.
 const companyId = ref(null);
@@ -96,21 +102,38 @@ onMounted(async () => {
     });
     if (data.items?.length) items.value = data.items;
     companyId.value = data.company_id;
+    requesterEmail.value = data.requester_email || null;
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.PROPOSALS.DEFAULTS_ERROR'));
+    useAlert(
+      parseAPIErrorResponse(error) ||
+        t('TICKET.DETAIL.PROPOSALS.DEFAULTS_ERROR')
+    );
   }
 });
+
+// A proposta ja esta salva; isto so' diz se o e-mail saiu (e, se nao, por que).
+const announceEmail = email => {
+  if (!email) return;
+  if (email.sent) {
+    useAlert(t('TICKET.DETAIL.PROPOSALS.EMAIL.SENT', { email: email.to }));
+    return;
+  }
+  const reason = email.reason === 'no_email' ? 'NO_EMAIL' : 'NOT_SENT';
+  useAlert(t(`TICKET.DETAIL.PROPOSALS.EMAIL.${reason}`));
+};
 
 const submit = async () => {
   if (isSubmitting.value) return;
 
   isSubmitting.value = true;
   try {
-    await TicketProposalsAPI.createProposal(props.ticketId, {
+    const { data } = await TicketProposalsAPI.createProposal(props.ticketId, {
       ...form,
       items: items.value,
       linked_ticket_ids: linkedTickets.value.map(ticket => ticket.id),
+      send_email: sendEmail.value && canSendEmail.value,
     });
+    announceEmail(data?.email);
     emit('saved');
   } catch (error) {
     useAlert(
@@ -295,6 +318,32 @@ const submit = async () => {
         rows="2"
         :class="TEXTAREA_CLASS"
       />
+    </label>
+
+    <label
+      class="flex items-start gap-2 text-xs sm:col-span-2 text-n-slate-11"
+      :class="{ 'opacity-60': !canSendEmail }"
+    >
+      <input
+        v-model="sendEmail"
+        type="checkbox"
+        class="mt-0.5 mb-0"
+        :disabled="!canSendEmail"
+        data-testid="proposal-send-email"
+      />
+      <span class="flex flex-col gap-0.5">
+        <span class="font-medium text-n-slate-12">
+          {{ t('TICKET.DETAIL.PROPOSALS.EMAIL.CHECKBOX') }}
+        </span>
+        <span v-if="canSendEmail" data-testid="proposal-email-hint">
+          {{
+            t('TICKET.DETAIL.PROPOSALS.EMAIL.HINT', { email: requesterEmail })
+          }}
+        </span>
+        <span v-else data-testid="proposal-email-missing">
+          {{ t('TICKET.DETAIL.PROPOSALS.EMAIL.NO_ADDRESS') }}
+        </span>
+      </span>
     </label>
 
     <div class="flex justify-end gap-2 sm:col-span-2">

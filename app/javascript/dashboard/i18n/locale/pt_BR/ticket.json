@@ -604,7 +604,16 @@
         "DEFAULTS_ERROR": "Não foi possível preencher os dados da empresa",
         "SAVE_ERROR": "Erro ao salvar a proposta",
         "PDF_ERROR": "Erro ao gerar o PDF",
-        "DELETE_ERROR": "Erro ao remover a proposta"
+        "DELETE_ERROR": "Erro ao remover a proposta",
+        "EMAIL": {
+          "CHECKBOX": "Enviar a proposta por e-mail ao solicitante",
+          "HINT": "Vai para {email}, com o PDF em anexo, assim que a proposta for criada.",
+          "NO_ADDRESS": "O solicitante deste ticket não tem e-mail cadastrado, então não há para onde enviar.",
+          "SENT": "Proposta criada e enviada para {email}.",
+          "NO_EMAIL": "Proposta criada, mas o solicitante não tem e-mail: ela não foi enviada.",
+          "NOT_SENT": "Proposta criada, mas o e-mail não pôde ser enviado. Baixe o PDF e envie por outro meio.",
+          "EMAILED": "Enviada por e-mail para {email} em {date}."
+        }
       },
       "TIME_ENTRIES": {
         "TITLE": "Apontamento",

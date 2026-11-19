@@ -177,6 +177,20 @@ pt_BR:
       closing_line: Qualquer dúvida estamos à disposição.
       regards: Atenciosamente,
       company_name: Duesoft Sistemas
+  ticket_proposal_mailer:
+    proposal_sent:
+      subject: "Proposta de melhoria do chamado #%{number}: %{summary}"
+      greeting: "Olá %{contact}, da empresa %{company}."
+      greeting_without_name: "Olá, equipe da %{company}."
+      intro: "Segue a proposta de melhoria referente ao chamado #%{number}:"
+      total: "Valor total:"
+      valid_until: "Válida até %{date}."
+      deadline: "Prazo de entrega: %{days} dias."
+      attachment: A proposta completa, com os requisitos e as condições, está em anexo (PDF).
+      approve: 'Para aprovar ou recusar, acesse o Portal do Cliente:'
+      closing_line: Qualquer dúvida estamos à disposição.
+      regards: Atenciosamente,
+      company_name: Duesoft Sistemas
   tickets:
     bulk:
       empty: nenhum ticket para esta operação
