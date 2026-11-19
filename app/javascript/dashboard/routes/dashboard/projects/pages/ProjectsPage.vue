@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onActivated, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
@@ -98,6 +98,17 @@ onMounted(async () => {
   store.dispatch('projectModules/get');
   if (teams.value.length && !selectedTeamId.value) {
     selectedTeamId.value = teams.value[0].id;
+  }
+  loadProjects();
+});
+
+// A tela fica viva ao trocar de aba (filtros e busca intactos). Ao voltar, so' relê o quadro: outra
+// pessoa pode ter movido um projeto. A primeira ativacao e' a do onMounted, que ja carrega.
+let firstActivation = true;
+onActivated(() => {
+  if (firstActivation) {
+    firstActivation = false;
+    return;
   }
   loadProjects();
 });

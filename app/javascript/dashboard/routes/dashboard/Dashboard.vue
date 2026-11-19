@@ -1,5 +1,5 @@
 <script>
-import { defineAsyncComponent, ref, computed } from 'vue';
+import { defineAsyncComponent, ref, computed, KeepAlive } from 'vue';
 
 import NextSidebar from 'next/sidebar/Sidebar.vue';
 import WootKeyShortcutModal from 'dashboard/components/widgets/modal/WootKeyShortcutModal.vue';
@@ -28,6 +28,10 @@ import MobileSidebarLauncher from 'dashboard/components-next/sidebar/MobileSideb
 import WorkspaceTabsBar from 'dashboard/components-next/workspace-tabs/WorkspaceTabsBar.vue';
 import UnreadTabAlert from 'dashboard/components-next/workspace-tabs/UnreadTabAlert.vue';
 import { useCallsStore } from 'dashboard/stores/calls';
+import {
+  KEEP_ALIVE_PAGES,
+  KEEP_ALIVE_MAX,
+} from 'dashboard/components-next/workspace-tabs/keepAlivePages';
 
 export default {
   components: {
@@ -164,7 +168,11 @@ export default {
           <WorkspaceTabsBar />
           <UnreadTabAlert />
           <div class="flex flex-1 w-full min-w-0 min-h-0">
-            <router-view />
+            <router-view v-slot="{ Component }">
+              <KeepAlive :include="KEEP_ALIVE_PAGES" :max="KEEP_ALIVE_MAX">
+                <component :is="Component" />
+              </KeepAlive>
+            </router-view>
           </div>
         </div>
         <CopilotLauncher />

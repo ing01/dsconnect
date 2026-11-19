@@ -8,12 +8,23 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'tabs-keep-state-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'fix',
+    title: 'Abas: as telas mantêm o que você fez ao trocar de aba',
+    description:
+      'Ao trocar de aba e voltar, Tickets (Kanban), Projetos, Relatórios de implantação, Agenda e o Comercial (Clientes, Vendas e Dashboard) mantêm filtros, busca e rolagem, em vez de recomeçar do zero. Projetos e o Kanban releem os dados ao voltar. As Conversas ainda recarregam ao trocar de aba.',
+  },
+  {
     id: 'projects-shortcuts-implementation-profile-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',
     platform: 'web',
     type: 'fix',
-    title: 'Projetos: atalhos de Módulos e Tarefas para o perfil de implantação',
+    title:
+      'Projetos: atalhos de Módulos e Tarefas para o perfil de implantação',
     description:
       'Quem tem o perfil de acesso de implantação clicava em Tarefas (ou Módulos) na tela de Projetos e caía em outra tela, porque elas só abriam para administradores. Agora esse perfil abre as duas telas e pode personalizar os Módulos e as Tarefas.',
   },
