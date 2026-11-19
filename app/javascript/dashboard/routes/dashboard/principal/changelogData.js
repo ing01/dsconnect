@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'filter-unassigned-tickets-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'feature',
+    title: 'Filtro "Sem responsável" nos tickets',
+    description:
+      'No filtro de agentes do Kanban, do Backlog e do Sprint ativo, há uma nova opção Sem responsável, que mostra só os tickets que ninguém assumiu. Ela pode ser usada sozinha ou junto de agentes, e fica lembrada por Mesa.',
+  },
+  {
     id: 'agent-niches-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

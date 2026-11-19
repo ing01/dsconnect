@@ -204,7 +204,8 @@ describe('TicketAvatarFilterRow em tela estreita', () => {
   });
 
   it('mostra menos avatares e manda o resto para o +N conforme a largura', () => {
-    rowWidth.value = 200;
+    // 330 px: botoes Todos e Sem responsavel, o +N e quatro avatares.
+    rowWidth.value = 330;
     const wrapper = mountRow({ agents: oito() });
 
     expect(wrapper.findAll('[data-name]')).toHaveLength(4);
@@ -235,5 +236,40 @@ describe('TicketAvatarFilterRow em tela estreita', () => {
       .findAll('[data-name]')
       .map(a => a.attributes('data-name'));
     expect(nomes).toEqual(expect.arrayContaining(['Agente 7', 'Agente 8']));
+  });
+});
+
+describe('TicketAvatarFilterRow - Sem responsavel', () => {
+  const unassigned = wrapper =>
+    wrapper.find('[data-testid="filter-unassigned"]');
+
+  it('offers the option, off by default', () => {
+    const wrapper = mountRow();
+
+    expect(unassigned(wrapper).text()).toBe('TICKET.FILTERS.UNASSIGNED');
+    expect(unassigned(wrapper).attributes('aria-pressed')).toBe('false');
+  });
+
+  it('selects the reserved id on click, keeping the agents already chosen', async () => {
+    const wrapper = mountRow({ selectedAgentIds: [2] });
+
+    await unassigned(wrapper).trigger('click');
+
+    expect(wrapper.emitted('select')).toEqual([[[2, 0]]]);
+  });
+
+  it('drops only it when clicked again, and shows it as pressed while chosen', async () => {
+    const wrapper = mountRow({ selectedAgentIds: [0, 2] });
+
+    expect(unassigned(wrapper).attributes('aria-pressed')).toBe('true');
+    await unassigned(wrapper).trigger('click');
+
+    expect(wrapper.emitted('select')).toEqual([[[2]]]);
+  });
+
+  it('counts as an active filter, so "Todos" is not the pressed one', () => {
+    const wrapper = mountRow({ selectedAgentIds: [0] });
+
+    expect(avatarButton(wrapper, 0).attributes('aria-pressed')).toBe('false');
   });
 });

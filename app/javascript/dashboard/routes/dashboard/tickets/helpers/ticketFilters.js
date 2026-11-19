@@ -3,11 +3,21 @@
 // tickets already loaded for the open board).
 // `filters.assigneeIds` is a list of already-resolved agent ids; an empty or
 // missing list means "every agent", so unassigned tickets stay visible too.
+// UNASSIGNED_AGENT_ID in that list selects the tickets with no assignee.
+// "Sem responsavel" no filtro de agente: nao e' um agente, e' um valor reservado na mesma lista de
+// ids. Zero nunca e' id de usuario (o banco comeca em 1) e sobrevive ao JSON do localStorage.
+export const UNASSIGNED_AGENT_ID = 0;
+
 export function ticketMatchesFilters(ticket, filters = {}) {
   if (!filters) return true;
 
   const { assigneeIds } = filters;
-  if (assigneeIds?.length && !assigneeIds.includes(ticket.assignee_id)) {
+  // O ticket sem responsavel entra com o valor reservado, e assim pode ser escolhido sozinho ou
+  // junto de agentes (quem tem responsavel A OU esta sem ninguem).
+  if (
+    assigneeIds?.length &&
+    !assigneeIds.includes(ticket.assignee_id ?? UNASSIGNED_AGENT_ID)
+  ) {
     return false;
   }
   if (filters.teamId && ticket.team_id !== filters.teamId) {

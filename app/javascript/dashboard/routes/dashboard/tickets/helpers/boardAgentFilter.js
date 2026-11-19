@@ -1,4 +1,5 @@
 import { LocalStorage } from 'shared/helpers/localStorage';
+import { UNASSIGNED_AGENT_ID } from './ticketFilters';
 
 // O filtro de agente do Kanban e' trabalho de quem esta na tela: trocar de aba (Chat interno,
 // por exemplo) desmonta o modulo de Tickets e, sem isto, o filtro voltava vazio. Fica guardado
@@ -18,7 +19,14 @@ export const readAgentFilter = (accountId, teamId) => {
   const stored = LocalStorage.get(filterStorageKey(accountId, teamId));
   if (!Array.isArray(stored)) return [];
 
-  return stored.map(Number).filter(id => Number.isInteger(id) && id > 0);
+  // Zero (UNASSIGNED_AGENT_ID) e' o "Sem responsavel" e tambem fica guardado.
+  // `null` e booleanos viram 0 em Number(): so' um 0 de verdade pode ser o "Sem responsavel".
+  return stored
+    .filter(
+      value => value !== null && typeof value !== 'boolean' && value !== ''
+    )
+    .map(Number)
+    .filter(id => Number.isInteger(id) && id >= 0);
 };
 
 /**
@@ -41,4 +49,6 @@ export const writeAgentFilter = (accountId, teamId, agentIds) => {
  * @returns {number[]} so os que ainda sao membros
  */
 export const keepCurrentMembers = (agentIds, members) =>
-  agentIds.filter(id => members.some(member => member.id === id));
+  agentIds.filter(
+    id => id === UNASSIGNED_AGENT_ID || members.some(member => member.id === id)
+  );

@@ -103,7 +103,8 @@
       "MORE_AGENTS": "Mostrar mais {count} atendentes",
       "SEARCH_AGENT": "Buscar atendente",
       "NO_MESA_MEMBERS": "Esta Mesa ainda não possui membros. Adicione em Configurações > Times.",
-      "ALL_PRIORITIES": "Todas as prioridades"
+      "ALL_PRIORITIES": "Todas as prioridades",
+      "UNASSIGNED": "Sem responsável"
     },
     "EMPTY": {
       "TITLE": "Nenhuma Mesa ainda",

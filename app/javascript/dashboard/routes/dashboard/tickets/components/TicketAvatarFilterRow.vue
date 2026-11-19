@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { onClickOutside, useElementSize } from '@vueuse/core';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
+import { UNASSIGNED_AGENT_ID } from '../helpers/ticketFilters';
 
 const props = defineProps({
   agents: {
@@ -32,6 +33,7 @@ const AVATAR_SLOT_WIDTH = 20;
 const AVATAR_GROUP_PADDING = 8;
 const ALL_BUTTON_WIDTH = 60;
 const OVERFLOW_BUTTON_WIDTH = 46;
+const UNASSIGNED_BUTTON_WIDTH = 124;
 const CLEAR_BUTTON_WIDTH = 66;
 
 const { t } = useI18n();
@@ -49,6 +51,8 @@ const hasFilter = computed(() => props.selectedAgentIds.length > 0);
 
 const isSelected = agentId => props.selectedAgentIds.includes(agentId);
 
+const isUnassignedSelected = computed(() => isSelected(UNASSIGNED_AGENT_ID));
+
 // Every selected agent stays on the row - they are the active filter, so hiding
 // one behind "+N" would leave no way to tell who the board is filtered by. The
 // remaining slots are filled with unselected members, in order.
@@ -56,7 +60,10 @@ const isSelected = agentId => props.selectedAgentIds.includes(agentId);
 const maxVisibleAgents = computed(() => {
   if (!rowWidth.value) return MAX_VISIBLE_AGENTS;
 
-  const fixed = ALL_BUTTON_WIDTH + (hasFilter.value ? CLEAR_BUTTON_WIDTH : 0);
+  const fixed =
+    ALL_BUTTON_WIDTH +
+    UNASSIGNED_BUTTON_WIDTH +
+    (hasFilter.value ? CLEAR_BUTTON_WIDTH : 0);
   const fitsAll = Math.floor(
     (rowWidth.value - fixed - AVATAR_GROUP_PADDING) / AVATAR_SLOT_WIDTH
   );
@@ -152,6 +159,22 @@ const handleMenuAction = ({ value }) => toggleAgent(value);
         />
       </button>
     </div>
+
+    <!-- Os tickets que ninguem assumiu. Soma com os agentes: "A ou sem responsavel". -->
+    <button
+      type="button"
+      class="flex items-center h-7 px-2.5 rounded-full text-xs font-medium border transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+      :class="
+        isUnassignedSelected
+          ? 'bg-n-brand/10 border-n-brand text-n-blue-11'
+          : 'border-n-weak text-n-slate-11 hover:bg-n-slate-3'
+      "
+      :aria-pressed="isUnassignedSelected"
+      data-testid="filter-unassigned"
+      @click="toggleAgent(UNASSIGNED_AGENT_ID)"
+    >
+      {{ t('TICKET.FILTERS.UNASSIGNED') }}
+    </button>
 
     <div v-if="overflowAgents.length" ref="menuContainer" class="relative">
       <button

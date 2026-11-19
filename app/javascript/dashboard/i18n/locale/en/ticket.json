@@ -103,7 +103,8 @@
       "MORE_AGENTS": "Show {count} more agents",
       "SEARCH_AGENT": "Search agent",
       "NO_MESA_MEMBERS": "This service desk has no members yet. Add them in Settings > Teams.",
-      "ALL_PRIORITIES": "All priorities"
+      "ALL_PRIORITIES": "All priorities",
+      "UNASSIGNED": "Unassigned"
     },
     "EMPTY": {
       "TITLE": "No Mesa yet",

@@ -45,3 +45,17 @@ describe('keepCurrentMembers', () => {
     ]);
   });
 });
+
+describe('Sem responsavel no filtro guardado', () => {
+  beforeEach(() => window.localStorage.clear());
+
+  it('guarda e devolve o valor reservado junto dos agentes', () => {
+    writeAgentFilter(1, 10, [0, 5]);
+
+    expect(readAgentFilter(1, 10)).toEqual([0, 5]);
+  });
+
+  it('nao o tira do filtro quando a Mesa muda de membros', () => {
+    expect(keepCurrentMembers([0, 5, 9], [{ id: 9 }])).toEqual([0, 9]);
+  });
+});
