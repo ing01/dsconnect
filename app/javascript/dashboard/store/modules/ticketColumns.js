@@ -11,6 +11,21 @@ import SprintsAPI from '../../api/sprints';
 // "Busca detalhada" still finds it. Reopening one puts it back.
 const isOperational = ticket => ticket.status === 'open';
 
+// Onde o ticket esta agora: o Estagio e o indice dentro dele (null se nao esta em nenhum quadro).
+export const locateTicket = (boardState, ticketId) => {
+  const boards = Object.values(boardState.records || {});
+  for (let b = 0; b < boards.length; b += 1) {
+    const columns = boards[b].ticket_columns || [];
+    for (let c = 0; c < columns.length; c += 1) {
+      const index = (columns[c].tickets || []).findIndex(
+        ticket => ticket.id === ticketId
+      );
+      if (index !== -1) return { columnId: columns[c].id, index };
+    }
+  }
+  return null;
+};
+
 // Holds the Kanban ("board") view of a single Mesa de Servico (Team): the
 // Team plus its Estagios (ticket_columns), each with the tickets currently
 // sitting in it. Keyed by team_id so multiple Mesas can be cached at once.
@@ -215,10 +230,36 @@ export const actions = {
   // ordem na tela sem depender disso; a `position` exata dos outros cartoes
   // so fica desatualizada no estado local ate o quadro recarregar por outro
   // motivo, o que nunca chega a ficar visivel.
-  moveTicket: async ({ commit }, { id, ticketColumnId, position }) => {
-    const response = await TicketsAPI.move(id, { ticketColumnId, position });
-    commit(types.UPSERT_TICKET_IN_KANBAN_BOARD, response.data);
-    return response.data;
+  //
+  // Otimista: o cartao muda de Estagio/posicao NO ESTADO na hora em que e' solto, antes da
+  // resposta. Sem isso o estado so' mudava depois do servidor e qualquer atualizacao do quadro
+  // nesse meio tempo (um aviso em tempo real, por exemplo) devolvia o cartao ao lugar antigo, e a
+  // resposta ainda o jogava no FIM da coluna em vez de onde foi solto. Se o servidor recusa (ex.:
+  // Estagio que exige Responsavel), o cartao volta para onde estava.
+  moveTicket: async (
+    { commit, state: boardState },
+    { id, ticketColumnId, position }
+  ) => {
+    const origin = locateTicket(boardState, id);
+    commit(types.MOVE_TICKET_IN_KANBAN_BOARD, {
+      ticketId: id,
+      columnId: ticketColumnId,
+      position,
+    });
+    try {
+      const response = await TicketsAPI.move(id, { ticketColumnId, position });
+      commit(types.UPSERT_TICKET_IN_KANBAN_BOARD, response.data);
+      return response.data;
+    } catch (error) {
+      if (origin) {
+        commit(types.MOVE_TICKET_IN_KANBAN_BOARD, {
+          ticketId: id,
+          columnId: origin.columnId,
+          position: origin.index,
+        });
+      }
+      throw error;
+    }
   },
   deleteTicket: async ({ commit }, { id }) => {
     await TicketsAPI.delete(id);
@@ -336,6 +377,32 @@ export const mutations = {
       ) {
         targetColumn.tickets = [...(targetColumn.tickets || []), ticket];
       }
+    });
+  },
+  // Tira o ticket de onde esta e o poe no Estagio de destino, na posicao pedida (limitada ao
+  // tamanho da lista). E' o que o arrastar-e-soltar faz no estado, antes da resposta do servidor.
+  [types.MOVE_TICKET_IN_KANBAN_BOARD](
+    _state,
+    { ticketId, columnId, position }
+  ) {
+    Object.values(_state.records).forEach(board => {
+      const columns = board.ticket_columns || [];
+      const target = columns.find(column => column.id === columnId);
+      if (!target) return;
+
+      let moved = null;
+      columns.forEach(column => {
+        const found = (column.tickets || []).find(t => t.id === ticketId);
+        if (!found) return;
+        moved = found;
+        column.tickets = column.tickets.filter(t => t.id !== ticketId);
+      });
+      if (!moved) return;
+
+      const list = [...(target.tickets || [])];
+      const index = Math.max(0, Math.min(Number(position) || 0, list.length));
+      list.splice(index, 0, { ...moved, ticket_column_id: columnId });
+      target.tickets = list;
     });
   },
   [types.REMOVE_TICKET_FROM_KANBAN_BOARD](_state, ticketId) {

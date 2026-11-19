@@ -3,11 +3,16 @@ import TicketAttachmentPreviewDialog from '../TicketAttachmentPreviewDialog.vue'
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
-    t: (key, params) => (params ? `${key} ${params.current}/${params.total}` : key),
+    t: (key, params) =>
+      params ? `${key} ${params.current}/${params.total}` : key,
   }),
 }));
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
-vi.mock('@chatwoot/utils', () => ({ downloadFile: vi.fn() }));
+// `useImageZoom` usa o debounce deste pacote, entao o mock mantem o resto como e'.
+vi.mock('@chatwoot/utils', async importOriginal => ({
+  ...(await importOriginal()),
+  downloadFile: vi.fn(),
+}));
 
 const images = [
   { id: 1, filename: 'a.png', file_url: 'http://x/a.png' },
@@ -38,7 +43,9 @@ describe('TicketAttachmentPreviewDialog', () => {
     await wrapper.vm.$nextTick();
 
     expect(wrapper.find('img').attributes('src')).toBe('http://x/b.png');
-    expect(wrapper.find('[data-testid="preview-counter"]').text()).toContain('2/3');
+    expect(wrapper.find('[data-testid="preview-counter"]').text()).toContain(
+      '2/3'
+    );
     wrapper.unmount();
   });
 
@@ -77,7 +84,9 @@ describe('TicketAttachmentPreviewDialog', () => {
     await wrapper.vm.$nextTick();
 
     expect(wrapper.find('[data-testid="preview-next"]').exists()).toBe(false);
-    expect(wrapper.find('[data-testid="preview-counter"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="preview-counter"]').exists()).toBe(
+      false
+    );
     pressKey('ArrowRight');
     await wrapper.vm.$nextTick();
     expect(wrapper.find('img').attributes('src')).toBe('http://x/a.png');

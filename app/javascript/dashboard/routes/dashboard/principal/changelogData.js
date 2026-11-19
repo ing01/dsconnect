@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-drag-fix-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'fix',
+    title: 'Kanban: arrastar tickets ficou mais firme',
+    description:
+      'Ao arrastar um ticket entre estágios, o cartão fica onde foi solto na hora, sem travar nem voltar ao lugar por causa de atualizações que chegam no meio do movimento. Se o estágio recusar a mudança (por exemplo, exige responsável), o cartão volta para onde estava. A coluna inteira, até o fim da altura, aceita o ticket, e as colunas vazias ficaram mais fáceis de acertar.',
+  },
+  {
     id: 'backlog-keep-state-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',
