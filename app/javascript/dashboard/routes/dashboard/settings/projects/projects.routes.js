@@ -28,7 +28,7 @@ export default {
           path: 'modules',
           name: 'project_modules_list',
           meta: {
-            permissions: ['administrator'],
+            permissions: ['administrator', 'project_manage'],
           },
           component: ModulesPage,
         },
@@ -36,7 +36,7 @@ export default {
           path: 'tasks',
           name: 'project_tasks_list',
           meta: {
-            permissions: ['administrator'],
+            permissions: ['administrator', 'project_manage'],
           },
           component: TaskTemplatesPage,
         },

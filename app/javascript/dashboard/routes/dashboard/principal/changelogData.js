@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'projects-shortcuts-implementation-profile-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'fix',
+    title: 'Projetos: atalhos de Módulos e Tarefas para o perfil de implantação',
+    description:
+      'Quem tem o perfil de acesso de implantação clicava em Tarefas (ou Módulos) na tela de Projetos e caía em outra tela, porque elas só abriam para administradores. Agora esse perfil abre as duas telas e pode personalizar os Módulos e as Tarefas.',
+  },
+  {
     id: 'integration-api-niches-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',
