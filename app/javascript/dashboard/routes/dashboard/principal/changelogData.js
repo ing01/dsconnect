@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'backlog-keep-state-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'fix',
+    title: 'Backlog e Sprint ativo voltam como estavam',
+    description:
+      'Ao trocar de aba (ou abrir um ticket) e voltar, o Backlog e o Sprint ativo mantêm a visão escolhida, os filtros e o ponto da rolagem, e releem os tickets para mostrar o que mudou. Projetos e o Kanban também voltam no mesmo ponto da rolagem.',
+  },
+  {
+    id: 'mobile-client-tutorials-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'mobile',
+    type: 'feature',
+    title: 'App: aba Tutoriais para o cliente',
+    description:
+      'No app, o cliente ganhou a aba Tutoriais, igual à da Área do Cliente: os módulos aparecem como cards e, ao tocar, mostram os vídeos de dentro. O vídeo abre no player do aparelho (YouTube, Vimeo ou arquivo). O conteúdo é o mesmo cadastrado em Configurações > Tutoriais do Portal.',
+  },
+  {
     id: 'client-chat-sending-state-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

@@ -12,6 +12,7 @@ import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { formatMesaName } from 'dashboard/helper/mesaName';
 import ProjectsAPI from 'dashboard/api/projects';
+import { useKeepAliveScroll } from '../../tickets/composables/useKeepAliveScroll';
 
 import ProjectBoard from '../components/ProjectBoard.vue';
 import ProjectCreateDialog from '../components/ProjectCreateDialog.vue';
@@ -21,6 +22,9 @@ import ProjectsTutorialDialog from '../components/ProjectsTutorialDialog.vue';
 const { t } = useI18n();
 const store = useStore();
 const router = useRouter();
+
+const pageRoot = ref(null);
+useKeepAliveScroll(pageRoot);
 
 const selectedTeamId = ref('');
 const selectedImplementerId = ref('');
@@ -153,7 +157,10 @@ const goToTasksSettings = () => {
 </script>
 
 <template>
-  <div class="flex flex-col w-full h-full min-h-0 min-w-0 p-4 gap-4 bg-n-surface-1">
+  <div
+    ref="pageRoot"
+    class="flex flex-col w-full h-full min-h-0 min-w-0 p-4 gap-4 bg-n-surface-1"
+  >
     <!-- Header -->
     <header class="flex flex-col gap-3 w-full min-w-0 flex-shrink-0">
       <div class="flex items-center justify-between flex-wrap gap-3">
