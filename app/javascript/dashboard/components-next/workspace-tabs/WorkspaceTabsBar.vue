@@ -97,9 +97,7 @@ const defaultItems = computed(() => [
 const orderKey = () =>
   `workspace-tab-order::${accountId.value}::${currentUser.value?.id}`;
 const savedOrder = ref([]);
-const items = computed(() =>
-  orderItems(defaultItems.value, savedOrder.value)
-);
+const items = computed(() => orderItems(defaultItems.value, savedOrder.value));
 
 const hasItems = computed(() => items.value.length > 0);
 
@@ -285,6 +283,21 @@ const closeItem = item => {
   else goToPrincipal();
 };
 
+// Clique com o botao do meio (a rodinha) fecha a aba, como no navegador. So' o botao 1: o
+// clique normal continua selecionando, e a regra de quais abas podem fechar e' a mesma do "x".
+const MIDDLE_BUTTON = 1;
+const onMiddleClick = (event, item) => {
+  if (event.button !== MIDDLE_BUTTON || !isClosable(item)) return;
+  event.preventDefault();
+  closeItem(item);
+};
+
+// No Windows o botao do meio no `mousedown` liga o "rolar arrastando" do navegador; sem
+// segurar aqui, ele aparece no lugar de fechar a aba.
+const preventMiddleAutoscroll = event => {
+  if (event.button === MIDDLE_BUTTON) event.preventDefault();
+};
+
 watch([items, () => route.fullPath], measureOverflow);
 
 onMounted(async () => {
@@ -336,6 +349,8 @@ onBeforeUnmount(() => window.removeEventListener('resize', measureOverflow));
           @dragend="onDragEnd"
           @select="selectItem(item)"
           @close="closeItem(item)"
+          @mousedown="preventMiddleAutoscroll"
+          @auxclick="onMiddleClick($event, item)"
         />
         <TicketWorkspaceTab
           v-else
@@ -356,6 +371,8 @@ onBeforeUnmount(() => window.removeEventListener('resize', measureOverflow));
           @dragend="onDragEnd"
           @select="selectItem(item)"
           @close="closeItem(item)"
+          @mousedown="preventMiddleAutoscroll"
+          @auxclick="onMiddleClick($event, item)"
         />
       </template>
     </div>
@@ -397,11 +414,11 @@ onBeforeUnmount(() => window.removeEventListener('resize', measureOverflow));
             type="button"
             class="flex-1 min-w-0 px-2 py-1.5 text-sm text-left truncate focus-visible:outline-none"
             :class="
-              isActive(item)
-                ? 'text-n-slate-12 font-medium'
-                : 'text-n-slate-11'
+              isActive(item) ? 'text-n-slate-12 font-medium' : 'text-n-slate-11'
             "
             @click="selectItem(item)"
+            @mousedown="preventMiddleAutoscroll"
+            @auxclick="onMiddleClick($event, item)"
           >
             {{ itemLabel(item) }}
           </button>

@@ -72,3 +72,24 @@ describe('WorkspacePageTab, aviso de nao lida', () => {
     expect(alerta(montar('tickets_index|[]')).exists()).toBe(false);
   });
 });
+
+// A barra fecha a aba no clique do meio escutando `auxclick` e `mousedown` no proprio
+// elemento da aba: precisam chegar ao elemento raiz (ficar de fora do `emits`).
+describe('WorkspacePageTab, clique do botao do meio', () => {
+  it('repassa auxclick e mousedown ao elemento da aba', async () => {
+    const auxclick = vi.fn();
+    const mousedown = vi.fn();
+    const wrapper = mount(WorkspacePageTab, {
+      props: { tab: { key: 'home|[]', label: 'Aba', icon: 'i-lucide-inbox' } },
+      attrs: { onAuxclick: auxclick, onMousedown: mousedown },
+      global: { directives: { tooltip: () => {} } },
+    });
+
+    await wrapper.trigger('mousedown', { button: 1 });
+    await wrapper.trigger('auxclick', { button: 1 });
+
+    expect(mousedown).toHaveBeenCalledTimes(1);
+    expect(auxclick).toHaveBeenCalledTimes(1);
+    expect(auxclick.mock.calls[0][0].button).toBe(1);
+  });
+});

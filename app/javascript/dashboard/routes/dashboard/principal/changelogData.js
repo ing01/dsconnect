@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'tabs-middle-click-close-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Fechar aba com o botão do meio do mouse',
+    description:
+      'Nas abas do topo da tela, clicar com o botão do meio (a rodinha) do mouse agora fecha a aba, como no navegador. Vale também para a lista de abas do botão +.',
+  },
+  {
     id: 'published-forms-2026-11-18',
     date: '18 de novembro de 2026',
     isoDate: '2026-11-18',
