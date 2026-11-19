@@ -42,24 +42,85 @@ const toggle = ({ value }) => {
   emit('update:modelValue', next);
 };
 
-const label = computed(() => {
-  if (!selected.value.length) return t('TICKET.CREATE.FOLLOWERS.PLACEHOLDER');
-  return selected.value.map(member => member.name).join(', ');
-});
+const remove = id =>
+  emit(
+    'update:modelValue',
+    props.modelValue.filter(current => current !== id)
+  );
+
+const clearAll = () => emit('update:modelValue', []);
+
+const placeholder = computed(() =>
+  selected.value.length
+    ? t('TICKET.CREATE.FOLLOWERS.ADD_MORE')
+    : t('TICKET.CREATE.FOLLOWERS.PLACEHOLDER')
+);
 </script>
 
 <template>
   <OnClickOutside class="relative w-full min-w-0" @trigger="isOpen = false">
-    <button
-      type="button"
-      :disabled="disabled || !members.length"
-      class="flex items-center justify-between w-full h-10 gap-2 px-3 text-sm border rounded-lg border-n-weak bg-n-alpha-black2 text-n-slate-12 disabled:opacity-50 disabled:cursor-not-allowed"
-      :class="{ 'text-n-slate-10': !selected.length }"
-      @click="isOpen = !isOpen"
+    <!-- Cada seguidor e' uma etiqueta com "x": remover nao exige reabrir a lista. -->
+    <div
+      class="flex items-center w-full gap-1 px-2 py-1 border rounded-lg min-h-10 border-n-weak bg-n-alpha-black2 text-n-slate-12"
+      :class="{ 'opacity-50': disabled || !members.length }"
+      data-testid="followers-box"
     >
-      <span class="truncate min-w-0 text-left">{{ label }}</span>
-      <Icon icon="i-lucide-chevron-down" class="flex-shrink-0 size-4" />
-    </button>
+      <ul
+        class="flex flex-wrap items-center flex-1 min-w-0 gap-1 m-0 list-none"
+      >
+        <li
+          v-for="member in selected"
+          :key="member.id"
+          class="flex items-center gap-1 py-0.5 pl-2 pr-1 text-sm rounded-md bg-n-alpha-2"
+          :data-testid="`follower-chip-${member.id}`"
+        >
+          <span class="truncate max-w-[10rem]">{{ member.name }}</span>
+          <button
+            type="button"
+            class="flex items-center justify-center rounded size-5 text-n-slate-10 hover:bg-n-alpha-3 hover:text-n-slate-12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+            :disabled="disabled"
+            :aria-label="
+              t('TICKET.CREATE.FOLLOWERS.REMOVE', { name: member.name })
+            "
+            :data-testid="`follower-remove-${member.id}`"
+            @click="remove(member.id)"
+          >
+            <Icon icon="i-lucide-x" class="size-3.5" />
+          </button>
+        </li>
+        <li class="flex-1 min-w-[6rem]">
+          <button
+            type="button"
+            :disabled="disabled || !members.length"
+            class="w-full h-8 text-sm text-left text-n-slate-10 disabled:cursor-not-allowed"
+            data-testid="followers-toggle"
+            @click="isOpen = !isOpen"
+          >
+            {{ placeholder }}
+          </button>
+        </li>
+      </ul>
+
+      <button
+        v-if="selected.length > 1"
+        type="button"
+        class="flex-shrink-0 px-1 text-xs rounded text-n-slate-10 hover:text-n-slate-12"
+        :disabled="disabled"
+        data-testid="followers-clear"
+        @click="clearAll"
+      >
+        {{ t('TICKET.CREATE.FOLLOWERS.CLEAR') }}
+      </button>
+      <button
+        type="button"
+        :disabled="disabled || !members.length"
+        class="flex items-center justify-center flex-shrink-0 size-7 text-n-slate-10"
+        :aria-label="t('TICKET.CREATE.FOLLOWERS.ADD_MORE')"
+        @click="isOpen = !isOpen"
+      >
+        <Icon icon="i-lucide-chevron-down" class="size-4" />
+      </button>
+    </div>
 
     <DropdownMenu
       v-if="isOpen"

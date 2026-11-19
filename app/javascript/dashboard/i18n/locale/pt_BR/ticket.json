@@ -1473,7 +1473,6 @@
       "ADD_SLA_HOURS": "Adicionar horas SLA",
       "CANCEL": "Cancelar ticket",
       "CLOSE": "Fechar ticket",
-      "CANCEL": "Cancelar ticket",
       "REOPEN": "Reabrir ticket",
       "DELETE": "Excluir ticket",
       "CLOSE_DIALOG": {
@@ -1647,7 +1646,10 @@
       "FOLLOWERS": {
         "PLACEHOLDER": "Selecione",
         "SEARCH": "Buscar membro da mesa",
-        "EMPTY": "Nenhum membro nesta mesa."
+        "EMPTY": "Nenhum membro nesta mesa.",
+        "ADD_MORE": "Adicionar seguidor",
+        "REMOVE": "Remover {name}",
+        "CLEAR": "Limpar"
       },
       "FILES": {
         "ADD": "Anexar arquivos",

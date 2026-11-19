@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'new-ticket-followers-chips-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Remover seguidores ao abrir um ticket ficou direto',
+    description:
+      'No Novo ticket, cada seguidor agora aparece como uma etiqueta com um x para remover na hora, e há o botão Limpar para tirar todos de uma vez. Antes era preciso reabrir a lista e desmarcar o nome.',
+  },
+  {
     id: 'tabs-middle-click-close-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

@@ -1544,7 +1544,10 @@
       "FOLLOWERS": {
         "PLACEHOLDER": "Select",
         "SEARCH": "Search desk member",
-        "EMPTY": "No member in this desk."
+        "EMPTY": "No member in this desk.",
+        "ADD_MORE": "Add follower",
+        "REMOVE": "Remove {name}",
+        "CLEAR": "Clear"
       },
       "FILES": {
         "ADD": "Attach files",
