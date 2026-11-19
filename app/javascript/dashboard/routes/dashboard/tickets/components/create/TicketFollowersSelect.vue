@@ -75,9 +75,11 @@ const placeholder = computed(() =>
           :data-testid="`follower-chip-${member.id}`"
         >
           <span class="truncate max-w-[10rem]">{{ member.name }}</span>
+          <!-- O "x" e' um SVG proprio (e nao o icone de mascara): aqui ele nao aparecia, e remover
+               o seguidor e' justamente o que esta etiqueta existe para fazer. -->
           <button
             type="button"
-            class="flex items-center justify-center rounded size-5 text-n-slate-10 hover:bg-n-alpha-3 hover:text-n-slate-12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+            class="flex items-center justify-center flex-shrink-0 rounded size-5 bg-n-alpha-2 text-n-slate-12 hover:bg-n-alpha-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
             :disabled="disabled"
             :aria-label="
               t('TICKET.CREATE.FOLLOWERS.REMOVE', { name: member.name })
@@ -85,7 +87,19 @@ const placeholder = computed(() =>
             :data-testid="`follower-remove-${member.id}`"
             @click="remove(member.id)"
           >
-            <Icon icon="i-lucide-x" class="size-3.5" />
+            <svg
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              aria-hidden="true"
+              data-testid="follower-remove-icon"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
           </button>
         </li>
         <li class="flex-1 min-w-[6rem]">

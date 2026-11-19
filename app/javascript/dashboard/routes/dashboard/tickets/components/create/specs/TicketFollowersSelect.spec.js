@@ -29,6 +29,14 @@ describe('TicketFollowersSelect', () => {
     );
   });
 
+  it('draws the x itself, so it is always visible', () => {
+    const wrapper = mountSelect([1, 2]);
+
+    expect(
+      wrapper.findAll('[data-testid="follower-remove-icon"]')
+    ).toHaveLength(2);
+  });
+
   it('removes only the follower whose x was clicked', async () => {
     const wrapper = mountSelect([1, 2, 3]);
 
