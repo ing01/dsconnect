@@ -57,8 +57,14 @@ serve naquele contexto é **422**.
 
 ### `GET /users`
 ```json
-[{ "id": 31, "name": "Ana Souza", "email": "ana@empresa.com.br", "role": "agent" }]
+[{ "id": 31, "name": "Ana Souza", "email": "ana@empresa.com.br", "role": "agent",
+   "niches": [{ "id": 3, "name": "Varejo" }],
+   "sub_niches": [{ "id": 12, "name": "Padaria / panificadora" }] }]
 ```
+`niches` e `sub_niches` são os Nichos e Sub-nichos de empresa que o agente atende
+(Configurações > Nichos por agente); listas vazias quando nenhum. Casam com o
+`niche`/`sub_niche` de `GET /companies` para achar quem atende uma empresa.
+`?niche_id=` e `?sub_niche_id=` listam só quem atende aquele Nicho / Sub-nicho.
 `?team_id=<id>` lista só os **membros da Mesa** (quem pode ser responsável na
 criação — seção 8). Mesa de outra conta/inexistente → 404. `role`: `agent` ou
 `administrator`.

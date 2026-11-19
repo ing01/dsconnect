@@ -6,7 +6,11 @@
 #   - `query`: parte do nome, da razao social, do dominio ou do codigo (sem diferenciar maiuscula);
 #   - `cnpj`: o documento inteiro, com ou sem pontuacao (e' unico na conta);
 #   - `codigo`: o codigo exato (tambem unico na conta);
-#   - `classified`: `true` so' as que ja tem Nivel, `false` so' as sem Nivel.
+#   - `classified`: `true` so' as que ja tem Nivel, `false` so' as sem Nivel;
+#   - `niche_id` / `sub_niche_id`: so' as do Nicho / Sub-nicho (ids de GET /users, em `niches`).
+#
+# Cada empresa traz o seu `niche` e `sub_niche` ({ id, name } ou nulo), para casar com os
+# Nichos que cada agente atende (GET /users) e achar o responsavel de um ticket.
 class Api::V1::Integrations::CompaniesController < Api::V1::Integrations::BaseController
   DEFAULT_PER_PAGE = 25
   MAX_PER_PAGE = 100
@@ -15,11 +19,11 @@ class Api::V1::Integrations::CompaniesController < Api::V1::Integrations::BaseCo
     scope = filtered_companies
     @companies_count = scope.count
     @current_page = [params[:page].to_i, 1].max
-    @companies = scope.order(:name, :id).page(@current_page).per(per_page)
+    @companies = scope.includes(:company_niche, :company_sub_niche).order(:name, :id).page(@current_page).per(per_page)
   end
 
   def show
-    @company = current_account.companies.find(params[:id])
+    @company = current_account.companies.includes(:company_niche, :company_sub_niche).find(params[:id])
   end
 
   private
@@ -28,8 +32,15 @@ class Api::V1::Integrations::CompaniesController < Api::V1::Integrations::BaseCo
     scope = current_account.companies
     scope = scope.where(cnpj: digits(params[:cnpj])) if params[:cnpj].present?
     scope = scope.where('LOWER(companies.codigo) = ?', params[:codigo].to_s.strip.downcase) if params[:codigo].present?
+    scope = apply_niches(scope)
     scope = apply_query(scope)
     apply_classified(scope)
+  end
+
+  def apply_niches(scope)
+    scope = scope.where(company_niche_id: params[:niche_id]) if params[:niche_id].present?
+    scope = scope.where(company_sub_niche_id: params[:sub_niche_id]) if params[:sub_niche_id].present?
+    scope
   end
 
   def apply_query(scope)

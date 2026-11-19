@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'integration-api-niches-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'feature',
+    title: 'API de Integração: Nicho e Sub-nicho de empresas e agentes',
+    description:
+      'A consulta de empresas da API passa a trazer o Nicho e o Sub-nicho de cada empresa, e a consulta de usuários traz os Nichos e Sub-nichos que cada agente atende. Dá para cruzar os dois e filtrar por niche_id e sub_niche_id para descobrir quem deve ser o responsável por um ticket.',
+  },
+  {
     id: 'filter-unassigned-tickets-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

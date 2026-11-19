@@ -84,6 +84,7 @@ A IA não precisa mais depender de o ticket já ter empresa: ela consulta.
 | `cnpj` | o documento inteiro, com ou sem pontuação (único na conta) |
 | `codigo` | o código exato (único na conta) |
 | `classified` | `true` só as que já têm Nível; `false` só as sem Nível |
+| `niche_id`, `sub_niche_id` | só as empresas daquele Nicho / Sub-nicho |
 | `page`, `per_page` | paginação (até 100 por página) |
 
 ```
@@ -92,12 +93,18 @@ GET /companies?cnpj=11.222.333/0001-81
 ```json
 { "payload": [{ "id": 940, "name": "Alfa Mercado", "legal_name": "Alfa Mercado Ltda",
                 "cnpj": "11222333000181", "codigo": "A-100", "domain": null,
-                "classification_level": 4, "blocked": false }],
+                "classification_level": 4, "blocked": false,
+                "niche": { "id": 3, "name": "Varejo" },
+                "sub_niche": { "id": 12, "name": "Padaria / panificadora" } }],
   "meta": { "count": 1, "current_page": 1 } }
 ```
 
 - `classification_level` é o **Nível da empresa, de 1 a 5**; `null` = **não
   classificada**.
+- `niche` e `sub_niche` (`{ id, name }`, ou `null` quando a empresa não tem) são o
+  **Nicho e Sub-nicho** da empresa. `GET /users` traz, para cada agente, os `niches` e
+  `sub_niches` que ele atende: cruze os dois para **escolher o responsável** do ticket
+  (ou filtre `GET /users?niche_id=&sub_niche_id=`). Dois agentes podem atender o mesmo.
 - `GET /companies/:id` devolve uma empresa. De outra conta ou inexistente: **404**.
 - Se o ticket **já tem empresa**, não precisa consultar: o detalhe
   (`GET /tickets/:id`) traz `company.id` e `company.classification_level`, e a
