@@ -495,7 +495,8 @@
         "STAGE": "Estágio",
         "NO_CATEGORY": "Selecione uma categoria",
         "DUE_DATE": "Data de entrega",
-        "SCHEDULED_AT": "Data de agendamento"
+        "SCHEDULED_AT": "Data de agendamento",
+        "ESTIMATED_HOURS": "Horas estimadas"
       },
       "FOLLOWERS": {
         "TITLE": "Seguidores",
@@ -784,7 +785,8 @@
           "RESPONSAVEL": "Responsável",
           "ESTAGIO": "Estágio atual",
           "MESA": "Mesa atual",
-          "MESA_ANTERIOR": "Mesa anterior"
+          "MESA_ANTERIOR": "Mesa anterior",
+          "HORAS": "Horas estimadas (só o número)"
         },
         "FORM": {
           "NEW_TITLE": "Nova mensagem ao cliente",

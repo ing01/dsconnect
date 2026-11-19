@@ -70,6 +70,28 @@ RSpec.describe TicketCustomerNoticeRule do
                       company: company, contact: contact, title: 'Relatório lento')
     end
 
+    describe 'horas' do
+      def text_with_hours(value)
+        ticket.update!(custom_attributes: { 'estimativa_original_horas' => value }) unless value == :none
+        build_rule(body: 'Estimativa: {{horas}}h.').render_body(ticket)
+      end
+
+      it 'sends the estimate as the number only, in the format of the screen' do
+        expect(text_with_hours(6)).to eq('Estimativa: 6h.')
+        expect(text_with_hours(2.5)).to eq('Estimativa: 2,5h.')
+        expect(text_with_hours('1,25')).to eq('Estimativa: 1,25h.')
+      end
+
+      it 'leaves it blank when the ticket has no estimate' do
+        expect(text_with_hours(:none)).to eq('Estimativa: h.')
+        expect(text_with_hours(0)).to eq('Estimativa: h.')
+      end
+
+      it 'is one of the variables offered on the settings screen' do
+        expect(described_class::VARIABLES).to include('horas' => 'Horas estimadas')
+      end
+    end
+
     it 'replaces the variables with the ticket data' do
       rule = build_rule(body: 'Olá {{solicitante}}, o ticket #{{numero}} ({{titulo}}) de {{cliente}} ' \
                               'está em {{estagio}}, na Mesa {{mesa}}. Antes: {{mesa_anterior}}.')

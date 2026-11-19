@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'estimated-hours-regular-tickets-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'feature',
+    title: 'Horas estimadas nos tickets e na mensagem ao cliente',
+    description:
+      'Os tickets das Mesas comuns ganharam o campo Horas estimadas nas propriedades (é o mesmo campo da Estimativa original do Desenvolvimento). Nas Mensagens ao cliente existe a nova variável {{horas}}, trocada pelo número de horas do ticket no envio.',
+  },
+  {
     id: 'new-ticket-followers-chips-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

@@ -416,6 +416,30 @@ const onCustomListAttribute = (key, text) =>
       />
     </TicketPropertyRow>
 
+    <!-- Horas estimadas: o mesmo campo da Estimativa original do Desenvolvimento (a Mesa de
+         Desenvolvimento ja o mostra no bloco abaixo). Entra na mensagem ao cliente como
+         {{horas}}. -->
+    <TicketPropertyRow
+      v-if="!isDevMesa"
+      :label="t('TICKET.DETAIL.PROPERTIES.ESTIMATED_HOURS')"
+    >
+      <input
+        type="number"
+        min="0"
+        step="0.5"
+        :value="customAttributes.estimativa_original_horas || ''"
+        :disabled="!canUpdate"
+        class="h-9 w-full px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-sm text-n-slate-12 focus:border-n-brand focus:outline-none"
+        data-testid="estimated-hours"
+        @change="
+          onCustomAttribute(
+            'estimativa_original_horas',
+            $event.target.value ? Number($event.target.value) : null
+          )
+        "
+      />
+    </TicketPropertyRow>
+
     <!-- So' aparece em Mesa com o Modulo de Desenvolvimento ligado - nas demais
          este bloco nem existe, nada muda ali. -->
     <template v-if="isDevMesa">

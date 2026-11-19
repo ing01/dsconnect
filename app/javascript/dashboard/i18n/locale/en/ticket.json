@@ -448,7 +448,8 @@
         "STAGE": "Stage",
         "NO_CATEGORY": "Select a category",
         "DUE_DATE": "Delivery date",
-        "SCHEDULED_AT": "Scheduled date"
+        "SCHEDULED_AT": "Scheduled date",
+        "ESTIMATED_HOURS": "Estimated hours"
       },
       "FOLLOWERS": {
         "TITLE": "Followers",
@@ -695,7 +696,8 @@
           "RESPONSAVEL": "Assignee",
           "ESTAGIO": "Current stage",
           "MESA": "Current desk",
-          "MESA_ANTERIOR": "Previous desk"
+          "MESA_ANTERIOR": "Previous desk",
+          "HORAS": "Estimated hours (number only)"
         },
         "FORM": {
           "NEW_TITLE": "New customer message",

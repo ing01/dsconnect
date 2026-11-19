@@ -300,3 +300,49 @@ describe('TicketPropertiesCard', () => {
     });
   });
 });
+
+describe('TicketPropertiesCard, Horas estimadas', () => {
+  const hours = wrapper => wrapper.find('[data-testid="estimated-hours"]');
+
+  it('shows the field on a regular Mesa, with the saved value', () => {
+    const wrapper = mountCard({
+      ticket: ticket({ custom_attributes: { estimativa_original_horas: 6 } }),
+    });
+
+    expect(hours(wrapper).exists()).toBe(true);
+    expect(hours(wrapper).element.value).toBe('6');
+  });
+
+  it('saves a number into the same field of the Development module', async () => {
+    const wrapper = mountCard();
+
+    await hours(wrapper).setValue('2.5');
+    await hours(wrapper).trigger('change');
+
+    expect(wrapper.emitted('updateCustomAttribute')[0]).toEqual([
+      'estimativa_original_horas',
+      2.5,
+    ]);
+  });
+
+  it('clears the estimate when the field is emptied', async () => {
+    const wrapper = mountCard({
+      ticket: ticket({ custom_attributes: { estimativa_original_horas: 4 } }),
+    });
+
+    await hours(wrapper).setValue('');
+    await hours(wrapper).trigger('change');
+
+    expect(wrapper.emitted('updateCustomAttribute')[0]).toEqual([
+      'estimativa_original_horas',
+      null,
+    ]);
+  });
+
+  it('is read-only without permission, and not duplicated on a Development Mesa', () => {
+    expect(
+      hours(mountCard({ canUpdate: false })).attributes('disabled')
+    ).toBeDefined();
+    expect(hours(mountCard({ isDevMesa: true })).exists()).toBe(false);
+  });
+});

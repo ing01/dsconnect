@@ -34,7 +34,8 @@ class TicketCustomerNoticeRule < ApplicationRecord
     'responsavel' => 'Responsável',
     'estagio' => 'Estágio atual',
     'mesa' => 'Mesa atual',
-    'mesa_anterior' => 'Mesa anterior'
+    'mesa_anterior' => 'Mesa anterior',
+    'horas' => 'Horas estimadas'
   }.freeze
 
   belongs_to :account
@@ -82,8 +83,19 @@ class TicketCustomerNoticeRule < ApplicationRecord
       'responsavel' => ticket.assignee&.name,
       'estagio' => ticket.ticket_column&.name,
       'mesa' => display_team_name(ticket.team),
-      'mesa_anterior' => display_team_name(previous_team)
+      'mesa_anterior' => display_team_name(previous_team),
+      'horas' => estimated_hours(ticket)
     }
+  end
+
+  # As "Horas estimadas" do ticket (a mesma Estimativa original do Desenvolvimento, guardada em
+  # `custom_attributes`): so' o numero, no formato da tela ("6", "2,5"). Sem estimativa, fica em
+  # branco - uma mensagem com "{{horas}} horas" precisa decidir o que dizer nesse caso.
+  def estimated_hours(ticket)
+    hours = Float(ticket.custom_attributes&.dig('estimativa_original_horas').to_s.tr(',', '.'), exception: false)
+    return nil if hours.nil? || hours <= 0
+
+    (hours % 1).zero? ? hours.to_i.to_s : hours.round(2).to_s.tr('.', ',')
   end
 
   # Mesas ficam em minusculas no banco; a mensagem do cliente leva o nome

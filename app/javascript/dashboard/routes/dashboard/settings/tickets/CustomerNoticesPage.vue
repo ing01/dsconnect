@@ -32,6 +32,7 @@ const VARIABLES = [
   'estagio',
   'mesa',
   'mesa_anterior',
+  'horas',
 ];
 
 const { t } = useI18n();
