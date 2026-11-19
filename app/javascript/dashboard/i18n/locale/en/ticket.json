@@ -434,7 +434,10 @@
         "SELECT_ALL": "Select all",
         "DELETE_SELECTED": "Delete {count} selected | Delete {count} selected",
         "DELETE_SELECTED_CONFIRM": "Delete {count} attachment? This cannot be undone. | Delete {count} attachments? This cannot be undone.",
-        "DELETE_ERROR": "Could not remove the file."
+        "DELETE_ERROR": "Could not remove the file.",
+        "PREVIOUS_IMAGE": "Previous image",
+        "NEXT_IMAGE": "Next image",
+        "IMAGE_COUNTER": "Image {current} of {total}"
       },
       "ADDITIONAL": {
         "TITLE": "Additional information",

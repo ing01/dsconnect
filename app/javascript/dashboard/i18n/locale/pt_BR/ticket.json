@@ -481,7 +481,10 @@
         "DELETE_SELECTED_CONFIRM": "Excluir {count} anexo? Esta ação não pode ser desfeita. | Excluir {count} anexos? Esta ação não pode ser desfeita.",
         "DELETE_ERROR": "Não foi possível remover o arquivo.",
         "DOWNLOAD_ERROR": "Não foi possível baixar o arquivo.",
-        "DOWNLOAD_ALL_ERROR": "Não foi possível baixar os arquivos."
+        "DOWNLOAD_ALL_ERROR": "Não foi possível baixar os arquivos.",
+        "PREVIOUS_IMAGE": "Imagem anterior",
+        "NEXT_IMAGE": "Próxima imagem",
+        "IMAGE_COUNTER": "Imagem {current} de {total}"
       },
       "ADDITIONAL": {
         "TITLE": "Informações adicionais",

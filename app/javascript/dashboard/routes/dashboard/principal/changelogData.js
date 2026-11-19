@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-chat-sending-state-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Chat do cliente: áudio e anexos mostram "Enviando…"',
+    description:
+      'No chat do Portal, ao enviar um áudio ou anexo, a mensagem agora mostra um indicador de carregamento ("Enviando áudio…") até o envio ser confirmado, em vez de aparecer uma bolha vazia.',
+  },
+  {
+    id: 'ticket-image-gallery-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Imagens do ticket: navegar entre elas e visualizar maior',
+    description:
+      'Ao abrir uma imagem de um ticket que tem mais de uma, dá para passar para a anterior e a próxima com as setas do teclado ou com os botões nas laterais, e o contador mostra em qual você está. A janela da imagem ficou bem maior.',
+  },
+  {
     id: 'tabs-keep-state-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

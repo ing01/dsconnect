@@ -269,6 +269,8 @@
       "SEND_ERROR_TOAST": "Mensagem NÃO enviada: {motivo}",
       "SEND_FAILED_TITLE": "Sua mensagem NÃO foi enviada",
       "FAILED_LABEL": "Falha ao enviar",
+      "SENDING_AUDIO": "Enviando áudio…",
+      "SENDING_FILES": "Enviando arquivo…",
       "RETRY": "Tentar novamente",
       "DISMISS": "Fechar aviso",
       "ERRORS": {
