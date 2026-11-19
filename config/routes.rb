@@ -695,6 +695,8 @@ Rails.application.routes.draw do
           resources :project_modules
           resources :project_task_templates
           resources :checklists
+          # Os nichos e sub-nichos de empresa que cada agente atende (Configuracoes).
+          resources :agent_niches, only: [:index, :update]
           resources :forms do
             resources :form_responses, only: [:index, :show, :create]
           end

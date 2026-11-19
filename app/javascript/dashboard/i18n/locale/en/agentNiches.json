@@ -1,0 +1,21 @@
+{
+  "AGENT_NICHES": {
+    "TITLE": "Niches by agent",
+    "DESCRIPTION": "The company niches and sub-niches each analyst covers. For now this is just a record: nothing changes by itself on the companies.",
+    "SEARCH": "Search by agent, niche or sub-niche",
+    "EMPTY": "No agent found.",
+    "LOADING": "Loading niches by agent...",
+    "LOAD_ERROR": "Could not load the niches by agent.",
+    "COUNTS": "{niches} niches · {subNiches} sub-niches",
+    "NO_NICHES": "No niche",
+    "NO_SUB_NICHES": "No sub-niche",
+    "EDIT": "Edit",
+    "NICHES": "Niches",
+    "SUB_NICHES": "Sub-niches",
+    "FILTER": "Filter the list",
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "SAVED": "Agent niches saved.",
+    "SAVE_ERROR": "Could not save."
+  }
+}

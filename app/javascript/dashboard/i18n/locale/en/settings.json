@@ -494,7 +494,8 @@
     "FORMS_LIST": "All forms",
     "INTERNAL_CHAT": "Internal chat",
     "TICKET_TRIAGE": "Triage",
-    "TICKET_COMPLEXITY": "Complexidade"
+    "TICKET_COMPLEXITY": "Complexidade",
+    "AGENT_NICHES": "Niches by agent"
   },
   "DATA_IMPORTS": {
     "HEADER": "Data",

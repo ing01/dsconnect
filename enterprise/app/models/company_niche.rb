@@ -3,6 +3,7 @@
 class CompanyNiche < ApplicationRecord
   belongs_to :account
   has_many :companies, dependent: :nullify
+  has_many :user_company_niches, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 100 }
   validates :name, uniqueness: { scope: :account_id }

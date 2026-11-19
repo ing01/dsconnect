@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'agent-niches-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'feature',
+    title: 'Nichos e sub-nichos por agente',
+    description:
+      'Em Configurações > Nichos por agente, cada analista passa a ter a lista de nichos e sub-nichos de empresa que atende, e dá para editar e buscar por agente ou por nicho. Os cinco analistas já vêm cadastrados e os nichos que faltavam foram criados. Por enquanto é só cadastro e consulta, nada muda sozinho nas empresas.',
+  },
+  {
     id: 'proposal-send-email-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

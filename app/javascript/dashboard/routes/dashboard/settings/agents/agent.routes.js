@@ -2,6 +2,7 @@ import { FEATURE_FLAGS } from '../../../../featureFlags';
 import { frontendURL } from '../../../../helper/URLHelper';
 import SettingsWrapper from '../SettingsWrapper.vue';
 import AgentHome from './Index.vue';
+import AgentNichesPage from './AgentNichesPage.vue';
 
 export default {
   routes: [
@@ -19,6 +20,16 @@ export default {
           path: 'list',
           name: 'agent_list',
           component: AgentHome,
+          meta: {
+            featureFlag: FEATURE_FLAGS.AGENT_MANAGEMENT,
+            permissions: ['administrator'],
+          },
+        },
+        {
+          // Os nichos e sub-nichos de empresa que cada analista atende.
+          path: 'niches',
+          name: 'agent_niches',
+          component: AgentNichesPage,
           meta: {
             featureFlag: FEATURE_FLAGS.AGENT_MANAGEMENT,
             permissions: ['administrator'],

@@ -819,6 +819,13 @@ const menuItems = computed(() => {
           to: accountScopedRoute('agent_list'),
         },
         {
+          name: 'Settings Agent Niches',
+          label: t('SIDEBAR.AGENT_NICHES'),
+          icon: 'i-lucide-tags',
+          activeOn: ['agent_niches'],
+          to: accountScopedRoute('agent_niches'),
+        },
+        {
           name: 'Settings Teams',
           label: t('SIDEBAR.TEAMS'),
           icon: 'i-lucide-users',

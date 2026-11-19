@@ -56,6 +56,7 @@ import internalChat from './internalChat.json';
 import clientArea from './clientArea.json';
 import ticket from './ticket.json';
 import ticketTimeReports from './ticketTimeReports.json';
+import agentNiches from './agentNiches.json';
 import chatDetailReports from './chatDetailReports.json';
 import forms from './forms.json';
 import ticketSlaReports from './ticketSlaReports.json';
@@ -125,6 +126,7 @@ export default {
   ...clientArea,
   ...ticket,
   ...ticketTimeReports,
+  ...agentNiches,
   ...chatDetailReports,
   ...forms,
   ...ticketSlaReports,

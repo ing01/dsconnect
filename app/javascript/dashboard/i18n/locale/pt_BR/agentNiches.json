@@ -1,0 +1,21 @@
+{
+  "AGENT_NICHES": {
+    "TITLE": "Nichos por agente",
+    "DESCRIPTION": "Os nichos e sub-nichos de empresa que cada analista atende. Por enquanto é só cadastro e consulta: nada muda sozinho nas empresas.",
+    "SEARCH": "Buscar por agente, nicho ou sub-nicho",
+    "EMPTY": "Nenhum agente encontrado.",
+    "LOADING": "Carregando nichos por agente...",
+    "LOAD_ERROR": "Não foi possível carregar os nichos por agente.",
+    "COUNTS": "{niches} nichos · {subNiches} sub-nichos",
+    "NO_NICHES": "Nenhum nicho",
+    "NO_SUB_NICHES": "Nenhum sub-nicho",
+    "EDIT": "Editar",
+    "NICHES": "Nichos",
+    "SUB_NICHES": "Sub-nichos",
+    "FILTER": "Filtrar a lista",
+    "CANCEL": "Cancelar",
+    "SAVE": "Salvar",
+    "SAVED": "Nichos do agente salvos.",
+    "SAVE_ERROR": "Não foi possível salvar."
+  }
+}
