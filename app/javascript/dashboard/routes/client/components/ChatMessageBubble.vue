@@ -159,6 +159,21 @@ const enviarCsat = async () => {
       </template>
     </div>
 
+    <!-- Audio e anexos levam mais tempo que o texto: enquanto o servidor nao confirma, a bolha
+         mostra que ainda esta enviando, em vez de parecer vazia ou perdida. -->
+    <span
+      v-if="message.pending && message.pending_kind"
+      class="flex items-center gap-2 text-xs font-medium"
+      data-testid="bubble-sending"
+    >
+      <Icon icon="i-lucide-loader-circle" class="size-4 animate-spin" />
+      {{
+        message.pending_kind === 'audio'
+          ? t('CLIENT_AREA.CHAT.SENDING_AUDIO')
+          : t('CLIENT_AREA.CHAT.SENDING_FILES')
+      }}
+    </span>
+
     <span
       v-if="message.failed"
       class="flex items-center gap-2 text-xs font-semibold text-white"
@@ -175,7 +190,7 @@ const enviarCsat = async () => {
       </button>
     </span>
     <span
-      v-else
+      v-else-if="!message.pending"
       class="text-[11px] opacity-70"
       :class="message.from_you ? 'text-white' : 'text-n-slate-10'"
     >

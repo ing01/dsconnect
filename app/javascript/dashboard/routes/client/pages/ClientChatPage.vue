@@ -235,6 +235,8 @@ const enviarMensagem = async ({ conteudo, arquivosEnviados, audioEnviado }) => {
     created_at: Math.floor(Date.now() / 1000),
     attachments: [],
     pending: true,
+    // O que esta subindo e nao aparece no texto: a bolha mostra "Enviando..." ate o servidor responder.
+    pending_kind: audioEnviado ? 'audio' : arquivosEnviados?.length ? 'file' : null,
   };
   messages.value.push(pendente);
   rolarParaFinal();
