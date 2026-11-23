@@ -562,6 +562,13 @@ const menuItems = computed(() => {
       activeOn: ['projects_index'],
     },
     {
+      name: 'ConversationPanel',
+      label: t('SIDEBAR.CONVERSATION_PANEL'),
+      icon: 'i-lucide-gauge',
+      to: accountScopedRoute('conversation_panel_index'),
+      activeOn: ['conversation_panel_index'],
+    },
+    {
       name: 'ImplementationReports',
       label: t('SIDEBAR.IMPLEMENTATION_REPORTS'),
       icon: 'i-lucide-bar-chart-3',
@@ -1011,6 +1018,13 @@ const menuItems = computed(() => {
           icon: 'i-lucide-megaphone',
           activeOn: ['client_announcements_settings'],
           to: accountScopedRoute('client_announcements_settings'),
+        },
+        {
+          name: 'Settings Conversation Panel',
+          label: t('SIDEBAR.CONVERSATION_PANEL_SETTINGS'),
+          icon: 'i-lucide-gauge',
+          activeOn: ['conversation_panel_settings'],
+          to: accountScopedRoute('conversation_panel_settings'),
         },
         {
           name: 'Settings Templates',

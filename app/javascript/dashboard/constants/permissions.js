@@ -19,6 +19,7 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'suggestion_manage',
   'commercial_manage',
   'mood_checkin_manage',
+  'conversation_panel_view',
 ];
 
 export const COMMERCIAL_PERMISSIONS = 'commercial_manage';

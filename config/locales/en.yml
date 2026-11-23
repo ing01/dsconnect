@@ -672,6 +672,9 @@ en:
       transcript_subject: 'Conversation Transcript'
     survey:
       response: 'Please rate this conversation, %{link}'
+  conversation_panel:
+    errors:
+      orange_after_green: must be greater than the green time.
   client_announcements:
     errors:
       ends_before_start: must be after the start.

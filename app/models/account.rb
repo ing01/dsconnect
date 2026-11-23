@@ -178,6 +178,7 @@ class Account < ApplicationRecord
   has_many :client_push_subscriptions, dependent: :destroy_async
   has_many :client_tutorials, dependent: :destroy_async
   has_many :client_announcements, dependent: :destroy_async
+  has_one :conversation_panel_setting, dependent: :destroy_async
   has_many :client_tutorial_modules, dependent: :destroy_async
   has_many :contacts, dependent: :destroy_async
   has_many :conversations, dependent: :destroy_async

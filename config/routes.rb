@@ -678,6 +678,8 @@ Rails.application.routes.draw do
           resources :client_tutorial_modules, only: [:index, :create, :update, :destroy]
           # Mural de Avisos do Portal do Cliente (so' administrador).
           resources :client_announcements, only: [:index, :create, :update, :destroy]
+          # Tempos e ritmo do Painel de Conversas (so' administrador).
+          resource :conversation_panel_setting, only: [:show, :update]
           # O video vai direto ao storage; a aplicacao so' registra o blob.
           resource :client_tutorial_uploads, only: [:create], controller: 'client_tutorials/direct_uploads'
 
@@ -959,6 +961,7 @@ Rails.application.routes.draw do
           end
           resource :year_in_review, only: [:show]
           resource :helpdesk_overview, only: [:show]
+          resource :conversation_panel, only: [:show], controller: 'conversation_panel'
           resources :live_reports, only: [] do
             collection do
               get :conversation_metrics

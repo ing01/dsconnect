@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'conversation-panel-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    type: 'feature',
+    platform: 'web',
+    title: 'Painel de Conversas',
+    description:
+      'Novo item "Painel de Conversas" no menu: três cards mostram as conversas em atendimento (verde), aguardando (laranja) e esperando há muito tempo (vermelho), com totais, maior espera e lista por card. Atualiza em tempo real, tem modo TV e aviso sonoro. Os tempos de cada cor são configurados em Configurações > Painel de Conversas. Administradores sempre veem; para outras pessoas, marque "Ver o Painel de Conversas" na Função personalizada.',
+  },
+  {
     id: 'clearable-date-fields-2026-11-23',
     date: '23 de novembro de 2026',
     isoDate: '2026-11-23',
