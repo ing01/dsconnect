@@ -52,7 +52,9 @@
       "INTERNAL_CHAT_MANAGE": "Acessar o Chat Interno",
       "SUGGESTION_MANAGE": "Mover sugestões entre colunas e configurar o quadro de Sugestões",
       "COMMERCIAL_MANAGE": "Acessar o Painel Comercial (CRM) - clientes, vendas e contratos",
-      "MOOD_CHECKIN_MANAGE": "Ver o relatório Humor da equipe"
+      "MOOD_CHECKIN_MANAGE": "Ver o relatório Humor da equipe",
+      "NOTIFICATION_VIEW": "Ver a aba Notificações",
+      "TICKET_CANCEL": "Cancelar tickets"
     },
     "FORM": {
       "NAME": {

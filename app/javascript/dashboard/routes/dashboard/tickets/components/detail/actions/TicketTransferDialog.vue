@@ -49,8 +49,14 @@ const columnOptions = computed(() =>
 const agentOptions = computed(() =>
   agents.value.map(agent => ({ value: agent.id, label: agent.name }))
 );
+// "Cancelado" so' aparece para quem pode cancelar (ou se o ticket ja esta cancelado).
 const statusOptions = computed(() =>
-  STATUSES.map(value => ({
+  STATUSES.filter(
+    value =>
+      value !== 'cancelled' ||
+      props.ticket?.can_cancel ||
+      props.ticket?.status === 'cancelled'
+  ).map(value => ({
     value,
     label: t(`TICKET.STATUS.${value.toUpperCase()}`),
   }))

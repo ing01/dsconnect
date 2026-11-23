@@ -36,6 +36,9 @@ module NotificationTarget
         # Por ticket filho: dois filhos concluidos do mesmo pai sao avisos
         # diferentes, e um nao pode apagar o outro.
         "ticket_child_#{secondary_actor_id}"
+      elsif notification_type == 'ticket_impediment_released'
+        # Por ticket filho: cada filho liberado e' um aviso, e um nao apaga o outro.
+        "ticket_impediment_#{primary_actor_id}"
       else
         # Agrupado pela TELA, e nao pelo ticket: a triagem se lê de uma vez, e
         # um aviso por chamado empilharia a bandeja num dia movimentado.
@@ -76,6 +79,9 @@ module NotificationTarget
         "/app/accounts/#{account_id}/tickets/#{primary_actor_id}?tab=valuation"
       elsif notification_type == 'ticket_child_completed'
         # O ator principal e o ticket PAI: e' ele que o analista abre.
+        "/app/accounts/#{account_id}/tickets/#{primary_actor_id}"
+      elsif notification_type == 'ticket_impediment_released'
+        # O ator principal e o ticket FILHO: e' ele que o responsavel abre para voltar a trabalhar.
         "/app/accounts/#{account_id}/tickets/#{primary_actor_id}"
       else
         # Leva a fila, e nao ao chamado: o que se faz com ele e aceitar e

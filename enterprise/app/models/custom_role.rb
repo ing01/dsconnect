@@ -36,6 +36,10 @@
 # - 'company_manage': Can access Companies and Contracts.
 # - 'internal_chat_manage': Can access the Internal Chat.
 # - 'suggestion_manage': Can move suggestions between columns and configure the Suggestions board.
+# - 'ticket_cancel': Can cancel tickets (an administrator always can). Off by default on every role: cancelling
+#   discards the ticket, so it is granted deliberately.
+# - 'notification_view': Can see the Notificacoes tab (the inbox of notices). Administrators and agents always can;
+#   a custom role needs this one (it is pre-checked on new roles, and granted to every existing role by migration).
 # - 'mood_checkin_manage': Can see the "Humor da equipe" report (administrators always can).
 # - 'commercial_manage': Can access the Painel Comercial (CRM) - clients, sales and contracts.
 #   Unlike every other permission above, this one is checked WITHOUT an administrator bypass
@@ -71,6 +75,8 @@ class CustomRole < ApplicationRecord
     suggestion_manage
     commercial_manage
     mood_checkin_manage
+    notification_view
+    ticket_cancel
   ].freeze
 
   validates :name, presence: true

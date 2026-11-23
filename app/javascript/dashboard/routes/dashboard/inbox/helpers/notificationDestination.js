@@ -51,6 +51,16 @@ export const notificationDestinationFor = (notificationItem, accountId) => {
       };
     }
 
+    // O ator principal e o ticket FILHO que estava impedido: o responsavel abre o filho.
+    if (notificationType === 'ticket_impediment_released') {
+      if (!primaryActor?.id) return null;
+
+      return {
+        name: 'ticket_detail',
+        params: { accountId, ticketId: primaryActor.id },
+      };
+    }
+
     if (notificationType === 'ticket_proposal_answered') {
       if (!primaryActor?.id) return null;
 

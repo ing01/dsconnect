@@ -187,6 +187,7 @@
           "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "O cliente responde um ticket que você é responsável ou segue",
           "TICKET_PROPOSAL_ANSWERED": "O cliente aprova ou recusa uma proposta de um ticket pelo qual você é responsável",
           "TICKET_CHILD_COMPLETED": "Um ticket filho de um ticket pelo qual você é responsável é concluído na Mesa de desenvolvimento",
+          "TICKET_IMPEDIMENT_RELEASED": "Um impedimento é removido ou concluído e você é responsável pelo ticket filho",
           "ARTICLE_PUBLISHED": "Um artigo é publicado na Central de Ajuda",
           "PORTAL_CREATED": "Um novo Portal é criado na Central de Ajuda"
         },

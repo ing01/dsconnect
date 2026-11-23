@@ -82,6 +82,28 @@ RSpec.describe TicketPolicy, type: :policy do
       expect(subject).not_to permit(agent_context, ticket)
     end
 
+    context 'with a custom role' do
+      def context_with(permissions)
+        role = create(:custom_role, account: account, permissions: permissions)
+        account_user = agent.account_users.find_by(account: account)
+        account_user.update!(custom_role: role)
+        { user: agent, account: account, account_user: account_user.reload }
+      end
+
+      it 'allows a role that has the ticket_cancel permission, on a ticket that is not theirs' do
+        expect(subject).to permit(context_with(%w[ticket_manage ticket_cancel]), ticket)
+      end
+
+      it 'denies a role without the permission' do
+        expect(subject).not_to permit(context_with(%w[ticket_manage]), ticket)
+      end
+
+      it 'denies even a role with the permission once the ticket is finalized' do
+        ticket.update_columns(status: Ticket.statuses[:closed]) # rubocop:disable Rails/SkipsModelValidations
+        expect(subject).not_to permit(context_with(%w[ticket_cancel]), ticket)
+      end
+    end
+
     it 'denies even an administrator once the ticket is finalized' do
       ticket.update_columns(status: Ticket.statuses[:closed]) # rubocop:disable Rails/SkipsModelValidations
       expect(subject).not_to permit(administrator_context, ticket)

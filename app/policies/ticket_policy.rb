@@ -84,10 +84,10 @@ class TicketPolicy < ApplicationPolicy
     update?
   end
 
-  # Cancelar e' so' do administrador (alem de o ticket ainda nao estar
-  # finalizado): nao e' tratativa de quem atende, e' descartar o chamado.
+  # Cancelar nao e' tratativa de quem atende, e' descartar o chamado: so' o administrador, ou quem
+  # recebeu a permissao `ticket_cancel` numa funcao personalizada (e o ticket ainda nao finalizado).
   def cancel?
-    editable? && administrator?
+    editable? && (administrator? || cancel_permission?)
   end
 
   # Classifying and writing to the customer are part of handling the ticket.
@@ -174,6 +174,10 @@ class TicketPolicy < ApplicationPolicy
 
   def administrator?
     account_user&.administrator?
+  end
+
+  def cancel_permission?
+    account_user&.custom_role&.permissions&.include?('ticket_cancel') || false
   end
 
   def assigned_to_user?

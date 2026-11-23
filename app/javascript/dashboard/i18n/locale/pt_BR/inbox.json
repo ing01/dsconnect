@@ -1,10 +1,10 @@
 {
   "INBOX": {
     "LIST": {
+      "404": "Não há conversas ativas neste grupo.",
       "TITLE": "Caixa de Entrada",
       "DISPLAY_DROPDOWN": "Exibir",
       "LOADING": "Carregando notificações",
-      "404": "Não há conversas ativas neste grupo.",
       "NO_NOTIFICATIONS": "Nenhuma notificação",
       "NOTE": "Notificações de todas as caixas inscritas",
       "NO_MESSAGES_AVAILABLE": "Ops! Não é possível obter mensagens",
@@ -45,7 +45,8 @@
       "TICKET_PROPOSAL_ANSWERED": "Proposta respondida",
       "TICKET_CHILD_COMPLETED": "Ticket filho concluído",
       "SNOOZED_UNTIL": "Adiado para {time}",
-      "SNOOZED_ENDS": "Adiamento encerrado"
+      "SNOOZED_ENDS": "Adiamento encerrado",
+      "TICKET_IMPEDIMENT_RELEASED": "Impedimento removido"
     },
     "NO_CONTENT": "Nenhum conteúdo disponível",
     "MENU_ITEM": {

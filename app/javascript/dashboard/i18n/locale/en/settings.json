@@ -186,7 +186,8 @@
           "TICKET_TRIAGE_PENDING": "A ticket opened by a customer is waiting for triage",
           "TICKET_CUSTOMER_COMMUNICATION_RECEIVED": "A customer replies on a ticket you're assigned to or following",
           "TICKET_PROPOSAL_ANSWERED": "A customer approves or refuses a proposal on a ticket you're assigned to",
-          "TICKET_CHILD_COMPLETED": "A child ticket of a ticket you're assigned to is completed on the development desk"
+          "TICKET_CHILD_COMPLETED": "A child ticket of a ticket you're assigned to is completed on the development desk",
+          "TICKET_IMPEDIMENT_RELEASED": "An impediment is removed or completed and you are responsible for the child ticket"
         },
         "PUSH_PREFERENCE": "Receive push notifications",
         "SAVE": "Save",

@@ -587,6 +587,7 @@ pt_BR:
       ticket_customer_communication_received: 'Nova resposta de %{company_name} no chamado #%{display_id}'
       ticket_proposal_answered: '%{company_name} %{decision} a proposta do chamado #%{display_id}'
       ticket_child_completed: 'O ticket filho #%{child_display_id} foi concluído (pai #%{display_id})'
+      ticket_impediment_released: 'O impedimento do ticket #%{released_display_id} foi removido'
       article_published: 'Novo artigo publicado: %{article_title}'
       portal_created: 'Novo Portal criado: %{portal_name}'
     proposal_decision:

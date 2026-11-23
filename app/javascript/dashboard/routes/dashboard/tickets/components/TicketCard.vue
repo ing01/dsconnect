@@ -7,6 +7,8 @@ import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import { format, parseISO, isPast } from 'date-fns';
 import { statusColor, priorityColor } from '../helpers/ticketLabels';
 import { ticketSubject } from '../helpers/ticketSubject';
+import { canCancelTickets } from '../helpers/ticketPermissions';
+import { getUserPermissions } from 'dashboard/helper/permissionsHelper';
 
 export default {
   components: {
@@ -132,8 +134,13 @@ export default {
       if (this.ticket.development_type === 'story') return 'i-lucide-book-open';
       return '';
     },
-    isAdministrator() {
-      return this.$store.getters.getCurrentRole === 'administrator';
+    canCancel() {
+      const { getters } = this.$store;
+      const permissions = getUserPermissions(
+        getters.getCurrentUser || { accounts: [] },
+        getters.getCurrentAccountId
+      );
+      return canCancelTickets(getters.getCurrentRole, permissions);
     },
     menuItems() {
       // The operational actions, all of them already implemented elsewhere in
@@ -188,9 +195,10 @@ export default {
             icon: 'i-lucide-circle-x',
           });
         }
-        // So' administrador (o servidor recusa o resto). O cartao nao carrega
-        // o veredito do servidor, entao olha o papel direto.
-        if (this.isAdministrator) {
+        // So' quem pode cancelar (administrador ou a permissao `ticket_cancel`; o servidor
+        // recusa o resto). O cartao nao carrega o veredito do servidor, entao olha o papel e
+        // as permissoes direto.
+        if (this.canCancel) {
           items.push({
             label: this.$t('TICKET.CARD.MENU.CANCEL'),
             action: 'delete',

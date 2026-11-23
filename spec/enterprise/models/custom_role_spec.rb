@@ -10,6 +10,33 @@ RSpec.describe CustomRole, type: :model do
     it { is_expected.to validate_presence_of(:name) }
   end
 
+  describe 'ticket_cancel permission' do
+    it 'is a valid permission for a role' do
+      role = build(:custom_role, account: create(:account), permissions: %w[ticket_manage ticket_cancel])
+
+      expect(role).to be_valid
+    end
+  end
+
+  describe 'notification_view permission' do
+    let(:account) { create(:account) }
+
+    it 'is a valid permission for a role' do
+      role = build(:custom_role, account: account, permissions: %w[ticket_manage notification_view])
+
+      expect(role).to be_valid
+    end
+
+    it 'reaches the frontend through the account user permissions' do
+      user = create(:user, account: account, role: :agent)
+      role = create(:custom_role, account: account, permissions: %w[ticket_manage notification_view])
+      account_user = account.account_users.find_by(user_id: user.id)
+      account_user.update!(custom_role: role)
+
+      expect(account_user.permissions).to include('notification_view', 'custom_role')
+    end
+  end
+
   describe 'filtered unread count invalidation' do
     let(:account) { create(:account) }
     let(:custom_role) { create(:custom_role, account: account, permissions: ['conversation_manage']) }

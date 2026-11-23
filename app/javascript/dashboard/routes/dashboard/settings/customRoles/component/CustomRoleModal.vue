@@ -11,6 +11,7 @@ import {
   CONVERSATION_UNASSIGNED_PERMISSIONS,
   CONVERSATION_PARTICIPATING_PERMISSIONS,
 } from 'dashboard/constants/permissions.js';
+import { NOTIFICATION_VIEW_PERMISSION } from 'dashboard/routes/dashboard/inbox/permissions';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 
@@ -50,10 +51,13 @@ const rules = computed(() => ({
 
 const v$ = useVuelidate(rules, { name, description, selectedPermissions });
 
+// A aba de Notificacoes vem marcada em toda funcao nova (e' o que a equipe espera ver).
+const DEFAULT_PERMISSIONS = [NOTIFICATION_VIEW_PERMISSION];
+
 const resetForm = () => {
   name.value = '';
   description.value = '';
-  selectedPermissions.value = [];
+  selectedPermissions.value = [...DEFAULT_PERMISSIONS];
   v$.value.$reset();
 };
 
