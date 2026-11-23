@@ -18,6 +18,7 @@ import { formatWait } from '../waitTime';
 import PanelStatCard from '../components/PanelStatCard.vue';
 import PanelConversationList from '../components/PanelConversationList.vue';
 import PanelBreakdown from '../components/PanelBreakdown.vue';
+import PanelHandledToday from '../components/PanelHandledToday.vue';
 
 const SOUND_KEY = 'cw_conversation_panel_sound';
 
@@ -290,10 +291,7 @@ onBeforeUnmount(() => {
           :rows="data.by_agent"
           :empty-name="t('CONVERSATION_PANEL.BREAKDOWN.UNASSIGNED')"
         />
-        <PanelBreakdown
-          :title="t('CONVERSATION_PANEL.BREAKDOWN.BY_INBOX')"
-          :rows="data.by_inbox"
-        />
+        <PanelHandledToday :rows="data.handled_today" />
       </div>
     </template>
 

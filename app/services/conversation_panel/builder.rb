@@ -24,7 +24,7 @@ class ConversationPanel::Builder
       generated_at: @now,
       counts: counts,
       by_agent: breakdown(:assignee_id),
-      by_inbox: breakdown(:inbox_id),
+      handled_today: handled_today,
       conversations: BANDS.index_with { |band| conversations_in(band) }
     }
   end
@@ -78,20 +78,44 @@ class ConversationPanel::Builder
     }
   end
 
-  # Quantas conversas de cada faixa por agente / por caixa de entrada.
+  # Quantas conversas de cada faixa por agente.
   def breakdown(column)
     rows = open_scope.group(column).pluck(Arel.sql(column.to_s), *band_counts_sql.map { |sql| Arel.sql(sql) })
-    names = names_for(column, rows.map(&:first).compact)
+    names = names_for(rows.map(&:first).compact)
 
     rows.map do |key, green, orange, red|
       { id: key, name: names[key], green: green, orange: orange, red: red, total: green + orange + red }
     end.sort_by { |row| [-row[:red], -row[:orange], -row[:total]] }
   end
 
-  def names_for(column, ids)
+  def names_for(ids)
     return {} if ids.empty?
 
-    column == :assignee_id ? User.where(id: ids).pluck(:id, :name).to_h : @account.inboxes.where(id: ids).pluck(:id, :name).to_h
+    User.where(id: ids).pluck(:id, :name).to_h
+  end
+
+  # Inicio do dia no fuso da conta (padrao: Sao Paulo), nao em UTC.
+  def day_start
+    zone = @account.reporting_timezone.presence || 'America/Sao_Paulo'
+    @now.in_time_zone(zone).beginning_of_day
+  end
+
+  # Quantas conversas cada agente atendeu HOJE: as que ele resolveu hoje (pelo
+  # evento de resolucao) + as que estao com ele em atendimento agora (abertas).
+  # Uma conversa reaberta conta so' como em atendimento, nunca duas vezes.
+  def handled_today
+    resolved_ids = ReportingEvent.where(account_id: @account.id, name: 'conversation_resolved', created_at: day_start..@now)
+                                 .select(:conversation_id)
+    resolved = @account.conversations.resolved.where(id: resolved_ids).where.not(assignee_id: nil).group(:assignee_id).count
+    in_progress = open_scope.where.not(assignee_id: nil).group(:assignee_id).count
+    ids = (resolved.keys + in_progress.keys).uniq
+    names = names_for(ids)
+
+    ids.map do |id|
+      done = resolved[id].to_i
+      active = in_progress[id].to_i
+      { id: id, name: names[id], resolved: done, in_progress: active, total: done + active }
+    end.sort_by { |row| [-row[:total], row[:name].to_s] }
   end
 
   def conversations_in(band)

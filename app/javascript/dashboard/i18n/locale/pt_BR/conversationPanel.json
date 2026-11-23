@@ -58,7 +58,6 @@
     },
     "BREAKDOWN": {
       "BY_AGENT": "Por agente",
-      "BY_INBOX": "Por caixa de entrada",
       "UNASSIGNED": "Sem responsável",
       "EMPTY": "Sem conversas abertas.",
       "TOTAL": "{count} abertas"
@@ -79,6 +78,15 @@
       "SAVE": "Salvar",
       "SAVED": "Configuração do painel salva.",
       "ERROR": "Não foi possível salvar a configuração."
+    },
+    "HANDLED": {
+      "TITLE": "Atendidas hoje por agente",
+      "DESCRIPTION": "Conversas que cada agente atendeu hoje: as que ele resolveu hoje mais as que estão com ele em atendimento agora.",
+      "RESOLVED": "Resolvidas",
+      "IN_PROGRESS": "Em atendimento",
+      "TOTAL": "{count} no dia",
+      "EMPTY": "Nenhum agente atendeu conversas hoje.",
+      "DAY_TOTAL": "Total do dia: {count}"
     }
   }
 }

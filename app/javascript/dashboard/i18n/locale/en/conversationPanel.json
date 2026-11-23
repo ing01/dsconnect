@@ -58,7 +58,6 @@
     },
     "BREAKDOWN": {
       "BY_AGENT": "By agent",
-      "BY_INBOX": "By inbox",
       "UNASSIGNED": "Unassigned",
       "EMPTY": "No open conversations.",
       "TOTAL": "{count} open"
@@ -79,6 +78,15 @@
       "SAVE": "Save",
       "SAVED": "Panel settings saved.",
       "ERROR": "Could not save the settings."
+    },
+    "HANDLED": {
+      "TITLE": "Handled today by agent",
+      "DESCRIPTION": "Conversations each agent handled today: the ones they resolved today plus the ones currently being served by them.",
+      "RESOLVED": "Resolved",
+      "IN_PROGRESS": "In service",
+      "TOTAL": "{count} today",
+      "EMPTY": "No agent handled conversations today.",
+      "DAY_TOTAL": "Day total: {count}"
     }
   }
 }
