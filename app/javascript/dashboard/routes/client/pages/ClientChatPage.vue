@@ -93,12 +93,34 @@ const desconectar = () => {
   consumer = null;
 };
 
+// Depois de uma queda e reconexao do socket (celular que saiu de cobertura,
+// notebook que dormiu...), o `received` so pega mensagens dali pra frente - o
+// que chegou durante a queda ficava preso ate um F5. `sincronizarMensagens`
+// busca o historico de novo nesse momento; `adicionar` ja descarta as
+// repetidas pelo id, entao misturar com o que ja esta na tela e' seguro.
+const sincronizarMensagens = async () => {
+  try {
+    const { data } = await ClientAreaAPI.chat();
+    (data.messages || []).forEach(adicionar);
+  } catch {
+    // Falha silenciosa: a proxima reconexao (ou um F5) tenta de novo: nao vale
+    // interromper quem esta digitando por uma resincronia de fundo.
+  }
+};
+
 const assinar = pubsubToken => {
   desconectar();
   consumer = createConsumer();
+  // A primeira conexao desta assinatura ja' tem as mensagens que `carregar()`
+  // buscou; so' as conexoes SEGUINTES (reconexoes) precisam resincronizar.
+  let jaConectouAntes = false;
   subscription = consumer.subscriptions.create(
     { channel: 'RoomChannel', pubsub_token: pubsubToken },
     {
+      connected: () => {
+        if (jaConectouAntes) sincronizarMensagens();
+        jaConectouAntes = true;
+      },
       received: ({ event, data }) => {
         if (!data || data.conversation_id !== conversationDisplayId.value) {
           return;
@@ -183,6 +205,16 @@ const podeEnviar = () =>
   (draft.value.trim().length > 0 ||
     attachments.value.length > 0 ||
     Boolean(recordedAudioFile.value));
+
+// Ctrl+V com uma imagem/arquivo copiado anexa direto, do mesmo jeito que o
+// botao de clipe - sem isto, so' dava pra anexar escolhendo o arquivo na mao.
+// So' intercepta a colagem quando ha arquivo: colar texto continua normal.
+const aoColar = event => {
+  const arquivos = Array.from(event.clipboardData?.files || []);
+  if (!arquivos.length) return;
+  event.preventDefault();
+  attachments.value = [...attachments.value, ...arquivos];
+};
 
 const ativarPush = async () => {
   const concedida = await requestClientPushPermission();
@@ -510,6 +542,7 @@ onBeforeUnmount(desconectar);
             max-height="8rem"
             class="flex-1"
             @keydown.enter="aoPressionarEnter"
+            @paste="aoColar"
           />
           <Button
             v-if="!isRecordingAudio && !recordedAudioFile"
