@@ -1,21 +1,32 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Icon from 'next/icon/Icon.vue';
 import { useSnakeCase } from 'dashboard/composables/useTransformKeys';
+import { useLoadWithRetry } from 'dashboard/composables/loadWithRetry';
 import { useMessageContext } from '../provider.js';
 
 import GalleryView from 'dashboard/components/widgets/conversation/components/GalleryView.vue';
 
-defineProps({
+const props = defineProps({
   attachment: {
     type: Object,
     required: true,
   },
 });
-const hasError = ref(false);
 const showGallery = ref(false);
 
 const { filteredCurrentChatAttachments } = useMessageContext();
+
+// A mesma protecao do bubbles/Image.vue (imagem unica, sem legenda): sem
+// isto, uma falha passageira de rede no PRIMEIRO carregamento travava o chip
+// em "Falha no carregamento" para sempre, mesmo a URL sendo valida - e toda
+// imagem enviada COM legenda (como a do chat da Area do Cliente) cai aqui,
+// nao no bubbles/Image.vue.
+const { isLoaded, hasError, loadWithRetry } = useLoadWithRetry();
+
+onMounted(() => {
+  if (props.attachment?.dataUrl) loadWithRetry(props.attachment.dataUrl);
+});
 
 const handleError = () => {
   hasError.value = true;
@@ -35,10 +46,9 @@ const handleError = () => {
       {{ $t('COMPONENTS.MEDIA.LOADING_FAILED') }}
     </div>
     <img
-      v-else
+      v-else-if="isLoaded"
       class="object-cover w-full h-full skip-context-menu"
       :src="attachment.dataUrl"
-      @error="handleError"
     />
   </div>
   <GalleryView
