@@ -1,11 +1,11 @@
 # Monta o payload do Painel de Conversas: cada conversa ABERTA cai em exatamente
-# uma faixa, pelo tempo que o cliente espera resposta (`waiting_since`):
+# uma faixa:
 #
-#   verde    - o agente ja respondeu (waiting_since vazio) OU espera ate T1
-#   laranja  - espera acima de T1 e ate T2
-#   vermelho - espera acima de T2
+#   verde    - ja atribuida a um atendente (em atendimento)
+#   laranja  - na fila: sem atendente, espera ate o limite (orange_until_minutes)
+#   vermelho - na fila: sem atendente, espera acima do limite
 #
-# Conversa sem agente (ou com bot) entra na faixa pelo tempo, como qualquer outra.
+# O tempo conta desde a ultima mensagem do cliente sem resposta (waiting_since).
 # Pausadas e adiadas ficam fora das faixas (so contadores). Uma consulta agregada
 # para os numeros e uma consulta limitada por faixa para as listas.
 class ConversationPanel::Builder
@@ -41,12 +41,11 @@ class ConversationPanel::Builder
 
   def band_conditions
     @band_conditions ||= begin
-      green_limit = threshold(@setting.green_until_minutes)
-      orange_limit = threshold(@setting.orange_until_minutes)
+      limit = threshold(@setting.orange_until_minutes)
       {
-        green: sanitize('conversations.waiting_since IS NULL OR conversations.waiting_since > ?', green_limit),
-        orange: sanitize('conversations.waiting_since <= ? AND conversations.waiting_since > ?', green_limit, orange_limit),
-        red: sanitize('conversations.waiting_since <= ?', orange_limit)
+        green: 'conversations.assignee_id IS NOT NULL',
+        orange: sanitize('conversations.assignee_id IS NULL AND (conversations.waiting_since IS NULL OR conversations.waiting_since > ?)', limit),
+        red: sanitize('conversations.assignee_id IS NULL AND conversations.waiting_since <= ?', limit)
       }
     end
   end

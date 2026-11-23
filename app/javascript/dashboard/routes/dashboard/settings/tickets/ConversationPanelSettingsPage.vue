@@ -6,7 +6,7 @@
  * e para vermelho, a frequência de atualização, o tamanho das listas e o som.
  * Quem pode VER o painel é decidido na Função personalizada.
  */
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { conversationPanelSettingsAPI } from 'dashboard/api/conversationPanel';
@@ -27,12 +27,6 @@ const form = ref({
   sound_enabled: false,
 });
 
-const isInvalid = computed(
-  () =>
-    Number(form.value.orange_until_minutes) <=
-    Number(form.value.green_until_minutes)
-);
-
 const load = async () => {
   try {
     const { data } = await conversationPanelSettingsAPI.show();
@@ -45,14 +39,9 @@ const load = async () => {
 };
 
 const save = async () => {
-  if (isInvalid.value) {
-    useAlert(t('CONVERSATION_PANEL.SETTINGS.INVALID'));
-    return;
-  }
   isSaving.value = true;
   try {
     const { data } = await conversationPanelSettingsAPI.save({
-      green_until_minutes: Number(form.value.green_until_minutes),
       orange_until_minutes: Number(form.value.orange_until_minutes),
       refresh_seconds: Number(form.value.refresh_seconds),
       list_limit: Number(form.value.list_limit),
@@ -89,32 +78,13 @@ onMounted(load);
       >
         <label class="flex flex-col gap-1">
           <span class="text-sm font-medium text-n-slate-12">
-            {{ t('CONVERSATION_PANEL.SETTINGS.GREEN_UNTIL') }}
-          </span>
-          <span class="flex items-center gap-2">
-            <input
-              v-model.number="form.green_until_minutes"
-              type="number"
-              min="1"
-              max="1440"
-              class="!mb-0 w-28"
-              data-testid="panel-setting-green"
-            />
-            <span class="text-sm text-n-slate-11">
-              {{ t('CONVERSATION_PANEL.SETTINGS.MINUTES') }}
-            </span>
-          </span>
-        </label>
-
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium text-n-slate-12">
             {{ t('CONVERSATION_PANEL.SETTINGS.ORANGE_UNTIL') }}
           </span>
           <span class="flex items-center gap-2">
             <input
               v-model.number="form.orange_until_minutes"
               type="number"
-              min="2"
+              min="1"
               max="10080"
               class="!mb-0 w-28"
               data-testid="panel-setting-orange"
@@ -125,13 +95,6 @@ onMounted(load);
           </span>
           <span class="text-xs text-n-slate-11">
             {{ t('CONVERSATION_PANEL.SETTINGS.RED_HINT') }}
-          </span>
-          <span
-            v-if="isInvalid"
-            class="text-xs text-n-ruby-11"
-            data-testid="panel-settings-invalid"
-          >
-            {{ t('CONVERSATION_PANEL.SETTINGS.INVALID') }}
           </span>
         </label>
 
@@ -182,7 +145,6 @@ onMounted(load);
             size="sm"
             :label="t('CONVERSATION_PANEL.SETTINGS.SAVE')"
             :is-loading="isSaving"
-            :disabled="isInvalid"
             data-testid="panel-settings-save"
           />
         </div>

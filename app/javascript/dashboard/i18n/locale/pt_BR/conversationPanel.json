@@ -1,7 +1,7 @@
 {
   "CONVERSATION_PANEL": {
     "TITLE": "Painel de Conversas",
-    "SUBTITLE": "Como está o atendimento agora, pelo tempo que o cliente espera resposta.",
+    "SUBTITLE": "Quem está sendo atendido e quem espera na fila, agora.",
     "LIVE": "Ao vivo",
     "RECONNECTING": "Reconectando...",
     "UPDATED_AT": "Atualizado às {time}",
@@ -14,16 +14,16 @@
     "SOUND_OFF": "Som desligado",
     "BANDS": {
       "GREEN": {
-        "TITLE": "Em atendimento",
-        "HINT": "até {minutes} min de espera"
+        "TITLE": "Em atendimento com um atendente",
+        "HINT": "já atribuídas a um atendente"
       },
       "ORANGE": {
-        "TITLE": "Aguardando",
-        "HINT": "de {from} a {to} min de espera"
+        "TITLE": "Aguardando na fila",
+        "HINT": "na fila, sem atendente, até {minutes} min"
       },
       "RED": {
         "TITLE": "Esperando há muito tempo",
-        "HINT": "mais de {minutes} min de espera"
+        "HINT": "na fila, sem atendente, há mais de {minutes} min"
       }
     },
     "CARD": {
@@ -61,11 +61,10 @@
     },
     "SETTINGS": {
       "TITLE": "Painel de Conversas",
-      "DESCRIPTION": "Defina em quanto tempo uma conversa passa de verde para laranja e para vermelho. O tempo conta desde a última mensagem do cliente sem resposta. Quem pode ver o painel é definido na Função personalizada (permissão \"Ver o Painel de Conversas\"); administradores sempre veem.",
-      "GREEN_UNTIL": "Verde (em atendimento) até",
-      "ORANGE_UNTIL": "Laranja (aguardando) até",
+      "DESCRIPTION": "Verde: conversas já atribuídas a um atendente. Laranja: conversas na fila, sem atendente. Vermelho: conversas na fila sem atendente há mais tempo que o limite abaixo (conta desde a última mensagem do cliente). Quem pode ver o painel é definido na Função personalizada (permissão \"Ver o Painel de Conversas\"); administradores sempre veem.",
+      "ORANGE_UNTIL": "Fila vira \"esperando há muito tempo\" após",
       "MINUTES": "minutos",
-      "RED_HINT": "Acima disso a conversa fica vermelha.",
+      "RED_HINT": "Até esse tempo a conversa fica em \"Aguardando na fila\"; depois, fica vermelha.",
       "REFRESH": "Atualizar a cada",
       "SECONDS": "segundos",
       "LIST_LIMIT": "Conversas por lista",
@@ -75,8 +74,7 @@
       "PREVIEW_ERROR": "Não foi possível calcular a prévia agora.",
       "SAVE": "Salvar",
       "SAVED": "Configuração do painel salva.",
-      "ERROR": "Não foi possível salvar a configuração.",
-      "INVALID": "O tempo do laranja precisa ser maior que o do verde."
+      "ERROR": "Não foi possível salvar a configuração."
     }
   }
 }

@@ -26,6 +26,6 @@ class Api::V2::Accounts::ConversationPanelController < Api::V1::Accounts::BaseCo
   # Os tempos entram na chave: mudar a configuracao reflete na hora.
   def cache_key
     setting = ConversationPanelSetting.for(Current.account)
-    ['conversation_panel', Current.account.id, setting.green_until_minutes, setting.orange_until_minutes, setting.list_limit].join(':')
+    ['conversation_panel', Current.account.id, setting.orange_until_minutes, setting.list_limit].join(':')
   end
 end

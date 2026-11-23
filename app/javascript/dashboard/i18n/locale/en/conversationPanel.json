@@ -1,7 +1,7 @@
 {
   "CONVERSATION_PANEL": {
     "TITLE": "Conversations Panel",
-    "SUBTITLE": "How support is doing right now, by how long customers have been waiting for a reply.",
+    "SUBTITLE": "Who is being served and who is waiting in the queue, right now.",
     "LIVE": "Live",
     "RECONNECTING": "Reconnecting...",
     "UPDATED_AT": "Updated at {time}",
@@ -14,16 +14,16 @@
     "SOUND_OFF": "Sound off",
     "BANDS": {
       "GREEN": {
-        "TITLE": "In service",
-        "HINT": "up to {minutes} min of waiting"
+        "TITLE": "Being served by an agent",
+        "HINT": "already assigned to an agent"
       },
       "ORANGE": {
-        "TITLE": "Waiting",
-        "HINT": "{from} to {to} min of waiting"
+        "TITLE": "Waiting in the queue",
+        "HINT": "in the queue, no agent, up to {minutes} min"
       },
       "RED": {
         "TITLE": "Waiting for a long time",
-        "HINT": "over {minutes} min of waiting"
+        "HINT": "in the queue, no agent, over {minutes} min"
       }
     },
     "CARD": {
@@ -61,11 +61,10 @@
     },
     "SETTINGS": {
       "TITLE": "Conversations Panel",
-      "DESCRIPTION": "Set how long before a conversation goes from green to orange and to red. Time counts from the customer's last unanswered message. Who can see the panel is set in the Custom Role (permission \"See the Conversations Panel\"); administrators always can.",
-      "GREEN_UNTIL": "Green (in service) up to",
-      "ORANGE_UNTIL": "Orange (waiting) up to",
+      "DESCRIPTION": "Green: conversations already assigned to an agent. Orange: conversations in the queue, with no agent. Red: conversations in the queue with no agent for longer than the limit below (counted from the customer's last message). Who can see the panel is set in the Custom Role (permission \"See the Conversations Panel\"); administrators always can.",
+      "ORANGE_UNTIL": "Queue becomes \"waiting for a long time\" after",
       "MINUTES": "minutes",
-      "RED_HINT": "Beyond that the conversation turns red.",
+      "RED_HINT": "Up to that time the conversation stays in \"Waiting in the queue\"; after it, it turns red.",
       "REFRESH": "Refresh every",
       "SECONDS": "seconds",
       "LIST_LIMIT": "Conversations per list",
@@ -75,8 +74,7 @@
       "PREVIEW_ERROR": "Could not calculate the preview right now.",
       "SAVE": "Save",
       "SAVED": "Panel settings saved.",
-      "ERROR": "Could not save the settings.",
-      "INVALID": "The orange time must be greater than the green one."
+      "ERROR": "Could not save the settings."
     }
   }
 }

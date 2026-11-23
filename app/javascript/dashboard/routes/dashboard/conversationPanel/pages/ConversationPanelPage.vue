@@ -39,18 +39,8 @@ const updatedAt = computed(() =>
 );
 
 const bandHint = band => {
-  const { green_until_minutes: green, orange_until_minutes: orange } =
-    settings.value;
-  if (band === 'green') {
-    return t('CONVERSATION_PANEL.BANDS.GREEN.HINT', { minutes: green });
-  }
-  if (band === 'orange') {
-    return t('CONVERSATION_PANEL.BANDS.ORANGE.HINT', {
-      from: green,
-      to: orange,
-    });
-  }
-  return t('CONVERSATION_PANEL.BANDS.RED.HINT', { minutes: orange });
+  const minutes = settings.value.orange_until_minutes;
+  return t(`CONVERSATION_PANEL.BANDS.${band.toUpperCase()}.HINT`, { minutes });
 };
 
 // A maior espera de cada faixa: a conversa mais antiga da lista dela.
