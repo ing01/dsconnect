@@ -50,7 +50,7 @@ const toggleInfo = () => {
       :data-testid="`panel-card-${band}`"
       @click="$emit('select', band)"
     >
-      <div class="flex items-center gap-3 pr-8">
+      <div class="flex items-center gap-3 pr-10">
         <span
           class="relative flex items-center justify-center flex-shrink-0 rounded-full size-10"
           :class="style.iconWrap"
@@ -106,13 +106,13 @@ const toggleInfo = () => {
 
     <div
       v-if="info"
-      class="absolute top-3 right-3"
+      class="absolute top-4 right-4"
       @mouseenter="isInfoOpen = true"
       @mouseleave="isInfoOpen = false"
     >
       <button
         type="button"
-        class="flex items-center justify-center rounded-full size-7 text-n-slate-11 hover:text-n-slate-12 hover:bg-n-alpha-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+        class="flex items-center justify-center rounded-full size-9 text-n-slate-12 bg-n-alpha-2 hover:bg-n-alpha-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
         :aria-label="t('CONVERSATION_PANEL.CARD.INFO_LABEL')"
         :aria-expanded="isInfoOpen"
         :data-testid="`panel-info-${band}`"
@@ -120,7 +120,7 @@ const toggleInfo = () => {
         @focus="isInfoOpen = true"
         @blur="isInfoOpen = false"
       >
-        <Icon icon="i-lucide-circle-alert" class="size-5" />
+        <Icon icon="i-lucide-circle-alert" class="size-6" />
       </button>
       <div
         v-if="isInfoOpen"
