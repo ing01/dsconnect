@@ -52,7 +52,8 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
   end
 
   def classify
-    Captain::Llm::TriagePriorityClassifierService.new(conversation: conversation).classify(transcript: transcript)
+    Captain::Llm::TriagePriorityClassifierService.new(conversation: conversation)
+                                                  .classify(transcript: transcript, image_urls: image_urls)
   end
 
   # Falha da IA nunca trava o fluxo: cai na prioridade padrao configuravel
@@ -98,12 +99,25 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
     }.compact
   end
 
+  def recent_messages
+    @recent_messages ||= conversation.messages
+                                      .where(message_type: %i[incoming outgoing], private: false)
+                                      .order(:created_at).last(TRANSCRIPT_MESSAGE_LIMIT)
+  end
+
   def transcript
-    conversation.messages
-                .where(message_type: %i[incoming outgoing], private: false)
-                .order(:created_at).last(TRANSCRIPT_MESSAGE_LIMIT)
-                .map { |message| "#{message.incoming? ? 'Cliente' : 'Atendimento'}: #{message.content}" }
-                .join("\n")
+    recent_messages.map { |message| "#{message.incoming? ? 'Cliente' : 'Atendimento'}: #{message.content}" }.join("\n")
+  end
+
+  # Imagens anexadas pelo cliente (prints de erro, telas) na mesma janela da
+  # transcricao - mesmo padrao de URL de `Captain::OpenAiMessageBuilderService`.
+  def image_urls
+    recent_messages.flat_map { |message| message.attachments.where(file_type: :image) }
+                   .filter_map { |attachment| attachment_url(attachment) }
+  end
+
+  def attachment_url(attachment)
+    attachment.download_url.presence || attachment.external_url.presence || (attachment.file.attached? ? attachment.file_url : nil)
   end
 
   # Falha ao criar o ticket (Estagio/Categoria mal configurados, por exemplo)

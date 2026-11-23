@@ -19,6 +19,9 @@ class Captain::Llm::ProblemClarityClassifierService < Llm::BaseAiService
     E suficiente (responda true): qualquer descricao que diga o que esta
     acontecendo, mesmo curta (ex: "sistema caiu", "nao consigo emitir nota
     fiscal", "relatorio de vendas nao abre").
+
+    Se houver uma imagem anexada (print de erro, tela do sistema) que mostre o
+    problema, considere isso suficiente mesmo sem muito texto junto.
   PROMPT
 
   def initialize(conversation:)
@@ -27,12 +30,14 @@ class Captain::Llm::ProblemClarityClassifierService < Llm::BaseAiService
     @temperature = 0.0
   end
 
-  def classify(transcript:)
+  def classify(transcript:, image_urls: [])
+    content = image_urls.present? ? RubyLLM::Content.new(transcript, image_urls) : transcript
+
     response = instrument_llm_call(instrumentation_params(transcript)) do
       chat
         .with_params(response_format: { type: 'json_object' })
         .with_instructions(SYSTEM_PROMPT)
-        .ask(transcript)
+        .ask(content)
     end
 
     normalize(parse_response(response.content))
