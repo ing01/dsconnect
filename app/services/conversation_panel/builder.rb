@@ -127,7 +127,7 @@ class ConversationPanel::Builder
     Message.where(conversation_id: conversation_ids, message_type: :incoming, private: false)
            .select('DISTINCT ON (conversation_id) conversation_id, content')
            .order(:conversation_id, created_at: :desc)
-           .to_h { |message| [message.conversation_id, message.content] }
+           .to_a.to_h { |message| [message.conversation_id, message.content] }
   end
 
   def settings_json
