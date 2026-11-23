@@ -10,6 +10,7 @@ import { COPILOT_EVENTS } from 'dashboard/helper/AnalyticsHelper/events';
 import MessageFormatter from 'shared/helpers/MessageFormatter.js';
 
 import Button from 'dashboard/components-next/button/Button.vue';
+import DueBotName from './DueBotName.vue';
 
 const props = defineProps({
   isLastMessage: {
@@ -130,7 +131,7 @@ const removeNegative = () => {
 
 <template>
   <div class="flex flex-col gap-1 text-n-slate-12">
-    <div class="font-medium">{{ $t('CAPTAIN.NAME') }}</div>
+    <DueBotName :show-logo="false" />
     <span v-if="hasEmptyMessageContent" class="text-n-ruby-11">
       {{ $t('CAPTAIN.COPILOT.EMPTY_MESSAGE') }}
     </span>

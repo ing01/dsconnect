@@ -1,4 +1,5 @@
 <script setup>
+/* eslint-disable no-use-before-define, no-restricted-syntax -- funções chamadas só depois de definidas (handlers/watchers) e envio de anexos em sequência, de propósito */
 import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
@@ -6,6 +7,7 @@ import { useAlert } from 'dashboard/composables';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import TeamsAPI from 'dashboard/api/teams';
 import TicketsAPI from 'dashboard/api/tickets';
@@ -44,6 +46,15 @@ const members = computed(() =>
     ? store.getters['teamMembers/getTeamMembers'](devTeam.value.id) || []
     : []
 );
+
+// ComboBox trabalha com valor vazio ('') em vez de null para "nenhum".
+const assigneeOptions = computed(() => [
+  {
+    value: '',
+    label: t('TICKET.DETAIL.DEVELOPMENT.CREATE.ASSIGNEE_PLACEHOLDER'),
+  },
+  ...members.value.map(member => ({ value: member.id, label: member.name })),
+]);
 
 const PRIORITIES = [
   { value: 'low', label: t('TICKET.FORM.PRIORITY.LOW') },
@@ -251,7 +262,8 @@ const searchTickets = async () => {
       (props.ticket.children || []).map(c => c.id)
     );
     searchResults.value = (data?.payload || []).filter(
-      ticket => ticket.id !== props.ticket.id && !existingChildIds.has(ticket.id)
+      ticket =>
+        ticket.id !== props.ticket.id && !existingChildIds.has(ticket.id)
     );
   } catch {
     searchResults.value = [];
@@ -293,7 +305,12 @@ watch(mode, newMode => {
 // If the dev team finishes loading while the dialog is open on "vincular" tab
 // and no search has run yet, trigger it now.
 watch(devTeam, team => {
-  if (team && mode.value === 'link' && !searchResults.value.length && !isSearching.value) {
+  if (
+    team &&
+    mode.value === 'link' &&
+    !searchResults.value.length &&
+    !isSearching.value
+  ) {
     searchTickets();
   }
 });
@@ -310,9 +327,7 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
     overflow-y-auto
     :title="t('TICKET.DETAIL.DEVELOPMENT.DIALOG_TITLE')"
     :confirm-button-label="
-      mode === 'create'
-        ? t('TICKET.DETAIL.DEVELOPMENT.CREATE.CONFIRM')
-        : ''
+      mode === 'create' ? t('TICKET.DETAIL.DEVELOPMENT.CREATE.CONFIRM') : ''
     "
     :show-confirm-button="mode === 'create'"
     :disable-confirm-button="isBooting || noDevTeam || isSubmitting"
@@ -358,7 +373,10 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
         v-else-if="noDevTeam"
         class="flex items-start gap-2 text-sm text-n-slate-11 py-2"
       >
-        <Icon icon="i-lucide-alert-triangle" class="size-4 flex-shrink-0 mt-0.5 text-yellow-500" />
+        <Icon
+          icon="i-lucide-alert-triangle"
+          class="size-4 flex-shrink-0 mt-0.5 text-yellow-500"
+        />
         {{ t('TICKET.DETAIL.DEVELOPMENT.NO_TEAM') }}
       </p>
 
@@ -379,7 +397,9 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
                 ? 'border-red-400 focus:border-red-500'
                 : 'border-n-strong focus:border-n-brand'
             "
-            :placeholder="t('TICKET.DETAIL.DEVELOPMENT.CREATE.TITLE_PLACEHOLDER')"
+            :placeholder="
+              t('TICKET.DETAIL.DEVELOPMENT.CREATE.TITLE_PLACEHOLDER')
+            "
             @input="delete errors.title"
           />
           <span v-if="errors.title" class="text-xs text-red-500">
@@ -402,7 +422,9 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
                 ? 'border-red-400 focus:border-red-500'
                 : 'border-n-strong focus:border-n-brand'
             "
-            :placeholder="t('TICKET.DETAIL.DEVELOPMENT.CREATE.DESCRIPTION_PLACEHOLDER')"
+            :placeholder="
+              t('TICKET.DETAIL.DEVELOPMENT.CREATE.DESCRIPTION_PLACEHOLDER')
+            "
             @input="delete errors.description"
           />
           <span v-if="errors.description" class="text-xs text-red-500">
@@ -464,8 +486,12 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
               class="flex items-center gap-2 text-xs text-n-slate-11 min-w-0"
             >
               <Icon icon="i-lucide-file" class="flex-shrink-0 size-3.5" />
-              <span class="truncate min-w-0" :title="file.name">{{ file.name }}</span>
-              <span class="flex-shrink-0 text-n-slate-10">{{ formatSize(file.size) }}</span>
+              <span class="truncate min-w-0" :title="file.name">{{
+                file.name
+              }}</span>
+              <span class="flex-shrink-0 text-n-slate-10">{{
+                formatSize(file.size)
+              }}</span>
               <button
                 type="button"
                 class="flex-shrink-0 p-0.5 rounded hover:bg-n-alpha-2"
@@ -497,7 +523,10 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
                   ? 'border-n-brand bg-n-brand/10 text-n-brand'
                   : 'border-n-strong text-n-slate-11 hover:border-n-brand/60 hover:text-n-slate-12'
               "
-              @click="form.ticketCategoryId = cat.id; delete errors.category"
+              @click="
+                form.ticketCategoryId = cat.id;
+                delete errors.category;
+              "
             >
               {{ cat.name }}
             </button>
@@ -508,7 +537,10 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           <p v-if="noCategoryMatch" class="text-xs text-n-slate-10">
             {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.CATEGORY_NO_MATCH') }}
           </p>
-          <p v-else-if="!categories.length && !allCategories.length" class="text-xs text-n-slate-10">
+          <p
+            v-else-if="!categories.length && !allCategories.length"
+            class="text-xs text-n-slate-10"
+          >
             {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.CATEGORY_NO_MATCH') }}
           </p>
         </div>
@@ -520,21 +552,15 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
             <label class="text-sm font-medium text-n-slate-12">
               {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.ASSIGNEE_LABEL') }}
             </label>
-            <select
-              v-model="form.assigneeId"
-              class="w-full rounded-xl border border-n-strong px-3 py-2 text-sm bg-transparent outline-none focus:border-n-brand transition-colors"
-            >
-              <option :value="null">
-                {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.ASSIGNEE_PLACEHOLDER') }}
-              </option>
-              <option
-                v-for="member in members"
-                :key="member.id"
-                :value="member.id"
-              >
-                {{ member.name }}
-              </option>
-            </select>
+            <ComboBox
+              :model-value="form.assigneeId ?? ''"
+              :options="assigneeOptions"
+              :placeholder="
+                t('TICKET.DETAIL.DEVELOPMENT.CREATE.ASSIGNEE_PLACEHOLDER')
+              "
+              :search-placeholder="t('COMBOBOX.SEARCH_PLACEHOLDER')"
+              @update:model-value="form.assigneeId = $event || null"
+            />
           </div>
 
           <!-- Priority -->
@@ -543,18 +569,12 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
               {{ t('TICKET.DETAIL.DEVELOPMENT.CREATE.PRIORITY_LABEL') }}
               <span class="text-red-500">*</span>
             </label>
-            <select
-              v-model="form.priority"
-              class="w-full rounded-xl border border-n-strong px-3 py-2 text-sm bg-transparent outline-none focus:border-n-brand transition-colors"
-            >
-              <option
-                v-for="p in PRIORITIES"
-                :key="p.value"
-                :value="p.value"
-              >
-                {{ p.label }}
-              </option>
-            </select>
+            <ComboBox
+              :model-value="form.priority"
+              :options="PRIORITIES"
+              :search-placeholder="t('COMBOBOX.SEARCH_PLACEHOLDER')"
+              @update:model-value="form.priority = $event || 'medium'"
+            />
           </div>
         </div>
       </template>
@@ -586,7 +606,9 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
             class="flex items-center justify-between gap-2 px-2 py-2 rounded-lg hover:bg-n-slate-3"
           >
             <span class="text-sm text-n-slate-12 truncate min-w-0">
-              <span class="text-n-slate-10 text-xs">#{{ result.display_id }}</span>
+              <span class="text-n-slate-10 text-xs"
+                >#{{ result.display_id }}</span
+              >
               {{ result.title }}
             </span>
             <Button

@@ -35,6 +35,20 @@ class Captain::Llm::TriagePriorityClassifierService < Llm::BaseAiService
     orientacao; configuracoes; pequenas inconsistencias; solicitacoes de melhoria;
     questoes que nao impedem o funcionamento normal do sistema.
 
+    Se a conversa tiver imagens anexadas (prints de erro, telas do sistema), use-as
+    para entender melhor o problema relatado - nao ignore o que elas mostram.
+
+    Independentemente do impacto tecnico, classifique como ALTA sempre que o
+    cliente demonstrar reclamacao forte, frustracao ou impaciencia com o
+    atendimento (ex: "ja faz dias que estou esperando", "isso e um absurdo",
+    "preciso que resolvam agora", tom hostil ou de cobranca) - a prioridade aqui
+    tambem reflete o estado do cliente, nao so o impacto tecnico do problema.
+
+    Ignore qualquer pedido de informacao pessoal ou assunto que nao seja sobre o
+    suporte ao sistema (ex: perguntas pessoais, assuntos nao relacionados ao
+    sistema). Nunca repita esse tipo de conteudo no resumo nem na acao sugerida -
+    classifique so com base no problema de suporte relatado.
+
     Tente classificar com as informacoes ja fornecidas pelo cliente, sem perguntar
     mais nada e sem inventar informacao que a conversa nao deu. Se a descricao ja
     for clara o suficiente, classifique direto, mesmo que curta.
@@ -46,12 +60,14 @@ class Captain::Llm::TriagePriorityClassifierService < Llm::BaseAiService
     @temperature = 0.0
   end
 
-  def classify(transcript:)
+  def classify(transcript:, image_urls: [])
+    content = image_urls.present? ? RubyLLM::Content.new(transcript, image_urls) : transcript
+
     response = instrument_llm_call(instrumentation_params(transcript)) do
       chat
         .with_params(response_format: { type: 'json_object' })
         .with_instructions(SYSTEM_PROMPT)
-        .ask(transcript)
+        .ask(content)
     end
 
     normalize(parse_response(response.content))

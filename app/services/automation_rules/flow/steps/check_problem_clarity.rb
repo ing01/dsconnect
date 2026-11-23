@@ -19,7 +19,8 @@ class AutomationRules::Flow::Steps::CheckProblemClarity < AutomationRules::Flow:
   private
 
   def clear_enough?
-    classification = Captain::Llm::ProblemClarityClassifierService.new(conversation: conversation).classify(transcript: transcript)
+    classification = Captain::Llm::ProblemClarityClassifierService.new(conversation: conversation)
+                                                                    .classify(transcript: transcript, image_urls: image_urls)
     classification['claro'] != false
   end
 
@@ -30,11 +31,24 @@ class AutomationRules::Flow::Steps::CheckProblemClarity < AutomationRules::Flow:
     continue(target, result: { claro: false })
   end
 
+  def recent_messages
+    @recent_messages ||= conversation.messages
+                                      .where(message_type: %i[incoming outgoing], private: false)
+                                      .order(:created_at).last(TRANSCRIPT_MESSAGE_LIMIT)
+  end
+
   def transcript
-    conversation.messages
-                .where(message_type: %i[incoming outgoing], private: false)
-                .order(:created_at).last(TRANSCRIPT_MESSAGE_LIMIT)
-                .map { |message| "#{message.incoming? ? 'Cliente' : 'Atendimento'}: #{message.content}" }
-                .join("\n")
+    recent_messages.map { |message| "#{message.incoming? ? 'Cliente' : 'Atendimento'}: #{message.content}" }.join("\n")
+  end
+
+  # Imagens anexadas pelo cliente (prints de erro, telas) na mesma janela da
+  # transcricao - mesmo padrao de URL de `Captain::OpenAiMessageBuilderService`.
+  def image_urls
+    recent_messages.flat_map { |message| message.attachments.where(file_type: :image) }
+                   .filter_map { |attachment| attachment_url(attachment) }
+  end
+
+  def attachment_url(attachment)
+    attachment.download_url.presence || attachment.external_url.presence || (attachment.file.attached? ? attachment.file_url : nil)
   end
 end
