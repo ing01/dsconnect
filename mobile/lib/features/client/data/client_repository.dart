@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/chat_history_session.dart';
 import '../models/chat_message.dart';
 import '../models/client_notification.dart';
+import '../models/client_tutorial.dart';
 import '../models/client_ticket.dart';
 import '../models/client_ticket_detail.dart';
 import '../models/company.dart';
@@ -191,6 +192,12 @@ class ClientRepository {
     return (response.data ?? const [])
         .map((entry) => ClientNotification.fromJson(entry as Map<String, dynamic>))
         .toList();
+  }
+
+  // A aba Tutoriais: modulos e videos ativos, ja na ordem do administrador.
+  Future<TutorialsResult> fetchTutorials() async {
+    final response = await _dio.get<Map<String, dynamic>>('/api/v1/client/tutorials');
+    return TutorialsResult.fromJson(response.data ?? const {});
   }
 
   Future<void> deleteAccount(String password) async {

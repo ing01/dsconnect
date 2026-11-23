@@ -65,10 +65,6 @@ class Account < ApplicationRecord
                   :helpdesk_default_priority_on_ai_failure, :helpdesk_open_ticket_window_days,
                   :helpdesk_level_3to5_team_id, :helpdesk_default_queue_id,
                   :helpdesk_queue_low_id, :helpdesk_queue_high_id, :helpdesk_support_phone_number
-  # Limiares de mensalidade que definem a Prioridade (Baixa/Media/Alta) de uma
-  # Empresa - ver Company#tier_for. Abaixo de `priority_threshold_medium_min`
-  # e' sempre Baixa.
-  store_accessor :settings, :priority_threshold_medium_min, :priority_threshold_high_min
   # Trava temporaria de homologacao: com um numero configurado aqui, a
   # automacao (fluxo de triagem + Captain) do WhatsApp so responde a esse
   # numero - qualquer outro contato so recebe a mensagem registrada na
@@ -212,7 +208,6 @@ class Account < ApplicationRecord
   # A API de Integracao de Tickets (ver Api::V1::Integrations) - uma chave por
   # conta, gerada em Configuracoes > Integracoes.
   has_one :ticket_api_key, dependent: :destroy
-  has_many :ticket_routing_rules, dependent: :destroy_async
   # A Complexidade e da CONTA, e nao da Mesa: o nome e o mesmo em toda a empresa,
   # e quais Mesas oferecem cada nivel mora em `ticket_complexity_teams`.
   has_many :ticket_complexities, dependent: :destroy_async

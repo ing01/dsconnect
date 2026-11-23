@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onActivated, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import { frontendURL } from 'dashboard/helper/URLHelper';
@@ -17,10 +17,15 @@ import BacklogBulkEditDialog from '../components/backlog/BacklogBulkEditDialog.v
 import { useBacklog } from '../composables/useBacklog';
 import { openInWorkspaceTab } from '../helpers/openInWorkspaceTab';
 import { useBoardDensity } from '../composables/useBoardDensity';
+import { useKeepAliveScroll } from '../composables/useKeepAliveScroll';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
+// A tela fica viva ao trocar de aba ou abrir um ticket (ver TicketsWorkspaceRouteView): a aba
+// escolhida (Backlog / Sprint ativo), os filtros e a rolagem voltam como estavam.
+const pageRoot = ref(null);
+useKeepAliveScroll(pageRoot);
 // Tamanho dos cards do quadro do Sprint ativo - o mesmo do Kanban por Mesa.
 const { isCompact, toggleDensity } = useBoardDensity();
 
@@ -182,6 +187,19 @@ watch(
   }
 );
 
+// Ao voltar, so' relê os dados (outra pessoa pode ter movido tickets); a aba e os filtros ficam.
+// A primeira ativacao e' a da montagem, que ja carrega sozinha.
+let firstActivation = true;
+onActivated(() => {
+  if (firstActivation) {
+    firstActivation = false;
+    return;
+  }
+  if (!state.selectedTeamId) return;
+  if (viewMode.value === 'board') ensureBoardLoaded();
+  else reload();
+});
+
 const sortedSprints = computed(() =>
   [...sprints.value].sort((a, b) => a.starts_on.localeCompare(b.starts_on))
 );
@@ -244,6 +262,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
 
 <template>
   <div
+    ref="pageRoot"
     class="flex flex-col w-full h-full min-h-0 overflow-y-auto"
     :class="isCompact && viewMode === 'board' ? 'p-2 gap-2' : 'p-4 gap-4'"
   >

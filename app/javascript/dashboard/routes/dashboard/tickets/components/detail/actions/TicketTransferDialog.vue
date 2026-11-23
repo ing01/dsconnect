@@ -76,15 +76,16 @@ const loadMesaContext = id => {
   store.dispatch('ticketColumns/fetchColumns', id);
 };
 
-// Switching Mesa invalidates both dependent choices. Clearing them (rather than
-// keeping a stale id) is what stops the form submitting an Estagio that belongs
-// to another Mesa, which the server would reject anyway.
-watch(teamId, (id, previous) => {
-  loadMesaContext(id);
-  if (previous == null || id === previous) return;
+// So' limpa Estagio/Responsavel quando a PESSOA troca a Mesa no select - um
+// `watch(teamId, ...)` tambem dispara quando `reset()` preenche `teamId` ao
+// abrir o dialogo, e nesse caso limparia o Responsavel que acabou de vir
+// certo do ticket. Por isso fica no `@select` (so' user-driven), e nao num
+// watcher.
+const handleTeamSelect = () => {
+  loadMesaContext(teamId.value);
   ticketColumnId.value = null;
   assigneeId.value = null;
-});
+};
 
 // The first Estagio of the newly chosen Mesa is a better default than an empty
 // select, since a ticket cannot exist without one.
@@ -136,6 +137,7 @@ defineExpose({ open, close });
           v-model="teamId"
           :options="teamOptions"
           :aria-label="t('TICKET.ACTIONS.TRANSFER_DIALOG.TEAM')"
+          @select="handleTeamSelect"
         />
       </label>
 

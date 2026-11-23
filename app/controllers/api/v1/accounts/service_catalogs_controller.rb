@@ -4,9 +4,15 @@ class Api::V1::Accounts::ServiceCatalogsController < Api::V1::Accounts::BaseCont
 
   # The whole tree in one request: it is small, and both the settings screen and
   # the classification dialog need all three levels at once.
+  #
+  # `service_catalog_items: :forms` must be preloaded too: the item partial
+  # reads `form_ids`, and without this every item issues its own query for it -
+  # fine for a handful of items, but an account with thousands of them (this
+  # one has 2400+) never finishes before the request times out. Found by
+  # investigating the catalog picker coming up empty in production (2026-11-23).
   def index
     @service_catalogs = Current.account.service_catalogs
-                               .includes(service_catalog_areas: :service_catalog_items)
+                               .includes(service_catalog_areas: { service_catalog_items: :forms })
                                .ordered
   end
 

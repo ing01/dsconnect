@@ -36,10 +36,10 @@ else
   json.contract nil
 end
 json.system_modules resource.system_modules.map { |system_module| { id: system_module.id, name: system_module.name } }
-json.client_level resource.client_level
 json.classification_level resource.classification_level
 json.campaign_opt_in resource.campaign_opt_in
 json.blocked resource.blocked
+json.status resource.status
 json.company_category_id resource.company_category_id
 json.company_category (resource.company_category ? { id: resource.company_category.id, name: resource.company_category.name } : nil)
 json.company_niche_id resource.company_niche_id

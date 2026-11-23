@@ -100,7 +100,25 @@ describe('TicketAttachmentsAccordion', () => {
 
     await wrapper.find('button[title="foto.png"]').trigger('click');
 
-    expect(previewOpen).toHaveBeenCalledWith(attachments[0]);
+    // Leva junto as imagens do ticket, para a pre-visualizacao navegar entre elas.
+    expect(previewOpen).toHaveBeenCalledWith(attachments[0], [attachments[0]]);
+  });
+
+  it('passa so as imagens (nao os outros anexos) para navegar na pre-visualizacao', async () => {
+    attachments = [
+      imagem(),
+      planilha(),
+      { ...imagem(), id: 3, filename: 'outra.png' },
+    ];
+    const wrapper = montar();
+
+    await wrapper.find('button[title="foto.png"]').trigger('click');
+
+    const [, gallery] = previewOpen.mock.calls.at(-1);
+    expect(gallery.map(item => item.filename)).toEqual([
+      'foto.png',
+      'outra.png',
+    ]);
   });
 
   it('abre em nova aba (nao pre-visualiza) um anexo que nao e imagem', async () => {

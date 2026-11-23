@@ -1,7 +1,7 @@
 require 'roo'
 
 # Segunda opcao de importacao de Empresa, na aba Planilhas da tela Dados:
-# so tres colunas (Codigo, CNPJ, Prioridade), separada da importacao
+# so duas colunas (Codigo, CNPJ), separada da importacao
 # "Clientes" (que tambem traz nome, endereco e contatos - ver
 # `ClientesImportJob`, que este job espelha em formato/status).
 #
@@ -11,10 +11,10 @@ require 'roo'
 # tambem serve pra gravar o Codigo pela primeira vez numa empresa que so
 # tinha CNPJ ate entao.
 #
-# "Prioridade" vira `Company#client_level` como valor INICIAL, nao trava
-# permanente: se a empresa ja tem (ou vier a ter) mensalidade configurada,
-# `Company#compute_client_level` recalcula e substitui esse valor - decisao
-# confirmada com a Ingrid. Sem mensalidade, o valor importado fica valendo.
+# A coluna "Prioridade" que existia na planilha foi removida (a Prioridade do
+# cliente deixou de existir); planilhas antigas com essa coluna continuam
+# funcionando - ela e' simplesmente ignorada. O nome da classe e do tipo
+# (`company_priority`) ficou como estava para nao quebrar importacoes salvas.
 class CompanyPriorityImportJob < ApplicationJob
   queue_as :low
   retry_on ActiveStorage::FileNotFoundError, wait: 1.minute, attempts: 3
@@ -22,15 +22,6 @@ class CompanyPriorityImportJob < ApplicationJob
   COLUMNS = {
     codigo: 'Código',
     cnpj: 'CNPJ',
-    priority: 'Prioridade',
-  }.freeze
-
-  # Aceita com ou sem acento, singular/masculino, em qualquer caixa -
-  # `normalize_priority_label` remove acento e caixa antes de comparar aqui.
-  PRIORITY_ALIASES = {
-    'baixa' => 1, 'baixo' => 1, '1' => 1,
-    'media' => 2, 'medio' => 2, '2' => 2,
-    'alta' => 3, 'alto' => 3, '3' => 3,
   }.freeze
 
   def perform(data_import)
@@ -73,7 +64,6 @@ class CompanyPriorityImportJob < ApplicationJob
 
     company.codigo = codigo if codigo.present?
     company.cnpj = document_digits if document_digits.present?
-    apply_priority(company, row)
     company.save!
     @processed += 1
   rescue ActiveRecord::RecordInvalid => e
@@ -91,20 +81,6 @@ class CompanyPriorityImportJob < ApplicationJob
   def find_company(codigo, document_digits)
     (codigo.present? && @account.companies.find_by(codigo: codigo)) ||
       (document_digits.present? && @account.companies.find_by(cnpj: document_digits)) || nil
-  end
-
-  def apply_priority(company, row)
-    label = cell(row, :priority)
-    return if label.blank?
-
-    level = PRIORITY_ALIASES[normalize_priority_label(label)]
-    raise "Prioridade '#{label}' invalida (use Baixa, Media ou Alta)" if level.blank?
-
-    company.client_level = level
-  end
-
-  def normalize_priority_label(label)
-    ActiveSupport::Inflector.transliterate(label).strip.downcase
   end
 
   def record_error(row_number, message)

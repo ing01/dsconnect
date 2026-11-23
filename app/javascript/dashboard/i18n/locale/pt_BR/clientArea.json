@@ -269,6 +269,8 @@
       "SEND_ERROR_TOAST": "Mensagem NÃO enviada: {motivo}",
       "SEND_FAILED_TITLE": "Sua mensagem NÃO foi enviada",
       "FAILED_LABEL": "Falha ao enviar",
+      "SENDING_AUDIO": "Enviando áudio…",
+      "SENDING_FILES": "Enviando arquivo…",
       "RETRY": "Tentar novamente",
       "DISMISS": "Fechar aviso",
       "ERRORS": {
@@ -289,6 +291,7 @@
       "ENABLE_PUSH": "Ativar notificações",
       "PUSH_DENIED": "Não foi possível ativar as notificações do navegador.",
       "HISTORY_LINK": "Ver conversas anteriores",
+      "START_NEW_CHAT": "Iniciar novo chat",
       "CSAT": {
         "TITLE": "Como você avalia este atendimento?",
         "FEEDBACK_PLACEHOLDER": "Quer contar mais alguma coisa? (opcional)",

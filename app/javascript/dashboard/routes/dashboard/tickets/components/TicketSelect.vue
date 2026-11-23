@@ -32,6 +32,10 @@ const props = defineProps({
   showSearch: { type: Boolean, default: false },
   searchPlaceholder: { type: String, default: '' },
   isSearching: { type: Boolean, default: false },
+  // Enquanto as opcoes ainda estao vindo do servidor, mostra um spinner em vez
+  // do estado vazio - sem isto, abrir o menu antes da resposta chegar parece
+  // "nao ha nada aqui" em vez de "ainda carregando".
+  isLoading: { type: Boolean, default: false },
   // Para buscas que acontecem no servidor, onde filtrar no navegador
   // esconderia resultados que ainda não chegaram.
   disableLocalFiltering: { type: Boolean, default: false },
@@ -185,6 +189,7 @@ defineExpose({ close });
       :show-search="showSearch"
       :disable-local-filtering="disableLocalFiltering"
       :is-searching="isSearching"
+      :is-loading="isLoading"
       :search-placeholder="searchPlaceholder"
       :empty-state-message="emptyMessage"
       class="max-h-72"

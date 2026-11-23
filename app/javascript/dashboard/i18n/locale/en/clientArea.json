@@ -269,6 +269,8 @@
       "SEND_ERROR_TOAST": "Message NOT sent: {motivo}",
       "SEND_FAILED_TITLE": "Your message was NOT sent",
       "FAILED_LABEL": "Failed to send",
+      "SENDING_AUDIO": "Sending audio…",
+      "SENDING_FILES": "Sending file…",
       "RETRY": "Try again",
       "DISMISS": "Dismiss",
       "ERRORS": {
@@ -289,6 +291,7 @@
       "ENABLE_PUSH": "Enable notifications",
       "PUSH_DENIED": "Could not enable browser notifications.",
       "HISTORY_LINK": "View past conversations",
+      "START_NEW_CHAT": "Start new chat",
       "CSAT": {
         "TITLE": "How would you rate this conversation?",
         "FEEDBACK_PLACEHOLDER": "Anything else you'd like to add? (optional)",

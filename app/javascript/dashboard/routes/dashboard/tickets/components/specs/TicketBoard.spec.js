@@ -209,3 +209,45 @@ describe('TicketBoard', () => {
     expect(wrapper.vm.localColumns[2]).toHaveLength(ticketsBefore);
   });
 });
+
+describe('TicketBoard - during a drag', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  const fresh = () => ({
+    ...board,
+    ticket_columns: board.ticket_columns.map(column => ({
+      ...column,
+      tickets: [...column.tickets],
+    })),
+  });
+
+  it('holds back a refresh that arrives mid-drag and applies it when the card drops', async () => {
+    const wrapper = mountBoard({ board: fresh() });
+    const [first] = wrapper.findAllComponents(TicketBoardColumn);
+
+    first.vm.$emit('dragStart');
+    const refreshed = fresh();
+    refreshed.ticket_columns[0].tickets = [{ id: 555, title: 'Novo' }];
+    await wrapper.setProps({ board: refreshed });
+
+    // As listas que o Draggable esta mexendo nao foram trocadas.
+    expect(wrapper.vm.localColumns[1]).toEqual([]);
+
+    first.vm.$emit('dragEnd');
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.localColumns[1].map(t => t.id)).toEqual([555]);
+  });
+
+  it('applies a refresh right away when nothing is being dragged', async () => {
+    const wrapper = mountBoard({ board: fresh() });
+    const refreshed = fresh();
+    refreshed.ticket_columns[0].tickets = [{ id: 555, title: 'Novo' }];
+
+    await wrapper.setProps({ board: refreshed });
+
+    expect(wrapper.vm.localColumns[1].map(t => t.id)).toEqual([555]);
+  });
+});

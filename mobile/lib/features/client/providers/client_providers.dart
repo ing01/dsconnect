@@ -9,6 +9,7 @@ import '../models/chat_message.dart';
 import '../models/client_notification.dart';
 import '../models/client_ticket.dart';
 import '../models/client_ticket_detail.dart';
+import '../models/client_tutorial.dart';
 import '../models/company.dart';
 import '../models/filter_option.dart';
 import '../models/ticket_category.dart';
@@ -219,6 +220,10 @@ final aiDraftEnabledProvider = FutureProvider.autoDispose<bool>((ref) {
 
 final clientNotificationsProvider = FutureProvider.autoDispose<List<ClientNotification>>((ref) {
   return ref.watch(clientRepositoryProvider).fetchNotifications();
+});
+
+final clientTutorialsProvider = FutureProvider.autoDispose<TutorialsResult>((ref) {
+  return ref.watch(clientRepositoryProvider).fetchTutorials();
 });
 
 final chatHistoryProvider = FutureProvider.autoDispose<List<ChatHistorySession>>((ref) {

@@ -6,9 +6,6 @@ RSpec.describe AutomationRules::Flow::Steps::AiTriage do
   let(:team) { create(:team, account: account) }
   let(:ticket_column) { create(:ticket_column, team: team) }
   let(:ticket_category) { team.ticket_categories.first }
-  # `client_level` e sempre recalculado por `compute_client_level` a partir do
-  # valor de contrato - uma empresa sem contrato/faturamento cai no nivel 1
-  # (baixa) por padrao, e e exatamente o piso que estes testes precisam.
   let(:company) { create(:company, account: account) }
   let(:queue_low) { ServiceQueue.create!(account: account, team: team, name: 'Suporte N1', distribution_strategy: 'manual') }
   let(:queue_high) { ServiceQueue.create!(account: account, team: team, name: 'Suporte N2', distribution_strategy: 'manual') }
@@ -24,7 +21,6 @@ RSpec.describe AutomationRules::Flow::Steps::AiTriage do
     run.write_variable('empresa.id', company.id)
     run.write_variable('empresa.nome', company.name)
     run.write_variable('empresa.cnpj', company.cnpj)
-    run.write_variable('empresa.nivel', company.client_level)
     # `create_ticket` roda antes de `ai_triage` no fluxo de verdade - aqui so
     # precisamos que exista um ticket com esses parametros pra reaproveitar.
     step_create_ticket = { 'id' => 's7', 'type' => 'create_ticket',

@@ -20,17 +20,12 @@
  * para mostrar o que a pessoa acabou de escrever faria um chat interno
  * parecer mais lento que uma mensagem de WhatsApp de verdade.
  */
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { createConsumer } from '@rails/actioncable';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import ClientAreaAPI from 'dashboard/api/clientArea';
-import {
-  clientPushPermission,
-  clientPushSupported,
-  requestClientPushPermission,
-} from 'dashboard/helper/clientPushHelper';
 import Button from 'dashboard/components-next/button/Button.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
@@ -55,10 +50,14 @@ const isSending = ref(false);
 const sendError = ref(null);
 const MAX_CONTENT_LENGTH = 150000;
 const messages = ref([]);
+// A ultima conversa pode vir RESOLVIDA (ver `carregar`) so para a pessoa
+// conseguir ver/responder a pesquisa de satisfacao depois de um F5 - escrever
+// aqui com ela resolvida nao reabriria a sessao, entao o composer da lugar ao
+// botao de "Iniciar novo chat" enquanto isto for true.
+const conversaResolvida = ref(false);
 const draft = ref('');
 const attachments = ref([]);
 const conversationDisplayId = ref(null);
-const pushPermission = ref('default');
 const isRecordingAudio = ref(false);
 const recordedAudioFile = ref(null);
 const recordingAudioDurationText = ref('00:00');
@@ -67,10 +66,6 @@ const listRef = ref(null);
 let consumer = null;
 let subscription = null;
 let tempIdCounter = 0;
-
-const podeAtivarPush = computed(
-  () => clientPushSupported() && pushPermission.value === 'default'
-);
 
 const rolarParaFinal = () => {
   nextTick(() => {
@@ -93,12 +88,35 @@ const desconectar = () => {
   consumer = null;
 };
 
+// Depois de uma queda e reconexao do socket (celular que saiu de cobertura,
+// notebook que dormiu...), o `received` so pega mensagens dali pra frente - o
+// que chegou durante a queda ficava preso ate um F5. `sincronizarMensagens`
+// busca o historico de novo nesse momento; `adicionar` ja descarta as
+// repetidas pelo id, entao misturar com o que ja esta na tela e' seguro.
+const sincronizarMensagens = async () => {
+  try {
+    const { data } = await ClientAreaAPI.chat();
+    (data.messages || []).forEach(adicionar);
+  } catch {
+    // Falha silenciosa: a proxima reconexao (ou um F5) tenta de novo: nao vale
+    // interromper quem esta digitando por uma resincronia de fundo.
+  }
+};
+
 const assinar = pubsubToken => {
   desconectar();
   consumer = createConsumer();
   subscription = consumer.subscriptions.create(
     { channel: 'RoomChannel', pubsub_token: pubsubToken },
     {
+      // Tambem na PRIMEIRA conexao, nao so nas reconexoes: entre o envio que
+      // cria a conversa e esta assinatura terminar de conectar ha uma brecha
+      // onde uma automacao (ex.: mensagem de boas-vindas ao atribuir a Mesa)
+      // pode criar e transmitir uma mensagem que ninguem estava ouvindo
+      // ainda - sem queda de conexao nem nada, so' ficava fora da tela ate um
+      // F5. `sincronizarMensagens` e' idempotente (`adicionar` descarta
+      // repetidas pelo id), entao rodar aqui sempre e' seguro.
+      connected: sincronizarMensagens,
       received: ({ event, data }) => {
         if (!data || data.conversation_id !== conversationDisplayId.value) {
           return;
@@ -145,6 +163,7 @@ const carregar = async () => {
     const { data } = await ClientAreaAPI.chat();
     messages.value = data.messages || [];
     conversationDisplayId.value = data.conversation_id;
+    conversaResolvida.value = Boolean(data.resolved);
     if (data.pubsub_token) assinar(data.pubsub_token);
     rolarParaFinal();
   } catch (error) {
@@ -178,16 +197,36 @@ const stopRecording = () => {
   audioRecorderRef.value?.stopRecording();
 };
 
+// So troca a tela para o composer vazio - nao cria nada no servidor: a
+// conversa nasce (como sempre) so' na primeira mensagem de verdade
+// (`ChatMessagesController`/`ChatConversationResolver`). Um F5 antes de
+// mandar essa primeira mensagem volta a mostrar a sessao resolvida, o que e'
+// aceitavel: nao ha ainda nenhuma conversa "nova" para o servidor devolver.
+const iniciarNovoChat = () => {
+  desconectar();
+  messages.value = [];
+  conversationDisplayId.value = null;
+  conversaResolvida.value = false;
+  draft.value = '';
+  attachments.value = [];
+  recordedAudioFile.value = null;
+  sendError.value = null;
+};
+
 const podeEnviar = () =>
   !isSending.value &&
   (draft.value.trim().length > 0 ||
     attachments.value.length > 0 ||
     Boolean(recordedAudioFile.value));
 
-const ativarPush = async () => {
-  const concedida = await requestClientPushPermission();
-  pushPermission.value = clientPushPermission();
-  if (!concedida) useAlert(t('CLIENT_AREA.CHAT.PUSH_DENIED'));
+// Ctrl+V com uma imagem/arquivo copiado anexa direto, do mesmo jeito que o
+// botao de clipe - sem isto, so' dava pra anexar escolhendo o arquivo na mao.
+// So' intercepta a colagem quando ha arquivo: colar texto continua normal.
+const aoColar = event => {
+  const arquivos = Array.from(event.clipboardData?.files || []);
+  if (!arquivos.length) return;
+  event.preventDefault();
+  attachments.value = [...attachments.value, ...arquivos];
 };
 
 // Traduz a falha para um motivo que a pessoa entende e sabe como resolver.
@@ -227,6 +266,9 @@ const enviarMensagem = async ({ conteudo, arquivosEnviados, audioEnviado }) => {
   // proprio texto "sumir" por um instante e so voltar depois do round-trip.
   tempIdCounter += 1;
   const tempId = `pending-${tempIdCounter}`;
+  let pendingKind = null;
+  if (audioEnviado) pendingKind = 'audio';
+  else if (arquivosEnviados?.length) pendingKind = 'file';
   const pendente = {
     id: tempId,
     content: conteudo || null,
@@ -235,6 +277,8 @@ const enviarMensagem = async ({ conteudo, arquivosEnviados, audioEnviado }) => {
     created_at: Math.floor(Date.now() / 1000),
     attachments: [],
     pending: true,
+    // O que esta subindo e nao aparece no texto: a bolha mostra "Enviando..." ate o servidor responder.
+    pending_kind: pendingKind,
   };
   messages.value.push(pendente);
   rolarParaFinal();
@@ -256,6 +300,7 @@ const enviarMensagem = async ({ conteudo, arquivosEnviados, audioEnviado }) => {
       // envio - a mensagem que acabou de sair ja pertence a uma conversa
       // NOVA. Troca o rastreio e recomeca a lista so com ela.
       conversationDisplayId.value = data.conversation_id;
+      conversaResolvida.value = false;
       messages.value = [data];
       if (data.pubsub_token) assinar(data.pubsub_token);
       return;
@@ -331,10 +376,7 @@ const aoPressionarEnter = event => {
   enviar();
 };
 
-onMounted(() => {
-  pushPermission.value = clientPushPermission();
-  carregar();
-});
+onMounted(carregar);
 onBeforeUnmount(desconectar);
 </script>
 
@@ -359,15 +401,6 @@ onBeforeUnmount(desconectar);
           icon="i-lucide-history"
           :label="t('CLIENT_AREA.CHAT.HISTORY_LINK')"
           @click="router.push({ name: 'client_chat_history' })"
-        />
-        <Button
-          v-if="podeAtivarPush"
-          faded
-          slate
-          size="sm"
-          icon="i-lucide-bell"
-          :label="t('CLIENT_AREA.CHAT.ENABLE_PUSH')"
-          @click="ativarPush"
         />
       </div>
     </header>
@@ -405,7 +438,25 @@ onBeforeUnmount(desconectar);
         />
       </div>
 
+      <!-- Resolvida: sem composer - escrever aqui reabriria a sessao encerrada
+           sem avisar. O botao deixa claro que o que vem a seguir e' uma
+           conversa NOVA, enquanto a pesquisa de satisfacao acima continua
+           visivel e respondivel. -->
       <div
+        v-if="conversaResolvida"
+        class="flex-shrink-0 pt-2 border-t border-n-weak"
+      >
+        <Button
+          lg
+          class="w-full"
+          icon="i-lucide-message-circle-plus"
+          :label="t('CLIENT_AREA.CHAT.START_NEW_CHAT')"
+          @click="iniciarNovoChat"
+        />
+      </div>
+
+      <div
+        v-else
         class="flex flex-col flex-shrink-0 gap-2 pt-2 border-t border-n-weak"
       >
         <!-- Falha de envio: faixa vermelha, com o motivo, que fica ate a pessoa
@@ -508,6 +559,7 @@ onBeforeUnmount(desconectar);
             max-height="8rem"
             class="flex-1"
             @keydown.enter="aoPressionarEnter"
+            @paste="aoColar"
           />
           <Button
             v-if="!isRecordingAudio && !recordedAudioFile"

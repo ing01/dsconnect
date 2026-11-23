@@ -10,8 +10,6 @@ RSpec.describe AutomationRules::Flow::Steps::FindCompany do
     { 'id' => 's2', 'type' => 'find_company', 'params' => { 'cnpj_from' => 'resposta.cnpj' },
       'next' => 's3', 'branches' => { 'not_found' => 's6' } }
   end
-  # `client_level` e recalculado automaticamente por `compute_client_level` -
-  # nao da pra fixar aqui, entao os testes comparam com `company.client_level`.
   # CNPJ de teste com digito verificador valido (Company valida o checksum).
   let(:company) { create(:company, account: account, cnpj: '11222333000181') }
 
@@ -30,7 +28,6 @@ RSpec.describe AutomationRules::Flow::Steps::FindCompany do
     expect(result.next_step_id).to eq('s3')
     expect(run.read_variable('empresa.id')).to eq(company.id)
     expect(run.read_variable('empresa.nome')).to eq(company.name)
-    expect(run.read_variable('empresa.nivel')).to eq(company.client_level)
   end
 
   # Cenario 7: CNPJ sem pontuacao - mesma empresa.

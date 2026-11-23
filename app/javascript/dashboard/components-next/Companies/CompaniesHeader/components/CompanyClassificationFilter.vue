@@ -20,13 +20,13 @@ const { t } = useI18n();
 
 const isMenuOpen = ref(false);
 
+// Mesmo texto do selo da lista ("Nivel 3"), para o filtro e o card falarem igual.
 const classificationMenus = [
   { label: t('COMPANIES.FILTER_BY_CLASSIFICATION.OPTIONS.ALL'), value: '' },
-  { label: t('COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.L1'), value: 1 },
-  { label: t('COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.L2'), value: 2 },
-  { label: t('COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.L3'), value: 3 },
-  { label: t('COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.L4'), value: 4 },
-  { label: t('COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.L5'), value: 5 },
+  ...[1, 2, 3, 4, 5].map(level => ({
+    label: t('COMPANIES.LEVEL_BADGE', { n: level }),
+    value: level,
+  })),
 ];
 
 const activeClassificationLevel = toRef(props, 'activeClassificationLevel');

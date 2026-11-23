@@ -16,6 +16,7 @@ import 'client_entry_screen.dart';
 import 'client_notifications_screen.dart';
 import 'client_ticket_create_screen.dart';
 import 'client_ticket_detail_screen.dart';
+import 'client_tutorials_screen.dart';
 import 'models/client_notification.dart';
 import 'client_tickets_list_screen.dart';
 import 'providers/chat_notifier.dart';
@@ -36,9 +37,11 @@ const _tabs = [
   (title: 'Meus chamados', icon: Icons.confirmation_number_outlined),
   (title: 'Chat', icon: Icons.chat_bubble_outline),
   (title: 'Notificações', icon: Icons.notifications_none),
+  (title: 'Tutoriais', icon: Icons.play_circle_outline),
 ];
 const _chatTabIndex = 1;
 const _notificationsTabIndex = 2;
+const _tutorialsTabIndex = 3;
 
 class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsBindingObserver {
   int _currentIndex = 0;
@@ -272,6 +275,7 @@ class _ClientHomeShellState extends ConsumerState<ClientHomeShell> with WidgetsB
   Widget _screenFor(int index) {
     if (index == _chatTabIndex) return const ClientChatScreen();
     if (index == _notificationsTabIndex) return const ClientNotificationsScreen();
+    if (index == _tutorialsTabIndex) return const ClientTutorialsScreen();
     return ClientTicketsListScreen(onStartChat: () => _selectTab(_chatTabIndex));
   }
 

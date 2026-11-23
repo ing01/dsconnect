@@ -125,7 +125,6 @@ class AutomationRules::Flow::Steps::ListCompanies < AutomationRules::Flow::Steps
     run.write_variable('empresa.id', company.id)
     run.write_variable('empresa.nome', company.name)
     run.write_variable('empresa.cnpj', company.cnpj)
-    run.write_variable('empresa.nivel', company.client_level)
     run.write_variable(save_as, company.name)
   end
 

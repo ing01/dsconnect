@@ -1,4 +1,13 @@
 class AutomationRules::ActionService < ActionService
+  # So' o chat do Portal do Cliente precisa do atraso: a automacao roda no
+  # mesmo instante em que a conversa nasce (primeira mensagem do cliente), e
+  # o navegador do outro lado so' assina o canal em tempo real DEPOIS de
+  # receber a resposta daquele envio - sem o atraso, a mensagem existia no
+  # servidor mas so' aparecia na tela depois de um F5 (ver
+  # `AutomationRules::SendMessageJob`). Os demais canais (WhatsApp, e-mail,
+  # Website Widget) continuam recebendo na hora, como sempre.
+  SEND_MESSAGE_DELAY = 2.5.seconds
+
   def initialize(rule, account, conversation)
     super(conversation)
     @rule = rule
@@ -43,8 +52,25 @@ class AutomationRules::ActionService < ActionService
   def send_message(message)
     return if conversation_a_tweet?
 
-    params = { content: message[0], private: false, content_attributes: { automation_rule_id: @rule.id } }
-    Messages::MessageBuilder.new(nil, @conversation, params).perform
+    unless client_portal_conversation?
+      params = { content: message[0], private: false, content_attributes: { automation_rule_id: @rule.id } }
+      Messages::MessageBuilder.new(nil, @conversation, params).perform
+      return
+    end
+
+    AutomationRules::SendMessageJob
+      .set(wait: SEND_MESSAGE_DELAY)
+      .perform_later(rule_id: @rule.id, conversation_id: @conversation.id, content: message[0])
+  end
+
+  # A mesma marca que identifica a caixa de entrada do Portal do Cliente em
+  # `Inboxes::EnsureClientPortalInboxService` - sem tabela nova, so' um Channel::Api
+  # comum com esse atributo.
+  def client_portal_conversation?
+    channel = @conversation.inbox.channel
+    channel.respond_to?(:additional_attributes) &&
+      channel.additional_attributes.is_a?(Hash) &&
+      channel.additional_attributes[Inboxes::EnsureClientPortalInboxService::MARKER_KEY] == true
   end
 
   def add_private_note(message)

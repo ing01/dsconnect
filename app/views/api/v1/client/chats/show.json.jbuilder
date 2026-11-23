@@ -9,6 +9,10 @@ if @conversation.nil?
 else
   json.pubsub_token @conversation.contact_inbox&.pubsub_token
   json.conversation_id @conversation.display_id
+  # Resolvida: a tela troca o composer por "Iniciar novo chat" - a pesquisa
+  # de satisfacao continua visivel e respondivel (ver `ChatsController#show`),
+  # mas escrever aqui nao deve reabrir a sessao encerrada silenciosamente.
+  json.resolved @conversation.status == 'resolved'
   json.messages @conversation.messages.chat.includes(:attachments).order(created_at: :asc) do |mensagem|
     json.partial! 'api/v1/client/chats/message', resource: mensagem
   end

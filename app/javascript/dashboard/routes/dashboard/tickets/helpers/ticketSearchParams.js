@@ -21,6 +21,10 @@ export const toSearchParams = (filters = {}) => ({
   ticket_column_id: list(filters.ticketColumnIds),
   assignee_id: list(filters.assigneeIds),
   company_id: list(filters.companyIds),
+  // Dados da Empresa do ticket: nicho, subnicho e nivel (1 a 5).
+  company_niche_id: list(filters.companyNicheIds),
+  company_sub_niche_id: list(filters.companySubNicheIds),
+  company_classification_level: list(filters.companyLevels),
   contact_id: list(filters.contactIds),
   priority: list(filters.priority),
   ticket_category_id: list(filters.categoryIds),

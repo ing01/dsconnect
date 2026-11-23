@@ -18,6 +18,150 @@ export const CHANGELOG_ENTRIES = [
       'Novo item "Painel de Conversas" no menu: três cards mostram as conversas em atendimento (verde), aguardando (laranja) e esperando há muito tempo (vermelho), com totais, maior espera e lista por card. Atualiza em tempo real, tem modo TV e aviso sonoro. Os tempos de cada cor são configurados em Configurações > Painel de Conversas. Administradores sempre veem; para outras pessoas, marque "Ver o Painel de Conversas" na Função personalizada.',
   },
   {
+    id: 'client-chat-first-connect-race-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title: 'Área do Cliente: mensagem de automação não sumia mais que no F5',
+    description:
+      'Quando uma automação (como a mensagem de boas-vindas ao atribuir a Mesa) respondia quase na mesma hora em que o cliente mandava a primeira mensagem de uma conversa nova, essa resposta podia não aparecer na tela ao vivo - só depois de um F5. Corrigido dos dois lados: o chat agora resincroniza logo na primeira conexão (não só ao reconectar depois de uma queda), e o envio dessas automações no chat do Portal do Cliente passa a esperar alguns instantes, dando tempo da tela terminar de se conectar antes da mensagem chegar. Os demais canais (WhatsApp, e-mail, Website Widget) continuam respondendo na hora, sem esse atraso.',
+  },
+  {
+    id: 'client-chat-resolved-start-new-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'Chat da Área do Cliente: a avaliação não se perde mais, e "Iniciar novo chat"',
+    description:
+      'Ao encerrar o atendimento, a pesquisa de satisfação agora continua visível mesmo depois de um F5 ou de trocar de aba - antes, a tela voltava em branco e a avaliação ficava impossível de responder. No lugar da caixa de mensagem, aparece um botão "Iniciar novo chat" para começar uma conversa nova quando quiser. Também foi removido o botão duplicado de ativar notificações dentro do Chat (o do cabeçalho já faz isso).',
+  },
+  {
+    id: 'message-image-chip-retry-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title: 'Conversas: imagem não trava mais em "Falha no carregamento"',
+    description:
+      'Uma falha passageira de rede ao carregar a miniatura de uma imagem enviada junto com texto travava a mensagem em "Falha no carregamento" para sempre, mesmo a imagem estando disponível. Agora ela tenta carregar de novo automaticamente antes de desistir, como já acontecia com imagens enviadas sozinhas.',
+  },
+  {
+    id: 'ticket-transfer-keep-assignee-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title: 'Transferir ticket: o Responsável atual vem preenchido',
+    description:
+      'Ao abrir "Transferir ticket" para um chamado de outra Mesa depois de já ter usado a tela com um ticket diferente, o campo Responsável aparecia sempre vazio ("Sem responsável"), mesmo o ticket já tendo alguém. Agora o Responsável atual do ticket vem preenchido corretamente ao abrir, e trocar a Mesa continua limpando o campo normalmente.',
+  },
+  {
+    id: 'client-chat-reconnect-paste-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'Área do Cliente: chat atualiza sozinho e aceita colar imagem/arquivo',
+    description:
+      'Se a conexão caísse e voltasse (celular sem sinal, notebook que dormiu), mensagens recebidas nesse intervalo só apareciam depois de um F5. Agora o chat resincroniza sozinho ao reconectar. Também passou a aceitar colar (Ctrl+V) uma imagem ou arquivo copiado direto na caixa de mensagem, sem precisar escolher pelo clipe.',
+  },
+  {
+    id: 'service-catalog-loading-fix-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'Catálogo de Serviços: corrigido erro que travava a classificação do ticket',
+    description:
+      'Em contas com um catálogo grande, abrir o seletor de Catálogo de Serviços (ao fechar ou classificar um ticket) podia travar e dar erro, deixando a lista sempre vazia. Corrigida a causa no servidor, e o seletor agora mostra um indicador de carregamento enquanto busca, em vez de parecer vazio.',
+  },
+  {
+    id: 'client-management-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'feature',
+    title: 'Gestão de clientes, Nível na lista e filtros por nicho',
+    description:
+      'Nova tela Gestão de clientes (Empresas > Gestão de clientes, só administradores): filtre, marque vários clientes e altere de uma vez nicho, subnicho, nível, especialista, módulos, tipo de cobrança e a nova Situação (Ativo/Inativo; todos começam Ativos). A Prioridade do cliente foi removida (lista, ficha, filtros, limiares de mensalidade, roteamento do Portal por prioridade e a coluna Prioridade da planilha Código/CNPJ); a lista mostra o Nível do cliente. Na Gestão avançada de tickets há filtros novos por nicho, subnicho e nível da empresa.',
+  },
+  {
+    id: 'kanban-drag-fix-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'fix',
+    title: 'Kanban: arrastar tickets ficou mais firme',
+    description:
+      'Ao arrastar um ticket entre estágios, o cartão fica onde foi solto na hora, sem travar nem voltar ao lugar por causa de atualizações que chegam no meio do movimento. Se o estágio recusar a mudança (por exemplo, exige responsável), o cartão volta para onde estava. A coluna inteira, até o fim da altura, aceita o ticket, e as colunas vazias ficaram mais fáceis de acertar.',
+  },
+  {
+    id: 'backlog-keep-state-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'fix',
+    title: 'Backlog e Sprint ativo voltam como estavam',
+    description:
+      'Ao trocar de aba (ou abrir um ticket) e voltar, o Backlog e o Sprint ativo mantêm a visão escolhida, os filtros e o ponto da rolagem, e releem os tickets para mostrar o que mudou. Projetos e o Kanban também voltam no mesmo ponto da rolagem.',
+  },
+  {
+    id: 'mobile-client-tutorials-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'mobile',
+    type: 'feature',
+    title: 'App: aba Tutoriais para o cliente',
+    description:
+      'No app, o cliente ganhou a aba Tutoriais, igual à da Área do Cliente: os módulos aparecem como cards e, ao tocar, mostram os vídeos de dentro. O vídeo abre no player do aparelho (YouTube, Vimeo ou arquivo). O conteúdo é o mesmo cadastrado em Configurações > Tutoriais do Portal.',
+  },
+  {
+    id: 'client-chat-sending-state-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Chat do cliente: áudio e anexos mostram "Enviando…"',
+    description:
+      'No chat do Portal, ao enviar um áudio ou anexo, a mensagem agora mostra um indicador de carregamento ("Enviando áudio…") até o envio ser confirmado, em vez de aparecer uma bolha vazia.',
+  },
+  {
+    id: 'ticket-image-gallery-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Imagens do ticket: navegar entre elas e visualizar maior',
+    description:
+      'Ao abrir uma imagem de um ticket que tem mais de uma, dá para passar para a anterior e a próxima com as setas do teclado ou com os botões nas laterais, e o contador mostra em qual você está. A janela da imagem ficou bem maior.',
+  },
+  {
+    id: 'tabs-keep-state-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'fix',
+    title: 'Abas: as telas mantêm o que você fez ao trocar de aba',
+    description:
+      'Ao trocar de aba e voltar, Tickets (Kanban), Projetos, Relatórios de implantação, Agenda e o Comercial (Clientes, Vendas e Dashboard) mantêm filtros, busca e rolagem, em vez de recomeçar do zero. Projetos e o Kanban releem os dados ao voltar. As Conversas ainda recarregam ao trocar de aba.',
+  },
+  {
+    id: 'projects-shortcuts-implementation-profile-2026-11-19',
+    date: '19 de novembro de 2026',
+    isoDate: '2026-11-19',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'Projetos: atalhos de Módulos e Tarefas para o perfil de implantação',
+    description:
+      'Quem tem o perfil de acesso de implantação clicava em Tarefas (ou Módulos) na tela de Projetos e caía em outra tela, porque elas só abriam para administradores. Agora esse perfil abre as duas telas e pode personalizar os Módulos e as Tarefas.',
+  },
+  {
     id: 'clearable-date-fields-2026-11-23',
     date: '23 de novembro de 2026',
     isoDate: '2026-11-23',

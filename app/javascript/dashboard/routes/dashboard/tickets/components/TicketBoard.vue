@@ -60,6 +60,11 @@ export default {
       localColumns: {},
       columns: [],
       collapsedColumnIds: [],
+      // Enquanto um cartao e' arrastado a lista que o Draggable mexe nao pode ser trocada: um aviso em
+      // tempo real no meio do arrasto refazia as listas e o cartao travava ou voltava ao lugar. A
+      // atualizacao fica guardada e entra quando o cartao e' solto.
+      isDragging: false,
+      syncPending: false,
     };
   },
   watch: {
@@ -73,16 +78,33 @@ export default {
       immediate: true,
       deep: true,
       handler(newBoard) {
+        if (this.isDragging) {
+          this.syncPending = true;
+          return;
+        }
         this.syncLocalState(newBoard);
       },
     },
     // Re-sorting goes through the same path a refetch does, so a board that is
     // already loaded reorders without another request.
     sort() {
+      if (this.isDragging) {
+        this.syncPending = true;
+        return;
+      }
       this.syncLocalState(this.board);
     },
   },
   methods: {
+    onDragStart() {
+      this.isDragging = true;
+    },
+    onDragEnd() {
+      this.isDragging = false;
+      if (!this.syncPending) return;
+      this.syncPending = false;
+      this.syncLocalState(this.board);
+    },
     syncLocalState(board) {
       // Qualquer Estagio marcado como oculto (Configuracoes > Estagios) nao
       // aparece no quadro - os tickets continuam gravados nele, e quem
@@ -99,7 +121,12 @@ export default {
       // the refetch that follows a drag all land back in an ordered column.
       const columnTickets = {};
       columns.forEach(column => {
-        columnTickets[column.id] = sortTickets(column.tickets || [], this.sort);
+        // Sempre uma COPIA: o Draggable mexe nesta lista no lugar, e sem ordenacao o `sortTickets`
+        // devolvia a propria lista do estado - o arrasto alterava o estado por baixo dos panos e o
+        // desfazer de um movimento recusado nao tinha mais o lugar de origem.
+        columnTickets[column.id] = [
+          ...sortTickets(column.tickets || [], this.sort),
+        ];
       });
       this.localColumns = columnTickets;
 
@@ -148,6 +175,8 @@ export default {
         :full-subject="fullSubject"
         :compact="compact"
         @toggle-collapse="toggleColumn"
+        @drag-start="onDragStart"
+        @drag-end="onDragEnd"
         @add-ticket="$emit('addTicket', $event)"
         @open-ticket="(ticket, event) => $emit('openTicket', ticket, event)"
         @move-ticket="$emit('moveTicket', $event)"

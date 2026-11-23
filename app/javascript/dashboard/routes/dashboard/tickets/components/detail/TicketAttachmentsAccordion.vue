@@ -44,7 +44,7 @@ const openAttachment = attachment => {
     window.open(attachment.file_url, '_blank', 'noopener,noreferrer');
     return;
   }
-  previewDialog.value?.open(attachment);
+  previewDialog.value?.open(attachment, attachments.value.filter(isImage));
 };
 
 const download = async attachment => {
@@ -255,7 +255,10 @@ const remove = async attachmentId => {
       attachmentId,
     });
   } catch (error) {
-    useAlert(parseAPIErrorResponse(error) || t('TICKET.DETAIL.ATTACHMENTS.DELETE_ERROR'));
+    useAlert(
+      parseAPIErrorResponse(error) ||
+        t('TICKET.DETAIL.ATTACHMENTS.DELETE_ERROR')
+    );
   }
 };
 

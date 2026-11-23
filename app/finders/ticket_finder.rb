@@ -22,7 +22,7 @@ class TicketFinder
   # linked to it) and keeps joining through
   # `ticket_conversations -> conversations -> contact`.
   CONTACT_FILTER_PARAMS = [:contact_id, :contact_query].freeze
-  COMPANY_FILTER_PARAMS = [:company_id, :company_query].freeze
+  COMPANY_FILTER_PARAMS = [:company_id, :company_query, :company_niche_id, :company_sub_niche_id, :company_classification_level].freeze
 
   pattr_initialize [:scope!, :params!, :current_user!]
 
@@ -144,7 +144,25 @@ end
 
     relation = relation.where(tickets: { company_id: params[:company_id] }) if params[:company_id].present?
     relation = relation.joins(:company).where('companies.name ILIKE :q', q: "%#{params[:company_query]}%") if params[:company_query].present?
-    relation
+    filter_by_company_profile(relation)
+  end
+
+  # Nicho, Subnicho e Nivel sao dados da Empresa do ticket. Entram como subconsulta
+  # (e nao como join) para nao colidir com o join de `company_query` e nao
+  # duplicar linhas. Cada filtro aceita um valor ou uma lista (o "ou" de sempre).
+  COMPANY_PROFILE_COLUMNS = {
+    company_niche_id: :company_niche_id,
+    company_sub_niche_id: :company_sub_niche_id,
+    company_classification_level: :classification_level
+  }.freeze
+
+  def filter_by_company_profile(relation)
+    conditions = COMPANY_PROFILE_COLUMNS.filter_map do |param, column|
+      [column, params[param]] if params[param].present?
+    end.to_h
+    return relation if conditions.empty?
+
+    relation.where(company_id: Company.where(conditions).select(:id))
   end
 
   def filter_by_date_and_text(relation)

@@ -17,7 +17,9 @@ const props = defineProps({
   legalName: { type: String, default: '' },
   cnpj: { type: String, default: '' },
   codigo: { type: String, default: '' },
-  clientLevel: { type: Number, default: null },
+  // Nivel do cliente (1 a 5), definido a mao - e' o que a lista mostra.
+  classificationLevel: { type: Number, default: null },
+  status: { type: String, default: 'active' },
 });
 
 const emit = defineEmits(['showCompany']);
@@ -52,22 +54,27 @@ const showLegalName = computed(
 const formattedCnpj = computed(() => {
   const digits = String(props.cnpj || '').replace(/\D/g, '');
   if (digits.length !== 14) return props.cnpj || '';
-  return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  return digits.replace(
+    /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+    '$1.$2.$3/$4-$5'
+  );
 });
 
-// Mesma paleta de CompanyProfileCard.vue: 1 Baixa (teal), 2 Media (amber), 3 Alta (ruby).
-const CLIENT_LEVEL_COLOR_CLASSES = {
-  1: 'bg-n-teal-3 text-n-teal-11',
-  2: 'bg-n-amber-3 text-n-amber-11',
-  3: 'bg-n-ruby-3 text-n-ruby-11',
+// Quanto maior o nivel, mais quente a cor.
+const LEVEL_COLOR_CLASSES = {
+  1: 'bg-n-slate-3 text-n-slate-11',
+  2: 'bg-n-teal-3 text-n-teal-11',
+  3: 'bg-n-amber-3 text-n-amber-11',
+  4: 'bg-n-orange-3 text-n-orange-11',
+  5: 'bg-n-ruby-3 text-n-ruby-11',
 };
-const clientLevelLabel = computed(() =>
-  props.clientLevel
-    ? t(`COMPANIES.DETAIL.PROFILE.LEVEL.L${props.clientLevel}`)
+const levelLabel = computed(() =>
+  props.classificationLevel
+    ? t('COMPANIES.LEVEL_BADGE', { n: props.classificationLevel })
     : ''
 );
-const clientLevelColorClasses = computed(
-  () => CLIENT_LEVEL_COLOR_CLASSES[props.clientLevel]
+const levelColorClasses = computed(
+  () => LEVEL_COLOR_CLASSES[props.classificationLevel]
 );
 </script>
 
@@ -96,11 +103,17 @@ const clientLevelColorClasses = computed(
             {{ codigo }}
           </span>
           <span
-            v-if="clientLevelLabel"
+            v-if="levelLabel"
             class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-md"
-            :class="clientLevelColorClasses"
+            :class="levelColorClasses"
           >
-            {{ clientLevelLabel }}
+            {{ levelLabel }}
+          </span>
+          <span
+            v-if="status === 'inactive'"
+            class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-md bg-n-slate-3 text-n-slate-11"
+          >
+            {{ t('COMPANIES.MANAGEMENT.STATUS.INACTIVE') }}
           </span>
           <span
             v-if="hasContacts"

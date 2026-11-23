@@ -29,6 +29,8 @@ export default {
     'moveTicket',
     'toggleCollapse',
     'menuAction',
+    'dragStart',
+    'dragEnd',
   ],
   computed: {
     // Counts the tickets actually shown, so the badge always agrees with the
@@ -86,7 +88,7 @@ export default {
 
 <template>
   <div
-    class="flex flex-col flex-shrink-0 rounded-xl bg-n-slate-2 max-h-full transition-[width] duration-150"
+    class="flex flex-col flex-shrink-0 rounded-xl bg-n-slate-2 h-full transition-[width] duration-150"
     :class="isCollapsed ? 'w-14 h-full' : compact ? 'w-56' : 'w-72'"
   >
     <!-- Collapsed: expand button on top, then the counter, then the rotated
@@ -173,11 +175,16 @@ export default {
         :disabled="readOnly"
         group="tickets"
         item-key="id"
-        animation="200"
+        animation="150"
         ghost-class="ghost"
-        class="flex flex-col overflow-y-auto min-h-[2rem] flex-1"
+        :empty-insert-threshold="48"
+        :scroll-sensitivity="80"
+        :scroll-speed="18"
+        class="flex flex-col overflow-y-auto min-h-[4rem] flex-1"
         :class="compact ? 'gap-1 px-1 pb-1' : 'gap-2 px-2 pb-2'"
         @change="onChange"
+        @start="$emit('dragStart')"
+        @end="$emit('dragEnd')"
       >
         <template #item="{ element }">
           <TicketCard

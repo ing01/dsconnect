@@ -486,7 +486,6 @@
     "TICKET_CUSTOMER_NOTICES": "Mensagens ao cliente",
     "TICKET_DISTRIBUTION": "Distribuição Automática",
     "TICKET_ATTENDANCE_SCHEDULE": "Configuração de Atendimento",
-    "TICKET_ROUTING": "Roteamento do Portal",
     "TICKET_IMPORT": "Importar",
     "TICKET_API_KEY": "API de Tickets",
     "CLIENT_TUTORIALS": "Tutoriais do Portal",
@@ -501,7 +500,8 @@
     "TICKET_TRIAGE": "Triagem",
     "TICKET_COMPLEXITY": "Complexidade",
     "DEVELOPMENT_BACKLOG": "Backlog",
-    "AGENT_NICHES": "Nichos por agente"
+    "AGENT_NICHES": "Nichos por agente",
+    "COMPANIES_MANAGEMENT": "Gestão de clientes"
   },
   "DATA_IMPORTS": {
     "HEADER": "Dados",
@@ -523,7 +523,7 @@
       "MESSAGES": "Mensagens",
       "CLIENTES": "Clientes",
       "SOLICITANTES": "Contatos/Solicitantes",
-      "COMPANY_PRIORITY": "Código/CNPJ/Prioridade",
+      "COMPANY_PRIORITY": "Código/CNPJ",
       "COMPANY_CLASSIFICATION": "Código/CNPJ/Classificação",
       "COMPANY_NICHE": "Nicho/Subnicho/Nível/Especialista",
       "COMPANY_CNPJ_CHECK": "Comparativo de CNPJ",
@@ -552,8 +552,8 @@
         "DESCRIPTION": "Cria a árvore Catálogo > Área > Item usada na classificação dos tickets."
       },
       "COMPANY_PRIORITY": {
-        "TITLE": "Importar Código/CNPJ/Prioridade",
-        "DESCRIPTION": "Atualiza empresas já cadastradas com o Código de referência, CNPJ e Prioridade (Baixa/Média/Alta), casando por Código ou CNPJ. Não cria empresas novas."
+        "TITLE": "Importar Código/CNPJ",
+        "DESCRIPTION": "Atualiza empresas já cadastradas com o Código de referência e o CNPJ, casando por Código ou CNPJ. Não cria empresas novas."
       },
       "COMPANY_CLASSIFICATION": {
         "TITLE": "Importar Código/CNPJ/Classificação",

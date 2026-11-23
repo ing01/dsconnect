@@ -63,7 +63,11 @@ const mountDialog = async (props = {}) => {
             clearLabel: { type: String, default: '' },
             disabled: { type: Boolean, default: false },
           },
-          emits: ['update:modelValue'],
+          // O real tambem emite `select` junto de `update:modelValue` a cada
+          // clique (ver TicketSelect.vue#handleAction) - o stub precisa dos
+          // dois, ou um listener de `@select` no componente testado nunca
+          // dispara aqui.
+          emits: ['update:modelValue', 'select'],
           template: `<div
             class="ticket-select"
             :data-model="modelValue === null ? '' : String(modelValue)"
@@ -71,13 +75,13 @@ const mountDialog = async (props = {}) => {
             <button
               v-if="clearable"
               data-value=""
-              @click="$emit('update:modelValue', null)"
+              @click="$emit('update:modelValue', null); $emit('select', null)"
             >{{ clearLabel }}</button>
             <button
               v-for="option in options"
               :key="String(option.value)"
               :data-value="String(option.value)"
-              @click="$emit('update:modelValue', option.value)"
+              @click="$emit('update:modelValue', option.value); $emit('select', option)"
             >{{ option.label }}</button>
           </div>`,
         },
@@ -132,6 +136,28 @@ describe('TicketTransferDialog', () => {
     expect(valueOf(wrapper, 1)).toBe('10');
     expect(valueOf(wrapper, 3)).toBe('high');
     expect(valueOf(wrapper, 4)).toBe('100');
+  });
+
+  // O dialogo e' uma unica instancia reaproveitada pela pagina do ticket - ao
+  // navegar de um ticket para outro de Mesa diferente, o `teamId` interno de
+  // uma abertura anterior ainda esta la quando `open()` roda de novo. Um
+  // `watch(teamId, ...)` reagindo a essa mudanca PROGRAMATICA (e nao a uma
+  // escolha da pessoa) limpava o Responsavel que acabara de vir certo do
+  // novo ticket - exatamente o que foi reportado em producao.
+  it('keeps the new ticket Responsavel when reopened for a different Mesa', async () => {
+    const wrapper = await mountDialog({
+      ticket: ticket({ team_id: 1, assignee_id: 100 }),
+    });
+    expect(valueOf(wrapper, 4)).toBe('100');
+
+    await wrapper.setProps({
+      ticket: ticket({ team_id: 2, ticket_column_id: 20, assignee_id: 200 }),
+    });
+    await wrapper.vm.open();
+    await flushPromises();
+
+    expect(valueOf(wrapper, 0)).toBe('2');
+    expect(valueOf(wrapper, 4)).toBe('200');
   });
 
   it('follows the guided order: Mesa, Estagio, status, prioridade, responsavel', async () => {

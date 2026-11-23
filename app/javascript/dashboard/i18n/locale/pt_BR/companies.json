@@ -18,16 +18,10 @@
         "DESCENDING": "Decrescente"
       }
     },
-    "FILTER_BY_PRIORITY": {
-      "LABEL": "Filtrar por prioridade",
-      "OPTIONS": {
-        "ALL": "Todas as prioridades"
-      }
-    },
     "FILTER_BY_CLASSIFICATION": {
-      "LABEL": "Filtrar por classificação",
+      "LABEL": "Filtrar por nível",
       "OPTIONS": {
-        "ALL": "Todas as classificações"
+        "ALL": "Todos os níveis"
       }
     },
     "FILTER_BY_NICHE": {
@@ -281,24 +275,12 @@
           "SYSTEM_STARTED_ON": "Data de início do uso do sistema",
           "SYSTEM_STARTED_ON_FROM_PROJECT": "Vem automaticamente do Projeto de implantação (data mais antiga entre os Projetos desta Empresa).",
           "MODULES": "Módulos utilizados",
-          "CLIENT_LEVEL": "Prioridade do cliente",
-          "CATEGORY": "Categoria",
           "NICHE": "Nicho",
           "SUB_NICHE": "Subnicho",
           "SPECIALIST": "Especialista",
           "CLASSIFICATION_LEVEL": "Nível de classificação (1 a 5)",
-          "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha"
-        },
-        "LEVEL": {
-          "HELP": "Calculada automaticamente a partir da mensalidade do cliente (Configurações > Tickets > Automação define as faixas de valor). Não é possível editar manualmente.",
-          "L1": "Prioridade Baixa",
-          "L2": "Prioridade Média",
-          "L3": "Prioridade Alta"
-        },
-        "CATEGORY": {
-          "NONE": "Nenhuma",
-          "ADD_PLACEHOLDER": "Nome da nova categoria",
-          "ADD_BUTTON": "Adicionar"
+          "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha",
+          "STATUS": "Situação"
         },
         "NICHE": {
           "NONE": "Nenhum",
@@ -369,6 +351,75 @@
     },
     "EMPTY_STATE": {
       "TITLE": "Nenhuma empresa encontrada"
+    },
+    "LEVEL_BADGE": "Nível {n}",
+    "MANAGEMENT": {
+      "TITLE": "Gestão de clientes",
+      "SUBTITLE": "Filtre os clientes, marque os que quiser e altere nicho, nível, especialista, módulos, cobrança e situação de todos de uma vez.",
+      "SEARCH_PLACEHOLDER": "Buscar por nome, domínio ou código",
+      "LOAD_ERROR": "Não foi possível carregar os clientes.",
+      "EMPTY": "Nenhum cliente encontrado com estes filtros.",
+      "STATUS": {
+        "ACTIVE": "Ativo",
+        "INACTIVE": "Inativo"
+      },
+      "FILTERS": {
+        "ALL_STATUSES": "Todas as situações",
+        "ALL_LEVELS": "Todos os níveis",
+        "ALL_NICHES": "Todos os nichos",
+        "ALL_SUB_NICHES": "Todos os subnichos",
+        "ALL_SPECIALISTS": "Todos os especialistas"
+      },
+      "COLUMNS": {
+        "NAME": "Cliente",
+        "LEVEL": "Nível",
+        "NICHE": "Nicho",
+        "SUB_NICHE": "Subnicho",
+        "SPECIALIST": "Especialista",
+        "MODULES": "Módulos utilizados",
+        "BILLING": "Tipo de cobrança",
+        "STATUS": "Situação"
+      },
+      "BULK": {
+        "TITLE": "Alterar em massa",
+        "SELECTED": "Nenhum cliente selecionado | {count} cliente selecionado | {count} clientes selecionados",
+        "SELECT_PAGE": "Selecionar todos os clientes desta página",
+        "SELECT_ALL": "Selecionar os {count} clientes desta busca",
+        "CLEAR_SELECTION": "Limpar seleção",
+        "KEEP": "Não alterar",
+        "CLEAR": "Limpar campo",
+        "MODULES_MODE": {
+          "ADD": "Adicionar aos módulos atuais",
+          "REMOVE": "Remover dos módulos atuais",
+          "REPLACE": "Substituir todos os módulos"
+        },
+        "APPLY": "Aplicar alterações",
+        "RESET": "Descartar escolhas",
+        "CONFIRM": "Nenhum cliente | Alterar {count} cliente? | Alterar {count} clientes?",
+        "CONFIRM_BUTTON": "Sim, alterar",
+        "CANCEL": "Cancelar",
+        "ERROR": "Não foi possível alterar os clientes.",
+        "QUEUED": "Nenhum cliente para alterar | Alteração de {count} cliente iniciada. A lista é atualizada sozinha em instantes. | Alteração de {count} clientes iniciada. A lista é atualizada sozinha em instantes."
+      },
+      "LOG": {
+        "TITLE": "Log das alterações",
+        "EMPTY": "Nenhuma alteração em massa feita ainda.",
+        "BY": "por {name}",
+        "STATUS": {
+          "QUEUED": "Na fila",
+          "RUNNING": "Em andamento",
+          "COMPLETED": "Concluída",
+          "COMPLETED_WITH_ERRORS": "Concluída com avisos",
+          "FAILED": "Não concluída"
+        },
+        "PROGRESS": "Alterando clientes: {done} de {total}…",
+        "RESULT": "Nenhum cliente alterado | {count} cliente alterado | {count} clientes alterados",
+        "ERRORS_COUNT": "{count} cliente não pôde ser alterado | {count} clientes não puderam ser alterados",
+        "FAILED_TITLE": "A alteração não foi concluída.",
+        "FAILURES_TITLE": "Clientes que não foram alterados e o motivo",
+        "FAILURES_HELP": "Corrija o dado indicado na ficha do cliente e repita a alteração só para eles. Os demais já foram alterados normalmente.",
+        "MORE": "e mais {count} clientes com o mesmo tipo de problema"
+      }
     }
   },
   "COMPANIES_LAYOUT": {

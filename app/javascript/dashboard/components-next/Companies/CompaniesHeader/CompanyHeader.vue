@@ -4,7 +4,6 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import CompanySortMenu from './components/CompanySortMenu.vue';
-import CompanyPriorityFilter from './components/CompanyPriorityFilter.vue';
 import CompanyClassificationFilter from './components/CompanyClassificationFilter.vue';
 import CompanyNicheFilter from './components/CompanyNicheFilter.vue';
 import CompanySpecialistFilter from './components/CompanySpecialistFilter.vue';
@@ -15,7 +14,6 @@ defineProps({
   headerTitle: { type: String, required: true },
   activeSort: { type: String, default: 'last_activity_at' },
   activeOrdering: { type: String, default: '' },
-  activeClientLevel: { type: [String, Number], default: '' },
   activeClassificationLevel: { type: [String, Number], default: '' },
   activeCompanyNicheId: { type: [String, Number], default: '' },
   activeSpecialistId: { type: [String, Number], default: '' },
@@ -24,7 +22,6 @@ defineProps({
 const emit = defineEmits([
   'search',
   'update:sort',
-  'update:clientLevel',
   'update:classificationLevel',
   'update:companyNicheId',
   'update:specialistId',
@@ -63,10 +60,6 @@ const { t } = useI18n();
           </Input>
         </div>
         <div class="flex items-center flex-shrink-0 gap-2">
-          <CompanyPriorityFilter
-            :active-client-level="activeClientLevel"
-            @update:client-level="emit('update:clientLevel', $event)"
-          />
           <CompanyClassificationFilter
             :active-classification-level="activeClassificationLevel"
             @update:classification-level="

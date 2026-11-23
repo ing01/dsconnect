@@ -5,7 +5,6 @@ import { useAccount } from 'dashboard/composables/useAccount';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { formatMesaName } from 'dashboard/helper/mesaName';
-import CompaniesAPI from 'dashboard/api/companies';
 
 import WithLabel from 'v3/components/Form/WithLabel.vue';
 import Switch from 'next/switch/Switch.vue';
@@ -19,9 +18,8 @@ const store = useStore();
 const getters = useStoreGetters();
 const { currentAccount, updateAccount } = useAccount();
 
-// Niveis do cliente que existem hoje (Company#client_level, 1-3: Baixa/
-// Media/Alta) - nao lido de lugar nenhum dinamico porque a escala em si e
-// fixa no backend.
+// Faixas 1-3 da configuracao "IA resolve sozinha" - escala fixa, nao lida de
+// lugar nenhum dinamico.
 const LEVELS = [1, 2, 3];
 const PRIORITY_OPTIONS = ['baixa', 'media', 'alta'];
 
@@ -34,11 +32,8 @@ const defaultQueueId = ref(null);
 const queueLowId = ref(null);
 const queueHighId = ref(null);
 const supportPhoneNumber = ref('');
-const priorityThresholdMediumMin = ref(null);
-const priorityThresholdHighMin = ref(null);
 const whatsappAutomationTestModeNumber = ref('');
 const isSubmitting = ref(false);
-const isRecalculating = ref(false);
 
 const teams = computed(() => getters['teams/getTeams'].value);
 const queues = computed(() => getters['queues/getQueues'].value);
@@ -65,10 +60,6 @@ watch(
     queueLowId.value = settings.helpdesk_queue_low_id ?? null;
     queueHighId.value = settings.helpdesk_queue_high_id ?? null;
     supportPhoneNumber.value = settings.helpdesk_support_phone_number || '';
-    priorityThresholdMediumMin.value =
-      settings.priority_threshold_medium_min ?? null;
-    priorityThresholdHighMin.value =
-      settings.priority_threshold_high_min ?? null;
     whatsappAutomationTestModeNumber.value =
       settings.whatsapp_automation_test_mode_number || '';
   },
@@ -81,12 +72,6 @@ const toggleLevel = level => {
     : [...aiResolveLevels.value, level].sort((a, b) => a - b);
 };
 
-const priorityThresholdsInvalid = computed(() => {
-  const medium = priorityThresholdMediumMin.value;
-  const high = priorityThresholdHighMin.value;
-  return medium != null && high != null && Number(high) <= Number(medium);
-});
-
 // Mesmo formato que o cadastro de contato usa pro telefone: + seguido de
 // 2 a 15 digitos (E.164). Vazio e valido - e' como se a trava estivesse
 // desligada.
@@ -95,14 +80,7 @@ const testModeNumberInvalid = computed(() => {
   return value.length > 0 && !/^\+[1-9]\d{1,14}$/.test(value);
 });
 
-// Compartilhado pelo botao "Salvar" e pelo "Recalcular agora" - o recalculo
-// sempre salva primeiro, senao rodaria com os limiares antigos ainda
-// gravados no banco.
 const saveSettings = async () => {
-  if (priorityThresholdsInvalid.value) {
-    useAlert(t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE'));
-    return false;
-  }
   if (testModeNumberInvalid.value) {
     useAlert(t('TICKET.SETTINGS.AUTOMATION.TEST_MODE.INVALID_NUMBER'));
     return false;
@@ -121,8 +99,6 @@ const saveSettings = async () => {
         helpdesk_queue_low_id: queueLowId.value || null,
         helpdesk_queue_high_id: queueHighId.value || null,
         helpdesk_support_phone_number: supportPhoneNumber.value.trim() || null,
-        priority_threshold_medium_min: priorityThresholdMediumMin.value || null,
-        priority_threshold_high_min: priorityThresholdHighMin.value || null,
         whatsapp_automation_test_mode_number:
           whatsappAutomationTestModeNumber.value.trim() || null,
       },
@@ -145,28 +121,6 @@ const handleSubmit = async () => {
     )
   );
   isSubmitting.value = false;
-};
-
-const handleRecalculatePriorities = async () => {
-  isRecalculating.value = true;
-  try {
-    const saved = await saveSettings();
-    if (!saved) {
-      useAlert(t('TICKET.SETTINGS.AUTOMATION.API.ERROR'));
-      return;
-    }
-
-    await CompaniesAPI.recalculatePriorities();
-    useAlert(
-      t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_STARTED')
-    );
-  } catch (error) {
-    useAlert(
-      t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_ERROR')
-    );
-  } finally {
-    isRecalculating.value = false;
-  }
 };
 </script>
 
@@ -312,96 +266,6 @@ const handleRecalculatePriorities = async () => {
                 "
               />
             </WithLabel>
-          </div>
-
-          <div class="flex flex-col gap-3 px-5 py-4">
-            <div class="flex flex-col gap-1">
-              <h3 class="text-heading-2 text-n-slate-12">
-                {{ t('TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.TITLE') }}
-              </h3>
-              <p class="mb-0 text-body-para text-n-slate-11">
-                {{
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.DESCRIPTION'
-                  )
-                }}
-              </p>
-            </div>
-            <div class="grid w-full gap-4 sm:grid-cols-2">
-              <WithLabel
-                :label="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.MEDIUM_MIN.LABEL'
-                  )
-                "
-              >
-                <input
-                  v-model.number="priorityThresholdMediumMin"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="mb-0"
-                  :placeholder="
-                    t(
-                      'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.MEDIUM_MIN.PLACEHOLDER'
-                    )
-                  "
-                />
-              </WithLabel>
-              <WithLabel
-                :label="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.HIGH_MIN.LABEL'
-                  )
-                "
-              >
-                <input
-                  v-model.number="priorityThresholdHighMin"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="mb-0"
-                  :placeholder="
-                    t(
-                      'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.HIGH_MIN.PLACEHOLDER'
-                    )
-                  "
-                />
-              </WithLabel>
-            </div>
-            <p
-              v-if="priorityThresholdsInvalid"
-              class="mb-0 text-xs text-n-ruby-11"
-            >
-              {{
-                t(
-                  'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.INVALID_RANGE'
-                )
-              }}
-            </p>
-            <div class="flex items-center justify-between gap-2">
-              <p class="mb-0 text-xs text-n-slate-11">
-                {{
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_HELP'
-                  )
-                }}
-              </p>
-              <NextButton
-                type="button"
-                slate
-                faded
-                sm
-                :is-loading="isRecalculating"
-                :disabled="priorityThresholdsInvalid"
-                :label="
-                  t(
-                    'TICKET.SETTINGS.AUTOMATION.PRIORITY_THRESHOLDS.RECALCULATE_BUTTON'
-                  )
-                "
-                @click="handleRecalculatePriorities"
-              />
-            </div>
           </div>
 
           <div class="flex flex-col gap-2 px-5 py-4">

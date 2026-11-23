@@ -144,10 +144,10 @@ class AutomationRules::Flow::Steps::AiResolve < AutomationRules::Flow::Steps::Ba
     )
   end
 
-  # Nivel do cliente decide a prioridade base do ticket; a triagem de nivel
-  # 3-5 e que classifica urgencia/impacto, nao esta etapa.
+  # Esta etapa nao classifica urgencia/impacto (isso e da triagem de nivel
+  # 3-5): o ticket entra com a prioridade padrao.
   def level_priority
-    Tickets::HelpdeskPriority.ticket_priority_for(client_level: run.read_variable('empresa.nivel'))
+    Tickets::HelpdeskPriority.ticket_priority_for
   end
 
   # A IA resolveu sozinha (por conta propria, ou o cliente parou de responder
