@@ -41,10 +41,11 @@
       "OPEN": "Abertas",
       "UNASSIGNED": "Sem responsável",
       "PAUSED": "Pausadas",
-      "SNOOZED": "Adiadas",
-      "AVERAGE_WAIT": "Espera média",
-      "LONGEST_WAIT": "Maior espera",
-      "NONE": "—"
+      "AVERAGE_WAIT": "Espera média na fila",
+      "LONGEST_WAIT": "Maior espera na fila",
+      "NONE": "—",
+      "AVERAGE_HINT": "Hoje: da chegada do cliente até o primeiro atendimento",
+      "LONGEST_HINT": "Cliente na fila que mais espera agora"
     },
     "LIST": {
       "TITLE": "Conversas: {band}",

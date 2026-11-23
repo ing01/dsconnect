@@ -63,22 +63,37 @@ const toggleBand = band => {
   selectedBand.value = selectedBand.value === band ? null : band;
 };
 
+const longestWait = computed(() => counts.value.longest_wait_conversation);
+const longestSecondsNow = computed(() =>
+  longestWait.value?.waiting_since
+    ? Math.max(
+        Math.floor(
+          (nowMs.value - Date.parse(longestWait.value.waiting_since)) / 1000
+        ),
+        0
+      )
+    : null
+);
+
 const stats = computed(() => [
   { key: 'OPEN', value: counts.value.total ?? 0 },
   { key: 'UNASSIGNED', value: counts.value.unassigned ?? 0 },
   { key: 'PAUSED', value: counts.value.paused ?? 0 },
-  { key: 'SNOOZED', value: counts.value.snoozed ?? 0 },
   {
     key: 'AVERAGE_WAIT',
-    value: counts.value.average_wait_seconds
-      ? formatWait(counts.value.average_wait_seconds)
+    hint: t('CONVERSATION_PANEL.STATS.AVERAGE_HINT'),
+    value: counts.value.average_first_response_seconds
+      ? formatWait(counts.value.average_first_response_seconds)
       : t('CONVERSATION_PANEL.STATS.NONE'),
   },
   {
     key: 'LONGEST_WAIT',
-    value: counts.value.longest_wait_seconds
-      ? formatWait(counts.value.longest_wait_seconds)
-      : t('CONVERSATION_PANEL.STATS.NONE'),
+    hint: t('CONVERSATION_PANEL.STATS.LONGEST_HINT'),
+    value:
+      longestSecondsNow.value === null
+        ? t('CONVERSATION_PANEL.STATS.NONE')
+        : formatWait(longestSecondsNow.value),
+    customer: longestWait.value,
   },
 ]);
 
@@ -250,14 +265,14 @@ onBeforeUnmount(() => {
           :total="counts.total || 0"
           :hint="bandHint(band)"
           :info="infoText(band)"
-          :longest-seconds="longestIn(band)"
+          :longest-seconds="band === 'green' ? null : longestIn(band)"
           :is-active="selectedBand === band"
           @select="toggleBand"
         />
       </div>
 
       <div
-        class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+        class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
         data-testid="panel-stats"
       >
         <div
@@ -271,6 +286,17 @@ onBeforeUnmount(() => {
           </span>
           <span class="text-xl font-semibold tabular-nums text-n-slate-12">
             {{ stat.value }}
+          </span>
+          <a
+            v-if="stat.customer"
+            :href="`/app/accounts/${accountId}/conversations/${stat.customer.display_id}`"
+            class="text-xs font-medium truncate text-n-brand hover:underline"
+            :data-testid="`panel-stat-customer-${stat.key}`"
+          >
+            {{ stat.customer.contact_name || `#${stat.customer.display_id}` }}
+          </a>
+          <span v-if="stat.hint" class="text-xs text-n-slate-10">
+            {{ stat.hint }}
           </span>
         </div>
       </div>

@@ -59,23 +59,49 @@ class ConversationPanel::Builder
   end
 
   def counts
-    green, orange, red, total, unassigned, longest, average = open_scope.pick(
+    green, orange, red, total, unassigned = open_scope.pick(
       *(band_counts_sql + [
         'COUNT(*)',
-        'COUNT(*) FILTER (WHERE conversations.assignee_id IS NULL)',
-        sanitize('EXTRACT(EPOCH FROM (CAST(? AS timestamp) - MIN(conversations.waiting_since)))', @now),
-        sanitize('AVG(EXTRACT(EPOCH FROM (CAST(? AS timestamp) - conversations.waiting_since)))', @now)
+        'COUNT(*) FILTER (WHERE conversations.assignee_id IS NULL)'
       ]).map { |sql| Arel.sql(sql) }
     )
 
-    paused = @account.conversations.where(status: %i[pending snoozed]).group(:status).count
+    longest = longest_wait
 
     {
       green: green.to_i, orange: orange.to_i, red: red.to_i, total: total.to_i,
       unassigned: unassigned.to_i,
-      paused: paused['pending'].to_i, snoozed: paused['snoozed'].to_i,
-      longest_wait_seconds: longest&.to_i, average_wait_seconds: average&.to_i
+      paused: @account.conversations.snoozed.count,
+      longest_wait_seconds: longest&.dig(:seconds), longest_wait_conversation: longest,
+      average_first_response_seconds: average_first_response
     }
+  end
+
+  # O cliente que mais espera NA FILA (aberta, sem atendente): quem e' e ha quanto tempo.
+  def longest_wait
+    conversation = open_scope.where(assignee_id: nil).where.not(waiting_since: nil)
+                             .includes(:contact).order(:waiting_since, :id).first
+    return if conversation.nil?
+
+    {
+      id: conversation.id,
+      display_id: conversation.display_id,
+      contact_name: conversation.contact&.name,
+      waiting_since: conversation.waiting_since,
+      seconds: [(@now - conversation.waiting_since).to_i, 0].max
+    }
+  end
+
+  # Espera media da fila ate o PRIMEIRO atendimento: das conversas que chegaram
+  # hoje e ja tiveram a primeira resposta de um atendente, o tempo entre a chegada
+  # e essa resposta.
+  def average_first_response
+    average = @account.conversations
+                      .where(created_at: day_start..@now)
+                      .where.not(first_reply_created_at: nil)
+                      .where('conversations.first_reply_created_at >= conversations.created_at')
+                      .average(Arel.sql('EXTRACT(EPOCH FROM (conversations.first_reply_created_at - conversations.created_at))'))
+    average&.to_i
   end
 
   # Quantas conversas de cada faixa por agente.
