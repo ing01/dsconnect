@@ -8,6 +8,59 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-chat-resolved-start-new-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'Chat da Área do Cliente: a avaliação não se perde mais, e "Iniciar novo chat"',
+    description:
+      'Ao encerrar o atendimento, a pesquisa de satisfação agora continua visível mesmo depois de um F5 ou de trocar de aba - antes, a tela voltava em branco e a avaliação ficava impossível de responder. No lugar da caixa de mensagem, aparece um botão "Iniciar novo chat" para começar uma conversa nova quando quiser. Também foi removido o botão duplicado de ativar notificações dentro do Chat (o do cabeçalho já faz isso).',
+  },
+  {
+    id: 'message-image-chip-retry-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title: 'Conversas: imagem não trava mais em "Falha no carregamento"',
+    description:
+      'Uma falha passageira de rede ao carregar a miniatura de uma imagem enviada junto com texto travava a mensagem em "Falha no carregamento" para sempre, mesmo a imagem estando disponível. Agora ela tenta carregar de novo automaticamente antes de desistir, como já acontecia com imagens enviadas sozinhas.',
+  },
+  {
+    id: 'ticket-transfer-keep-assignee-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title: 'Transferir ticket: o Responsável atual vem preenchido',
+    description:
+      'Ao abrir "Transferir ticket" para um chamado de outra Mesa depois de já ter usado a tela com um ticket diferente, o campo Responsável aparecia sempre vazio ("Sem responsável"), mesmo o ticket já tendo alguém. Agora o Responsável atual do ticket vem preenchido corretamente ao abrir, e trocar a Mesa continua limpando o campo normalmente.',
+  },
+  {
+    id: 'client-chat-reconnect-paste-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'Área do Cliente: chat atualiza sozinho e aceita colar imagem/arquivo',
+    description:
+      'Se a conexão caísse e voltasse (celular sem sinal, notebook que dormiu), mensagens recebidas nesse intervalo só apareciam depois de um F5. Agora o chat resincroniza sozinho ao reconectar. Também passou a aceitar colar (Ctrl+V) uma imagem ou arquivo copiado direto na caixa de mensagem, sem precisar escolher pelo clipe.',
+  },
+  {
+    id: 'service-catalog-loading-fix-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'Catálogo de Serviços: corrigido erro que travava a classificação do ticket',
+    description:
+      'Em contas com um catálogo grande, abrir o seletor de Catálogo de Serviços (ao fechar ou classificar um ticket) podia travar e dar erro, deixando a lista sempre vazia. Corrigida a causa no servidor, e o seletor agora mostra um indicador de carregamento enquanto busca, em vez de parecer vazio.',
+  },
+  {
     id: 'client-management-2026-11-23',
     date: '23 de novembro de 2026',
     isoDate: '2026-11-23',
