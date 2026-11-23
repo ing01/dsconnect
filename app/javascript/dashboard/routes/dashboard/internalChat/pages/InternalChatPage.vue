@@ -33,6 +33,7 @@ import {
   startsNewDay,
 } from '../helpers/messageParser';
 import { preloadImages } from '../helpers/preloadImages';
+import { useStickToBottom } from '../composables/useStickToBottom';
 import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 
 const { t, locale } = useI18n();
@@ -66,6 +67,10 @@ const replyTo = ref(null);
 const composerRef = ref(null);
 const lightboxAttachment = ref(null);
 const scrollerRef = ref(null);
+const contentRef = ref(null);
+// A conversa fica colada na ultima mensagem: abre nela, acompanha o que chega e so' deixa de
+// acompanhar quando a pessoa rola para ler o historico.
+const { follow } = useStickToBottom(scrollerRef, contentRef);
 
 const newConversationDialog = ref(null);
 const editChannelDialog = ref(null);
@@ -119,10 +124,7 @@ const pinnedMessages = computed(() =>
 );
 
 const scrollToBottom = () => {
-  nextTick(() => {
-    const element = scrollerRef.value;
-    if (element) element.scrollTop = element.scrollHeight;
-  });
+  nextTick(follow);
 };
 
 const openRoom = async entrada => {
@@ -528,59 +530,63 @@ const unreadDividerIndex = computed(() => {
         </div>
 
         <div ref="scrollerRef" class="flex flex-col py-2 overflow-y-auto grow">
-          <template
-            v-for="(message, index) in visibleMessages"
-            :key="message.id"
-          >
-            <div
-              v-if="index === unreadDividerIndex"
-              class="flex items-center gap-3 px-4 py-2"
+          <!-- O miolo e' o que cresce com mensagem nova e imagem carregada: o `useStickToBottom` o
+               observa para manter a conversa no fim. -->
+          <div ref="contentRef" class="flex flex-col">
+            <template
+              v-for="(message, index) in visibleMessages"
+              :key="message.id"
             >
-              <span class="h-px grow bg-n-ruby-8" />
-              <span class="text-xs font-medium text-n-ruby-11">
-                {{ t('INTERNAL_CHAT.UNREAD_DIVIDER', { count: unreadFrom }) }}
-              </span>
-              <span class="h-px grow bg-n-ruby-8" />
-            </div>
+              <div
+                v-if="index === unreadDividerIndex"
+                class="flex items-center gap-3 px-4 py-2"
+              >
+                <span class="h-px grow bg-n-ruby-8" />
+                <span class="text-xs font-medium text-n-ruby-11">
+                  {{ t('INTERNAL_CHAT.UNREAD_DIVIDER', { count: unreadFrom }) }}
+                </span>
+                <span class="h-px grow bg-n-ruby-8" />
+              </div>
 
-            <!-- Mudou o dia: linha com a data por extenso, como no Discord. -->
-            <div
-              v-if="startsNewDay(message, visibleMessages[index - 1])"
-              class="flex items-center gap-3 px-4 pt-4 pb-1"
-              role="separator"
-              data-testid="day-divider"
-            >
-              <span class="h-px grow bg-n-weak" />
-              <span class="text-xs font-semibold text-n-slate-10">
-                {{ dayLabel(message.createdAt, locale) }}
-              </span>
-              <span class="h-px grow bg-n-weak" />
-            </div>
+              <!-- Mudou o dia: linha com a data por extenso, como no Discord. -->
+              <div
+                v-if="startsNewDay(message, visibleMessages[index - 1])"
+                class="flex items-center gap-3 px-4 pt-4 pb-1"
+                role="separator"
+                data-testid="day-divider"
+              >
+                <span class="h-px grow bg-n-weak" />
+                <span class="text-xs font-semibold text-n-slate-10">
+                  {{ dayLabel(message.createdAt, locale) }}
+                </span>
+                <span class="h-px grow bg-n-weak" />
+              </div>
 
-            <ChatMessage
-              :message="message"
-              :author="userFor(message.userId)"
-              :users="users"
-              :current-user-id="currentUserId"
-              :grouped="isGrouped(index)"
-              :replied-message="
-                message.replyTo ? messageAt(message.replyTo) : null
-              "
-              :replied-author="
-                message.replyTo
-                  ? userFor(messageAt(message.replyTo)?.userId)
-                  : null
-              "
-              :can-delete-any="isAdministrator"
-              @reply="value => (replyTo = value)"
-              @react="react"
-              @pin="togglePin"
-              @mark-unread="markUnread"
-              @delete="askDelete"
-              @open-image="attachment => (lightboxAttachment = attachment)"
-              @open-ticket="openTicket"
-            />
-          </template>
+              <ChatMessage
+                :message="message"
+                :author="userFor(message.userId)"
+                :users="users"
+                :current-user-id="currentUserId"
+                :grouped="isGrouped(index)"
+                :replied-message="
+                  message.replyTo ? messageAt(message.replyTo) : null
+                "
+                :replied-author="
+                  message.replyTo
+                    ? userFor(messageAt(message.replyTo)?.userId)
+                    : null
+                "
+                :can-delete-any="isAdministrator"
+                @reply="value => (replyTo = value)"
+                @react="react"
+                @pin="togglePin"
+                @mark-unread="markUnread"
+                @delete="askDelete"
+                @open-image="attachment => (lightboxAttachment = attachment)"
+                @open-ticket="openTicket"
+              />
+            </template>
+          </div>
 
           <p
             v-if="!visibleMessages.length"
