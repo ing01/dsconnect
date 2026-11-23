@@ -44,6 +44,11 @@ const bandHint = band => {
 };
 
 // A maior espera de cada faixa: a conversa mais antiga da lista dela.
+const infoText = band =>
+  t(`CONVERSATION_PANEL.BANDS.${band.toUpperCase()}.INFO`, {
+    minutes: settings.value.orange_until_minutes,
+  });
+
 const longestIn = band => {
   const first = data.value?.conversations?.[band]?.[0];
   if (!first?.waiting_since) return null;
@@ -243,6 +248,7 @@ onBeforeUnmount(() => {
           :count="counts[band] || 0"
           :total="counts.total || 0"
           :hint="bandHint(band)"
+          :info="infoText(band)"
           :longest-seconds="longestIn(band)"
           :is-active="selectedBand === band"
           @select="toggleBand"

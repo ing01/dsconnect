@@ -15,15 +15,18 @@
     "BANDS": {
       "GREEN": {
         "TITLE": "Em atendimento com um atendente",
-        "HINT": "já atribuídas a um atendente"
+        "HINT": "já atribuídas a um atendente",
+        "INFO": "Este número é o total de conversas ABERTAS que já estão com um atendente, ou seja, já foram atribuídas a alguém. O cliente já está sendo atendido. Não entram conversas pausadas, adiadas ou resolvidas."
       },
       "ORANGE": {
         "TITLE": "Aguardando na fila",
-        "HINT": "na fila, sem atendente, até {minutes} min"
+        "HINT": "na fila, sem atendente, até {minutes} min",
+        "INFO": "Este número é o total de conversas ABERTAS que estão na fila: o cliente já chamou, mas ainda não foi atribuído a nenhum atendente. Aqui ficam as que esperam há até {minutes} min, contados desde a última mensagem do cliente. Não entram conversas pausadas, adiadas ou resolvidas."
       },
       "RED": {
         "TITLE": "Esperando há muito tempo",
-        "HINT": "na fila, sem atendente, há mais de {minutes} min"
+        "HINT": "na fila, sem atendente, há mais de {minutes} min",
+        "INFO": "Este número é o total de conversas ABERTAS na fila, sem atendente, que esperam há MAIS de {minutes} min, contados desde a última mensagem do cliente. São as que mais precisam de atenção agora. Não entram conversas pausadas, adiadas ou resolvidas."
       }
     },
     "CARD": {
@@ -31,7 +34,8 @@
       "LONGEST": "maior espera: {time}",
       "EMPTY": "Nenhuma conversa",
       "OPEN_LIST": "Ver conversas",
-      "CLOSE_LIST": "Fechar lista"
+      "CLOSE_LIST": "Fechar lista",
+      "INFO_LABEL": "O que é este número?"
     },
     "STATS": {
       "OPEN": "Abertas",

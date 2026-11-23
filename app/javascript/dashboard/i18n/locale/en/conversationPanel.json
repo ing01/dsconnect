@@ -15,15 +15,18 @@
     "BANDS": {
       "GREEN": {
         "TITLE": "Being served by an agent",
-        "HINT": "already assigned to an agent"
+        "HINT": "already assigned to an agent",
+        "INFO": "This number is the total of OPEN conversations that already have an agent, meaning they were assigned to someone. The customer is already being served. Paused, snoozed and resolved conversations are not included."
       },
       "ORANGE": {
         "TITLE": "Waiting in the queue",
-        "HINT": "in the queue, no agent, up to {minutes} min"
+        "HINT": "in the queue, no agent, up to {minutes} min",
+        "INFO": "This number is the total of OPEN conversations in the queue: the customer has reached out but no agent has been assigned yet. These have been waiting up to {minutes} min, counted from the customer's last message. Paused, snoozed and resolved conversations are not included."
       },
       "RED": {
         "TITLE": "Waiting for a long time",
-        "HINT": "in the queue, no agent, over {minutes} min"
+        "HINT": "in the queue, no agent, over {minutes} min",
+        "INFO": "This number is the total of OPEN conversations in the queue, with no agent, waiting for MORE than {minutes} min, counted from the customer's last message. These need attention the most right now. Paused, snoozed and resolved conversations are not included."
       }
     },
     "CARD": {
@@ -31,7 +34,8 @@
       "LONGEST": "longest wait: {time}",
       "EMPTY": "No conversations",
       "OPEN_LIST": "View conversations",
-      "CLOSE_LIST": "Close list"
+      "CLOSE_LIST": "Close list",
+      "INFO_LABEL": "What is this number?"
     },
     "STATS": {
       "OPEN": "Open",
