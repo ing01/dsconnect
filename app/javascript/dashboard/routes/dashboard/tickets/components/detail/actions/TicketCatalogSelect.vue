@@ -2,6 +2,7 @@
 import TicketSelect from '../../TicketSelect.vue';
 import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useMapGetter } from 'dashboard/composables/store';
 
 const props = defineProps({
   // The whole Catalogo > Area > Item tree, already filtered to what is active.
@@ -18,6 +19,12 @@ const emit = defineEmits([
 ]);
 
 const { t } = useI18n();
+
+// Every caller dispatches `serviceCatalogs/fetch` right before opening, but
+// none of them wait for it - the tree can be a few seconds out (this account
+// alone has 2000+ itens). Reading the flag here, once, covers every caller.
+const uiFlags = useMapGetter('serviceCatalogs/getUIFlags');
+const isFetchingCatalogs = computed(() => uiFlags.value.isFetching);
 
 const selectedCatalog = computed(() =>
   props.catalogs.find(catalog => String(catalog.id) === String(props.catalogId))
@@ -73,6 +80,7 @@ watch(
         :placeholder="t('TICKET.CATALOG.SELECT')"
         :aria-label="t('TICKET.CATALOG.SELECT')"
         show-search
+        :is-loading="isFetchingCatalogs"
         :search-placeholder="t('TICKET.CATALOG.SEARCH')"
         @update:model-value="value => emit('update:catalogId', value)"
       />
