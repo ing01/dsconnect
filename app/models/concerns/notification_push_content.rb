@@ -29,6 +29,7 @@ module NotificationPushContent
       'ticket_customer_communication_received' => 'notifications.notification_title.ticket_customer_communication_received',
       'ticket_proposal_answered' => 'notifications.notification_title.ticket_proposal_answered',
       'ticket_child_completed' => 'notifications.notification_title.ticket_child_completed',
+      'ticket_impediment_released' => 'notifications.notification_title.ticket_impediment_released',
       'article_published' => 'notifications.notification_title.article_published',
       'portal_created' => 'notifications.notification_title.portal_created'
     }
@@ -79,6 +80,8 @@ module NotificationPushContent
         decision: I18n.t("notifications.proposal_decision.#{secondary_actor.status}") }
     when 'ticket_child_completed'
       { display_id: primary_actor.display_id, child_display_id: secondary_actor.display_id }
+    when 'ticket_impediment_released'
+      { display_id: primary_actor.display_id, released_display_id: secondary_actor.display_id }
     when 'suggestion_created'
       { user_name: primary_actor.user&.name.to_s }
     when 'article_published'
@@ -129,6 +132,7 @@ module NotificationPushContent
     return ticket_customer_communication_preview if notification_type == 'ticket_customer_communication_received'
     return primary_actor.title if notification_type == 'ticket_proposal_answered'
     return secondary_actor.title if notification_type == 'ticket_child_completed'
+    return "Ticket filho ##{primary_actor.display_id}: #{primary_actor.title}" if notification_type == 'ticket_impediment_released'
 
     ''
   end

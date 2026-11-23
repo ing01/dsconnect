@@ -19,6 +19,8 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'suggestion_manage',
   'commercial_manage',
   'mood_checkin_manage',
+  'notification_view',
+  'ticket_cancel',
   'conversation_panel_view',
 ];
 

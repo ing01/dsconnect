@@ -68,8 +68,15 @@ const priorityOptions = computed(() =>
   }))
 );
 
+// "Cancelado" so' aparece para quem pode cancelar (ou se o ticket ja esta cancelado): oferecer a
+// opcao a quem o servidor vai recusar so' leva a um erro de permissao.
 const statusOptions = computed(() =>
-  STATUSES.map(status => ({
+  STATUSES.filter(
+    status =>
+      status !== 'cancelled' ||
+      props.ticket.can_cancel ||
+      props.ticket.status === 'cancelled'
+  ).map(status => ({
     value: status,
     label: t(`TICKET.STATUS.${status.toUpperCase()}`),
   }))

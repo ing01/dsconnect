@@ -8,6 +8,46 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'integration-api-family-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'feature',
+    title: 'API de Integração: pai e filhos do ticket',
+    description:
+      'A consulta de tickets da API (a lista e o detalhe) passa a trazer parent_ticket_id (o id do pai, ou nulo) e child_tickets (os filhos, com id, display_id, team_id, ticket_column_id e status; lista vazia quando não há).',
+  },
+  {
+    id: 'ticket-cancel-permission-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'feature',
+    title: 'Permissão para cancelar tickets',
+    description:
+      'Cancelar um ticket continua só para administradores, mas agora dá para liberar a quem você quiser: em Configurações > Funções personalizadas há a nova permissão "Cancelar tickets". Ela vem desmarcada em todas as funções. Quem não pode cancelar deixa de ver a opção "Cancelado" no ticket e no menu do cartão, em vez de tentar e receber um erro de permissão.',
+  },
+  {
+    id: 'internal-chat-stick-bottom-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title: 'Chat interno: a conversa fica na última mensagem',
+    description:
+      'A conversa abre na última mensagem e continua nela: mensagens novas que chegam passam a rolar a tela sozinhas, e imagens ou anexos que terminam de carregar não tiram mais você do fim. Se você sobe para ler o histórico, a tela não puxa você de volta; ao voltar até o fim, ela volta a acompanhar.',
+  },
+  {
+    id: 'impediment-released-notice-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'feature',
+    title: 'Impedimento removido avisa o responsável pelo ticket filho',
+    description:
+      'Quando um impedimento é removido ou concluído, o responsável pelo ticket filho recebe uma notificação que abre o ticket dele. Se o impedimento era do próprio filho, avisa o responsável dele; se era do ticket pai, avisa o filho de onde ele veio (ou todos os filhos abertos, quando o impedimento era do próprio pai). Quem removeu o impedimento não avisa a si mesmo. Além disso, as funções personalizadas ganharam a permissão "Ver a aba Notificações": ela vem marcada nas funções novas e foi concedida a todas as existentes, então ninguém fica sem a aba (administradores e agentes sempre veem). Quem quiser tirar a aba de uma função desmarca a permissão em Configurações > Funções personalizadas.',
+  },
+  {
     id: 'conversation-panel-2026-11-23',
     date: '23 de novembro de 2026',
     isoDate: '2026-11-23',

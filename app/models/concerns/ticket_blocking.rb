@@ -59,6 +59,8 @@ module TicketBlocking
 
     motivo_anterior = blocked_reason
     resolucao = resolution.to_s.strip.presence
+    # De qual filho veio o impedimento deste ticket (se veio): lido ANTES de ser limpo logo abaixo.
+    filho_de_origem = blocked_by_child
 
     transaction do
       update!(blocked_at: nil, blocked_by: nil, blocked_reason: nil, blocked_by_child_id: nil)
@@ -70,10 +72,21 @@ module TicketBlocking
       release_parent(user, resolucao)
     end
 
+    notify_impediment_released(user, filho_de_origem, cascaded: source_child.present?)
     self
   end
 
   private
+
+  # O responsavel pelo ticket filho precisa saber que o impedimento acabou. Um aviso que falha nao
+  # pode desfazer a retirada do impedimento: o erro vai para o log e a retirada segue valendo.
+  def notify_impediment_released(user, filho_de_origem, cascaded:)
+    Tickets::ImpedimentReleasedNotificationBuilder.new(
+      ticket: self, user: user, origin_child: filho_de_origem, cascaded: cascaded
+    ).perform
+  rescue StandardError => e
+    Rails.logger.error("[TicketBlocking] aviso de impedimento removido falhou (ticket #{id}): #{e.class} #{e.message}")
+  end
 
   # O pai so' recebe o impedimento se puder: um pai ja impedido por outra coisa fica como
   # esta (so' ganha um comentario avisando), e um pai finalizado nao aceita mais alteracao.

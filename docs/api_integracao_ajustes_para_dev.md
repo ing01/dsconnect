@@ -105,6 +105,20 @@ sem diferenciar maiúscula de minúscula e ignorando espaços nas pontas. Devolv
 filtros (inclusive `display_id` e `jira_key`) e acha o ticket em qualquer Mesa; key que não está ligada a
 nenhum ticket devolve lista vazia.
 
+**Pai e filhos** — em `GET /tickets` (cada item da lista) e em `GET /tickets/:id` (e nas respostas de escrita):
+
+```json
+{ "parent_ticket_id": 940,
+  "child_tickets": [
+    { "id": 951, "display_id": 32519, "team_id": 9, "ticket_column_id": 41, "status": "open" }
+  ] }
+```
+
+- `parent_ticket_id` é o **id** do pai, ou `null` quando o ticket não é filho de ninguém.
+- `child_tickets` lista os filhos do ticket (de **qualquer status**, em ordem de id), cada um com `id`,
+  `display_id`, `team_id`, `ticket_column_id` e `status` (`open`, `resolved`, `closed` ou `cancelled`).
+  **Lista vazia** (`[]`) quando o ticket não tem filho — nunca `null`. O filho pode estar em outra Mesa.
+
 Onde enviar:
 - **Criação:** `POST /tickets`, dentro de `ticket` (ao lado de `title` etc.).
 - **Alteração:** `PATCH /tickets/:id` (ou `/route`), no nível raiz do corpo.

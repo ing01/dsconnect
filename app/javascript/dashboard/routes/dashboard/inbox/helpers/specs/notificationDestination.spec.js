@@ -116,4 +116,33 @@ describe('notificationDestinationFor', () => {
 
     expect(destino).toBeNull();
   });
+
+  it('opens the CHILD ticket when its impediment was removed', () => {
+    const destino = notificationDestinationFor(
+      {
+        notificationType: 'ticket_impediment_released',
+        primaryActorType: 'Ticket',
+        primaryActor: { id: 55 },
+      },
+      1
+    );
+
+    expect(destino).toEqual({
+      name: 'ticket_detail',
+      params: { accountId: 1, ticketId: 55 },
+    });
+  });
+
+  it('has no destination for an impediment notice without the ticket', () => {
+    expect(
+      notificationDestinationFor(
+        {
+          notificationType: 'ticket_impediment_released',
+          primaryActorType: 'Ticket',
+          primaryActor: {},
+        },
+        1
+      )
+    ).toBeNull();
+  });
 });

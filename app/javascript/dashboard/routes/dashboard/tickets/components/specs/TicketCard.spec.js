@@ -13,13 +13,13 @@ const ticket = (overrides = {}) => ({
   ...overrides,
 });
 
-const mountCard = (props = {}, role = 'agent') =>
+const mountCard = (props = {}, role = 'agent', extraGetters = {}) =>
   mount(TicketCard, {
     props: { ticket: ticket(), agents: [], ...props },
     global: {
       mocks: {
         $t: key => key,
-        $store: { getters: { getCurrentRole: role } },
+        $store: { getters: { getCurrentRole: role, ...extraGetters } },
       },
       stubs: {
         // O menu e teleportado para o body, para escapar do recorte da coluna
@@ -131,6 +131,27 @@ describe('TicketCard menu', () => {
 
     const agent = await openMenu(mountCard({}, 'agent'));
     expect(values(agent)).not.toContain('cancel');
+  });
+
+  it('offers cancel to a custom role that has the cancel permission', async () => {
+    const user = permissions => ({
+      accounts: [{ id: 1, permissions, custom_role_id: 5 }],
+    });
+    const withPermission = await openMenu(
+      mountCard({}, 'custom_role', {
+        getCurrentUser: user(['ticket_manage', 'ticket_cancel', 'custom_role']),
+        getCurrentAccountId: 1,
+      })
+    );
+    expect(values(withPermission)).toContain('cancel');
+
+    const without = await openMenu(
+      mountCard({}, 'custom_role', {
+        getCurrentUser: user(['ticket_manage', 'custom_role']),
+        getCurrentAccountId: 1,
+      })
+    );
+    expect(values(without)).not.toContain('cancel');
   });
 
   it('does not offer cancel on a ticket that is no longer open', async () => {

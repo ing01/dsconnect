@@ -52,6 +52,8 @@
       "SUGGESTION_MANAGE": "Move suggestions between columns and configure the Suggestions board",
       "COMMERCIAL_MANAGE": "Access the Painel Comercial (CRM) - clients, sales and contracts",
       "MOOD_CHECKIN_MANAGE": "See the Team mood report",
+      "NOTIFICATION_VIEW": "See the Notifications tab",
+      "TICKET_CANCEL": "Cancel tickets",
       "CONVERSATION_PANEL_VIEW": "See the Conversations Panel (in service, waiting and long-waiting cards)"
     },
     "FORM": {

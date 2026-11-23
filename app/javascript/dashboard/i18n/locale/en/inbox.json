@@ -1,10 +1,10 @@
 {
   "INBOX": {
     "LIST": {
+      "404": "There are no active notifications in this group.",
       "TITLE": "My Inbox",
       "DISPLAY_DROPDOWN": "Display",
       "LOADING": "Fetching notifications",
-      "404": "There are no active notifications in this group.",
       "NO_NOTIFICATIONS": "No notifications",
       "NOTE": "Notifications from all subscribed inboxes",
       "NO_MESSAGES_AVAILABLE": "Oops! Not able to fetch messages",
@@ -43,7 +43,8 @@
       "TICKET_PROPOSAL_ANSWERED": "Proposal answered",
       "TICKET_CHILD_COMPLETED": "Child ticket completed",
       "SNOOZED_UNTIL": "Snoozed for {time}",
-      "SNOOZED_ENDS": "Snooze ended"
+      "SNOOZED_ENDS": "Snooze ended",
+      "TICKET_IMPEDIMENT_RELEASED": "Impediment removed"
     },
     "NO_CONTENT": "No content available",
     "MENU_ITEM": {

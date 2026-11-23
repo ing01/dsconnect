@@ -69,7 +69,10 @@ class Notification < ApplicationRecord
     ticket_proposal_answered: 17,
     # O ticket FILHO de uma Mesa de desenvolvimento foi concluido - avisa o
     # responsavel pelo ticket PAI (ver Tickets::ChildCompletedNotificationBuilder).
-    ticket_child_completed: 18
+    ticket_child_completed: 18,
+    # O impedimento de um ticket foi removido (ou concluido) - avisa o responsavel pelo ticket
+    # FILHO, que era quem estava parado (ver Tickets::ImpedimentReleasedNotificationBuilder).
+    ticket_impediment_released: 19
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES

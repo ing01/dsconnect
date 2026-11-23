@@ -60,6 +60,11 @@ export const NOTIFICATION_TYPES = [
     value: 'ticket_child_completed',
   },
   {
+    label:
+      'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.TICKET_IMPEDIMENT_RELEASED',
+    value: 'ticket_impediment_released',
+  },
+  {
     label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.ARTICLE_PUBLISHED',
     value: 'article_published',
   },

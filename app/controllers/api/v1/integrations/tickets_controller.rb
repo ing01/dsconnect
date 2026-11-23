@@ -38,7 +38,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
   # entra aqui de proposito - e' a thread interna da equipe (ver TicketCommentsController
   # para a rota de leitura dedicada).
   SHOW_INCLUDES = [
-    :team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact, :assignee,
+    :team, :ticket_column, :ticket_category, :ticket_complexity, :company, :contact, :assignee, :children,
     { conversations: :contact },
     { ticket_customer_communications: [:user, :contact] },
     { ticket_attachments: { file_attachment: :blob } }
@@ -133,7 +133,7 @@ class Api::V1::Integrations::TicketsController < Api::V1::Integrations::BaseCont
     checked_development_type(params[:development_type]) if params[:development_type].present?
     # Sprint que nao existe (ou de outra conta) e' 404, como em todo id desta API - nao uma lista vazia.
     Sprint.where(account_id: current_account.id).find(params[:sprint_id]) if params[:sprint_id].present?
-    scope = current_account.tickets.includes(:team, :ticket_column, :ticket_category, :company, :assignee)
+    scope = current_account.tickets.includes(:team, :ticket_column, :ticket_category, :company, :assignee, :children)
     scope = apply_equality_filters(scope)
     scope = apply_jira_key_filter(scope)
     scope = scope.where(created_at: params[:created_after]..) if params[:created_after].present?
