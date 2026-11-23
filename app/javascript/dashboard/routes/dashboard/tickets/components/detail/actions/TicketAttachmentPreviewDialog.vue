@@ -132,7 +132,9 @@ defineExpose({ open, close, step });
         />
       </div>
 
-      <div class="relative flex items-center justify-center w-full min-h-[40vh]">
+      <div
+        class="relative flex items-center justify-center w-full min-h-[40vh]"
+      >
         <Button
           v-if="hasMany"
           class="absolute z-10 -translate-y-1/2 start-0 top-1/2"
@@ -165,9 +167,9 @@ defineExpose({ open, close, step });
             :alt="attachment.filename"
             :style="imageStyle"
             class="max-h-[70vh] max-w-full rounded-lg object-contain duration-100 ease-in-out transform select-none"
+            draggable="false"
             @dblclick.stop="onDoubleClickZoomImage"
             @wheel.prevent.stop="onWheelImageZoom"
-            draggable="false"
             @dragstart.prevent
             @pointerdown="onPanStart"
             @mousemove="onMouseMove"

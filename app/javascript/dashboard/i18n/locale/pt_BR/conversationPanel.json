@@ -1,0 +1,82 @@
+{
+  "CONVERSATION_PANEL": {
+    "TITLE": "Painel de Conversas",
+    "SUBTITLE": "Como está o atendimento agora, pelo tempo que o cliente espera resposta.",
+    "LIVE": "Ao vivo",
+    "RECONNECTING": "Reconectando...",
+    "UPDATED_AT": "Atualizado às {time}",
+    "LOADING": "Carregando o painel...",
+    "ERROR": "Não foi possível carregar o painel. Tentando de novo.",
+    "REFRESH": "Atualizar",
+    "TV_MODE": "Modo TV",
+    "EXIT_TV_MODE": "Sair do Modo TV",
+    "SOUND_ON": "Som ligado",
+    "SOUND_OFF": "Som desligado",
+    "BANDS": {
+      "GREEN": {
+        "TITLE": "Em atendimento",
+        "HINT": "até {minutes} min de espera"
+      },
+      "ORANGE": {
+        "TITLE": "Aguardando",
+        "HINT": "de {from} a {to} min de espera"
+      },
+      "RED": {
+        "TITLE": "Esperando há muito tempo",
+        "HINT": "mais de {minutes} min de espera"
+      }
+    },
+    "CARD": {
+      "OF_TOTAL": "{percent}% das abertas",
+      "LONGEST": "maior espera: {time}",
+      "EMPTY": "Nenhuma conversa",
+      "OPEN_LIST": "Ver conversas",
+      "CLOSE_LIST": "Fechar lista"
+    },
+    "STATS": {
+      "OPEN": "Abertas",
+      "UNASSIGNED": "Sem responsável",
+      "PAUSED": "Pausadas",
+      "SNOOZED": "Adiadas",
+      "AVERAGE_WAIT": "Espera média",
+      "LONGEST_WAIT": "Maior espera",
+      "NONE": "—"
+    },
+    "LIST": {
+      "TITLE": "Conversas: {band}",
+      "TRUNCATED": "Mostrando as {shown} com mais espera de {total}.",
+      "EMPTY": "Nenhuma conversa nesta faixa.",
+      "WAITING": "esperando há {time}",
+      "REPLIED": "respondida",
+      "UNASSIGNED": "Sem responsável",
+      "OPEN": "Abrir",
+      "NO_MESSAGE": "Sem mensagem do cliente"
+    },
+    "BREAKDOWN": {
+      "BY_AGENT": "Por agente",
+      "BY_INBOX": "Por caixa de entrada",
+      "UNASSIGNED": "Sem responsável",
+      "EMPTY": "Sem conversas abertas.",
+      "TOTAL": "{count} abertas"
+    },
+    "SETTINGS": {
+      "TITLE": "Painel de Conversas",
+      "DESCRIPTION": "Defina em quanto tempo uma conversa passa de verde para laranja e para vermelho. O tempo conta desde a última mensagem do cliente sem resposta. Quem pode ver o painel é definido na Função personalizada (permissão \"Ver o Painel de Conversas\"); administradores sempre veem.",
+      "GREEN_UNTIL": "Verde (em atendimento) até",
+      "ORANGE_UNTIL": "Laranja (aguardando) até",
+      "MINUTES": "minutos",
+      "RED_HINT": "Acima disso a conversa fica vermelha.",
+      "REFRESH": "Atualizar a cada",
+      "SECONDS": "segundos",
+      "LIST_LIMIT": "Conversas por lista",
+      "LIST_LIMIT_HELP": "Quantas conversas cada card mostra ao ser aberto.",
+      "SOUND": "Tocar um som quando uma conversa entra no vermelho (cada pessoa pode ligar ou desligar no painel)",
+      "PREVIEW": "Com estes tempos, agora seriam:",
+      "PREVIEW_ERROR": "Não foi possível calcular a prévia agora.",
+      "SAVE": "Salvar",
+      "SAVED": "Configuração do painel salva.",
+      "ERROR": "Não foi possível salvar a configuração.",
+      "INVALID": "O tempo do laranja precisa ser maior que o do verde."
+    }
+  }
+}

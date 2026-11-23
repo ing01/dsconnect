@@ -14,4 +14,6 @@ export const BUS_EVENTS = {
   INSERT_INTO_RICH_EDITOR: 'insertIntoRichEditor',
   INSERT_INTO_NORMAL_EDITOR: 'insertIntoNormalEditor',
   MFA_STATE_CHANGED: 'MFA_STATE_CHANGED',
+  // Qualquer mudança que mexe nos números do Painel de Conversas.
+  CONVERSATION_PANEL_CHANGED: 'CONVERSATION_PANEL_CHANGED',
 };

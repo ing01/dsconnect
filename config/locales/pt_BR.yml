@@ -700,6 +700,9 @@ pt_BR:
       transcript_subject: 'Transcrição da conversa'
     survey:
       response: 'Por favor, classifique esta conversa, %{link}'
+  conversation_panel:
+    errors:
+      orange_after_green: precisa ser maior que o tempo do verde.
   client_announcements:
     errors:
       ends_before_start: precisa ser depois do início.

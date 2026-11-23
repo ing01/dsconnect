@@ -118,8 +118,7 @@ const hasChanges = computed(
       field => (form[field] || '').trim() !== (props.company?.[field] || '')
     ) ||
     (form.companyNicheId || 0) !== (props.company?.companyNicheId || 0) ||
-    (form.companySubNicheId || 0) !==
-      (props.company?.companySubNicheId || 0) ||
+    (form.companySubNicheId || 0) !== (props.company?.companySubNicheId || 0) ||
     (form.specialistId || 0) !== (props.company?.specialistId || 0) ||
     (form.classificationLevel || 0) !==
       (props.company?.classificationLevel || 0) ||

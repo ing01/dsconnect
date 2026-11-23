@@ -19,6 +19,7 @@ import contentTemplates from './contentTemplates.json';
 import conversation from './conversation.json';
 import csatMgmt from './csatMgmt.json';
 import customRole from './customRole.json';
+import conversationPanel from './conversationPanel.json';
 import datePicker from './datePicker.json';
 import emoji from './emoji.json';
 import general from './general.json';
@@ -89,6 +90,7 @@ export default {
   ...conversation,
   ...csatMgmt,
   ...customRole,
+  ...conversationPanel,
   ...datePicker,
   ...emoji,
   ...general,

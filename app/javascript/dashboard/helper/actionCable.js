@@ -121,6 +121,7 @@ class ActionCableConnector extends BaseActionCableConnector {
   };
 
   onAssigneeChanged = payload => {
+    emitter.emit(BUS_EVENTS.CONVERSATION_PANEL_CHANGED);
     const { id } = payload;
     this.app.$store.dispatch('unreadAssigned/scheduleRefresh');
     if (id) {
@@ -130,6 +131,7 @@ class ActionCableConnector extends BaseActionCableConnector {
   };
 
   onConversationCreated = data => {
+    emitter.emit(BUS_EVENTS.CONVERSATION_PANEL_CHANGED);
     this.app.$store.dispatch('addConversation', data);
     this.fetchConversationStats();
   };
@@ -142,6 +144,7 @@ class ActionCableConnector extends BaseActionCableConnector {
   onLogout = () => AuthAPI.logout();
 
   onMessageCreated = data => {
+    emitter.emit(BUS_EVENTS.CONVERSATION_PANEL_CHANGED);
     const {
       conversation: { last_activity_at: lastActivityAt },
       conversation_id: conversationId,
@@ -159,6 +162,7 @@ class ActionCableConnector extends BaseActionCableConnector {
   onReload = () => window.location.reload();
 
   onStatusChange = data => {
+    emitter.emit(BUS_EVENTS.CONVERSATION_PANEL_CHANGED);
     this.app.$store.dispatch('unreadAssigned/scheduleRefresh');
     this.app.$store.dispatch('updateConversation', data);
     this.fetchConversationStats();

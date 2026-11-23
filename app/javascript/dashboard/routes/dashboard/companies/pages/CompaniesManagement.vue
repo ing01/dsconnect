@@ -262,7 +262,8 @@ onMounted(() => {
         type="search"
         :placeholder="t('COMPANIES.MANAGEMENT.SEARCH_PLACEHOLDER')"
         :aria-label="t('COMPANIES.MANAGEMENT.SEARCH_PLACEHOLDER')"
-        :class="[selectClass, 'col-span-2 md:col-span-1 xl:col-span-2']"
+        :class="selectClass"
+        class="col-span-2 md:col-span-1 xl:col-span-2"
         @input="onSearchInput"
       />
       <select
@@ -271,8 +272,12 @@ onMounted(() => {
         :aria-label="t('COMPANIES.MANAGEMENT.COLUMNS.STATUS')"
         @change="applyFilters"
       >
-        <option value="">{{ t('COMPANIES.MANAGEMENT.FILTERS.ALL_STATUSES') }}</option>
-        <option value="active">{{ t('COMPANIES.MANAGEMENT.STATUS.ACTIVE') }}</option>
+        <option value="">
+          {{ t('COMPANIES.MANAGEMENT.FILTERS.ALL_STATUSES') }}
+        </option>
+        <option value="active">
+          {{ t('COMPANIES.MANAGEMENT.STATUS.ACTIVE') }}
+        </option>
         <option value="inactive">
           {{ t('COMPANIES.MANAGEMENT.STATUS.INACTIVE') }}
         </option>
@@ -283,7 +288,9 @@ onMounted(() => {
         :aria-label="t('COMPANIES.MANAGEMENT.COLUMNS.LEVEL')"
         @change="applyFilters"
       >
-        <option value="">{{ t('COMPANIES.MANAGEMENT.FILTERS.ALL_LEVELS') }}</option>
+        <option value="">
+          {{ t('COMPANIES.MANAGEMENT.FILTERS.ALL_LEVELS') }}
+        </option>
         <option v-for="level in LEVELS" :key="level" :value="level">
           {{ levelLabel(level) }}
         </option>
@@ -294,7 +301,9 @@ onMounted(() => {
         :aria-label="t('COMPANIES.MANAGEMENT.COLUMNS.NICHE')"
         @change="applyFilters"
       >
-        <option value="">{{ t('COMPANIES.MANAGEMENT.FILTERS.ALL_NICHES') }}</option>
+        <option value="">
+          {{ t('COMPANIES.MANAGEMENT.FILTERS.ALL_NICHES') }}
+        </option>
         <option v-for="niche in niches" :key="niche.id" :value="niche.id">
           {{ niche.name }}
         </option>
@@ -466,7 +475,11 @@ onMounted(() => {
               class="flex items-center gap-1 text-n-slate-11"
             >
               <input v-model="bulk.modulesMode" type="radio" :value="mode" />
-              {{ t(`COMPANIES.MANAGEMENT.BULK.MODULES_MODE.${mode.toUpperCase()}`) }}
+              {{
+                t(
+                  `COMPANIES.MANAGEMENT.BULK.MODULES_MODE.${mode.toUpperCase()}`
+                )
+              }}
             </label>
           </div>
           <div class="flex flex-wrap gap-x-4 gap-y-1">
@@ -601,7 +614,10 @@ onMounted(() => {
               <div class="truncate text-n-slate-12" :title="company.name">
                 {{ company.name }}
               </div>
-              <div v-if="company.codigo" class="text-xs font-mono text-n-slate-11">
+              <div
+                v-if="company.codigo"
+                class="text-xs font-mono text-n-slate-11"
+              >
                 {{ company.codigo }}
               </div>
             </td>

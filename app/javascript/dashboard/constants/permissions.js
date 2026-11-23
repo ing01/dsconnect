@@ -21,6 +21,7 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'mood_checkin_manage',
   'notification_view',
   'ticket_cancel',
+  'conversation_panel_view',
 ];
 
 export const COMMERCIAL_PERMISSIONS = 'commercial_manage';

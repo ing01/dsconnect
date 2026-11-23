@@ -41,6 +41,7 @@
 # - 'notification_view': Can see the Notificacoes tab (the inbox of notices). Administrators and agents always can;
 #   a custom role needs this one (it is pre-checked on new roles, and granted to every existing role by migration).
 # - 'mood_checkin_manage': Can see the "Humor da equipe" report (administrators always can).
+# - 'conversation_panel_view': Can see the Painel de Conversas (administrators always can; configuring it is admin-only).
 # - 'commercial_manage': Can access the Painel Comercial (CRM) - clients, sales and contracts.
 #   Unlike every other permission above, this one is checked WITHOUT an administrator bypass
 #   (see Crm::ClientPolicy/Crm::SalePolicy) - commercial data is deliberately restricted to
@@ -77,6 +78,7 @@ class CustomRole < ApplicationRecord
     mood_checkin_manage
     notification_view
     ticket_cancel
+    conversation_panel_view
   ].freeze
 
   validates :name, presence: true

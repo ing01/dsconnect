@@ -54,7 +54,8 @@
       "COMMERCIAL_MANAGE": "Acessar o Painel Comercial (CRM) - clientes, vendas e contratos",
       "MOOD_CHECKIN_MANAGE": "Ver o relatório Humor da equipe",
       "NOTIFICATION_VIEW": "Ver a aba Notificações",
-      "TICKET_CANCEL": "Cancelar tickets"
+      "TICKET_CANCEL": "Cancelar tickets",
+      "CONVERSATION_PANEL_VIEW": "Ver o Painel de Conversas (cards de atendimento, aguardando e esperando há muito tempo)"
     },
     "FORM": {
       "NAME": {

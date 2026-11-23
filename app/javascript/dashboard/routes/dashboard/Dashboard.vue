@@ -1,5 +1,5 @@
 <script>
-import { defineAsyncComponent, ref, computed, KeepAlive } from 'vue';
+import { defineAsyncComponent, ref, computed } from 'vue';
 
 import NextSidebar from 'next/sidebar/Sidebar.vue';
 import WootKeyShortcutModal from 'dashboard/components/widgets/modal/WootKeyShortcutModal.vue';
@@ -60,6 +60,8 @@ export default {
       accountId,
       upgradePageRef,
       windowWidth,
+      KEEP_ALIVE_PAGES,
+      KEEP_ALIVE_MAX,
       hasActiveCall: computed(() => callsStore.hasActiveCall),
       hasIncomingCall: computed(() => callsStore.hasIncomingCall),
     };

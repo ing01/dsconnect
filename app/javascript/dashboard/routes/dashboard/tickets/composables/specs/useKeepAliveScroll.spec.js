@@ -16,7 +16,10 @@ const Page = defineComponent({
 
 const Other = defineComponent({ name: 'OtherPage', render: () => h('p') });
 
-const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
+const nextFrame = () =>
+  new Promise(resolve => {
+    requestAnimationFrame(resolve);
+  });
 
 const mountSwitcher = () => {
   const current = ref('ScrollPage');

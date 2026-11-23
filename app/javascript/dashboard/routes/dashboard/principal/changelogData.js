@@ -48,6 +48,16 @@ export const CHANGELOG_ENTRIES = [
       'Quando um impedimento é removido ou concluído, o responsável pelo ticket filho recebe uma notificação que abre o ticket dele. Se o impedimento era do próprio filho, avisa o responsável dele; se era do ticket pai, avisa o filho de onde ele veio (ou todos os filhos abertos, quando o impedimento era do próprio pai). Quem removeu o impedimento não avisa a si mesmo. Além disso, as funções personalizadas ganharam a permissão "Ver a aba Notificações": ela vem marcada nas funções novas e foi concedida a todas as existentes, então ninguém fica sem a aba (administradores e agentes sempre veem). Quem quiser tirar a aba de uma função desmarca a permissão em Configurações > Funções personalizadas.',
   },
   {
+    id: 'conversation-panel-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    type: 'feature',
+    platform: 'web',
+    title: 'Painel de Conversas',
+    description:
+      'Novo item "Painel de Conversas" no menu: três cards mostram as conversas em atendimento (verde), aguardando (laranja) e esperando há muito tempo (vermelho), com totais, maior espera e lista por card. Atualiza em tempo real, tem modo TV e aviso sonoro. Os tempos de cada cor são configurados em Configurações > Painel de Conversas. Administradores sempre veem; para outras pessoas, marque "Ver o Painel de Conversas" na Função personalizada.',
+  },
+  {
     id: 'client-chat-first-connect-race-2026-11-23',
     date: '23 de novembro de 2026',
     isoDate: '2026-11-23',

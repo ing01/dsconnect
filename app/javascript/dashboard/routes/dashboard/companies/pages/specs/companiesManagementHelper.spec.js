@@ -62,9 +62,9 @@ describe('companiesManagementHelper', () => {
     });
 
     it('sem modulo marcado o modo nao e enviado', () => {
-      expect(buildBulkChanges({ ...emptyBulk(), modulesMode: 'replace' })).toEqual(
-        {}
-      );
+      expect(
+        buildBulkChanges({ ...emptyBulk(), modulesMode: 'replace' })
+      ).toEqual({});
     });
 
     it('envia o tipo de cobranca', () => {

@@ -6,9 +6,13 @@ import { rememberTicketList } from '../helpers/lastTicketList';
 // Guarda a última lista aberta (Kanban, Backlog/Sprint ou Triagem) para o
 // "Voltar" do ticket saber para onde ir.
 const route = useRoute();
-watch(() => route.fullPath, () => rememberTicketList(route), {
-  immediate: true,
-});
+watch(
+  () => route.fullPath,
+  () => rememberTicketList(route),
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <template>

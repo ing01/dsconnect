@@ -7,10 +7,10 @@ import { useI18n } from 'vue-i18n';
 import CompaniesAPI from 'dashboard/api/companies';
 import { formatHistoryDate } from 'dashboard/components-next/message/helpers/contactHistoryHelper';
 
+const emit = defineEmits(['finished']);
+
 const POLL_INTERVAL = 3000;
 const VISIBLE_FAILURES = 30;
-
-const emit = defineEmits(['finished']);
 
 const { t, locale } = useI18n();
 
@@ -78,7 +78,9 @@ defineExpose({ reload: load });
     data-testid="bulk-log"
     :open="hasActive || entries.some(entry => entry.failed_count > 0)"
   >
-    <summary class="px-4 py-3 text-sm font-medium cursor-pointer text-n-slate-12">
+    <summary
+      class="px-4 py-3 text-sm font-medium cursor-pointer text-n-slate-12"
+    >
       {{ t('COMPANIES.MANAGEMENT.LOG.TITLE') }}
       <span v-if="hasActive" class="ml-2 text-xs font-normal text-n-blue-11">
         {{ t('COMPANIES.MANAGEMENT.LOG.STATUS.RUNNING') }}
@@ -110,12 +112,16 @@ defineExpose({ reload: load });
           <span class="text-xs text-n-slate-11">
             {{ date(entry) }}
             <template v-if="entry.user_name">
-              · {{ t('COMPANIES.MANAGEMENT.LOG.BY', { name: entry.user_name }) }}
+              ·
+              {{ t('COMPANIES.MANAGEMENT.LOG.BY', { name: entry.user_name }) }}
             </template>
           </span>
         </header>
 
-        <ul v-if="entry.summary?.length" class="flex flex-wrap gap-1 p-0 m-0 list-none">
+        <ul
+          v-if="entry.summary?.length"
+          class="flex flex-wrap gap-1 p-0 m-0 list-none"
+        >
           <li
             v-for="line in entry.summary"
             :key="line"
@@ -125,7 +131,11 @@ defineExpose({ reload: load });
           </li>
         </ul>
 
-        <p v-if="isActive(entry)" class="m-0 text-sm text-n-slate-11" data-testid="bulk-log-progress">
+        <p
+          v-if="isActive(entry)"
+          class="m-0 text-sm text-n-slate-11"
+          data-testid="bulk-log-progress"
+        >
           {{
             t('COMPANIES.MANAGEMENT.LOG.PROGRESS', {
               done: entry.processed_count,
@@ -133,21 +143,40 @@ defineExpose({ reload: load });
             })
           }}
         </p>
-        <p v-else-if="entry.status === 'failed'" class="m-0 text-sm text-n-ruby-11">
+        <p
+          v-else-if="entry.status === 'failed'"
+          class="m-0 text-sm text-n-ruby-11"
+        >
           {{ t('COMPANIES.MANAGEMENT.LOG.FAILED_TITLE') }}
           <span v-if="entry.error_message">— {{ entry.error_message }}</span>
         </p>
         <p v-else class="m-0 text-sm text-n-slate-12">
-          {{ t('COMPANIES.MANAGEMENT.LOG.RESULT', { count: entry.updated_count }, entry.updated_count) }}
+          {{
+            t(
+              'COMPANIES.MANAGEMENT.LOG.RESULT',
+              { count: entry.updated_count },
+              entry.updated_count
+            )
+          }}
           <template v-if="entry.failed_count > 0">
             ·
             <span class="text-n-amber-11">
-              {{ t('COMPANIES.MANAGEMENT.LOG.ERRORS_COUNT', { count: entry.failed_count }, entry.failed_count) }}
+              {{
+                t(
+                  'COMPANIES.MANAGEMENT.LOG.ERRORS_COUNT',
+                  { count: entry.failed_count },
+                  entry.failed_count
+                )
+              }}
             </span>
           </template>
         </p>
 
-        <div v-if="entry.failures?.length" class="flex flex-col gap-1" data-testid="bulk-log-failures">
+        <div
+          v-if="entry.failures?.length"
+          class="flex flex-col gap-1"
+          data-testid="bulk-log-failures"
+        >
           <span class="text-xs font-medium text-n-slate-12">
             {{ t('COMPANIES.MANAGEMENT.LOG.FAILURES_TITLE') }}
           </span>
@@ -165,7 +194,11 @@ defineExpose({ reload: load });
             v-if="entry.failed_count > VISIBLE_FAILURES"
             class="text-xs text-n-slate-11"
           >
-            {{ t('COMPANIES.MANAGEMENT.LOG.MORE', { count: entry.failed_count - VISIBLE_FAILURES }) }}
+            {{
+              t('COMPANIES.MANAGEMENT.LOG.MORE', {
+                count: entry.failed_count - VISIBLE_FAILURES,
+              })
+            }}
           </span>
           <p class="m-0 text-xs text-n-slate-11">
             {{ t('COMPANIES.MANAGEMENT.LOG.FAILURES_HELP') }}

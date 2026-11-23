@@ -24,10 +24,8 @@ describe('keepAlivePages', () => {
     const current = ref('ProjectsPage');
     const wrapper = mount({
       render: () =>
-        h(
-          KeepAlive,
-          { include: KEEP_ALIVE_PAGES, max: KEEP_ALIVE_MAX },
-          () => h(current.value === 'ProjectsPage' ? Projects : Other)
+        h(KeepAlive, { include: KEEP_ALIVE_PAGES, max: KEEP_ALIVE_MAX }, () =>
+          h(current.value === 'ProjectsPage' ? Projects : Other)
         ),
     });
 
@@ -46,10 +44,8 @@ describe('keepAlivePages', () => {
     const current = ref('SettingsPage');
     const wrapper = mount({
       render: () =>
-        h(
-          KeepAlive,
-          { include: KEEP_ALIVE_PAGES, max: KEEP_ALIVE_MAX },
-          () => h(current.value === 'SettingsPage' ? Settings : Projects)
+        h(KeepAlive, { include: KEEP_ALIVE_PAGES, max: KEEP_ALIVE_MAX }, () =>
+          h(current.value === 'SettingsPage' ? Settings : Projects)
         ),
     });
 

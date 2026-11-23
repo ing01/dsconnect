@@ -1,0 +1,82 @@
+{
+  "CONVERSATION_PANEL": {
+    "TITLE": "Conversations Panel",
+    "SUBTITLE": "How support is doing right now, by how long customers have been waiting for a reply.",
+    "LIVE": "Live",
+    "RECONNECTING": "Reconnecting...",
+    "UPDATED_AT": "Updated at {time}",
+    "LOADING": "Loading the panel...",
+    "ERROR": "Could not load the panel. Trying again.",
+    "REFRESH": "Refresh",
+    "TV_MODE": "TV mode",
+    "EXIT_TV_MODE": "Exit TV mode",
+    "SOUND_ON": "Sound on",
+    "SOUND_OFF": "Sound off",
+    "BANDS": {
+      "GREEN": {
+        "TITLE": "In service",
+        "HINT": "up to {minutes} min of waiting"
+      },
+      "ORANGE": {
+        "TITLE": "Waiting",
+        "HINT": "{from} to {to} min of waiting"
+      },
+      "RED": {
+        "TITLE": "Waiting for a long time",
+        "HINT": "over {minutes} min of waiting"
+      }
+    },
+    "CARD": {
+      "OF_TOTAL": "{percent}% of open",
+      "LONGEST": "longest wait: {time}",
+      "EMPTY": "No conversations",
+      "OPEN_LIST": "View conversations",
+      "CLOSE_LIST": "Close list"
+    },
+    "STATS": {
+      "OPEN": "Open",
+      "UNASSIGNED": "Unassigned",
+      "PAUSED": "Paused",
+      "SNOOZED": "Snoozed",
+      "AVERAGE_WAIT": "Average wait",
+      "LONGEST_WAIT": "Longest wait",
+      "NONE": "—"
+    },
+    "LIST": {
+      "TITLE": "Conversations: {band}",
+      "TRUNCATED": "Showing the {shown} with the longest wait out of {total}.",
+      "EMPTY": "No conversations in this band.",
+      "WAITING": "waiting {time}",
+      "REPLIED": "replied",
+      "UNASSIGNED": "Unassigned",
+      "OPEN": "Open",
+      "NO_MESSAGE": "No customer message"
+    },
+    "BREAKDOWN": {
+      "BY_AGENT": "By agent",
+      "BY_INBOX": "By inbox",
+      "UNASSIGNED": "Unassigned",
+      "EMPTY": "No open conversations.",
+      "TOTAL": "{count} open"
+    },
+    "SETTINGS": {
+      "TITLE": "Conversations Panel",
+      "DESCRIPTION": "Set how long before a conversation goes from green to orange and to red. Time counts from the customer's last unanswered message. Who can see the panel is set in the Custom Role (permission \"See the Conversations Panel\"); administrators always can.",
+      "GREEN_UNTIL": "Green (in service) up to",
+      "ORANGE_UNTIL": "Orange (waiting) up to",
+      "MINUTES": "minutes",
+      "RED_HINT": "Beyond that the conversation turns red.",
+      "REFRESH": "Refresh every",
+      "SECONDS": "seconds",
+      "LIST_LIMIT": "Conversations per list",
+      "LIST_LIMIT_HELP": "How many conversations each card shows when opened.",
+      "SOUND": "Play a sound when a conversation enters red (each person can turn it on or off in the panel)",
+      "PREVIEW": "With these times, right now there would be:",
+      "PREVIEW_ERROR": "Could not calculate the preview right now.",
+      "SAVE": "Save",
+      "SAVED": "Panel settings saved.",
+      "ERROR": "Could not save the settings.",
+      "INVALID": "The orange time must be greater than the green one."
+    }
+  }
+}

@@ -40,16 +40,30 @@ const selectedProjectId = ref(null);
 
 const teams = computed(() => store.getters['teams/getProjectTeams'] || []);
 const agents = computed(() => store.getters['agents/getAgents'] || []);
-const modules = computed(() => store.getters['projectModules/getModules'] || []);
+const modules = computed(
+  () => store.getters['projectModules/getModules'] || []
+);
 const projects = computed(() => store.getters['projects/getProjects'] || []);
 const uiFlags = computed(() => store.getters['projects/getUIFlags'] || {});
 
 // Os contadores vem do servidor: a lista traz so uma aba por vez, e contar o que
 // ja foi carregado deixava o contador da outra aba sempre em zero.
 const tabs = computed(() => [
-  { key: 'active', label: t('PROJECTS.FILTER.ACTIVE_PROJECTS'), count: counts.value.active },
-  { key: 'completed', label: t('PROJECTS.FILTER.COMPLETED_PROJECTS'), count: counts.value.completed },
-  { key: 'cancelled', label: t('PROJECTS.FILTER.CANCELLED_PROJECTS'), count: counts.value.cancelled },
+  {
+    key: 'active',
+    label: t('PROJECTS.FILTER.ACTIVE_PROJECTS'),
+    count: counts.value.active,
+  },
+  {
+    key: 'completed',
+    label: t('PROJECTS.FILTER.COMPLETED_PROJECTS'),
+    count: counts.value.completed,
+  },
+  {
+    key: 'cancelled',
+    label: t('PROJECTS.FILTER.CANCELLED_PROJECTS'),
+    count: counts.value.cancelled,
+  },
 ]);
 
 const emptyTitle = computed(() => {
@@ -60,7 +74,10 @@ const emptyTitle = computed(() => {
 
 const teamOptions = computed(() => [
   { value: '', label: t('PROJECTS.FILTER.ALL_MESAS') },
-  ...teams.value.map(team => ({ value: team.id, label: formatMesaName(team.name) })),
+  ...teams.value.map(team => ({
+    value: team.id,
+    label: formatMesaName(team.name),
+  })),
 ]);
 const implementerOptions = computed(() => [
   { value: '', label: t('PROJECTS.FILTER.ALL_IMPLEMENTERS') },
@@ -209,7 +226,9 @@ const goToTasksSettings = () => {
       </div>
 
       <!-- Controls Row: Team selector, Search, Active vs Completed switch -->
-      <div class="flex items-center justify-between flex-wrap gap-4 pt-3 border-t border-n-weak">
+      <div
+        class="flex items-center justify-between flex-wrap gap-4 pt-3 border-t border-n-weak"
+      >
         <div class="flex items-center gap-5 flex-wrap">
           <!-- Mesa Selector -->
           <div class="flex items-center gap-2">
@@ -259,7 +278,10 @@ const goToTasksSettings = () => {
               variant="ghost"
               color="slate"
               no-animation
-              :class="view === tab.key && 'bg-gradient-to-r from-n-blue-9 to-n-teal-9 !text-white'"
+              :class="
+                view === tab.key &&
+                'bg-gradient-to-r from-n-blue-9 to-n-teal-9 !text-white'
+              "
               :label="`${tab.label} (${tab.count})`"
               @click="view = tab.key"
             />
@@ -286,8 +308,13 @@ const goToTasksSettings = () => {
         :message="t('PROJECTS.LOADING')"
       />
 
-      <div v-else-if="!projects.length" class="flex flex-col items-center justify-center flex-1 text-center p-8 bg-n-solid-1 rounded-xl border border-n-weak">
-        <div class="w-16 h-16 rounded-full bg-n-slate-3 flex items-center justify-center mb-4">
+      <div
+        v-else-if="!projects.length"
+        class="flex flex-col items-center justify-center flex-1 text-center p-8 bg-n-solid-1 rounded-xl border border-n-weak"
+      >
+        <div
+          class="w-16 h-16 rounded-full bg-n-slate-3 flex items-center justify-center mb-4"
+        >
           <Icon icon="i-lucide-kanban" class="size-8 text-n-slate-8" />
         </div>
         <h3 class="text-base font-semibold text-n-slate-12 mb-1">
