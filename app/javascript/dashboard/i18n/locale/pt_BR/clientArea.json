@@ -291,6 +291,7 @@
       "ENABLE_PUSH": "Ativar notificações",
       "PUSH_DENIED": "Não foi possível ativar as notificações do navegador.",
       "HISTORY_LINK": "Ver conversas anteriores",
+      "START_NEW_CHAT": "Iniciar novo chat",
       "CSAT": {
         "TITLE": "Como você avalia este atendimento?",
         "FEEDBACK_PLACEHOLDER": "Quer contar mais alguma coisa? (opcional)",
