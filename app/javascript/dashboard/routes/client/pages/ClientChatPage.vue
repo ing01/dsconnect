@@ -106,16 +106,17 @@ const sincronizarMensagens = async () => {
 const assinar = pubsubToken => {
   desconectar();
   consumer = createConsumer();
-  // A primeira conexao desta assinatura ja' tem as mensagens que `carregar()`
-  // buscou; so' as conexoes SEGUINTES (reconexoes) precisam resincronizar.
-  let jaConectouAntes = false;
   subscription = consumer.subscriptions.create(
     { channel: 'RoomChannel', pubsub_token: pubsubToken },
     {
-      connected: () => {
-        if (jaConectouAntes) sincronizarMensagens();
-        jaConectouAntes = true;
-      },
+      // Tambem na PRIMEIRA conexao, nao so nas reconexoes: entre o envio que
+      // cria a conversa e esta assinatura terminar de conectar ha uma brecha
+      // onde uma automacao (ex.: mensagem de boas-vindas ao atribuir a Mesa)
+      // pode criar e transmitir uma mensagem que ninguem estava ouvindo
+      // ainda - sem queda de conexao nem nada, so' ficava fora da tela ate um
+      // F5. `sincronizarMensagens` e' idempotente (`adicionar` descarta
+      // repetidas pelo id), entao rodar aqui sempre e' seguro.
+      connected: sincronizarMensagens,
       received: ({ event, data }) => {
         if (!data || data.conversation_id !== conversationDisplayId.value) {
           return;

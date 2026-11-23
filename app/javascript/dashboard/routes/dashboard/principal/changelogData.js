@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-chat-first-connect-race-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'fix',
+    title: 'Área do Cliente: mensagem de automação não sumia mais que no F5',
+    description:
+      'Quando uma automação (como a mensagem de boas-vindas ao atribuir a Mesa) respondia quase na mesma hora em que o cliente mandava a primeira mensagem de uma conversa nova, essa resposta podia não aparecer na tela ao vivo - só depois de um F5. Corrigido dos dois lados: o chat agora resincroniza logo na primeira conexão (não só ao reconectar depois de uma queda), e o envio dessas automações no chat do Portal do Cliente passa a esperar alguns instantes, dando tempo da tela terminar de se conectar antes da mensagem chegar. Os demais canais (WhatsApp, e-mail, Website Widget) continuam respondendo na hora, sem esse atraso.',
+  },
+  {
     id: 'client-chat-resolved-start-new-2026-11-23',
     date: '23 de novembro de 2026',
     isoDate: '2026-11-23',

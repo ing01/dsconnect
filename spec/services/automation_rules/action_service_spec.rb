@@ -75,6 +75,40 @@ RSpec.describe AutomationRules::ActionService do
       end
     end
 
+    # So' o chat do Portal do Cliente atrasa o envio (ver `ActionService::SEND_MESSAGE_DELAY`):
+    # a automacao roda no mesmo instante em que a conversa nasce, antes do
+    # navegador do cliente terminar de assinar o canal em tempo real - sem o
+    # atraso, a mensagem existia no servidor mas so' aparecia depois de um F5.
+    # Os demais canais (cobertos acima) continuam sincronos, como sempre.
+    describe '#perform with send_message action on the Client Portal inbox' do
+      let(:portal_inbox) { Inboxes::EnsureClientPortalInboxService.new(account: account).perform }
+      let(:portal_conversation) { create(:conversation, account: account, inbox: portal_inbox) }
+      # `action_params` como array, igual todo rule factory fora deste arquivo -
+      # o `rule` padrao la em cima usa um hash (`{ message: 'Hello' }`), que
+      # vira `message[0] == nil` dentro de `send_message`; os testes antigos
+      # nunca checavam o conteudo, so' que `MessageBuilder` foi chamado, entao
+      # nunca pegaram isso.
+      let(:portal_rule) do
+        create(:automation_rule, account: account,
+                                 actions: [{ action_name: 'send_message', action_params: ['Hello'] }])
+      end
+
+      it 'enqueues the send message job with a delay, instead of sending right away' do
+        expect { described_class.new(portal_rule, account, portal_conversation).perform }
+          .to have_enqueued_job(AutomationRules::SendMessageJob)
+          .with(rule_id: portal_rule.id, conversation_id: portal_conversation.id, content: 'Hello')
+          .at(a_value_within(1.second).of(AutomationRules::ActionService::SEND_MESSAGE_DELAY.from_now))
+      end
+
+      it 'creates the message once the delayed job runs' do
+        perform_enqueued_jobs do
+          described_class.new(portal_rule, account, portal_conversation).perform
+        end
+
+        expect(portal_conversation.messages.last.content).to eq('Hello')
+      end
+    end
+
     describe '#perform with send_email_to_team action' do
       let!(:team) { create(:team, account: account) }
 
