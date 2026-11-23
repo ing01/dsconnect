@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
@@ -8,6 +8,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import WootLabel from 'dashboard/components-next/label/Label.vue';
 import TicketCompanySelect from '../../tickets/components/TicketCompanySelect.vue';
+import ClearableDateInput from 'dashboard/components-next/input/ClearableDateInput.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -148,7 +149,7 @@ onMounted(() => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('TICKET_REPORTS.FILTERS.OPENED_FROM') }}
         </span>
-        <input
+        <ClearableDateInput
           v-model="filters.openedFrom"
           type="date"
           class="w-full mb-0 text-sm"
@@ -158,7 +159,7 @@ onMounted(() => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('TICKET_REPORTS.FILTERS.OPENED_TO') }}
         </span>
-        <input
+        <ClearableDateInput
           v-model="filters.openedTo"
           type="date"
           class="w-full mb-0 text-sm"
@@ -168,7 +169,7 @@ onMounted(() => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('TICKET_REPORTS.FILTERS.CLOSED_FROM') }}
         </span>
-        <input
+        <ClearableDateInput
           v-model="filters.closedFrom"
           type="date"
           class="w-full mb-0 text-sm"
@@ -178,7 +179,7 @@ onMounted(() => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('TICKET_REPORTS.FILTERS.CLOSED_TO') }}
         </span>
-        <input
+        <ClearableDateInput
           v-model="filters.closedTo"
           type="date"
           class="w-full mb-0 text-sm"

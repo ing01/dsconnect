@@ -10,6 +10,7 @@ import TicketCompanySelect from './TicketCompanySelect.vue';
 import TicketContactSelect from './TicketContactSelect.vue';
 import TicketCatalogSelect from './detail/actions/TicketCatalogSelect.vue';
 import { toSearchParams } from '../helpers/ticketSearchParams';
+import ClearableDateInput from 'dashboard/components-next/input/ClearableDateInput.vue';
 
 /**
  * Painel de ações em lote da Busca detalhada.
@@ -478,14 +479,14 @@ onBeforeUnmount(stopPolling);
             <span class="text-xs text-n-slate-11">
               {{ t(`TICKET.BULK.ACTIONS.${action}`) }}
             </span>
-            <input
+            <ClearableDateInput
               v-if="action === 'due_date'"
               v-model="form.dueDate"
               type="datetime-local"
               :disabled="form.clearDate"
               class="px-2 text-sm bg-transparent border rounded-lg h-10 border-n-strong"
             />
-            <input
+            <ClearableDateInput
               v-else
               v-model="form.scheduledAt"
               type="datetime-local"
@@ -728,7 +729,11 @@ onBeforeUnmount(stopPolling);
           v-if="action === 'category' && preview.finalized"
           class="text-n-amber-11"
         >
-          {{ t('TICKET.BULK.CATEGORY_FINALIZED_QUESTION', { count: preview.finalized }) }}
+          {{
+            t('TICKET.BULK.CATEGORY_FINALIZED_QUESTION', {
+              count: preview.finalized,
+            })
+          }}
         </strong>
       </div>
       <div

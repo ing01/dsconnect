@@ -152,6 +152,16 @@ export const CHANGELOG_ENTRIES = [
       'Quem tem o perfil de acesso de implantação clicava em Tarefas (ou Módulos) na tela de Projetos e caía em outra tela, porque elas só abriam para administradores. Agora esse perfil abre as duas telas e pode personalizar os Módulos e as Tarefas.',
   },
   {
+    id: 'clearable-date-fields-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Campos de data com (x) para limpar',
+    description:
+      'Os campos de data dos filtros agora têm um (x) ao lado para apagar a data com um clique, sem precisar selecionar e apagar na mão. Vale para a Busca detalhada e as ações em lote da Gestão avançada de tickets, os relatórios de tickets, o SAC e as Sugestões.',
+  },
+  {
     id: 'integration-api-niches-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

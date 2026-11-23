@@ -5,6 +5,7 @@
     "WEEK_NUMBER": "Semana #{weekNumber}",
     "APPLY_BUTTON": "Aplicar",
     "CLEAR_BUTTON": "Limpar",
+    "CLEAR_DATE": "Limpar data",
     "DATE_RANGE_INPUT": {
       "START": "Data de início",
       "END": "Data final"

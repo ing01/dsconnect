@@ -10,6 +10,7 @@ import TicketListView from './TicketListView.vue';
 import TicketSelect from './TicketSelect.vue';
 import TicketExportButton from './TicketExportButton.vue';
 import TicketBulkPanel from './TicketBulkPanel.vue';
+import ClearableDateInput from 'dashboard/components-next/input/ClearableDateInput.vue';
 
 const props = defineProps({
   teams: {
@@ -350,7 +351,7 @@ onMounted(() => {
           <span class="text-xs text-n-slate-11">
             {{ t('TICKET.SEARCH.DATE_FROM') }}
           </span>
-          <input
+          <ClearableDateInput
             v-model="draft.createdAfter"
             type="date"
             class="px-2 text-sm bg-transparent border rounded-lg h-10 border-n-strong"
@@ -360,7 +361,7 @@ onMounted(() => {
           <span class="text-xs text-n-slate-11">
             {{ t('TICKET.SEARCH.DATE_TO') }}
           </span>
-          <input
+          <ClearableDateInput
             v-model="draft.createdBefore"
             type="date"
             class="px-2 text-sm bg-transparent border rounded-lg h-10 border-n-strong"
@@ -618,7 +619,7 @@ onMounted(() => {
           <span class="text-xs text-n-slate-11">
             {{ t('TICKET.BULK.FILTERS.DUE_AFTER') }}
           </span>
-          <input
+          <ClearableDateInput
             v-model="draft.dueAfter"
             type="date"
             class="px-2 text-sm bg-transparent border rounded-lg h-10 border-n-strong"
@@ -628,7 +629,7 @@ onMounted(() => {
           <span class="text-xs text-n-slate-11">
             {{ t('TICKET.BULK.FILTERS.DUE_BEFORE') }}
           </span>
-          <input
+          <ClearableDateInput
             v-model="draft.dueBefore"
             type="date"
             class="px-2 text-sm bg-transparent border rounded-lg h-10 border-n-strong"
