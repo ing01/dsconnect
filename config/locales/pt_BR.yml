@@ -401,6 +401,10 @@ pt_BR:
         no_changes: Escolha ao menos um campo para alterar.
         no_targets: Selecione ao menos um cliente.
         billing_forbidden: Você não tem permissão para alterar o tipo de cobrança.
+        invalid_field: "Valor inválido para o campo %{field}."
+        not_saved: Não foi possível salvar este cliente.
+        unexpected: Não foi possível salvar este cliente por um erro inesperado.
+        job_failed: A alteração não pôde ser concluída por um erro inesperado. Tente de novo; se continuar, avise o suporte.
       domain:
         invalid: deve ser um nome de domínio válido
       cnpj:

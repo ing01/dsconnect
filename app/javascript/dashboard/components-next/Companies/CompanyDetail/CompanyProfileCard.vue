@@ -12,7 +12,6 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import CompanyModulesField from 'dashboard/components-next/Companies/CompanyDetail/CompanyModulesField.vue';
-import CompanyCategoryField from 'dashboard/components-next/Companies/CompanyDetail/CompanyCategoryField.vue';
 import CompanyNicheField from 'dashboard/components-next/Companies/CompanyDetail/CompanyNicheField.vue';
 import CompanySubNicheField from 'dashboard/components-next/Companies/CompanyDetail/CompanySubNicheField.vue';
 import { useCompaniesStore } from 'dashboard/stores/companies';
@@ -72,7 +71,6 @@ const form = reactive({
   addressNeighborhood: '',
   addressCity: '',
   addressState: '',
-  companyCategoryId: 0,
   companyNicheId: 0,
   companySubNicheId: 0,
   specialistId: 0,
@@ -119,7 +117,6 @@ const hasChanges = computed(
     FISCAL_FIELDS.some(
       field => (form[field] || '').trim() !== (props.company?.[field] || '')
     ) ||
-    (form.companyCategoryId || 0) !== (props.company?.companyCategoryId || 0) ||
     (form.companyNicheId || 0) !== (props.company?.companyNicheId || 0) ||
     (form.companySubNicheId || 0) !==
       (props.company?.companySubNicheId || 0) ||
@@ -155,7 +152,6 @@ const syncForm = company => {
   FISCAL_FIELDS.forEach(field => {
     form[field] = company?.[field] || '';
   });
-  form.companyCategoryId = company?.companyCategoryId || 0;
   form.companyNicheId = company?.companyNicheId || 0;
   form.companySubNicheId = company?.companySubNicheId || 0;
   form.specialistId = company?.specialistId || 0;
@@ -177,7 +173,6 @@ watch(
     props.company?.description,
     props.company?.avatarUrl,
     ...FISCAL_FIELDS.map(field => props.company?.[field]),
-    props.company?.companyCategoryId,
     props.company?.companyNicheId,
     props.company?.companySubNicheId,
     props.company?.specialistId,
@@ -230,7 +225,6 @@ const handleUpdateCompany = async () => {
         attrs[field] = form[field].trim() || null;
         return attrs;
       }, {}),
-      companyCategoryId: form.companyCategoryId || null,
       companyNicheId: form.companyNicheId || null,
       companySubNicheId: form.companySubNicheId || null,
       specialistId: form.specialistId || null,
@@ -410,15 +404,6 @@ onMounted(() => {
           {{ t('COMPANIES.DETAIL.PROFILE.SECTIONS.CLASSIFICATION') }}
         </span>
         <div class="grid w-full gap-4 sm:grid-cols-2">
-          <div class="flex flex-col gap-1">
-            <label class="text-sm text-n-slate-11">
-              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.CATEGORY') }}
-            </label>
-            <CompanyCategoryField
-              v-model="form.companyCategoryId"
-              :disabled="isUpdating"
-            />
-          </div>
           <div class="flex flex-col gap-1">
             <label class="text-sm text-n-slate-11">
               {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.NICHE') }}

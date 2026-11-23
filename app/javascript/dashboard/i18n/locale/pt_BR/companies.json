@@ -275,18 +275,12 @@
           "SYSTEM_STARTED_ON": "Data de início do uso do sistema",
           "SYSTEM_STARTED_ON_FROM_PROJECT": "Vem automaticamente do Projeto de implantação (data mais antiga entre os Projetos desta Empresa).",
           "MODULES": "Módulos utilizados",
-          "CATEGORY": "Categoria",
           "NICHE": "Nicho",
           "SUB_NICHE": "Subnicho",
           "SPECIALIST": "Especialista",
           "CLASSIFICATION_LEVEL": "Nível de classificação (1 a 5)",
           "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha",
           "STATUS": "Situação"
-        },
-        "CATEGORY": {
-          "NONE": "Nenhuma",
-          "ADD_PLACEHOLDER": "Nome da nova categoria",
-          "ADD_BUTTON": "Adicionar"
         },
         "NICHE": {
           "NONE": "Nenhum",
@@ -404,9 +398,27 @@
         "CONFIRM": "Nenhum cliente | Alterar {count} cliente? | Alterar {count} clientes?",
         "CONFIRM_BUTTON": "Sim, alterar",
         "CANCEL": "Cancelar",
-        "SUCCESS": "Nenhum cliente alterado | {count} cliente atualizado | {count} clientes atualizados",
-        "PARTIAL": "Alguns clientes não puderam ser alterados: {names}",
-        "ERROR": "Não foi possível alterar os clientes."
+        "ERROR": "Não foi possível alterar os clientes.",
+        "QUEUED": "Nenhum cliente para alterar | Alteração de {count} cliente iniciada. A lista é atualizada sozinha em instantes. | Alteração de {count} clientes iniciada. A lista é atualizada sozinha em instantes."
+      },
+      "LOG": {
+        "TITLE": "Log das alterações",
+        "EMPTY": "Nenhuma alteração em massa feita ainda.",
+        "BY": "por {name}",
+        "STATUS": {
+          "QUEUED": "Na fila",
+          "RUNNING": "Em andamento",
+          "COMPLETED": "Concluída",
+          "COMPLETED_WITH_ERRORS": "Concluída com avisos",
+          "FAILED": "Não concluída"
+        },
+        "PROGRESS": "Alterando clientes: {done} de {total}…",
+        "RESULT": "Nenhum cliente alterado | {count} cliente alterado | {count} clientes alterados",
+        "ERRORS_COUNT": "{count} cliente não pôde ser alterado | {count} clientes não puderam ser alterados",
+        "FAILED_TITLE": "A alteração não foi concluída.",
+        "FAILURES_TITLE": "Clientes que não foram alterados e o motivo",
+        "FAILURES_HELP": "Corrija o dado indicado na ficha do cliente e repita a alteração só para eles. Os demais já foram alterados normalmente.",
+        "MORE": "e mais {count} clientes com o mesmo tipo de problema"
       }
     }
   },

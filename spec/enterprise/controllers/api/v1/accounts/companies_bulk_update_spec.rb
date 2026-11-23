@@ -15,8 +15,11 @@ RSpec.describe 'Companies bulk update', type: :request do
 
   before { account.enable_features!(:companies) }
 
+  # A alteracao roda em segundo plano; no teste o job e' executado na hora.
   def bulk(params, user = admin)
-    post url, params: params, headers: user.create_new_auth_token, as: :json
+    perform_enqueued_jobs do
+      post url, params: params, headers: user.create_new_auth_token, as: :json
+    end
   end
 
   it 'starts every company as active' do
@@ -28,8 +31,8 @@ RSpec.describe 'Companies bulk update', type: :request do
          changes: { company_niche_id: niche.id, company_sub_niche_id: sub_niche.id,
                     classification_level: 3, specialist_id: admin.id, status: 'inactive' })
 
-    expect(response).to have_http_status(:success)
-    expect(response.parsed_body).to include('updated' => 2, 'failed' => [])
+    expect(response).to have_http_status(:accepted)
+    expect(response.parsed_body).to include('queued' => 2)
     [first, second].each do |company|
       company.reload
       expect(company).to have_attributes(company_niche_id: niche.id, company_sub_niche_id: sub_niche.id,
@@ -52,7 +55,7 @@ RSpec.describe 'Companies bulk update', type: :request do
 
     bulk(select_all: true, company_niche_id: niche.id, changes: { status: 'inactive' })
 
-    expect(response.parsed_body['updated']).to eq(2)
+    expect(response.parsed_body['queued']).to eq(2)
     expect(third.reload.status).to eq('active')
   end
 
@@ -116,6 +119,66 @@ RSpec.describe 'Companies bulk update', type: :request do
 
     bulk(changes: { status: 'inactive' })
     expect(response).to have_http_status(:unprocessable_entity)
+  end
+
+  describe 'change log' do
+    it 'records the change with who made it and what changed' do
+      bulk(ids: [first.id, second.id], changes: { company_niche_id: niche.id, status: 'inactive' })
+
+      record = CompanyBulkUpdate.last
+      expect(record).to have_attributes(status: 'completed', total: 2, updated_count: 2, failed_count: 0, user_id: admin.id)
+      expect(record.summary).to include('Situação: Inativo', 'Nicho: Varejo')
+    end
+
+    it 'lists the clients that could not be changed with a plain-language reason' do
+      # Dado antigo invalido gravado direto no banco: a alteracao em massa
+      # revalida o cliente e deve explicar o problema, nao estourar erro.
+      first.update_columns(cnpj: '11111111111111') # rubocop:disable Rails/SkipsModelValidations
+
+      bulk(ids: [first.id, second.id], changes: { status: 'inactive' })
+
+      record = CompanyBulkUpdate.last
+      expect(record).to have_attributes(updated_count: 1, failed_count: 1)
+      expect(record.failures.first).to include('id' => first.id, 'name' => first.name)
+      expect(record.failures.first['error']).to start_with('CNPJ:')
+      expect(second.reload.status).to eq('inactive')
+    end
+
+    it 'exposes the latest changes to administrators only' do
+      bulk(ids: [first.id], changes: { status: 'inactive' })
+
+      get "/api/v1/accounts/#{account.id}/companies/bulk_updates", headers: admin.create_new_auth_token, as: :json
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['payload'].first).to include('status' => 'completed', 'updated_count' => 1)
+
+      get "/api/v1/accounts/#{account.id}/companies/bulk_updates", headers: agent.create_new_auth_token, as: :json
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it 'does not leak other accounts changes' do
+      other = create(:account)
+      CompanyBulkUpdate.create!(account: other, total: 1)
+
+      get "/api/v1/accounts/#{account.id}/companies/bulk_updates", headers: admin.create_new_auth_token, as: :json
+
+      expect(response.parsed_body['payload']).to be_empty
+    end
+  end
+
+  it 'runs in the background instead of inside the request' do
+    expect do
+      post url, params: { ids: [first.id], changes: { status: 'inactive' } },
+                headers: admin.create_new_auth_token, as: :json
+    end.to have_enqueued_job(Companies::BulkUpdateJob)
+
+    expect(first.reload.status).to eq('active')
+  end
+
+  it 'does not enqueue anything when the request is invalid' do
+    expect do
+      post url, params: { ids: [first.id], changes: { status: 'banana' } },
+                headers: admin.create_new_auth_token, as: :json
+    end.not_to have_enqueued_job(Companies::BulkUpdateJob)
   end
 
   it 'is restricted to administrators' do

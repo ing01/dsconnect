@@ -87,6 +87,11 @@ class CompanyAPI extends ApiClient {
     return axios.post(`${this.url}/bulk_update`, payload);
   }
 
+  // Log das ultimas alteracoes em massa (andamento e clientes com erro).
+  bulkUpdates() {
+    return axios.get(`${this.url}/bulk_updates`);
+  }
+
   listCredentials(id) {
     return axios.get(`${this.url}/${id}/credentials`);
   }

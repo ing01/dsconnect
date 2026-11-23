@@ -384,6 +384,10 @@ en:
         no_changes: Choose at least one field to change.
         no_targets: Select at least one client.
         billing_forbidden: You do not have permission to change the billing type.
+        invalid_field: "Invalid value for the field %{field}."
+        not_saved: This client could not be saved.
+        unexpected: This client could not be saved because of an unexpected error.
+        job_failed: The change could not be completed because of an unexpected error. Try again; if it keeps failing, tell support.
       domain:
         invalid: must be a valid domain name
       cnpj:

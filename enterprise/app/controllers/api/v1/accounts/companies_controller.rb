@@ -41,13 +41,31 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   end
 
   # Gestao de clientes: aplica as mesmas mudancas a varias Empresas de uma vez.
-  # Cada Empresa e salva pelo model (validacoes e recalculos continuam valendo);
-  # uma que falhe e' listada na resposta e nao impede as demais.
+  # Roda em segundo plano (`Companies::BulkUpdateJob`): salvar milhares de
+  # Empresas dentro da requisicao estourava o tempo e derrubava o pedido pela
+  # metade. Aqui so se confere o pedido e se enfileira.
   def bulk_update
-    result = Companies::BulkUpdateService.new(
-      account: Current.account, companies: bulk_target_companies, changes: @bulk_changes
-    ).perform
-    render json: result, status: result[:error] ? :unprocessable_entity : :ok
+    company_ids = bulk_target_companies.pluck(:id)
+    service = Companies::BulkUpdateService.new(account: Current.account, companies: Company.none, changes: @bulk_changes)
+    return render json: { error: service.error }, status: :unprocessable_entity if service.error
+
+    return render json: { queued: 0 }, status: :accepted if company_ids.empty?
+
+    record = CompanyBulkUpdate.create!(
+      account: Current.account, user: Current.user, total: company_ids.size,
+      summary: Companies::BulkUpdateSummary.new(account: Current.account, changes: @bulk_changes).lines
+    )
+    Companies::BulkUpdateJob.perform_later(
+      account_id: Current.account.id, company_ids: company_ids, changes: @bulk_changes.to_h, bulk_update_id: record.id
+    )
+    render json: { queued: company_ids.size, id: record.id }, status: :accepted
+  end
+
+  # O "log da alteracao" da Gestao de clientes: as ultimas alteracoes em massa,
+  # com andamento e os clientes que nao puderam ser alterados.
+  def bulk_updates
+    records = CompanyBulkUpdate.where(account_id: Current.account.id).includes(:user).recent.limit(10)
+    render json: { payload: records.map(&:as_log) }
   end
 
   def create

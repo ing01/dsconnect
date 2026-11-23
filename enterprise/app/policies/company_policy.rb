@@ -36,6 +36,10 @@ class CompanyPolicy < ApplicationPolicy
     @account_user.administrator?
   end
 
+  def bulk_updates?
+    bulk_update?
+  end
+
   def destroy?
     @account_user.administrator?
   end

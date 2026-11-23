@@ -16,6 +16,7 @@ import { useSystemModulesStore } from 'dashboard/stores/systemModules';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
+import CompaniesBulkLog from 'dashboard/components-next/Companies/CompaniesBulkLog.vue';
 import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
 import {
   CLEAR_VALUE,
@@ -174,6 +175,7 @@ const emptyBulk = () => ({
 const bulk = reactive(emptyBulk());
 const isConfirming = ref(false);
 const isApplying = ref(false);
+const logRef = ref(null);
 
 const bulkChanges = computed(() => buildBulkChanges(bulk));
 const hasChanges = computed(() => Object.keys(bulkChanges.value).length > 0);
@@ -199,17 +201,15 @@ const applyBulk = async () => {
         ? { select_all: true, ...buildFilterParams(filters) }
         : { ids: selectedIds.value }),
     };
+    // O servidor responde na hora e aplica em segundo plano.
     const { data } = await CompaniesAPI.bulkUpdate(payload);
     useAlert(
-      t('COMPANIES.MANAGEMENT.BULK.SUCCESS', { count: data.updated }, data.updated)
+      t('COMPANIES.MANAGEMENT.BULK.QUEUED', { count: data.queued }, data.queued)
     );
-    if (data.failed?.length) {
-      const names = data.failed.map(item => item.name).join(', ');
-      useAlert(t('COMPANIES.MANAGEMENT.BULK.PARTIAL', { names }));
-    }
     resetBulk();
     clearSelection();
-    await fetchCompanies();
+    // O log acompanha o andamento e, quando termina, recarrega a lista.
+    await logRef.value?.reload();
   } catch (error) {
     useAlert(
       error?.response?.data?.error || t('COMPANIES.MANAGEMENT.BULK.ERROR')
@@ -532,6 +532,8 @@ onMounted(() => {
         </template>
       </div>
     </div>
+
+    <CompaniesBulkLog ref="logRef" @finished="fetchCompanies" />
 
     <!-- Lista -->
     <main class="flex-1 px-6 overflow-auto">

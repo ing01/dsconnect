@@ -275,18 +275,12 @@
           "SYSTEM_STARTED_ON": "System start date",
           "SYSTEM_STARTED_ON_FROM_PROJECT": "Comes automatically from the implementation Project (earliest date across this Company's Projects).",
           "MODULES": "Modules in use",
-          "CATEGORY": "Category",
           "NICHE": "Niche",
           "SUB_NICHE": "Sub-niche",
           "SPECIALIST": "Specialist",
           "CLASSIFICATION_LEVEL": "Classification level (1 to 5)",
           "CAMPAIGN_OPT_IN": "Receive automatic campaign messages",
           "STATUS": "Status"
-        },
-        "CATEGORY": {
-          "NONE": "None",
-          "ADD_PLACEHOLDER": "New category name",
-          "ADD_BUTTON": "Add"
         },
         "NICHE": {
           "NONE": "None",
@@ -404,9 +398,27 @@
         "CONFIRM": "No clients | Change {count} client? | Change {count} clients?",
         "CONFIRM_BUTTON": "Yes, change",
         "CANCEL": "Cancel",
-        "SUCCESS": "No client changed | {count} client updated | {count} clients updated",
-        "PARTIAL": "Some clients could not be changed: {names}",
-        "ERROR": "Could not change the clients."
+        "ERROR": "Could not change the clients.",
+        "QUEUED": "No clients to change | Change of {count} client started. The list refreshes by itself shortly. | Change of {count} clients started. The list refreshes by itself shortly."
+      },
+      "LOG": {
+        "TITLE": "Change log",
+        "EMPTY": "No bulk change made yet.",
+        "BY": "by {name}",
+        "STATUS": {
+          "QUEUED": "Queued",
+          "RUNNING": "In progress",
+          "COMPLETED": "Completed",
+          "COMPLETED_WITH_ERRORS": "Completed with warnings",
+          "FAILED": "Not completed"
+        },
+        "PROGRESS": "Changing clients: {done} of {total}…",
+        "RESULT": "No client changed | {count} client changed | {count} clients changed",
+        "ERRORS_COUNT": "{count} client could not be changed | {count} clients could not be changed",
+        "FAILED_TITLE": "The change was not completed.",
+        "FAILURES_TITLE": "Clients that were not changed and why",
+        "FAILURES_HELP": "Fix the indicated data on the client record and repeat the change only for them. All the others were changed normally.",
+        "MORE": "and {count} more clients with the same kind of problem"
       }
     }
   },

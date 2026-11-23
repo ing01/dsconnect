@@ -337,6 +337,7 @@ Rails.application.routes.draw do
             collection do
               get :search
               post :bulk_update
+              get :bulk_updates
             end
             member do
               post :destroy_custom_attributes
