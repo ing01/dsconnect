@@ -18,6 +18,7 @@ import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
 import Label from 'dashboard/components-next/label/Label.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
+import ClearableDateInput from 'dashboard/components-next/input/ClearableDateInput.vue';
 import {
   BaseTable,
   BaseTableRow,
@@ -242,7 +243,7 @@ onMounted(async () => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('MANIFESTATION.FILTERS.FROM') }}
         </span>
-        <input
+        <ClearableDateInput
           v-model="filtros.created_after"
           type="date"
           class="w-full mb-0"
@@ -254,7 +255,7 @@ onMounted(async () => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('MANIFESTATION.FILTERS.TO') }}
         </span>
-        <input
+        <ClearableDateInput
           v-model="filtros.created_before"
           type="date"
           class="w-full mb-0"

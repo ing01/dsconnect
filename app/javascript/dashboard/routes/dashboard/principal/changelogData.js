@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'clearable-date-fields-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    type: 'improvement',
+    platform: 'web',
+    title: 'Campos de data com (x) para limpar',
+    description:
+      'Os campos de data dos filtros agora têm um (x) ao lado para apagar a data com um clique, sem precisar selecionar e apagar na mão. Vale para a Busca detalhada e as ações em lote da Gestão avançada de tickets, os relatórios de tickets, o SAC e as Sugestões.',
+  },
+  {
     id: 'integration-api-niches-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

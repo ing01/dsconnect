@@ -17,6 +17,7 @@ import TicketSlaReportsAPI from 'dashboard/api/ticketSlaReports';
 import TicketCompanySelect from '../../tickets/components/TicketCompanySelect.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import ClearableDateInput from 'dashboard/components-next/input/ClearableDateInput.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -102,13 +103,21 @@ onMounted(() => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('TICKET_SLA_REPORTS.FILTERS.FROM') }}
         </span>
-        <input v-model="filters.from" type="date" class="w-full mb-0 text-sm" />
+        <ClearableDateInput
+          v-model="filters.from"
+          type="date"
+          class="w-full mb-0 text-sm"
+        />
       </label>
       <label class="flex flex-col gap-1 min-w-0">
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('TICKET_SLA_REPORTS.FILTERS.TO') }}
         </span>
-        <input v-model="filters.to" type="date" class="w-full mb-0 text-sm" />
+        <ClearableDateInput
+          v-model="filters.to"
+          type="date"
+          class="w-full mb-0 text-sm"
+        />
       </label>
       <label class="flex flex-col gap-1 min-w-0">
         <span class="text-xs font-medium text-n-slate-11">

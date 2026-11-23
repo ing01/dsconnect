@@ -20,6 +20,7 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import TicketSelect from 'dashboard/routes/dashboard/tickets/components/TicketSelect.vue';
 import { countActive, emptyFilters } from '../clientTicketFilters';
+import ClearableDateInput from 'dashboard/components-next/input/ClearableDateInput.vue';
 
 const props = defineProps({
   modelValue: { type: Object, required: true },
@@ -41,7 +42,8 @@ const STATUSES = ['resolved', 'closed', 'cancelled'];
 
 const activeCount = computed(() => countActive(props.modelValue));
 
-const toOptions = list => list.map(item => ({ value: item.id, label: item.name }));
+const toOptions = list =>
+  list.map(item => ({ value: item.id, label: item.name }));
 
 const teamOptions = computed(() => toOptions(props.teams));
 const assigneeOptions = computed(() => toOptions(props.assignees));
@@ -57,7 +59,9 @@ const showTeam = computed(() => props.teams.length > 1);
 const columnOptions = computed(() =>
   toOptions(
     showTeam.value
-      ? props.ticketColumns.filter(column => column.team_id === draft.value.teamId)
+      ? props.ticketColumns.filter(
+          column => column.team_id === draft.value.teamId
+        )
       : props.ticketColumns
   )
 );
@@ -130,10 +134,7 @@ const DATE_CLASS =
           />
         </label>
 
-        <label
-          v-if="ticketColumns.length"
-          class="flex flex-col gap-1 min-w-0"
-        >
+        <label v-if="ticketColumns.length" class="flex flex-col gap-1 min-w-0">
           <span class="text-sm font-medium text-n-slate-12">
             {{ t('CLIENT_AREA.BOARD.FILTERS.COLUMN') }}
           </span>
@@ -152,10 +153,7 @@ const DATE_CLASS =
           />
         </label>
 
-        <label
-          v-if="assignees.length"
-          class="flex flex-col gap-1 min-w-0"
-        >
+        <label v-if="assignees.length" class="flex flex-col gap-1 min-w-0">
           <span class="text-sm font-medium text-n-slate-12">
             {{ t('CLIENT_AREA.BOARD.FILTERS.ASSIGNEE') }}
           </span>
@@ -196,7 +194,7 @@ const DATE_CLASS =
             <span class="text-xs text-n-slate-11">
               {{ t('CLIENT_AREA.BOARD.FILTERS.OPENED_FROM') }}
             </span>
-            <input
+            <ClearableDateInput
               v-model="draft.createdAfter"
               type="date"
               :max="draft.createdBefore || undefined"
@@ -207,7 +205,7 @@ const DATE_CLASS =
             <span class="text-xs text-n-slate-11">
               {{ t('CLIENT_AREA.BOARD.FILTERS.OPENED_UNTIL') }}
             </span>
-            <input
+            <ClearableDateInput
               v-model="draft.createdBefore"
               type="date"
               :min="draft.createdAfter || undefined"

@@ -12,6 +12,7 @@ import SuggestionBoard from '../components/SuggestionBoard.vue';
 import SuggestionDetailDialog from '../components/SuggestionDetailDialog.vue';
 import SuggestionCreateDialog from '../components/SuggestionCreateDialog.vue';
 import { suggestionMatchesFilters } from '../helpers/suggestionFilters';
+import ClearableDateInput from 'dashboard/components-next/input/ClearableDateInput.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -288,14 +289,22 @@ const goToManifestations = () => {
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('SUGGESTIONS.FILTERS.DATE_FROM') }}
         </span>
-        <input v-model="filters.dateFrom" type="date" class="mb-0 w-full" />
+        <ClearableDateInput
+          v-model="filters.dateFrom"
+          type="date"
+          class="mb-0 w-full"
+        />
       </label>
 
       <label class="flex flex-col gap-1 min-w-[140px]">
         <span class="text-xs font-medium text-n-slate-11">
           {{ t('SUGGESTIONS.FILTERS.DATE_TO') }}
         </span>
-        <input v-model="filters.dateTo" type="date" class="mb-0 w-full" />
+        <ClearableDateInput
+          v-model="filters.dateTo"
+          type="date"
+          class="mb-0 w-full"
+        />
       </label>
 
       <NextButton
