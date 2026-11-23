@@ -53,6 +53,8 @@ json.ticket_column do
   json.name resource.ticket_column.name
 end
 
+json.partial! 'api/v1/integrations/tickets/family', ticket: resource
+
 if resource.ticket_category
   json.ticket_category do
     json.id resource.ticket_category.id

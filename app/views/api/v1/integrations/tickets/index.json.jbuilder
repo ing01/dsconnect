@@ -26,6 +26,7 @@ json.payload do
     json.company_classification_level ticket.company&.classification_level
     json.assignee_id ticket.assignee_id
     json.assignee_name ticket.assignee&.name
+    json.partial! 'api/v1/integrations/tickets/family', ticket: ticket
     json.created_at ticket.created_at.iso8601
     json.updated_at ticket.updated_at.iso8601
     # Os campos do card do Jira, ja na lista (nil quando nao preenchidos).
