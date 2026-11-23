@@ -25,6 +25,8 @@ class Company < ApplicationRecord
 
   ACTIVITY_ROLLUP_INTERVAL = 5.minutes
   BILLING_TYPES = %w[monthly annual].freeze
+  # Ativo / Inativo - todo cliente comeca Ativo (default da coluna).
+  STATUSES = %w[active inactive].freeze
 
   validates :account_id, presence: true
   validates :name, presence: true, length: { maximum: Limits::COMPANY_NAME_LENGTH_LIMIT }
@@ -39,25 +41,19 @@ class Company < ApplicationRecord
   validate :validate_cnpj_checksum, if: -> { cnpj.present? }
   validates :codigo, uniqueness: { scope: :account_id }, if: -> { codigo.present? }
   validates :billing_type, inclusion: { in: BILLING_TYPES }, allow_blank: true
+  validates :status, inclusion: { in: STATUSES }
   validates :billing_amount, :implementation_fee, numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
 
-  # 1 = Baixa, 2 = Media, 3 = Alta - computado de `billing_amount` em
-  # `compute_client_level`, nunca definido manualmente (ver Companies
-  # Controller#company_params, que nao permite `client_level` no request).
-  validates :client_level, numericality: {
-    only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 3
-  }
-  # Classificacao manual de 1 a 5 (pedido da Ingrid, 2026-11-09) - INDEPENDENTE
-  # do `client_level` acima (automatico, a partir da mensalidade). Nula/em
+  # A antiga Prioridade (Baixa/Media/Alta, calculada pela mensalidade) foi
+  # removida a pedido da Ingrid (2026-11-23): a coluna `client_level` continua
+  # no banco, sem uso, ate a nova classificacao por cobranca.
+  #
+  # Nivel: classificacao manual de 1 a 5 (pedido da Ingrid, 2026-11-09). Nula/em
   # branco significa "ainda nao classificada".
   validates :classification_level, numericality: {
     only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 5
   }, allow_nil: true
-  # Precisa rodar ANTES de `compute_client_level`: o vinculo com um contrato
-  # muda `billing_amount`, e a prioridade so pode ser calculada depois disso -
-  # senao usa o valor antigo, de antes da troca.
   before_validation :sync_billing_from_contract, if: :will_save_change_to_contract_id?
-  before_validation :compute_client_level
 
   # Same gate as `Contact#blocked` - the WhatsApp triage flow refuses to
   # proceed for a blocked Empresa (`AutomationRules::Flow::BlockGateService`).
@@ -204,41 +200,6 @@ class Company < ApplicationRecord
 
     self.billing_type = contract.contract_type
     self.billing_amount = contract.computed_total_value
-  end
-
-  # Prioridade e derivada da mensalidade quando ela existe - os limiares (a
-  # partir de qual valor cada faixa comeca) sao configurados por conta em
-  # Configuracoes > Tickets > Automacao. Sem mensalidade, NAO forca de volta
-  # pra 1: preserva o valor atual, porque a importacao de
-  # Codigo/CNPJ/Prioridade (`CompanyPriorityImportJob`) grava a prioridade
-  # informada na planilha como valor inicial, pra empresas que ainda nao tem
-  # mensalidade cadastrada no Chatwoot - assim que a mensalidade for
-  # configurada, o calculo automatico passa a valer e substitui esse valor.
-  def compute_client_level
-    return if monthly_billing_amount.blank?
-
-    self.client_level = self.class.tier_for(monthly_billing_amount, account)
-  end
-
-  # Plano anual guarda o valor total do contrato, nao a mensalidade - precisa
-  # dividir por 12 antes de comparar com os limiares (que sao sempre "por mes").
-  def monthly_billing_amount
-    return nil if billing_amount.blank?
-    return billing_amount / 12 if billing_type == 'annual'
-
-    billing_amount
-  end
-
-  def self.tier_for(monthly_amount, account)
-    return 1 if monthly_amount.blank? || account.blank?
-
-    high_min = account.priority_threshold_high_min
-    medium_min = account.priority_threshold_medium_min
-
-    return 3 if high_min.present? && monthly_amount >= high_min.to_d
-    return 2 if medium_min.present? && monthly_amount >= medium_min.to_d
-
-    1
   end
 
   def validate_cnpj_checksum

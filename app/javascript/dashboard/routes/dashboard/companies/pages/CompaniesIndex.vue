@@ -30,10 +30,6 @@ const searchQuery = computed(() => route.query?.search || '');
 const searchValue = ref(searchQuery.value);
 const createCompanyDialogRef = ref(null);
 const pageNumber = computed(() => Number(route.query?.page) || 1);
-const clientLevelQuery = computed(() => route.query?.client_level || '');
-const activeClientLevel = ref(
-  clientLevelQuery.value ? Number(clientLevelQuery.value) : ''
-);
 const classificationLevelQuery = computed(
   () => route.query?.classification_level || ''
 );
@@ -79,7 +75,7 @@ const buildSortAttr = () =>
 
 const sortParam = computed(() => buildSortAttr());
 
-const updateURLParams = (page, search = '', sort = '', clientLevel = '') => {
+const updateURLParams = (page, search = '', sort = '') => {
   const query = {
     ...route.query,
     page: page.toString(),
@@ -97,11 +93,8 @@ const updateURLParams = (page, search = '', sort = '', clientLevel = '') => {
     delete query.sort;
   }
 
-  if (clientLevel) {
-    query.client_level = clientLevel.toString();
-  } else {
-    delete query.client_level;
-  }
+  // Links antigos podiam trazer o filtro de Prioridade, que nao existe mais.
+  delete query.client_level;
 
   if (activeClassificationLevel.value) {
     query.classification_level = activeClassificationLevel.value.toString();
@@ -128,19 +121,13 @@ const fetchCompanies = async (page, search, sort) => {
   const currentPage = page ?? pageNumber.value;
   const currentSearch = search ?? searchQuery.value;
   const currentSort = sort ?? sortParam.value;
-  const currentClientLevel = activeClientLevel.value;
   const currentClassificationLevel = activeClassificationLevel.value;
   const currentCompanyNicheId = activeCompanyNicheId.value;
   const currentSpecialistId = activeSpecialistId.value;
 
   // Only update URL if arguments were explicitly provided
   if (page !== undefined || search !== undefined || sort !== undefined) {
-    updateURLParams(
-      currentPage,
-      currentSearch,
-      currentSort,
-      currentClientLevel
-    );
+    updateURLParams(currentPage, currentSearch, currentSort);
   }
 
   if (currentSearch) {
@@ -148,7 +135,6 @@ const fetchCompanies = async (page, search, sort) => {
       search: currentSearch,
       page: currentPage,
       sort: currentSort,
-      clientLevel: currentClientLevel,
       classificationLevel: currentClassificationLevel,
       companyNicheId: currentCompanyNicheId,
       specialistId: currentSpecialistId,
@@ -157,7 +143,6 @@ const fetchCompanies = async (page, search, sort) => {
     await companiesStore.get({
       page: currentPage,
       sort: currentSort,
-      clientLevel: currentClientLevel,
       classificationLevel: currentClassificationLevel,
       companyNicheId: currentCompanyNicheId,
       specialistId: currentSpecialistId,
@@ -209,11 +194,6 @@ const handleSort = async ({ sort, order }) => {
   fetchCompanies(1, searchValue.value, buildSortAttr());
 };
 
-const handleClientLevelChange = clientLevel => {
-  activeClientLevel.value = clientLevel;
-  fetchCompanies(1, searchValue.value, sortParam.value);
-};
-
 const handleClassificationLevelChange = classificationLevel => {
   activeClassificationLevel.value = classificationLevel;
   fetchCompanies(1, searchValue.value, sortParam.value);
@@ -248,7 +228,6 @@ onMounted(() => {
     :total-items="Number(meta.totalCount || 0)"
     :active-sort="activeSort"
     :active-ordering="activeOrdering"
-    :active-client-level="activeClientLevel"
     :active-classification-level="activeClassificationLevel"
     :active-company-niche-id="activeCompanyNicheId"
     :active-specialist-id="activeSpecialistId"
@@ -256,7 +235,6 @@ onMounted(() => {
     :show-pagination-footer="!!companies.length"
     @update:current-page="onPageChange"
     @update:sort="handleSort"
-    @update:client-level="handleClientLevelChange"
     @update:classification-level="handleClassificationLevelChange"
     @update:company-niche-id="handleCompanyNicheIdChange"
     @update:specialist-id="handleSpecialistIdChange"
@@ -289,7 +267,8 @@ onMounted(() => {
         :legal-name="company.legalName"
         :cnpj="company.cnpj"
         :codigo="company.codigo"
-        :client-level="company.clientLevel"
+        :classification-level="company.classificationLevel"
+        :status="company.status"
         @show-company="showCompany"
       />
     </div>

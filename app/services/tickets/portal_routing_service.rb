@@ -23,27 +23,11 @@ class Tickets::PortalRoutingService
   private
 
   def resolved_team
-    routing_rule&.team || @category&.team || client_teams.first
+    @category&.team || client_teams.first
   end
 
-  # A regra de roteamento por Empresa decide a Mesa, nao a Categoria - uma
-  # Categoria de outra Mesa nao sobrevive a troca (`ticket_category_belongs_to_team`).
   def resolved_category(team)
-    category = routing_rule.present? && @category&.team_id != team&.id ? nil : @category
-    category || default_category(team)
-  end
-
-  def routing_rule
-    return @routing_rule if defined?(@routing_rule)
-
-    @routing_rule = begin
-      next_rule = nil
-      if @company_id.present?
-        company = Company.find_by(id: @company_id, account_id: @account.id)
-        next_rule = @account.ticket_routing_rules.find_by(client_level: company.client_level) if company.present?
-      end
-      next_rule
-    end
+    @category || default_category(team)
   end
 
   def client_teams

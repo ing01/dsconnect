@@ -210,10 +210,8 @@ class Api::V1::Client::TicketsController < Api::V1::Client::BaseController
   #
   # A Mesa/Estagio calculados aqui sao so a ENTRADA SUGERIDA - o chamado fica
   # em `pending_triage` ate um agente aprovar (ver `TicketTriage#approve_triage!`),
-  # e so entao passa a valer no Kanban da equipe. A regra de roteamento por
-  # Empresa (`routing_rule_for`, abaixo) decide essa sugestao quando existe,
-  # senao a Mesa da Categoria escolhida - do jeito que ja funcionava -, mas em
-  # nenhum dos dois casos isso dispensa a aprovacao manual.
+  # e so entao passa a valer no Kanban da equipe. A sugestao vem da Mesa da
+  # Categoria escolhida, e isso nao dispensa a aprovacao manual.
   def build_ticket(categoria)
     empresa = company_for_new_ticket
     resolved = Tickets::PortalRoutingService.new(account: Current.account, company_id: empresa, category: categoria).resolve

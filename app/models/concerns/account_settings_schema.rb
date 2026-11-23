@@ -44,8 +44,6 @@ module AccountSettingsSchema
         'helpdesk_queue_low_id': { 'type': %w[integer null] },
         'helpdesk_queue_high_id': { 'type': %w[integer null] },
         'helpdesk_support_phone_number': { 'type': %w[string null] },
-        'priority_threshold_medium_min': { 'type': %w[number null], 'minimum': 0 },
-        'priority_threshold_high_min': { 'type': %w[number null], 'minimum': 0 },
         'whatsapp_automation_test_mode_number': { 'type': %w[string null] },
         'whatsapp_auto_assignment_enabled': { 'type': %w[boolean null] },
         'whatsapp_auto_assignment_max_open_chats': { 'type': %w[integer null], 'minimum': 1 },

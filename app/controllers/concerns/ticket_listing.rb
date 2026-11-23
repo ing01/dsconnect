@@ -38,9 +38,9 @@ module TicketListing
   # Qualquer outra listagem e paginada, e a ordem sai dos cabecalhos da Busca
   # detalhada. Sem parametro, segue a de sempre: mais recentes primeiro.
   #
-  # `support_queue` e a fila da triagem automatica (nivel do cliente, depois
-  # prioridade) - uma ordenacao composta, por isso fora do modelo de "uma
-  # coluna" do `Tickets::SearchOrdering`.
+  # `support_queue` e a fila da triagem automatica (prioridade do ticket, depois
+  # data) - uma ordenacao composta, por isso fora do modelo de "uma coluna" do
+  # `Tickets::SearchOrdering`.
   def load_paginated_list(relation)
     ordered = if params[:sort_by].to_s == 'support_queue'
                 relation.support_queue_order

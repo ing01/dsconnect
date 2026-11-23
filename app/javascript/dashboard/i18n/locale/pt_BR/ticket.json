@@ -234,7 +234,13 @@
       "SUBMIT": "Buscar",
       "QUICK_PLACEHOLDER": "Buscar ticket, número ou atendente",
       "ALL_CATEGORIES": "Todas as categorias",
-      "ALL_COMPLEXITIES": "Todas as complexidades"
+      "ALL_COMPLEXITIES": "Todas as complexidades",
+      "COMPANY_NICHE": "Nicho da empresa",
+      "ALL_NICHES": "Todos os nichos",
+      "COMPANY_SUB_NICHE": "Subnicho da empresa",
+      "ALL_SUB_NICHES": "Todos os subnichos",
+      "COMPANY_LEVEL": "Nível da empresa",
+      "ALL_LEVELS": "Todos os níveis"
     },
     "ACTIVITY": {
       "EMPTY": "Nenhuma atividade registrada ainda",
@@ -1066,23 +1072,6 @@
           "HELP": "Deixe em branco para reaproveitar qualquer ticket aberto, sem limite de idade (comportamento atual). Com um valor, um ticket aberto mais antigo é tratado como obsoleto e um novo é criado no lugar.",
           "PLACEHOLDER": "Sem limite"
         },
-        "PRIORITY_THRESHOLDS": {
-          "TITLE": "Prioridade de clientes por mensalidade",
-          "DESCRIPTION": "Defina a partir de qual valor de mensalidade um cliente vira Prioridade Média e Prioridade Alta. Abaixo do primeiro valor, o cliente fica em Prioridade Baixa automaticamente - sem precisar configurar cliente por cliente.",
-          "MEDIUM_MIN": {
-            "LABEL": "A partir de qual valor é Prioridade Média",
-            "PLACEHOLDER": "Ex: 500"
-          },
-          "HIGH_MIN": {
-            "LABEL": "A partir de qual valor é Prioridade Alta",
-            "PLACEHOLDER": "Ex: 1500"
-          },
-          "INVALID_RANGE": "O valor da Prioridade Alta precisa ser maior que o da Prioridade Média.",
-          "RECALCULATE_HELP": "Recalcula a prioridade de todos os clientes já cadastrados com os valores acima (salva a configuração automaticamente antes).",
-          "RECALCULATE_BUTTON": "Recalcular agora",
-          "RECALCULATE_STARTED": "Recálculo iniciado - pode levar alguns minutos dependendo da quantidade de clientes.",
-          "RECALCULATE_ERROR": "Não foi possível iniciar o recálculo. Tente novamente."
-        },
         "LEVEL_3TO5_TEAM": {
           "LABEL": "Mesa de serviço para clientes de prioridade Alta",
           "HELP": "Para onde a conversa é roteada quando a IA termina a triagem de um cliente de prioridade Alta.",
@@ -1188,23 +1177,6 @@
           "SUCCESS": "Configuração de atendimento atualizada.",
           "ERROR": "Não foi possível atualizar a configuração de atendimento.",
           "LOAD_ERROR": "Não foi possível carregar os horários já configurados."
-        }
-      },
-      "CLIENT_PORTAL_ROUTING": {
-        "TITLE": "Roteamento do Portal do Cliente",
-        "DESCRIPTION": "Um ticket aberto pelo Portal do Cliente já cai direto na Mesa da Categoria escolhida, sem passar por Triagem manual. Aqui dá para definir uma Mesa fixa por nível de prioridade da Empresa - ela vale por cima da Categoria escolhida, quando configurada.",
-        "LEVELS": {
-          "1": "Prioridade Baixa",
-          "2": "Prioridade Média",
-          "3": "Prioridade Alta"
-        },
-        "ROW_HELP": "Ticket de Empresa deste nível cai direto nesta Mesa, não importa a Categoria escolhida.",
-        "NO_RULE": "Sem regra - usa a Mesa da Categoria escolhida",
-        "SAVE": "Salvar roteamento",
-        "API": {
-          "SUCCESS": "Roteamento do Portal atualizado.",
-          "ERROR": "Não foi possível atualizar o roteamento do Portal.",
-          "LOAD_ERROR": "Não foi possível carregar o roteamento já configurado."
         }
       },
       "IMPORT": {

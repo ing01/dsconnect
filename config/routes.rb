@@ -336,7 +336,7 @@ Rails.application.routes.draw do
           resources :companies, only: [:index, :show, :create, :update, :destroy] do
             collection do
               get :search
-              post :recalculate_priorities
+              post :bulk_update
             end
             member do
               post :destroy_custom_attributes
@@ -541,14 +541,6 @@ Rails.application.routes.draw do
           # Configuracao de Atendimento: dias/horarios em que a triagem
           # automatica pode comecar - conta inteira, nao por Inbox/Mesa.
           resources :attendance_windows, only: [:index] do
-            collection do
-              post :bulk_update
-            end
-          end
-
-          # Roteamento automatico do ticket do Portal do Cliente, por nivel
-          # de prioridade da Empresa (Baixa/Media/Alta) - uma Mesa por nivel.
-          resources :ticket_routing_rules, only: [:index] do
             collection do
               post :bulk_update
             end

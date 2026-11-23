@@ -18,16 +18,10 @@
         "DESCENDING": "Descending"
       }
     },
-    "FILTER_BY_PRIORITY": {
-      "LABEL": "Filter by priority",
-      "OPTIONS": {
-        "ALL": "All priorities"
-      }
-    },
     "FILTER_BY_CLASSIFICATION": {
-      "LABEL": "Filter by classification",
+      "LABEL": "Filter by level",
       "OPTIONS": {
-        "ALL": "All classifications"
+        "ALL": "All levels"
       }
     },
     "FILTER_BY_NICHE": {
@@ -281,19 +275,13 @@
           "SYSTEM_STARTED_ON": "System start date",
           "SYSTEM_STARTED_ON_FROM_PROJECT": "Comes automatically from the implementation Project (earliest date across this Company's Projects).",
           "MODULES": "Modules in use",
-          "CLIENT_LEVEL": "Client priority",
           "CATEGORY": "Category",
           "NICHE": "Niche",
           "SUB_NICHE": "Sub-niche",
           "SPECIALIST": "Specialist",
           "CLASSIFICATION_LEVEL": "Classification level (1 to 5)",
-          "CAMPAIGN_OPT_IN": "Receive automatic campaign messages"
-        },
-        "LEVEL": {
-          "HELP": "Automatically calculated from the client's monthly fee (Settings > Tickets > Automation defines the amount ranges). Cannot be edited manually.",
-          "L1": "Low priority",
-          "L2": "Medium priority",
-          "L3": "High priority"
+          "CAMPAIGN_OPT_IN": "Receive automatic campaign messages",
+          "STATUS": "Status"
         },
         "CATEGORY": {
           "NONE": "None",
@@ -369,6 +357,57 @@
     },
     "EMPTY_STATE": {
       "TITLE": "No companies found"
+    },
+    "LEVEL_BADGE": "Level {n}",
+    "MANAGEMENT": {
+      "TITLE": "Client management",
+      "SUBTITLE": "Filter the clients, tick the ones you want and change niche, level, specialist, modules, billing and status for all of them at once.",
+      "SEARCH_PLACEHOLDER": "Search by name, domain or code",
+      "LOAD_ERROR": "Could not load the clients.",
+      "EMPTY": "No clients found with these filters.",
+      "STATUS": {
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive"
+      },
+      "FILTERS": {
+        "ALL_STATUSES": "All statuses",
+        "ALL_LEVELS": "All levels",
+        "ALL_NICHES": "All niches",
+        "ALL_SUB_NICHES": "All sub niches",
+        "ALL_SPECIALISTS": "All specialists"
+      },
+      "COLUMNS": {
+        "NAME": "Client",
+        "LEVEL": "Level",
+        "NICHE": "Niche",
+        "SUB_NICHE": "Sub niche",
+        "SPECIALIST": "Specialist",
+        "MODULES": "Modules in use",
+        "BILLING": "Billing type",
+        "STATUS": "Status"
+      },
+      "BULK": {
+        "TITLE": "Bulk edit",
+        "SELECTED": "No client selected | {count} client selected | {count} clients selected",
+        "SELECT_PAGE": "Select all clients on this page",
+        "SELECT_ALL": "Select all {count} clients in this search",
+        "CLEAR_SELECTION": "Clear selection",
+        "KEEP": "Keep as is",
+        "CLEAR": "Clear field",
+        "MODULES_MODE": {
+          "ADD": "Add to current modules",
+          "REMOVE": "Remove from current modules",
+          "REPLACE": "Replace all modules"
+        },
+        "APPLY": "Apply changes",
+        "RESET": "Discard choices",
+        "CONFIRM": "No clients | Change {count} client? | Change {count} clients?",
+        "CONFIRM_BUTTON": "Yes, change",
+        "CANCEL": "Cancel",
+        "SUCCESS": "No client changed | {count} client updated | {count} clients updated",
+        "PARTIAL": "Some clients could not be changed: {names}",
+        "ERROR": "Could not change the clients."
+      }
     }
   },
   "COMPANIES_LAYOUT": {

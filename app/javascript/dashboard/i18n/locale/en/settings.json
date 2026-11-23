@@ -481,7 +481,6 @@
     "TICKET_CUSTOMER_NOTICES": "Customer messages",
     "TICKET_DISTRIBUTION": "Automatic Distribution",
     "TICKET_ATTENDANCE_SCHEDULE": "Attendance Schedule",
-    "TICKET_ROUTING": "Portal Routing",
     "TICKET_IMPORT": "Import",
     "TICKET_API_KEY": "Ticket API",
     "CLIENT_TUTORIALS": "Portal tutorials",
@@ -495,7 +494,8 @@
     "INTERNAL_CHAT": "Internal chat",
     "TICKET_TRIAGE": "Triage",
     "TICKET_COMPLEXITY": "Complexidade",
-    "AGENT_NICHES": "Niches by agent"
+    "AGENT_NICHES": "Niches by agent",
+    "COMPANIES_MANAGEMENT": "Client management"
   },
   "DATA_IMPORTS": {
     "HEADER": "Data",

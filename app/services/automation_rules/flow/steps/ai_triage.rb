@@ -56,29 +56,25 @@ class AutomationRules::Flow::Steps::AiTriage < AutomationRules::Flow::Steps::Bas
   end
 
   # Falha da IA nunca trava o fluxo: cai na prioridade padrao configuravel
-  # (ou so no nivel do cliente, se nada configurado), e segue para humano do
+  # (ou na prioridade baixa, se nada configurado), e segue para humano do
   # mesmo jeito.
   def resolve_priority(classification)
     return fallback_priority if classification['error'].present?
 
-    Tickets::HelpdeskPriority.ticket_priority_for(
-      client_level: run.read_variable('empresa.nivel'),
-      problema: classification['prioridade']
-    )
+    Tickets::HelpdeskPriority.ticket_priority_for(problema: classification['prioridade'])
   end
 
   def fallback_priority
     label = account.helpdesk_default_priority_on_ai_failure.presence
     return Tickets::HelpdeskPriority::TICKET_PRIORITY.fetch(label) if label.present? && Tickets::HelpdeskPriority::TICKET_PRIORITY.key?(label)
 
-    Tickets::HelpdeskPriority.ticket_priority_for(client_level: run.read_variable('empresa.nivel'))
+    Tickets::HelpdeskPriority.ticket_priority_for
   end
 
   def triage_summary(ticket, classification)
     { 'triage_summary' => {
       'empresa' => run.read_variable('empresa.nome'),
       'cnpj' => run.read_variable('empresa.cnpj'),
-      'nivel_cliente' => run.read_variable('empresa.nivel'),
       'ticket_numero' => ticket.display_id,
       'resumo_problema' => classification['resumo_problema'],
       'acao_sugerida' => classification['acao_sugerida'],

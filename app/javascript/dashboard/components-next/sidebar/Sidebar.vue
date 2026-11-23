@@ -649,6 +649,12 @@ const menuItems = computed(() => {
           activeOn: ['companies_dashboard_index', 'companies_dashboard_show'],
         },
         {
+          name: 'Companies Management',
+          label: t('SIDEBAR.COMPANIES_MANAGEMENT'),
+          to: accountScopedRoute('companies_management_index'),
+          activeOn: ['companies_management_index'],
+        },
+        {
           name: 'Contacts',
           label: t('SIDEBAR.CONTACTS'),
           icon: 'i-lucide-contact',
@@ -917,12 +923,6 @@ const menuItems = computed(() => {
               label: t('SIDEBAR.TICKET_ATTENDANCE_SCHEDULE'),
               activeOn: ['ticket_attendance_schedule_settings'],
               to: accountScopedRoute('ticket_attendance_schedule_settings'),
-            },
-            {
-              name: 'Settings Ticket Routing',
-              label: t('SIDEBAR.TICKET_ROUTING'),
-              activeOn: ['ticket_routing_settings'],
-              to: accountScopedRoute('ticket_routing_settings'),
             },
             {
               name: 'Settings Ticket Import',

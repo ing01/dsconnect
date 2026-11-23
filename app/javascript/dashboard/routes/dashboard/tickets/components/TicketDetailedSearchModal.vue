@@ -3,6 +3,8 @@ import { computed, reactive, ref, onMounted, watch } from 'vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import CompaniesAPI from 'dashboard/api/companies';
+import { useCompanyNichesStore } from 'dashboard/stores/companyNiches';
+import { useCompanySubNichesStore } from 'dashboard/stores/companySubNiches';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import TicketListView from './TicketListView.vue';
 import TicketSelect from './TicketSelect.vue';
@@ -25,6 +27,8 @@ const props = defineProps({
 const { t } = useI18n();
 const store = useStore();
 const agents = useMapGetter('agents/getAgents');
+const nichesStore = useCompanyNichesStore();
+const subNichesStore = useCompanySubNichesStore();
 // Quantos tickets a busca encontrou. Vem do mesmo store que alimenta a lista,
 // entao o botao de exportar sabe quando nao ha nada para exportar.
 const listMeta = useMapGetter('tickets/getListMeta');
@@ -46,6 +50,10 @@ const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 const emptySelection = () => ({
   status: [],
   companyIds: [],
+  // Perfil da Empresa do ticket (nicho, subnicho e nivel).
+  companyNicheIds: [],
+  companySubNicheIds: [],
+  companyLevels: [],
   contactIds: [],
   assigneeIds: [],
   // Mesa e escolha unica: nenhuma, ou uma so. Os Estagios e as Categorias
@@ -183,6 +191,22 @@ const complexityOptions = computed(() =>
   )
 );
 
+const nicheOptions = computed(() =>
+  nichesStore.getNiches.map(niche => ({ value: niche.id, label: niche.name }))
+);
+const subNicheOptions = computed(() =>
+  subNichesStore.getSubNiches.map(item => ({
+    value: item.id,
+    label: item.name,
+  }))
+);
+const levelOptions = computed(() =>
+  [1, 2, 3, 4, 5].map(level => ({
+    value: level,
+    label: t('COMPANIES.LEVEL_BADGE', { n: level }),
+  }))
+);
+
 const teamOptions = computed(() =>
   props.teams.map(team => ({ value: team.id, label: team.name }))
 );
@@ -306,6 +330,8 @@ onMounted(() => {
   // A lista de Complexidade e da conta: uma leitura serve ao filtro inteiro, sem
   // depender da Mesa escolhida.
   store.dispatch('ticketComplexities/fetch');
+  if (!nichesStore.getNiches.length) nichesStore.get();
+  if (!subNichesStore.getSubNiches.length) subNichesStore.get();
   searchCompanies();
   searchContacts();
   search();
@@ -417,6 +443,46 @@ onMounted(() => {
               />
             </li>
           </ul>
+        </label>
+
+        <!-- Dados da Empresa do ticket: nicho, subnicho e nivel. -->
+        <label class="flex flex-col gap-1">
+          <span class="text-xs text-n-slate-11">
+            {{ t('TICKET.SEARCH.COMPANY_NICHE') }}
+          </span>
+          <TicketSelect
+            v-model="draft.companyNicheIds"
+            multiple
+            show-search
+            :options="nicheOptions"
+            :placeholder="t('TICKET.SEARCH.ALL_NICHES')"
+            :aria-label="t('TICKET.SEARCH.COMPANY_NICHE')"
+          />
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs text-n-slate-11">
+            {{ t('TICKET.SEARCH.COMPANY_SUB_NICHE') }}
+          </span>
+          <TicketSelect
+            v-model="draft.companySubNicheIds"
+            multiple
+            show-search
+            :options="subNicheOptions"
+            :placeholder="t('TICKET.SEARCH.ALL_SUB_NICHES')"
+            :aria-label="t('TICKET.SEARCH.COMPANY_SUB_NICHE')"
+          />
+        </label>
+        <label class="flex flex-col gap-1 col-span-2">
+          <span class="text-xs text-n-slate-11">
+            {{ t('TICKET.SEARCH.COMPANY_LEVEL') }}
+          </span>
+          <TicketSelect
+            v-model="draft.companyLevels"
+            multiple
+            :options="levelOptions"
+            :placeholder="t('TICKET.SEARCH.ALL_LEVELS')"
+            :aria-label="t('TICKET.SEARCH.COMPANY_LEVEL')"
+          />
         </label>
 
         <label class="flex flex-col gap-1 col-span-2">

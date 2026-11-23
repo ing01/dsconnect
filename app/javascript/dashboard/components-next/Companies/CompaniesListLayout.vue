@@ -9,7 +9,6 @@ defineProps({
   totalItems: { type: Number, default: 100 },
   activeSort: { type: String, default: 'name' },
   activeOrdering: { type: String, default: '' },
-  activeClientLevel: { type: [String, Number], default: '' },
   activeClassificationLevel: { type: [String, Number], default: '' },
   activeCompanyNicheId: { type: [String, Number], default: '' },
   activeSpecialistId: { type: [String, Number], default: '' },
@@ -19,7 +18,6 @@ defineProps({
 const emit = defineEmits([
   'update:currentPage',
   'update:sort',
-  'update:clientLevel',
   'update:classificationLevel',
   'update:companyNicheId',
   'update:specialistId',
@@ -42,13 +40,11 @@ const updateCurrentPage = page => {
         :header-title="headerTitle"
         :active-sort="activeSort"
         :active-ordering="activeOrdering"
-        :active-client-level="activeClientLevel"
         :active-classification-level="activeClassificationLevel"
         :active-company-niche-id="activeCompanyNicheId"
         :active-specialist-id="activeSpecialistId"
         @search="emit('search', $event)"
         @update:sort="emit('update:sort', $event)"
-        @update:client-level="emit('update:clientLevel', $event)"
         @update:classification-level="
           emit('update:classificationLevel', $event)
         "

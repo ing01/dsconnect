@@ -13,6 +13,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   before_action :check_authorization
   before_action :set_current_page, only: [:index, :search]
   before_action :fetch_company, only: [:show, :update, :destroy, :avatar, :destroy_custom_attributes]
+  before_action :set_bulk_changes, only: [:bulk_update]
 
   def index
     @companies = fetch_companies(resolved_companies)
@@ -39,12 +40,14 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
     render json: result[:data]
   end
 
-  # Roda em background (pode levar um tempo com muitas Empresas) - so precisa
-  # ser chamado depois de mudar os limiares de prioridade em Configuracoes,
-  # ja que a recomputacao normal so acontece quando cada Empresa e salva.
-  def recalculate_priorities
-    Companies::RecalculatePrioritiesJob.perform_later(account_id: Current.account.id)
-    head :accepted
+  # Gestao de clientes: aplica as mesmas mudancas a varias Empresas de uma vez.
+  # Cada Empresa e salva pelo model (validacoes e recalculos continuam valendo);
+  # uma que falhe e' listada na resposta e nao impede as demais.
+  def bulk_update
+    result = Companies::BulkUpdateService.new(
+      account: Current.account, companies: bulk_target_companies, changes: @bulk_changes
+    ).perform
+    render json: result, status: result[:error] ? :unprocessable_entity : :ok
   end
 
   def create
@@ -76,29 +79,65 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
   private
 
   def resolved_companies
-    @resolved_companies ||= filter_by_specialist(
-      filter_by_company_niche(
-        filter_by_classification_level(
-          filter_by_client_level(
-            Current.account.companies.includes(:system_modules, :company_category, :company_niche, :company_sub_niche, :specialist)
+    @resolved_companies ||= filter_by_status(
+      filter_by_specialist(
+        filter_by_company_sub_niche(
+          filter_by_company_niche(
+            filter_by_classification_level(
+              Current.account.companies.includes(:system_modules, :company_category, :company_niche, :company_sub_niche, :specialist)
+            )
           )
         )
       )
     )
   end
 
-  # Filtro por Prioridade (client_level) na tela de Empresas - 1 Baixa, 2
-  # Media, 3 Alta (ver Company#compute_client_level). Composto com a busca
-  # por nome/dominio: entra antes de `search_by_name_or_domain` em `search`,
-  # ja que os dois passam por este mesmo metodo memoizado.
-  def filter_by_client_level(companies)
-    return companies if params[:client_level].blank?
+  # Empresas que a edicao em massa vai alterar: as marcadas na lista (`ids`) ou,
+  # com `select_all`, todas as que o filtro/busca atual encontra - mesmo as de
+  # outras paginas.
+  def bulk_target_companies
+    scope = resolved_companies
+    scope = scope.search_by_name_or_domain(params[:q]) if params[:q].present?
+    return scope if select_all?
 
-    companies.where(client_level: params[:client_level])
+    scope.where(id: Array(params[:ids]))
   end
 
-  # Filtro pela Classificacao manual (1 a 5) - pedido da Ingrid, 2026-11-09.
-  # Independente do filtro de Prioridade acima.
+  def select_all?
+    ActiveModel::Type::Boolean.new.cast(params[:select_all])
+  end
+
+  def set_bulk_changes
+    @bulk_changes = params.fetch(:changes, {}).permit(
+      :company_niche_id, :company_sub_niche_id, :specialist_id, :classification_level, :status,
+      :billing_type, :modules_mode, system_module_ids: []
+    )
+    return render_bulk_error('no_changes', :unprocessable_entity) if @bulk_changes.to_h.empty?
+    return render_bulk_error('no_targets', :unprocessable_entity) unless select_all? || params[:ids].present?
+    return render_bulk_error('billing_forbidden', :forbidden) if @bulk_changes.key?(:billing_type) && !can_manage_billing?
+
+    nil
+  end
+
+  def render_bulk_error(code, status)
+    render json: { error: I18n.t("errors.companies.bulk_update.#{code}") }, status: status
+  end
+
+  def filter_by_company_sub_niche(companies)
+    return companies if params[:company_sub_niche_id].blank?
+
+    companies.where(company_sub_niche_id: params[:company_sub_niche_id])
+  end
+
+  def filter_by_status(companies)
+    return companies if params[:status].blank?
+
+    companies.where(status: params[:status])
+  end
+
+  # Filtro pelo Nivel (classificacao manual, 1 a 5) - pedido da Ingrid, 2026-11-09.
+  # Composto com a busca por nome/dominio: entra antes de `search_by_name_or_domain`
+  # em `search`, ja que os dois passam por este mesmo metodo memoizado.
   def filter_by_classification_level(companies)
     return companies if params[:classification_level].blank?
 
@@ -137,15 +176,12 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
     @company = Current.account.companies.find(params[:id])
   end
 
-  # `client_level` (a Prioridade) nao entra aqui de proposito - e' sempre
-  # recalculada pelo model a partir de `billing_amount` (ver
-  # Company#compute_client_level), nunca definida manualmente pela request.
-  # `codigo` tambem fica de fora de proposito - so pode ser definido pela
-  # importacao de Codigo/CNPJ/Prioridade (`CompanyPriorityImportJob`), nunca
-  # editado a mao pelo cadastro normal da empresa (pedido da Ingrid).
-  # `classification_level` ja ENTRA aqui, ao contrario de `client_level`: e'
-  # um campo manual e independente (pedido da Ingrid, 2026-11-09), tambem
-  # editavel pela importacao por planilha (`CompanyClassificationImportJob`).
+  # `codigo` fica de fora de proposito - so pode ser definido pela importacao
+  # de Codigo/CNPJ (`CompanyPriorityImportJob`), nunca editado a mao pelo
+  # cadastro normal da empresa (pedido da Ingrid).
+  # `classification_level` (o Nivel) ENTRA aqui: e' um campo manual (pedido da
+  # Ingrid, 2026-11-09), tambem editavel pela importacao por planilha
+  # (`CompanyClassificationImportJob`).
   def company_params
     params.require(:company).permit(
       :name,
@@ -170,6 +206,7 @@ class Api::V1::Accounts::CompaniesController < Api::V1::Accounts::EnterpriseAcco
       :company_sub_niche_id,
       :specialist_id,
       :classification_level,
+      :status,
       *allowed_billing_attrs,
       additional_attributes: {},
       custom_attributes: {},

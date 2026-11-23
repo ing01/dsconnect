@@ -69,6 +69,8 @@ class Tickets::ExportService
   # relatorio impresso.
   NAMED_FILTERS = [
     ['Empresa', :company_id, -> { Company }],
+    ['Nicho', :company_niche_id, -> { CompanyNiche }],
+    ['Subnicho', :company_sub_niche_id, -> { CompanySubNiche }],
     ['Solicitante', :contact_id, -> { Contact }],
     ['Atendente', :assignee_id, -> { User }],
     ['Mesa de Servico', :team_id, -> { Team }],
@@ -155,7 +157,11 @@ class Tickets::ExportService
   end
 
   def text_lines
-    [text_line('Numero', params[:display_id]), text_line('Titulo', params[:title])]
+    [
+      text_line('Numero', params[:display_id]),
+      text_line('Titulo', params[:title]),
+      text_line('Nivel do cliente', Array(params[:company_classification_level]).join(', '))
+    ]
   end
 
   def names_line(label, names)

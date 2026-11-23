@@ -130,7 +130,6 @@ export const useCompaniesStore = createStore({
     async get({
       page = 1,
       sort = 'name',
-      clientLevel = '',
       classificationLevel = '',
       companyNicheId = '',
       specialistId = '',
@@ -142,7 +141,6 @@ export const useCompaniesStore = createStore({
         } = await CompanyAPI.get({
           page,
           sort,
-          clientLevel,
           classificationLevel,
           companyNicheId,
           specialistId,
@@ -241,7 +239,6 @@ export const useCompaniesStore = createStore({
       search,
       page = 1,
       sort = 'name',
-      clientLevel = '',
       classificationLevel = '',
       companyNicheId = '',
       specialistId = '',
@@ -254,7 +251,6 @@ export const useCompaniesStore = createStore({
           search,
           page,
           sort,
-          clientLevel,
           classificationLevel,
           companyNicheId,
           specialistId

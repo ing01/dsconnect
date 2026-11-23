@@ -41,29 +41,16 @@ const FISCAL_FIELDS = [
   'addressState',
 ];
 
-const clientLevelLabel = computed(() =>
-  t(
-    `COMPANIES.DETAIL.PROFILE.LEVEL.L${Number(props.company?.clientLevel) || 1}`
-  )
-);
-
-// 1 Baixa (verde), 2 Media (laranja), 3 Alta (vermelho) - "verde" nessa
-// paleta e' o token teal, nao existe um "green" separado.
-const CLIENT_LEVEL_COLOR_CLASSES = {
-  1: 'bg-n-teal-3 text-n-teal-11',
-  2: 'bg-n-amber-3 text-n-amber-11',
-  3: 'bg-n-ruby-3 text-n-ruby-11',
-};
-const clientLevelColorClasses = computed(
-  () => CLIENT_LEVEL_COLOR_CLASSES[Number(props.company?.clientLevel) || 1]
-);
-
 const classificationLevelOptions = computed(() => [
   { value: 0, label: t('COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.NONE') },
   ...[1, 2, 3, 4, 5].map(level => ({
     value: level,
     label: t(`COMPANIES.DETAIL.PROFILE.CLASSIFICATION_LEVEL.L${level}`),
   })),
+]);
+const statusOptions = computed(() => [
+  { value: 'active', label: t('COMPANIES.MANAGEMENT.STATUS.ACTIVE') },
+  { value: 'inactive', label: t('COMPANIES.MANAGEMENT.STATUS.INACTIVE') },
 ]);
 const specialistOptions = computed(() => [
   { value: 0, label: t('COMPANIES.DETAIL.PROFILE.SPECIALIST.NONE') },
@@ -90,6 +77,7 @@ const form = reactive({
   companySubNicheId: 0,
   specialistId: 0,
   classificationLevel: 0,
+  status: 'active',
   campaignOptIn: false,
   systemModuleIds: [],
 });
@@ -138,6 +126,7 @@ const hasChanges = computed(
     (form.specialistId || 0) !== (props.company?.specialistId || 0) ||
     (form.classificationLevel || 0) !==
       (props.company?.classificationLevel || 0) ||
+    form.status !== (props.company?.status || 'active') ||
     form.campaignOptIn !== Boolean(props.company?.campaignOptIn) ||
     !sameModuleSelection.value
 );
@@ -171,6 +160,7 @@ const syncForm = company => {
   form.companySubNicheId = company?.companySubNicheId || 0;
   form.specialistId = company?.specialistId || 0;
   form.classificationLevel = company?.classificationLevel || 0;
+  form.status = company?.status || 'active';
   form.campaignOptIn = Boolean(company?.campaignOptIn);
   form.systemModuleIds = (company?.systemModules || []).map(m => m.id);
   cnpjLookupState.value = 'idle';
@@ -187,12 +177,12 @@ watch(
     props.company?.description,
     props.company?.avatarUrl,
     ...FISCAL_FIELDS.map(field => props.company?.[field]),
-    props.company?.clientLevel,
     props.company?.companyCategoryId,
     props.company?.companyNicheId,
     props.company?.companySubNicheId,
     props.company?.specialistId,
     props.company?.classificationLevel,
+    props.company?.status,
     props.company?.campaignOptIn,
     JSON.stringify(props.company?.systemModules || []),
   ],
@@ -245,6 +235,7 @@ const handleUpdateCompany = async () => {
       companySubNicheId: form.companySubNicheId || null,
       specialistId: form.specialistId || null,
       classificationLevel: form.classificationLevel || null,
+      status: form.status,
       campaignOptIn: form.campaignOptIn,
       systemModuleIds: form.systemModuleIds,
     });
@@ -420,21 +411,6 @@ onMounted(() => {
         </span>
         <div class="grid w-full gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-1">
-            <label class="flex items-center gap-1 text-sm text-n-slate-11">
-              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.CLIENT_LEVEL') }}
-              <span
-                v-tooltip="t('COMPANIES.DETAIL.PROFILE.LEVEL.HELP')"
-                class="cursor-help i-lucide-circle-help size-3.5 text-n-slate-10"
-              />
-            </label>
-            <span
-              class="inline-flex items-center w-fit px-3 py-1.5 text-sm font-semibold rounded-md"
-              :class="clientLevelColorClasses"
-            >
-              {{ clientLevelLabel }}
-            </span>
-          </div>
-          <div class="flex flex-col gap-1">
             <label class="text-sm text-n-slate-11">
               {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.CATEGORY') }}
             </label>
@@ -478,6 +454,16 @@ onMounted(() => {
             <Select
               v-model="form.classificationLevel"
               :options="classificationLevelOptions"
+              :disabled="isUpdating"
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm text-n-slate-11">
+              {{ t('COMPANIES.DETAIL.PROFILE.FIELDS.STATUS') }}
+            </label>
+            <Select
+              v-model="form.status"
+              :options="statusOptions"
               :disabled="isUpdating"
             />
           </div>

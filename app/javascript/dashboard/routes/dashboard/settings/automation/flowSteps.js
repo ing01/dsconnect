@@ -207,7 +207,6 @@ export const BASE_VARIABLES = [
   'empresa.nome',
   'empresa.cnpj',
   'empresa.id',
-  'empresa.nivel',
   'contato.nome',
   'contato.email',
   'contato.id',

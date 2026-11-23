@@ -229,7 +229,13 @@
       "SUBMIT": "Search",
       "QUICK_PLACEHOLDER": "Search ticket, number or agent",
       "ALL_CATEGORIES": "All categories",
-      "ALL_COMPLEXITIES": "Todas as complexidades"
+      "ALL_COMPLEXITIES": "Todas as complexidades",
+      "COMPANY_NICHE": "Company niche",
+      "ALL_NICHES": "All niches",
+      "COMPANY_SUB_NICHE": "Company sub niche",
+      "ALL_SUB_NICHES": "All sub niches",
+      "COMPANY_LEVEL": "Company level",
+      "ALL_LEVELS": "All levels"
     },
     "ACTIVITY": {
       "EMPTY": "No activity recorded yet",
@@ -977,23 +983,6 @@
           "HELP": "Leave blank to reuse any open ticket regardless of age (current behavior). With a value, an older open ticket is treated as stale and a new one is created instead.",
           "PLACEHOLDER": "No limit"
         },
-        "PRIORITY_THRESHOLDS": {
-          "TITLE": "Client priority by monthly fee",
-          "DESCRIPTION": "Set the monthly fee amounts at which a client becomes Medium and High priority. Below the first value, the client is automatically Low priority - no need to configure it per client.",
-          "MEDIUM_MIN": {
-            "LABEL": "Minimum amount for Medium priority",
-            "PLACEHOLDER": "e.g. 500"
-          },
-          "HIGH_MIN": {
-            "LABEL": "Minimum amount for High priority",
-            "PLACEHOLDER": "e.g. 1500"
-          },
-          "INVALID_RANGE": "The High priority amount must be greater than the Medium priority amount.",
-          "RECALCULATE_HELP": "Recalculates the priority of every existing client using the amounts above (saves the settings automatically first).",
-          "RECALCULATE_BUTTON": "Recalculate now",
-          "RECALCULATE_STARTED": "Recalculation started - this can take a few minutes depending on how many clients you have.",
-          "RECALCULATE_ERROR": "Could not start the recalculation. Please try again."
-        },
         "LEVEL_3TO5_TEAM": {
           "LABEL": "Service desk for High priority clients",
           "HELP": "Where the conversation is routed once the AI finishes triaging a High priority client.",
@@ -1099,23 +1088,6 @@
           "SUCCESS": "Attendance schedule updated.",
           "ERROR": "Could not update the attendance schedule.",
           "LOAD_ERROR": "Could not load the periods already configured."
-        }
-      },
-      "CLIENT_PORTAL_ROUTING": {
-        "TITLE": "Client Portal Routing",
-        "DESCRIPTION": "A ticket opened through the Client Portal already lands on the Mesa of the chosen Category, without manual Triage. Here you can set a fixed Mesa per company priority level - it overrides the chosen Category's Mesa when configured.",
-        "LEVELS": {
-          "1": "Low priority",
-          "2": "Medium priority",
-          "3": "High priority"
-        },
-        "ROW_HELP": "A ticket from a company at this level lands directly on this Mesa, regardless of the chosen Category.",
-        "NO_RULE": "No rule - use the chosen Category's Mesa",
-        "SAVE": "Save routing",
-        "API": {
-          "SUCCESS": "Portal routing updated.",
-          "ERROR": "Could not update the Portal routing.",
-          "LOAD_ERROR": "Could not load the routing already configured."
         }
       },
       "IMPORT": {

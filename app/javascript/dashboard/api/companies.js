@@ -17,18 +17,20 @@ class CompanyAPI extends ApiClient {
     const {
       page = 1,
       sort = 'name',
-      clientLevel = '',
       classificationLevel = '',
       companyNicheId = '',
       specialistId = '',
+      companySubNicheId = '',
+      status = '',
     } = params;
     const requestURL = `${this.url}?${buildParams({
       page,
       sort,
-      client_level: clientLevel,
       classification_level: classificationLevel,
       company_niche_id: companyNicheId,
+      company_sub_niche_id: companySubNicheId,
       specialist_id: specialistId,
+      status,
     })}`;
     return axios.get(requestURL);
   }
@@ -37,19 +39,21 @@ class CompanyAPI extends ApiClient {
     query = '',
     page = 1,
     sort = 'name',
-    clientLevel = '',
     classificationLevel = '',
     companyNicheId = '',
-    specialistId = ''
+    specialistId = '',
+    companySubNicheId = '',
+    status = ''
   ) {
     const requestURL = `${this.url}/search?${buildParams({
       q: query,
       page,
       sort,
-      client_level: clientLevel,
       classification_level: classificationLevel,
       company_niche_id: companyNicheId,
+      company_sub_niche_id: companySubNicheId,
       specialist_id: specialistId,
+      status,
     })}`;
     return axios.get(requestURL);
   }
@@ -76,8 +80,11 @@ class CompanyAPI extends ApiClient {
     return axios.get(`${this.url}/cnpj_lookup?${buildParams({ cnpj })}`);
   }
 
-  recalculatePriorities() {
-    return axios.post(`${this.url}/recalculate_priorities`);
+  // Gestao de clientes: `ids` (ou `select_all` + os filtros da lista) diz QUEM
+  // muda; `changes` diz o QUE muda. So os campos presentes em `changes` sao
+  // alterados, e um valor vazio limpa o campo.
+  bulkUpdate(payload) {
+    return axios.post(`${this.url}/bulk_update`, payload);
   }
 
   listCredentials(id) {

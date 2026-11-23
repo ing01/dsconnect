@@ -380,6 +380,10 @@ en:
       phone_number:
         invalid: should be in e164 format
     companies:
+      bulk_update:
+        no_changes: Choose at least one field to change.
+        no_targets: Select at least one client.
+        billing_forbidden: You do not have permission to change the billing type.
       domain:
         invalid: must be a valid domain name
       cnpj:

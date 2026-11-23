@@ -10,7 +10,6 @@ import PrioritiesPage from './PrioritiesPage.vue';
 import AutomationPage from './AutomationPage.vue';
 import DistributionPage from './DistributionPage.vue';
 import AttendanceSchedulePage from './AttendanceSchedulePage.vue';
-import ClientPortalRoutingPage from './ClientPortalRoutingPage.vue';
 import ImportTicketsPage from './ImportTicketsPage.vue';
 import ApiKeyPage from './ApiKeyPage.vue';
 import ClientTutorialsPage from './ClientTutorialsPage.vue';
@@ -106,14 +105,6 @@ export default {
             permissions: ['administrator'],
           },
           component: AttendanceSchedulePage,
-        },
-        {
-          path: 'client-portal-routing',
-          name: 'ticket_routing_settings',
-          meta: {
-            permissions: ['administrator'],
-          },
-          component: ClientPortalRoutingPage,
         },
         {
           path: 'import',

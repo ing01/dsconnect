@@ -31,13 +31,13 @@ class CompanyPolicy < ApplicationPolicy
     update?
   end
 
+  # Edicao em massa mexe em muitas Empresas de uma vez - so administrador.
+  def bulk_update?
+    @account_user.administrator?
+  end
+
   def destroy?
     @account_user.administrator?
   end
 
-  # Mesma barreira de billing_amount (Companies Controller#can_manage_billing?)
-  # ja que o recalculo depende diretamente dele.
-  def recalculate_priorities?
-    @account_user.administrator? || @account_user.permissions&.include?('client_billing_manage')
-  end
 end

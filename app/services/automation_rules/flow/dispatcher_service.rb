@@ -239,7 +239,6 @@ class AutomationRules::Flow::DispatcherService
       run.write_variable('empresa.id', empresa.id)
       run.write_variable('empresa.nome', empresa.name)
       run.write_variable('empresa.cnpj', empresa.cnpj)
-      run.write_variable('empresa.nivel', empresa.client_level)
     end
 
     # `{{conta.telefone_suporte}}` fica disponivel pra qualquer mensagem do

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-management-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'feature',
+    title: 'Gestão de clientes, Nível na lista e filtros por nicho',
+    description:
+      'Nova tela Gestão de clientes (Empresas > Gestão de clientes, só administradores): filtre, marque vários clientes e altere de uma vez nicho, subnicho, nível, especialista, módulos, tipo de cobrança e a nova Situação (Ativo/Inativo; todos começam Ativos). A Prioridade do cliente foi removida (lista, ficha, filtros, limiares de mensalidade, roteamento do Portal por prioridade e a coluna Prioridade da planilha Código/CNPJ); a lista mostra o Nível do cliente. Na Gestão avançada de tickets há filtros novos por nicho, subnicho e nível da empresa.',
+  },
+  {
     id: 'kanban-drag-fix-2026-11-19',
     date: '19 de novembro de 2026',
     isoDate: '2026-11-19',

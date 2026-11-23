@@ -21,7 +21,6 @@ class AutomationRules::Flow::Steps::FindCompany < AutomationRules::Flow::Steps::
     run.write_variable('empresa.id', company.id)
     run.write_variable('empresa.nome', company.name)
     run.write_variable('empresa.cnpj', company.cnpj)
-    run.write_variable('empresa.nivel', company.client_level)
     link_contact(company)
   end
 

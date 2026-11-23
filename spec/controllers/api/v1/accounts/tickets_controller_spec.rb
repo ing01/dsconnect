@@ -119,6 +119,50 @@ RSpec.describe 'Tickets API', type: :request do
       expect(response.parsed_body['payload'].pluck('id')).to eq([matching.id])
     end
 
+    # Gestao avancada de tickets: nicho, subnicho e nivel sao da Empresa do ticket.
+    describe 'filtering by the profile of the ticket company' do
+      let(:niche) { account.company_niches.create!(name: 'Varejo') }
+      let(:sub_niche) { account.company_sub_niches.create!(name: 'Moda') }
+      let(:other_niche) { account.company_niches.create!(name: 'Industria') }
+      let(:fashion_company) do
+        create(:company, account: account, company_niche: niche, company_sub_niche: sub_niche, classification_level: 4)
+      end
+      let(:plain_company) { create(:company, account: account, company_niche: other_niche, classification_level: 1) }
+      let!(:fashion_ticket) { create(:ticket, account: account, ticket_column: ticket_column, company: fashion_company) }
+      let!(:plain_ticket) { create(:ticket, account: account, ticket_column: ticket_column, company: plain_company) }
+      let!(:orphan_ticket) { create(:ticket, account: account, ticket_column: ticket_column) }
+
+      def ids_for(params)
+        get "/api/v1/accounts/#{account.id}/tickets",
+            params: params, headers: agent.create_new_auth_token, as: :json
+        response.parsed_body['payload'].pluck('id')
+      end
+
+      it 'filters by the niche of the company' do
+        expect(ids_for(company_niche_id: niche.id)).to eq([fashion_ticket.id])
+      end
+
+      it 'accepts several niches (OR inside the filter)' do
+        expect(ids_for(company_niche_id: [niche.id, other_niche.id])).to contain_exactly(fashion_ticket.id, plain_ticket.id)
+      end
+
+      it 'filters by the sub niche of the company' do
+        expect(ids_for(company_sub_niche_id: sub_niche.id)).to eq([fashion_ticket.id])
+      end
+
+      it 'filters by the level of the company' do
+        expect(ids_for(company_classification_level: [4, 5])).to eq([fashion_ticket.id])
+      end
+
+      it 'combines niche and level (AND between filters)' do
+        expect(ids_for(company_niche_id: niche.id, company_classification_level: 1)).to be_empty
+      end
+
+      it 'does not filter when the params are absent' do
+        expect(ids_for({})).to contain_exactly(fashion_ticket.id, plain_ticket.id, orphan_ticket.id)
+      end
+    end
+
     it 'filters by company name for the quick text search' do
       company = create(:company, account: account, name: 'Eletrosul Filial')
       matching = create(:ticket, account: account, ticket_column: ticket_column, company: company)

@@ -18,16 +18,10 @@
         "DESCENDING": "Decrescente"
       }
     },
-    "FILTER_BY_PRIORITY": {
-      "LABEL": "Filtrar por prioridade",
-      "OPTIONS": {
-        "ALL": "Todas as prioridades"
-      }
-    },
     "FILTER_BY_CLASSIFICATION": {
-      "LABEL": "Filtrar por classificação",
+      "LABEL": "Filtrar por nível",
       "OPTIONS": {
-        "ALL": "Todas as classificações"
+        "ALL": "Todos os níveis"
       }
     },
     "FILTER_BY_NICHE": {
@@ -281,19 +275,13 @@
           "SYSTEM_STARTED_ON": "Data de início do uso do sistema",
           "SYSTEM_STARTED_ON_FROM_PROJECT": "Vem automaticamente do Projeto de implantação (data mais antiga entre os Projetos desta Empresa).",
           "MODULES": "Módulos utilizados",
-          "CLIENT_LEVEL": "Prioridade do cliente",
           "CATEGORY": "Categoria",
           "NICHE": "Nicho",
           "SUB_NICHE": "Subnicho",
           "SPECIALIST": "Especialista",
           "CLASSIFICATION_LEVEL": "Nível de classificação (1 a 5)",
-          "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha"
-        },
-        "LEVEL": {
-          "HELP": "Calculada automaticamente a partir da mensalidade do cliente (Configurações > Tickets > Automação define as faixas de valor). Não é possível editar manualmente.",
-          "L1": "Prioridade Baixa",
-          "L2": "Prioridade Média",
-          "L3": "Prioridade Alta"
+          "CAMPAIGN_OPT_IN": "Receber mensagens automáticas de campanha",
+          "STATUS": "Situação"
         },
         "CATEGORY": {
           "NONE": "Nenhuma",
@@ -369,6 +357,57 @@
     },
     "EMPTY_STATE": {
       "TITLE": "Nenhuma empresa encontrada"
+    },
+    "LEVEL_BADGE": "Nível {n}",
+    "MANAGEMENT": {
+      "TITLE": "Gestão de clientes",
+      "SUBTITLE": "Filtre os clientes, marque os que quiser e altere nicho, nível, especialista, módulos, cobrança e situação de todos de uma vez.",
+      "SEARCH_PLACEHOLDER": "Buscar por nome, domínio ou código",
+      "LOAD_ERROR": "Não foi possível carregar os clientes.",
+      "EMPTY": "Nenhum cliente encontrado com estes filtros.",
+      "STATUS": {
+        "ACTIVE": "Ativo",
+        "INACTIVE": "Inativo"
+      },
+      "FILTERS": {
+        "ALL_STATUSES": "Todas as situações",
+        "ALL_LEVELS": "Todos os níveis",
+        "ALL_NICHES": "Todos os nichos",
+        "ALL_SUB_NICHES": "Todos os subnichos",
+        "ALL_SPECIALISTS": "Todos os especialistas"
+      },
+      "COLUMNS": {
+        "NAME": "Cliente",
+        "LEVEL": "Nível",
+        "NICHE": "Nicho",
+        "SUB_NICHE": "Subnicho",
+        "SPECIALIST": "Especialista",
+        "MODULES": "Módulos utilizados",
+        "BILLING": "Tipo de cobrança",
+        "STATUS": "Situação"
+      },
+      "BULK": {
+        "TITLE": "Alterar em massa",
+        "SELECTED": "Nenhum cliente selecionado | {count} cliente selecionado | {count} clientes selecionados",
+        "SELECT_PAGE": "Selecionar todos os clientes desta página",
+        "SELECT_ALL": "Selecionar os {count} clientes desta busca",
+        "CLEAR_SELECTION": "Limpar seleção",
+        "KEEP": "Não alterar",
+        "CLEAR": "Limpar campo",
+        "MODULES_MODE": {
+          "ADD": "Adicionar aos módulos atuais",
+          "REMOVE": "Remover dos módulos atuais",
+          "REPLACE": "Substituir todos os módulos"
+        },
+        "APPLY": "Aplicar alterações",
+        "RESET": "Descartar escolhas",
+        "CONFIRM": "Nenhum cliente | Alterar {count} cliente? | Alterar {count} clientes?",
+        "CONFIRM_BUTTON": "Sim, alterar",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Nenhum cliente alterado | {count} cliente atualizado | {count} clientes atualizados",
+        "PARTIAL": "Alguns clientes não puderam ser alterados: {names}",
+        "ERROR": "Não foi possível alterar os clientes."
+      }
     }
   },
   "COMPANIES_LAYOUT": {
