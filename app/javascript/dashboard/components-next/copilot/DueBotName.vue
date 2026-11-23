@@ -5,6 +5,10 @@ defineProps({
     default: 'md',
     validator: value => ['md', 'lg'].includes(value),
   },
+  showLogo: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // "DueBot" no mesmo degrade azul -> verde-agua dos botoes principais
@@ -19,7 +23,7 @@ const BOT_NAME = 'DueBot';
     class="duebot-name inline-flex items-center gap-1.5 font-semibold tracking-wide"
     :class="size === 'lg' ? 'text-xl' : 'text-sm'"
   >
-    <DueBotLogo :class="size === 'lg' ? 'size-12' : 'size-6'" />
+    <DueBotLogo v-if="showLogo" :class="size === 'lg' ? 'size-12' : 'size-6'" />
     <span class="duebot-name__text">{{ BOT_NAME }}</span>
   </span>
 </template>
