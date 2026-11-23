@@ -19,7 +19,9 @@ RSpec.describe 'Acesso aos anexos', type: :request do
   let(:plain) { { 'Accept' => 'image/*' } }
 
   def blob_path(record = blob)
-    Rails.application.routes.url_helpers.rails_blob_path(record, only_path: true)
+    # A rota de redirecionamento, de proposito: continua existindo (e guardada) mesmo com o modo
+    # proxy como padrao, e e' ela que estes testes cobrem. O modo proxy tem os testes dele abaixo.
+    Rails.application.routes.url_helpers.rails_storage_redirect_path(record, only_path: true)
   end
 
   # Um anexo "privado": preso a um registro que nao e' publico.
@@ -32,6 +34,35 @@ RSpec.describe 'Acesso aos anexos', type: :request do
   def client_token
     contact.enable_client_access!(password: 'SenhaDoCliente@01')
     contact.client_access_token.token
+  end
+
+  describe 'cache do navegador (modo proxy)' do
+    let(:image_blob) do
+      ActiveStorage::Blob.create_and_upload!(io: StringIO.new('PNGDATA'), filename: 'foto.png', content_type: 'image/png')
+    end
+
+    before { contact.avatar.attach(image_blob) }
+
+    def proxy_path
+      Rails.application.routes.url_helpers.rails_storage_proxy_path(image_blob, only_path: true)
+    end
+
+    it 'deixa o arquivo em cache SO no navegador de quem esta logado, nunca publico' do
+      get proxy_path, headers: agent_headers.merge(plain)
+
+      expect(response).to have_http_status(:ok)
+      cache = response.headers['Cache-Control']
+      expect(cache).to include('private', 'immutable')
+      expect(cache).to match(/max-age=[0-9]{5,}/)
+      expect(cache).not_to include('public')
+    end
+
+    it 'nao marca como cacheavel a recusa de quem nao tem login' do
+      get proxy_path, headers: plain
+
+      expect(response).to have_http_status(:unauthorized)
+      expect(response.headers['Cache-Control'].to_s).not_to include('immutable')
+    end
   end
 
   describe 'sem login' do

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'images-faster-2026-11-23',
+    date: '23 de novembro de 2026',
+    isoDate: '2026-11-23',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Imagens carregam mais rápido',
+    description:
+      'As imagens dos tickets, do chat interno e das conversas agora chegam em uma requisição só (antes eram duas) e ficam guardadas no seu navegador: ao abrir de novo a mesma tela, elas aparecem na hora, sem baixar outra vez. O cache é só do navegador de quem está logado, então o acesso continua protegido por login.',
+  },
+  {
     id: 'integration-api-family-2026-11-23',
     date: '23 de novembro de 2026',
     isoDate: '2026-11-23',

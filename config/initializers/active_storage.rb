@@ -63,7 +63,30 @@ module ActiveStorageBareDirectUploadGuard
   end
 end
 
+# O modo `proxy` (config.active_storage.resolve_model_to_route) serve o arquivo pelo proprio app, e o
+# Rails o marca como `public` por 100 anos (`http_cache_forever public: true`). Aqui o anexo exige
+# login (ActiveStorageAttachmentAccess), entao `public` deixaria uma CDN ou proxy entrega-lo a quem nao
+# esta logado. O cache fica so' no navegador de quem esta logado (`private`): baixa uma vez e as
+# aberturas seguintes saem do navegador. O endereco leva o id assinado do arquivo, que nunca muda
+# (`immutable`); a validade de 7 dias limita por quanto tempo uma imagem ja baixada sobrevive a um
+# acesso retirado. (O `http_cache_forever` e' o que o controller chama ANTES de transmitir o arquivo -
+# um `after_action` chegaria tarde, com os cabecalhos ja enviados.)
+module ActiveStoragePrivateCache
+  PRIVATE_CACHE_DURATION = 7.days
+
+  def http_cache_forever(public: false)
+    expires_in PRIVATE_CACHE_DURATION, public: false
+    # Diretiva solta (sem `chave=valor`): `expires_in` so' sabe escrever opcao como `chave=valor`.
+    response.cache_control[:extras] = %w[immutable]
+    yield if stale?(etag: request.fullpath, last_modified: Time.new(2011, 1, 1).utc, public: false)
+  end
+end
+
 Rails.application.config.to_prepare do
+  [ActiveStorage::Blobs::ProxyController, ActiveStorage::Representations::ProxyController].each do |controller|
+    controller.prepend(ActiveStoragePrivateCache) unless controller < ActiveStoragePrivateCache
+  end
+
   unless ActiveStorage::DirectUploadsController < ActiveStorageDirectUploadMetadataFilter
     ActiveStorage::DirectUploadsController.prepend(ActiveStorageDirectUploadMetadataFilter)
   end

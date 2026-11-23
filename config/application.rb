@@ -76,6 +76,16 @@ module Chatwoot
     # Disable PDF/video preview generation as we don't use them
     config.active_storage.previewers = []
 
+    # Como as imagens chegam ao navegador. No modo `redirect` (o padrao do Rails) cada imagem custa duas
+    # requisicoes - um redirecionamento e depois o arquivo - e, com o armazenamento em DISCO (o que o
+    # DSConnect usa), o arquivo e' revalidado a cada abertura de tela: as imagens demoravam sempre, mesmo
+    # repetindo. No modo `proxy` e' uma requisicao so', e a resposta fica em cache SO' no navegador de quem
+    # esta logado (ver ActiveStorageAttachmentAccess#cache_privately): da segunda vez a imagem sai do
+    # navegador. `ACTIVE_STORAGE_ROUTE=redirect` volta ao modo antigo (ex.: se um dia o armazenamento for
+    # S3 com muito trafego e o app nao puder servir os bytes).
+    config.active_storage.resolve_model_to_route =
+      ENV.fetch('ACTIVE_STORAGE_ROUTE', 'proxy') == 'redirect' ? :rails_storage_redirect : :rails_storage_proxy
+
     # Active Record Encryption configuration
     # Required for MFA/2FA features - skip if not using encryption
     if ENV['ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY'].present?
