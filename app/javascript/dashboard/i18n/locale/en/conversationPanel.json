@@ -1,7 +1,7 @@
 {
   "CONVERSATION_PANEL": {
     "TITLE": "Conversations Panel",
-    "SUBTITLE": "How support is doing right now, by how long customers have been waiting for a reply.",
+    "SUBTITLE": "Who is being served and who is waiting in the queue, right now.",
     "LIVE": "Live",
     "RECONNECTING": "Reconnecting...",
     "UPDATED_AT": "Updated at {time}",
@@ -14,16 +14,19 @@
     "SOUND_OFF": "Sound off",
     "BANDS": {
       "GREEN": {
-        "TITLE": "In service",
-        "HINT": "up to {minutes} min of waiting"
+        "TITLE": "Being served by an agent",
+        "HINT": "already assigned to an agent",
+        "INFO": "This number is the total of OPEN conversations that already have an agent, meaning they were assigned to someone. The customer is already being served. Paused, snoozed and resolved conversations are not included."
       },
       "ORANGE": {
-        "TITLE": "Waiting",
-        "HINT": "{from} to {to} min of waiting"
+        "TITLE": "Waiting in the queue",
+        "HINT": "in the queue, no agent, up to {minutes} min",
+        "INFO": "This number is the total of OPEN conversations in the queue: the customer has reached out but no agent has been assigned yet. These have been waiting up to {minutes} min, counted from the customer's last message. Paused, snoozed and resolved conversations are not included."
       },
       "RED": {
         "TITLE": "Waiting for a long time",
-        "HINT": "over {minutes} min of waiting"
+        "HINT": "in the queue, no agent, over {minutes} min",
+        "INFO": "This number is the total of OPEN conversations in the queue, with no agent, waiting for MORE than {minutes} min, counted from the customer's last message. These need attention the most right now. Paused, snoozed and resolved conversations are not included."
       }
     },
     "CARD": {
@@ -31,16 +34,18 @@
       "LONGEST": "longest wait: {time}",
       "EMPTY": "No conversations",
       "OPEN_LIST": "View conversations",
-      "CLOSE_LIST": "Close list"
+      "CLOSE_LIST": "Close list",
+      "INFO_LABEL": "What is this number?"
     },
     "STATS": {
       "OPEN": "Open",
       "UNASSIGNED": "Unassigned",
       "PAUSED": "Paused",
-      "SNOOZED": "Snoozed",
-      "AVERAGE_WAIT": "Average wait",
-      "LONGEST_WAIT": "Longest wait",
-      "NONE": "—"
+      "AVERAGE_WAIT": "Average queue wait",
+      "LONGEST_WAIT": "Longest queue wait",
+      "NONE": "—",
+      "AVERAGE_HINT": "Today: from the customer arriving to the first reply",
+      "LONGEST_HINT": "Customer in the queue waiting the longest now"
     },
     "LIST": {
       "TITLE": "Conversations: {band}",
@@ -54,18 +59,16 @@
     },
     "BREAKDOWN": {
       "BY_AGENT": "By agent",
-      "BY_INBOX": "By inbox",
       "UNASSIGNED": "Unassigned",
       "EMPTY": "No open conversations.",
       "TOTAL": "{count} open"
     },
     "SETTINGS": {
       "TITLE": "Conversations Panel",
-      "DESCRIPTION": "Set how long before a conversation goes from green to orange and to red. Time counts from the customer's last unanswered message. Who can see the panel is set in the Custom Role (permission \"See the Conversations Panel\"); administrators always can.",
-      "GREEN_UNTIL": "Green (in service) up to",
-      "ORANGE_UNTIL": "Orange (waiting) up to",
+      "DESCRIPTION": "Green: conversations already assigned to an agent. Orange: conversations in the queue, with no agent. Red: conversations in the queue with no agent for longer than the limit below (counted from the customer's last message). Who can see the panel is set in the Custom Role (permission \"See the Conversations Panel\"); administrators always can.",
+      "ORANGE_UNTIL": "Queue becomes \"waiting for a long time\" after",
       "MINUTES": "minutes",
-      "RED_HINT": "Beyond that the conversation turns red.",
+      "RED_HINT": "Up to that time the conversation stays in \"Waiting in the queue\"; after it, it turns red.",
       "REFRESH": "Refresh every",
       "SECONDS": "seconds",
       "LIST_LIMIT": "Conversations per list",
@@ -75,8 +78,16 @@
       "PREVIEW_ERROR": "Could not calculate the preview right now.",
       "SAVE": "Save",
       "SAVED": "Panel settings saved.",
-      "ERROR": "Could not save the settings.",
-      "INVALID": "The orange time must be greater than the green one."
+      "ERROR": "Could not save the settings."
+    },
+    "HANDLED": {
+      "TITLE": "Handled today by agent",
+      "DESCRIPTION": "Conversations each agent handled today: the ones they resolved today plus the ones currently being served by them.",
+      "RESOLVED": "Resolved",
+      "IN_PROGRESS": "In service",
+      "TOTAL": "{count} today",
+      "EMPTY": "No agent handled conversations today.",
+      "DAY_TOTAL": "Day total: {count}"
     }
   }
 }

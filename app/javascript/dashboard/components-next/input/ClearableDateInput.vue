@@ -43,19 +43,19 @@ const clear = () => {
       :type="type"
       :disabled="disabled"
       class="grow min-w-0"
-      :class="{ '!pr-14': canClear }"
+      :class="{ '!pr-16': canClear }"
       @change="emit('change', $event)"
     />
     <button
       v-if="canClear"
       type="button"
-      class="absolute inset-y-0 flex items-center justify-center w-6 my-auto rounded-full right-8 h-6 text-n-slate-10 hover:text-n-slate-12 hover:bg-n-alpha-2"
+      class="absolute inset-y-0 right-9 z-10 flex items-center justify-center my-auto rounded-full size-6 bg-n-alpha-3 text-n-slate-12 hover:bg-n-alpha-black2 hover:text-n-ruby-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
       :aria-label="t('DATE_PICKER.CLEAR_DATE')"
       :title="t('DATE_PICKER.CLEAR_DATE')"
       data-testid="clear-date"
       @click.stop.prevent="clear"
     >
-      <Icon icon="i-lucide-x" class="size-3.5" />
+      <Icon icon="i-lucide-x" class="size-4" />
     </button>
   </div>
 </template>

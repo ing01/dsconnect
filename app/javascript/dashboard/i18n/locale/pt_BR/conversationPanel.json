@@ -1,7 +1,7 @@
 {
   "CONVERSATION_PANEL": {
     "TITLE": "Painel de Conversas",
-    "SUBTITLE": "Como está o atendimento agora, pelo tempo que o cliente espera resposta.",
+    "SUBTITLE": "Quem está sendo atendido e quem espera na fila, agora.",
     "LIVE": "Ao vivo",
     "RECONNECTING": "Reconectando...",
     "UPDATED_AT": "Atualizado às {time}",
@@ -14,16 +14,19 @@
     "SOUND_OFF": "Som desligado",
     "BANDS": {
       "GREEN": {
-        "TITLE": "Em atendimento",
-        "HINT": "até {minutes} min de espera"
+        "TITLE": "Em atendimento com um atendente",
+        "HINT": "já atribuídas a um atendente",
+        "INFO": "Este número é o total de conversas ABERTAS que já estão com um atendente, ou seja, já foram atribuídas a alguém. O cliente já está sendo atendido. Não entram conversas pausadas, adiadas ou resolvidas."
       },
       "ORANGE": {
-        "TITLE": "Aguardando",
-        "HINT": "de {from} a {to} min de espera"
+        "TITLE": "Aguardando na fila",
+        "HINT": "na fila, sem atendente, até {minutes} min",
+        "INFO": "Este número é o total de conversas ABERTAS que estão na fila: o cliente já chamou, mas ainda não foi atribuído a nenhum atendente. Aqui ficam as que esperam há até {minutes} min, contados desde a última mensagem do cliente. Não entram conversas pausadas, adiadas ou resolvidas."
       },
       "RED": {
         "TITLE": "Esperando há muito tempo",
-        "HINT": "mais de {minutes} min de espera"
+        "HINT": "na fila, sem atendente, há mais de {minutes} min",
+        "INFO": "Este número é o total de conversas ABERTAS na fila, sem atendente, que esperam há MAIS de {minutes} min, contados desde a última mensagem do cliente. São as que mais precisam de atenção agora. Não entram conversas pausadas, adiadas ou resolvidas."
       }
     },
     "CARD": {
@@ -31,16 +34,18 @@
       "LONGEST": "maior espera: {time}",
       "EMPTY": "Nenhuma conversa",
       "OPEN_LIST": "Ver conversas",
-      "CLOSE_LIST": "Fechar lista"
+      "CLOSE_LIST": "Fechar lista",
+      "INFO_LABEL": "O que é este número?"
     },
     "STATS": {
       "OPEN": "Abertas",
       "UNASSIGNED": "Sem responsável",
       "PAUSED": "Pausadas",
-      "SNOOZED": "Adiadas",
-      "AVERAGE_WAIT": "Espera média",
-      "LONGEST_WAIT": "Maior espera",
-      "NONE": "—"
+      "AVERAGE_WAIT": "Espera média na fila",
+      "LONGEST_WAIT": "Maior espera na fila",
+      "NONE": "—",
+      "AVERAGE_HINT": "Hoje: da chegada do cliente até o primeiro atendimento",
+      "LONGEST_HINT": "Cliente na fila que mais espera agora"
     },
     "LIST": {
       "TITLE": "Conversas: {band}",
@@ -54,18 +59,16 @@
     },
     "BREAKDOWN": {
       "BY_AGENT": "Por agente",
-      "BY_INBOX": "Por caixa de entrada",
       "UNASSIGNED": "Sem responsável",
       "EMPTY": "Sem conversas abertas.",
       "TOTAL": "{count} abertas"
     },
     "SETTINGS": {
       "TITLE": "Painel de Conversas",
-      "DESCRIPTION": "Defina em quanto tempo uma conversa passa de verde para laranja e para vermelho. O tempo conta desde a última mensagem do cliente sem resposta. Quem pode ver o painel é definido na Função personalizada (permissão \"Ver o Painel de Conversas\"); administradores sempre veem.",
-      "GREEN_UNTIL": "Verde (em atendimento) até",
-      "ORANGE_UNTIL": "Laranja (aguardando) até",
+      "DESCRIPTION": "Verde: conversas já atribuídas a um atendente. Laranja: conversas na fila, sem atendente. Vermelho: conversas na fila sem atendente há mais tempo que o limite abaixo (conta desde a última mensagem do cliente). Quem pode ver o painel é definido na Função personalizada (permissão \"Ver o Painel de Conversas\"); administradores sempre veem.",
+      "ORANGE_UNTIL": "Fila vira \"esperando há muito tempo\" após",
       "MINUTES": "minutos",
-      "RED_HINT": "Acima disso a conversa fica vermelha.",
+      "RED_HINT": "Até esse tempo a conversa fica em \"Aguardando na fila\"; depois, fica vermelha.",
       "REFRESH": "Atualizar a cada",
       "SECONDS": "segundos",
       "LIST_LIMIT": "Conversas por lista",
@@ -75,8 +78,16 @@
       "PREVIEW_ERROR": "Não foi possível calcular a prévia agora.",
       "SAVE": "Salvar",
       "SAVED": "Configuração do painel salva.",
-      "ERROR": "Não foi possível salvar a configuração.",
-      "INVALID": "O tempo do laranja precisa ser maior que o do verde."
+      "ERROR": "Não foi possível salvar a configuração."
+    },
+    "HANDLED": {
+      "TITLE": "Atendidas hoje por agente",
+      "DESCRIPTION": "Conversas que cada agente atendeu hoje: as que ele resolveu hoje mais as que estão com ele em atendimento agora.",
+      "RESOLVED": "Resolvidas",
+      "IN_PROGRESS": "Em atendimento",
+      "TOTAL": "{count} no dia",
+      "EMPTY": "Nenhum agente atendeu conversas hoje.",
+      "DAY_TOTAL": "Total do dia: {count}"
     }
   }
 }

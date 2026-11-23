@@ -65,7 +65,7 @@ export const CHANGELOG_ENTRIES = [
     platform: 'web',
     title: 'Painel de Conversas',
     description:
-      'Novo item "Painel de Conversas" no menu: três cards mostram as conversas em atendimento (verde), aguardando (laranja) e esperando há muito tempo (vermelho), com totais, maior espera e lista por card. Atualiza em tempo real, tem modo TV e aviso sonoro. Os tempos de cada cor são configurados em Configurações > Painel de Conversas. Administradores sempre veem; para outras pessoas, marque "Ver o Painel de Conversas" na Função personalizada.',
+      'Novo item "Painel de Conversas" no menu: três cards mostram as conversas em atendimento com um atendente (verde), aguardando na fila (laranja) e esperando há muito tempo na fila, sem atendente (vermelho), com totais, maior espera e lista por card. Atualiza em tempo real, tem modo TV e aviso sonoro. O tempo para a fila ficar vermelha é configurado em Configurações > Painel de Conversas. Administradores sempre veem; para outras pessoas, marque "Ver o Painel de Conversas" na Função personalizada.',
   },
   {
     id: 'client-chat-first-connect-race-2026-11-23',
