@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-communication-full-text-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Comunicações enviadas mostram a mensagem completa',
+    description:
+      'No ticket, a lista "Comunicações enviadas" agora mostra o texto inteiro do que foi enviado ao cliente, com as quebras de linha como foram escritas. Antes a mensagem aparecia cortada em uma linha só.',
+  },
+  {
     id: 'images-faster-2026-11-23',
     date: '23 de novembro de 2026',
     isoDate: '2026-11-23',
