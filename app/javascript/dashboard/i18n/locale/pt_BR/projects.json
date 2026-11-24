@@ -168,12 +168,15 @@
         "BUTTON": "Importar tarefas",
         "TITLE": "Importar tarefas do projeto",
         "MODULE_LABEL": "Importar módulo (opcional)",
-        "MODULE_PLACEHOLDER": "Selecione um módulo para marcar as tarefas dele",
-        "LOADING": "Carregando módulos...",
-        "NO_TICKETS": "Não há mais tarefas do projeto para importar.",
+        "MODULE_PLACEHOLDER": "Todos os módulos",
+        "LOADING": "Carregando tarefas...",
+        "NO_TICKETS": "Não há mais tarefas cadastradas para importar.",
+        "NO_MODULE": "Sem módulo",
+        "LINKS_EXISTING_TICKET": "vincula ao ticket #{displayId}",
+        "CREATES_NEW_TICKET": "cria um novo ticket",
         "SELECTED_COUNT": "{count} selecionada(s)",
         "CONFIRM": "Adicionar selecionadas",
-        "MODULES_ERROR": "Não foi possível carregar os módulos"
+        "MODULES_ERROR": "Não foi possível carregar os módulos/tarefas"
       }
     },
     "LOADING": "Carregando projetos...",

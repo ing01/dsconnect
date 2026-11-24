@@ -3,7 +3,7 @@ class Api::V1::Accounts::ProjectTaskTemplatesController < Api::V1::Accounts::Bas
   before_action :check_authorization
 
   def index
-    @project_task_templates = Current.account.project_task_templates.includes(:default_assignee, :checklist).ordered
+    @project_task_templates = Current.account.project_task_templates.includes(:default_assignee, :checklist, :project_modules).ordered
   end
 
   def show; end

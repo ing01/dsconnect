@@ -88,6 +88,10 @@
       "TOTAL": "{count} today",
       "EMPTY": "No agent handled conversations today.",
       "DAY_TOTAL": "Day total: {count}"
+    },
+    "TEAM_FILTER": {
+      "LABEL": "Team",
+      "ALL": "All teams"
     }
   }
 }

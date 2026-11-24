@@ -141,7 +141,7 @@ onMounted(() => {
   >
     <div v-if="showSearch" class="relative shrink-0 px-2 mb-2">
       <span
-        class="absolute i-lucide-search size-3.5 top-2 ltr:left-5 rtl:right-5"
+        class="absolute z-10 pointer-events-none i-lucide-search size-4 top-2 ltr:left-5 rtl:right-5 text-n-slate-11"
       />
       <input
         ref="searchInput"
@@ -150,7 +150,7 @@ onMounted(() => {
         :placeholder="
           searchPlaceholder || t('DROPDOWN_MENU.SEARCH_PLACEHOLDER')
         "
-        class="reset-base w-full h-8 py-2 ltr:pl-10 ltr:pr-2 rtl:pl-2 rtl:pr-10 text-sm focus:outline-none border-none rounded-lg bg-n-alpha-black2 dark:bg-n-solid-1 text-n-slate-12"
+        class="reset-base dropdown-search-input w-full h-8 py-2 ltr:!pl-9 ltr:!pr-2 rtl:!pl-2 rtl:!pr-9 !mb-0 text-sm focus:outline-none border-none rounded-lg bg-n-alpha-black2 dark:bg-n-solid-1 text-n-slate-12"
         @input="handleSearchInput"
       />
     </div>
@@ -300,3 +300,11 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* O (x) nativo do campo de busca: alinhado ao centro e sem sobrar margem. */
+.dropdown-search-input::-webkit-search-cancel-button {
+  margin: 0 0 0 4px;
+  cursor: pointer;
+}
+</style>

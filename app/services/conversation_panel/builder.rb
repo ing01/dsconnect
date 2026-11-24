@@ -12,8 +12,9 @@ class ConversationPanel::Builder
   PREVIEW_LENGTH = 140
   BANDS = %i[green orange red].freeze
 
-  def initialize(account, setting: ConversationPanelSetting.for(account), now: Time.current)
+  def initialize(account, setting: ConversationPanelSetting.for(account), now: Time.current, team_id: nil)
     @account = account
+    @team_id = team_id.presence
     @setting = setting
     @now = now
   end
@@ -22,6 +23,7 @@ class ConversationPanel::Builder
     {
       settings: settings_json,
       generated_at: @now,
+      team_id: @team_id&.to_i,
       counts: counts,
       by_agent: breakdown(:assignee_id),
       handled_today: handled_today,
@@ -31,8 +33,14 @@ class ConversationPanel::Builder
 
   private
 
+  # Todas as conversas que o painel considera: da conta toda ou, com o filtro de
+  # time, so' as do time escolhido (a tela inteira passa a refletir esse time).
+  def scope
+    @team_id ? @account.conversations.where(team_id: @team_id) : @account.conversations
+  end
+
   def open_scope
-    @account.conversations.open
+    scope.open
   end
 
   def threshold(minutes)
@@ -71,7 +79,7 @@ class ConversationPanel::Builder
     {
       green: green.to_i, orange: orange.to_i, red: red.to_i, total: total.to_i,
       unassigned: unassigned.to_i,
-      paused: @account.conversations.snoozed.count,
+      paused: scope.snoozed.count,
       longest_wait_seconds: longest&.dig(:seconds), longest_wait_conversation: longest,
       average_first_response_seconds: average_first_response
     }
@@ -96,7 +104,7 @@ class ConversationPanel::Builder
   # hoje e ja tiveram a primeira resposta de um atendente, o tempo entre a chegada
   # e essa resposta.
   def average_first_response
-    average = @account.conversations
+    average = scope
                       .where(created_at: day_start..@now)
                       .where.not(first_reply_created_at: nil)
                       .where('conversations.first_reply_created_at >= conversations.created_at')
@@ -132,7 +140,7 @@ class ConversationPanel::Builder
   def handled_today
     resolved_ids = ReportingEvent.where(account_id: @account.id, name: 'conversation_resolved', created_at: day_start..@now)
                                  .select(:conversation_id)
-    resolved = @account.conversations.resolved.where(id: resolved_ids).where.not(assignee_id: nil).group(:assignee_id).count
+    resolved = scope.resolved.where(id: resolved_ids).where.not(assignee_id: nil).group(:assignee_id).count
     in_progress = open_scope.where.not(assignee_id: nil).group(:assignee_id).count
     ids = (resolved.keys + in_progress.keys).uniq
     names = names_for(ids)

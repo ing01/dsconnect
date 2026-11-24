@@ -10,6 +10,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAccount } from 'dashboard/composables/useAccount';
+import { useMapGetter, useStore } from 'dashboard/composables/store';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { useConversationPanel } from '../useConversationPanel';
@@ -21,10 +22,32 @@ import PanelBreakdown from '../components/PanelBreakdown.vue';
 import PanelHandledToday from '../components/PanelHandledToday.vue';
 
 const SOUND_KEY = 'cw_conversation_panel_sound';
+const TEAM_KEY = 'cw_conversation_panel_team';
 
 const { t } = useI18n();
 const { accountId } = useAccount();
-const { data, isLoading, hasError, nowMs, refresh } = useConversationPanel();
+const store = useStore();
+const teams = useMapGetter('teams/getTeams');
+
+// O time escolhido fica lembrado neste navegador; vazio = todos os times.
+const readTeam = () => {
+  try {
+    return window.localStorage.getItem(TEAM_KEY) || '';
+  } catch {
+    return '';
+  }
+};
+const teamId = ref(readTeam());
+const onTeamChange = () => {
+  try {
+    window.localStorage.setItem(TEAM_KEY, teamId.value || '');
+  } catch {
+    // Sem lembrar a escolha, o painel segue funcionando.
+  }
+};
+
+const { data, isLoading, hasError, nowMs, refresh } =
+  useConversationPanel(teamId);
 
 const root = ref(null);
 const selectedBand = ref(null);
@@ -166,6 +189,7 @@ const toggleTv = async () => {
 };
 
 onMounted(() => {
+  store.dispatch('teams/get');
   soundOn.value = readSound();
   document.addEventListener('fullscreenchange', onFullscreenChange);
 });
@@ -193,6 +217,26 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
+        <label class="flex items-center gap-2 text-sm text-n-slate-11">
+          {{ t('CONVERSATION_PANEL.TEAM_FILTER.LABEL') }}
+          <select
+            v-model="teamId"
+            class="!mb-0 h-8 !py-0 text-sm w-auto min-w-40"
+            data-testid="panel-team-filter"
+            @change="onTeamChange"
+          >
+            <option value="">
+              {{ t('CONVERSATION_PANEL.TEAM_FILTER.ALL') }}
+            </option>
+            <option
+              v-for="team in teams"
+              :key="team.id"
+              :value="String(team.id)"
+            >
+              {{ team.name }}
+            </option>
+          </select>
+        </label>
         <span
           class="flex items-center gap-2 text-xs text-n-slate-11"
           data-testid="panel-status"
