@@ -156,6 +156,30 @@ const openRoom = async entrada => {
   scrollToBottom();
 };
 
+const startConversation = async userId => {
+  const direct = await store.dispatch('internalChat/openDirect', userId);
+  await openRoom(direct.id);
+  return direct;
+};
+
+// Abre (ou cria) a conversa direta com a pessoa da query `?user=`. Troca a query
+// por `?room=` para o F5 reabrir a mesma conversa em vez de refazer o pedido.
+// Devolve se abriu: ninguem conversa consigo mesmo, e uma pessoa inexistente nao
+// pode deixar a tela sem conversa nenhuma.
+const openDirectOfUser = async entrada => {
+  const userId = Number(entrada);
+  if (!Number.isFinite(userId) || userId === currentUserId.value) return false;
+
+  try {
+    const direct = await startConversation(userId);
+    router.replace({ query: { room: direct.id } });
+    return true;
+  } catch (error) {
+    useAlert(t('INTERNAL_CHAT.NEW_CONVERSATION.OPEN_ERROR'));
+    return false;
+  }
+};
+
 // Enquanto a tela monta, um carregamento cobre tudo: antes ela abria vazia - sem
 // fotos, sem mensagens - e ia se preenchendo aos poucos.
 const isInitializing = ref(true);
@@ -176,9 +200,14 @@ onMounted(async () => {
     // ou um clique), a escolha dela vale: abrir a primeira aqui a jogava de volta e
     // a mensagem seguinte ia para a conversa errada.
     if (!activeRoomId.value) {
+      // `?user=` (link "falar com fulano", como o autor de um ticket) abre a
+      // conversa direta com a pessoa; se nao der, cai na abertura de sempre.
+      const openedByUser = route.query.user
+        ? await openDirectOfUser(route.query.user)
+        : false;
       const initial =
         route.query.room || directs.value[0]?.id || channels.value[0]?.id;
-      if (initial) await openRoom(initial);
+      if (!openedByUser && initial) await openRoom(initial);
     }
 
     // As fotos entram antes da tela aparecer, para não surgirem uma a uma.
@@ -198,6 +227,14 @@ watch(
     if (Number(room) === activeRoomId.value) return;
 
     openRoom(room);
+  }
+);
+
+// Mesma coisa com a tela do Chat ja aberta: o router so troca a query.
+watch(
+  () => route.query.user,
+  user => {
+    if (user) openDirectOfUser(user);
   }
 );
 
@@ -388,11 +425,6 @@ const removeMember = async userId => {
   } catch (error) {
     useAlert(t('INTERNAL_CHAT.MEMBERS.ERROR'));
   }
-};
-
-const startConversation = async userId => {
-  const direct = await store.dispatch('internalChat/openDirect', userId);
-  await openRoom(direct.id);
 };
 
 const createChannel = async payload => {

@@ -7,13 +7,15 @@ import TicketsAPI from 'dashboard/api/tickets';
 
 vi.mock('dashboard/api/tickets', () => ({ default: { get: vi.fn() } }));
 
-const { holder } = vi.hoisted(() => ({ holder: { push: null } }));
+const { holder } = vi.hoisted(() => ({
+  holder: { push: null, replace: null, query: {} },
+}));
 
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
 
 vi.mock('vue-router', () => ({
-  useRouter: () => ({ push: holder.push }),
-  useRoute: () => ({ params: { accountId: 1 }, query: {} }),
+  useRouter: () => ({ push: holder.push, replace: holder.replace }),
+  useRoute: () => ({ params: { accountId: 1 }, query: holder.query }),
 }));
 
 // Nenhuma chamada de rede nos testes. O cliente e um Proxy em vez de uma lista de
@@ -114,8 +116,10 @@ const freshState = () => structuredClone(internalChat.state);
 // `slowRooms`: a lista de salas ja esta no store (o menu lateral a carrega), mas a
 // resposta que a tela do Chat espera so chega quando o exemplo mandar - como na
 // vida real, com a lista a vista e a tela ainda carregando.
-const mountPage = async ({ slowRooms = false } = {}) => {
+const mountPage = async ({ slowRooms = false, query = {} } = {}) => {
   holder.push = vi.fn();
+  holder.replace = vi.fn();
+  holder.query = query;
 
   let resolveRooms;
   if (slowRooms) {
@@ -174,6 +178,44 @@ const mountPage = async ({ slowRooms = false } = {}) => {
 
 describe('InternalChatPage', () => {
   beforeEach(() => vi.clearAllMocks());
+
+  // O nome de quem criou o ticket leva ao Chat com `?user=`: abre a conversa direta.
+  describe('opening a direct chat by ?user=', () => {
+    it('opens the direct conversation with that person and keeps it on reload', async () => {
+      InternalChatAPI.openDirect.mockResolvedValue({
+        data: {
+          id: 9,
+          kind: 'direct',
+          name: null,
+          userId: 13,
+          memberIds: [11, 13],
+          unread: 0,
+        },
+      });
+
+      await mountPage({ query: { user: '13' } });
+
+      expect(InternalChatAPI.openDirect).toHaveBeenCalledWith(13);
+      expect(InternalChatAPI.getMessages).toHaveBeenCalledWith(9);
+      expect(holder.replace).toHaveBeenCalledWith({ query: { room: 9 } });
+    });
+
+    it('falls back to the usual first conversation when the person cannot be opened', async () => {
+      InternalChatAPI.openDirect.mockRejectedValue(new Error('nao'));
+
+      await mountPage({ query: { user: '13' } });
+
+      expect(holder.replace).not.toHaveBeenCalled();
+      expect(InternalChatAPI.getMessages).toHaveBeenCalledWith(5);
+    });
+
+    it('ignores the own user: nobody chats with themselves', async () => {
+      await mountPage({ query: { user: '11' } });
+
+      expect(InternalChatAPI.openDirect).not.toHaveBeenCalled();
+      expect(InternalChatAPI.getMessages).toHaveBeenCalledWith(5);
+    });
+  });
 
   // O defeito que motivou esta etapa: a mensagem vivia no navegador, sumia no
   // F5 e nunca chegava ao colega.

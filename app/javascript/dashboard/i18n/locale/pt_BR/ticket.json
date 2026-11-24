@@ -522,6 +522,7 @@
         "MANUAL": "Manual",
         "CREATED_AT": "Criado em",
         "CREATED_BY": "Criado por",
+        "CHAT_WITH": "Abrir o chat interno com {name}",
         "OPEN_CONVERSATION": "Abrir conversa"
       },
       "SLA": {
