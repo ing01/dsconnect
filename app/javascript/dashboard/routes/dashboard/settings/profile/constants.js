@@ -65,6 +65,10 @@ export const NOTIFICATION_TYPES = [
     value: 'ticket_impediment_released',
   },
   {
+    label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.SUGGESTION_BLOCKED',
+    value: 'suggestion_blocked',
+  },
+  {
     label: 'PROFILE_SETTINGS.FORM.NOTIFICATIONS.TYPES.ARTICLE_PUBLISHED',
     value: 'article_published',
   },

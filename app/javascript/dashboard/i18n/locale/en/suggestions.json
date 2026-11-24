@@ -47,6 +47,18 @@
       "NONE": "Not informed",
       "HOURS": "{count}h"
     },
+    "BLOCK": {
+      "BUTTON": "Block",
+      "BADGE": "Blocked",
+      "BANNER_TITLE": "Blocked by {name}",
+      "UNBLOCK": "Remove block",
+      "REASON_LABEL": "What details are missing?",
+      "REASON_PLACEHOLDER": "Explain what the person who opened it needs to clarify",
+      "REASON_HINT": "The person who opened the suggestion is notified with this text.",
+      "CANCEL": "Cancel",
+      "CONFIRM": "Block and notify",
+      "SUCCESS_MESSAGE": "Suggestion blocked. The person who opened it was notified."
+    },
     "CARD": {
       "COMPLETED_ON": "Completed on {date}"
     },

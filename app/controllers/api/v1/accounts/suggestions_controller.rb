@@ -9,7 +9,7 @@ class Api::V1::Accounts::SuggestionsController < Api::V1::Accounts::BaseControll
   # depois de enviado.
   ADMIN_ONLY_FIELDS = [:title, :description].freeze
 
-  before_action :fetch_suggestion, only: [:update, :move, :destroy]
+  before_action :fetch_suggestion, only: [:update, :move, :block, :unblock, :destroy]
   before_action :check_authorization
 
   def index
@@ -41,6 +41,19 @@ class Api::V1::Accounts::SuggestionsController < Api::V1::Accounts::BaseControll
   def move
     target_column = Current.account.suggestion_columns.find(params[:suggestion_column_id])
     @suggestion.move_to!(suggestion_column: target_column, position: params[:position].to_i)
+  end
+
+  # Impedimento: o motivo e obrigatorio e vai na notificacao de quem abriu.
+  def block
+    @suggestion.block!(Current.user, reason: params[:reason])
+    render 'update'
+  rescue ArgumentError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  def unblock
+    @suggestion.unblock!
+    render 'update'
   end
 
   def destroy

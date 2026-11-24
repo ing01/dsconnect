@@ -16,6 +16,9 @@
 #  category_id          :bigint
 #  time_spent_hours     :decimal(6, 1)
 #  completed_at         :datetime
+#  blocked_at           :datetime
+#  blocked_reason       :text
+#  blocked_by_id        :bigint
 #
 # Indexes
 #
@@ -42,6 +45,7 @@ class Suggestion < ApplicationRecord
   # So Administrador pode ser responsavel - e assim que o time sabe quem esta
   # tocando o que, sem virar um campo de atribuicao livre pra qualquer agente.
   belongs_to :assignee, class_name: 'User', optional: true
+  belongs_to :blocked_by, class_name: 'User', optional: true
   belongs_to :priority, class_name: 'SuggestionPriority', optional: true
   belongs_to :category, class_name: 'SuggestionCategory', optional: true
 
@@ -81,6 +85,23 @@ class Suggestion < ApplicationRecord
       reindex_column!(previous_column) if previous_column != suggestion_column
       reindex_column!(suggestion_column)
     end
+  end
+
+  # Impedimento: a sugestao fica parada ate quem a abriu dar mais detalhes. O
+  # motivo e obrigatorio - e' ele que chega na notificacao de quem abriu.
+  def block!(user, reason:)
+    raise ArgumentError, I18n.t('errors.suggestion.block_reason_required') if reason.to_s.strip.blank?
+
+    update!(blocked_at: Time.zone.now, blocked_reason: reason.to_s.strip, blocked_by: user)
+    Suggestions::BlockedNotificationBuilder.new(suggestion: self, blocked_by: user).perform
+  end
+
+  def unblock!
+    update!(blocked_at: nil, blocked_reason: nil, blocked_by: nil)
+  end
+
+  def blocked?
+    blocked_at.present?
   end
 
   def push_event_data

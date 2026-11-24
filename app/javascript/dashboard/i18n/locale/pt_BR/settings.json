@@ -193,6 +193,7 @@
           "TICKET_PROPOSAL_ANSWERED": "O cliente aprova ou recusa uma proposta de um ticket pelo qual você é responsável",
           "TICKET_CHILD_COMPLETED": "Um ticket filho de um ticket pelo qual você é responsável é concluído na Mesa de desenvolvimento",
           "TICKET_IMPEDIMENT_RELEASED": "Um impedimento é removido ou concluído e você é responsável pelo ticket filho",
+          "SUGGESTION_BLOCKED": "Uma sugestão que você abriu é impedida e precisa de mais detalhes",
           "ARTICLE_PUBLISHED": "Um artigo é publicado na Central de Ajuda",
           "PORTAL_CREATED": "Um novo Portal é criado na Central de Ajuda"
         },

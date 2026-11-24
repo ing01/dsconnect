@@ -657,6 +657,8 @@ Rails.application.routes.draw do
           resources :suggestions, only: [:index, :create, :update, :destroy] do
             member do
               patch :move
+              post :block
+              post :unblock
             end
           end
           resources :suggestion_columns, only: [:index, :create, :update, :destroy] do

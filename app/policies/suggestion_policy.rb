@@ -23,6 +23,14 @@ class SuggestionPolicy < ApplicationPolicy
     administrator? || suggestion_manager?
   end
 
+  def block?
+    administrator? || suggestion_manager?
+  end
+
+  def unblock?
+    administrator? || suggestion_manager?
+  end
+
   def destroy?
     administrator? || suggestion_manager?
   end

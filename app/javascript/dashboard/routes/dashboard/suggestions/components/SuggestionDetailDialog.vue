@@ -16,7 +16,7 @@ const props = defineProps({
   isAdmin: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['delete', 'update']);
+const emit = defineEmits(['delete', 'update', 'block', 'unblock']);
 
 const { t } = useI18n();
 const store = useStore();
@@ -44,10 +44,33 @@ onMounted(() => {
   store.dispatch('suggestionCategories/get');
 });
 
+const isBlocking = ref(false);
+const blockReason = ref('');
+const hasBlockReason = computed(() => blockReason.value.trim().length > 0);
+
 const open = record => {
   suggestion.value = record;
+  isBlocking.value = false;
+  blockReason.value = '';
   dialogRef.value?.open();
 };
+
+// A pagina devolve a sugestao atualizada depois de impedir/liberar.
+const refresh = record => {
+  suggestion.value = record;
+  isBlocking.value = false;
+  blockReason.value = '';
+};
+
+const handleBlock = () => {
+  if (!hasBlockReason.value) return;
+  emit('block', {
+    id: suggestion.value.id,
+    reason: blockReason.value.trim(),
+  });
+};
+
+const handleUnblock = () => emit('unblock', { id: suggestion.value.id });
 
 const close = () => dialogRef.value?.close();
 
@@ -107,7 +130,7 @@ const handleDescriptionChange = event => {
   emit('update', { id: suggestion.value.id, description });
 };
 
-defineExpose({ open, close });
+defineExpose({ open, close, refresh });
 </script>
 
 <template>
@@ -161,6 +184,35 @@ defineExpose({ open, close });
         <Icon icon="i-lucide-circle-check" class="size-3.5" />
         {{ t('SUGGESTIONS.CARD.COMPLETED_ON', { date: completedLabel }) }}
       </p>
+
+      <div
+        v-if="suggestion.blocked_at"
+        class="flex flex-col gap-1.5 p-3 border rounded-lg border-n-ruby-6 bg-n-ruby-3"
+      >
+        <p
+          class="flex items-center gap-1.5 mb-0 text-xs font-semibold text-n-ruby-11"
+        >
+          <Icon icon="i-lucide-octagon-alert" class="size-3.5" />
+          {{
+            t('SUGGESTIONS.BLOCK.BANNER_TITLE', {
+              name: suggestion.blocked_by_name,
+            })
+          }}
+        </p>
+        <p class="mb-0 text-sm whitespace-pre-wrap text-n-slate-12">
+          {{ suggestion.blocked_reason }}
+        </p>
+        <Button
+          v-if="canManage"
+          slate
+          faded
+          size="xs"
+          class="w-fit"
+          icon="i-lucide-lock-open"
+          :label="t('SUGGESTIONS.BLOCK.UNBLOCK')"
+          @click="handleUnblock"
+        />
+      </div>
 
       <div v-if="suggestion.attachments?.length" class="flex flex-col gap-1.5">
         <span class="text-xs font-medium text-n-slate-11">
@@ -300,9 +352,56 @@ defineExpose({ open, close });
       </label>
 
       <div
-        v-if="props.canManage"
-        class="flex justify-end pt-2 border-t border-n-weak"
+        v-if="props.canManage && isBlocking"
+        class="flex flex-col gap-2 pt-2 border-t border-n-weak"
       >
+        <label class="flex flex-col gap-1 min-w-0">
+          <span class="text-xs font-medium text-n-slate-11">
+            {{ t('SUGGESTIONS.BLOCK.REASON_LABEL') }}
+          </span>
+          <textarea
+            v-model="blockReason"
+            rows="3"
+            class="mb-0"
+            :placeholder="t('SUGGESTIONS.BLOCK.REASON_PLACEHOLDER')"
+          />
+          <span class="text-xs text-n-slate-11">
+            {{ t('SUGGESTIONS.BLOCK.REASON_HINT') }}
+          </span>
+        </label>
+        <div class="flex justify-end gap-2">
+          <Button
+            slate
+            faded
+            size="sm"
+            :label="t('SUGGESTIONS.BLOCK.CANCEL')"
+            @click="isBlocking = false"
+          />
+          <Button
+            ruby
+            size="sm"
+            icon="i-lucide-octagon-alert"
+            :disabled="!hasBlockReason"
+            :label="t('SUGGESTIONS.BLOCK.CONFIRM')"
+            @click="handleBlock"
+          />
+        </div>
+      </div>
+
+      <div
+        v-if="props.canManage && !isBlocking"
+        class="flex justify-between pt-2 border-t border-n-weak"
+      >
+        <Button
+          v-if="!suggestion.blocked_at"
+          amber
+          faded
+          size="sm"
+          icon="i-lucide-octagon-alert"
+          :label="t('SUGGESTIONS.BLOCK.BUTTON')"
+          @click="isBlocking = true"
+        />
+        <div v-else />
         <Button
           ruby
           faded

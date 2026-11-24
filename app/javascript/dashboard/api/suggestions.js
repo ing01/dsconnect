@@ -27,6 +27,14 @@ class SuggestionsAPI extends ApiClient {
     });
   }
 
+  block(id, reason) {
+    return axios.post(`${this.url}/${id}/block`, { reason });
+  }
+
+  unblock(id) {
+    return axios.post(`${this.url}/${id}/unblock`);
+  }
+
   move(id, { suggestionColumnId, position }) {
     return axios.patch(`${this.url}/${id}/move`, {
       suggestion_column_id: suggestionColumnId,

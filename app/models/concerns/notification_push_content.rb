@@ -26,6 +26,7 @@ module NotificationPushContent
       'internal_chat_message' => 'notifications.notification_title.internal_chat_message',
       'ticket_triage_pending' => 'notifications.notification_title.ticket_triage_pending',
       'suggestion_created' => 'notifications.notification_title.suggestion_created',
+      'suggestion_blocked' => 'notifications.notification_title.suggestion_blocked',
       'ticket_customer_communication_received' => 'notifications.notification_title.ticket_customer_communication_received',
       'ticket_proposal_answered' => 'notifications.notification_title.ticket_proposal_answered',
       'ticket_child_completed' => 'notifications.notification_title.ticket_child_completed',
@@ -84,6 +85,8 @@ module NotificationPushContent
       { display_id: primary_actor.display_id, released_display_id: secondary_actor.display_id }
     when 'suggestion_created'
       { user_name: primary_actor.user&.name.to_s }
+    when 'suggestion_blocked'
+      { title: primary_actor.title }
     when 'article_published'
       { article_title: primary_actor.title }
     when 'portal_created'
@@ -128,6 +131,7 @@ module NotificationPushContent
   def message_body_for_non_conversation_type
     return internal_chat_preview if notification_type == 'internal_chat_message'
     return primary_actor.title if %w[suggestion_created article_published ticket_triage_pending].include?(notification_type)
+    return primary_actor.blocked_reason if notification_type == 'suggestion_blocked'
     return primary_actor.name if notification_type == 'portal_created'
     return ticket_customer_communication_preview if notification_type == 'ticket_customer_communication_received'
     return primary_actor.title if notification_type == 'ticket_proposal_answered'

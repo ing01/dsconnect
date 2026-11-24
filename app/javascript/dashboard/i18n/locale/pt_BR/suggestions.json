@@ -47,6 +47,18 @@
       "NONE": "Não informado",
       "HOURS": "{count}h"
     },
+    "BLOCK": {
+      "BUTTON": "Impedir",
+      "BADGE": "Impedida",
+      "BANNER_TITLE": "Impedida por {name}",
+      "UNBLOCK": "Remover impedimento",
+      "REASON_LABEL": "Quais detalhes estão faltando?",
+      "REASON_PLACEHOLDER": "Explique o que quem abriu precisa esclarecer",
+      "REASON_HINT": "Quem abriu a sugestão é avisado com este texto.",
+      "CANCEL": "Cancelar",
+      "CONFIRM": "Impedir e notificar",
+      "SUCCESS_MESSAGE": "Sugestão impedida. Quem abriu foi notificado."
+    },
     "CARD": {
       "COMPLETED_ON": "Concluída em {date}"
     },

@@ -44,7 +44,8 @@
       "TICKET_CHILD_COMPLETED": "Child ticket completed",
       "SNOOZED_UNTIL": "Snoozed for {time}",
       "SNOOZED_ENDS": "Snooze ended",
-      "TICKET_IMPEDIMENT_RELEASED": "Impediment removed"
+      "TICKET_IMPEDIMENT_RELEASED": "Impediment removed",
+      "SUGGESTION_BLOCKED": "Suggestion blocked"
     },
     "NO_CONTENT": "No content available",
     "MENU_ITEM": {

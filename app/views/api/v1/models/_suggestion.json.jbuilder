@@ -15,5 +15,8 @@ json.category_name resource.category&.name
 json.category_color resource.category&.color
 json.time_spent_hours resource.time_spent_hours
 json.completed_at resource.completed_at
+json.blocked_at resource.blocked_at
+json.blocked_reason resource.blocked_reason
+json.blocked_by_name resource.blocked_by&.name
 json.attachments resource.attachments_payload
 json.created_at resource.created_at

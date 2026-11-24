@@ -72,7 +72,10 @@ class Notification < ApplicationRecord
     ticket_child_completed: 18,
     # O impedimento de um ticket foi removido (ou concluido) - avisa o responsavel pelo ticket
     # FILHO, que era quem estava parado (ver Tickets::ImpedimentReleasedNotificationBuilder).
-    ticket_impediment_released: 19
+    ticket_impediment_released: 19,
+    # Uma sugestao foi impedida por quem gerencia o quadro - avisa so' quem a abriu,
+    # para dar mais detalhes (ver Suggestions::BlockedNotificationBuilder).
+    suggestion_blocked: 20
   }.freeze
 
   enum notification_type: NOTIFICATION_TYPES

@@ -46,7 +46,8 @@
       "TICKET_CHILD_COMPLETED": "Ticket filho concluído",
       "SNOOZED_UNTIL": "Adiado para {time}",
       "SNOOZED_ENDS": "Adiamento encerrado",
-      "TICKET_IMPEDIMENT_RELEASED": "Impedimento removido"
+      "TICKET_IMPEDIMENT_RELEASED": "Impedimento removido",
+      "SUGGESTION_BLOCKED": "Sugestão impedida"
     },
     "NO_CONTENT": "Nenhum conteúdo disponível",
     "MENU_ITEM": {

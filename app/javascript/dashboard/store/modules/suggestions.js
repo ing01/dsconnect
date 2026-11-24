@@ -93,6 +93,16 @@ export const actions = {
     commit(types.UPSERT_SUGGESTION, response.data);
     return response.data;
   },
+  block: async ({ commit }, { id, reason }) => {
+    const response = await SuggestionsAPI.block(id, reason);
+    commit(types.UPSERT_SUGGESTION, response.data);
+    return response.data;
+  },
+  unblock: async ({ commit }, id) => {
+    const response = await SuggestionsAPI.unblock(id);
+    commit(types.UPSERT_SUGGESTION, response.data);
+    return response.data;
+  },
   delete: async ({ commit }, id) => {
     await SuggestionsAPI.delete(id);
     commit(types.REMOVE_SUGGESTION, id);

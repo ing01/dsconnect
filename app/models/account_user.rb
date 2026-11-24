@@ -102,6 +102,7 @@ class AccountUser < ApplicationRecord
     setting.selected_push_flags = %i[
       push_conversation_assignment push_internal_chat_message push_ticket_customer_communication_received
       push_ticket_proposal_answered push_ticket_child_completed push_ticket_impediment_released
+      push_suggestion_blocked
     ]
     setting.save!
   end

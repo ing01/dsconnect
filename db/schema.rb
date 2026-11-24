@@ -2197,6 +2197,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_13_162016) do
     t.bigint "category_id"
     t.decimal "time_spent_hours", precision: 6, scale: 1
     t.datetime "completed_at"
+    t.datetime "blocked_at"
+    t.text "blocked_reason"
+    t.bigint "blocked_by_id"
     t.index ["account_id"], name: "index_suggestions_on_account_id"
     t.index ["assignee_id"], name: "index_suggestions_on_assignee_id"
     t.index ["category_id"], name: "index_suggestions_on_category_id"

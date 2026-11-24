@@ -27,4 +27,5 @@ export const NOTIFICATION_TYPES_MAPPING = {
   TICKET_PROPOSAL_ANSWERED: ['i-lucide-file-check', 'text-n-teal-11'],
   TICKET_CHILD_COMPLETED: ['i-lucide-circle-check-big', 'text-n-teal-11'],
   TICKET_IMPEDIMENT_RELEASED: ['i-lucide-lock-open', 'text-n-teal-11'],
+  SUGGESTION_BLOCKED: ['i-lucide-octagon-alert', 'text-n-ruby-11'],
 };

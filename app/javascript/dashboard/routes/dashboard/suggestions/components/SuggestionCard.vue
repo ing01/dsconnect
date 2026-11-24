@@ -33,7 +33,9 @@ const assigneeColor = computed(() => {
   // Hash simples e determinístico (djb2). Mesmo nome -> mesma cor sempre.
   let hash = 0;
   for (let i = 0; i < name.length; i += 1) {
+    // eslint-disable-next-line no-bitwise
     hash = (hash << 5) - hash + name.charCodeAt(i);
+    // eslint-disable-next-line no-bitwise
     hash |= 0; // força inteiro 32-bit
   }
 
@@ -79,6 +81,13 @@ const completedLabel = computed(() =>
       :class="suggestion.completed_at ? 'text-white/80' : 'text-n-slate-11'"
     >
       {{ suggestion.description }}
+    </p>
+    <p
+      v-if="suggestion.blocked_at"
+      class="flex items-center gap-1 px-2 py-0.5 mb-0 text-xs font-medium rounded-full bg-n-ruby-3 text-n-ruby-11 w-fit"
+    >
+      <Icon icon="i-lucide-octagon-alert" class="size-3" />
+      {{ t('SUGGESTIONS.BLOCK.BADGE') }}
     </p>
     <div
       v-if="suggestion.priority_name || suggestion.category_name"

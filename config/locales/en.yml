@@ -305,6 +305,7 @@ en:
       too_many_attachments: cannot have more than %{count} attachments
       attachment_too_large: is larger than the %{size} MB limit
       invalid_attachment_type: must be an image, gif or video
+      block_reason_required: A reason is required to block a suggestion
     suggestion_column:
       has_suggestions:
         one: This column has 1 suggestion. Move it to another column before deleting.
@@ -571,6 +572,7 @@ en:
       ticket_proposal_answered: '%{company_name} %{decision} the proposal on ticket #%{display_id}'
       ticket_child_completed: 'Child ticket #%{child_display_id} was completed (parent #%{display_id})'
       ticket_impediment_released: 'The impediment on ticket #%{released_display_id} was removed'
+      suggestion_blocked: 'Your suggestion "%{title}" was blocked and needs more details'
     proposal_decision:
       approved: 'approved'
       refused: 'refused'

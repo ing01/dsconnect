@@ -183,6 +183,31 @@ const updateSuggestion = async patch => {
   }
 };
 
+// O dialogo mantem a propria copia da sugestao - devolve a versao atualizada
+// pra ele mostrar/limpar o impedimento sem reabrir.
+const blockSuggestion = async ({ id, reason }) => {
+  try {
+    const updated = await store.dispatch('suggestions/block', { id, reason });
+    detailDialog.value?.refresh(updated);
+    useAlert(t('SUGGESTIONS.BLOCK.SUCCESS_MESSAGE'));
+  } catch (error) {
+    useAlert(
+      parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE')
+    );
+  }
+};
+
+const unblockSuggestion = async ({ id }) => {
+  try {
+    const updated = await store.dispatch('suggestions/unblock', id);
+    detailDialog.value?.refresh(updated);
+  } catch (error) {
+    useAlert(
+      parseAPIErrorResponse(error) || t('SUGGESTIONS.API.ERROR_MESSAGE')
+    );
+  }
+};
+
 const goToColumnSettings = () => {
   router.push({ name: 'suggestion_columns_list' });
 };
@@ -336,6 +361,8 @@ const goToManifestations = () => {
       :is-admin="isAdmin"
       @delete="deleteSuggestion"
       @update="updateSuggestion"
+      @block="blockSuggestion"
+      @unblock="unblockSuggestion"
     />
     <SuggestionCreateDialog
       v-if="canManage"
