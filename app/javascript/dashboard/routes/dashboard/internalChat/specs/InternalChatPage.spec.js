@@ -276,12 +276,14 @@ describe('InternalChatPage', () => {
     });
   });
 
-  it('separates private conversations from channels', async () => {
+  it('separates channels (first) from private conversations', async () => {
     const { wrapper } = await mountPage();
 
-    expect(wrapper.findAll('aside h3').map(item => item.text())).toEqual([
-      'INTERNAL_CHAT.SIDEBAR.DIRECTS',
+    expect(
+      wrapper.findAll('aside button[aria-expanded]').map(item => item.text())
+    ).toEqual([
       'INTERNAL_CHAT.SIDEBAR.CHANNELS',
+      'INTERNAL_CHAT.SIDEBAR.DIRECTS',
     ]);
   });
 

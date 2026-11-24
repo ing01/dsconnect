@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-sidebar-sections-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Chat interno: canais no topo e seções recolhíveis',
+    description:
+      'Na barra lateral do Chat interno, os Canais agora aparecem antes das conversas privadas, sem precisar rolar a lista de conversas até o fim. Os títulos "Canais" e "Conversas" podem ser recolhidos com um clique (o navegador lembra sua escolha); recolhida, a seção mostra quantas mensagens não lidas tem. Ao buscar, tudo aparece de novo para o resultado não ficar escondido.',
+  },
+  {
     id: 'agenda-color-follows-assignee-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

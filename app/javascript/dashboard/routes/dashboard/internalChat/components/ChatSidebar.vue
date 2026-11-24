@@ -29,6 +29,34 @@ const { t } = useI18n();
 
 const query = ref('');
 
+// Seções recolhíveis: com dezenas de conversas, os canais ficavam fora da tela.
+// A escolha fica no navegador. Procurando algo, tudo aparece - o que se busca
+// nao pode ficar escondido atras de uma seção recolhida.
+const COLLAPSED_KEY = 'internal-chat-sidebar-collapsed';
+const readCollapsed = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COLLAPSED_KEY) || '{}');
+    return { channels: !!saved.channels, directs: !!saved.directs };
+  } catch (error) {
+    return { channels: false, directs: false };
+  }
+};
+const collapsed = ref(readCollapsed());
+
+const toggleSection = section => {
+  collapsed.value = {
+    ...collapsed.value,
+    [section]: !collapsed.value[section],
+  };
+  try {
+    localStorage.setItem(COLLAPSED_KEY, JSON.stringify(collapsed.value));
+  } catch (error) {
+    // Sem armazenamento (janela privada): so nao lembra.
+  }
+};
+
+const isOpen = section => !collapsed.value[section] || !!query.value;
+
 // O menu do botao direito. Guarda o canal e onde o cursor estava - o menu abre
 // ali, e nao num canto fixo da tela.
 const contextMenu = ref(null);
@@ -101,6 +129,12 @@ const visibleDirects = computed(() =>
 const visibleChannels = computed(() =>
   props.channels.filter(channel => matches(channel.name))
 );
+
+// Recolhida, a seção ainda avisa: nenhuma mensagem nova pode passar despercebida.
+const unreadOf = rooms =>
+  rooms.reduce((total, room) => total + (room.unread || 0), 0);
+const directsUnread = computed(() => unreadOf(props.directs));
+const channelsUnread = computed(() => unreadOf(props.channels));
 </script>
 
 <template>
@@ -131,83 +165,31 @@ const visibleChannels = computed(() =>
     </div>
 
     <div class="flex flex-col gap-4 py-3 overflow-y-auto grow">
-      <!-- Conversas privadas -->
-      <section class="flex flex-col gap-0.5">
-        <header class="flex items-center justify-between gap-2 px-3 pb-1">
-          <h3
-            class="text-xs font-semibold tracking-wider uppercase text-n-slate-10"
-          >
-            {{ t('INTERNAL_CHAT.SIDEBAR.DIRECTS') }}
-          </h3>
-          <button
-            type="button"
-            class="p-0.5 rounded text-n-slate-10 hover:text-n-slate-12 hover:bg-n-alpha-2"
-            :title="t('INTERNAL_CHAT.SIDEBAR.NEW_CONVERSATION')"
-            @click="emit('newConversation')"
-          >
-            <Icon icon="i-lucide-plus" class="size-4" />
-          </button>
-        </header>
-
-        <button
-          v-for="direct in visibleDirects"
-          :key="direct.id"
-          type="button"
-          class="flex items-center w-full gap-2.5 px-3 py-1.5 text-start"
-          :class="
-            direct.id === activeRoomId
-              ? 'bg-n-alpha-2 text-n-slate-12'
-              : 'hover:bg-n-alpha-1'
-          "
-          @click="emit('select', direct.id)"
-          @contextmenu.prevent="openContextMenu($event, direct)"
-        >
-          <span class="relative flex-shrink-0">
-            <Avatar
-              :name="userFor(direct.userId)?.name || '?'"
-              :src="userFor(direct.userId)?.thumbnail"
-              :size="28"
-            />
-            <span
-              class="absolute bottom-0 size-2.5 rounded-full border-2 border-n-solid-1 end-0"
-              :class="presenceDotClass(userFor(direct.userId)?.status)"
-            />
-          </span>
-
-          <span class="flex flex-col min-w-0 grow">
-            <span class="flex items-baseline justify-between gap-2">
-              <span class="text-sm font-medium truncate text-n-slate-12">
-                {{ userFor(direct.userId)?.name }}
-              </span>
-              <span
-                v-if="lastMessage(direct)"
-                class="flex-shrink-0 text-xs tabular-nums text-n-slate-10"
-              >
-                {{ shortTime(lastMessage(direct).createdAt) }}
-              </span>
-            </span>
-            <span class="text-xs truncate text-n-slate-10">
-              {{ preview(direct) }}
-            </span>
-          </span>
-
-          <span
-            v-if="direct.unread"
-            class="flex-shrink-0 min-w-[1.25rem] px-1 py-0.5 text-xs font-semibold text-center rounded-full text-white bg-n-blue-9 tabular-nums"
-          >
-            {{ direct.unread }}
-          </span>
-        </button>
-      </section>
-
       <!-- Canais -->
       <section class="flex flex-col gap-0.5">
         <header class="flex items-center justify-between gap-2 px-3 pb-1">
-          <h3
-            class="text-xs font-semibold tracking-wider uppercase text-n-slate-10"
+          <button
+            type="button"
+            class="flex items-center gap-1 text-xs font-semibold tracking-wider uppercase text-n-slate-10 hover:text-n-slate-12"
+            :aria-expanded="isOpen('channels')"
+            @click="toggleSection('channels')"
           >
+            <Icon
+              :icon="
+                isOpen('channels')
+                  ? 'i-lucide-chevron-down'
+                  : 'i-lucide-chevron-right'
+              "
+              class="size-3.5"
+            />
             {{ t('INTERNAL_CHAT.SIDEBAR.CHANNELS') }}
-          </h3>
+            <span
+              v-if="!isOpen('channels') && channelsUnread"
+              class="min-w-[1.25rem] px-1 py-0.5 text-xs font-semibold text-center normal-case rounded-full text-white bg-n-blue-9 tabular-nums"
+            >
+              {{ channelsUnread }}
+            </span>
+          </button>
           <button
             type="button"
             class="p-0.5 rounded text-n-slate-10 hover:text-n-slate-12 hover:bg-n-alpha-2"
@@ -218,51 +200,141 @@ const visibleChannels = computed(() =>
           </button>
         </header>
 
-        <button
-          v-for="channel in visibleChannels"
-          :key="channel.id"
-          type="button"
-          class="flex items-center w-full gap-2 px-3 py-1.5 text-start"
-          :class="
-            channel.id === activeRoomId
-              ? 'bg-n-alpha-2 text-n-slate-12'
-              : 'hover:bg-n-alpha-1'
-          "
-          @click="emit('select', channel.id)"
-          @contextmenu.prevent="openContextMenu($event, channel)"
-        >
-          <Icon
-            v-if="channel.pinned"
-            icon="i-lucide-pin"
-            class="flex-shrink-0 size-3.5 text-n-slate-10"
-            :title="t('INTERNAL_CHAT.SIDEBAR.PINNED')"
-          />
-          <span v-else class="flex-shrink-0 text-sm text-n-slate-10">#</span>
-          <!-- Canal em que esta pessoa nao escreve: um cadeado explica por que o
-               campo de mensagem aparece desabilitado quando ela entrar. -->
-          <Icon
-            v-if="channel.canPost === false"
-            icon="i-lucide-lock"
-            class="flex-shrink-0 size-3.5 text-n-slate-10"
-            :title="t('INTERNAL_CHAT.SIDEBAR.READ_ONLY')"
-          />
-          <span
-            class="text-sm truncate grow"
+        <template v-if="isOpen('channels')">
+          <button
+            v-for="channel in visibleChannels"
+            :key="channel.id"
+            type="button"
+            class="flex items-center w-full gap-2 px-3 py-1.5 text-start"
             :class="
-              channel.unread
-                ? 'font-semibold text-n-slate-12'
-                : 'text-n-slate-11'
+              channel.id === activeRoomId
+                ? 'bg-n-alpha-2 text-n-slate-12'
+                : 'hover:bg-n-alpha-1'
             "
+            @click="emit('select', channel.id)"
+            @contextmenu.prevent="openContextMenu($event, channel)"
           >
-            {{ channel.name }}
-          </span>
-          <span
-            v-if="channel.unread"
-            class="flex-shrink-0 min-w-[1.25rem] px-1 py-0.5 text-xs font-semibold text-center rounded-full text-white bg-n-blue-9 tabular-nums"
+            <Icon
+              v-if="channel.pinned"
+              icon="i-lucide-pin"
+              class="flex-shrink-0 size-3.5 text-n-slate-10"
+              :title="t('INTERNAL_CHAT.SIDEBAR.PINNED')"
+            />
+            <span v-else class="flex-shrink-0 text-sm text-n-slate-10">#</span>
+            <!-- Canal em que esta pessoa nao escreve: um cadeado explica por que o
+               campo de mensagem aparece desabilitado quando ela entrar. -->
+            <Icon
+              v-if="channel.canPost === false"
+              icon="i-lucide-lock"
+              class="flex-shrink-0 size-3.5 text-n-slate-10"
+              :title="t('INTERNAL_CHAT.SIDEBAR.READ_ONLY')"
+            />
+            <span
+              class="text-sm truncate grow"
+              :class="
+                channel.unread
+                  ? 'font-semibold text-n-slate-12'
+                  : 'text-n-slate-11'
+              "
+            >
+              {{ channel.name }}
+            </span>
+            <span
+              v-if="channel.unread"
+              class="flex-shrink-0 min-w-[1.25rem] px-1 py-0.5 text-xs font-semibold text-center rounded-full text-white bg-n-blue-9 tabular-nums"
+            >
+              {{ channel.unread }}
+            </span>
+          </button>
+        </template>
+      </section>
+
+      <!-- Conversas privadas -->
+      <section class="flex flex-col gap-0.5">
+        <header class="flex items-center justify-between gap-2 px-3 pb-1">
+          <button
+            type="button"
+            class="flex items-center gap-1 text-xs font-semibold tracking-wider uppercase text-n-slate-10 hover:text-n-slate-12"
+            :aria-expanded="isOpen('directs')"
+            @click="toggleSection('directs')"
           >
-            {{ channel.unread }}
-          </span>
-        </button>
+            <Icon
+              :icon="
+                isOpen('directs')
+                  ? 'i-lucide-chevron-down'
+                  : 'i-lucide-chevron-right'
+              "
+              class="size-3.5"
+            />
+            {{ t('INTERNAL_CHAT.SIDEBAR.DIRECTS') }}
+            <span
+              v-if="!isOpen('directs') && directsUnread"
+              class="min-w-[1.25rem] px-1 py-0.5 text-xs font-semibold text-center normal-case rounded-full text-white bg-n-blue-9 tabular-nums"
+            >
+              {{ directsUnread }}
+            </span>
+          </button>
+          <button
+            type="button"
+            class="p-0.5 rounded text-n-slate-10 hover:text-n-slate-12 hover:bg-n-alpha-2"
+            :title="t('INTERNAL_CHAT.SIDEBAR.NEW_CONVERSATION')"
+            @click="emit('newConversation')"
+          >
+            <Icon icon="i-lucide-plus" class="size-4" />
+          </button>
+        </header>
+
+        <template v-if="isOpen('directs')">
+          <button
+            v-for="direct in visibleDirects"
+            :key="direct.id"
+            type="button"
+            class="flex items-center w-full gap-2.5 px-3 py-1.5 text-start"
+            :class="
+              direct.id === activeRoomId
+                ? 'bg-n-alpha-2 text-n-slate-12'
+                : 'hover:bg-n-alpha-1'
+            "
+            @click="emit('select', direct.id)"
+            @contextmenu.prevent="openContextMenu($event, direct)"
+          >
+            <span class="relative flex-shrink-0">
+              <Avatar
+                :name="userFor(direct.userId)?.name || '?'"
+                :src="userFor(direct.userId)?.thumbnail"
+                :size="28"
+              />
+              <span
+                class="absolute bottom-0 size-2.5 rounded-full border-2 border-n-solid-1 end-0"
+                :class="presenceDotClass(userFor(direct.userId)?.status)"
+              />
+            </span>
+
+            <span class="flex flex-col min-w-0 grow">
+              <span class="flex items-baseline justify-between gap-2">
+                <span class="text-sm font-medium truncate text-n-slate-12">
+                  {{ userFor(direct.userId)?.name }}
+                </span>
+                <span
+                  v-if="lastMessage(direct)"
+                  class="flex-shrink-0 text-xs tabular-nums text-n-slate-10"
+                >
+                  {{ shortTime(lastMessage(direct).createdAt) }}
+                </span>
+              </span>
+              <span class="text-xs truncate text-n-slate-10">
+                {{ preview(direct) }}
+              </span>
+            </span>
+
+            <span
+              v-if="direct.unread"
+              class="flex-shrink-0 min-w-[1.25rem] px-1 py-0.5 text-xs font-semibold text-center rounded-full text-white bg-n-blue-9 tabular-nums"
+            >
+              {{ direct.unread }}
+            </span>
+          </button>
+        </template>
       </section>
     </div>
 

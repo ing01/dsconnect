@@ -29,7 +29,10 @@ const montar = (props = {}) =>
   });
 
 const botoesDaLista = wrapper =>
-  wrapper.findAll('section button[type="button"]').filter(b => b.text());
+  wrapper
+    .findAll('section button[type="button"]')
+    // Os titulos das secoes tambem sao botoes (recolher): nao sao salas.
+    .filter(b => b.text() && b.attributes('aria-expanded') === undefined);
 
 describe('ChatSidebar, marcar como nao lida pelo botao direito', () => {
   it('oferece marcar como nao lida na conversa privada e emite a sala', async () => {
@@ -77,7 +80,10 @@ describe('ChatSidebar, excluir pelo botao direito', () => {
       canEdit: true,
       directs: [{ ...DIRECT, id: 6, userId: null }],
     });
-    await botoesDaLista(wrapper)[0].trigger('contextmenu');
+    // Os canais vem primeiro na lista; a conversa sem par e a de avatar "?".
+    await botoesDaLista(wrapper)
+      .find(b => b.text().includes('?'))
+      .trigger('contextmenu');
 
     expect(wrapper.text()).toContain(
       'INTERNAL_CHAT.SIDEBAR.DELETE_CONVERSATION'
