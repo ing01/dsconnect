@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-assign-to-me-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Ticket: botão "Atribuir a mim" ao lado do responsável',
+    description:
+      'Na tela do ticket, ao lado de cada campo de responsável (e de cada nível, nas Mesas com níveis), há o botão "Atribuir a mim". Com um clique você assume o ticket. Ele só aparece se você pode editar o ticket, ainda não é o responsável daquele campo e está habilitado naquele nível. Em tela estreita, o botão desce para a linha de baixo.',
+  },
+  {
     id: 'portal-hides-child-tickets-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

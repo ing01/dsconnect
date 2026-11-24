@@ -1,10 +1,11 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, getCurrentInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { format, parseISO } from 'date-fns';
 import { formatMesaName } from 'dashboard/helper/mesaName';
 import { INBOX_TYPES } from 'dashboard/helper/inbox';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 import TicketSelect from '../TicketSelect.vue';
 import TicketPropertyRow from './TicketPropertyRow.vue';
 
@@ -186,6 +187,22 @@ const onComplexity = value =>
     ticket_complexity_id: value ? Number(value) : null,
   });
 
+// Quem esta logado, lido do store so se ele existir: o card tambem e montado
+// sem store (nos testes), e ai o botao simplesmente nao aparece.
+const instance = getCurrentInstance();
+const currentUserId = computed(
+  () => instance?.proxy?.$store?.getters?.getCurrentUserID ?? null
+);
+
+// "Atribuir a mim" so aparece onde faz sentido: a pessoa pode editar o ticket, ainda
+// nao e a responsavel daquele nivel e esta habilitada nele (a mesma regra que o
+// servidor valida - no Nivel 2 em diante, so quem foi habilitado naquele nivel).
+const canAssignToMe = (level, currentAssigneeId) =>
+  props.canUpdate &&
+  !!currentUserId.value &&
+  currentAssigneeId !== currentUserId.value &&
+  agentsForLevel(level).some(agent => agent.id === currentUserId.value);
+
 const onAssignee = value =>
   emit('updateProperty', { assignee_id: value ? Number(value) : null });
 
@@ -344,25 +361,46 @@ const onCustomListAttribute = (key, text) =>
 
     <!-- Members of the Mesa, not every agent in the account. -->
     <TicketPropertyRow :label="firstAssigneeLabel">
-      <div class="flex items-center gap-2 min-w-0">
-        <Avatar
-          v-if="selectedAgent"
-          :name="selectedAgent.name"
-          :src="selectedAgent.thumbnail"
-          :size="24"
-          rounded-full
-          hide-offline-status
+      <!-- O botao "Atribuir a mim" fica ao lado do seletor e, em tela estreita,
+           desce para a linha de baixo em vez de espremer o nome do responsavel. -->
+      <div class="flex flex-wrap items-center gap-2 min-w-0">
+        <div class="flex items-center flex-1 gap-2 min-w-0 basis-40">
+          <Avatar
+            v-if="selectedAgent"
+            :name="selectedAgent.name"
+            :src="selectedAgent.thumbnail"
+            :size="24"
+            rounded-full
+            hide-offline-status
+            class="flex-shrink-0"
+          />
+          <TicketSelect
+            :model-value="ticket.assignee_id || null"
+            :options="agentOptions"
+            :disabled="!canUpdate"
+            clearable
+            :clear-label="t('TICKET.FORM.ASSIGNEE.NONE')"
+            :placeholder="t('TICKET.FORM.ASSIGNEE.NONE')"
+            :aria-label="firstAssigneeLabel"
+            @update:model-value="onAssignee"
+          />
+        </div>
+        <Button
+          v-if="canAssignToMe(1, ticket.assignee_id)"
+          type="button"
+          variant="faded"
+          color="blue"
+          size="xs"
+          icon="i-lucide-user-check"
           class="flex-shrink-0"
-        />
-        <TicketSelect
-          :model-value="ticket.assignee_id || null"
-          :options="agentOptions"
-          :disabled="!canUpdate"
-          clearable
-          :clear-label="t('TICKET.FORM.ASSIGNEE.NONE')"
-          :placeholder="t('TICKET.FORM.ASSIGNEE.NONE')"
-          :aria-label="firstAssigneeLabel"
-          @update:model-value="onAssignee"
+          data-testid="assign-to-me-1"
+          :label="t('TICKET.FORM.ASSIGNEE.ASSIGN_TO_ME')"
+          :title="
+            t('TICKET.FORM.ASSIGNEE.ASSIGN_TO_ME_TITLE', {
+              label: firstAssigneeLabel,
+            })
+          "
+          @click="onAssignee(currentUserId)"
         />
       </div>
       <p v-if="!agents.length" class="text-xs text-n-slate-10">
@@ -377,25 +415,42 @@ const onCustomListAttribute = (key, text) =>
       :key="row.level"
       :label="row.label"
     >
-      <div class="flex items-center gap-2 min-w-0">
-        <Avatar
-          v-if="row.selected"
-          :name="row.selected.name"
-          :src="row.selected.thumbnail"
-          :size="24"
-          rounded-full
-          hide-offline-status
+      <div class="flex flex-wrap items-center gap-2 min-w-0">
+        <div class="flex items-center flex-1 gap-2 min-w-0 basis-40">
+          <Avatar
+            v-if="row.selected"
+            :name="row.selected.name"
+            :src="row.selected.thumbnail"
+            :size="24"
+            rounded-full
+            hide-offline-status
+            class="flex-shrink-0"
+          />
+          <TicketSelect
+            :model-value="row.value"
+            :options="row.options"
+            :disabled="!canUpdate"
+            clearable
+            :clear-label="t('TICKET.FORM.ASSIGNEE.NONE')"
+            :placeholder="t('TICKET.FORM.ASSIGNEE.NONE')"
+            :aria-label="row.label"
+            @update:model-value="value => onLevelAssignee(row.level, value)"
+          />
+        </div>
+        <Button
+          v-if="canAssignToMe(row.level, row.value)"
+          type="button"
+          variant="faded"
+          color="blue"
+          size="xs"
+          icon="i-lucide-user-check"
           class="flex-shrink-0"
-        />
-        <TicketSelect
-          :model-value="row.value"
-          :options="row.options"
-          :disabled="!canUpdate"
-          clearable
-          :clear-label="t('TICKET.FORM.ASSIGNEE.NONE')"
-          :placeholder="t('TICKET.FORM.ASSIGNEE.NONE')"
-          :aria-label="row.label"
-          @update:model-value="value => onLevelAssignee(row.level, value)"
+          :data-testid="`assign-to-me-${row.level}`"
+          :label="t('TICKET.FORM.ASSIGNEE.ASSIGN_TO_ME')"
+          :title="
+            t('TICKET.FORM.ASSIGNEE.ASSIGN_TO_ME_TITLE', { label: row.label })
+          "
+          @click="onLevelAssignee(row.level, currentUserId)"
         />
       </div>
       <p v-if="!row.options.length" class="text-xs text-n-slate-10">

@@ -162,7 +162,9 @@
         "LABEL": "Assignee",
         "NONE": "Unassigned",
         "LEVEL": "Assignee {level}",
-        "NO_LEVEL_MEMBERS": "No member is enabled for this level."
+        "NO_LEVEL_MEMBERS": "No member is enabled for this level.",
+        "ASSIGN_TO_ME": "Assign to me",
+        "ASSIGN_TO_ME_TITLE": "Take over as {label}"
       },
       "TEAM": {
         "LABEL": "Mesa",

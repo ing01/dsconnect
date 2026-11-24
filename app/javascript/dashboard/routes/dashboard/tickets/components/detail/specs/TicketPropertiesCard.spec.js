@@ -28,11 +28,15 @@ const agents = [
   { id: 10, name: 'Bruno', thumbnail: '' },
 ];
 
-const mountCard = (props = {}) =>
+// `me` e o id de quem esta logado (o store entra como mock, so no que o card le).
+const mountCard = ({ me = null, ...props } = {}) =>
   mount(TicketPropertiesCard, {
     props: { ticket: ticket(), columns, categories, agents, ...props },
     global: {
-      mocks: { $t: key => key },
+      mocks: {
+        $t: key => key,
+        $store: { getters: { getCurrentUserID: me } },
+      },
       stubs: {
         Avatar: true,
         // Espelha o contrato do TicketSelect, o seletor padrao do modulo: cada
@@ -105,6 +109,53 @@ const optionsOf = (wrapper, label) =>
     .findAll('button')
     .filter(button => button.attributes('data-value') !== '')
     .map(button => button.text());
+
+describe('TicketPropertiesCard - atribuir a mim', () => {
+  const botao = (wrapper, level = 1) =>
+    wrapper.find(`[data-testid="assign-to-me-${level}"]`);
+
+  it('atribui o ticket a quem esta logado', async () => {
+    const wrapper = mountCard({ me: 10 });
+
+    await botao(wrapper).trigger('click');
+
+    expect(wrapper.emitted('updateProperty')).toEqual([[{ assignee_id: 10 }]]);
+  });
+
+  it('nao aparece quando a pessoa ja e a responsavel', () => {
+    const wrapper = mountCard({ me: 10, ticket: ticket({ assignee_id: 10 }) });
+
+    expect(botao(wrapper).exists()).toBe(false);
+  });
+
+  it('nao aparece para quem nao e membro da Mesa', () => {
+    expect(botao(mountCard({ me: 99 })).exists()).toBe(false);
+  });
+
+  it('nao aparece sem permissao para editar nem sem usuario logado', () => {
+    expect(botao(mountCard({ me: 10, canUpdate: false })).exists()).toBe(false);
+    expect(botao(mountCard({ me: null })).exists()).toBe(false);
+  });
+
+  it('em Mesa com niveis, so aparece nos niveis em que a pessoa esta habilitada', async () => {
+    const wrapper = mountCard({
+      me: 10,
+      usesAssigneeLevels: true,
+      assigneeLevels: [1, 2],
+      agents: [
+        { id: 9, name: 'Ana', thumbnail: '', levels: [1] },
+        { id: 10, name: 'Bruno', thumbnail: '', levels: [2] },
+      ],
+    });
+
+    expect(botao(wrapper, 1).exists()).toBe(false);
+    await botao(wrapper, 2).trigger('click');
+
+    expect(wrapper.emitted('updateProperty')).toEqual([
+      [{ assignee_2_id: 10 }],
+    ]);
+  });
+});
 
 describe('TicketPropertiesCard', () => {
   it('shows the Mesa read-only, capitalized', () => {

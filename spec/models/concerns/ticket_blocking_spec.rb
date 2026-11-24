@@ -287,11 +287,11 @@ RSpec.describe TicketBlocking do
         expect(parent.reload).not_to be_blocked
       end
 
-      it 'frees the parent from a parent unblock without freeing the child' do
+      it 'frees the child too when the parent is unblocked' do
         parent.unblock!(user, resolution: 'Liberado no pai')
 
         expect(parent.reload).not_to be_blocked
-        expect(child.reload).to be_blocked
+        expect(child.reload).not_to be_blocked
       end
     end
   end

@@ -171,7 +171,9 @@ RSpec.describe 'Client Area', type: :request do
       end
 
       it 'keeps the parent visible after it is moved to a team outside the portal' do
-        pai.update!(team: mesa_dev, ticket_column: coluna_dev)
+        # Mesa interna comum (ex.: Especialista): fora do Portal, sem Modulo de Desenvolvimento.
+        interna = create(:team, account: account, visible_in_portal: false, development_module_enabled: false)
+        pai.update!(team: interna, ticket_column: create(:ticket_column, team: interna, position: 0))
 
         expect(ids_da_lista).to include(pai.id)
       end

@@ -166,7 +166,9 @@
         "LABEL": "Responsável",
         "NONE": "Ninguém",
         "LEVEL": "Responsável {level}",
-        "NO_LEVEL_MEMBERS": "Nenhum membro habilitado neste nível."
+        "NO_LEVEL_MEMBERS": "Nenhum membro habilitado neste nível.",
+        "ASSIGN_TO_ME": "Atribuir a mim",
+        "ASSIGN_TO_ME_TITLE": "Assumir como {label}"
       },
       "TEAM": {
         "LABEL": "Mesa de Serviço",
