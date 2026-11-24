@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'app-tutorial-video-in-app-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'mobile',
+    type: 'improvement',
+    title: 'App: tutoriais tocam dentro do app',
+    description:
+      'Ao tocar em "Assistir vídeo" na aba Tutoriais, o vídeo agora abre numa tela do próprio app, com controles de pausar, avançar e tela cheia. Antes o arquivo era baixado ou aberto fora do app. Vale para vídeos do YouTube, do Vimeo e para os arquivos enviados pela equipe.',
+  },
+  {
     id: 'ticket-communication-full-text-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

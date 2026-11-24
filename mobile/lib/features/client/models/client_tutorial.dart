@@ -37,6 +37,10 @@ class ClientTutorial {
   // O arquivo enviado tem prioridade sobre o link (o servidor nunca guarda os dois).
   String? get videoAddress => videoFileUrl ?? videoUrl;
 
+  // Como o video toca, igual a Area do Cliente (helper/tutorialVideo.js): YouTube e Vimeo viram
+  // player embutido; qualquer outro endereco e' tratado como arquivo de video.
+  TutorialVideoSource? get videoSource => TutorialVideoSource.resolve(videoAddress);
+
   factory ClientTutorial.fromJson(Map<String, dynamic> json) => ClientTutorial(
         id: json['id'] as int,
         title: (json['title'] as String?) ?? '',
@@ -45,6 +49,32 @@ class ClientTutorial {
         videoUrl: _blankToNull(json['video_url'] as String?),
         videoFileUrl: _blankToNull(json['video_file_url'] as String?),
       );
+}
+
+class TutorialVideoSource {
+  const TutorialVideoSource({required this.address, required this.embedded});
+
+  // Endereco a tocar: pagina de embed (YouTube/Vimeo) ou o arquivo em si.
+  final String address;
+  final bool embedded;
+
+  static final _youtube = RegExp(r'(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/)|youtu\.be/)([\w-]{11})');
+  static final _vimeo = RegExp(r'vimeo\.com/(?:video/)?(\d+)');
+
+  static TutorialVideoSource? resolve(String? url) {
+    final value = url?.trim() ?? '';
+    if (value.isEmpty) return null;
+
+    final youtube = _youtube.firstMatch(value);
+    if (youtube != null) {
+      return TutorialVideoSource(address: 'https://www.youtube.com/embed/${youtube.group(1)}', embedded: true);
+    }
+    final vimeo = _vimeo.firstMatch(value);
+    if (vimeo != null) {
+      return TutorialVideoSource(address: 'https://player.vimeo.com/video/${vimeo.group(1)}', embedded: true);
+    }
+    return TutorialVideoSource(address: value, embedded: false);
+  }
 }
 
 class TutorialCard {
