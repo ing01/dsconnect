@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'agenda-color-follows-assignee-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Agenda: a cor segue o responsável atribuído',
+    description:
+      'Na Agenda, a cor do evento agora é a da pessoa atribuída (o participante), e não a de quem criou. Se um gestor agenda algo para outra pessoa, o evento aparece na cor dela. Com mais de um participante, vale o de menor cadastro, para a cor não mudar de um momento para o outro; sem participantes, segue quem criou, como antes.',
+  },
+  {
+    id: 'ticket-creator-opens-chat-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Ticket: clique no nome de quem criou para abrir o chat interno',
+    description:
+      'No cartão "Origem" do ticket, o nome em "Criado por" agora é um link: ao clicar, o Chat interno abre direto na conversa com a pessoa (e cria a conversa se ainda não existir). Quando o ticket foi criado por você mesmo, o nome continua só como texto.',
+  },
+  {
     id: 'app-session-expired-relogin-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',
