@@ -162,14 +162,24 @@ const beep = () => {
   }
 };
 
-// O título da aba avisa o vermelho mesmo com o painel em segundo plano, e o som
-// toca quando MAIS conversas entram no vermelho.
+// O título da aba avisa o vermelho mesmo com o painel em segundo plano. O som
+// toca em duas situações: alguém entra na fila (um bipe) e cresce o número de
+// "esperando há muito tempo" (dois bipes, para distinguir).
 const originalTitle = document.title;
 watch(
-  () => counts.value.red,
-  (red, previous) => {
+  () => [counts.value.unassigned, counts.value.red],
+  ([unassigned, red], previous) => {
     document.title = red > 0 ? `🔴 ${red} · ${originalTitle}` : originalTitle;
-    if (isSoundEnabled.value && previous !== undefined && red > previous) {
+    if (!isSoundEnabled.value || !previous) return;
+
+    const [previousUnassigned, previousRed] = previous;
+    if (previousRed !== undefined && red > previousRed) {
+      beep();
+      setTimeout(beep, 450);
+    } else if (
+      previousUnassigned !== undefined &&
+      unassigned > previousUnassigned
+    ) {
       beep();
     }
   }

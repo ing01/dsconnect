@@ -73,7 +73,7 @@
       "SECONDS": "seconds",
       "LIST_LIMIT": "Conversations per list",
       "LIST_LIMIT_HELP": "How many conversations each card shows when opened.",
-      "SOUND": "Play a sound when a conversation enters red (each person can turn it on or off in the panel)",
+      "SOUND": "Play a sound when someone enters the queue or the number of long-waiting conversations grows (each person can turn it on or off in the panel)",
       "PREVIEW": "With these times, right now there would be:",
       "PREVIEW_ERROR": "Could not calculate the preview right now.",
       "SAVE": "Save",

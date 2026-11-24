@@ -10,11 +10,6 @@ class Api::V2::Accounts::ConversationPanelController < Api::V1::Accounts::BaseCo
     end
 
     render json: payload
-  rescue StandardError => e
-    # Diagnostico (remover depois de estabilizar): so chega aqui quem ja passou
-    # na autorizacao, entao devolve o motivo real em vez de um 500 mudo.
-    Rails.logger.error("[ConversationPanel] #{e.class}: #{e.message}\n#{e.backtrace.first(8).join("\n")}")
-    render json: { error: "#{e.class}: #{e.message}", where: e.backtrace.first(5) }, status: :internal_server_error
   end
 
   private
