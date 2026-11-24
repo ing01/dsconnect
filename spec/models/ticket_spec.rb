@@ -138,6 +138,38 @@ RSpec.describe Ticket do
       expect([resolvido, encerrado].map { |ticket| ticket.reload.pending_triage }).to eq([false, false])
     end
 
+    context 'when a person forwards the ticket outside "Abrir e encaminhar"' do
+      let(:agent) { create(:user) }
+      let(:ticket) { create(:ticket, pending_triage: true) }
+      let(:other_column) { create(:ticket_column, team: ticket.team) }
+
+      after { Current.reset }
+
+      it 'mudar o Estagio o tira da fila e registra quem decidiu' do
+        Current.user = agent
+
+        ticket.update!(ticket_column: other_column)
+
+        expect(ticket.reload).to have_attributes(pending_triage: false, triaged_by: agent)
+        expect(ticket.triaged_at).to be_present
+      end
+
+      it 'mudar a Mesa o tira da fila' do
+        Current.user = agent
+        other_team = create(:team, account: ticket.account)
+
+        ticket.update!(team: other_team, ticket_column: create(:ticket_column, team: other_team))
+
+        expect(ticket.reload.pending_triage).to be(false)
+      end
+
+      it 'sem pessoa (automacao, job) o chamado continua na fila' do
+        ticket.update!(ticket_column: other_column)
+
+        expect(ticket.reload.pending_triage).to be(true)
+      end
+    end
+
     it 'um ticket aberto continua na fila' do
       ticket = create(:ticket, pending_triage: true)
 

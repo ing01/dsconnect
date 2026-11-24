@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'triage-forwarded-leaves-queue-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Chamado encaminhado pela tela do ticket sai da Triagem',
+    description:
+      'Quando alguém mudava a Mesa ou o Estágio de um chamado pela tela do ticket (ou movia no Kanban, ou transferia) em vez de usar "Abrir e encaminhar", o chamado seguia para o lugar escolhido mas continuava parado na fila da Triagem. Agora, encaminhar por qualquer um desses caminhos já tira o chamado da Triagem e registra quem decidiu.',
+  },
+  {
     id: 'app-tutorial-video-in-app-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

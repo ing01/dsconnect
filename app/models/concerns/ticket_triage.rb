@@ -22,6 +22,13 @@ module TicketTriage
     # novo nao faz nada, e o contador do menu nunca zera.
     before_save :leave_triage_queue, if: -> { pending_triage? && !open? }
 
+    # Encaminhar o chamado por OUTRO caminho (mudar a Mesa ou o Estagio na tela do
+    # ticket, mover no Kanban, transferir) tambem e' a decisao da triagem: sem isto o
+    # chamado ia para onde a pessoa mandou e continuava parado na fila, esperando uma
+    # aprovacao que ja' tinha acontecido. So vale para uma PESSOA mexendo (Current.user):
+    # a automacao e os jobs mexem em chamados em triagem sem decidir nada.
+    before_update :leave_triage_queue_when_forwarded, if: :forwarded_by_person?
+
     scope :pending_triage, -> { where(pending_triage: true) }
     # O que ja pode andar no Kanban da equipe. O quadro usa este escopo: um
     # chamado em triagem ainda nao foi aceito por ninguem, e aparecer entre os
@@ -52,6 +59,16 @@ module TicketTriage
   def leave_triage_queue
     self.pending_triage = false
     self.triaged_at ||= Time.current
+  end
+
+  def forwarded_by_person?
+    pending_triage? && open? && Current.user.present? &&
+      (will_save_change_to_team_id? || will_save_change_to_ticket_column_id?)
+  end
+
+  def leave_triage_queue_when_forwarded
+    leave_triage_queue
+    self.triaged_by ||= Current.user
   end
 
   def notify_triage_queue
