@@ -1,4 +1,9 @@
 {
+  "PASSWORD_RULES": {
+    "TITLE": "A senha precisa ter:",
+    "EXAMPLE": "Caracteres especiais aceitos, por exemplo: ! @ # $ % & *",
+    "SUMMARY": "A senha precisa ter ao menos 6 caracteres, com letra maiúscula, letra minúscula, número e caractere especial (ex.: !@#$%)."
+  },
   "PROFILE_SETTINGS": {
     "LINK": "Configurações do Perfil",
     "TITLE": "Configurações do Perfil",
@@ -253,7 +258,7 @@
       },
       "PASSWORD": {
         "LABEL": "Nova senha",
-        "ERROR": "Por favor, digite uma senha de comprimento 6 ou mais",
+        "ERROR": "A senha precisa ter ao menos 6 caracteres, com letra maiúscula, letra minúscula, número e caractere especial (ex.: !@#$%).",
         "PLACEHOLDER": "Por favor, digite uma nova senha"
       },
       "PASSWORD_CONFIRMATION": {

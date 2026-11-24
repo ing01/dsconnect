@@ -1,6 +1,8 @@
 <script>
 import { useVuelidate } from '@vuelidate/core';
 import { required, minLength } from '@vuelidate/validators';
+import { isValidPassword } from 'shared/helpers/Validators';
+import PasswordRulesChecklist from 'dashboard/components-next/input/PasswordRulesChecklist.vue';
 import { useAlert } from 'dashboard/composables';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -8,6 +10,7 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 export default {
   components: {
     NextButton,
+    PasswordRulesChecklist,
   },
   setup() {
     return { v$: useVuelidate() };
@@ -32,7 +35,9 @@ export default {
       required,
     },
     password: {
+      required,
       minLength: minLength(6),
+      isValidPassword,
     },
     passwordConfirmation: {
       minLength: minLength(6),
@@ -111,6 +116,7 @@ export default {
         @input="v$.password.$touch"
         @blur="v$.password.$touch"
       />
+      <PasswordRulesChecklist :password="password" />
 
       <woot-input
         v-model="passwordConfirmation"

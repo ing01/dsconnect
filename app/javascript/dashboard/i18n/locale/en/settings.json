@@ -1,4 +1,9 @@
 {
+  "PASSWORD_RULES": {
+    "TITLE": "The password needs:",
+    "EXAMPLE": "Accepted special characters, for example: ! @ # $ % & *",
+    "SUMMARY": "The password needs at least 6 characters, with an uppercase letter, a lowercase letter, a number and a special character (e.g. !@#$%)."
+  },
   "PROFILE_SETTINGS": {
     "LINK": "Profile Settings",
     "TITLE": "Profile Settings",
@@ -251,7 +256,7 @@
       },
       "PASSWORD": {
         "LABEL": "New password",
-        "ERROR": "Please enter a password of length 6 or more",
+        "ERROR": "The password needs at least 6 characters, with an uppercase letter, a lowercase letter, a number and a special character (e.g. !@#$%).",
         "PLACEHOLDER": "Please enter a new password"
       },
       "PASSWORD_CONFIRMATION": {

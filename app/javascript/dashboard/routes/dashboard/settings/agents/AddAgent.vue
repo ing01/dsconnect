@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useVuelidate } from '@vuelidate/core';
 import { required, email, minLength } from '@vuelidate/validators';
+import { isValidPassword } from 'shared/helpers/Validators';
+import PasswordRulesChecklist from 'dashboard/components-next/input/PasswordRulesChecklist.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 
 const emit = defineEmits(['close']);
@@ -17,13 +19,12 @@ const agentEmail = ref('');
 const agentPassword = ref('');
 const selectedRoleId = ref('agent');
 
-// O servidor recusa senha fraca (Devise, `password_has_required_content`); aqui
-// so o comprimento e checado, para o erro aparecer antes do envio em vez de
-// voltar do servidor.
+// Mesma regra do servidor (Devise): 6+ caracteres com maiuscula, minuscula,
+// numero e caractere especial. Validar aqui evita o erro generico do servidor.
 const rules = {
   agentName: { required },
   agentEmail: { required, email },
-  agentPassword: { required, minLength: minLength(8) },
+  agentPassword: { required, minLength: minLength(6), isValidPassword },
   selectedRoleId: { required },
 };
 
@@ -170,6 +171,7 @@ const addAgent = async () => {
             {{ $t('AGENT_MGMT.ADD.FORM.PASSWORD.ERROR') }}
           </span>
         </label>
+        <PasswordRulesChecklist :password="agentPassword" />
       </div>
 
       <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">

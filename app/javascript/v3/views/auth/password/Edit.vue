@@ -7,13 +7,13 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import { DEFAULT_REDIRECT_URL } from 'dashboard/constants/globals';
 import { setNewPassword } from '../../../api/auth';
 import { isValidPassword } from 'shared/helpers/Validators';
-import PasswordRequirements from '../signup/components/Signup/PasswordRequirements.vue';
+import PasswordRulesChecklist from 'dashboard/components-next/input/PasswordRulesChecklist.vue';
 
 export default {
   components: {
     FormInput,
     NextButton,
-    PasswordRequirements,
+    PasswordRulesChecklist,
   },
   props: {
     resetPasswordToken: { type: String, default: '' },
@@ -120,19 +120,10 @@ export default {
               v$.credentials.password.$touch();
             "
           />
-          <Transition
-            enter-active-class="transition duration-200 ease-out origin-left"
-            enter-from-class="opacity-0 scale-90 translate-x-1"
-            enter-to-class="opacity-100 scale-100 translate-x-0"
-            leave-active-class="transition duration-150 ease-in origin-left"
-            leave-from-class="opacity-100 scale-100 translate-x-0"
-            leave-to-class="opacity-0 scale-90 translate-x-1"
-          >
-            <PasswordRequirements
-              v-if="isPasswordFocused"
-              :password="credentials.password"
-            />
-          </Transition>
+          <PasswordRulesChecklist
+            class="mt-3"
+            :password="credentials.password"
+          />
         </div>
         <FormInput
           v-model="credentials.confirmPassword"

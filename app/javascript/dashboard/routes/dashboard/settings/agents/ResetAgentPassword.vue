@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useVuelidate } from '@vuelidate/core';
 import { required, minLength, helpers } from '@vuelidate/validators';
+import PasswordRulesChecklist from 'dashboard/components-next/input/PasswordRulesChecklist.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
@@ -20,7 +21,7 @@ const password = ref('');
 const isSaving = ref(false);
 
 // Mesma regra do servidor (Devise: config/initializers/secure_password.rb):
-// 8+ caracteres com maiuscula, minuscula, numero e caractere especial. Validar
+// 6+ caracteres com maiuscula, minuscula, numero e caractere especial. Validar
 // aqui evita o envio e mostra a regra completa em vez de um erro generico.
 const hasRequiredContent = value =>
   /[A-Z]/.test(value) &&
@@ -32,7 +33,7 @@ const v$ = useVuelidate(
   {
     password: {
       required,
-      minLength: minLength(8),
+      minLength: minLength(6),
       content: helpers.withMessage('', hasRequiredContent),
     },
   },
@@ -88,6 +89,7 @@ const submit = async () => {
             {{ $t('AGENT_MGMT.RESET_PASSWORD.FORM.PASSWORD.ERROR') }}
           </span>
         </label>
+        <PasswordRulesChecklist :password="password" />
       </div>
 
       <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">

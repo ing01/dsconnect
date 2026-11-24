@@ -78,7 +78,7 @@ export default {
     ...teams.routes,
     ...queues.routes,
     ...conversationFlows.routes,
-      ...ticketSettings.routes,
+    ...ticketSettings.routes,
     ...projectSettings.routes,
     ...formSettings.routes,
     ...suggestionColumnSettings.routes,

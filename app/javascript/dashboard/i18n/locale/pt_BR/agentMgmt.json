@@ -44,7 +44,7 @@
         "PASSWORD": {
           "LABEL": "Senha de acesso",
           "PLACEHOLDER": "Defina a senha do agente",
-          "ERROR": "Informe uma senha com ao menos 8 caracteres"
+          "ERROR": "A senha precisa ter ao menos 6 caracteres, com letra maiúscula, letra minúscula, número e caractere especial (ex.: !@#$%)."
         }
       },
       "API": {
@@ -147,7 +147,7 @@
         "PASSWORD": {
           "LABEL": "Nova senha",
           "PLACEHOLDER": "Digite a nova senha",
-          "ERROR": "A senha precisa ter ao menos 8 caracteres, com letra maiúscula, letra minúscula, número e caractere especial (ex.: !@#$%)"
+          "ERROR": "A senha precisa ter ao menos 6 caracteres, com letra maiúscula, letra minúscula, número e caractere especial (ex.: !@#$%)."
         }
       },
       "API": {
