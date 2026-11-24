@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/widgets/bordered_card.dart';
+import 'client_tutorial_player_screen.dart';
 import 'models/client_tutorial.dart';
 import 'providers/client_providers.dart';
 
 // A aba "Tutoriais": os modulos (DS Connect, DS Comercial...) aparecem como cards; ao tocar, abrem os
 // videos de dentro. Tudo e' cadastrado pela equipe em Configuracoes > Tutoriais do Portal; so os
 // ativos chegam, na ordem definida pelo administrador. Sem nenhum modulo, a lista de videos aparece
-// direto. O video abre no player do aparelho (YouTube/Vimeo no app ou no navegador).
+// direto. O video toca dentro do app (ClientTutorialPlayerScreen).
 class ClientTutorialsScreen extends ConsumerStatefulWidget {
   const ClientTutorialsScreen({super.key});
 
@@ -155,22 +155,11 @@ class _TutorialTile extends StatelessWidget {
 
   final ClientTutorial tutorial;
 
-  Future<void> _watch(BuildContext context) async {
-    final address = tutorial.videoAddress;
-    final uri = address == null ? null : Uri.tryParse(address);
-    var opened = false;
-    if (uri != null) {
-      try {
-        opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } catch (_) {
-        opened = false;
-      }
-    }
-    if (!opened && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não foi possível abrir o vídeo.')),
-      );
-    }
+  // O video toca numa tela do proprio app (nada de baixar ou sair para o navegador).
+  void _watch(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => ClientTutorialPlayerScreen(tutorial: tutorial)),
+    );
   }
 
   @override
