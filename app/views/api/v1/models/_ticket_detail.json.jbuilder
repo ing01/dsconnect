@@ -134,6 +134,10 @@ else
   json.service_catalog_item nil
 end
 
+# So o NUMERO dos comentarios internos: a lista em si e' lida pela aba. E' o que
+# deixa a aba "Comunicacao" mostrar a contagem sem precisar ser aberta.
+json.internal_comments_count resource.ticket_comments.size
+
 json.customer_communications resource.ticket_customer_communications.sort_by(&:id).reverse do |communication|
   json.partial! 'api/v1/models/ticket_customer_communication', formats: [:json], resource: communication
 end

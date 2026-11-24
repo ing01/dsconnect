@@ -78,6 +78,27 @@ RSpec.describe 'Ticket detail payload', type: :request do
     end
   end
 
+  # O numero ao lado de "Comunicacao": a aba mostra a contagem sem precisar abrir.
+  describe 'internal_comments_count' do
+    def comment!(text)
+      ticket.ticket_comments.create!(account_id: account.id, user: agent, content: text)
+    end
+
+    it 'counts the internal comments of the ticket' do
+      comment!('um')
+      comment!('dois')
+
+      expect(show_ticket['internal_comments_count']).to eq(2)
+    end
+
+    it 'is zero without comments and ignores the comments of other tickets' do
+      outro = create(:ticket, account: account, ticket_column: ticket_column, team: team)
+      outro.ticket_comments.create!(account_id: account.id, user: agent, content: 'de outro')
+
+      expect(show_ticket['internal_comments_count']).to eq(0)
+    end
+  end
+
   describe 'can_update' do
     it 'is true for an administrator' do
       expect(show_ticket(as: administrator)['can_update']).to be(true)

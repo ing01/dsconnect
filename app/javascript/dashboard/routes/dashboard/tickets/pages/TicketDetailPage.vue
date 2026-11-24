@@ -2,12 +2,13 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { useMapGetter } from 'dashboard/composables/store';
+import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import { useTicketDetail } from '../composables/useTicketDetail';
 import { lastTicketListFor } from '../helpers/lastTicketList';
+import { communicationCount } from '../helpers/communicationCount';
 import TicketDetailHeader from '../components/detail/TicketDetailHeader.vue';
 import TicketOverviewTab from '../components/detail/TicketOverviewTab.vue';
 import TicketCommunicationTab from '../components/detail/TicketCommunicationTab.vue';
@@ -70,6 +71,7 @@ const {
 } = useTicketDetail(ticketId);
 
 const currentUser = useMapGetter('getCurrentUser');
+const store = useStore();
 
 const titleDialog = ref(null);
 const companyDialog = ref(null);
@@ -150,9 +152,18 @@ const activeTab = ref(
 const isSavingDescription = ref(false);
 const isSavingObservation = ref(false);
 
+// Comentarios internos ja carregados na store (a aba foi aberta): mandam no numero.
+const storedComments = computed(() =>
+  ticket.value ? store.state.tickets?.comments?.[ticket.value.id] : undefined
+);
+
 const tabs = computed(() => [
   { value: 'overview', label: t('TICKET.DETAIL.TABS.OVERVIEW') },
-  { value: 'communication', label: t('TICKET.DETAIL.TABS.COMMUNICATION') },
+  {
+    value: 'communication',
+    label: t('TICKET.DETAIL.TABS.COMMUNICATION'),
+    count: communicationCount(ticket.value, storedComments.value),
+  },
   { value: 'appointments', label: t('TICKET.DETAIL.TABS.APPOINTMENTS') },
   { value: 'checklists', label: t('TICKET.DETAIL.TABS.CHECKLISTS') },
   { value: 'time_entries', label: t('TICKET.DETAIL.TABS.TIME_ENTRIES') },

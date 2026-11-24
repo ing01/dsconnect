@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-communication-count-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Ticket: a aba Comunicação mostra a quantidade',
+    description:
+      'Na tela do ticket, a aba Comunicação agora mostra quantas comunicações existem, por exemplo "Comunicação (2)". O número soma os comentários internos e as mensagens trocadas com o cliente, e já aparece sem abrir a aba. Ao comentar ou apagar um comentário, ele se atualiza na hora.',
+  },
+  {
     id: 'ticket-assign-to-me-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',
