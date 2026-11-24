@@ -56,6 +56,46 @@ RSpec.describe 'Ticket actions', type: :request do
     let(:other_team) { create(:team, account: account) }
     let(:other_column) { create(:ticket_column, team: other_team) }
 
+    # Suporte atende em dois niveis e a Mesa de destino nao usa niveis: o segundo
+    # responsavel nao pode travar a transferencia nem ser perdido.
+    context 'when the ticket has a second-level assignee and the new Mesa has no levels' do
+      let(:second) { create(:user, account: account, role: :agent) }
+      let(:team) { create(:team, account: account, assignee_levels_enabled: true, assignee_levels_count: 2) }
+
+      before do
+        team.add_members([agent.id, second.id])
+        team.team_members.each { |member| member.update!(levels: [1, 2]) }
+        ticket.update!(assignee: agent, assignee_2: second)
+      end
+
+      it 'transfers, keeps the first assignee and turns the second into a follower' do
+        act(:transfer, ticket, { ticket: { team_id: other_team.id, ticket_column_id: other_column.id } })
+
+        expect(response).to have_http_status(:success)
+        ticket.reload
+        expect(ticket.team_id).to eq(other_team.id)
+        expect(ticket.assignee_id).to eq(agent.id)
+        expect(ticket.assignee_2_id).to be_nil
+        expect(ticket.followers).to include(second)
+      end
+
+      it 'does not duplicate a follower that already follows the ticket' do
+        ticket.ticket_followers.create!(user_id: second.id)
+
+        act(:transfer, ticket, { ticket: { team_id: other_team.id, ticket_column_id: other_column.id } })
+
+        expect(ticket.ticket_followers.where(user_id: second.id).count).to eq(1)
+      end
+
+      it 'also keeps them when the ticket is dragged to the other Mesa' do
+        act(:move, ticket, { ticket_column_id: other_column.id })
+
+        expect(response).to have_http_status(:success)
+        expect(ticket.reload.assignee_2_id).to be_nil
+        expect(ticket.followers).to include(second)
+      end
+    end
+
     it 'moves Mesa, Estagio, prioridade and responsavel together' do
       other_team.add_members([agent.id])
 

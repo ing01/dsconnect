@@ -24,7 +24,18 @@ export const colorForAgent = agentId => {
   return EVENT_COLOR_OPTIONS[index];
 };
 
-// The color an event should render with - keyed off whoever created it,
-// since that's the one single-valued "owner" every event always has
-// (attendees can be empty or many).
-export const colorForEvent = event => colorForAgent(event.created_by_id);
+// Whose color an event carries: the person it is ASSIGNED to - its attendee -
+// and not whoever happened to create it (a manager scheduling a task for
+// someone else would otherwise paint it in their own color). With several
+// attendees the lowest id wins, so the color never flips between renders;
+// with none (or a payload without the list) the creator is the fallback, the one
+// single-valued owner every event always has.
+export const ownerIdOfEvent = event => {
+  const ids = (event.attendees || [])
+    .map(attendee => Number(attendee.id))
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+  return ids[0] ?? event.created_by_id;
+};
+
+export const colorForEvent = event => colorForAgent(ownerIdOfEvent(event));

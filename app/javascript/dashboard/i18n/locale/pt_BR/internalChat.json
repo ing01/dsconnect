@@ -83,7 +83,8 @@
     "NEW_CONVERSATION": {
       "TITLE": "Nova conversa",
       "SEARCH": "Buscar um colega",
-      "EMPTY": "Ninguém encontrado."
+      "EMPTY": "Ninguém encontrado.",
+      "OPEN_ERROR": "Não foi possível abrir a conversa."
     },
     "CREATE_CHANNEL": {
       "TITLE": "Criar canal",

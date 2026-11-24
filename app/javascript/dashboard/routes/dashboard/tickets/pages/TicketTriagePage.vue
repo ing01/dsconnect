@@ -258,7 +258,13 @@ onMounted(async () => {
         t('TICKET.TRIAGE.SUMMARY.TITLE', { number: ticketResumo?.display_id })
       "
     >
-      <div v-if="ticketResumo" class="flex flex-col gap-3 min-w-0">
+      <!-- Descricao grande rola AQUI dentro: o titulo e os botoes de baixo ficam
+           sempre a vista. Sem o limite, o dialogo crescia alem da tela e o
+           "Abrir e encaminhar" ficava inalcancavel. -->
+      <div
+        v-if="ticketResumo"
+        class="flex flex-col gap-3 min-w-0 max-h-[60vh] overflow-y-auto pe-2"
+      >
         <div class="flex flex-wrap items-center gap-2 min-w-0">
           <span class="text-sm font-medium text-n-slate-12">
             {{ ticketResumo.title }}
@@ -291,7 +297,7 @@ onMounted(async () => {
         </span>
         <p
           v-if="ticketResumo.description"
-          class="m-0 text-sm whitespace-pre-wrap text-n-slate-12"
+          class="m-0 text-sm break-words whitespace-pre-wrap text-n-slate-12"
         >
           {{ ticketResumo.description }}
         </p>

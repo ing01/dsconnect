@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import { useMapGetter } from 'dashboard/composables/store';
 import { frontendURL } from 'dashboard/helper/URLHelper';
 import Button from 'dashboard/components-next/button/Button.vue';
 import { INBOX_TYPES } from 'dashboard/helper/inbox';
@@ -52,6 +53,22 @@ const createdAt = computed(() =>
     : '—'
 );
 
+const currentUserId = useMapGetter('getCurrentUserID');
+
+const canChatWithCreator = computed(
+  () =>
+    !!props.ticket.created_by?.id &&
+    props.ticket.created_by.id !== currentUserId.value
+);
+
+// Abre o Chat interno ja na conversa direta com quem criou o ticket.
+const openChatWithCreator = () => {
+  router.push({
+    path: frontendURL(`accounts/${route.params.accountId}/internal-chat`),
+    query: { user: props.ticket.created_by.id },
+  });
+};
+
 // The dashboard resolves conversations by `display_id`, not the primary key -
 // navigating with `id` lands on someone else's conversation.
 const openConversation = () => {
@@ -86,7 +103,20 @@ const openConversation = () => {
       v-if="ticket.created_by"
       :label="t('TICKET.DETAIL.ORIGIN.CREATED_BY')"
     >
-      <span class="text-sm text-n-slate-12 truncate">
+      <!-- O nome abre o Chat interno direto com a pessoa. Para quem criou o
+           proprio ticket nao ha com quem falar: fica texto. -->
+      <button
+        v-if="canChatWithCreator"
+        type="button"
+        class="text-sm truncate text-n-brand hover:underline text-start"
+        :title="
+          t('TICKET.DETAIL.ORIGIN.CHAT_WITH', { name: ticket.created_by.name })
+        "
+        @click="openChatWithCreator"
+      >
+        {{ ticket.created_by.name }}
+      </button>
+      <span v-else class="text-sm text-n-slate-12 truncate">
         {{ ticket.created_by.name }}
       </span>
     </TicketPropertyRow>

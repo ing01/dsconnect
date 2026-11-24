@@ -8,9 +8,33 @@ import '../auth/session_storage.dart';
 // cliente manda 1 (api_access_token). Sem sessão ainda (login/sign-in em
 // si), não manda nenhum - e tanto faz, essas duas rotas não exigem.
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this._sessionStorage);
+  AuthInterceptor(this._sessionStorage, {this.onSessionExpired});
 
   final SessionStorage _sessionStorage;
+
+  // Chamado quando o servidor diz que a sessao do CLIENTE caiu (token apagado: saiu no
+  // portal web, redefiniu a senha, a equipe desligou o acesso...). A sessao guardada ja foi
+  // apagada aqui; quem escuta leva a pessoa de volta ao login.
+  final void Function()? onSessionExpired;
+
+  // So o 401 com `code: session_invalid` conta: outras telas do cliente tambem respondem
+  // 401 (senha errada ao excluir a conta, por exemplo) e NAO sao sessao caida. E so vale se
+  // o token que caiu e' o da sessao atual - uma resposta atrasada de um login antigo nao
+  // pode derrubar a sessao nova.
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    if (err.response?.statusCode == 401 && _isSessionInvalid(err.response?.data)) {
+      final sentToken = err.requestOptions.headers['api_access_token'];
+      final session = await _sessionStorage.read();
+      if (sentToken != null && session != null && session.mode == AuthMode.client && session.apiAccessToken == sentToken) {
+        await _sessionStorage.clear();
+        onSessionExpired?.call();
+      }
+    }
+    handler.next(err);
+  }
+
+  bool _isSessionInvalid(Object? body) => body is Map && body['code'] == 'session_invalid';
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {

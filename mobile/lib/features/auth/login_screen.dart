@@ -27,6 +27,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool? _biometricChoice;
 
   @override
+  void initState() {
+    super.initState();
+    // A sessao caiu no servidor (saiu no portal web, trocou a senha...): com a biometria
+    // ativa, ja pede a leitura para entrar de novo, sem a pessoa precisar tocar em nada.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final expired = ref.read(sessionExpiredProvider);
+      final biometricSaved = ref.read(biometricLockProvider).value?.enabled ?? false;
+      if (expired && biometricSaved) _submitWithBiometrics();
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -138,6 +151,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
+                  if (ref.watch(sessionExpiredProvider)) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      'Sua sessão expirou. Entre novamente.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600),
+                    ),
+                  ],
                   const SizedBox(height: 32),
                   Container(
                     padding: const EdgeInsets.all(20),

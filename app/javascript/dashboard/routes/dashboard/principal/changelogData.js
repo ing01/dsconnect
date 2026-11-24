@@ -8,6 +8,86 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-sidebar-sections-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Chat interno: canais no topo e seções recolhíveis',
+    description:
+      'Na barra lateral do Chat interno, os Canais agora aparecem antes das conversas privadas, sem precisar rolar a lista de conversas até o fim. Os títulos "Canais" e "Conversas" podem ser recolhidos com um clique (o navegador lembra sua escolha); recolhida, a seção mostra quantas mensagens não lidas tem. Ao buscar, tudo aparece de novo para o resultado não ficar escondido.',
+  },
+  {
+    id: 'agenda-color-follows-assignee-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Agenda: a cor segue o responsável atribuído',
+    description:
+      'Na Agenda, a cor do evento agora é a da pessoa atribuída (o participante), e não a de quem criou. Se um gestor agenda algo para outra pessoa, o evento aparece na cor dela. Com mais de um participante, vale o de menor cadastro, para a cor não mudar de um momento para o outro; sem participantes, segue quem criou, como antes.',
+  },
+  {
+    id: 'ticket-creator-opens-chat-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Ticket: clique no nome de quem criou para abrir o chat interno',
+    description:
+      'No cartão "Origem" do ticket, o nome em "Criado por" agora é um link: ao clicar, o Chat interno abre direto na conversa com a pessoa (e cria a conversa se ainda não existir). Quando o ticket foi criado por você mesmo, o nome continua só como texto.',
+  },
+  {
+    id: 'app-session-expired-relogin-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'mobile',
+    type: 'fix',
+    title: 'App do cliente: sessão expirada pede o login de novo',
+    description:
+      'Quando a sessão do cliente deixava de valer (por exemplo, ao sair no portal pelo navegador ou redefinir a senha), o app mostrava "Sessão inválida ou acesso à Área do Cliente desativado" nas telas. Agora o app volta para o login com o aviso "Sua sessão expirou. Entre novamente." e, se a biometria estiver ativa, já pede a leitura para entrar de novo, sem digitar a senha.',
+  },
+  {
+    id: 'triage-summary-scroll-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Triagem: resumo do chamado rola quando a descrição é grande',
+    description:
+      'Na janela "Resumo do chamado" da Triagem, uma descrição longa empurrava os botões para fora da tela e não dava para clicar em "Abrir e encaminhar". Agora só o texto rola dentro da janela, e os botões "Ver ticket completo" e "Abrir e encaminhar" ficam sempre visíveis.',
+  },
+  {
+    id: 'transfer-keeps-extra-assignees-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Transferir ticket com dois responsáveis não trava mais',
+    description:
+      'Ao transferir um ticket para uma Mesa que não usa níveis de responsável (ou onde a pessoa não está habilitada no nível), a transferência era recusada com o aviso de que a Mesa não aceita o responsável. Agora a transferência acontece e quem não cabe como responsável na Mesa nova continua no ticket como seguidor, sem perder o acompanhamento. Vale também ao arrastar o ticket no Kanban para outra Mesa.',
+  },
+  {
+    id: 'client-chat-line-breaks-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Chat do cliente mostra as quebras de linha corretamente',
+    description:
+      'Mensagens da equipe com mais de uma linha (como a de boas-vindas do atendimento) chegavam na Área do Cliente com uma barra "\\" solta no fim de cada linha. Agora a quebra de linha aparece como a equipe escreveu, no portal e no app, tanto no chat de agora quanto no histórico.',
+  },
+  {
+    id: 'triage-forwarded-leaves-queue-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Chamado encaminhado pela tela do ticket sai da Triagem',
+    description:
+      'Quando alguém mudava a Mesa ou o Estágio de um chamado pela tela do ticket (ou movia no Kanban, ou transferia) em vez de usar "Abrir e encaminhar", o chamado seguia para o lugar escolhido mas continuava parado na fila da Triagem. Agora, encaminhar por qualquer um desses caminhos já tira o chamado da Triagem e registra quem decidiu.',
+  },
+  {
     id: 'app-tutorial-video-in-app-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

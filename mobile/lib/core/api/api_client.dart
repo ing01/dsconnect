@@ -8,14 +8,14 @@ import 'auth_interceptor.dart';
 // toda chamada (ver AuthInterceptor) - nenhuma tela precisa saber como
 // autenticar, só chamar `dio.get(...)`/`dio.post(...)` normalmente.
 class ApiClient {
-  ApiClient(SessionStorage sessionStorage) {
+  ApiClient(SessionStorage sessionStorage, {void Function()? onSessionExpired}) {
     dio = Dio(BaseOptions(
       baseUrl: AppConfig.baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
       headers: const {'Content-Type': 'application/json', 'Accept': 'application/json'},
     ));
-    dio.interceptors.add(AuthInterceptor(sessionStorage));
+    dio.interceptors.add(AuthInterceptor(sessionStorage, onSessionExpired: onSessionExpired));
   }
 
   late final Dio dio;

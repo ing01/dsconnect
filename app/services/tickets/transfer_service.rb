@@ -53,6 +53,9 @@ class Tickets::TransferService
     column = target_column
     ticket.skip_change_activities = true
     assign_scalars
+    # Quem era responsavel por um nivel que a Mesa nova nao tem vira seguidor, em vez de
+    # travar a transferencia (ver Ticket#hand_over_unsupported_assignees).
+    ticket.hand_over_unsupported_assignees(column.team)
     ticket.save! if ticket.changed?
     # `move_to!` keeps `team_id` in lockstep with the Estagio and re-indexes both
     # columns; assigning `ticket_column_id` directly would leave the Mesa stale.
