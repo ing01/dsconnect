@@ -88,6 +88,10 @@
       "TOTAL": "{count} no dia",
       "EMPTY": "Nenhum agente atendeu conversas hoje.",
       "DAY_TOTAL": "Total do dia: {count}"
+    },
+    "TEAM_FILTER": {
+      "LABEL": "Time",
+      "ALL": "Todos os times"
     }
   }
 }

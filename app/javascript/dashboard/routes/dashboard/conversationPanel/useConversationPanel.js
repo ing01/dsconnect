@@ -8,6 +8,7 @@ const CLOCK_TICK_MS = 10000;
 
 /**
  * Os dados do Painel de Conversas, sempre frescos:
+ * - `teamId` (ref) filtra a tela toda por time; vazio = todos os times;
  * - busca ao abrir e a cada `refresh_seconds` (definido nas Configurações);
  * - busca de novo, com pequeno atraso, quando chega um evento em tempo real
  *   de conversa/mensagem (várias mudanças seguidas viram uma busca só);
@@ -15,7 +16,7 @@ const CLOCK_TICK_MS = 10000;
  *   nova requisição. `nowMs` já vem corrigido pela diferença de relógio entre
  *   o servidor e este navegador.
  */
-export const useConversationPanel = () => {
+export const useConversationPanel = (teamId = ref(null)) => {
   const data = ref(null);
   const isLoading = ref(true);
   const hasError = ref(false);
@@ -30,7 +31,9 @@ export const useConversationPanel = () => {
 
   const fetchPanel = async () => {
     try {
-      const { data: payload } = await ConversationPanelAPI.get();
+      const { data: payload } = await ConversationPanelAPI.get(
+        teamId.value ? { team_id: teamId.value } : {}
+      );
       data.value = payload;
       clockOffset.value = Date.parse(payload.generated_at) - Date.now();
       hasError.value = false;
@@ -50,6 +53,9 @@ export const useConversationPanel = () => {
     clearInterval(pollTimer);
     pollTimer = setInterval(fetchPanel, Math.max(seconds || 30, 10) * 1000);
   };
+
+  // Trocar de time busca na hora, sem esperar o próximo ciclo.
+  watch(teamId, fetchPanel);
 
   watch(
     () => data.value?.settings?.refresh_seconds,
