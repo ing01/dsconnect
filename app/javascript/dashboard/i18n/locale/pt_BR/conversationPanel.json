@@ -73,7 +73,7 @@
       "SECONDS": "segundos",
       "LIST_LIMIT": "Conversas por lista",
       "LIST_LIMIT_HELP": "Quantas conversas cada card mostra ao ser aberto.",
-      "SOUND": "Tocar um som quando uma conversa entra no vermelho (cada pessoa pode ligar ou desligar no painel)",
+      "SOUND": "Tocar um som quando alguém entra na fila ou cresce o número de conversas esperando há muito tempo (cada pessoa pode ligar ou desligar no painel)",
       "PREVIEW": "Com estes tempos, agora seriam:",
       "PREVIEW_ERROR": "Não foi possível calcular a prévia agora.",
       "SAVE": "Salvar",
@@ -89,9 +89,9 @@
       "EMPTY": "Nenhum agente atendeu conversas hoje.",
       "DAY_TOTAL": "Total do dia: {count}"
     },
-    "TEAM_FILTER": {
-      "LABEL": "Time",
-      "ALL": "Todos os times"
+    "QUEUE_FILTER": {
+      "LABEL": "Fila",
+      "ALL": "Todas as filas"
     }
   }
 }

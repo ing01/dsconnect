@@ -9,7 +9,6 @@
  */
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 const props = defineProps({
   type: {
@@ -49,13 +48,13 @@ const clear = () => {
     <button
       v-if="canClear"
       type="button"
-      class="absolute inset-y-0 right-9 z-10 flex items-center justify-center my-auto rounded-full size-6 bg-n-alpha-3 text-n-slate-12 hover:bg-n-alpha-black2 hover:text-n-ruby-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+      class="absolute inset-y-0 right-9 z-10 flex items-center justify-center my-auto rounded-full size-7 bg-n-alpha-3 text-n-slate-12 hover:bg-n-alpha-black2 hover:text-n-ruby-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
       :aria-label="t('DATE_PICKER.CLEAR_DATE')"
       :title="t('DATE_PICKER.CLEAR_DATE')"
       data-testid="clear-date"
       @click.stop.prevent="clear"
     >
-      <Icon icon="i-lucide-x" class="size-4" />
+      <span class="block i-lucide-x size-5 shrink-0" aria-hidden="true" />
     </button>
   </div>
 </template>
