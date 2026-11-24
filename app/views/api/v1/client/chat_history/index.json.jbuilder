@@ -7,5 +7,5 @@ json.array! @conversations do |conversation|
   json.id conversation.display_id
   json.created_at conversation.created_at.to_i
   json.resolved_at (conversation.status_changed_at || conversation.updated_at).to_i
-  json.preview ultima&.content.to_s.truncate(120)
+  json.preview ClientChatText.plain(ultima&.content).truncate(120)
 end

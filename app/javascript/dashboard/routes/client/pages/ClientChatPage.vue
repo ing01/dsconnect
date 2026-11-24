@@ -26,6 +26,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import ClientAreaAPI from 'dashboard/api/clientArea';
+import { plainChatText } from 'dashboard/helper/clientChatText';
 import Button from 'dashboard/components-next/button/Button.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
@@ -128,7 +129,7 @@ const assinar = pubsubToken => {
           // normaliza antes de empilhar.
           adicionar({
             id: data.id,
-            content: data.content,
+            content: plainChatText(data.content),
             content_type: data.content_type,
             from_you: data.sender_type === 'Contact',
             author_name: data.sender_type === 'User' ? data.sender?.name : null,

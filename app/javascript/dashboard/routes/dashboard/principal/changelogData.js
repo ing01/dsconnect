@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'client-chat-line-breaks-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Chat do cliente mostra as quebras de linha corretamente',
+    description:
+      'Mensagens da equipe com mais de uma linha (como a de boas-vindas do atendimento) chegavam na Área do Cliente com uma barra "\\" solta no fim de cada linha. Agora a quebra de linha aparece como a equipe escreveu, no portal e no app, tanto no chat de agora quanto no histórico.',
+  },
+  {
     id: 'triage-forwarded-leaves-queue-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

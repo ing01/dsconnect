@@ -48,6 +48,15 @@ RSpec.describe 'Client chat', type: :request do
       expect(body['messages']).to eq([])
     end
 
+    it 'shows the Markdown line break as a plain line break' do
+      # O editor da equipe guarda a quebra como barra invertida no fim da linha.
+      mensagem_em(conversa(status: :open), "Ola!\\\n\\\nAguarde")
+
+      abrir_chat(entrar)
+
+      expect(response.parsed_body['messages'].pluck('content')).to eq(["Ola!\n\nAguarde"])
+    end
+
     it 'returns the open conversation, flagged as not resolved' do
       mensagem_em(conversa(status: :open), 'Oi')
 

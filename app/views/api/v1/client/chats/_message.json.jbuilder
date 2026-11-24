@@ -1,7 +1,7 @@
 # Uma mensagem do chat, como o cliente a ve - sem nada do que so a equipe
 # enxerga (notas privadas ja ficam fora pelo escopo `.chat`).
 json.id resource.id
-json.content resource.content
+json.content ClientChatText.plain(resource.content)
 json.content_type resource.content_type
 json.from_you resource.sender_type == 'Contact'
 json.author_name resource.sender_type == 'User' ? resource.sender&.name : nil
