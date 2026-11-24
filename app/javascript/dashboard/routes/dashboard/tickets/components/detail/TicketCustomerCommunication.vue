@@ -80,6 +80,22 @@ const STATUS_COLORS = {
 const formatDate = timestamp =>
   timestamp ? new Date(timestamp * 1000).toLocaleString() : '—';
 
+// O corpo vem em HTML: <br> e fim de paragrafo/item viram quebra de linha, o
+// resto das tags sai, e as entidades basicas voltam a ser caractere.
+const bodyToText = html =>
+  String(html || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
 const send = async () => {
   if (!canSend.value || isSending.value) return;
 
@@ -253,9 +269,13 @@ const send = async () => {
                como texto puro para a lista ficar compacta. Sem o assunto acima:
                ele e igual em todas as linhas e nao distingue uma da outra. Por
                isso o corpo herda o destaque que era do titulo - e ele que diz
-               qual comunicacao e qual. Segue em UMA linha: a lista e indice. -->
-          <p class="text-sm truncate text-n-slate-12">
-            {{ communication.body.replace(/<[^>]*>/g, ' ').trim() }}
+               qual comunicacao e qual. Aparece INTEIRO e com as quebras de
+               linha que o agente escreveu: cortado em uma linha, nao dava para
+               conferir o que foi enviado ao cliente. -->
+          <p
+            class="m-0 text-sm break-words whitespace-pre-line text-n-slate-12"
+          >
+            {{ bodyToText(communication.body) }}
           </p>
 
           <p v-if="communication.error_message" class="text-xs text-n-ruby-11">

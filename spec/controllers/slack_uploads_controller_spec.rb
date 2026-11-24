@@ -9,7 +9,7 @@ RSpec.describe SlackUploadsController do
       it 'redirects to the blob service URL' do
         get :show, params: { blob_key: blob.key }
         redirect_path = response.location
-        expect(redirect_path).to match(%r{rails/active_storage/representations/redirect/.*/avatar.png})
+        expect(redirect_path).to match(%r{rails/active_storage/representations/proxy/.*/avatar.png})
       end
     end
 
