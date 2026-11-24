@@ -149,7 +149,7 @@ module ContactClientAccess
     empresas = client_company_ids
     return Ticket.none if empresas.empty?
 
-    escopo = account.tickets.where(company_id: empresas)
+    escopo = account.tickets.where(company_id: empresas).where.not(id: hidden_from_portal_ids)
     sees_company? ? escopo : escopo.where(contact_id: id)
   end
 
@@ -246,6 +246,19 @@ module ContactClientAccess
   end
 
   private
+
+  # "Aparece no Portal do Cliente" da Mesa vale tambem para o que o cliente
+  # ENXERGA, nao so para onde ele abre. Ficam de fora os tickets de uma Mesa que
+  # nao aparece no Portal quando sao trabalho interno: o ticket filho (o cliente
+  # ve so o pai) ou qualquer ticket de Mesa com Modulo de Desenvolvimento.
+  # O ticket pai que um agente transfere para uma Mesa interna continua visivel -
+  # senao o chamado do cliente sumiria da tela dele.
+  def hidden_from_portal_ids
+    Ticket.joins(:team)
+          .where(teams: { visible_in_portal: false })
+          .where('tickets.parent_id IS NOT NULL OR teams.development_module_enabled = TRUE')
+          .select(:id)
+  end
 
   def apply_default_client_access
     self.encrypted_password = self.class.default_client_password_hash

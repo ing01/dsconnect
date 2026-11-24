@@ -200,6 +200,51 @@ RSpec.describe TicketBlocking do
         expect(parent.blocked_by_child_id).to be_nil
       end
 
+      # O caminho de volta: o analista resolve no PAI e o desenvolvimento destrava.
+      it 'frees the child that caused it when the parent is released' do
+        parent.reload.unblock!(user, resolution: 'Informacao enviada')
+
+        expect(parent.reload).not_to be_blocked
+        expect(child.reload).not_to be_blocked
+        expect(child.blocked_reason).to be_nil
+      end
+
+      it 'records the resolution and the release in the history of the child too' do
+        parent.reload.unblock!(user, resolution: 'Informacao enviada')
+
+        activity = child.ticket_activities.find_by(activity_type: :unblocked)
+        expect(activity.new_value).to eq('Informacao enviada')
+        expect(child.ticket_comments.order(:id).last.content).to include('Informacao enviada')
+      end
+
+      it 'does not touch another blocked child that did not cause the parent impediment' do
+        outro = create(:ticket, account: account, ticket_column: column, team: team, parent: parent)
+        outro.block!(user, reason: 'Outro bloqueio')
+        # o pai segue impedido pelo primeiro filho; o do outro filho e' so comentario
+
+        parent.reload.unblock!(user)
+
+        expect(child.reload).not_to be_blocked
+        expect(outro.reload).to be_blocked
+      end
+
+      it 'does not free a child that is already finished' do
+        child.update_columns(status: Ticket.statuses[:closed]) # rubocop:disable Rails/SkipsModelValidations
+
+        parent.reload.unblock!(user)
+
+        expect(child.reload).to be_blocked
+      end
+
+      it 'sends the assignee of the child a single notice when the parent is released' do
+        dev = create(:user, account: account, role: :agent)
+        child.update!(assignee: dev)
+
+        expect { parent.reload.unblock!(user) }.to change {
+          dev.notifications.where(notification_type: 'ticket_impediment_released').count
+        }.by(1)
+      end
+
       it 'records the resolution in the comments and the history of BOTH tickets' do
         child.unblock!(user, resolution: 'O fornecedor liberou a API')
 

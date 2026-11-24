@@ -122,6 +122,61 @@ RSpec.describe 'Client Area', type: :request do
       expect(tickets[da_outra_mesa.id]['ticket_column_name']).to eq(outra_coluna.name)
     end
 
+    # "Aparece no Portal do Cliente" da Mesa decide o que o cliente ENXERGA: o
+    # ticket filho de uma Mesa fora do Portal (desenvolvimento) nao aparece, so o pai.
+    context 'when a team is not shown in the portal' do
+      let(:mesa_dev) { create(:team, account: account, visible_in_portal: false, development_module_enabled: true) }
+      let(:coluna_dev) { create(:ticket_column, team: mesa_dev, position: 0) }
+      let(:pai) { ticket_para(contato: cliente, titulo: 'Pai') }
+
+      def ticket_da_dev(**attrs)
+        create(:ticket, account: account, team: mesa_dev, ticket_column: coluna_dev,
+                        ticket_category: mesa_dev.ticket_categories.first,
+                        company: empresa, contact: cliente, **attrs)
+      end
+
+      def ids_da_lista
+        get '/api/v1/client/tickets', headers: cabecalho(entrar), as: :json
+        response.parsed_body['tickets'].map { |t| t['id'] }
+      end
+
+      it 'hides the child ticket and keeps the parent' do
+        filho = ticket_da_dev(parent: pai, title: 'Filho')
+
+        ids = ids_da_lista
+
+        expect(ids).to include(pai.id)
+        expect(ids).not_to include(filho.id)
+      end
+
+      it 'hides a ticket of a development team even without a parent' do
+        solto = ticket_da_dev(title: 'Backlog')
+
+        expect(ids_da_lista).not_to include(solto.id)
+      end
+
+      it 'does not open the hidden child by id' do
+        filho = ticket_da_dev(parent: pai, title: 'Filho')
+
+        get "/api/v1/client/tickets/#{filho.id}", headers: cabecalho(entrar), as: :json
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'shows the child again when the team is turned on for the portal' do
+        filho = ticket_da_dev(parent: pai, title: 'Filho')
+        mesa_dev.update!(visible_in_portal: true)
+
+        expect(ids_da_lista).to include(pai.id, filho.id)
+      end
+
+      it 'keeps the parent visible after it is moved to a team outside the portal' do
+        pai.update!(team: mesa_dev, ticket_column: coluna_dev)
+
+        expect(ids_da_lista).to include(pai.id)
+      end
+    end
+
     # A lista do cliente monta o mesmo componente REAL do painel interno
     # (`TicketListView`), e ele le o mesmo partial de ticket - por isso a
     # linha vem com os mesmos campos.

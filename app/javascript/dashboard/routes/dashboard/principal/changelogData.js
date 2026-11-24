@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'portal-hides-child-tickets-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Portal do Cliente não mostra mais tickets filhos de Mesas internas',
+    description:
+      'O parâmetro "Aparece no Portal do Cliente" da Mesa agora vale também para o que o cliente enxerga: tickets filhos de uma Mesa fora do Portal (e tickets de Mesas com Módulo de Desenvolvimento) deixam de aparecer. O cliente vê só o ticket pai, mesmo que ele passe por uma Mesa interna.',
+  },
+  {
+    id: 'impediment-release-frees-child-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Impedimento retirado no ticket pai também libera o filho',
+    description:
+      'Quando o impedimento do ticket pai (que veio de um ticket filho) é retirado, o impedimento do filho também é retirado, e o responsável pelo filho recebe o aviso. A resolução fica registrada no comentário e no histórico dos dois tickets.',
+  },
+  {
     id: 'internal-chat-sidebar-sections-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

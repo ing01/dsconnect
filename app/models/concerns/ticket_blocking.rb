@@ -54,7 +54,7 @@ module TicketBlocking
   #
   # `resolution` (opcional) e' COMO o impedimento foi resolvido: vai no comentario e
   # na atividade, ao lado do motivo, no ticket e no pai que foi liberado com ele.
-  def unblock!(user, resolution: nil, source_child: nil)
+  def unblock!(user, resolution: nil, source_child: nil, notify: true)
     return self unless blocked?
 
     motivo_anterior = blocked_reason
@@ -70,13 +70,26 @@ module TicketBlocking
         previous_value: motivo_anterior, new_value: resolucao
       )
       release_parent(user, resolucao)
+      # O caminho de volta: quem destrava o PAI destrava tambem o filho de onde o
+      # impedimento veio. Sem isso o desenvolvimento seguiria parado num
+      # impedimento que ja foi resolvido.
+      release_origin_child(user, resolucao, filho_de_origem) if source_child.blank?
     end
 
-    notify_impediment_released(user, filho_de_origem, cascaded: source_child.present?)
+    notify_impediment_released(user, filho_de_origem, cascaded: source_child.present?) if notify
     self
   end
 
   private
+
+  # Quando o pai e' liberado por uma pessoa, o filho que o impediu sai do impedimento junto. O
+  # aviso ao responsavel dele e' o do proprio pai (`notify_impediment_released`), por isso a
+  # liberacao do filho vai calada - senao a mesma pessoa receberia dois avisos.
+  def release_origin_child(user, resolucao, filho)
+    return if filho.blank? || filho.finalized? || !filho.blocked?
+
+    filho.unblock!(user, resolution: resolucao, notify: false)
+  end
 
   # O responsavel pelo ticket filho precisa saber que o impedimento acabou. Um aviso que falha nao
   # pode desfazer a retirada do impedimento: o erro vai para o log e a retirada segue valendo.
