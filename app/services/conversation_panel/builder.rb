@@ -109,9 +109,23 @@ class ConversationPanel::Builder
     rows = open_scope.group(column).pluck(Arel.sql(column.to_s), *band_counts_sql.map { |sql| Arel.sql(sql) })
     names = names_for(rows.map(&:first).compact)
 
+    rows = rows.select { |key, *| key.nil? || support_agent?(key) }
     rows.map do |key, green, orange, red|
       { id: key, name: names[key], green: green, orange: orange, red: red, total: green + orange + red }
     end.sort_by { |row| [-row[:red], -row[:orange], -row[:total]] }
+  end
+
+  # Os rankings de agentes mostram so' a equipe da Mesa Suporte (nome sem
+  # diferenciar maiusculas). Sem uma Mesa com esse nome, nao filtra nada.
+  def support_agent_ids
+    return @support_agent_ids if defined?(@support_agent_ids)
+
+    teams = @account.teams.where('LOWER(teams.name) = ?', 'suporte')
+    @support_agent_ids = teams.exists? ? TeamMember.where(team_id: teams.select(:id)).pluck(:user_id).to_set : nil
+  end
+
+  def support_agent?(user_id)
+    support_agent_ids.nil? || support_agent_ids.include?(user_id)
   end
 
   def names_for(ids)
@@ -134,7 +148,7 @@ class ConversationPanel::Builder
                                  .select(:conversation_id)
     resolved = @account.conversations.resolved.where(id: resolved_ids).where.not(assignee_id: nil).group(:assignee_id).count
     in_progress = open_scope.where.not(assignee_id: nil).group(:assignee_id).count
-    ids = (resolved.keys + in_progress.keys).uniq
+    ids = (resolved.keys + in_progress.keys).uniq.select { |id| support_agent?(id) }
     names = names_for(ids)
 
     ids.map do |id|

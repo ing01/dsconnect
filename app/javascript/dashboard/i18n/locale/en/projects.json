@@ -163,12 +163,15 @@
         "BUTTON": "Import tasks",
         "TITLE": "Import project tasks",
         "MODULE_LABEL": "Import module (optional)",
-        "MODULE_PLACEHOLDER": "Select a module to check its tasks",
-        "LOADING": "Loading modules...",
-        "NO_TICKETS": "There are no more project tasks to import.",
+        "MODULE_PLACEHOLDER": "All modules",
+        "LOADING": "Loading tasks...",
+        "NO_TICKETS": "There are no more registered tasks to import.",
+        "NO_MODULE": "No module",
+        "LINKS_EXISTING_TICKET": "links to ticket #{displayId}",
+        "CREATES_NEW_TICKET": "creates a new ticket",
         "SELECTED_COUNT": "{count} selected",
         "CONFIRM": "Add selected",
-        "MODULES_ERROR": "Could not load modules"
+        "MODULES_ERROR": "Could not load modules/tasks"
       }
     },
     "LOADING": "Loading projects...",

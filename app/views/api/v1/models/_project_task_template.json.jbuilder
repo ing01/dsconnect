@@ -10,6 +10,10 @@ json.checklist_id resource.checklist_id
 json.checklist_name resource.checklist&.name
 json.checklist_items resource.checklist&.items
 json.ticket_category_name resource.ticket_category_name
+json.project_modules resource.project_modules.ordered do |project_module|
+  json.id project_module.id
+  json.name project_module.name
+end
 json.account_id resource.account_id
 json.created_at resource.created_at.to_i
 json.updated_at resource.updated_at.to_i

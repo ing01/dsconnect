@@ -5,6 +5,7 @@ import { useAlert } from 'dashboard/composables';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import ProjectsAPI from 'dashboard/api/projects';
 import ProjectModulesAPI from 'dashboard/api/projectModules';
+import ProjectTaskTemplatesAPI from 'dashboard/api/projectTaskTemplates';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -34,57 +35,55 @@ const emptyRow = () => ({
   start_at: '',
   end_at: '',
   responsible_user_id: '',
+  // So preenchido quando a linha nasceu da importacao de um Modelo de Tarefa
+  // (ver `confirmImport`) - usado so' pra nao deixar importar o mesmo modelo
+  // duas vezes, nunca enviado pro backend.
+  source_template_id: null,
 });
 
 const rows = ref([emptyRow()]);
 
 const ticketOptions = computed(() => props.tickets || []);
 
-// Tickets ja' usados em alguma linha "Ticket existente" - ficam de fora do
-// seletor de importacao em lote, pra nao duplicar a mesma tarefa no
-// cronograma (pedido explicito: "Evitar a inclusao duplicada da mesma
-// tarefa"). Linha vazia (ainda sem ticket escolhido) nao conta.
-const usedTicketIds = computed(
-  () =>
-    new Set(
-      rows.value
-        .filter(row => row.ticketMode === 'existing' && row.ticket_id)
-        .map(row => Number(row.ticket_id))
-    )
-);
-
-const importableTickets = computed(() =>
-  ticketOptions.value.filter(ticket => !usedTicketIds.value.has(ticket.id))
-);
-
-// Painel de importacao em lote ("Importar tarefas" / "Importar modulo") -
-// pedido da Ingrid, 2026-11-14: evitar ter que adicionar tarefa por tarefa
-// manualmente. Os dois botoes abrem o MESMO painel de selecao multipla; a
-// diferenca e' so' que "Importar modulo" pre-marca as tarefas daquele
-// modulo em vez de deixar tudo desmarcado.
+// Painel de importacao em lote ("Importar tarefas") - pedido da Ingrid,
+// 2026-11-14: evitar ter que adicionar tarefa por tarefa manualmente.
+//
+// 2026-11-24: a lista mostrava so' os tickets JA' criados neste projeto, o
+// que escondia Modelos de Tarefa de modulos que nunca foram gerados aqui.
+// Agora mostra TODO o catalogo de Modelos de Tarefa (de todos os modulos),
+// com o nome do modulo de origem embaixo - o dropdown so' filtra essa lista,
+// nao pre-marca nada. Pra nao duplicar tarefa: se o modelo escolhido ja' bate
+// com um ticket existente no projeto (`project_task_template_id`), a linha
+// importada vincula a ESSE ticket; so' cria ticket novo quando o projeto
+// ainda nao tem um ticket gerado daquele modelo.
 const showImportPanel = ref(false);
 const selectedImportIds = ref([]);
 const projectModules = ref([]);
-const isLoadingModules = ref(false);
+const templateCatalog = ref([]);
+const isLoadingImportPanel = ref(false);
 const selectedModuleId = ref('');
 
 const openImportPanel = async () => {
   showImportPanel.value = true;
   selectedImportIds.value = [];
   selectedModuleId.value = '';
-  if (projectModules.value.length) return;
+  if (projectModules.value.length && templateCatalog.value.length) return;
 
-  isLoadingModules.value = true;
+  isLoadingImportPanel.value = true;
   try {
-    const { data } = await ProjectModulesAPI.get();
-    projectModules.value = data || [];
+    const [{ data: modules }, { data: templates }] = await Promise.all([
+      ProjectModulesAPI.get(),
+      ProjectTaskTemplatesAPI.get(),
+    ]);
+    projectModules.value = modules || [];
+    templateCatalog.value = templates || [];
   } catch (error) {
     useAlert(
       parseAPIErrorResponse(error) ||
         t('PROJECTS.SCHEDULE.IMPORT.MODULES_ERROR')
     );
   } finally {
-    isLoadingModules.value = false;
+    isLoadingImportPanel.value = false;
   }
 };
 
@@ -92,28 +91,51 @@ const closeImportPanel = () => {
   showImportPanel.value = false;
 };
 
-// Tarefas deste projeto cujo modelo pertence ao modulo escolhido - so'
-// filtra o que ja' existe no projeto (nunca cria ticket novo aqui, pedido
-// explicito: "Manter o vinculo com as tarefas originais, sem criar novos
-// tickets desnecessariamente").
-const moduleTaskTemplateIds = computed(() => {
-  const selected = projectModules.value.find(
-    projectModule => projectModule.id === Number(selectedModuleId.value)
-  );
-  return new Set((selected?.task_templates || []).map(template => template.id));
-});
-
-const onModuleSelect = () => {
-  if (!selectedModuleId.value) {
-    selectedImportIds.value = [];
-    return;
-  }
-  selectedImportIds.value = importableTickets.value
-    .filter(ticket =>
-      moduleTaskTemplateIds.value.has(ticket.project_task_template_id)
-    )
-    .map(ticket => ticket.id);
+// Chave que identifica, pra fins de "ja' usado", o resultado de importar um
+// modelo: o ticket que ele vai acabar vinculando (existente) ou o proprio
+// modelo (quando a importacao vai criar um ticket novo a partir dele).
+const rowImportKey = row => {
+  if (row.ticketMode === 'existing' && row.ticket_id)
+    return `ticket-${row.ticket_id}`;
+  if (row.ticketMode === 'new' && row.source_template_id)
+    return `template-${row.source_template_id}`;
+  return null;
 };
+
+const usedImportKeys = computed(
+  () => new Set(rows.value.map(rowImportKey).filter(Boolean))
+);
+
+// Cada modelo do catalogo junto do ticket deste projeto que ja' foi gerado a
+// partir dele (se houver) - e' o que decide, na importacao, se a linha vai
+// vincular esse ticket ou criar um novo.
+const importableTemplates = computed(() =>
+  templateCatalog.value
+    .filter(
+      template =>
+        !selectedModuleId.value ||
+        (template.project_modules || []).some(
+          projectModule => projectModule.id === Number(selectedModuleId.value)
+        )
+    )
+    .map(template => ({
+      template,
+      matchedTicket: ticketOptions.value.find(
+        ticket => ticket.project_task_template_id === template.id
+      ),
+    }))
+    .filter(({ template, matchedTicket }) => {
+      const key = matchedTicket
+        ? `ticket-${matchedTicket.id}`
+        : `template-${template.id}`;
+      return !usedImportKeys.value.has(key);
+    })
+);
+
+const moduleNamesLabel = template =>
+  (template.project_modules || [])
+    .map(projectModule => projectModule.name)
+    .join(', ') || t('PROJECTS.SCHEDULE.IMPORT.NO_MODULE');
 
 // Tira a linha em branco inicial do caminho, pra nao sobrar um cartao vazio
 // junto das tarefas importadas.
@@ -131,16 +153,31 @@ const confirmImport = () => {
   if (rows.value.length === 1 && isPristineRow(rows.value[0])) {
     rows.value = [];
   }
-  selectedImportIds.value.forEach(ticketId => {
-    const ticket = importableTickets.value.find(
-      candidate => candidate.id === ticketId
+  selectedImportIds.value.forEach(templateId => {
+    const entry = importableTemplates.value.find(
+      candidate => candidate.template.id === templateId
     );
-    if (!ticket) return;
-    rows.value.push({
-      ...emptyRow(),
-      ticket_id: ticket.id,
-      responsible_user_id: ticket.assignee_id || '',
-    });
+    if (!entry) return;
+    const { template, matchedTicket } = entry;
+
+    if (matchedTicket) {
+      rows.value.push({
+        ...emptyRow(),
+        ticketMode: 'existing',
+        ticket_id: matchedTicket.id,
+        responsible_user_id:
+          matchedTicket.assignee_id || template.default_assignee_id || '',
+      });
+    } else {
+      rows.value.push({
+        ...emptyRow(),
+        ticketMode: 'new',
+        source_template_id: template.id,
+        new_ticket_title: template.default_ticket_title || template.name,
+        new_ticket_description: template.description || '',
+        responsible_user_id: template.default_assignee_id || '',
+      });
+    }
   });
   closeImportPanel();
 };
@@ -373,9 +410,10 @@ defineExpose({ open, close });
         />
       </div>
 
-      <!-- Importar tarefas / modulo - um unico painel de selecao multipla;
-           escolher um modulo so' pre-marca as tarefas dele, nunca cria
-           ticket novo (pedido: so' vincula o que ja' existe no projeto). -->
+      <!-- Importar tarefas - lista TODO o catalogo de Modelos de Tarefa (de
+           todos os modulos); o dropdown so' filtra a lista pelo modulo
+           escolhido. Cada item mostra de qual modulo ele vem, e se vai
+           vincular um ticket ja' existente no projeto ou criar um novo. -->
       <div
         v-if="showImportPanel"
         class="flex flex-col gap-3 p-3 border rounded-lg border-n-weak bg-n-alpha-1"
@@ -399,8 +437,7 @@ defineExpose({ open, close });
           <select
             v-model="selectedModuleId"
             class="h-9 w-full text-sm"
-            :disabled="isLoadingModules"
-            @change="onModuleSelect"
+            :disabled="isLoadingImportPanel"
           >
             <option value="">
               {{ t('PROJECTS.SCHEDULE.IMPORT.MODULE_PLACEHOLDER') }}
@@ -415,28 +452,41 @@ defineExpose({ open, close });
           </select>
         </label>
 
-        <div v-if="isLoadingModules" class="text-xs text-n-slate-10">
+        <div v-if="isLoadingImportPanel" class="text-xs text-n-slate-10">
           {{ t('PROJECTS.SCHEDULE.IMPORT.LOADING') }}
         </div>
         <div
-          v-else-if="!importableTickets.length"
+          v-else-if="!importableTemplates.length"
           class="text-xs text-n-slate-10"
         >
           {{ t('PROJECTS.SCHEDULE.IMPORT.NO_TICKETS') }}
         </div>
         <div v-else class="flex flex-col gap-1 overflow-y-auto max-h-48">
           <label
-            v-for="ticket in importableTickets"
-            :key="ticket.id"
+            v-for="{ template, matchedTicket } in importableTemplates"
+            :key="template.id"
             class="flex items-center gap-2 px-2 py-1.5 text-sm rounded-md cursor-pointer hover:bg-n-alpha-2 text-n-slate-12"
           >
             <input
               v-model="selectedImportIds"
               type="checkbox"
-              :value="ticket.id"
+              :value="template.id"
               class="shrink-0"
             />
-            <span class="truncate">#{{ ticket.display_id || ticket.id }} - {{ ticket.title }}</span>
+            <span class="flex flex-col min-w-0 truncate">
+              <span class="truncate">{{ template.name }}</span>
+              <span class="text-xs text-n-slate-10 truncate">
+                - {{ moduleNamesLabel(template) }}
+                ·
+                {{
+                  matchedTicket
+                    ? t('PROJECTS.SCHEDULE.IMPORT.LINKS_EXISTING_TICKET', {
+                        displayId: matchedTicket.display_id || matchedTicket.id,
+                      })
+                    : t('PROJECTS.SCHEDULE.IMPORT.CREATES_NEW_TICKET')
+                }}
+              </span>
+            </span>
           </label>
         </div>
 
