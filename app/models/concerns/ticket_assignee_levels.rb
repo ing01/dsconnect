@@ -47,7 +47,34 @@ module TicketAssigneeLevels
     end
   end
 
+  # Ao mudar de Mesa, quem era responsavel por um nivel que a Mesa nova nao tem (ou onde
+  # a pessoa nao esta habilitada) NAO se perde: sai do campo de responsavel e passa a
+  # seguir o ticket. Sem isto a transferencia era recusada ("esta Mesa nao usa niveis") e
+  # o ticket ficava preso a Mesa antiga. Quem esta sendo atribuido AGORA fica de fora:
+  # essa escolha continua passando pela validacao e e recusada se nao servir. Devolve
+  # quem virou seguidor.
+  def hand_over_unsupported_assignees(target_team)
+    return [] if target_team.nil? || target_team.id == team_id
+
+    AssigneeLeveled::ALL_LEVELS.filter_map do |level|
+      column = AssigneeLeveled.assignee_column(level)
+      user_id = self[column]
+      next if user_id.blank? || will_save_change_to_attribute?(column)
+      next if assignee_supported_in?(target_team, level, user_id)
+
+      ticket_followers.find_or_create_by!(user_id: user_id)
+      self[column] = nil
+      user_id
+    end
+  end
+
   private
+
+  def assignee_supported_in?(target_team, level, user_id)
+    return false unless target_team.assignee_levels.include?(level)
+
+    !target_team.assignee_levels_enabled? || target_team.members_for_level(level).exists?(id: user_id)
+  end
 
   # Nao adianta indicar um Nivel 3 numa Mesa que atende em dois, nem qualquer
   # nivel numa Mesa que nao usa niveis: o campo nem aparece na tela, e o valor

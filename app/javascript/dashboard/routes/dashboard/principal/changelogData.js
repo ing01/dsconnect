@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'transfer-keeps-extra-assignees-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Transferir ticket com dois responsáveis não trava mais',
+    description:
+      'Ao transferir um ticket para uma Mesa que não usa níveis de responsável (ou onde a pessoa não está habilitada no nível), a transferência era recusada com o aviso de que a Mesa não aceita o responsável. Agora a transferência acontece e quem não cabe como responsável na Mesa nova continua no ticket como seguidor, sem perder o acompanhamento. Vale também ao arrastar o ticket no Kanban para outra Mesa.',
+  },
+  {
     id: 'client-chat-line-breaks-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

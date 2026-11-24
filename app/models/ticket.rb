@@ -185,6 +185,7 @@ class Ticket < ApplicationRecord
     validate_target_column_rules!(ticket_column)
     transaction do
       previous_column = self.ticket_column
+      hand_over_unsupported_assignees(ticket_column.team)
       # Keeps `team_id` (Mesa) in lockstep with the Estagio being moved
       # into, so a ticket can never end up pointing at a column from a
       # different Mesa than the one it's tagged with.
