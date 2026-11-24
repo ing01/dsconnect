@@ -11,8 +11,23 @@ import 'session_storage.dart';
 final sessionStorageProvider = Provider<SessionStorage>((ref) => SessionStorage());
 
 final apiClientProvider = Provider<Dio>((ref) {
-  return ApiClient(ref.watch(sessionStorageProvider)).dio;
+  return ApiClient(
+    ref.watch(sessionStorageProvider),
+    // Le o notifier so' na hora do uso, para nao criar dependencia circular com ele.
+    onSessionExpired: () => ref.read(sessionProvider.notifier).expire(),
+  ).dio;
 });
+
+// A sessao caiu no servidor (e nao foi a pessoa que saiu): a tela de login mostra o aviso e,
+// com a biometria ativa, ja pede a leitura para entrar de novo.
+class SessionExpiredNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) => state = value;
+}
+
+final sessionExpiredProvider = NotifierProvider<SessionExpiredNotifier, bool>(SessionExpiredNotifier.new);
 
 final pushNotificationServiceProvider = Provider<PushNotificationService>((ref) {
   return PushNotificationService(ref.watch(apiClientProvider));
@@ -62,6 +77,7 @@ class SessionNotifier extends AsyncNotifier<Session?> {
     // só na tela (via exceção relançada abaixo), não deve derrubar uma sessão
     // válida que porventura já existisse.
     if (result.hasValue) {
+      ref.read(sessionExpiredProvider.notifier).set(false);
       // Antes de publicar a sessão: o gate não pode ver sessão + trava
       // antiga e mostrar a tela de biometria logo após um login válido.
       final biometric = ref.read(biometricLockProvider.notifier);
@@ -97,6 +113,14 @@ class SessionNotifier extends AsyncNotifier<Session?> {
       }
       rethrow;
     }
+  }
+
+  // O servidor recusou a sessao (ja apagada do aparelho pelo interceptador): volta ao login
+  // com o aviso. Varias chamadas podem cair juntas - so a primeira age.
+  void expire() {
+    if (state.value == null) return;
+    ref.read(sessionExpiredProvider.notifier).set(true);
+    state = const AsyncData(null);
   }
 
   Future<void> selectAccount(int accountId) async {

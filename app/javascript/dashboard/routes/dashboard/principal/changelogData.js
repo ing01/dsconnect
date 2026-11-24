@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'app-session-expired-relogin-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'mobile',
+    type: 'fix',
+    title: 'App do cliente: sessão expirada pede o login de novo',
+    description:
+      'Quando a sessão do cliente deixava de valer (por exemplo, ao sair no portal pelo navegador ou redefinir a senha), o app mostrava "Sessão inválida ou acesso à Área do Cliente desativado" nas telas. Agora o app volta para o login com o aviso "Sua sessão expirou. Entre novamente." e, se a biometria estiver ativa, já pede a leitura para entrar de novo, sem digitar a senha.',
+  },
+  {
+    id: 'triage-summary-scroll-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'fix',
+    title: 'Triagem: resumo do chamado rola quando a descrição é grande',
+    description:
+      'Na janela "Resumo do chamado" da Triagem, uma descrição longa empurrava os botões para fora da tela e não dava para clicar em "Abrir e encaminhar". Agora só o texto rola dentro da janela, e os botões "Ver ticket completo" e "Abrir e encaminhar" ficam sempre visíveis.',
+  },
+  {
     id: 'transfer-keeps-extra-assignees-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

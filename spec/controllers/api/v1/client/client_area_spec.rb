@@ -558,6 +558,15 @@ RSpec.describe 'Client Area', type: :request do
         I18n.t('client_area.unauthorized', locale: :pt_BR)
       )
     end
+
+    # O app volta ao login so' por este codigo: outros 401 da Area do Cliente (senha
+    # errada ao excluir a conta) nao sao sessao caida.
+    it 'tags a dropped session so the app can send the person back to the login' do
+      get '/api/v1/client/tickets', headers: cabecalho('token-que-nao-existe'), as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+      expect(response.parsed_body['code']).to eq('session_invalid')
+    end
   end
 
   # O token do cliente nao e credencial de agente.

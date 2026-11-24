@@ -73,7 +73,9 @@ class Api::V1::Client::BaseController < ApplicationController
   end
 
   def render_client_unauthorized
-    render json: { error: I18n.t('client_area.unauthorized') }, status: :unauthorized
+    # O codigo diferencia "a SESSAO caiu" de outros 401 da Area do Cliente (ex.: senha
+    # errada ao excluir a conta). O app so volta ao login por este.
+    render json: { error: I18n.t('client_area.unauthorized'), code: 'session_invalid' }, status: :unauthorized
   end
 
   # A fronteira de tudo que a Area do Cliente enxerga. Toda consulta de ticket
