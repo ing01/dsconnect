@@ -4,7 +4,7 @@ import { useStore } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useVuelidate } from '@vuelidate/core';
-import { required, minLength } from '@vuelidate/validators';
+import { required, minLength, helpers } from '@vuelidate/validators';
 import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
@@ -19,9 +19,25 @@ const { t } = useI18n();
 const password = ref('');
 const isSaving = ref(false);
 
-// O servidor aplica a regra de forca da senha (Devise); aqui so o comprimento,
-// para o erro aparecer antes do envio.
-const v$ = useVuelidate({ password: { required, minLength: minLength(8) } }, { password });
+// Mesma regra do servidor (Devise: config/initializers/secure_password.rb):
+// 8+ caracteres com maiuscula, minuscula, numero e caractere especial. Validar
+// aqui evita o envio e mostra a regra completa em vez de um erro generico.
+const hasRequiredContent = value =>
+  /[A-Z]/.test(value) &&
+  /[a-z]/.test(value) &&
+  /[0-9]/.test(value) &&
+  /[^A-Za-z0-9]/.test(value);
+
+const v$ = useVuelidate(
+  {
+    password: {
+      required,
+      minLength: minLength(8),
+      content: helpers.withMessage('', hasRequiredContent),
+    },
+  },
+  { password }
+);
 
 const submit = async () => {
   v$.value.$touch();
@@ -36,9 +52,10 @@ const submit = async () => {
     useAlert(t('AGENT_MGMT.RESET_PASSWORD.API.SUCCESS_MESSAGE'));
     emit('close');
   } catch (error) {
-    // A recusa mais provavel e a do servidor quando o agente pertence a outra
-    // conta tambem; a mensagem dele e mais util que uma generica.
-    const message = error?.response?.data?.error;
+    // O servidor explica a recusa: `error` (agente de outra conta) ou `message`
+    // (senha fora da regra de forca). A dele e mais util que uma generica.
+    const data = error?.response?.data;
+    const message = data?.error || data?.message;
     useAlert(message || t('AGENT_MGMT.RESET_PASSWORD.API.ERROR_MESSAGE'));
   } finally {
     isSaving.value = false;

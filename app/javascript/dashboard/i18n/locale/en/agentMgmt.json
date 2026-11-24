@@ -147,7 +147,7 @@
         "PASSWORD": {
           "LABEL": "New password",
           "PLACEHOLDER": "Type the new password",
-          "ERROR": "Enter a password with at least 8 characters"
+          "ERROR": "The password needs at least 8 characters, with an uppercase letter, a lowercase letter, a number and a special character (e.g. !@#$%)"
         }
       },
       "API": {
