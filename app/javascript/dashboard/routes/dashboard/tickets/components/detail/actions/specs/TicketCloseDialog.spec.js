@@ -24,6 +24,11 @@ vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
 vi.mock('dashboard/composables/store', () => ({
   useStore: () => ({ dispatch: (...a) => dispatch(...a) }),
   useMapGetter: () => ({ value: [] }),
+  // O dialogo le categorias e colunas da Mesa por getters que recebem o id.
+  useStoreGetters: () => ({
+    'ticketColumns/getCategories': { value: () => [] },
+    'ticketColumns/getColumns': { value: () => [] },
+  }),
 }));
 
 const ticket = (overrides = {}) => ({
