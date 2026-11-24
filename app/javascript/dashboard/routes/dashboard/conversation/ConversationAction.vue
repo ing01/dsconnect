@@ -84,21 +84,19 @@ export default {
     hasAnAssignedQueue() {
       return !!this.currentChat?.meta?.queue;
     },
-    queuesForCurrentTeam() {
-      const teamId = this.currentChat?.meta?.team?.id;
-      const activeQueues = this.queues.filter(queue => queue.active);
-      return teamId
-        ? activeQueues.filter(queue => queue.team_id === teamId)
-        : activeQueues;
+    // Todas as Filas ativas: a conversa pode ir para a Fila de OUTRO Time (o Time
+    // da conversa acompanha a Fila escolhida).
+    activeQueues() {
+      return this.queues.filter(queue => queue.active);
     },
     queuesList() {
       if (this.hasAnAssignedQueue) {
         return [
           { id: 0, name: this.$t('CONVERSATION_SIDEBAR.QUEUE_NONE') },
-          ...this.queuesForCurrentTeam,
+          ...this.activeQueues,
         ];
       }
-      return this.queuesForCurrentTeam;
+      return this.activeQueues;
     },
     assignedAgent: {
       get() {
@@ -166,11 +164,23 @@ export default {
       set(queue) {
         const conversationId = this.currentChat.id;
         const queueId = queue ? queue.id : 0;
+        const previousQueue = this.currentChat.meta.queue;
         this.$store.dispatch('setCurrentChatQueue', { queue, conversationId });
         this.$store
           .dispatch('assignQueue', { conversationId, queueId })
           .then(() => {
+            this.syncTeamWithQueue(queue, conversationId);
             useAlert(this.$t('CONVERSATION.CHANGE_QUEUE'));
+          })
+          .catch(error => {
+            this.$store.dispatch('setCurrentChatQueue', {
+              queue: previousQueue,
+              conversationId,
+            });
+            useAlert(
+              error?.response?.data?.error ||
+                this.$t('CONVERSATION.CHANGE_QUEUE_ERROR')
+            );
           });
       },
     },
@@ -213,7 +223,9 @@ export default {
     // lista "Na fila"). Regra fixa, nao configuravel por atendente nem por
     // Funcao personalizada - so o cargo Administrador libera a escolha livre.
     isQueueOrderLocked() {
-      return this.hasAnAssignedQueue && this.currentUserRole !== 'administrator';
+      return (
+        this.hasAnAssignedQueue && this.currentUserRole !== 'administrator'
+      );
     },
     showSelfAssign() {
       if (this.isQueueOrderLocked) {
@@ -275,8 +287,21 @@ export default {
       }
     },
 
+    // O backend leva a conversa para o Time da Fila; a tela acompanha na hora.
+    syncTeamWithQueue(queue, conversationId) {
+      const team = queue?.team_id
+        ? this.teams.find(item => item.id === queue.team_id)
+        : null;
+      if (team) {
+        this.$store.dispatch('setCurrentChatTeam', { team, conversationId });
+      }
+    },
+
     onClickAssignQueue(selectedItemQueue) {
-      if (this.assignedQueue && this.assignedQueue.id === selectedItemQueue.id) {
+      if (
+        this.assignedQueue &&
+        this.assignedQueue.id === selectedItemQueue.id
+      ) {
         this.assignedQueue = null;
       } else {
         this.assignedQueue = selectedItemQueue;
@@ -331,7 +356,11 @@ export default {
       />
       <div v-else class="px-2 pb-2">
         <p class="mb-0 text-sm text-n-slate-12">
-          {{ assignedAgent ? assignedAgent.name : $t('CONVERSATION_SIDEBAR.QUEUE_NONE') }}
+          {{
+            assignedAgent
+              ? assignedAgent.name
+              : $t('CONVERSATION_SIDEBAR.QUEUE_NONE')
+          }}
         </p>
         <p class="mb-0 text-xs text-n-slate-11">
           {{ $t('CONVERSATION_SIDEBAR.QUEUE_ORDER_LOCKED') }}

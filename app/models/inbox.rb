@@ -55,9 +55,12 @@ class Inbox < ApplicationRecord
   validates :out_of_office_message, length: { maximum: Limits::OUT_OF_OFFICE_MESSAGE_MAX_LENGTH }
   validates :greeting_message, length: { maximum: Limits::GREETING_MESSAGE_MAX_LENGTH }
   validate :ensure_valid_max_assignment_limit
+  validate :default_queue_belongs_to_account
 
   belongs_to :account
   belongs_to :portal, optional: true
+  # Fila onde as conversas novas desta caixa nascem (opcional; ver Conversation).
+  belongs_to :default_queue, class_name: 'ServiceQueue', optional: true
 
   belongs_to :channel, polymorphic: true, dependent: :destroy
 
@@ -265,6 +268,12 @@ class Inbox < ApplicationRecord
     return if ENV['ENABLE_INBOX_EVENTS'].blank?
 
     Rails.configuration.dispatcher.dispatch(INBOX_UPDATED, Time.zone.now, inbox: self, changed_attributes: previous_changes)
+  end
+
+  def default_queue_belongs_to_account
+    return if default_queue.blank? || default_queue.account_id == account_id
+
+    errors.add(:default_queue, 'must belong to the same account')
   end
 
   def ensure_valid_max_assignment_limit

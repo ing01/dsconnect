@@ -103,6 +103,7 @@ export default {
       businessName: '',
       locktoSingleConversation: false,
       allowMessagesAfterResolved: true,
+      defaultQueueId: '',
       continuityViaEmail: true,
       selectedInboxName: '',
       channelWebsiteUrl: '',
@@ -132,7 +133,11 @@ export default {
       isMetaMessageSendingDisabled: 'globalConfig/isMetaMessageSendingDisabled',
       uiFlags: 'inboxes/getUIFlags',
       portals: 'portals/allPortals',
+      queues: 'queues/getQueues',
     }),
+    activeQueues() {
+      return this.queues.filter(queue => queue.active);
+    },
     isInboundEmailEnabled() {
       return this.isFeatureEnabledonAccount(
         this.accountId,
@@ -552,6 +557,7 @@ export default {
       this.$store.dispatch('teams/get');
       this.$store.dispatch('labels/get');
       this.$store.dispatch('portals/index');
+      this.$store.dispatch('queues/get');
     },
     syncInboxData() {
       if (!this.inbox || !this.inbox.id) return;
@@ -566,6 +572,9 @@ export default {
       this.businessName = this.inbox.business_name;
       this.allowMessagesAfterResolved =
         this.inbox.allow_messages_after_resolved;
+      this.defaultQueueId = this.inbox.default_queue_id
+        ? String(this.inbox.default_queue_id)
+        : '';
       this.continuityViaEmail = this.inbox.continuity_via_email;
       this.channelWebsiteUrl = this.inbox.website_url;
       this.channelWelcomeTitle = this.inbox.welcome_title;
@@ -695,6 +704,9 @@ export default {
           name: this.selectedInboxName?.trim(),
           enable_email_collect: this.emailCollectEnabled,
           allow_messages_after_resolved: this.allowMessagesAfterResolved,
+          default_queue_id: this.defaultQueueId
+            ? Number(this.defaultQueueId)
+            : null,
           greeting_enabled: this.greetingEnabled,
           greeting_message: this.greetingMessage || '',
           portal_id: this.selectedPortalSlug
@@ -905,6 +917,28 @@ export default {
                 @delete="handleAvatarDelete"
               />
             </div>
+            <SettingsFieldSection
+              :label="$t('INBOX_MGMT.SETTINGS_POPUP.DEFAULT_QUEUE.LABEL')"
+              :help-text="$t('INBOX_MGMT.SETTINGS_POPUP.DEFAULT_QUEUE.HELP')"
+            >
+              <select
+                v-model="defaultQueueId"
+                class="!mb-0"
+                data-testid="inbox-default-queue"
+              >
+                <option value="">
+                  {{ $t('INBOX_MGMT.SETTINGS_POPUP.DEFAULT_QUEUE.NONE') }}
+                </option>
+                <option
+                  v-for="queue in activeQueues"
+                  :key="queue.id"
+                  :value="String(queue.id)"
+                >
+                  {{ queue.name }}
+                </option>
+              </select>
+            </SettingsFieldSection>
+
             <SettingsFieldSection :label="inboxNameLabel">
               <woot-input
                 v-model="selectedInboxName"

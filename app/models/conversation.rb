@@ -81,6 +81,7 @@ class Conversation < ApplicationRecord
   validates :contact_id, presence: true
   before_validation :validate_additional_attributes
   before_validation :reset_agent_bot_when_assignee_present
+  before_validation :route_to_inbox_default_queue, on: :create
   before_validation :route_to_default_queue_without_automation, on: :create
   validates :additional_attributes, jsonb_attributes_length: true
   validates :custom_attributes, jsonb_attributes_length: true
@@ -418,6 +419,18 @@ class Conversation < ApplicationRecord
   def list_of_keys
     %w[team_id queue_id assignee_id assignee_agent_bot_id status snoozed_until custom_attributes label_list waiting_since
        first_reply_created_at priority requeued_at]
+  end
+
+  # Caixa com Fila padrao: a conversa ja nasce nela e no Time da Fila, com ou sem
+  # automacao (e uma escolha explicita da caixa, ao contrario da Fila geral da conta).
+  def route_to_inbox_default_queue
+    return if queue_id.present? || assignee_id.present?
+
+    default_queue = inbox&.default_queue
+    return if default_queue.blank? || !default_queue.active?
+
+    self.queue_id = default_queue.id
+    self.team_id ||= default_queue.team_id
   end
 
   # Sem nenhuma automacao ativa ninguem encaminha a conversa para a Fila, e ela

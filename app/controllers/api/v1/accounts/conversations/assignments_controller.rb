@@ -115,7 +115,9 @@ class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Account
 
     @queue =queue_id.positive? ? Current.account.queues.find(queue_id) : nil
     @conversation.with_lock do
-      @conversation.update!(queue: @queue)
+      # A Fila pertence a um Time: mudar de Fila leva a conversa para o Time dela,
+      # senao ela ficaria numa Fila que o Time antigo nao enxerga.
+      @conversation.update!(queue: @queue, team_id: @queue&.team_id || @conversation.team_id)
     end
     render json: @queue
   end

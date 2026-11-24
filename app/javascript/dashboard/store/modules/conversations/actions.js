@@ -213,22 +213,18 @@ const actions = {
     { dispatch },
     { conversationId, agentId, assigneeType }
   ) => {
-    try {
-      const response = await ConversationApi.assignAgent({
-        conversationId,
-        agentId,
-        assigneeType,
-      });
-      dispatch('setCurrentChatAssignee', {
-        conversationId,
-        assignee: response.data,
-        assigneeType,
-      });
-    } catch (error) {
-      // Quem chama precisa saber que falhou (ex.: trava da fila) - antes o
-      // erro era engolido e a tela mostrava "agente alterado" de mentira.
-      throw error;
-    }
+    // Sem try/catch: quem chama precisa saber que falhou (ex.: trava da fila) -
+    // antes o erro era engolido e a tela mostrava "agente alterado" de mentira.
+    const response = await ConversationApi.assignAgent({
+      conversationId,
+      agentId,
+      assigneeType,
+    });
+    dispatch('setCurrentChatAssignee', {
+      conversationId,
+      assignee: response.data,
+      assigneeType,
+    });
   },
 
   setCurrentChatAssignee(
@@ -259,19 +255,16 @@ const actions = {
     commit(types.ASSIGN_TEAM, { team, conversationId });
   },
 
+  // Sem try/catch: quem chama desfaz a troca otimista e avisa o motivo do erro.
   assignQueue: async ({ dispatch }, { conversationId, queueId }) => {
-    try {
-      const response = await ConversationApi.assignQueue({
-        conversationId,
-        queueId,
-      });
-      dispatch('setCurrentChatQueue', {
-        queue: response.data,
-        conversationId,
-      });
-    } catch (error) {
-      // Handle error
-    }
+    const response = await ConversationApi.assignQueue({
+      conversationId,
+      queueId,
+    });
+    dispatch('setCurrentChatQueue', {
+      queue: response.data,
+      conversationId,
+    });
   },
 
   setCurrentChatQueue({ commit }, { queue, conversationId }) {
