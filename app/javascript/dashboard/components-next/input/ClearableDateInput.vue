@@ -48,7 +48,7 @@ const clear = () => {
     <button
       v-if="canClear"
       type="button"
-      class="absolute inset-y-0 right-9 z-10 flex items-center justify-center my-auto rounded-full size-7 bg-n-alpha-3 text-n-slate-12 hover:bg-n-alpha-black2 hover:text-n-ruby-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
+      class="absolute right-9 top-5 z-10 flex items-center justify-center -translate-y-1/2 rounded-full size-7 bg-n-alpha-3 text-n-slate-12 hover:bg-n-alpha-black2 hover:text-n-ruby-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-n-brand"
       :aria-label="t('DATE_PICKER.CLEAR_DATE')"
       :title="t('DATE_PICKER.CLEAR_DATE')"
       data-testid="clear-date"
