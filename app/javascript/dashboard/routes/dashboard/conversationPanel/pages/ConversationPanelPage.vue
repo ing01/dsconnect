@@ -22,32 +22,32 @@ import PanelBreakdown from '../components/PanelBreakdown.vue';
 import PanelHandledToday from '../components/PanelHandledToday.vue';
 
 const SOUND_KEY = 'cw_conversation_panel_sound';
-const TEAM_KEY = 'cw_conversation_panel_team';
+const QUEUE_KEY = 'cw_conversation_panel_queue';
 
 const { t } = useI18n();
 const { accountId } = useAccount();
 const store = useStore();
-const teams = useMapGetter('teams/getTeams');
+const queues = useMapGetter('queues/getQueues');
 
-// O time escolhido fica lembrado neste navegador; vazio = todos os times.
-const readTeam = () => {
+// A fila escolhida fica lembrado neste navegador; vazio = todas as filas.
+const readQueue = () => {
   try {
-    return window.localStorage.getItem(TEAM_KEY) || '';
+    return window.localStorage.getItem(QUEUE_KEY) || '';
   } catch {
     return '';
   }
 };
-const teamId = ref(readTeam());
-const onTeamChange = () => {
+const queueId = ref(readQueue());
+const onQueueChange = () => {
   try {
-    window.localStorage.setItem(TEAM_KEY, teamId.value || '');
+    window.localStorage.setItem(QUEUE_KEY, queueId.value || '');
   } catch {
     // Sem lembrar a escolha, o painel segue funcionando.
   }
 };
 
 const { data, isLoading, hasError, nowMs, refresh } =
-  useConversationPanel(teamId);
+  useConversationPanel(queueId);
 
 const root = ref(null);
 const selectedBand = ref(null);
@@ -189,7 +189,7 @@ const toggleTv = async () => {
 };
 
 onMounted(() => {
-  store.dispatch('teams/get');
+  store.dispatch('queues/get');
   soundOn.value = readSound();
   document.addEventListener('fullscreenchange', onFullscreenChange);
 });
@@ -218,22 +218,22 @@ onBeforeUnmount(() => {
 
       <div class="flex flex-wrap items-center gap-2">
         <label class="flex items-center gap-2 text-sm text-n-slate-11">
-          {{ t('CONVERSATION_PANEL.TEAM_FILTER.LABEL') }}
+          {{ t('CONVERSATION_PANEL.QUEUE_FILTER.LABEL') }}
           <select
-            v-model="teamId"
+            v-model="queueId"
             class="!mb-0 h-8 !py-0 text-sm w-auto min-w-40"
-            data-testid="panel-team-filter"
-            @change="onTeamChange"
+            data-testid="panel-queue-filter"
+            @change="onQueueChange"
           >
             <option value="">
-              {{ t('CONVERSATION_PANEL.TEAM_FILTER.ALL') }}
+              {{ t('CONVERSATION_PANEL.QUEUE_FILTER.ALL') }}
             </option>
             <option
-              v-for="team in teams"
-              :key="team.id"
-              :value="String(team.id)"
+              v-for="queue in queues"
+              :key="queue.id"
+              :value="String(queue.id)"
             >
-              {{ team.name }}
+              {{ queue.name }}
             </option>
           </select>
         </label>

@@ -12,9 +12,9 @@ class ConversationPanel::Builder
   PREVIEW_LENGTH = 140
   BANDS = %i[green orange red].freeze
 
-  def initialize(account, setting: ConversationPanelSetting.for(account), now: Time.current, team_id: nil)
+  def initialize(account, setting: ConversationPanelSetting.for(account), now: Time.current, queue_id: nil)
     @account = account
-    @team_id = team_id.presence
+    @queue_id = queue_id.presence
     @setting = setting
     @now = now
   end
@@ -23,7 +23,7 @@ class ConversationPanel::Builder
     {
       settings: settings_json,
       generated_at: @now,
-      team_id: @team_id&.to_i,
+      queue_id: @queue_id&.to_i,
       counts: counts,
       by_agent: breakdown(:assignee_id),
       handled_today: handled_today,
@@ -34,9 +34,9 @@ class ConversationPanel::Builder
   private
 
   # Todas as conversas que o painel considera: da conta toda ou, com o filtro de
-  # time, so' as do time escolhido (a tela inteira passa a refletir esse time).
+  # fila, so' as da fila escolhida (a tela inteira passa a refletir essa fila).
   def scope
-    @team_id ? @account.conversations.where(team_id: @team_id) : @account.conversations
+    @queue_id ? @account.conversations.where(queue_id: @queue_id) : @account.conversations
   end
 
   def open_scope

@@ -89,9 +89,9 @@
       "EMPTY": "Nenhum agente atendeu conversas hoje.",
       "DAY_TOTAL": "Total do dia: {count}"
     },
-    "TEAM_FILTER": {
-      "LABEL": "Time",
-      "ALL": "Todos os times"
+    "QUEUE_FILTER": {
+      "LABEL": "Fila",
+      "ALL": "Todas as filas"
     }
   }
 }

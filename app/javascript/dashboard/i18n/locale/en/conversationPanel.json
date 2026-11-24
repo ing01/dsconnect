@@ -89,9 +89,9 @@
       "EMPTY": "No agent handled conversations today.",
       "DAY_TOTAL": "Day total: {count}"
     },
-    "TEAM_FILTER": {
-      "LABEL": "Team",
-      "ALL": "All teams"
+    "QUEUE_FILTER": {
+      "LABEL": "Queue",
+      "ALL": "All queues"
     }
   }
 }

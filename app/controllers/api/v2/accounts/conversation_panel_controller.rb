@@ -6,7 +6,7 @@ class Api::V2::Accounts::ConversationPanelController < Api::V1::Accounts::BaseCo
 
   def show
     payload = Rails.cache.fetch(cache_key, expires_in: CACHE_SECONDS.seconds) do
-      ConversationPanel::Builder.new(Current.account, team_id: team_id).perform.as_json
+      ConversationPanel::Builder.new(Current.account, queue_id: queue_id).perform.as_json
     end
 
     render json: payload
@@ -23,16 +23,16 @@ class Api::V2::Accounts::ConversationPanelController < Api::V1::Accounts::BaseCo
     authorize :conversation_panel, :show?
   end
 
-  # So' aceita time DA CONTA; qualquer outro valor vira "todos os times".
-  def team_id
-    return @team_id if defined?(@team_id)
+  # So' aceita fila DA CONTA; qualquer outro valor vira "todas as filas".
+  def queue_id
+    return @queue_id if defined?(@queue_id)
 
-    @team_id = params[:team_id].present? ? Current.account.teams.find_by(id: params[:team_id])&.id : nil
+    @queue_id = params[:queue_id].present? ? ServiceQueue.where(account_id: Current.account.id).find_by(id: params[:queue_id])&.id : nil
   end
 
-  # Os tempos e o time entram na chave: mudar a configuracao reflete na hora.
+  # Os tempos e a fila entram na chave: mudar a configuracao reflete na hora.
   def cache_key
     setting = ConversationPanelSetting.for(Current.account)
-    ['conversation_panel', Current.account.id, setting.orange_until_minutes, setting.list_limit, team_id].join(':')
+    ['conversation_panel', Current.account.id, setting.orange_until_minutes, setting.list_limit, queue_id].join(':')
   end
 end
