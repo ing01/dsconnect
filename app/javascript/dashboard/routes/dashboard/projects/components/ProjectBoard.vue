@@ -1,7 +1,6 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ProjectBoardColumn from './ProjectBoardColumn.vue';
 
 const props = defineProps({
@@ -20,6 +19,10 @@ const props = defineProps({
   emptyMessage: {
     type: String,
     default: '',
+  },
+  compact: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -53,7 +56,10 @@ const getStageProjects = stageKey => {
 </script>
 
 <template>
-  <div class="flex flex-1 gap-4 overflow-x-auto min-h-0 pb-2">
+  <div
+    class="flex flex-1 overflow-x-auto min-h-0 pb-2"
+    :class="compact ? 'gap-2' : 'gap-4'"
+  >
     <ProjectBoardColumn
       v-for="stage in visibleStages"
       :key="stage.key"
@@ -63,6 +69,7 @@ const getStageProjects = stageKey => {
       :show-completed="showCompleted"
       :readonly="readonly"
       :empty-message="emptyMessage"
+      :compact="compact"
       :projects="getStageProjects(stage.key)"
       @open-project="emit('openProject', $event)"
       @move-project="emit('moveProject', $event)"

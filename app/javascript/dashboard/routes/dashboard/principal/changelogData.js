@@ -19,6 +19,26 @@ export const CHANGELOG_ENTRIES = [
       'Nos tickets da Mesa de Desenvolvimento, o cronômetro do apontamento agora aparece já na primeira aba, acima do Catálogo de Serviços: é só dar play, pausar, continuar ou finalizar sem trocar de aba. É o mesmo cronômetro da aba Apontamento, então o tempo é o mesmo nos dois lugares.',
   },
   {
+    id: 'projects-compact-cards-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Projetos: botão "Cards compactos"',
+    description:
+      'No quadro de Projetos, ao lado da busca, há o mesmo botão de "Cards compactos" dos tickets: colunas mais estreitas e cards com nome, cliente, progresso e prazo em poucas linhas, para caberem mais projetos na tela. A escolha vale para os dois quadros.',
+  },
+  {
+    id: 'agenda-full-text-and-time-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Agenda mostra o horário e o título completo',
+    description:
+      'Na Agenda, os eventos agora mostram o horário antes do título, inclusive na visão de mês, e o título quebra linha em vez de ser cortado. Nas visões de semana e dia, passe o mouse sobre um evento curto para ele crescer e mostrar todo o texto.',
+  },
+  {
     id: 'kanban-shows-resolved-and-closed-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',

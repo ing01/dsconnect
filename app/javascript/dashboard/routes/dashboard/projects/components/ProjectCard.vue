@@ -9,18 +9,36 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  // Mesmo "Cards compactos" do Kanban de tickets: nome, cliente, progresso e
+  // prazo em poucas linhas, para caberem mais projetos na tela.
+  compact: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(['click', 'edit', 'delete']);
+const emit = defineEmits(['click']);
 
 const { t } = useI18n();
 
 const progressPercent = computed(() => {
-  if (!props.project.tickets_count || props.project.tickets_count === 0) return 0;
+  if (!props.project.tickets_count || props.project.tickets_count === 0)
+    return 0;
   return Math.round(
-    ((props.project.completed_tickets_count || 0) / props.project.tickets_count) * 100
+    ((props.project.completed_tickets_count || 0) /
+      props.project.tickets_count) *
+      100
   );
 });
+
+const tasksDone = computed(
+  () =>
+    `${props.project.completed_tickets_count || 0}/${props.project.tickets_count}`
+);
+
+const progressLabel = computed(
+  () => `${tasksDone.value} (${progressPercent.value}%)`
+);
 
 const formatDate = dateStr => {
   if (!dateStr) return '';
@@ -56,8 +74,13 @@ const stageLabelColor = computed(() => {
 
 const isOverdue = computed(() => {
   const today = new Date().toISOString().split('T')[0];
-  const { stage, due_date: dueDate, support_ends_on: supportEndsOn } = props.project;
-  if (stage === 'acompanhamento') return !!supportEndsOn && supportEndsOn < today;
+  const {
+    stage,
+    due_date: dueDate,
+    support_ends_on: supportEndsOn,
+  } = props.project;
+  if (stage === 'acompanhamento')
+    return !!supportEndsOn && supportEndsOn < today;
   if (['pendente', 'onboarding', 'requisito', 'em_andamento'].includes(stage)) {
     return !!dueDate && dueDate < today;
   }
@@ -67,13 +90,17 @@ const isOverdue = computed(() => {
 
 <template>
   <div
-    class="group relative flex flex-col gap-2.5 rounded-xl border border-n-weak bg-n-solid-1 p-3.5 cursor-pointer transition-all hover:border-n-slate-6 hover:shadow-md hover:-translate-y-0.5 border-l-4"
-    :class="stageBorderClass"
+    class="group relative flex flex-col rounded-xl border border-n-weak bg-n-solid-1 cursor-pointer transition-all hover:border-n-slate-6 hover:shadow-md hover:-translate-y-0.5 border-l-4"
+    :class="[stageBorderClass, compact ? 'gap-1 px-2.5 py-2' : 'gap-2.5 p-3.5']"
     @click="emit('click', project)"
   >
     <!-- Header: Project Name & Stage Badge -->
     <div class="flex items-start justify-between gap-2">
-      <h3 class="text-sm font-semibold text-n-slate-12 line-clamp-2 leading-tight" :title="project.name">
+      <h3
+        class="text-sm font-semibold text-n-slate-12 leading-tight"
+        :class="compact ? 'line-clamp-1' : 'line-clamp-2'"
+        :title="project.name"
+      >
         {{ project.name }}
       </h3>
       <div class="flex items-center gap-1 flex-shrink-0">
@@ -85,7 +112,9 @@ const isOverdue = computed(() => {
         />
         <WootLabel
           v-else-if="project.stage"
-          :label="t(`PROJECTS.STAGES.${project.stage.toUpperCase()}`, project.stage)"
+          :label="
+            t(`PROJECTS.STAGES.${project.stage.toUpperCase()}`, project.stage)
+          "
           :color="stageLabelColor"
           compact
         />
@@ -93,13 +122,24 @@ const isOverdue = computed(() => {
     </div>
 
     <!-- Company / Client -->
-    <div v-if="project.company_name" class="flex items-center gap-1.5 text-xs text-n-slate-11">
-      <Icon icon="i-lucide-building-2" class="size-3.5 flex-shrink-0 text-n-slate-9" />
-      <span class="truncate" :title="project.company_name">{{ project.company_name }}</span>
+    <div
+      v-if="project.company_name"
+      class="flex items-center gap-1.5 text-xs text-n-slate-11"
+    >
+      <Icon
+        icon="i-lucide-building-2"
+        class="size-3.5 flex-shrink-0 text-n-slate-9"
+      />
+      <span class="truncate" :title="project.company_name">{{
+        project.company_name
+      }}</span>
     </div>
 
-    <!-- Module & Team info -->
-    <div class="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-n-slate-10">
+    <!-- Module & Team info (fica de fora no compacto) -->
+    <div
+      v-if="!compact"
+      class="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-n-slate-10"
+    >
       <div v-if="project.project_module_name" class="flex items-center gap-1">
         <Icon icon="i-lucide-layers" class="size-3.5 text-n-slate-9" />
         <span class="truncate">{{ project.project_module_name }}</span>
@@ -114,15 +154,44 @@ const isOverdue = computed(() => {
       </div>
       <div v-if="project.total_hours" class="flex items-center gap-1">
         <Icon icon="i-lucide-clock-3" class="size-3.5 text-n-slate-9" />
-        <span>{{ project.total_hours }}h</span>
+        <span>{{
+          t('PROJECTS.CARD.HOURS', { count: project.total_hours })
+        }}</span>
       </div>
     </div>
 
+    <!-- Compacto: progresso e prazo numa linha so' -->
+    <div
+      v-if="compact && (project.tickets_count || project.due_date)"
+      class="flex items-center gap-2 text-[11px] text-n-slate-10"
+    >
+      <template v-if="project.tickets_count">
+        <div class="flex-1 h-1.5 bg-n-slate-4 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-n-teal-9 rounded-full"
+            :style="{ width: `${progressPercent}%` }"
+          />
+        </div>
+        <span class="font-medium flex-shrink-0">{{ tasksDone }}</span>
+      </template>
+      <span
+        v-if="project.due_date"
+        class="flex items-center gap-1 flex-shrink-0 ml-auto font-medium"
+        :class="isOverdue ? 'text-n-ruby-11' : 'text-n-slate-10'"
+      >
+        <Icon icon="i-lucide-clock" class="size-3" />
+        {{ formatDate(project.due_date) }}
+      </span>
+    </div>
+
     <!-- Task Progress Bar -->
-    <div v-if="project.tickets_count" class="flex flex-col gap-1.5 mt-1">
+    <div
+      v-if="!compact && project.tickets_count"
+      class="flex flex-col gap-1.5 mt-1"
+    >
       <div class="flex justify-between text-[11px] text-n-slate-10">
         <span class="font-medium">{{ t('PROJECTS.CARD.TASKS_PROGRESS') }}</span>
-        <span class="font-medium">{{ project.completed_tickets_count || 0 }}/{{ project.tickets_count }} ({{ progressPercent }}%)</span>
+        <span class="font-medium">{{ progressLabel }}</span>
       </div>
       <div class="w-full h-2 bg-n-slate-4 rounded-full overflow-hidden">
         <div
@@ -133,7 +202,10 @@ const isOverdue = computed(() => {
     </div>
 
     <!-- Dates footer -->
-    <div v-if="project.due_date || project.start_date" class="flex items-center justify-between text-[11px] text-n-slate-10 pt-2 border-t border-n-weak">
+    <div
+      v-if="!compact && (project.due_date || project.start_date)"
+      class="flex items-center justify-between text-[11px] text-n-slate-10 pt-2 border-t border-n-weak"
+    >
       <span v-if="project.start_date" class="flex items-center gap-1">
         <Icon icon="i-lucide-calendar" class="size-3 text-n-slate-8" />
         {{ formatDate(project.start_date) }}
@@ -143,9 +215,15 @@ const isOverdue = computed(() => {
         class="flex items-center gap-1 font-medium ml-auto"
         :class="isOverdue ? 'text-n-ruby-11' : 'text-n-slate-10'"
       >
-        <Icon icon="i-lucide-clock" class="size-3" :class="isOverdue ? 'text-n-ruby-9' : 'text-n-slate-8'" />
+        <Icon
+          icon="i-lucide-clock"
+          class="size-3"
+          :class="isOverdue ? 'text-n-ruby-9' : 'text-n-slate-8'"
+        />
         {{ formatDate(project.due_date) }}
-        <span v-if="isOverdue" class="text-[10px] uppercase font-semibold">{{ t('PROJECTS.CARD.OVERDUE') }}</span>
+        <span v-if="isOverdue" class="text-[10px] uppercase font-semibold">{{
+          t('PROJECTS.CARD.OVERDUE')
+        }}</span>
       </span>
     </div>
   </div>

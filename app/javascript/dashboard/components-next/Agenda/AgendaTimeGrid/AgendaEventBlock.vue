@@ -3,7 +3,11 @@ import { computed, ref } from 'vue';
 import { format, parseISO, addMinutes } from 'date-fns';
 import { colorForEvent } from '../helpers/agentColorHelper';
 import { isTimeOffEvent } from '../helpers/agendaDateHelper';
-import { HOUR_HEIGHT_PX, MIN_EVENT_DURATION_MINUTES, DRAG_SNAP_MINUTES } from '../constants';
+import {
+  HOUR_HEIGHT_PX,
+  MIN_EVENT_DURATION_MINUTES,
+  DRAG_SNAP_MINUTES,
+} from '../constants';
 
 const props = defineProps({
   event: {
@@ -44,7 +48,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['click', 'drag-end']);
+const emit = defineEmits(['click', 'dragEnd']);
 
 const color = computed(() => colorForEvent(props.event));
 const isTimeOff = computed(() => isTimeOffEvent(props.event));
@@ -65,7 +69,8 @@ let hasMoved = false;
 let originStart = null;
 let originEnd = null;
 
-const snapMinutes = minutes => Math.round(minutes / DRAG_SNAP_MINUTES) * DRAG_SNAP_MINUTES;
+const snapMinutes = minutes =>
+  Math.round(minutes / DRAG_SNAP_MINUTES) * DRAG_SNAP_MINUTES;
 
 const handlePointerMove = e => {
   const deltaY = e.clientY - startClientY;
@@ -74,7 +79,10 @@ const handlePointerMove = e => {
 
   if (dragMode === 'resize') {
     const minHeightPx = MIN_EVENT_DURATION_MINUTES * pxPerMinute;
-    dragHeightOverride.value = Math.max(props.height + deltaMinutes * pxPerMinute, minHeightPx);
+    dragHeightOverride.value = Math.max(
+      props.height + deltaMinutes * pxPerMinute,
+      minHeightPx
+    );
   } else {
     dragOffsetY.value = deltaMinutes * pxPerMinute;
   }
@@ -90,10 +98,16 @@ const handlePointerUp = () => {
     const deltaMinutes = snapMinutes(dragOffsetY.value / pxPerMinute);
     if (dragMode === 'resize') {
       const minutesHeld = Math.round(dragHeightOverride.value / pxPerMinute);
-      const newEnd = addMinutes(originStart, Math.max(minutesHeld, MIN_EVENT_DURATION_MINUTES));
-      emit('drag-end', { startAt: originStart, endAt: newEnd });
+      const newEnd = addMinutes(
+        originStart,
+        Math.max(minutesHeld, MIN_EVENT_DURATION_MINUTES)
+      );
+      emit('dragEnd', { startAt: originStart, endAt: newEnd });
     } else {
-      emit('drag-end', { startAt: addMinutes(originStart, deltaMinutes), endAt: addMinutes(originEnd, deltaMinutes) });
+      emit('dragEnd', {
+        startAt: addMinutes(originStart, deltaMinutes),
+        endAt: addMinutes(originEnd, deltaMinutes),
+      });
     }
   }
 
@@ -136,29 +150,43 @@ const handleClick = e => {
 <template>
   <button
     type="button"
-    class="absolute overflow-hidden rounded-md pl-3 pr-2 py-1 text-left text-white shadow-md transition-[opacity,shadow] hover:opacity-90 hover:shadow-lg select-none"
-    :class="[
-      { 'rounded-t-none': clippedAtStart, 'rounded-b-none': clippedAtEnd },
-      { 'cursor-grab': draggable && !isDragging, 'cursor-grabbing': isDragging, 'ring-2 ring-white/70 z-10': isDragging },
-      { 'opacity-80 border border-dashed border-white/70': isTimeOff },
-      { 'border-l-[3px] border-l-black/20': !isTimeOff },
-    ]"
+    class="absolute flex flex-col items-start overflow-hidden rounded-md pl-3 pr-2 py-1 text-left text-white shadow-md transition-[opacity,shadow] hover:opacity-90 hover:shadow-lg select-none"
+    :class="{
+      'rounded-t-none': clippedAtStart,
+      'rounded-b-none': clippedAtEnd,
+      'cursor-grab': draggable && !isDragging,
+      'cursor-grabbing': isDragging,
+      'ring-2 ring-white/70 z-10': isDragging,
+      'hover:!h-auto hover:z-20': !isDragging,
+      'opacity-80 border border-dashed border-white/70': isTimeOff,
+      'border-l-[3px] border-l-black/20': !isTimeOff,
+    }"
     :style="{
       top: `${top}px`,
       height: `${dragHeightOverride ?? height}px`,
+      minHeight: `${dragHeightOverride ?? height}px`,
       left: `${left}%`,
       width: `calc(${width}% - 4px)`,
       backgroundColor: color,
       transform: dragOffsetY ? `translateY(${dragOffsetY}px)` : undefined,
     }"
+    :title="`${timeRangeLabel()} ${event.title}`"
     @pointerdown="handleBlockPointerDown"
     @click="handleClick"
   >
-    <span class="flex items-center gap-1 text-xs font-medium truncate">
-      <span v-if="isTimeOff" class="shrink-0 i-lucide-palmtree size-3" />
-      {{ event.title }}
+    <!-- Horario primeiro: num evento curto e' o que tem que caber. O titulo
+         quebra linha em vez de ser cortado com reticencias; se ainda assim nao
+         couber na altura do evento, o bloco cresce ao passar o mouse (a altura
+         minima continua sendo a da duracao). -->
+    <span class="block text-[0.6875rem] font-semibold opacity-90">
+      {{ timeRangeLabel() }}
     </span>
-    <span class="block text-[0.6875rem] opacity-90 truncate">{{ timeRangeLabel() }}</span>
+    <span
+      class="flex items-start gap-1 text-xs font-medium leading-snug whitespace-normal break-words"
+    >
+      <span v-if="isTimeOff" class="shrink-0 mt-0.5 i-lucide-palmtree size-3" />
+      <span class="min-w-0">{{ event.title }}</span>
+    </span>
 
     <div
       v-if="draggable"

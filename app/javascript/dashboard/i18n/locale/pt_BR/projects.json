@@ -38,7 +38,8 @@
       "TASKS_PROGRESS": "Progresso",
       "TASK_COUNT": "tarefas",
       "CANCELLED": "Cancelado",
-      "OVERDUE": "Vencido"
+      "OVERDUE": "Vencido",
+      "HOURS": "{count}h"
     },
     "CREATE": {
       "TITLE_STEP1": "Novo Projeto",
