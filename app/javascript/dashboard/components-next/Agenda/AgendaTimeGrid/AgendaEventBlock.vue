@@ -1,8 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { format, parseISO, addMinutes } from 'date-fns';
-import { colorForEvent } from '../helpers/agentColorHelper';
-import { isTimeOffEvent } from '../helpers/agendaDateHelper';
+import { colorForEvent, eventSurfaceStyle } from '../helpers/agentColorHelper';
+import { isPastDayEvent, isTimeOffEvent } from '../helpers/agendaDateHelper';
 import {
   HOUR_HEIGHT_PX,
   MIN_EVENT_DURATION_MINUTES,
@@ -52,10 +52,20 @@ const emit = defineEmits(['click', 'dragEnd']);
 
 const color = computed(() => colorForEvent(props.event));
 const isTimeOff = computed(() => isTimeOffEvent(props.event));
+const isPast = computed(() => isPastDayEvent(props.event));
 const pxPerMinute = HOUR_HEIGHT_PX / 60;
 
 const timeRangeLabel = () =>
-  `${format(parseISO(props.event.start_at), 'HH:mm')} - ${format(parseISO(props.event.end_at), 'HH:mm')}`;
+  `${format(parseISO(props.event.start_at), 'HH:mm')}–${format(parseISO(props.event.end_at), 'HH:mm')}`;
+
+// Dia cheio (varios eventos dividindo a coluna) deixa cada bloco estreito
+// demais para ler. Ao passar o mouse, o bloco cresce para o LADO (ate
+// EXPANDED_MIN_WIDTH) e para BAIXO (ate caber o texto), por cima dos vizinhos.
+// Quem esta na metade direita da coluna cresce para a esquerda, para nao sair
+// da tela no ultimo dia da semana.
+const EXPANDED_MIN_WIDTH = '13rem';
+const isHovered = ref(false);
+const anchorRight = computed(() => props.left + props.width / 2 > 50);
 
 // Enquanto arrasta, o bloco se desenha deslocado/redimensionado via estas
 // duas variaveis (sem recalcular top/height "de verdade" - isso so' acontece
@@ -68,6 +78,30 @@ let startClientY = 0;
 let hasMoved = false;
 let originStart = null;
 let originEnd = null;
+
+const isExpanded = computed(() => isHovered.value && !isDragging.value);
+
+const blockStyle = computed(() => {
+  const heightPx = `${dragHeightOverride.value ?? props.height}px`;
+  const baseWidth = `calc(${props.width}% - 4px)`;
+  const expandRight = isExpanded.value && anchorRight.value;
+  return {
+    ...eventSurfaceStyle(color.value),
+    top: `${props.top}px`,
+    height: isExpanded.value ? 'auto' : heightPx,
+    minHeight: heightPx,
+    left: expandRight ? 'auto' : `${props.left}%`,
+    right: expandRight
+      ? `calc(${100 - props.left - props.width}% + 4px)`
+      : undefined,
+    width: isExpanded.value
+      ? `max(${baseWidth}, ${EXPANDED_MIN_WIDTH})`
+      : baseWidth,
+    transform: dragOffsetY.value
+      ? `translateY(${dragOffsetY.value}px)`
+      : undefined,
+  };
+});
 
 const snapMinutes = minutes =>
   Math.round(minutes / DRAG_SNAP_MINUTES) * DRAG_SNAP_MINUTES;
@@ -150,42 +184,35 @@ const handleClick = e => {
 <template>
   <button
     type="button"
-    class="absolute flex flex-col items-start overflow-hidden rounded-md pl-3 pr-2 py-1 text-left text-white shadow-md transition-[opacity,shadow] hover:opacity-90 hover:shadow-lg select-none"
+    class="absolute flex flex-col items-start gap-0.5 overflow-hidden rounded-md border-l-4 pl-2 pr-1.5 py-1 text-left text-white shadow-sm transition-[opacity,box-shadow] select-none"
     :class="{
       'rounded-t-none': clippedAtStart,
       'rounded-b-none': clippedAtEnd,
       'cursor-grab': draggable && !isDragging,
       'cursor-grabbing': isDragging,
       'ring-2 ring-white/70 z-10': isDragging,
-      'hover:!h-auto hover:z-20': !isDragging,
-      'opacity-80 border border-dashed border-white/70': isTimeOff,
-      'border-l-[3px] border-l-black/20': !isTimeOff,
+      'z-20 shadow-lg ring-1 ring-white/40 !opacity-100': isExpanded,
+      'opacity-50': isPast,
+      'outline-dashed outline-1 -outline-offset-1 outline-white/50': isTimeOff,
     }"
-    :style="{
-      top: `${top}px`,
-      height: `${dragHeightOverride ?? height}px`,
-      minHeight: `${dragHeightOverride ?? height}px`,
-      left: `${left}%`,
-      width: `calc(${width}% - 4px)`,
-      backgroundColor: color,
-      transform: dragOffsetY ? `translateY(${dragOffsetY}px)` : undefined,
-    }"
-    :title="`${timeRangeLabel()} ${event.title}`"
+    :style="blockStyle"
+    :title="`${event.title} (${timeRangeLabel()})`"
+    @pointerenter="isHovered = true"
+    @pointerleave="isHovered = false"
     @pointerdown="handleBlockPointerDown"
     @click="handleClick"
   >
-    <!-- Horario primeiro: num evento curto e' o que tem que caber. O titulo
-         quebra linha em vez de ser cortado com reticencias; se ainda assim nao
-         couber na altura do evento, o bloco cresce ao passar o mouse (a altura
-         minima continua sendo a da duracao). -->
-    <span class="block text-[0.6875rem] font-semibold opacity-90">
-      {{ timeRangeLabel() }}
-    </span>
+    <!-- Estilo Outlook: titulo primeiro, quebrando linha (nunca cortado com
+         reticencias), horario pequeno embaixo, numa linha so'. Se nao couber,
+         o bloco cresce ao passar o mouse (ver blockStyle). -->
     <span
-      class="flex items-start gap-1 text-xs font-medium leading-snug whitespace-normal break-words"
+      class="flex items-start gap-1 w-full text-xs font-semibold leading-tight whitespace-normal break-words"
     >
-      <span v-if="isTimeOff" class="shrink-0 mt-0.5 i-lucide-palmtree size-3" />
+      <span v-if="isTimeOff" class="shrink-0 mt-px i-lucide-palmtree size-3" />
       <span class="min-w-0">{{ event.title }}</span>
+    </span>
+    <span class="block w-full text-[10px] opacity-80 truncate">
+      {{ timeRangeLabel() }}
     </span>
 
     <div

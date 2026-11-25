@@ -33,7 +33,9 @@ export const buildMonthGrid = referenceDate => {
 };
 
 export const buildWeekDays = referenceDate => {
-  const weekStart = startOfWeek(referenceDate, { weekStartsOn: WEEK_STARTS_ON });
+  const weekStart = startOfWeek(referenceDate, {
+    weekStartsOn: WEEK_STARTS_ON,
+  });
   const weekEnd = endOfWeek(referenceDate, { weekStartsOn: WEEK_STARTS_ON });
   return eachDayOfInterval({ start: weekStart, end: weekEnd });
 };
@@ -42,7 +44,9 @@ export const buildWeekDays = referenceDate => {
 // explicitly all_day, or it spans more than one calendar day - either way it
 // renders as a bar above the hour grid, never split across the timeline.
 export const isAllDayEvent = event =>
-  event.all_day || differenceInCalendarDays(parseISO(event.end_at), parseISO(event.start_at)) >= 1;
+  event.all_day ||
+  differenceInCalendarDays(parseISO(event.end_at), parseISO(event.start_at)) >=
+    1;
 
 export const isTimeOffEvent = event => event.event_type === 'time_off';
 
@@ -64,7 +68,10 @@ export const groupEventsByDay = (events, gridStart, gridEnd) => {
     const spanEnd = min([eventEnd, gridEnd]);
     if (spanStart > spanEnd) return;
 
-    eachDayOfInterval({ start: startOfDay(spanStart), end: startOfDay(spanEnd) }).forEach(day => {
+    eachDayOfInterval({
+      start: startOfDay(spanStart),
+      end: startOfDay(spanEnd),
+    }).forEach(day => {
       const key = format(day, 'yyyy-MM-dd');
       if (!map.has(key)) return;
       map.get(key).push(event);
@@ -73,7 +80,8 @@ export const groupEventsByDay = (events, gridStart, gridEnd) => {
 
   map.forEach(list => {
     list.sort((a, b) => {
-      if (isAllDayEvent(a) !== isAllDayEvent(b)) return isAllDayEvent(a) ? -1 : 1;
+      if (isAllDayEvent(a) !== isAllDayEvent(b))
+        return isAllDayEvent(a) ? -1 : 1;
       return parseISO(a.start_at) - parseISO(b.start_at);
     });
   });
@@ -88,7 +96,16 @@ export const visibleRangeFor = (view, referenceDate) => {
   }
   if (view === 'week') {
     const days = buildWeekDays(referenceDate);
-    return { since: startOfDay(days[0]), until: endOfDay(days[days.length - 1]) };
+    return {
+      since: startOfDay(days[0]),
+      until: endOfDay(days[days.length - 1]),
+    };
   }
   return { since: startOfDay(referenceDate), until: endOfDay(referenceDate) };
 };
+
+// Evento que terminou antes de hoje: a agenda o desenha apagado, como o
+// Outlook faz com os dias que ja passaram, para o olho ir direto no que ainda
+// vai acontecer.
+export const isPastDayEvent = event =>
+  parseISO(event.end_at) < startOfDay(new Date());

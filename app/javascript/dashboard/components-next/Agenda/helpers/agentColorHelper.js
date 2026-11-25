@@ -39,3 +39,13 @@ export const ownerIdOfEvent = event => {
 };
 
 export const colorForEvent = event => colorForAgent(ownerIdOfEvent(event));
+
+// Visual do evento no estilo do Outlook (pedido da Ingrid, 2026-11-25): fundo
+// num tom ESCURO da cor do responsavel, com a faixa da esquerda na cor viva.
+// Varios eventos lado a lado cansam menos a vista do que blocos todos na cor
+// cheia, e a faixa continua dizendo de quem e' o evento. Texto branco funciona
+// nos dois temas porque o fundo e' sempre escurecido.
+export const eventSurfaceStyle = color => ({
+  backgroundColor: `color-mix(in srgb, ${color} 50%, #000)`,
+  borderLeftColor: color,
+});

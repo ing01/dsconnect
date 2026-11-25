@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'agenda-outlook-style-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'design',
+    title: 'Agenda com novo visual dos eventos',
+    description:
+      'Os eventos da Agenda ganharam um visual mais leve: fundo escuro com uma faixa na cor do responsável, título primeiro e o horário pequeno embaixo. Eventos de dias que já passaram aparecem apagados. Em dias cheios, passe o mouse sobre um evento para ele crescer para o lado e mostrar todo o texto.',
+  },
+  {
     id: 'ticket-timer-on-overview-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',
