@@ -8,6 +8,37 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-development-tab-columns-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title:
+      'Aba Desenvolvimento mostra prioridade, status, estágio e responsável',
+    description:
+      'Na aba Desenvolvimento do ticket, os tickets de desenvolvimento vinculados agora aparecem numa tabela com Prioridade, Status, Estágio e Responsável. Dá para saber se o dev já finalizou sem precisar abrir cada ticket.',
+  },
+  {
+    id: 'dev-child-close-without-customer-message-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Ticket filho do Desenvolvimento encerra sem comunicação ao cliente',
+    description:
+      'Ao encerrar um ticket filho numa Mesa de Desenvolvimento, a comunicação com o cliente deixou de ser obrigatória: quem fala com o cliente é o ticket pai. Categoria, Catálogo, Resolução e checklist continuam sendo exigidos.',
+  },
+  {
+    id: 'suggestion-block-button-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'feature',
+    title: 'Sugestões: botão "Impedir" avisa quem abriu',
+    description:
+      'No detalhe de uma sugestão, quem gerencia o quadro pode clicar em "Impedir" e explicar quais detalhes faltam. Quem abriu a sugestão recebe uma notificação com esse texto, e o card ganha o selo "Impedida" até alguém clicar em "Remover impedimento".',
+  },
+  {
     id: 'internal-chat-sidebar-sections-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

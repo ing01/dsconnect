@@ -128,6 +128,9 @@ module TicketClosing
 
   def missing_communication_requirements
     return [] if closing_communication_sent?
+    # Ticket filho de uma Mesa de Desenvolvimento: quem fala com o cliente e' o
+    # ticket PAI (o atendimento). O dev encerra o filho sem comunicacao propria.
+    return [] if development_child?
     # Solicitante sem e-mail: nao ha a quem avisar, e o ticket fecha normalmente.
     # O maximo que acontece e nao sair e-mail nenhum.
     return [] if customer_email.blank?
@@ -136,6 +139,10 @@ module TicketClosing
     return [] unless customer_email_deliverable?
 
     [MISSING_COMMUNICATION]
+  end
+
+  def development_child?
+    parent_id.present? && team&.development_module_enabled?
   end
 
   def closeable?

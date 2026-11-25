@@ -627,6 +627,14 @@
           "HELP": "Already have the card in Jira? Enter its key here instead of creating a ticket for the Development desk.",
           "SAVE": "Save",
           "SUCCESS": "Jira key updated"
+        },
+        "COLUMNS": {
+          "TICKET": "Ticket",
+          "PRIORITY": "Priority",
+          "STATUS": "Status",
+          "STAGE": "Stage",
+          "ASSIGNEE": "Assignee",
+          "NONE": "—"
         }
       },
       "TAB_HISTORY": "History",

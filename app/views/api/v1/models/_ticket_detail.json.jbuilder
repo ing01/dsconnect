@@ -77,8 +77,13 @@ else
   json.parent nil
 end
 
+# A aba Desenvolvimento mostra Prioridade | Status | Estagio | Responsavel de cada
+# filho - o suficiente para saber se o dev ja finalizou sem abrir o ticket.
 json.children resource.children.sort_by(&:display_id) do |child|
   ticket_ref.call(child)
+  json.priority child.priority
+  json.ticket_column_name child.ticket_column&.name
+  json.assignee_name child.assignee&.name
 end
 
 if resource.merged_into

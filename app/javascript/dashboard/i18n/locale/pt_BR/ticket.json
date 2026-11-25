@@ -717,7 +717,15 @@
         "CHILD_CONFIRM_DELETE": "Excluir este ticket?",
         "CHILD_CONFIRM_UNLINK": "Desvincular?",
         "CHILD_CONFIRM_YES": "Confirmar",
-        "CHILD_CONFIRM_NO": "Cancelar"
+        "CHILD_CONFIRM_NO": "Cancelar",
+        "COLUMNS": {
+          "TICKET": "Ticket",
+          "PRIORITY": "Prioridade",
+          "STATUS": "Status",
+          "STAGE": "Estágio",
+          "ASSIGNEE": "Responsável",
+          "NONE": "—"
+        }
       },
       "TAB_HISTORY": "Histórico",
       "RELATIONSHIPS": {

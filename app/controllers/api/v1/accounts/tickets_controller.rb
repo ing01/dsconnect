@@ -252,7 +252,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
     { ticket_applied_slas: :ticket_column },
     { ticket_customer_communications: [:user, :contact] },
     { service_catalog_item: { service_catalog_area: :service_catalog } },
-    :parent, :children, :merged_into, :merged_tickets
+    :parent, { children: [:ticket_column, :assignee] }, :merged_into, :merged_tickets
   ].freeze
 
   def fetch_ticket(id = params[:id])
