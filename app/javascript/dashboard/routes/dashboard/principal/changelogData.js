@@ -8,6 +8,17 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-timer-on-overview-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title:
+      'Apontamento (play/pause) na primeira aba do ticket de desenvolvimento',
+    description:
+      'Nos tickets da Mesa de Desenvolvimento, o cronômetro do apontamento agora aparece já na primeira aba, acima do Catálogo de Serviços: é só dar play, pausar, continuar ou finalizar sem trocar de aba. É o mesmo cronômetro da aba Apontamento, então o tempo é o mesmo nos dois lugares.',
+  },
+  {
     id: 'kanban-shows-resolved-and-closed-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',

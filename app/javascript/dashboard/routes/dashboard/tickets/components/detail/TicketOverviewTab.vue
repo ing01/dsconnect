@@ -10,6 +10,8 @@ import TicketDevFieldsCard from './TicketDevFieldsCard.vue';
 import TicketAttachmentsAccordion from './TicketAttachmentsAccordion.vue';
 import TicketPropertiesCard from './TicketPropertiesCard.vue';
 import TicketSlaAccordion from './TicketSlaAccordion.vue';
+import TicketTimerCard from './TicketTimerCard.vue';
+import { categoryForTeamName } from '../../helpers/timeEntryFormat';
 
 defineProps({
   ticket: { type: Object, required: true },
@@ -76,6 +78,15 @@ defineEmits([
           :can-update="canUpdate"
           @edit-company="$emit('editCompany')"
           @edit-contact="$emit('editContact')"
+        />
+        <!-- O cronometro do apontamento (play/pause) logo na primeira aba da Mesa de
+             Desenvolvimento: e o mesmo da aba Apontamento, o tempo e do servidor. -->
+        <TicketTimerCard
+          v-if="isDevMesa"
+          :ticket-id="ticket.id"
+          :default-category="
+            categoryForTeamName(ticket.team_name) || 'desenvolvimento'
+          "
         />
         <TicketCatalogCard
           :ticket="ticket"
