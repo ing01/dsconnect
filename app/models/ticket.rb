@@ -101,6 +101,17 @@ class Ticket < ApplicationRecord
   # leaves the operational board. It is still in the database and still reachable
   # through the "Busca detalhada", which deliberately does NOT apply this scope.
   scope :operational, -> { where(status: :open) }
+  # O que o quadro Kanban desenha: os abertos e tambem os RESOLVIDOS e FECHADOS, no
+  # Estagio em que estiverem - pedido da Ingrid, 2026-11-25, para dar pra ver no
+  # quadro o que ja foi concluido. So' o cancelado continua fora.
+  scope :on_board, -> { where.not(status: :cancelled) }
+  # Abertos primeiro, na ordem do quadro; depois os resolvidos/fechados, o
+  # concluido mais recente primeiro. Sem isso o limite por coluna
+  # (TicketColumn::BOARD_TICKETS_LIMIT) cortaria justamente os ultimos
+  # concluidos, que ganham a maior posicao.
+  BOARD_ORDER_SQL = 'CASE WHEN tickets.status = 0 THEN 0 ELSE 1 END ASC, ' \
+                    'COALESCE(tickets.closed_at, tickets.resolved_at) DESC NULLS LAST, ' \
+                    'tickets.position ASC, tickets.id ASC'
 
   # Fila de suporte da triagem automatica: prioridade do ticket (urgente > alta
   # > media > baixa), com data de criacao como desempate. Independente do

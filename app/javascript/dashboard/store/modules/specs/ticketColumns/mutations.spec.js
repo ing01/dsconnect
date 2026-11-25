@@ -58,7 +58,7 @@ describe('ticketColumns mutations', () => {
     // The Kanban is the operational board: a ticket that just reached a terminal
     // state leaves it, here and on every other agent's board over realtime.
     describe('terminal tickets', () => {
-      ['resolved', 'closed', 'cancelled'].forEach(status => {
+      ['cancelled'].forEach(status => {
         it(`removes a ${status} ticket from the board`, () => {
           const state = board();
 
@@ -71,7 +71,7 @@ describe('ticketColumns mutations', () => {
       it('never adds a terminal ticket the board had not seen', () => {
         const state = board();
 
-        mutations[upsert](state, ticket({ id: 2, status: 'closed' }));
+        mutations[upsert](state, ticket({ id: 2, status: 'cancelled' }));
 
         expect(idsIn(state, 10)).toEqual([1]);
         expect(idsIn(state, 11)).toEqual([]);
@@ -85,7 +85,7 @@ describe('ticketColumns mutations', () => {
 
         mutations[upsert](
           state,
-          ticket({ status: 'closed', ticket_column_id: 11 })
+          ticket({ status: 'cancelled', ticket_column_id: 11 })
         );
 
         expect(idsIn(state, 11)).toEqual([]);
@@ -97,9 +97,25 @@ describe('ticketColumns mutations', () => {
           { id: 11, tickets: [] },
         ]);
 
-        mutations[upsert](state, ticket({ status: 'closed' }));
+        mutations[upsert](state, ticket({ status: 'cancelled' }));
 
         expect(idsIn(state, 10)).toEqual([2]);
+      });
+
+      // Resolvido e fechado continuam no quadro, no Estagio em que estiverem
+      // (Ticket.on_board).
+      ['resolved', 'closed'].forEach(status => {
+        it(`keeps a ${status} ticket on the board, in its stage`, () => {
+          const state = board([
+            { id: 10, tickets: [ticket()] },
+            { id: 11, tickets: [] },
+          ]);
+
+          mutations[upsert](state, ticket({ status, ticket_column_id: 11 }));
+
+          expect(idsIn(state, 10)).toEqual([]);
+          expect(idsIn(state, 11)).toEqual([1]);
+        });
       });
 
       // Reopening puts it back, in the stage it belongs to.

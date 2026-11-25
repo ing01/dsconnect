@@ -71,9 +71,15 @@ export default {
     // status "resolvido" ja usa - ver ticketLabels.js) em vez do card neutro
     // padrao, pra bater o olho ja diferenciar um ticket concluido dos demais.
     cardClass() {
-      return this.isCompleted
+      const colors = this.isCompleted
         ? 'border-n-teal-7 bg-n-teal-4 hover:border-n-teal-8'
         : 'border-n-weak bg-n-solid-1 hover:border-n-slate-6';
+      // Ticket fechado aparece no quadro mas nao arrasta (TicketBoardColumn
+      // filtra esta classe): o servidor recusa qualquer mudanca num ticket
+      // finalizado (TicketFinalizable).
+      return this.ticket.status === 'closed'
+        ? `${colors} ticket-finalized`
+        : colors;
     },
     subject() {
       return ticketSubject(this.ticket);

@@ -6,10 +6,10 @@ import TicketSlaPoliciesAPI from '../../api/ticketSlaPolicies';
 import TicketsAPI from '../../api/tickets';
 import SprintsAPI from '../../api/sprints';
 
-// The Kanban is the operational board: only tickets still being worked on. A
-// resolved, closed or cancelled ticket leaves it - it is not deleted, and the
-// "Busca detalhada" still finds it. Reopening one puts it back.
-const isOperational = ticket => ticket.status === 'open';
+// O Kanban mostra os tickets abertos e tambem os RESOLVIDOS e FECHADOS, no
+// Estagio em que estiverem (mesma regra de Ticket.on_board no backend). So' o
+// cancelado sai do quadro - nao e apagado, a "Busca detalhada" ainda o encontra.
+const isOnBoard = ticket => ticket.status !== 'cancelled';
 
 // Onde o ticket esta agora: o Estagio e o indice dentro dele (null se nao esta em nenhum quadro).
 export const locateTicket = (boardState, ticketId) => {
@@ -333,11 +333,11 @@ export const mutations = {
     };
   },
   [types.UPSERT_TICKET_IN_KANBAN_BOARD](_state, ticket) {
-    // A ticket that just reached a terminal state is removed rather than
-    // upserted, so closing/resolving/cancelling drops the card (and the column
-    // counter, which is derived from this list) without a refetch, here and on
-    // every other agent's board over realtime.
-    if (!isOperational(ticket)) {
+    // A ticket that just left the board (cancelled) is removed rather than
+    // upserted, so the card (and the column counter, which is derived from
+    // this list) goes away without a refetch, here and on every other agent's
+    // board over realtime. Resolved and closed tickets stay on the board.
+    if (!isOnBoard(ticket)) {
       Object.values(_state.records).forEach(board => {
         (board.ticket_columns || []).forEach(column => {
           column.tickets = (column.tickets || []).filter(

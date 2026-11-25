@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-shows-resolved-and-closed-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Kanban mostra também os tickets resolvidos e finalizados',
+    description:
+      'Tickets com status Resolvido ou Finalizado agora continuam aparecendo no quadro Kanban, no estágio em que estiverem. Em cada coluna, os abertos vêm primeiro e os concluídos depois, do mais recente para o mais antigo. Cards finalizados não podem ser arrastados. Só os cancelados saem do quadro.',
+  },
+  {
     id: 'paused-chat-respects-open-chats-limit-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',

@@ -12,8 +12,8 @@ json.require_due_date resource.require_due_date
 json.require_scheduled_at resource.require_scheduled_at
 json.require_appointment resource.require_appointment
 json.require_assignee resource.require_assignee
-# Only the operational tickets: resolved, closed and cancelled ones leave the
-# Kanban. They stay in the database and remain reachable through the
+# Every ticket but the cancelled ones (Ticket.on_board): a cancelled ticket
+# leaves the Kanban. They stay in the database and remain reachable through the
 # "Busca detalhada", which does not apply this scope.
 #
 # `board_tickets` caps how many load (TicketColumn::BOARD_TICKETS_LIMIT) so a
@@ -23,7 +23,7 @@ json.require_assignee resource.require_assignee
 json.tickets resource.board_tickets do |ticket|
   json.partial! 'api/v1/models/ticket', formats: [:json], resource: ticket
 end
-json.tickets_total_count resource.operational_tickets.count
+json.tickets_total_count resource.on_board_tickets.count
 # Os tickets que impedem excluir o Estagio: so os abertos. Resolvidos, encerrados e
 # cancelados nao contam - sao movidos para o Finalizado na exclusao.
 json.blocking_tickets_count resource.tickets.where.not(status: TicketColumn::NON_BLOCKING_STATUSES).count
