@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kb-tree-bigger-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Artigos do portal: árvore e leitor maiores',
+    description:
+      'Na visão em árvore dos Artigos, a área agora usa a largura toda da tela (antes ficava limitada ao centro), é mais alta e tem a árvore mais larga. Sem artigo aberto, o leitor ocupa o espaço que sobrava no lado direito; ao abrir um artigo, o painel de detalhes aparece como antes.',
+  },
+  {
     id: 'ticket-communication-count-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',

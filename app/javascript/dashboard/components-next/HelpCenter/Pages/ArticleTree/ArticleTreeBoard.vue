@@ -396,8 +396,16 @@ defineExpose({ loadTree });
       </div>
     </div>
 
+    <!-- A arvore e o leitor usam a largura e a altura que a tela oferece. A coluna
+         de detalhes so existe com um artigo aberto: sem ele, o leitor ocupa o
+         espaco em vez de deixar um vazio do lado direito. -->
     <div
-      class="grid gap-4 lg:grid-cols-[18rem_minmax(0,1fr)_17rem] lg:h-[calc(100vh-17rem)] lg:min-h-[30rem]"
+      class="grid gap-4 lg:h-[calc(100vh-13rem)] lg:min-h-[34rem]"
+      :class="
+        article
+          ? 'lg:grid-cols-[22rem_minmax(0,1fr)_20rem]'
+          : 'lg:grid-cols-[22rem_minmax(0,1fr)]'
+      "
     >
       <ArticleTreePanel
         v-model:query="query"
@@ -430,6 +438,7 @@ defineExpose({ loadTree });
       />
 
       <ArticleDetailsPanel
+        v-if="article"
         :article="article"
         :article-node="articleNode"
         :folder-name="folderPath[folderPath.length - 1] || ''"

@@ -380,6 +380,7 @@ watch(
     :header="portalName"
     :breadcrumb-label="$t('HELP_CENTER.BREADCRUMB.ARTICLES')"
     :show-pagination-footer="shouldShowPaginationFooter"
+    :full-width-content="isTreeView"
     @update:current-page="handlePageChange"
   >
     <template #title-actions>
