@@ -18,6 +18,27 @@ export const CHANGELOG_ENTRIES = [
       'Na visão em árvore dos Artigos, a área agora usa a largura toda da tela (antes ficava limitada ao centro), é mais alta e tem a árvore mais larga. Sem artigo aberto, o leitor ocupa o espaço que sobrava no lado direito; ao abrir um artigo, o painel de detalhes aparece como antes.',
   },
   {
+    id: 'ticket-development-tab-columns-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title:
+      'Aba Desenvolvimento mostra prioridade, status, estágio e responsável',
+    description:
+      'Na aba Desenvolvimento do ticket, os tickets de desenvolvimento vinculados agora aparecem numa tabela com Prioridade, Status, Estágio e Responsável. Dá para saber se o dev já finalizou sem precisar abrir cada ticket.',
+  },
+  {
+    id: 'dev-child-close-without-customer-message-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Ticket filho do Desenvolvimento encerra sem comunicação ao cliente',
+    description:
+      'Ao encerrar um ticket filho numa Mesa de Desenvolvimento, a comunicação com o cliente deixou de ser obrigatória: quem fala com o cliente é o ticket pai. Categoria, Catálogo, Resolução e checklist continuam sendo exigidos.',
+  },
+  {
     id: 'ticket-communication-count-2026-11-24',
     date: '24 de novembro de 2026',
     isoDate: '2026-11-24',
@@ -56,6 +77,16 @@ export const CHANGELOG_ENTRIES = [
     title: 'Impedimento retirado no ticket pai também libera o filho',
     description:
       'Quando o impedimento do ticket pai (que veio de um ticket filho) é retirado, o impedimento do filho também é retirado, e o responsável pelo filho recebe o aviso. A resolução fica registrada no comentário e no histórico dos dois tickets.',
+  },
+  {
+    id: 'suggestion-block-button-2026-11-24',
+    date: '24 de novembro de 2026',
+    isoDate: '2026-11-24',
+    platform: 'web',
+    type: 'feature',
+    title: 'Sugestões: botão "Impedir" avisa quem abriu',
+    description:
+      'No detalhe de uma sugestão, quem gerencia o quadro pode clicar em "Impedir" e explicar quais detalhes faltam. Quem abriu a sugestão recebe uma notificação com esse texto, e o card ganha o selo "Impedida" até alguém clicar em "Remover impedimento".',
   },
   {
     id: 'internal-chat-sidebar-sections-2026-11-24',

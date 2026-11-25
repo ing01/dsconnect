@@ -42,6 +42,13 @@ const STATUS_ICON = {
 
 const statusIcon = status => STATUS_ICON[status] || 'i-lucide-circle-dot';
 
+const statusLabel = status =>
+  status ? t(`TICKET.STATUS.${status.toUpperCase()}`) : '';
+const priorityLabel = priority =>
+  priority
+    ? t(`TICKET.FORM.PRIORITY.${priority.toUpperCase()}`)
+    : t('TICKET.DETAIL.DEVELOPMENT.COLUMNS.NONE');
+
 const openInNewTab = child => {
   const path = frontendURL(
     `accounts/${route.params.accountId}/tickets/${child.id}`
@@ -180,72 +187,128 @@ const onLinked = () => emit('refresh');
       <p class="text-xs font-medium text-n-slate-10 uppercase tracking-wide">
         {{ t('TICKET.DETAIL.DEVELOPMENT.LINKED_TITLE') }}
       </p>
-      <div
-        v-for="child in devChildren"
-        :key="child.id"
-        class="group flex items-center gap-2 py-1.5 px-2 rounded-lg bg-n-slate-2 hover:bg-n-slate-3 transition-colors cursor-pointer"
-        :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_OPEN')"
-        @click="openInNewTab(child)"
-      >
-        <Icon
-          :icon="statusIcon(child.status)"
-          class="size-3.5 flex-shrink-0"
-          :class="child.status === 'open' ? 'text-n-brand' : 'text-n-slate-9'"
-        />
-        <span class="text-xs text-n-slate-10 flex-shrink-0">
-          #{{ child.display_id }}
-        </span>
-        <span class="text-sm text-n-slate-12 truncate min-w-0 flex-1">
-          {{ child.title }}
-        </span>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-separate border-spacing-y-1">
+          <thead>
+            <tr class="text-left text-xs text-n-slate-10">
+              <th class="px-2 font-medium">
+                {{ t('TICKET.DETAIL.DEVELOPMENT.COLUMNS.TICKET') }}
+              </th>
+              <th class="px-2 font-medium whitespace-nowrap">
+                {{ t('TICKET.DETAIL.DEVELOPMENT.COLUMNS.PRIORITY') }}
+              </th>
+              <th class="px-2 font-medium whitespace-nowrap">
+                {{ t('TICKET.DETAIL.DEVELOPMENT.COLUMNS.STATUS') }}
+              </th>
+              <th class="px-2 font-medium whitespace-nowrap">
+                {{ t('TICKET.DETAIL.DEVELOPMENT.COLUMNS.STAGE') }}
+              </th>
+              <th class="px-2 font-medium whitespace-nowrap">
+                {{ t('TICKET.DETAIL.DEVELOPMENT.COLUMNS.ASSIGNEE') }}
+              </th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="child in devChildren"
+              :key="child.id"
+              class="group bg-n-slate-2 hover:bg-n-slate-3 transition-colors cursor-pointer"
+              :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_OPEN')"
+              @click="openInNewTab(child)"
+            >
+              <td class="py-1.5 px-2 rounded-l-lg max-w-0 w-full">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="text-xs text-n-slate-10 flex-shrink-0">
+                    #{{ child.display_id }}
+                  </span>
+                  <span class="text-n-slate-12 truncate min-w-0">
+                    {{ child.title }}
+                  </span>
+                </div>
+              </td>
+              <td class="py-1.5 px-2 whitespace-nowrap text-n-slate-11">
+                {{ priorityLabel(child.priority) }}
+              </td>
+              <td class="py-1.5 px-2 whitespace-nowrap">
+                <span
+                  class="inline-flex items-center gap-1"
+                  :class="
+                    child.status === 'open' ? 'text-n-brand' : 'text-n-slate-11'
+                  "
+                >
+                  <Icon :icon="statusIcon(child.status)" class="size-3.5" />
+                  {{ statusLabel(child.status) }}
+                </span>
+              </td>
+              <td class="py-1.5 px-2 whitespace-nowrap text-n-slate-11">
+                {{
+                  child.ticket_column_name ||
+                  t('TICKET.DETAIL.DEVELOPMENT.COLUMNS.NONE')
+                }}
+              </td>
+              <td class="py-1.5 px-2 whitespace-nowrap text-n-slate-11">
+                {{
+                  child.assignee_name ||
+                  t('TICKET.DETAIL.DEVELOPMENT.COLUMNS.NONE')
+                }}
+              </td>
+              <td class="py-1.5 px-2 rounded-r-lg whitespace-nowrap">
+                <div class="flex items-center justify-end gap-1">
+                  <!-- Confirm state replaces action buttons -->
+                  <template v-if="confirmingId === child.id">
+                    <span class="text-xs text-n-slate-11 flex-shrink-0">
+                      {{
+                        confirmingAction === 'delete'
+                          ? t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_DELETE')
+                          : t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_UNLINK')
+                      }}
+                    </span>
+                    <Button
+                      xs
+                      slate
+                      :is-loading="isActing"
+                      :label="t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_YES')"
+                      @click="executeConfirm($event)"
+                    />
+                    <Button
+                      xs
+                      slate
+                      faded
+                      :label="t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_NO')"
+                      @click="cancelConfirm($event)"
+                    />
+                  </template>
 
-        <!-- Confirm state replaces action buttons -->
-        <template v-if="confirmingId === child.id">
-          <span class="text-xs text-n-slate-11 flex-shrink-0">
-            {{
-              confirmingAction === 'delete'
-                ? t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_DELETE')
-                : t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_UNLINK')
-            }}
-          </span>
-          <Button
-            xs
-            slate
-            :is-loading="isActing"
-            :label="t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_YES')"
-            @click="executeConfirm($event)"
-          />
-          <Button
-            xs
-            slate
-            faded
-            :label="t('TICKET.DETAIL.DEVELOPMENT.CHILD_CONFIRM_NO')"
-            @click="cancelConfirm($event)"
-          />
-        </template>
-
-        <!-- Normal action buttons, shown on hover -->
-        <template v-else>
-          <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-            <Button
-              xs
-              slate
-              faded
-              icon="i-lucide-link-2-off"
-              :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_UNLINK')"
-              @click="startConfirm(child.id, 'unlink', $event)"
-            />
-            <Button
-              xs
-              slate
-              faded
-              icon="i-lucide-trash-2"
-              :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_DELETE')"
-              class="text-n-ruby-11 hover:text-n-ruby-11"
-              @click="startConfirm(child.id, 'delete', $event)"
-            />
-          </div>
-        </template>
+                  <!-- Normal action buttons, shown on hover -->
+                  <template v-else>
+                    <div
+                      class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    >
+                      <Button
+                        xs
+                        slate
+                        faded
+                        icon="i-lucide-link-2-off"
+                        :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_UNLINK')"
+                        @click="startConfirm(child.id, 'unlink', $event)"
+                      />
+                      <Button
+                        xs
+                        slate
+                        faded
+                        icon="i-lucide-trash-2"
+                        :title="t('TICKET.DETAIL.DEVELOPMENT.CHILD_DELETE')"
+                        class="text-n-ruby-11 hover:text-n-ruby-11"
+                        @click="startConfirm(child.id, 'delete', $event)"
+                      />
+                    </div>
+                  </template>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
