@@ -34,6 +34,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  compact: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['openProject', 'moveProject']);
@@ -66,11 +70,19 @@ const onChange = evt => {
 </script>
 
 <template>
-  <div class="flex flex-col flex-shrink-0 w-72 rounded-xl bg-n-slate-2/60 border border-n-weak max-h-full">
+  <div
+    class="flex flex-col flex-shrink-0 rounded-xl bg-n-slate-2/60 border border-n-weak max-h-full"
+    :class="compact ? 'w-56' : 'w-72'"
+  >
     <!-- Header -->
-    <div class="flex items-center justify-between px-3 py-2.5 border-b border-n-weak">
+    <div
+      class="flex items-center justify-between px-3 py-2.5 border-b border-n-weak"
+    >
       <div class="flex items-center gap-2 min-w-0">
-        <span class="w-2 h-2 rounded-full flex-shrink-0" :class="colorClasses" />
+        <span
+          class="w-2 h-2 rounded-full flex-shrink-0"
+          :class="colorClasses"
+        />
         <span class="text-sm font-semibold text-n-slate-12 truncate">
           {{ title }}
         </span>
@@ -83,26 +95,39 @@ const onChange = evt => {
     </div>
 
     <!-- Cards container with drag and drop -->
-    <div class="flex-1 overflow-y-auto p-2 min-h-0">
+    <div
+      class="flex-1 overflow-y-auto min-h-0"
+      :class="compact ? 'p-1' : 'p-2'"
+    >
       <Draggable
         :list="projects"
         group="projects"
         item-key="id"
         :disabled="readonly"
-        class="flex flex-col gap-2 min-h-[50px]"
+        class="flex flex-col min-h-[50px]"
+        :class="compact ? 'gap-1' : 'gap-2'"
         ghost-class="opacity-50"
         @change="onChange"
       >
         <template #item="{ element }">
           <ProjectCard
             :project="element"
+            :compact="compact"
             @click="emit('openProject', element)"
           />
         </template>
       </Draggable>
 
-      <div v-if="!count" class="flex items-center justify-center py-8 text-center text-n-slate-10 text-xs">
-        {{ emptyMessage || (showCompleted ? t('PROJECTS.EMPTY.NO_COMPLETED') : t('PROJECTS.EMPTY.NO_PROJECTS')) }}
+      <div
+        v-if="!count"
+        class="flex items-center justify-center py-8 text-center text-n-slate-10 text-xs"
+      >
+        {{
+          emptyMessage ||
+          (showCompleted
+            ? t('PROJECTS.EMPTY.NO_COMPLETED')
+            : t('PROJECTS.EMPTY.NO_PROJECTS'))
+        }}
       </div>
     </div>
   </div>

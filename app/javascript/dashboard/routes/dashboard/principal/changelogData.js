@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'projects-compact-cards-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Projetos: botão "Cards compactos"',
+    description:
+      'No quadro de Projetos, ao lado da busca, há o mesmo botão de "Cards compactos" dos tickets: colunas mais estreitas e cards com nome, cliente, progresso e prazo em poucas linhas, para caberem mais projetos na tela. A escolha vale para os dois quadros.',
+  },
+  {
+    id: 'agenda-full-text-and-time-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Agenda mostra o horário e o título completo',
+    description:
+      'Na Agenda, os eventos agora mostram o horário antes do título, inclusive na visão de mês, e o título quebra linha em vez de ser cortado. Nas visões de semana e dia, passe o mouse sobre um evento curto para ele crescer e mostrar todo o texto.',
+  },
+  {
     id: 'kanban-shows-resolved-and-closed-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',

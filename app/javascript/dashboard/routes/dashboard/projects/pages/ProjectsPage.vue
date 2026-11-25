@@ -13,6 +13,7 @@ import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { formatMesaName } from 'dashboard/helper/mesaName';
 import ProjectsAPI from 'dashboard/api/projects';
 import { useKeepAliveScroll } from '../../tickets/composables/useKeepAliveScroll';
+import { useBoardDensity } from '../../tickets/composables/useBoardDensity';
 
 import ProjectBoard from '../components/ProjectBoard.vue';
 import ProjectCreateDialog from '../components/ProjectCreateDialog.vue';
@@ -25,6 +26,10 @@ const router = useRouter();
 
 const pageRoot = ref(null);
 useKeepAliveScroll(pageRoot);
+
+// "Cards compactos" - a mesma escolha do Kanban de tickets (vale para os dois
+// quadros): sozinho pela tela ate a pessoa escolher no botao.
+const { isCompact, toggleDensity } = useBoardDensity();
 
 const selectedTeamId = ref('');
 const selectedImplementerId = ref('');
@@ -288,14 +293,36 @@ const goToTasksSettings = () => {
           </div>
         </div>
 
-        <!-- Search Input -->
-        <div class="w-56">
-          <NextInput
-            v-model="searchQuery"
+        <!-- Tamanho dos cards + busca -->
+        <div class="flex items-center gap-2">
+          <NextButton
+            v-tooltip="
+              isCompact
+                ? t('TICKET.BOARD.DENSITY_COMFORTABLE')
+                : t('TICKET.BOARD.DENSITY_COMPACT')
+            "
+            :icon="
+              isCompact ? 'i-lucide-unfold-vertical' : 'i-lucide-fold-vertical'
+            "
+            faded
+            slate
             size="sm"
-            icon="i-lucide-search"
-            :placeholder="t('PROJECTS.FILTER.SEARCH_PLACEHOLDER')"
+            class="flex-shrink-0"
+            :aria-label="
+              isCompact
+                ? t('TICKET.BOARD.DENSITY_COMFORTABLE')
+                : t('TICKET.BOARD.DENSITY_COMPACT')
+            "
+            @click="toggleDensity"
           />
+          <div class="w-56">
+            <NextInput
+              v-model="searchQuery"
+              size="sm"
+              icon="i-lucide-search"
+              :placeholder="t('PROJECTS.FILTER.SEARCH_PLACEHOLDER')"
+            />
+          </div>
         </div>
       </div>
     </header>
@@ -338,6 +365,7 @@ const goToTasksSettings = () => {
         :show-completed="showCompleted"
         :readonly="view === 'cancelled'"
         :empty-message="emptyTitle"
+        :compact="isCompact"
         @open-project="openProjectDetail"
         @move-project="onMoveProject"
       />
