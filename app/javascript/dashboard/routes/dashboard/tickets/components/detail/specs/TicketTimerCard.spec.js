@@ -54,6 +54,25 @@ describe('TicketTimerCard', () => {
     expect(dispatch).toHaveBeenCalledWith('ticketTimeEntries/getTimers', 10);
   });
 
+  // Na coluna estreita da primeira aba os campos empilham; lado a lado, a
+  // observacao ficava do tamanho de uma palavra.
+  describe('layout dos campos', () => {
+    const lado = wrapper =>
+      find(wrapper, 'timer-form').classes('sm:grid-cols-[10rem_1fr_auto]');
+
+    it('lado a lado por padrao (aba larga)', () => {
+      expect(lado(montar())).toBe(true);
+    });
+
+    it('empilhados quando compacto, e todos ocupam a largura', () => {
+      const wrapper = montar({ compact: true });
+
+      expect(lado(wrapper)).toBe(false);
+      expect(find(wrapper, 'timer-note').classes()).toContain('w-full');
+      expect(find(wrapper, 'timer-category').classes()).toContain('w-full');
+    });
+  });
+
   describe('sem cronometro', () => {
     it('oferece escolher a categoria e iniciar', () => {
       const wrapper = montar();

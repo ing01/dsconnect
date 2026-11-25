@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-timer-layout-fix-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'fix',
+    title: 'Cronômetro na primeira aba do ticket: campos alinhados',
+    description:
+      'No cronômetro da primeira aba do ticket de desenvolvimento, a categoria, a observação e o botão Iniciar agora ficam um embaixo do outro, ocupando a largura do card. Antes ficavam lado a lado e o campo de observação ficava espremido.',
+  },
+  {
     id: 'kanban-keeps-scroll-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',

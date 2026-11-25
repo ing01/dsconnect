@@ -83,6 +83,7 @@ defineEmits([
              Desenvolvimento: e o mesmo da aba Apontamento, o tempo e do servidor. -->
         <TicketTimerCard
           v-if="isDevMesa"
+          compact
           :ticket-id="ticket.id"
           :default-category="
             categoryForTeamName(ticket.team_name) || 'desenvolvimento'

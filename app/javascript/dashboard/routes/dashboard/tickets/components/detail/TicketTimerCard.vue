@@ -15,6 +15,9 @@ const props = defineProps({
   ticketId: { type: [Number, String], required: true },
   // A categoria que combina com a Mesa do ticket (implantacao, desenvolvimento...).
   defaultCategory: { type: String, default: 'implantacao' },
+  // Numa coluna estreita (primeira aba) os campos empilham, um por linha; na aba
+  // Apontamento, larga, ficam lado a lado.
+  compact: { type: Boolean, default: false },
 });
 
 const { t } = useI18n();
@@ -133,12 +136,16 @@ watch(
       <span class="text-xs font-medium text-n-slate-11">
         {{ t('TICKET.DETAIL.TIME_ENTRIES.TIMER.TITLE') }}
       </span>
-      <div class="grid grid-cols-1 sm:grid-cols-[10rem_1fr_auto] gap-2">
+      <div
+        class="grid grid-cols-1 gap-2"
+        :class="{ 'sm:grid-cols-[10rem_1fr_auto]': !compact }"
+        data-testid="timer-form"
+      >
         <select
           v-model="category"
           data-testid="timer-category"
+          class="w-full min-w-0 h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
           @change="categoryTouched = true"
-          class="h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
         >
           <option v-for="cat in CATEGORIES" :key="cat" :value="cat">
             {{ categoryLabel(cat) }}
@@ -148,12 +155,13 @@ watch(
           v-model="note"
           type="text"
           data-testid="timer-note"
-          class="h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
+          class="w-full min-w-0 h-9 px-2.5 rounded-lg border border-n-weak bg-n-solid-1 text-xs text-n-slate-12 focus:border-n-brand focus:outline-none"
           :placeholder="t('TICKET.DETAIL.TIME_ENTRIES.NOTE_PLACEHOLDER')"
           @keyup.enter="start"
         />
         <NextButton
           size="sm"
+          class="justify-center"
           icon="i-lucide-play"
           data-testid="timer-start"
           :label="t('TICKET.DETAIL.TIME_ENTRIES.TIMER.START')"
