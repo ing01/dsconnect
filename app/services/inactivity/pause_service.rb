@@ -242,6 +242,10 @@ class Inactivity::PauseService
     # retornar nil aqui devolve a conversa pra fila (se houver) ou deixa
     # AutoAssignmentHandler escolher um agente de verdade pelo rodizio.
     return if excluded_from_distribution?(id)
+    # Nem quem ja esta no limite de conversas abertas: enquanto o chat estava
+    # pausado ele pode ter pegado outro. Devolver estouraria o limite - volta
+    # para a fila/rodizio, e o aviso ao cliente sai como "volta pra fila".
+    return if conversation.assignee_at_open_chats_limit?(id)
 
     user = account_user.user
     user if conversation.inbox.assignable_agents.include?(user)

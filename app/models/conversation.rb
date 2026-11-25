@@ -156,6 +156,7 @@ class Conversation < ApplicationRecord
   before_save :clear_cancelled_flag
   before_save :set_status_changed_at
   before_save :set_requeued_at
+  before_save :release_assignee_over_limit_on_reopen
   # DIAGNOSTICO TEMPORARIO (remover depois de achar a causa): registra de onde
   # vem toda mudanca de assignee_id, pra pegar em flagrante um caminho que
   # ainda nao apareceu em nenhum log (Rails/Sidekiq) investigado ate agora.
@@ -294,7 +295,34 @@ class Conversation < ApplicationRecord
     dispatcher_dispatch(CONVERSATION_UPDATED, previous_changes)
   end
 
+  # O agente ja tem, NESTA caixa, o maximo de conversas abertas da "Excecao da
+  # distribuicao" (Colaboradores/Automacao) - sem contar esta conversa. Mesmo
+  # limite e mesmo escopo que o rodizio e a fila usam para nao entregar
+  # conversa nova a quem ja esta cheio.
+  def assignee_at_open_chats_limit?(user_id)
+    limit = distribution_max_open_chats
+    return false unless limit.positive?
+
+    inbox.conversations.open.where(assignee_id: user_id).where.not(id: id).count >= limit
+  end
+
   private
+
+  # Pausar libera a vaga do agente (so' conversa ABERTA conta no limite), entao
+  # enquanto o chat esta pausado ele pode receber outro. Se o cliente do pausado
+  # volta e o agente ja esta no limite, devolver o chat a ele estoura o limite
+  # (relato da Ingrid, 2026-11-25: 3 de limite, terminou com 4 e depois 6).
+  # Nesse caso a conversa sai dele e volta para a distribuicao (fila ou rodizio).
+  # So' na reabertura automatica (cliente respondeu / prazo do adiamento venceu):
+  # quem reabre na mao (`Current.user`) esta escolhendo assumir.
+  def release_assignee_over_limit_on_reopen
+    return unless will_save_change_to_status? && status_in_database == 'snoozed' && open?
+    return if Current.user.present? || assignee_id.blank?
+    return unless assignee_at_open_chats_limit?(assignee_id)
+
+    self.assignee_id = nil
+    @released_over_limit = true
+  end
 
   def execute_after_update_commit_callbacks
     handle_resolved_status_change
@@ -330,7 +358,12 @@ class Conversation < ApplicationRecord
   end
 
   def trigger_queue_auto_assignment
-    return unless saved_change_to_queue_id? && queue_id.present? && assignee_id.blank?
+    released = @released_over_limit
+    @released_over_limit = false
+    return unless queue_id.present? && assignee_id.blank?
+    # Conversa de fila que voltou da pausa e saiu de um agente no limite: o
+    # rodizio da caixa nunca pega conversa com fila, entao quem redistribui e' a fila.
+    return unless saved_change_to_queue_id? || released
 
     ::Queues::AutoAssignJob.perform_later(self)
   end

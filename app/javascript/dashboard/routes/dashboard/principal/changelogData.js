@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'paused-chat-respects-open-chats-limit-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'fix',
+    title: 'Chat pausado que volta não estoura mais o limite do agente',
+    description:
+      'Quando o cliente de um chat pausado responde e o atendente já está no limite de chats abertos, a conversa não volta mais para ele: segue para a fila ou para o rodízio, para outro atendente com vaga. Se o próprio atendente reabrir o chat, ele continua com a conversa.',
+  },
+  {
     id: 'kb-tree-bigger-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',
