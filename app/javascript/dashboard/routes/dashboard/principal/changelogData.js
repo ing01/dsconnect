@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-keeps-scroll-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'fix',
+    title: 'Kanban de tickets lembra onde você estava',
+    description:
+      'Ao abrir um ticket numa aba e voltar para o quadro, cada coluna continua na posição em que você tinha rolado, em vez de voltar para o começo.',
+  },
+  {
+    id: 'ticket-not-locked-by-requester-company-2026-11-25',
+    date: '25 de novembro de 2026',
+    isoDate: '2026-11-25',
+    platform: 'web',
+    type: 'fix',
+    title: 'Ticket não trava mais quando o solicitante sai da Empresa',
+    description:
+      'Se o solicitante de um ticket for desvinculado da Empresa depois, o ticket continua podendo ser editado e encerrado normalmente. A regra de o solicitante pertencer à Empresa só vale na hora de trocar o solicitante ou a Empresa do ticket.',
+  },
+  {
     id: 'agenda-outlook-style-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',

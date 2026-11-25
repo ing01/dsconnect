@@ -13,7 +13,11 @@ module TicketCustomer
 
     validate :company_belongs_to_account
     validate :contact_belongs_to_account
-    validate :contact_belongs_to_company
+    # So' quando alguem TROCA o solicitante ou a Empresa do ticket. O vinculo
+    # contato-Empresa muda por fora (contato desvinculado da Empresa depois),
+    # e checar em toda gravacao travava o ticket inteiro - nem fechar salvava,
+    # so' "Contact is invalid" (ticket #37518, relato da Ingrid, 2026-11-25).
+    validate :contact_belongs_to_company, if: -> { will_save_change_to_contact_id? || will_save_change_to_company_id? }
   end
 
   # Prefers the ticket's own `contact`. Falls back to the earliest linked

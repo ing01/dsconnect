@@ -1,4 +1,5 @@
 <script>
+import { ref } from 'vue';
 import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import { frontendURL } from 'dashboard/helper/URLHelper';
@@ -21,6 +22,7 @@ import {
   writeAgentFilter,
 } from '../helpers/boardAgentFilter';
 import { useBoardDensity } from '../composables/useBoardDensity';
+import { useKeepAliveScroll } from '../composables/useKeepAliveScroll';
 import TicketDetailedSearchModal from '../components/TicketDetailedSearchModal.vue';
 import TicketImpededModal from '../components/TicketImpededModal.vue';
 
@@ -49,7 +51,13 @@ export default {
   // Tamanho dos cards, compartilhado com o quadro do Sprint ativo (Backlog).
   setup() {
     const { isCompact, toggleDensity } = useBoardDensity();
-    return { isCompact, toggleDensity };
+    // Abrir um ticket (aba no topo) e voltar mantinha o quadro vivo, mas o
+    // navegador zera a rolagem de cada coluna quando a tela sai da pagina - a
+    // pessoa que tinha descido ate o fim de uma coluna voltava para o topo
+    // (relato da Ingrid, 2026-11-25). Mesma correcao do Backlog e dos Projetos.
+    const pageRoot = ref(null);
+    useKeepAliveScroll(pageRoot);
+    return { isCompact, toggleDensity, pageRoot };
   },
   data() {
     return {
@@ -284,6 +292,7 @@ export default {
 
 <template>
   <div
+    ref="pageRoot"
     class="flex flex-col w-full h-full min-h-0 min-w-0"
     :class="isCompact ? 'p-2 gap-2' : 'p-4 gap-4'"
   >
