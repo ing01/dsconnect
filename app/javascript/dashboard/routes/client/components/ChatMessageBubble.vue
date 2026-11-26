@@ -72,6 +72,29 @@ const enviarCsat = async () => {
       {{ message.author_name || t('CLIENT_AREA.CHAT.TEAM') }}
     </span>
 
+    <!-- A mensagem que esta sendo respondida, citada acima da resposta. -->
+    <div
+      v-if="message.reply_to"
+      class="flex flex-col min-w-0 gap-0.5 px-2 py-1 border-l-2 rounded-md"
+      :class="
+        message.from_you
+          ? 'border-white bg-white/15'
+          : 'border-n-brand bg-n-alpha-2'
+      "
+      data-testid="bubble-reply-to"
+    >
+      <span class="text-xs font-semibold">
+        {{
+          message.reply_to.from_you
+            ? t('CLIENT_AREA.CHAT.YOU')
+            : message.reply_to.author_name || t('CLIENT_AREA.CHAT.TEAM')
+        }}
+      </span>
+      <span class="text-xs break-words line-clamp-2 opacity-80">
+        {{ message.reply_to.content || t('CLIENT_AREA.CHAT.ATTACHMENT') }}
+      </span>
+    </div>
+
     <!-- Pesquisa de satisfacao: bolha propria, com estrelas em vez de texto
          corrido. -->
     <template v-if="message.content_type === 'input_csat'">

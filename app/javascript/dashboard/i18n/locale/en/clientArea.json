@@ -282,6 +282,7 @@
         "UNKNOWN": "Could not send (code {status}). Try again or contact support."
       },
       "ATTACHMENT": "Attachment",
+      "YOU": "You",
       "RECORD": "Record audio",
       "RECORDING": "Recording... {duration}",
       "STOP_RECORDING": "Stop ({duration})",

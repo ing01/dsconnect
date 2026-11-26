@@ -28,7 +28,7 @@ const props = defineProps({
 // since both call the same Dialog's `close()`. Callers that care about a real
 // cancellation (nothing was decided) must only act on it when neither of those
 // has already fired for that same attempt.
-const emit = defineEmits(['closed', 'left-open', 'cancel']);
+const emit = defineEmits(['closed', 'leftOpen', 'cancel']);
 
 const { t } = useI18n();
 const store = useStore();
@@ -89,6 +89,15 @@ const routingChanged = computed(
       (props.ticket.ticket_column_id ?? null)
 );
 
+// Os filhos ainda abertos podem ser finalizados junto, com os dados deste ticket. E'
+// uma escolha de quem fecha: vem desmarcada.
+const finalizarFilhos = ref(false);
+const openChildren = computed(() =>
+  (props.ticket.children || []).filter(
+    child => !['closed', 'cancelled'].includes(child.status)
+  )
+);
+
 const catalogId = ref(null);
 const areaId = ref(null);
 const itemId = ref(null);
@@ -110,6 +119,20 @@ const description = ref('');
 // abrir outro ticket) nao escrever no formulario errado.
 const isSummarizing = ref(false);
 let summaryRun = 0;
+
+// Os motivos do servidor; um que nao esteja na lista aparece como veio.
+const MISSING_KEYS = [
+  'ticket_category',
+  'service_catalog',
+  'resolution',
+  'customer_communication',
+  'checklist',
+  'permission',
+];
+const missingLabel = reason =>
+  MISSING_KEYS.includes(reason)
+    ? t(`TICKET.CLOSE.CHILDREN_MISSING.${reason.toUpperCase()}`)
+    : reason;
 
 const catalogs = useMapGetter('serviceCatalogs/getActiveCatalogs');
 
@@ -139,7 +162,9 @@ const noEmail = computed(() => !props.ticket.customer_email);
 
 const classification = computed(() => props.ticket.service_catalog_item);
 
-const categoryReady = computed(() => !needsCategory.value || !!categoryId.value);
+const categoryReady = computed(
+  () => !needsCategory.value || !!categoryId.value
+);
 const catalogReady = computed(() => !needsCatalog.value || !!itemId.value);
 const resolutionReady = computed(
   () => !needsResolution.value || !!resolution.value.trim()
@@ -178,6 +203,7 @@ const open = () => {
   body.value = '';
   resolution.value = '';
   notificarCliente.value = true;
+  finalizarFilhos.value = false;
   title.value = props.ticket.title || '';
   description.value = props.ticket.description || '';
   categoryId.value = props.ticket.ticket_category_id || null;
@@ -220,6 +246,33 @@ const summarizeConversation = async () => {
     );
   } finally {
     if (run === summaryRun) isSummarizing.value = false;
+  }
+};
+
+// Roda DEPOIS do pai fechado: uma falha aqui nao desfaz o fechamento, so' e' avisada.
+const closeChildren = async () => {
+  try {
+    const { closed = [], pending = [] } = await store.dispatch(
+      'tickets/closeChildren',
+      props.ticket.id
+    );
+    const messages = [];
+    if (closed.length) {
+      const list = closed.map(number => `#${number}`).join(', ');
+      messages.push(t('TICKET.CLOSE.CHILDREN_DONE', { list }));
+    }
+    if (pending.length) {
+      const list = pending
+        .map(({ display_id: number, missing: reasons }) => {
+          const labels = reasons.map(missingLabel).join(', ');
+          return `#${number} (${labels})`;
+        })
+        .join('; ');
+      messages.push(t('TICKET.CLOSE.CHILDREN_PENDING', { list }));
+    }
+    if (messages.length) useAlert(messages.join(' '));
+  } catch (error) {
+    useAlert(error?.response?.data?.error || t('TICKET.CLOSE.CHILDREN_ERROR'));
   }
 };
 
@@ -281,6 +334,9 @@ const submit = async () => {
         resolution: needsResolution.value ? resolution.value.trim() : undefined,
       });
     }
+    if (finalizarFilhos.value && openChildren.value.length) {
+      await closeChildren();
+    }
     // Avisa a decisao ANTES de fechar o dialogo: fechar dispara `cancel`, e quem
     // escuta (ResolveAction) so' ignora esse `cancel` se ja' soube da decisao.
     emit('closed');
@@ -303,7 +359,7 @@ const leaveOpen = () => {
 
   // Decisao primeiro, fechamento depois: fechar o dialogo dispara `cancel`, que
   // a conversa trataria como "desisti" e NAO resolveria.
-  emit('left-open');
+  emit('leftOpen');
   dialogRef.value?.close();
 };
 
@@ -314,6 +370,7 @@ watch(
     areaId.value = null;
     itemId.value = null;
     resolution.value = '';
+    finalizarFilhos.value = false;
     categoryId.value = props.ticket.ticket_category_id || null;
     teamId.value = props.ticket.team_id || null;
     columnId.value = props.ticket.ticket_column_id || null;
@@ -654,6 +711,41 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           </label>
         </template>
       </section>
+
+      <!-- Filhos abertos: finalizar junto, com os dados deste ticket. -->
+      <template v-if="openChildren.length">
+        <div class="h-px bg-n-weak" />
+        <section
+          class="flex flex-col gap-2 min-w-0 p-3 rounded-lg bg-n-alpha-2"
+          data-testid="close-children"
+        >
+          <label class="flex items-start gap-2 cursor-pointer min-w-0">
+            <Checkbox v-model="finalizarFilhos" class="mt-0.5 flex-shrink-0" />
+            <span class="flex flex-col gap-0.5 min-w-0">
+              <span class="text-sm font-medium text-n-slate-12">
+                {{
+                  t('TICKET.CLOSE.CHILDREN_LABEL', {
+                    count: openChildren.length,
+                  })
+                }}
+              </span>
+              <span class="text-xs text-n-slate-10">
+                {{ t('TICKET.CLOSE.CHILDREN_HINT') }}
+              </span>
+            </span>
+          </label>
+          <ul class="flex flex-col gap-1 m-0 list-none ps-6">
+            <li
+              v-for="child in openChildren"
+              :key="child.id"
+              class="text-xs truncate text-n-slate-11"
+              :title="child.title"
+            >
+              #{{ child.display_id }} · {{ child.title }}
+            </li>
+          </ul>
+        </section>
+      </template>
     </div>
   </Dialog>
 </template>

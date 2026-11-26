@@ -242,6 +242,7 @@ pt_BR:
       child_released_still_blocked: 'O ticket filho #%{display_id} foi liberado, mas o impedimento continua pelo ticket filho #%{other_id}.'
     close:
       blocked: Este ticket ainda não pode ser fechado.
+      parent_open: Feche o ticket pai antes de finalizar os filhos.
     cancel:
       reason_required: Informe o motivo para cancelar o ticket.
     communication:

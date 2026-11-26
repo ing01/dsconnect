@@ -594,6 +594,7 @@ Rails.application.routes.draw do
               patch :resolve
               patch :reopen
               patch :close
+              post :close_children
               patch :cancel
               patch :block
               patch :unblock

@@ -1675,6 +1675,19 @@
       }
     },
     "CLOSE": {
+      "CHILDREN_LABEL": "Finalizar também os tickets filhos ({count})",
+      "CHILDREN_HINT": "Eles recebem a mesma resolução, classificação e comunicação deste ticket (sem novo e-mail ao cliente). O que o filho já tiver preenchido é mantido.",
+      "CHILDREN_DONE": "Tickets filhos finalizados: {list}",
+      "CHILDREN_PENDING": "Não foi possível finalizar: {list}",
+      "CHILDREN_ERROR": "O ticket foi fechado, mas houve erro ao finalizar os filhos. Finalize-os pela aba Desenvolvimento ou pelo próprio ticket.",
+      "CHILDREN_MISSING": {
+        "TICKET_CATEGORY": "categoria",
+        "SERVICE_CATALOG": "classificação no catálogo",
+        "RESOLUTION": "resolução",
+        "CUSTOMER_COMMUNICATION": "comunicação ao cliente",
+        "CHECKLIST": "checklist pendente",
+        "PERMISSION": "sem permissão"
+      },
       "TITLE": "Fechar ticket #{number}",
       "CONFIRM": "Fechar ticket",
       "LEAVE_OPEN": "Deixar ticket em aberto",

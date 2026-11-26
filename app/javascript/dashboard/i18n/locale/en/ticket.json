@@ -1572,6 +1572,19 @@
       }
     },
     "CLOSE": {
+      "CHILDREN_LABEL": "Also finish the child tickets ({count})",
+      "CHILDREN_HINT": "They receive this ticket's resolution, classification and message (no new e-mail to the customer). Anything the child already has is kept.",
+      "CHILDREN_DONE": "Child tickets finished: {list}",
+      "CHILDREN_PENDING": "Could not finish: {list}",
+      "CHILDREN_ERROR": "The ticket was closed, but finishing its children failed. Finish them from the Development tab or from each ticket.",
+      "CHILDREN_MISSING": {
+        "TICKET_CATEGORY": "category",
+        "SERVICE_CATALOG": "catalog classification",
+        "RESOLUTION": "resolution",
+        "CUSTOMER_COMMUNICATION": "customer message",
+        "CHECKLIST": "pending checklist",
+        "PERMISSION": "no permission"
+      },
       "TITLE": "Close ticket #{number}",
       "CONFIRM": "Close ticket",
       "LEAVE_OPEN": "Leave ticket open",

@@ -8,6 +8,37 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'close-parent-finishes-children-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Finalize os tickets filhos ao fechar o ticket pai',
+    description:
+      'Ao fechar um ticket com filhos abertos, marque "Finalizar também os tickets filhos": eles são finalizados com a mesma resolução, classificação e comunicação do pai, sem enviar outro e-mail ao cliente. Se algum filho não puder ser fechado, o sistema avisa qual e o que falta.',
+  },
+  {
+    id: 'client-chat-shows-replied-message-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'fix',
+    title: 'Área do Cliente mostra qual mensagem foi respondida',
+    description:
+      'Quando a equipe usa "Responder mensagem" no chat, o cliente agora vê a mensagem citada acima da resposta, na conversa atual (inclusive em tempo real) e no histórico. Notas privadas nunca aparecem na citação.',
+  },
+  {
+    id: 'conversation-queue-follows-team-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'Painel de Conversas: troca de time leva a conversa para a fila certa',
+    description:
+      'Ao trocar o time de uma conversa (por exemplo, de Suporte para Especialista), ela agora passa também para a fila desse time, e o filtro de fila do Painel de Conversas conta no lugar certo. Vale quando o time novo tem uma única fila ativa. Conversas que já tinham sido trocadas antes precisam ter a fila ajustada na própria conversa.',
+  },
+  {
     id: 'kanban-move-finalized-tickets-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

@@ -62,6 +62,11 @@ class TicketsAPI extends ApiClient {
     return axios.patch(`${this.url}/${id}/close`, params);
   }
 
+  // Finaliza os filhos abertos de um pai ja fechado, com os dados dele.
+  closeChildren(id) {
+    return axios.post(`${this.url}/${id}/close_children`);
+  }
+
   summarizeConversation(id, signal) {
     return axios.post(
       `${this.url}/${id}/summarize_conversation`,

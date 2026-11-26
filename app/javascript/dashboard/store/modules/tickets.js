@@ -117,6 +117,13 @@ export const actions = {
     commit(types.SET_TICKET_ITEM, response.data);
     return response.data;
   },
+  // Devolve { closed, pending } e rebusca o pai, para a lista de filhos ficar atual.
+  closeChildren: async ({ commit }, id) => {
+    const { data } = await TicketsAPI.closeChildren(id);
+    const parent = await TicketsAPI.show(id);
+    commit(types.SET_TICKET_ITEM, parent.data);
+    return data;
+  },
   // The single creation path behind the Kanban, the chat and the child flow.
   // Files are uploaded afterwards on purpose: a TicketAttachment belongs to a
   // ticket, so there is nothing to attach them to until it exists.

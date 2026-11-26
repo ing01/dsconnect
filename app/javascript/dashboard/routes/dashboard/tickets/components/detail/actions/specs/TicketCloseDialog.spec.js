@@ -249,6 +249,43 @@ describe('TicketCloseDialog', () => {
     });
   });
 
+  describe('os tickets filhos', () => {
+    const comFilhos = () =>
+      ticket({
+        children: [
+          { id: 2, display_id: 43, title: 'Dev', status: 'open' },
+          { id: 3, display_id: 44, title: 'Antigo', status: 'closed' },
+        ],
+      });
+    const secao = '[data-testid="close-children"]';
+    const acoes = () => dispatch.mock.calls.map(([acao]) => acao);
+
+    it('lista so os abertos, e nao aparece sem eles', async () => {
+      const comLista = await montar({ ticket: comFilhos() });
+
+      expect(comLista.find(secao).text()).toContain('#43');
+      expect(comLista.find(secao).text()).not.toContain('#44');
+      expect((await montar()).find(secao).exists()).toBe(false);
+    });
+
+    it('nao fecha os filhos sem marcar a caixa', async () => {
+      await fechar(await montar({ ticket: comFilhos() }));
+
+      expect(acoes()).not.toContain('tickets/closeChildren');
+    });
+
+    it('marcada, fecha os filhos depois do pai', async () => {
+      const wrapper = await montar({ ticket: comFilhos() });
+      await wrapper.find(`${secao} input.notificar`).trigger('change');
+      await fechar(wrapper);
+
+      expect(acoes().indexOf('tickets/closeChildren')).toBeGreaterThan(
+        acoes().indexOf('tickets/closeTicket')
+      );
+      expect(dispatch).toHaveBeenCalledWith('tickets/closeChildren', 1);
+    });
+  });
+
   describe('o flag de e-mail', () => {
     it('comes checked, so the usual case sends the e-mail', async () => {
       const wrapper = await montar();

@@ -151,6 +151,7 @@ class Conversation < ApplicationRecord
   # esta conversa - onde parou, o que decidiu, e o erro de cada tentativa.
   has_many :automation_flow_runs, dependent: :delete_all
 
+  before_save :sync_queue_with_team, if: :will_save_change_to_team_id?
   before_save :apply_queue_defaults
   before_save :ensure_snooze_until_reset
   before_save :clear_cancelled_flag
@@ -476,6 +477,26 @@ class Conversation < ApplicationRecord
     return if default_queue_id.blank? || account.automation_rules.active.exists?
 
     self.queue_id = default_queue_id
+  end
+
+  # A Fila pertence a um Time. Trocar so' o Time (menu da conversa, automacao, macro)
+  # deixava a conversa na Fila antiga, e o Painel de Conversas e a aba "Na fila" a
+  # contavam la. Ela passa para a Fila do Time novo quando ele tem exatamente uma
+  # ativa; sem nenhuma ou com varias, nao ha como escolher e a Fila fica como esta.
+  # Quem muda a Fila junto com o Time ja decidiu, e vale a escolha.
+  def sync_queue_with_team
+    return unless queue_follows_team?
+
+    team_queue_ids = account.queues.active.where(team_id: team_id).limit(2).ids
+    self.queue_id = team_queue_ids.first if team_queue_ids.one?
+  end
+
+  # So' a conversa que ja esta numa Fila de outro Time, e so' quando a Fila nao veio
+  # escolhida junto.
+  def queue_follows_team?
+    return false if new_record? || team_id.blank? || queue_id.blank?
+
+    !will_save_change_to_queue_id? && queue&.team_id != team_id
   end
 
   def apply_queue_defaults

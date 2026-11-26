@@ -232,6 +232,7 @@ en:
       child_released_still_blocked: 'Child ticket #%{display_id} was released, but the impediment remains because of child ticket #%{other_id}.'
     close:
       blocked: This ticket cannot be closed yet.
+      parent_open: Close the parent ticket before finishing its children.
     cancel:
       reason_required: Provide the reason to cancel the ticket.
     communication:

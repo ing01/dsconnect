@@ -57,6 +57,32 @@ RSpec.describe 'Client chat', type: :request do
       expect(response.parsed_body['messages'].pluck('content')).to eq(["Ola!\n\nAguarde"])
     end
 
+    it 'tells the client which message a reply answers' do
+      conversation = conversa(status: :open)
+      pergunta = create(:message, account: account, inbox: inbox, conversation: conversation,
+                                  message_type: :incoming, content: 'tudo na Emporio', sender: cliente)
+      create(:message, account: account, inbox: inbox, conversation: conversation, message_type: :outgoing,
+                       content: 'Certo', sender: agente, content_attributes: { in_reply_to: pergunta.id })
+
+      abrir_chat(entrar)
+
+      resposta = response.parsed_body['messages'].find { |item| item['content'] == 'Certo' }
+      expect(resposta['reply_to']).to include('id' => pergunta.id, 'content' => 'tudo na Emporio', 'from_you' => true)
+    end
+
+    it 'never quotes a private note' do
+      conversation = conversa(status: :open)
+      nota = create(:message, account: account, inbox: inbox, conversation: conversation,
+                              message_type: :outgoing, content: 'segredo interno', sender: agente, private: true)
+      create(:message, account: account, inbox: inbox, conversation: conversation, message_type: :outgoing,
+                       content: 'Certo', sender: agente, content_attributes: { in_reply_to: nota.id })
+
+      abrir_chat(entrar)
+
+      expect(response.body).not_to include('segredo interno')
+      expect(response.parsed_body['messages'].last).not_to have_key('reply_to')
+    end
+
     it 'returns the open conversation, flagged as not resolved' do
       mensagem_em(conversa(status: :open), 'Oi')
 

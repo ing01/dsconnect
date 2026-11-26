@@ -282,6 +282,7 @@
         "UNKNOWN": "Não foi possível enviar (código {status}). Tente novamente ou fale com o suporte."
       },
       "ATTACHMENT": "Anexo",
+      "YOU": "Você",
       "RECORD": "Gravar áudio",
       "RECORDING": "Gravando... {duration}",
       "STOP_RECORDING": "Parar ({duration})",

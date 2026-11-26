@@ -26,7 +26,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import ClientAreaAPI from 'dashboard/api/clientArea';
-import { plainChatText } from 'dashboard/helper/clientChatText';
+import { plainChatText, quotedMessage } from 'dashboard/helper/clientChatText';
 import Button from 'dashboard/components-next/button/Button.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import PageLoader from 'dashboard/components-next/spinner/PageLoader.vue';
@@ -135,6 +135,10 @@ const assinar = pubsubToken => {
             author_name: data.sender_type === 'User' ? data.sender?.name : null,
             created_at: data.created_at,
             attachments: data.attachments || [],
+            reply_to: quotedMessage(
+              data.content_attributes?.in_reply_to,
+              messages.value
+            ),
           });
         } else if (event === 'message.updated') {
           // So a transcricao de audio atualiza uma mensagem ja enviada - sem

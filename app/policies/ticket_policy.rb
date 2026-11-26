@@ -86,6 +86,12 @@ class TicketPolicy < ApplicationPolicy
     update?
   end
 
+  # O pai ja esta finalizado quando os filhos sao fechados, entao `update?` nao
+  # serve aqui; cada filho ainda passa pelo `close?` dele.
+  def close_children?
+    permitted_to_handle?
+  end
+
   # Cancelar nao e' tratativa de quem atende, e' descartar o chamado: so' o administrador, ou quem
   # recebeu a permissao `ticket_cancel` numa funcao personalizada (e o ticket ainda nao finalizado).
   def cancel?

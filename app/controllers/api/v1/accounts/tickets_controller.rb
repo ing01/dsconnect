@@ -15,7 +15,7 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   before_action :fetch_ticket, only: [:show, :update, :destroy, :move, :resolve, :reopen, :close, :cancel, :classify,
                                       :transfer, :create_child, :set_parent, :merge, :duplicate, :assign_to_me,
                                       :add_sla_hours, :block, :unblock, :approve_triage, :summarize_conversation,
-                                      :acknowledge_child_completed]
+                                      :acknowledge_child_completed, :close_children]
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :check_authorization
 
@@ -105,6 +105,20 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   rescue TicketClosing::NotAllowed => e
     render json: { error: I18n.t('tickets.close.blocked'), code: 'close_requirements_missing', missing: e.missing },
            status: :unprocessable_entity
+  end
+
+  # Finaliza os filhos de um pai ja fechado, com os dados dele (ver o servico).
+  def close_children
+    return render json: { error: I18n.t('tickets.close.parent_open') }, status: :unprocessable_entity unless @ticket.closed?
+
+    result = Tickets::CloseChildrenService.new(
+      parent: @ticket, user: Current.user, allowed: ->(child) { policy(child).close? }
+    ).perform
+
+    render json: {
+      closed: result.closed.map(&:display_id),
+      pending: result.pending.map { |item| { display_id: item[:ticket].display_id, missing: item[:missing] } }
+    }
   end
 
   # Cancelar encerra direto, sem classificacao, Resolucao nem comunicacao de
