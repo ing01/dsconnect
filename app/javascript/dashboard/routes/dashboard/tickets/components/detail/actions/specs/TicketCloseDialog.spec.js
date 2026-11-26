@@ -1,6 +1,7 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import TicketCloseDialog from '../TicketCloseDialog.vue';
 import TicketsAPI from 'dashboard/api/tickets';
+import { useAlert } from 'dashboard/composables';
 
 // Dois assuntos vivem aqui.
 //
@@ -284,6 +285,19 @@ describe('TicketCloseDialog', () => {
       );
       expect(dispatch).toHaveBeenCalledWith('tickets/closeChildren', 1);
     });
+  });
+
+  // Sem a mensagem do servidor a pessoa via so' um erro generico.
+  it('mostra o motivo da recusa devolvido pelo servidor', async () => {
+    const wrapper = await montar();
+    dispatch.mockImplementationOnce(() => Promise.resolve());
+    const refusal = Object.assign(new Error('422'), {
+      response: { data: { message: 'Categoria não é válida' } },
+    });
+    dispatch.mockImplementationOnce(() => Promise.reject(refusal));
+    await fechar(wrapper);
+
+    expect(useAlert).toHaveBeenCalledWith('Categoria não é válida');
   });
 
   describe('o flag de e-mail', () => {

@@ -76,6 +76,30 @@ const onCategorySelect = () => {
   }
 };
 
+// Trocar a Mesa a mao leva junto Categoria e Estagio que sejam dela: sem isso o
+// pedido saia com a combinacao de duas Mesas e o servidor recusava o fechamento.
+// A Categoria de mesmo nome e' mantida; sem ela, a pessoa escolhe.
+const onTeamSelect = () => {
+  const target = Number(teamId.value);
+  const current = allCategories.value.find(
+    candidate => candidate.id === Number(categoryId.value)
+  );
+  const categories =
+    categoriesByTeam.value.find(group => group.team.id === target)
+      ?.categories || [];
+  if (current && current.team_id !== target) {
+    categoryId.value =
+      categories.find(candidate => candidate.name === current.name)?.id || null;
+  }
+  if (!stageOptions.value.some(stage => stage.id === columnId.value)) {
+    const chosen = categories.find(
+      candidate => candidate.id === categoryId.value
+    );
+    columnId.value =
+      chosen?.default_ticket_column_id || stageOptions.value[0]?.id || null;
+  }
+};
+
 // So' usa o caminho de transferencia (Mesa/Estagio/Categoria + fechar numa
 // chamada so') quando algo realmente mudou - o fechamento comum (sem mexer
 // em nada disso) continua exatamente como sempre foi.
@@ -344,7 +368,9 @@ const submit = async () => {
   } catch (error) {
     // The server explains what went wrong - a refused delivery, a missing
     // address - and the ticket stays exactly as it was.
-    useAlert(error?.response?.data?.error || t('TICKET.API.ERROR_MESSAGE'));
+    // Recusa de validacao vem em `message` (qual campo e por que).
+    const { error: reason, message } = error?.response?.data || {};
+    useAlert(reason || message || t('TICKET.API.ERROR_MESSAGE'));
   } finally {
     isWorking.value = false;
   }
@@ -516,7 +542,11 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
             <span class="text-sm font-medium text-n-slate-12">
               {{ t('TICKET.CLOSE.ROUTING_TEAM') }}
             </span>
-            <select v-model="teamId" class="w-full mb-0 text-sm">
+            <select
+              v-model="teamId"
+              class="routing-team w-full mb-0 text-sm"
+              @change="onTeamSelect"
+            >
               <option v-for="team in teams" :key="team.id" :value="team.id">
                 {{ team.name }}
               </option>

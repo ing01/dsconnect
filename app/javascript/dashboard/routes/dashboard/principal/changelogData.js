@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-close-routing-error-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'fix',
+    title: 'Fechamento de tickets: corrigido erro ao trocar de Mesa',
+    description:
+      'Fechar um ticket escolhendo categoria e Mesa diferentes das atuais volta a funcionar, e tickets antigos com categoria de outra Mesa também fecham. Ao trocar a Mesa no fechamento, a categoria e o estágio passam a ser dessa Mesa. Se o sistema recusar o fechamento, agora ele diz o motivo.',
+  },
+  {
     id: 'contacts-search-keeps-text-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

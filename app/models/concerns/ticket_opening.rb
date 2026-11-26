@@ -53,8 +53,11 @@ module TicketOpening
     self.ticket_complexity_id = nil
   end
 
+  # So' quando a Categoria ou a Mesa MUDAM: um ticket antigo (ou importado) com uma
+  # Categoria de outra Mesa nao pode ficar impossivel de fechar ou salvar.
   def ticket_category_belongs_to_team
     return if ticket_category.blank? || team_id.blank?
+    return unless will_save_change_to_ticket_category_id? || will_save_change_to_team_id?
 
     errors.add(:ticket_category, :invalid) if ticket_category.team_id != team_id
   end

@@ -60,6 +60,7 @@ class Tickets::TransferService
     # `move_to!` keeps `team_id` in lockstep with the Estagio and re-indexes both
     # columns; assigning `ticket_column_id` directly would leave the Mesa stale.
     ticket.move_to!(ticket_column: column, position: position_in(column)) if column != ticket.ticket_column
+    assign_category
   ensure
     ticket.skip_change_activities = false
   end
@@ -67,9 +68,16 @@ class Tickets::TransferService
   def assign_scalars
     ticket.assign_attributes(assignee_id: assignee_id) if attributes.key?(:assignee_id)
     ticket.assign_attributes(priority: attributes[:priority]) if attributes[:priority].present?
-    # Categoria escolhida/confirmada junto com Mesa e Estagio na tela de
-    # fechamento (TicketCloseDialog) - pedido da Ingrid, 2026-11-16.
-    ticket.assign_attributes(ticket_category_id: attributes[:ticket_category_id]) if attributes.key?(:ticket_category_id)
+  end
+
+  # Categoria escolhida/confirmada junto com Mesa e Estagio na tela de
+  # fechamento (TicketCloseDialog) - pedido da Ingrid, 2026-11-16. Gravada DEPOIS da
+  # mudanca de Mesa: a Categoria e' da Mesa, e antes dela a nova seria recusada.
+  def assign_category
+    return unless attributes.key?(:ticket_category_id)
+
+    ticket.assign_attributes(ticket_category_id: attributes[:ticket_category_id])
+    ticket.save! if ticket.changed?
   end
 
   def target_column
