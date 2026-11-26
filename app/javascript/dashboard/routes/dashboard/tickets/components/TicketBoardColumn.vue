@@ -173,8 +173,6 @@ export default {
       <Draggable
         :list="tickets"
         :disabled="readOnly"
-        filter=".ticket-finalized"
-        :prevent-on-filter="false"
         group="tickets"
         item-key="id"
         animation="150"

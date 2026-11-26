@@ -62,8 +62,10 @@ class TicketPolicy < ApplicationPolicy
     permitted_to_handle?
   end
 
+  # Ticket finalizado tambem pode trocar de Estagio na mesma Mesa - o model
+  # (TicketFinalizable#moving_between_stages?) garante que so' isso muda.
   def move?
-    update?
+    permitted_to_handle?
   end
 
   def assign?

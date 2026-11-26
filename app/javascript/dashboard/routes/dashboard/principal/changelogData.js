@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kanban-move-finalized-tickets-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Tickets finalizados podem ser movidos entre estágios',
+    description:
+      'No Kanban, um ticket finalizado agora pode ser arrastado para outro estágio da mesma Mesa, por exemplo para levá-lo ao estágio Finalizado. O resto do ticket continua travado até ele ser reaberto, e as exigências do estágio (responsável, datas) não são cobradas nesse caso.',
+  },
+  {
     id: 'ticket-timer-layout-fix-2026-11-25',
     date: '25 de novembro de 2026',
     isoDate: '2026-11-25',
