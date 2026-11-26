@@ -361,10 +361,10 @@ const onCustomListAttribute = (key, text) =>
 
     <!-- Members of the Mesa, not every agent in the account. -->
     <TicketPropertyRow :label="firstAssigneeLabel">
-      <!-- O botao "Atribuir a mim" fica ao lado do seletor e, em tela estreita,
-           desce para a linha de baixo em vez de espremer o nome do responsavel. -->
-      <div class="flex flex-wrap items-center gap-2 min-w-0">
-        <div class="flex items-center flex-1 gap-2 min-w-0 basis-40">
+      <!-- O botao "Atribuir a mim" fica embaixo do seletor, na largura toda: ao lado,
+           a coluna estreita espremia o nome do responsavel e o proprio botao. -->
+      <div class="flex flex-col min-w-0 gap-2">
+        <div class="flex items-center w-full min-w-0 gap-2">
           <Avatar
             v-if="selectedAgent"
             :name="selectedAgent.name"
@@ -392,7 +392,7 @@ const onCustomListAttribute = (key, text) =>
           color="blue"
           size="xs"
           icon="i-lucide-user-check"
-          class="flex-shrink-0"
+          class="justify-center w-full"
           data-testid="assign-to-me-1"
           :label="t('TICKET.FORM.ASSIGNEE.ASSIGN_TO_ME')"
           :title="
@@ -415,8 +415,8 @@ const onCustomListAttribute = (key, text) =>
       :key="row.level"
       :label="row.label"
     >
-      <div class="flex flex-wrap items-center gap-2 min-w-0">
-        <div class="flex items-center flex-1 gap-2 min-w-0 basis-40">
+      <div class="flex flex-col min-w-0 gap-2">
+        <div class="flex items-center w-full min-w-0 gap-2">
           <Avatar
             v-if="row.selected"
             :name="row.selected.name"
@@ -444,7 +444,7 @@ const onCustomListAttribute = (key, text) =>
           color="blue"
           size="xs"
           icon="i-lucide-user-check"
-          class="flex-shrink-0"
+          class="justify-center w-full"
           :data-testid="`assign-to-me-${row.level}`"
           :label="t('TICKET.FORM.ASSIGNEE.ASSIGN_TO_ME')"
           :title="

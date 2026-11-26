@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-assign-to-me-layout-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'fix',
+    title: 'Botão "Atribuir a mim" não fica mais espremido',
+    description:
+      'No ticket, o botão "Atribuir a mim" agora fica embaixo do campo do responsável, ocupando a largura toda. Assim o nome e o botão aparecem inteiros em qualquer tamanho de tela.',
+  },
+  {
     id: 'ticket-close-routing-error-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',
