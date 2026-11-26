@@ -181,7 +181,7 @@ class AutomationRules::Flow::RunnerService
   def route_to_default_queue(conversation)
     return if conversation.queue_id.present?
 
-    queue_id = run.account.helpdesk_default_queue_id
+    queue_id = conversation.inbox_default_queue&.id || run.account.helpdesk_default_queue_id
     conversation.update!(queue_id: queue_id) if queue_id.present?
   end
 

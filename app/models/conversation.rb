@@ -300,6 +300,16 @@ class Conversation < ApplicationRecord
   # distribuicao" (Colaboradores/Automacao) - sem contar esta conversa. Mesmo
   # limite e mesmo escopo que o rodizio e a fila usam para nao entregar
   # conversa nova a quem ja esta cheio.
+  # A Fila padrao da caixa, se ativa. E' a escolha mais especifica que existe
+  # para a conversa: toda etapa de automacao que encaminha para humanos sem uma
+  # Fila PROPRIA usa esta antes da Fila geral da conta - senao a conversa nascia
+  # na fila da caixa e a automacao a jogava na geral (relato da Ingrid,
+  # 2026-11-26: "ta indo tudo pra suporte").
+  def inbox_default_queue
+    default_queue = inbox&.default_queue
+    default_queue if default_queue&.active?
+  end
+
   def assignee_at_open_chats_limit?(user_id)
     limit = distribution_max_open_chats
     return false unless limit.positive?
@@ -472,8 +482,8 @@ class Conversation < ApplicationRecord
   def route_to_inbox_default_queue
     return if queue_id.present? || assignee_id.present?
 
-    default_queue = inbox&.default_queue
-    return if default_queue.blank? || !default_queue.active?
+    default_queue = inbox_default_queue
+    return if default_queue.blank?
 
     self.queue_id = default_queue.id
     self.team_id ||= default_queue.team_id

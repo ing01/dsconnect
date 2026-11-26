@@ -195,7 +195,7 @@ class AutomationRules::Flow::DispatcherService
     def route_to_queue(account, conversation)
       return if conversation.queue_id.present?
 
-      queue_id = account.helpdesk_default_queue_id
+      queue_id = conversation.inbox_default_queue&.id || account.helpdesk_default_queue_id
       conversation.update!(queue_id: queue_id) if queue_id.present?
     end
 
