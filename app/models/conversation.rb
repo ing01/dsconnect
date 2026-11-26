@@ -316,13 +316,25 @@ class Conversation < ApplicationRecord
   # Nesse caso a conversa sai dele e volta para a distribuicao (fila ou rodizio).
   # So' na reabertura automatica (cliente respondeu / prazo do adiamento venceu):
   # quem reabre na mao (`Current.user`) esta escolhendo assumir.
+  #
+  # Mesma coisa quando o agente NAO esta online: o "Adiar" manual mantem o agente
+  # na conversa, e a resposta do cliente a reabria com ele mesmo offline - e
+  # offline ele nem consegue responder (relato da Ingrid, 2026-11-26: conversa
+  # #1144 voltou para o Joao Lucas fora do expediente, cliente esperando 1h).
   def release_assignee_over_limit_on_reopen
     return unless will_save_change_to_status? && status_in_database == 'snoozed' && open?
     return if Current.user.present? || assignee_id.blank?
-    return unless assignee_at_open_chats_limit?(assignee_id)
+    return unless !assignee_online_for_distribution? || assignee_at_open_chats_limit?(assignee_id)
 
     self.assignee_id = nil
     @released_over_limit = true
+  end
+
+  # O mesmo criterio de "online" do rodizio (AutoAssignment::AgentAssignmentService):
+  # conectado agora (ou com "ficar offline automaticamente" desligado) e com o
+  # status Online - Ocupado e Offline nao recebem conversa de volta.
+  def assignee_online_for_distribution?
+    ::OnlineStatusTracker.get_available_users(account_id)[assignee_id.to_s] == 'online'
   end
 
   def execute_after_update_commit_callbacks

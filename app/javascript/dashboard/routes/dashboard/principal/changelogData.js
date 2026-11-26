@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'snoozed-chat-offline-agent-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'fix',
+    title: 'Conversa adiada não volta mais para quem está offline',
+    description:
+      'Quando o cliente responde uma conversa adiada e o atendente não está Online (desconectado, Ocupado ou Offline), a conversa vai para a fila ou para o rodízio da caixa, em vez de ficar parada com quem não pode responder. Se o atendente estiver Online, ela continua voltando para ele.',
+  },
+  {
     id: 'sidebar-admin-all-teams-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',
