@@ -131,7 +131,7 @@ class Whatsapp::Providers::WhatsappUazapiService < Whatsapp::Providers::BaseServ
     type = attachment_message_type(attachment)
     caption_text = caption && %w[audio ptt].exclude?(type) ? outgoing_content_with_agent_name(message) : nil
 
-    body = { number: phone_number, type: type, file: attachment.download_url }
+    body = { number: phone_number, type: type, file: attachment_base64(attachment), mimetype: attachment.file.content_type }
     body[:text] = caption_text if caption_text.present?
     body[:docName] = attachment.file.filename.to_s if type == 'document'
     body[:delay] = typing_ms_for(caption_text.to_s) if caption
@@ -143,6 +143,14 @@ class Whatsapp::Providers::WhatsappUazapiService < Whatsapp::Providers::BaseServ
     )
 
     process_response(response, message)
+  end
+
+  # O arquivo vai DENTRO da requisicao, em base64, e nao como link pra UAZAPI
+  # baixar: o link do ActiveStorage (`download_url`) respondeu 401 pro
+  # servidor da UAZAPI em producao (2026-11-26), e mesmo quando abre ele
+  # expira em 5 minutos. Testado ao vivo: link -> 500 "HTTP 401", base64 -> 200.
+  def attachment_base64(attachment)
+    Base64.strict_encode64(attachment.file.download)
   end
 
   def typing_ms_for(content)
