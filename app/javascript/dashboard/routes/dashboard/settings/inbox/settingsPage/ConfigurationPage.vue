@@ -502,7 +502,7 @@ export default {
       </template>
 
       <SettingsFieldSection
-        v-if="['astere_zap', 'expxwhats'].includes(inbox.provider)"
+        v-if="['astere_zap', 'expxwhats', 'uazapi'].includes(inbox.provider)"
         :label="$t('INBOX_MGMT.SETTINGS_POPUP.ASTEREZAP_TYPING_DELAY_TITLE')"
         :help-text="
           $t('INBOX_MGMT.SETTINGS_POPUP.ASTEREZAP_TYPING_DELAY_SUBHEADER')

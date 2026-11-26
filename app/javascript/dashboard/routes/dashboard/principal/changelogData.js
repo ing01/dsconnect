@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-uazapi-provider-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'feature',
+    title: 'Novo provedor de WhatsApp: UAZAPI',
+    description:
+      'Ao criar uma caixa de entrada de WhatsApp, agora dá para conectar um número pela UAZAPI: basta informar o endereço do servidor e o token da instância. O webhook é configurado sozinho, e a caixa recebe e envia texto, imagem, vídeo, áudio e documentos, com confirmação de entregue e lido.',
+  },
+  {
     id: 'ticket-assign-to-me-layout-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

@@ -328,7 +328,9 @@
           "ASTEREZAP": "AstereZap",
           "ASTEREZAP_DESC": "Conectar via instância AstereZap (WhatsApp Web)",
           "EXPXWHATS": "ExpxWhats",
-          "EXPXWHATS_DESC": "Conectar via servidor ExpxWhats próprio (WhatsApp Web auto-hospedado)"
+          "EXPXWHATS_DESC": "Conectar via servidor ExpxWhats próprio (WhatsApp Web auto-hospedado)",
+          "UAZAPI": "UAZAPI",
+          "UAZAPI_DESC": "Conectar via servidor UAZAPI (sessão de WhatsApp Web)"
         },
         "SELECT_PROVIDER": {
           "TITLE": "Selecione seu provedor de API",
@@ -399,6 +401,19 @@
           "TOKEN": {
             "LABEL": "Token da instância",
             "PLACEHOLDER": "X-Instance-Token exibido ao criar a instância",
+            "ERROR": "Este campo é obrigatório"
+          }
+        },
+        "UAZAPI": {
+          "HELP": "Antes de criar o canal aqui, crie a instância e pareie o número pelo QR code no painel da UAZAPI (veja docs/whatsapp_uazapi_setup.md). Use o token da INSTÂNCIA, nunca o admin token. O webhook é configurado sozinho ao salvar.",
+          "BASE_URL": {
+            "LABEL": "Endereço do servidor",
+            "PLACEHOLDER": "Ex: https://suaempresa.uazapi.com",
+            "ERROR": "Informe uma URL válida"
+          },
+          "TOKEN": {
+            "LABEL": "Token da instância",
+            "PLACEHOLDER": "Token da instância (não o admin token)",
             "ERROR": "Este campo é obrigatório"
           }
         },
