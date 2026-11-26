@@ -470,7 +470,13 @@ export default {
       return `draft-${this.conversationIdByRoute}-${this.effectiveReplyMode}`;
     },
     audioRecordFormat() {
-      if (this.isAWhatsAppCloudChannel) {
+      // Nota de voz do WhatsApp e' OGG/Opus. A UAZAPI manda a gravacao como
+      // `ptt` (audio gravado), entao grava no formato nativo, igual a Cloud API,
+      // em vez de MP3 - que dependeria de a UAZAPI converter.
+      if (
+        this.isAWhatsAppCloudChannel ||
+        this.whatsAppAPIProvider === 'uazapi'
+      ) {
         return AUDIO_FORMATS.OGG;
       }
       if (this.isAWhatsAppChannel || this.isATelegramChannel) {
