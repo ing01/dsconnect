@@ -811,6 +811,20 @@
           "NOTE_PLACEHOLDER": "Text that will show up in the ticket's history...",
           "CUSTOMER_MESSAGE_PLACEHOLDER": "Standard message that will be sent to the customer...",
           "NOTIFY_CUSTOMER": "Send by email to the customer (unchecked only logs it, without sending)",
+          "FIELD_LABEL": "Field",
+          "VALUE_LABEL": "New value",
+          "CLEAR_VALUE": "Clear the field",
+          "BACKLOG": "Backlog (no Sprint)",
+          "FIELDS": {
+            "SPRINT": "Sprint",
+            "PRIORITY": "Priority",
+            "ASSIGNEE": "Assignee",
+            "CATEGORY": "Category",
+            "COMPLEXITY": "Complexity",
+            "DEVELOPMENT_TYPE": "Type",
+            "DUE_DATE": "Due date",
+            "SCHEDULED_AT": "Scheduled date"
+          },
           "STAGE_LABEL": "Stage",
           "ACTION_TYPES": {
             "SET_PRIORITY": "Change the priority",
@@ -818,6 +832,7 @@
             "SET_ASSIGNEE": "Change the assignee",
             "CLEAR_DUE_DATE": "Clear the due date",
             "CLEAR_SCHEDULED_AT": "Clear the scheduled date",
+            "SET_FIELD": "Change a field",
             "POST_NOTE": "Add an automated note",
             "SEND_CUSTOMER_MESSAGE": "Send a standard message to the customer",
             "MOVE_PARENT_TO_COLUMN": "Move the parent ticket to another stage"

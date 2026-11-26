@@ -202,6 +202,7 @@ export default {
           v-model="automationActions"
           :agents="agents"
           :teams="teams"
+          :team-id="selectedTeamId"
         />
       </fieldset>
 

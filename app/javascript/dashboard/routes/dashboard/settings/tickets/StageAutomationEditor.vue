@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'dashboard/composables/store';
 import { formatMesaName } from 'dashboard/helper/mesaName';
@@ -20,6 +20,11 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  // A Mesa do estagio: Sprints, Categorias e Complexidades sao dela.
+  teamId: {
+    type: [Number, String],
+    default: null,
+  },
 });
 const emit = defineEmits(['update:modelValue']);
 
@@ -34,6 +39,7 @@ const ACTION_TYPES = [
   'set_assignee',
   'clear_due_date',
   'clear_scheduled_at',
+  'set_field',
   'post_note',
   'send_customer_message',
   'move_parent_to_column',
@@ -46,10 +52,61 @@ const DEFAULT_VALUE_FOR_TYPE = {
   set_assignee: '',
   clear_due_date: null,
   clear_scheduled_at: null,
+  set_field: { field: 'sprint', value: '' },
   post_note: '',
   send_customer_message: { body: '', notify_customer: true },
   move_parent_to_column: { team_id: null, ticket_column_id: null },
 };
+
+// Mesma lista de Tickets::AutomationFieldChange::FIELDS. Valor vazio limpa o campo;
+// as datas so' podem ser limpas.
+const FIELDS = [
+  'sprint',
+  'priority',
+  'assignee',
+  'category',
+  'complexity',
+  'development_type',
+  'due_date',
+  'scheduled_at',
+];
+const DEVELOPMENT_TYPES = ['bug', 'task', 'story'];
+
+const named = list => list.map(({ id, name }) => ({ value: id, label: name }));
+const translated = (options, prefix) =>
+  options.map(option => ({
+    value: option,
+    label: t(`${prefix}.${option.toUpperCase()}`),
+  }));
+
+const fieldOptions = field => {
+  const teamId = Number(props.teamId);
+  const sources = {
+    sprint: () =>
+      named(store.getters['ticketColumns/getSprints']?.(teamId) || []),
+    priority: () => translated(PRIORITY_OPTIONS, 'TICKET.FORM.PRIORITY'),
+    assignee: () => named(props.agents),
+    category: () =>
+      named(store.getters['ticketColumns/getCategories']?.(teamId) || []),
+    complexity: () =>
+      named(
+        store.getters['ticketComplexities/getComplexitiesForTeam']?.(teamId) ||
+          []
+      ),
+    development_type: () =>
+      translated(DEVELOPMENT_TYPES, 'TICKET.DEVELOPMENT_FIELDS.TYPE'),
+  };
+  return sources[field]?.() || [];
+};
+
+const fieldLabel = field =>
+  t(`TICKET.SETTINGS.FORM.AUTOMATION.FIELDS.${field.toUpperCase()}`);
+const emptyLabel = field =>
+  t(
+    field === 'sprint'
+      ? 'TICKET.SETTINGS.FORM.AUTOMATION.BACKLOG'
+      : 'TICKET.SETTINGS.FORM.AUTOMATION.CLEAR_VALUE'
+  );
 
 const actions = computed(() => props.modelValue || []);
 
@@ -80,6 +137,11 @@ const setValue = (index, value) => {
     )
   );
 };
+
+// Trocar o campo zera o valor: o escolhido antes e' de outra lista.
+const setFieldName = (index, field) => setValue(index, { field, value: '' });
+const setFieldValue = (index, value) =>
+  setValue(index, { ...actions.value[index].value, value });
 
 const setCustomerMessageBody = (index, body) => {
   const action = actions.value[index];
@@ -119,6 +181,18 @@ const onParentColumnChange = (index, ticketColumnId) => {
 
 // Ao abrir o editor com uma acao ja configurada, busca a Mesa que ela ja
 // aponta - senao o select de Estagio nasceria vazio ate a pessoa trocar de Mesa.
+// As opcoes de "Alterar um campo" sao da Mesa do estagio, que o formulario deixa trocar.
+watch(
+  () => props.teamId,
+  teamId => {
+    if (!teamId) return;
+    store.dispatch('ticketColumns/fetchSprints', teamId);
+    store.dispatch('ticketColumns/fetchCategories', teamId);
+    store.dispatch('ticketComplexities/fetch');
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   actions.value
     .filter(
@@ -206,6 +280,43 @@ onMounted(() => {
         :placeholder="t('TICKET.SETTINGS.FORM.AUTOMATION.NOTE_PLACEHOLDER')"
         @input="setValue(index, $event.target.value)"
       />
+
+      <div
+        v-else-if="action.type === 'set_field'"
+        class="grid grid-cols-1 gap-2 sm:grid-cols-2"
+      >
+        <label class="flex flex-col gap-1 min-w-0 text-xs text-n-slate-11">
+          {{ t('TICKET.SETTINGS.FORM.AUTOMATION.FIELD_LABEL') }}
+          <select
+            :value="action.value?.field"
+            class="mb-0"
+            data-testid="automation-field"
+            @change="setFieldName(index, $event.target.value)"
+          >
+            <option v-for="field in FIELDS" :key="field" :value="field">
+              {{ fieldLabel(field) }}
+            </option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1 min-w-0 text-xs text-n-slate-11">
+          {{ t('TICKET.SETTINGS.FORM.AUTOMATION.VALUE_LABEL') }}
+          <select
+            :value="action.value?.value ?? ''"
+            class="mb-0"
+            data-testid="automation-value"
+            @change="setFieldValue(index, $event.target.value)"
+          >
+            <option value="">{{ emptyLabel(action.value?.field) }}</option>
+            <option
+              v-for="option in fieldOptions(action.value?.field)"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+      </div>
 
       <div
         v-else-if="action.type === 'send_customer_message'"

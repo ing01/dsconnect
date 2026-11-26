@@ -24,6 +24,7 @@ class Tickets::ColumnAutomationService
     when 'set_assignee' then set_assignee(action[:value])
     when 'clear_due_date' then ticket.update!(due_date: nil)
     when 'clear_scheduled_at' then ticket.update!(scheduled_at: nil)
+    when 'set_field' then set_field(action[:value])
     when 'post_note' then post_note(action[:value])
     when 'send_customer_message' then send_customer_message(action[:value])
     when 'move_parent_to_column' then move_parent_to_column(action[:value])
@@ -58,6 +59,12 @@ class Tickets::ColumnAutomationService
     return if agent_id.present? && !ticket.team.members.exists?(id: agent_id)
 
     ticket.update!(assignee_id: agent_id)
+  end
+
+  def set_field(value)
+    return if value.blank?
+
+    Tickets::AutomationFieldChange.new(ticket: ticket, field: value[:field], value: value[:value]).perform
   end
 
   def post_note(text)

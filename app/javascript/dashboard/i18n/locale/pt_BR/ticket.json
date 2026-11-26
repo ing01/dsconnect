@@ -901,6 +901,20 @@
           "NOTE_PLACEHOLDER": "Texto que vai aparecer no histórico do ticket...",
           "CUSTOMER_MESSAGE_PLACEHOLDER": "Mensagem padrão que será enviada ao cliente...",
           "NOTIFY_CUSTOMER": "Enviar por e-mail ao cliente (desmarcado só registra, sem enviar)",
+          "FIELD_LABEL": "Campo",
+          "VALUE_LABEL": "Novo valor",
+          "CLEAR_VALUE": "Limpar o campo",
+          "BACKLOG": "Backlog (sem Sprint)",
+          "FIELDS": {
+            "SPRINT": "Sprint",
+            "PRIORITY": "Prioridade",
+            "ASSIGNEE": "Responsável",
+            "CATEGORY": "Categoria",
+            "COMPLEXITY": "Complexidade",
+            "DEVELOPMENT_TYPE": "Tipo",
+            "DUE_DATE": "Data de vencimento",
+            "SCHEDULED_AT": "Data de agendamento"
+          },
           "STAGE_LABEL": "Estágio",
           "ACTION_TYPES": {
             "SET_PRIORITY": "Mudar a prioridade",
@@ -908,6 +922,7 @@
             "SET_ASSIGNEE": "Mudar o responsável",
             "CLEAR_DUE_DATE": "Limpar a data de vencimento",
             "CLEAR_SCHEDULED_AT": "Limpar a data de agendamento",
+            "SET_FIELD": "Alterar um campo",
             "POST_NOTE": "Adicionar uma nota automática",
             "SEND_CUSTOMER_MESSAGE": "Enviar mensagem padrão ao cliente",
             "MOVE_PARENT_TO_COLUMN": "Mover o ticket pai para outro estágio"

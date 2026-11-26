@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'stage-automation-set-field-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Automação de estágio: nova ação "Alterar um campo"',
+    description:
+      'Em Configurações > Estágios, escolha o campo (Sprint, Prioridade, Responsável, Categoria, Complexidade, Tipo ou datas) e o novo valor, ou limpe o campo. Por exemplo: ao entrar no estágio Backlog, o ticket sai do Sprint.',
+  },
+  {
     id: 'whatsapp-uazapi-provider-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

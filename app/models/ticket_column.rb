@@ -93,8 +93,8 @@ class TicketColumn < ApplicationRecord
   # for false) uma mensagem padrao ao cliente do ticket - pedido da Ingrid,
   # 2026-11-09 (ex: avisar automaticamente quando o ticket entra no Estagio
   # "Banco de ideias"). Ver Tickets::ColumnAutomationService#send_customer_message.
-  AUTOMATION_ACTION_TYPES = %w[set_priority set_status set_assignee clear_due_date clear_scheduled_at post_note
-                               send_customer_message move_parent_to_column].freeze
+  AUTOMATION_ACTION_TYPES = %w[set_priority set_status set_assignee clear_due_date clear_scheduled_at set_field
+                               post_note send_customer_message move_parent_to_column].freeze
 
   validates :name, presence: true
   validates :kind, inclusion: { in: KINDS }
