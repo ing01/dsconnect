@@ -38,6 +38,7 @@
     "MESSAGE": {
       "REPLY": "Reply",
       "REACT": "React",
+      "MORE_REACTIONS": "Choose another emoji",
       "YOU": "You",
       "UNKNOWN_USER": "Removed user",
       "NAMES_LIST": "{first} and {last}",

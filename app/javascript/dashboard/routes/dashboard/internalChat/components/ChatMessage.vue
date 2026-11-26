@@ -1,6 +1,7 @@
 <script setup>
-import { computed, nextTick, ref } from 'vue';
+import { computed, defineAsyncComponent, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { onClickOutside } from '@vueuse/core';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import MessageBody from './MessageBody.vue';
@@ -32,6 +33,13 @@ const emit = defineEmits([
   'markUnread',
   'edit',
 ]);
+
+// O mesmo seletor do campo de mensagem. Assincrono pelo mesmo motivo: a tabela
+// de emojis so' entra quando alguem abre.
+const EmojiIconPicker = defineAsyncComponent(
+  () =>
+    import('dashboard/components-next/emoji-icon-picker/EmojiIconPicker.vue')
+);
 
 const { t } = useI18n();
 
@@ -120,6 +128,47 @@ const onEditKeydown = event => {
     event.preventDefault();
     saveEdit();
   }
+};
+
+// O seletor abre fora da lista (Teleport), em posicao fixa: dentro dela seria
+// cortado pela rolagem nas mensagens do topo e do fim.
+const PICKER_WIDTH = 352;
+const PICKER_HEIGHT = 320;
+const GAP = 6;
+const MARGIN = 8;
+
+const pickerButton = ref(null);
+const pickerPanel = ref(null);
+const pickerStyle = ref(null);
+
+const closePicker = () => {
+  pickerStyle.value = null;
+};
+
+const togglePicker = () => {
+  if (pickerStyle.value) {
+    closePicker();
+    return;
+  }
+  const rect = pickerButton.value.getBoundingClientRect();
+  const maxLeft = window.innerWidth - PICKER_WIDTH - MARGIN;
+  const left = Math.max(MARGIN, Math.min(rect.right - PICKER_WIDTH, maxLeft));
+  const fitsBelow =
+    rect.bottom + GAP + PICKER_HEIGHT <= window.innerHeight - MARGIN;
+
+  pickerStyle.value = {
+    left: `${left}px`,
+    ...(fitsBelow
+      ? { top: `${rect.bottom + GAP}px` }
+      : { bottom: `${window.innerHeight - rect.top + GAP}px` }),
+  };
+};
+
+onClickOutside(pickerPanel, closePicker, { ignore: [pickerButton] });
+
+const reactWith = emoji => {
+  closePicker();
+  emit('react', { messageId: props.message.id, emoji });
 };
 
 const isEdited = computed(() => !!props.message.editedAt);
@@ -314,6 +363,7 @@ const versionLabel = (version, index) =>
     <!-- Ações da mensagem: aparecem no hover para não poluir a leitura. -->
     <div
       class="absolute z-10 items-center hidden gap-0.5 p-0.5 border rounded-md shadow-sm -top-3 end-4 border-n-weak bg-n-solid-1 group-hover:flex group-focus-within:flex"
+      :class="{ '!flex': pickerStyle }"
     >
       <button
         v-for="emoji in QUICK_REACTIONS"
@@ -324,6 +374,18 @@ const versionLabel = (version, index) =>
         @click="emit('react', { messageId: message.id, emoji })"
       >
         {{ emoji }}
+      </button>
+      <button
+        ref="pickerButton"
+        type="button"
+        class="p-1 rounded hover:bg-n-alpha-2 text-n-slate-11"
+        data-testid="open-reaction-picker"
+        :title="t('INTERNAL_CHAT.MESSAGE.MORE_REACTIONS')"
+        :aria-label="t('INTERNAL_CHAT.MESSAGE.MORE_REACTIONS')"
+        :aria-expanded="!!pickerStyle"
+        @click="togglePicker"
+      >
+        <Icon icon="i-lucide-smile-plus" class="size-3.5" />
       </button>
       <button
         type="button"
@@ -378,5 +440,22 @@ const versionLabel = (version, index) =>
         <Icon icon="i-lucide-trash-2" class="size-3.5" />
       </button>
     </div>
+
+    <Teleport to="body">
+      <div
+        v-if="pickerStyle"
+        ref="pickerPanel"
+        class="fixed z-50 w-[22rem]"
+        :style="pickerStyle"
+        data-testid="reaction-picker"
+        @keydown.esc="closePicker"
+      >
+        <EmojiIconPicker
+          mode="emoji"
+          class="!static"
+          @select="reactWith($event.value)"
+        />
+      </div>
+    </Teleport>
   </div>
 </template>

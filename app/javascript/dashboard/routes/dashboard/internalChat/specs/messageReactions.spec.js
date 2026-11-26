@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import ChatMessage from '../components/ChatMessage.vue';
 
 vi.mock('vue-i18n', () => ({
@@ -7,6 +7,65 @@ vi.mock('vue-i18n', () => ({
       [key.split('.').pop(), ...Object.values(params || {})].join('|'),
   }),
 }));
+
+vi.mock(
+  'dashboard/components-next/emoji-icon-picker/EmojiIconPicker.vue',
+  () => ({
+    __esModule: true,
+    default: {
+      name: 'EmojiPickerStub',
+      emits: ['select'],
+      template: '<div />',
+    },
+  })
+);
+
+const mountPicker = () =>
+  mount(ChatMessage, {
+    props: {
+      message: { id: 1, userId: 2, body: '', createdAt: 0 },
+      currentUserId: 1,
+    },
+    global: {
+      stubs: {
+        Avatar: true,
+        Icon: true,
+        MessageBody: true,
+        Teleport: true,
+      },
+      directives: { tooltip: {} },
+    },
+  });
+const picker = wrapper => wrapper.find('[data-testid="reaction-picker"]');
+const openButton = wrapper =>
+  wrapper.find('[data-testid="open-reaction-picker"]');
+
+describe('ChatMessage - escolher outro emoji', () => {
+  it('abre a lista completa, reage com o escolhido e fecha', async () => {
+    const wrapper = mountPicker();
+    expect(picker(wrapper).exists()).toBe(false);
+
+    await openButton(wrapper).trigger('click');
+    await vi.dynamicImportSettled();
+    await flushPromises();
+    wrapper
+      .findComponent({ name: 'EmojiPickerStub' })
+      .vm.$emit('select', { type: 'emoji', value: '🚀' });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.emitted('react')).toEqual([[{ messageId: 1, emoji: '🚀' }]]);
+    expect(picker(wrapper).exists()).toBe(false);
+  });
+
+  it('o mesmo botao fecha a lista', async () => {
+    const wrapper = mountPicker();
+
+    await openButton(wrapper).trigger('click');
+    await openButton(wrapper).trigger('click');
+
+    expect(picker(wrapper).exists()).toBe(false);
+  });
+});
 
 const titleFor = userIds =>
   mount(ChatMessage, {

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-any-reaction-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Chat Interno: reaja com qualquer emoji',
+    description:
+      'Nas ações da mensagem, o novo ícone de emoji abre a lista completa, com busca, para escolher a reação. Os atalhos mais usados continuam ao lado.',
+  },
+  {
     id: 'whatsapp-meta-agent-name-and-media-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',
