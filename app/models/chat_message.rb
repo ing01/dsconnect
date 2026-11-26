@@ -46,6 +46,28 @@ class ChatMessage < ApplicationRecord
     update!(pinned_at: pinned_at? ? nil : Time.zone.now)
   end
 
+  # Troca o texto guardando o anterior em `edit_history`, para quem le poder ver
+  # o que estava escrito ("Ver anterior"). Cada versao guarda quando FOI ESCRITA
+  # (a criacao, ou a edicao anterior). Mesmo texto nao conta como edicao - nao
+  # marca "Editado" por um clique em Salvar sem mudanca.
+  def edit!(new_content)
+    new_content = new_content.to_s
+    return self if new_content.strip == content.to_s.strip
+
+    self.edit_history = edit_history + [{ 'content' => content, 'written_at' => (edited_at || created_at).iso8601 }]
+    self.content = new_content
+    self.edited_at = Time.zone.now
+    save!
+    dispatch_updated_event
+    self
+  end
+
+  # So' o autor edita. Diferente de apagar, o administrador NAO edita mensagem
+  # alheia: poria palavras na boca de outra pessoa, com o nome dela.
+  def editable_by?(user)
+    user_id.present? && user_id == user.id
+  end
+
   # O mesmo formato que a API devolve, para que a mensagem que chega pelo tempo
   # real e a que vem por HTTP sejam indistinguiveis na tela.
   def push_event_data
@@ -59,6 +81,8 @@ class ChatMessage < ApplicationRecord
       body: content,
       createdAt: created_at.to_i,
       pinnedAt: pinned_at&.to_i,
+      editedAt: edited_at&.to_i,
+      previousVersions: previous_versions_payload,
       replyTo: reply_to_id,
       reactions: reactions_payload.map { |item| { emoji: item[:emoji], userIds: item[:user_ids] } },
       # Sem isto a imagem apareceria para quem enviou e nao para quem recebe
@@ -93,6 +117,13 @@ class ChatMessage < ApplicationRecord
         url: url_for(attachment),
         thumb: thumb_for(attachment)
       }
+    end
+  end
+
+  # Os textos anteriores, do mais antigo (o original) ao mais recente.
+  def previous_versions_payload
+    Array(edit_history).map do |version|
+      { body: version['content'].to_s, writtenAt: Time.zone.parse(version['written_at'].to_s)&.to_i }
     end
   end
 

@@ -48,7 +48,20 @@
       "DELETE": "Apagar",
       "DELETE_CONFIRM": "Apagar esta mensagem? Não há como desfazer.",
       "DELETE_ERROR": "Não foi possível apagar a mensagem.",
-      "DELETE_TITLE": "Apagar mensagem"
+      "DELETE_TITLE": "Apagar mensagem",
+      "EDIT": "Editar mensagem",
+      "EDIT_SAVE": "Salvar",
+      "EDIT_CANCEL": "Cancelar",
+      "EDIT_HINT": "Enter para salvar · Esc para cancelar",
+      "EDIT_ERROR": "Não foi possível editar a mensagem.",
+      "EDITED": "(editado)",
+      "EDITED_AT": "Editada em {time}",
+      "SHOW_PREVIOUS": "Ver anterior",
+      "HIDE_PREVIOUS": "Ocultar anterior",
+      "ORIGINAL": "Original",
+      "PREVIOUS_VERSION": "Versão anterior",
+      "VERSION_LABEL": "{label} · {time}",
+      "EMPTY_VERSION": "(sem texto)"
     },
     "MEMBERS": {
       "TITLE": "Gerenciar membros",

@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -30,6 +30,7 @@ const emit = defineEmits([
   'pin',
   'delete',
   'markUnread',
+  'edit',
 ]);
 
 const { t } = useI18n();
@@ -46,6 +47,88 @@ const hasReacted = reaction => reaction.userIds.includes(props.currentUserId);
 const canDelete = computed(
   () => props.canDeleteAny || props.message.userId === props.currentUserId
 );
+
+// So' o autor edita - nem o administrador, que apagaria mas nao reescreve o que
+// outra pessoa disse. Mesma regra do servidor.
+const canEdit = computed(() => props.message.userId === props.currentUserId);
+
+const isEditing = ref(false);
+const draft = ref('');
+const editInput = ref(null);
+
+const draftRows = computed(() =>
+  Math.min(Math.max(draft.value.split('\n').length, 2), 8)
+);
+
+const startEdit = async () => {
+  draft.value = props.message.body || '';
+  isEditing.value = true;
+  await nextTick();
+  const input = editInput.value;
+  if (!input) return;
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+};
+
+const cancelEdit = () => {
+  isEditing.value = false;
+};
+
+// Sai do modo de edicao na hora; se o servidor recusar, a tela de cima avisa e
+// a mensagem continua com o texto de antes.
+const saveEdit = () => {
+  const content = draft.value.trim();
+  const hasAttachments = (props.message.attachments || []).length > 0;
+  if (!content && !hasAttachments) return;
+
+  isEditing.value = false;
+  if (content === (props.message.body || '').trim()) return;
+
+  emit('edit', { messageId: props.message.id, content });
+};
+
+// Enter salva e Shift+Enter quebra linha, igual ao campo de envio; Esc desiste.
+const onEditKeydown = event => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    cancelEdit();
+  } else if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    saveEdit();
+  }
+};
+
+const isEdited = computed(() => !!props.message.editedAt);
+const previousVersions = computed(() => props.message.previousVersions || []);
+const showPrevious = ref(false);
+
+const formatStamp = timestamp =>
+  timestamp
+    ? new Date(timestamp * 1000).toLocaleString([], {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
+
+const editedTitle = computed(() =>
+  t('INTERNAL_CHAT.MESSAGE.EDITED_AT', {
+    time: formatStamp(props.message.editedAt),
+  })
+);
+
+// A primeira versao guardada e' o texto original; as seguintes, edicoes
+// intermediarias.
+const versionLabel = (version, index) =>
+  t('INTERNAL_CHAT.MESSAGE.VERSION_LABEL', {
+    label: t(
+      index === 0
+        ? 'INTERNAL_CHAT.MESSAGE.ORIGINAL'
+        : 'INTERNAL_CHAT.MESSAGE.PREVIOUS_VERSION'
+    ),
+    time: formatStamp(version.writtenAt),
+  });
 </script>
 
 <template>
@@ -90,12 +173,87 @@ const canDelete = computed(
         </span>
       </div>
 
-      <MessageBody
-        v-if="message.body"
-        :body="message.body"
-        :users="users"
-        @open-ticket="id => emit('openTicket', id)"
-      />
+      <div v-if="isEditing" class="flex flex-col gap-1 mt-0.5">
+        <textarea
+          ref="editInput"
+          v-model="draft"
+          :rows="draftRows"
+          class="w-full p-2 mb-0 text-sm leading-relaxed border rounded-md resize-y border-n-weak bg-n-solid-2 text-n-slate-12 focus:border-n-brand"
+          :aria-label="t('INTERNAL_CHAT.MESSAGE.EDIT')"
+          @keydown="onEditKeydown"
+        />
+        <div class="flex items-center gap-3 text-xs text-n-slate-10">
+          <span>{{ t('INTERNAL_CHAT.MESSAGE.EDIT_HINT') }}</span>
+          <button
+            type="button"
+            class="hover:text-n-slate-12"
+            @click="cancelEdit"
+          >
+            {{ t('INTERNAL_CHAT.MESSAGE.EDIT_CANCEL') }}
+          </button>
+          <button
+            type="button"
+            class="font-medium text-n-brand hover:underline"
+            @click="saveEdit"
+          >
+            {{ t('INTERNAL_CHAT.MESSAGE.EDIT_SAVE') }}
+          </button>
+        </div>
+      </div>
+
+      <template v-else>
+        <MessageBody
+          v-if="message.body"
+          :body="message.body"
+          :users="users"
+          @open-ticket="id => emit('openTicket', id)"
+        />
+
+        <!-- Editada: o aviso fica junto do texto, e o que estava escrito antes
+             continua a um clique para qualquer pessoa da sala. -->
+        <div
+          v-if="isEdited"
+          class="flex items-center gap-1.5 text-xs text-n-slate-10"
+        >
+          <span :title="editedTitle">
+            {{ t('INTERNAL_CHAT.MESSAGE.EDITED') }}
+          </span>
+          <button
+            v-if="previousVersions.length"
+            type="button"
+            class="underline hover:text-n-slate-12"
+            @click="showPrevious = !showPrevious"
+          >
+            {{
+              t(
+                showPrevious
+                  ? 'INTERNAL_CHAT.MESSAGE.HIDE_PREVIOUS'
+                  : 'INTERNAL_CHAT.MESSAGE.SHOW_PREVIOUS'
+              )
+            }}
+          </button>
+        </div>
+
+        <div
+          v-if="isEdited && showPrevious"
+          class="flex flex-col gap-1.5 py-1 mt-1 border-s-2 ps-2 border-n-weak"
+        >
+          <div
+            v-for="(version, index) in previousVersions"
+            :key="index"
+            class="text-xs"
+          >
+            <span class="font-medium text-n-slate-11">
+              {{ versionLabel(version, index) }}
+            </span>
+            <p
+              class="m-0 break-words whitespace-pre-wrap text-n-slate-10 line-through decoration-n-slate-7"
+            >
+              {{ version.body || t('INTERNAL_CHAT.MESSAGE.EMPTY_VERSION') }}
+            </p>
+          </div>
+        </div>
+      </template>
 
       <MessageAttachment
         v-for="attachment in message.attachments || []"
@@ -161,6 +319,16 @@ const canDelete = computed(
         @click="emit('pin', message.id)"
       >
         <Icon icon="i-lucide-pin" class="size-3.5" />
+      </button>
+      <button
+        v-if="canEdit && !isEditing"
+        type="button"
+        class="p-1 rounded hover:bg-n-alpha-2 text-n-slate-11"
+        :title="t('INTERNAL_CHAT.MESSAGE.EDIT')"
+        :aria-label="t('INTERNAL_CHAT.MESSAGE.EDIT')"
+        @click="startEdit"
+      >
+        <Icon icon="i-lucide-pencil" class="size-3.5" />
       </button>
       <button
         v-if="message.userId !== currentUserId"

@@ -7,7 +7,7 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
 
   before_action :fetch_channel
   before_action :check_authorization
-  before_action :fetch_message, only: [:toggle_reaction, :toggle_pin, :destroy, :mark_unread]
+  before_action :fetch_message, only: [:toggle_reaction, :toggle_pin, :destroy, :mark_unread, :update]
 
   # As mensagens fixadas da sala, mais recente primeiro - sem paginacao: sao
   # poucas por natureza (fixar exige uma acao deliberada por vez).
@@ -49,6 +49,18 @@ class Api::V1::Accounts::ChatMessagesController < Api::V1::Accounts::BaseControl
     @chat_message.save!
     # Quem escreve leu tudo o que veio antes.
     membership&.mark_read!
+    render 'show'
+  end
+
+  # Editar o texto. So' o autor; o texto anterior fica guardado e visivel para
+  # todos da sala ("Editado" / "Ver anterior") - ninguem reescreve o que disse
+  # sem deixar rastro.
+  def update
+    unless @chat_message.editable_by?(Current.user)
+      return render json: { error: I18n.t('errors.chat_message.not_allowed_to_edit') }, status: :forbidden
+    end
+
+    @chat_message.edit!(params[:content])
     render 'show'
   end
 

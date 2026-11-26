@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-edit-message-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'feature',
+    title: 'Chat Interno: editar mensagem',
+    description:
+      'Agora dá para editar uma mensagem que você enviou no Chat Interno: passe o mouse sobre ela e clique no lápis. A mensagem editada mostra o aviso "(editado)", e qualquer pessoa da conversa pode clicar em "Ver anterior" para ler o que estava escrito antes.',
+  },
+  {
     id: 'stage-automation-set-field-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

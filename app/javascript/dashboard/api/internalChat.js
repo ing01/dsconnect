@@ -70,6 +70,13 @@ class InternalChatAPI extends ApiClient {
     return `${this.url}/${channelId}/direct_uploads`;
   }
 
+  // Troca o texto. O anterior fica guardado no servidor ("Ver anterior").
+  editMessage(channelId, messageId, content) {
+    return axios.patch(`${this.url}/${channelId}/messages/${messageId}`, {
+      content,
+    });
+  }
+
   deleteMessage(channelId, messageId) {
     return axios.delete(`${this.url}/${channelId}/messages/${messageId}`);
   }

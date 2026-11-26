@@ -267,6 +267,21 @@ export const actions = {
     });
   },
 
+  // Editar aparece na hora para quem editou; para os outros, pelo tempo real
+  // (`internal_chat.message.updated`), que substitui a mensagem pelo id.
+  editMessage: async ({ commit }, { roomId, messageId, content }) => {
+    const response = await InternalChatAPI.editMessage(
+      roomId,
+      messageId,
+      content
+    );
+    commit(types.UPDATE_INTERNAL_CHAT_MESSAGE, {
+      roomId,
+      message: response.data,
+    });
+    return response.data;
+  },
+
   // Apagar sai da tela de quem apagou na hora; nas outras, pelo tempo real
   // (`applyRealtimeDeletion`). A remocao local nao espera o eco do proprio
   // navegador, que pode nem chegar se a pessoa trocar de tela.
@@ -417,6 +432,8 @@ export const mutations = {
 
   [types.UPDATE_INTERNAL_CHAT_MESSAGE](_state, { roomId, message }) {
     const room = findRoom(_state, roomId);
+    // A previa da barra lateral e' a ultima mensagem: editada, a previa muda junto.
+    if (room?.lastMessage?.id === message.id) room.lastMessage = message;
     const index = room?.messages.findIndex(item => item.id === message.id);
     if (index === undefined || index === -1) return;
 

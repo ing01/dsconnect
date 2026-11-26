@@ -561,7 +561,7 @@ Rails.application.routes.draw do
             end
             # O upload vai direto para o storage; a aplicacao so registra o blob.
             resources :direct_uploads, module: 'chat_channels', only: [:create]
-            resources :messages, controller: 'chat_messages', only: [:index, :create, :destroy] do
+            resources :messages, controller: 'chat_messages', only: [:index, :create, :update, :destroy] do
               collection do
                 get :pinned
               end

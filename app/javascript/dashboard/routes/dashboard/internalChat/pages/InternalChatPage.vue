@@ -298,6 +298,20 @@ const confirmDelete = async () => {
   }
 };
 
+const editMessage = async ({ messageId, content }) => {
+  try {
+    await store.dispatch('internalChat/editMessage', {
+      roomId: activeRoomId.value,
+      messageId,
+      content,
+    });
+  } catch (error) {
+    useAlert(
+      error?.response?.data?.error || t('INTERNAL_CHAT.MESSAGE.EDIT_ERROR')
+    );
+  }
+};
+
 const saveChannel = async payload => {
   try {
     await store.dispatch('internalChat/updateChannel', payload);
@@ -614,6 +628,7 @@ const unreadDividerIndex = computed(() => {
                 @pin="togglePin"
                 @mark-unread="markUnread"
                 @delete="askDelete"
+                @edit="editMessage"
                 @open-image="attachment => (lightboxAttachment = attachment)"
                 @open-ticket="openTicket"
               />

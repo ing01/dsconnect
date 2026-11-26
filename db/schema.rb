@@ -911,6 +911,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_13_162016) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "pinned_at"
+    t.datetime "edited_at"
+    t.jsonb "edit_history", default: [], null: false
     t.index ["account_id"], name: "index_chat_messages_on_account_id"
     t.index ["chat_channel_id", "created_at"], name: "index_chat_messages_on_chat_channel_id_and_created_at"
     t.index ["reply_to_id"], name: "index_chat_messages_on_reply_to_id"
