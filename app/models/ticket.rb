@@ -193,7 +193,10 @@ class Ticket < ApplicationRecord
   # Kanban drag-and-drop. This is a workflow-stage change only; it never
   # touches `status`.
   def move_to!(ticket_column:, position:)
-    validate_target_column_rules!(ticket_column)
+    # As exigencias do Estagio (responsavel, datas...) sao condicoes para
+    # TRABALHAR o ticket; um finalizado so' esta sendo arrumado no quadro - mesma
+    # logica de `move_to_finalized_column!`, que tambem nao as aplica.
+    validate_target_column_rules!(ticket_column) unless finalized?
     transaction do
       previous_column = self.ticket_column
       hand_over_unsupported_assignees(ticket_column.team)

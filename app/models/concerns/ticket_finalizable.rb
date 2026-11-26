@@ -21,6 +21,8 @@ module TicketFinalizable
   # de `reopen!`, e a lista existe para que reabrir nao vire brecha para alterar
   # o resto do ticket na mesma gravacao.
   REOPEN_ATTRIBUTES = %w[status resolved_at closed_at cancelled_at close_reason updated_at].freeze
+  # O que arrastar entre Estagios da mesma Mesa grava (ver `moving_between_stages?`).
+  STAGE_MOVE_ATTRIBUTES = %w[ticket_column_id position updated_at].freeze
 
   included do
     validate :unchanged_once_finalized, on: :update
@@ -54,6 +56,7 @@ module TicketFinalizable
     return if @administrative_change
     return unless FINALIZED_STATUSES.include?(status_in_database)
     return if reopening?
+    return if moving_between_stages?
 
     errors.add(:base, I18n.t('tickets.finalized.immutable'))
   end
@@ -61,6 +64,15 @@ module TicketFinalizable
   # Reabrir e a excecao, e a unica. Um ticket finalizado pode voltar a `open`, e
   # nada mais pode mudar junto: quem reabre e depois edita faz duas acoes, o que
   # deixa as duas no historico.
+  # A outra excecao: trocar o ticket finalizado de Estagio DENTRO da mesma Mesa
+  # (arrastar no Kanban). Ticket fechado antes da regra "encerrar leva ao
+  # Finalizado" ficou parado em estagios do meio do quadro, e a equipe precisa
+  # poder arruma-lo (pedido da Ingrid, 2026-11-26). So' a posicao no quadro
+  # muda - trocar de Mesa mexe em responsaveis, e isso continua travado.
+  def moving_between_stages?
+    (changed_attributes.keys - STAGE_MOVE_ATTRIBUTES).empty?
+  end
+
   def reopening?
     status == 'open' && (changed_attributes.keys - REOPEN_ATTRIBUTES).empty?
   end
