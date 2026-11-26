@@ -157,25 +157,6 @@ class Whatsapp::Providers::WhatsappExpxwhatsService < Whatsapp::Providers::BaseS
     end
   end
 
-  # Prefixa o nome de quem enviou - mesma regra do AstereZap (sem isso, a
-  # mensagem parece vir de um numero anonimo, nao de uma pessoa da equipe).
-  def outgoing_content_with_agent_name(message)
-    content = message.outgoing_content.to_s
-    agent_name = agent_name_for(message)
-
-    return content if agent_name.blank?
-    return content if content.start_with?("*#{agent_name}:*")
-
-    "*#{agent_name}:*\n#{content}"
-  end
-
-  def agent_name_for(message)
-    sender = message.sender
-    return nil unless sender.is_a?(User)
-
-    sender.name.presence
-  end
-
   # Corpo de erro do ExpxWhats e' sempre {"error":"mensagem"} (ver `fail()` no
   # servidor Go) - formato unico, diferente do AstereZap que varia por status.
   def error_message(response)

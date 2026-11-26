@@ -8,6 +8,17 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'whatsapp-meta-agent-name-and-media-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'fix',
+    title:
+      'WhatsApp oficial (Meta): nome do atendente, e arquivos voltam a chegar',
+    description:
+      'Nas caixas de WhatsApp oficial da Meta, a mensagem enviada pelo atendente agora chega no WhatsApp do cliente com o nome dele em negrito na primeira linha, como já acontecia nos outros provedores. Imagens, PDFs e áudios enviados ao cliente voltaram a chegar na Meta, no Facebook, no Instagram, no Telegram, por SMS e nos demais provedores de WhatsApp, e a IA das automações volta a enxergar as imagens que o cliente manda. Antes esses serviços não conseguiam baixar o arquivo e o envio falhava.',
+  },
+  {
     id: 'snoozed-chat-offline-agent-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',
