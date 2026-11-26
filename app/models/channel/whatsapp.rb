@@ -31,11 +31,12 @@ class Channel::Whatsapp < ApplicationRecord
   encrypts :business_management_token if Chatwoot.encryption_configured?
 
   # default at the moment is 360dialog lets change later.
-  PROVIDERS = %w[default whatsapp_cloud astere_zap expxwhats].freeze
+  PROVIDERS = %w[default whatsapp_cloud astere_zap expxwhats uazapi].freeze
   # Providers que sao so' uma sessao de WhatsApp Web comum (QR code), nao a
   # WhatsApp Business Platform oficial da Meta - sem conceito de template
-  # aprovado nem janela de atendimento de 24h. Ver docs/whatsapp_expxwhats_setup.md.
-  UNOFFICIAL_WEB_PROVIDERS = %w[astere_zap expxwhats].freeze
+  # aprovado nem janela de atendimento de 24h. Ver docs/whatsapp_expxwhats_setup.md
+  # e docs/whatsapp_uazapi_setup.md.
+  UNOFFICIAL_WEB_PROVIDERS = %w[astere_zap expxwhats uazapi].freeze
   before_validation :ensure_webhook_verify_token
 
   validates :provider, inclusion: { in: PROVIDERS }
@@ -46,6 +47,7 @@ class Channel::Whatsapp < ApplicationRecord
   after_update_commit :log_credentials_transfer, if: :saved_change_to_provider_config?
   before_destroy :teardown_webhooks
   after_commit :setup_webhooks, on: :create, if: :should_auto_setup_webhooks?
+  after_commit :setup_uazapi_webhook, on: :create, if: -> { provider == 'uazapi' }
 
   def name
     'Whatsapp'
@@ -80,6 +82,8 @@ class Channel::Whatsapp < ApplicationRecord
       Whatsapp::Providers::WhatsappAsterezapService.new(whatsapp_channel: self)
     when 'expxwhats'
       Whatsapp::Providers::WhatsappExpxwhatsService.new(whatsapp_channel: self)
+    when 'uazapi'
+      Whatsapp::Providers::WhatsappUazapiService.new(whatsapp_channel: self)
     else
       Whatsapp::Providers::Whatsapp360DialogService.new(whatsapp_channel: self)
     end
@@ -182,6 +186,17 @@ class Channel::Whatsapp < ApplicationRecord
 
   def webhook_setup_service
     Whatsapp::WebhookSetupService.new(self, provider_config['business_account_id'], provider_config['api_key'])
+  end
+
+  # A UAZAPI aceita configurar o webhook pela propria API com o token da
+  # instancia - a caixa ja nasce recebendo mensagens, sem passo manual no
+  # painel. Melhor esforco: se falhar, a caixa continua criada e o guia
+  # (docs/whatsapp_uazapi_setup.md) explica como configurar na mao.
+  def setup_uazapi_webhook
+    url = "#{ENV.fetch('FRONTEND_URL', '').chomp('/')}/webhooks/whatsapp/#{ERB::Util.url_encode(phone_number)}"
+    provider_service.setup_webhook!(url)
+  rescue StandardError => e
+    Rails.logger.error("[UAZAPI] configurar webhook falhou: #{e.message}")
   end
 
   def teardown_webhooks

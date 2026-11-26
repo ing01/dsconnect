@@ -75,7 +75,7 @@ const state = props.formState || {
 // AstereZap e ExpxWhats sao sessoes de WhatsApp Web comuns (QR code), sem o
 // conceito de template aprovado da Meta - so os outros providers (Cloud
 // API/360dialog) precisam do fluxo de template pra iniciar uma conversa nova.
-const UNOFFICIAL_WEB_PROVIDERS = ['astere_zap', 'expxwhats'];
+const UNOFFICIAL_WEB_PROVIDERS = ['astere_zap', 'expxwhats', 'uazapi'];
 const isTemplateOnlyWhatsapp = computed(
   () =>
     props.targetInbox?.channelType === INBOX_TYPES.WHATSAPP &&

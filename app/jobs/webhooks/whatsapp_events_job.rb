@@ -84,6 +84,8 @@ class Webhooks::WhatsappEventsJob < MutexApplicationJob
       Whatsapp::IncomingMessageAsterezapService.new(inbox: channel.inbox, params: params).perform
     when 'expxwhats'
       Whatsapp::IncomingMessageExpxwhatsService.new(inbox: channel.inbox, params: params).perform
+    when 'uazapi'
+      Whatsapp::IncomingMessageUazapiService.new(inbox: channel.inbox, params: params).perform
     else
       Whatsapp::IncomingMessageService.new(inbox: channel.inbox, params: params).perform
     end
@@ -107,6 +109,11 @@ class Webhooks::WhatsappEventsJob < MutexApplicationJob
     # mesmo risco de concorrencia do AstereZap acima se nao tratado aqui.
     return contact_sender_id_from_expxwhats(value[:data]) if value[:data].present?
 
+    # Payload da UAZAPI ({EventType, message: {...}}) - mesmo risco de
+    # concorrencia. Recibo (messages_update) nao tem `message`: devolve nil e
+    # pula o lock, como os status da Meta.
+    return contact_sender_id_from_uazapi(value[:message]) if value[:EventType].present?
+
     contact_sender_id_from_messages(value[:messages], value[:contacts])
   end
 
@@ -116,6 +123,13 @@ class Webhooks::WhatsappEventsJob < MutexApplicationJob
   def contact_sender_id_from_expxwhats(data)
     phone = data[:sender_pn].presence || data[:sender].to_s.split('@').first
     phone.to_s.gsub(/\D/, '').presence
+  end
+
+  def contact_sender_id_from_uazapi(message)
+    return if message.blank?
+
+    raw = message[:sender_pn].presence || message[:chatid].presence || message[:sender]
+    raw.to_s.split('@').first.to_s.gsub(/\D/, '').presence
   end
 
   def contact_sender_id_from_message_echoes(message_echoes)
