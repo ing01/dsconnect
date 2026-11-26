@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'contacts-search-keeps-text-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'fix',
+    title: 'Pesquisa de contatos não apaga mais o que você digita',
+    description:
+      'Na tela de Contatos, o campo de pesquisa agora mantém o texto enquanto você digita. Antes o sistema podia apagar ou voltar letras quando a busca ou a lista terminava de carregar.',
+  },
+  {
     id: 'close-parent-finishes-children-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

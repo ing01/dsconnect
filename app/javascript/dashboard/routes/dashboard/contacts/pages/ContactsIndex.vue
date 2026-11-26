@@ -34,7 +34,11 @@ const appliedFilters = useMapGetter('contacts/getAppliedContactFilters');
 const meta = useMapGetter('contacts/getMeta');
 
 const searchQuery = computed(() => route.query?.search);
+// O texto do campo. Muda a cada tecla; a URL e a busca vem depois, com atraso.
 const searchValue = ref(searchQuery.value || '');
+// A ultima busca que ESTA tela pos na URL: essa mudanca nao volta para o campo,
+// senao apaga o que foi digitado depois dela.
+let searchInUrl = searchQuery.value;
 const pageNumber = computed(() => Number(route.query?.page) || 1);
 // For infinite scroll in search, track page internally
 const searchPageNumber = ref(1);
@@ -184,6 +188,7 @@ const updatePageParam = (page, search = '') => {
     delete query.search;
   }
 
+  searchInUrl = search || undefined;
   router.replace({ query });
 };
 
@@ -203,6 +208,8 @@ const fetchContacts = async (page = 1, options = {}) => {
   }
   await store.dispatch('contacts/clearContactFilters');
   await store.dispatch('contacts/get', getCommonFetchParams(page));
+  // Uma lista que termina de carregar enquanto a pessoa digita nao mexe na busca.
+  if (searchValue.value) return;
   updatePageParam(page);
 };
 
@@ -251,7 +258,8 @@ const searchContacts = debounce(
       }
     }
     await store.dispatch('contacts/clearContactFilters');
-    searchValue.value = value;
+    // Digitaram mais enquanto isso: a busca do texto novo ja esta a caminho.
+    if (value !== searchValue.value) return;
 
     if (!value) {
       updatePageParam(page);
@@ -269,6 +277,11 @@ const searchContacts = debounce(
   },
   DEBOUNCE_DELAY
 );
+
+const onSearch = value => {
+  searchValue.value = value;
+  searchContacts(value, 1, false, { clearSelection: false });
+};
 
 const loadMoreSearchResults = async () => {
   if (!hasMore.value || isLoadingMore.value) return;
@@ -294,13 +307,11 @@ const fetchContactsBasedOnContext = async (page, options = {}) => {
   updatePageParam(page, searchValue.value);
   if (isFetchingList.value) return;
   if (searchQuery.value) {
-    await searchContacts(searchQuery.value, page, false, {
+    await searchContacts(searchValue.value, page, false, {
       clearSelection: shouldClearSelection,
     });
     return;
   }
-  // Reset the search value when we change the view
-  searchValue.value = '';
   // If we're on the active route, fetch active contacts
   if (isActiveView.value) {
     await fetchActiveContacts(page, {
@@ -446,6 +457,12 @@ watch(
   { immediate: true }
 );
 
+// Trocar de visao zera o campo. Observa o id do segmento, e nao o objeto: uma lista de
+// segmentos que recarrega nao pode apagar o que esta sendo digitado.
+watch([activeLabel, activeSegmentId, isActiveView], () => {
+  searchValue.value = searchQuery.value || '';
+});
+
 watch(
   [activeLabel, activeSegment, isActiveView],
   () => {
@@ -455,7 +472,8 @@ watch(
 );
 
 watch(searchQuery, value => {
-  if (isFetchingList.value) return;
+  if (value === searchInUrl || isFetchingList.value) return;
+  searchInUrl = value;
   searchValue.value = value || '';
   // Reset the view if there is search query when we click on the sidebar group
   if (value === undefined) {
@@ -512,9 +530,7 @@ onMounted(async () => {
       :has-more="hasMore"
       :is-loading-more="isLoadingMore"
       @update:current-page="onPageChange"
-      @search="
-        value => searchContacts(value, 1, false, { clearSelection: false })
-      "
+      @search="onSearch"
       @update:sort="handleSort"
       @apply-filter="fetchSavedOrAppliedFilteredContact"
       @clear-filters="fetchContacts"
