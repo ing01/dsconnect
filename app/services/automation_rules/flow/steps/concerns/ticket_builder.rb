@@ -35,7 +35,15 @@ module AutomationRules::Flow::Steps::Concerns::TicketBuilder
       ticket_column_id: params[:ticket_column_id],
       ticket_category_id: params[:ticket_category_id],
       priority: params[:priority].presence || 'medium'
-    }.compact
+    }.merge(inbox_mesa_attributes).compact
+  end
+
+  # Conversa de uma caixa com Fila padrao: o ticket vai para a Mesa DESSA fila,
+  # mesmo que a etapa tenha uma Mesa configurada - a mesma automacao atende
+  # varias caixas, e cada caixa tem a sua Mesa (Comercial, Especialista...).
+  def inbox_mesa_attributes
+    Tickets::InboxMesaPlacement.new(conversation: conversation)
+                               .attributes(ticket_category_id: params[:ticket_category_id])
   end
 
   # O titulo aceita variaveis, entao o padrao do produto - [EMPRESA] | [PESSOA] |

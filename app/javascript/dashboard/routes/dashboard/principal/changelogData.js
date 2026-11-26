@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'queue-badge-and-inbox-ticket-mesa-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Selo da conversa mostra a fila, e o ticket vai para a Mesa da fila',
+    description:
+      'O selo no topo de cada conversa da lista agora mostra somente a fila em que ela está (Comercial, Especialista, Suporte...), e não mais a Mesa do ticket ou o time. Os tickets criados a partir de uma conversa de caixa de entrada com Fila padrão agora nascem na Mesa dessa fila: caixa Comercial vai para a Mesa Comercial, e caixa Especialista para a Mesa Especialista. Ao abrir um ticket manualmente pela conversa, a Mesa da fila já vem selecionada.',
+  },
+  {
     id: 'inbox-default-queue-wins-automation-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

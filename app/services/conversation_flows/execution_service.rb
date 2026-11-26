@@ -121,7 +121,7 @@ class ConversationFlows::ExecutionService
     team = conversation.team
     return if team.blank?
 
-    ticket = team.tickets.create!(
+    attrs = {
       account_id: conversation.account_id,
       title: conversation.contact&.name.presence || "Conversa ##{conversation.display_id}",
       description: message.content.presence || '-',
@@ -130,7 +130,13 @@ class ConversationFlows::ExecutionService
       ticket_category_id: step.options['ticket_category_id'],
       contact: conversation.contact,
       company: conversation.contact&.company
-    )
+    }
+    # Caixa com Fila padrao: o ticket vai para a Mesa da fila (Tickets::InboxMesaPlacement).
+    inbox_placement = Tickets::InboxMesaPlacement.new(conversation: conversation)
+                                                 .attributes(ticket_category_id: step.options['ticket_category_id'])
+    attrs = attrs.except(:ticket_column).merge(inbox_placement) if inbox_placement.present?
+
+    ticket = Ticket.create!(attrs.merge(team_id: attrs[:team_id] || team.id))
     TicketConversation.create!(account_id: conversation.account_id, ticket: ticket, conversation: conversation)
   rescue StandardError => e
     Rails.logger.error("ConversationFlows::ExecutionService failed to create ticket for conversation #{conversation.id}: #{e.message}")

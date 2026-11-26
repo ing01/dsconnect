@@ -64,17 +64,19 @@ describe('ConversationCard', () => {
   // por ser obvio quem atende) nem de haver responsavel.
   describe('the linked ticket Mesa', () => {
     it('shows it even when the assignee name is hidden (ex.: aba "Minhas conversas")', () => {
-      const wrapper = mountComponent({ ticket_team_name: 'Suporte N2' });
+      const wrapper = mountComponent({
+        meta: { queue: { name: 'Suporte N2' } },
+      });
 
-      expect(
-        wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
-      ).toBe(true);
+      expect(wrapper.findComponent({ name: 'QueueCardLabel' }).exists()).toBe(
+        true
+      );
     });
 
     it('shows it alongside the assignee name when that is also visible', () => {
       const wrapper = shallowMount(ConversationCard, {
         props: {
-          chat: { ...defaultChat, ticket_team_name: 'Suporte N2' },
+          chat: { ...defaultChat, meta: { queue: { name: 'Suporte N2' } } },
           currentContact: { name: 'Jane Doe' },
           assignee: { name: 'Maria Suporte' },
           showAssignee: true,
@@ -83,33 +85,41 @@ describe('ConversationCard', () => {
         global: { stubs: { 'fluent-icon': true } },
       });
 
-      expect(
-        wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
-      ).toBe(true);
+      expect(wrapper.findComponent({ name: 'QueueCardLabel' }).exists()).toBe(
+        true
+      );
     });
 
     // Sem Mesa, sem responsavel visivel, sem prioridade e sem "devolvida" -
     // a faixa inteira fica de fora (nao uma faixa vazia ocupando espaco).
     it('reserves no row at all when there is nothing to show in it', () => {
-      const wrapper = mountComponent({ ticket_team_name: null });
+      const wrapper = mountComponent({ meta: {} });
 
-      expect(
-        wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
-      ).toBe(false);
+      expect(wrapper.findComponent({ name: 'QueueCardLabel' }).exists()).toBe(
+        false
+      );
     });
 
-    // O caso comum: a conversa quase nunca tem um ticket vinculado, mas pode
-    // ter um Time nativo atribuido pelo menu "Atribuir Time" - a faixa
-    // precisa aparecer so' por causa dele, mesmo sem nenhum outro motivo.
-    it('reserves the row when only the conversation’s own Time is present (no linked ticket)', () => {
+    // A faixa aparece so' por causa da fila, mesmo sem nenhum outro motivo.
+    it('reserves the row when only the queue is present', () => {
       const wrapper = mountComponent({
-        ticket_team_name: null,
+        meta: { queue: { name: 'Comercial' } },
+      });
+
+      expect(wrapper.findComponent({ name: 'QueueCardLabel' }).exists()).toBe(
+        true
+      );
+    });
+
+    // O Time sozinho nao gera mais selo: o selo e' so' da fila.
+    it('reserves no row when only the conversation Time is present', () => {
+      const wrapper = mountComponent({
         meta: { team: { name: 'Suporte' } },
       });
 
-      expect(
-        wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
-      ).toBe(true);
+      expect(wrapper.findComponent({ name: 'QueueCardLabel' }).exists()).toBe(
+        false
+      );
     });
   });
 });
