@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'sidebar-admin-all-teams-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Administradores veem todos os times no menu Conversas',
+    description:
+      'Em Conversas > Times, o administrador passa a ver todos os times que conversam com clientes, mesmo sem ser membro deles. Os demais usuários continuam vendo apenas os próprios times.',
+  },
+  {
     id: 'internal-chat-edit-message-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

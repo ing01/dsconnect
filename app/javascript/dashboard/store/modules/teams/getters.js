@@ -19,10 +19,16 @@ export const getters = {
   },
   // The "Times" group in the Conversations sidebar - a team that never talks
   // to customers (handles_conversations: false) has nothing to show there.
-  getMyTeams($state, $getters) {
+  // Administrators see every one of them, member or not - they already have
+  // access to all conversations and the backend counts unread for all teams.
+  getMyTeams($state, $getters, $rootState, $rootGetters) {
+    const isAdmin = $rootGetters?.getCurrentRole === 'administrator';
     return $getters.getTeams.filter(team => {
-      const { is_member: isMember, handles_conversations: handlesConversations } = team;
-      return isMember && handlesConversations !== false;
+      const {
+        is_member: isMember,
+        handles_conversations: handlesConversations,
+      } = team;
+      return (isAdmin || isMember) && handlesConversations !== false;
     });
   },
   // The Equipe filter on Projects and the Mesa picker on Novo Projeto - a team
