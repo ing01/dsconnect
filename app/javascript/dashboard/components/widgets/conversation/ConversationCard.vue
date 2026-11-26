@@ -10,7 +10,7 @@ import CardPriorityIcon from 'dashboard/components-next/Conversation/Conversatio
 import UnreadBadge from 'dashboard/components-next/Conversation/ConversationCard/UnreadBadge.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import RequeuedCardLabel from './components/RequeuedCardLabel.vue';
-import TicketMesaCardLabel from './components/TicketMesaCardLabel.vue';
+import QueueCardLabel from './components/QueueCardLabel.vue';
 import VoiceCallStatus from './VoiceCallStatus.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 
@@ -22,6 +22,9 @@ const props = defineProps({
   selected: { type: Boolean, default: false },
   isActiveChat: { type: Boolean, default: false },
   showAssignee: { type: Boolean, default: false },
+  // Os chamadores passam para os dois cards; so' o expandido mostra a caixa.
+  // Declarada aqui para nao virar atributo solto no HTML.
+  // eslint-disable-next-line vue/no-unused-properties
   showInboxName: { type: Boolean, default: false },
   hideThumbnail: { type: Boolean, default: false },
   compact: { type: Boolean, default: false },
@@ -65,19 +68,16 @@ const voiceCallData = computed(() => {
   };
 });
 
-// A Mesa que aparece aqui e' a do ticket vinculado OU, na falta dele (o caso
-// comum), a do Time nativo da conversa - mesma regra de TicketMesaCardLabel.
-// Repetida aqui porque e' o que decide se a faixa inteira existe.
-const hasMesaToShow = computed(
-  () => props.chat.ticket_team_name || props.chat.meta?.team?.name
-);
+// O selo do topo e' a FILA da conversa (QueueCardLabel). Repetido aqui porque
+// e' o que decide se a faixa inteira existe.
+const hasQueueToShow = computed(() => !!props.chat.meta?.queue?.name);
 
 const showMetaSection = computed(() => {
   return (
     (props.showAssignee && props.assignee.name) ||
     props.chat.priority ||
     props.chat.requeued_at ||
-    hasMesaToShow.value
+    hasQueueToShow.value
   );
 });
 
@@ -212,7 +212,7 @@ watch(
                informacao do TICKET, nao de quem atende - precisa aparecer
                mesmo na aba "Minhas conversas" (onde o nome de quem atende
                fica escondido por ser obvio) e mesmo sem responsavel nenhum. -->
-          <TicketMesaCardLabel :chat="chat" />
+          <QueueCardLabel :chat="chat" />
           <RequeuedCardLabel :chat="chat" />
           <CardPriorityIcon :priority="chat.priority" />
         </div>
@@ -253,7 +253,9 @@ watch(
             {{ $t(`CHAT_LIST.NO_MESSAGES`) }}
           </span>
         </p>
-        <div class="flex flex-col items-end flex-shrink-0 gap-1 ltr:mr-2 rtl:ml-2">
+        <div
+          class="flex flex-col items-end flex-shrink-0 gap-1 ltr:mr-2 rtl:ml-2"
+        >
           <span class="font-normal leading-4 text-xxs text-n-slate-10">
             <TimeAgo
               :last-activity-timestamp="lastMessageTimestamp"

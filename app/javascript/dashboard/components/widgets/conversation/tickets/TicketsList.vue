@@ -72,12 +72,17 @@ const companyName = computed(
 // Everything the chat already knows, so the analyst does not pick it again. The
 // Empresa only carries over when the contact actually belongs to one; otherwise
 // the form asks for it.
+// O ticket aberto da conversa ja' vem na Mesa da FILA dela (caixa Comercial ->
+// Mesa Comercial); a pessoa pode trocar no formulario, e o rascunho da IA, que
+// escolhe pela categoria, vence quando houver.
 const creationContext = computed(() => ({
   companyId: companyId.value,
   companyName: companyName.value,
   contactId: companyId.value ? contact.value.id : null,
   contactName: contact.value.name || '',
   ...(aiDraft.value || {}),
+  teamId:
+    aiDraft.value?.teamId || currentChat.value?.meta?.queue?.team_id || null,
 }));
 
 // The four flows are two choices crossed: create a ticket or link an existing
@@ -85,11 +90,36 @@ const creationContext = computed(() => ({
 // grouped apart - set off by a separator and their own icon, not by looking
 // destructive, because resolving a conversation is routine.
 const ADD_ACTIONS = [
-  { value: 'createKeepOpen', flow: 'create', resolve: false, icon: 'i-lucide-plus' },
-  { value: 'createAiKeepOpen', flow: 'createAi', resolve: false, icon: 'i-lucide-sparkles' },
-  { value: 'linkKeepOpen', flow: 'link', resolve: false, icon: 'i-lucide-link' },
-  { value: 'createAndResolve', flow: 'create', resolve: true, icon: 'i-lucide-circle-check' },
-  { value: 'linkAndResolve', flow: 'link', resolve: true, icon: 'i-lucide-circle-check' },
+  {
+    value: 'createKeepOpen',
+    flow: 'create',
+    resolve: false,
+    icon: 'i-lucide-plus',
+  },
+  {
+    value: 'createAiKeepOpen',
+    flow: 'createAi',
+    resolve: false,
+    icon: 'i-lucide-sparkles',
+  },
+  {
+    value: 'linkKeepOpen',
+    flow: 'link',
+    resolve: false,
+    icon: 'i-lucide-link',
+  },
+  {
+    value: 'createAndResolve',
+    flow: 'create',
+    resolve: true,
+    icon: 'i-lucide-circle-check',
+  },
+  {
+    value: 'linkAndResolve',
+    flow: 'link',
+    resolve: true,
+    icon: 'i-lucide-circle-check',
+  },
 ];
 
 const keepOpenActions = computed(() =>
@@ -259,9 +289,7 @@ onMounted(loadTickets);
         </p>
 
         <template v-else>
-          <p
-            class="px-3 pb-1 text-xs tracking-wide uppercase text-n-slate-10"
-          >
+          <p class="px-3 pb-1 text-xs tracking-wide uppercase text-n-slate-10">
             {{ t('TICKET.CONVERSATION_PANEL.LINKED_TITLE') }}
           </p>
           <ul class="flex flex-col px-1 pb-2 overflow-y-auto max-h-56">

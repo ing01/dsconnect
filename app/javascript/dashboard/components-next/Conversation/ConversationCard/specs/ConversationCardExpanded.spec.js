@@ -26,15 +26,15 @@ const mountComponent = chat =>
 // mas quem usa o layout expandido nunca via a Mesa do ticket vinculado.
 describe('ConversationCardExpanded', () => {
   it('shows the linked ticket Mesa', () => {
-    const wrapper = mountComponent({ ticket_team_name: 'Suporte N2' });
+    const wrapper = mountComponent({ meta: { queue: { name: 'Suporte N2' } } });
 
-    expect(
-      wrapper.findComponent({ name: 'TicketMesaCardLabel' }).exists()
-    ).toBe(true);
+    expect(wrapper.findComponent({ name: 'QueueCardLabel' }).exists()).toBe(
+      true
+    );
   });
 
   it('mounts fine without a linked ticket', () => {
-    const wrapper = mountComponent({ ticket_team_name: null });
+    const wrapper = mountComponent({ meta: {} });
 
     expect(wrapper.exists()).toBe(true);
   });

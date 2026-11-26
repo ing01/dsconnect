@@ -48,14 +48,24 @@ class Tickets::WhatsappAutoCreationService
       title: ticket_title,
       description: I18n.t("tickets.auto_creation.#{channel_key}_description", id: conversation.display_id),
       priority: 'medium',
+      contact_id: contact&.id,
+      company_id: contact&.company_id
+    }.merge(mesa_attributes).compact
+  end
+
+  # A Mesa da Fila padrao da caixa vem primeiro (ver Tickets::InboxMesaPlacement);
+  # sem ela, a Mesa padrao da conta, como sempre foi.
+  def mesa_attributes
+    inbox_placement = Tickets::InboxMesaPlacement.new(conversation: conversation).attributes
+    return inbox_placement if inbox_placement.present?
+
+    {
       team_id: team.id,
       ticket_column_id: ticket_column.id,
       # Categoria, descricao e prioridade sao obrigatorias ao abrir. Quem atende
       # troca a categoria depois; a primeira da Mesa so' destrava a criacao.
-      ticket_category_id: team.ticket_categories.first&.id,
-      contact_id: contact&.id,
-      company_id: contact&.company_id
-    }.compact
+      ticket_category_id: team.ticket_categories.first&.id
+    }
   end
 
   def ticket_title
