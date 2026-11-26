@@ -196,24 +196,6 @@ class Whatsapp::Providers::WhatsappUazapiService < Whatsapp::Providers::BaseServ
     end
   end
 
-  # Prefixa o nome de quem enviou - mesma regra do AstereZap/ExpxWhats.
-  def outgoing_content_with_agent_name(message)
-    content = message.outgoing_content.to_s
-    agent_name = agent_name_for(message)
-
-    return content if agent_name.blank?
-    return content if content.start_with?("*#{agent_name}:*")
-
-    "*#{agent_name}:*\n#{content}"
-  end
-
-  def agent_name_for(message)
-    sender = message.sender
-    return nil unless sender.is_a?(User)
-
-    sender.name.presence
-  end
-
   # Erros da UAZAPI vem como {"error": "..."} (401/400) ou, nos envios
   # recusados pelo WhatsApp, com `error_key` (ex: WHATSAPP_REACHOUT_TIMELOCK).
   def error_message(response)

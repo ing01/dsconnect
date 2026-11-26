@@ -32,7 +32,33 @@ describe Whatsapp::Providers::WhatsappCloudService do
   end
 
   describe '#send_message' do
+    # Anexo sobe primeiro para a Meta (/media) e vai pelo id, nunca por link.
+    before do
+      stub_request(:post, 'https://graph.facebook.com/v24.0/123456789/media')
+        .to_return(status: 200, body: { id: 'media_id' }.to_json, headers: response_headers)
+    end
+
     context 'when called' do
+      it 'does not prefix the agent name when the message has no person as sender' do
+        bot_message = create(:message, conversation: conversation, message_type: :outgoing, content: 'automatica',
+                                       inbox: whatsapp_channel.inbox, sender: nil)
+        stub_request(:post, 'https://graph.facebook.com/v13.0/123456789/messages')
+          .with(body: hash_including({ text: { body: 'automatica' } }))
+          .to_return(status: 200, body: whatsapp_response.to_json, headers: response_headers)
+        expect(service.send_message('+123456789', bot_message)).to eq 'message_id'
+      end
+
+      it 'marks the message as failed when the media upload is refused' do
+        stub_request(:post, 'https://graph.facebook.com/v24.0/123456789/media')
+          .to_return(status: 400, body: { error: { message: 'Invalid media' } }.to_json, headers: response_headers)
+        attachment = message.attachments.new(account_id: message.account_id, file_type: :image)
+        attachment.file.attach(io: Rails.root.join('spec/assets/avatar.png').open, filename: 'avatar.png', content_type: 'image/png')
+
+        expect(service.send_message('+123456789', message)).to be_nil
+        expect(message.reload.status).to eq('failed')
+        expect(a_request(:post, 'https://graph.facebook.com/v24.0/123456789/messages')).not_to have_been_made
+      end
+
       it 'calls message endpoints for normal messages' do
         stub_request(:post, 'https://graph.facebook.com/v13.0/123456789/messages')
           .with(
@@ -40,7 +66,8 @@ describe Whatsapp::Providers::WhatsappCloudService do
               messaging_product: 'whatsapp',
               context: nil,
               to: '+123456789',
-              text: { body: message.content },
+              text: { body: "*#{message.sender.name}:*
+#{message.content}" },
               type: 'text'
             }.to_json
           )
@@ -57,7 +84,8 @@ describe Whatsapp::Providers::WhatsappCloudService do
                 message_id: message.source_id
               },
               to: '+123456789',
-              text: { body: message_with_reply.content },
+              text: { body: "*#{message_with_reply.sender.name}:*
+#{message_with_reply.content}" },
               type: 'text'
             }.to_json
           )
@@ -75,7 +103,8 @@ describe Whatsapp::Providers::WhatsappCloudService do
                                    messaging_product: 'whatsapp',
                                    to: '+123456789',
                                    type: 'image',
-                                   image: WebMock::API.hash_including({ caption: message.content, link: anything })
+                                   image: WebMock::API.hash_including({ caption: "*#{message.sender.name}:*
+#{message.content}", id: 'media_id' })
                                  })
           )
           .to_return(status: 200, body: whatsapp_response.to_json, headers: response_headers)
@@ -94,7 +123,8 @@ describe Whatsapp::Providers::WhatsappCloudService do
                                    messaging_product: 'whatsapp',
                                    to: '+123456789',
                                    type: 'document',
-                                   document: WebMock::API.hash_including({ filename: 'sample.pdf', caption: message.content, link: anything })
+                                   document: WebMock::API.hash_including({ filename: 'sample.pdf', caption: "*#{message.sender.name}:*
+#{message.content}", id: 'media_id' })
                                  })
           )
           .to_return(status: 200, body: whatsapp_response.to_json, headers: response_headers)
@@ -111,7 +141,7 @@ describe Whatsapp::Providers::WhatsappCloudService do
                                    messaging_product: 'whatsapp',
                                    to: '+123456789',
                                    type: 'audio',
-                                   audio: WebMock::API.hash_including({ link: anything, voice: true })
+                                   audio: WebMock::API.hash_including({ id: 'media_id', voice: true })
                                  })
           )
           .to_return(status: 200, body: whatsapp_response.to_json, headers: response_headers)
@@ -248,7 +278,8 @@ describe Whatsapp::Providers::WhatsappCloudService do
             context: nil,
             recipient_type: 'individual',
             recipient: bsuid,
-            text: { body: message.content },
+            text: { body: "*#{message.sender.name}:*
+#{message.content}" },
             type: 'text'
           }.to_json
         )

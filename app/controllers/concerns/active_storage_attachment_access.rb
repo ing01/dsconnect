@@ -21,9 +21,16 @@
 # alguma integracao que nao se previu deixar de baixar arquivo - e' uma valvula
 # de emergencia, nao uma configuracao.
 #
-# Vale para o primeiro salto (redirect/proxy do blob e da miniatura) E para o link
-# de disco que ele devolve: um `blob.url` montado direto no codigo tambem passa
-# por aqui, e deixa de ser um atalho.
+# Vale para o primeiro salto (redirect/proxy do blob e da miniatura), que e' o link
+# PERMANENTE - o que vaza num log ou e-mail e continua valendo para sempre.
+#
+# O link de DISCO TEMPORARIO (`blob.url` / `Attachment#download_url`, assinado e
+# vencendo em `ActiveStorage.service_urls_expire_in`, 5 minutos) fica liberado sem
+# login enquanto a assinatura vale (2026-11-26). E' por ele que servico externo
+# busca o arquivo que a DSConnect manda - Meta, Facebook, Instagram, Telegram,
+# Twilio/SMS, provedores de WhatsApp e a IA das automacoes. Com a trava nele
+# tambem, todos recebiam 401 e o anexo nunca chegava ao cliente. Quem tem so' o
+# link permanente continua precisando de login para chegar a um temporario.
 module ActiveStorageAttachmentAccess
   extend ActiveSupport::Concern
 
@@ -45,6 +52,7 @@ module ActiveStorageAttachmentAccess
 
   def require_attachment_access
     return unless login_required?
+    return if temporary_disk_link?
     return if public_blob?
     return if agent_session? || token_session? || integration_key?
 
@@ -71,6 +79,15 @@ module ActiveStorageAttachmentAccess
   end
 
   # ---- o que e' publico ---------------------------------------------------
+
+  # Link de disco com assinatura ainda valida. `requested_blob` so' acha o arquivo
+  # se a chave assinada confere E nao venceu (`ActiveStorage.verifier.verified`
+  # devolve nil para chave vencida ou adulterada).
+  def temporary_disk_link?
+    is_a?(ActiveStorage::DiskController) && params[:encoded_key].present? && requested_blob.present?
+  rescue StandardError
+    false
+  end
 
   def public_blob?
     blob = requested_blob

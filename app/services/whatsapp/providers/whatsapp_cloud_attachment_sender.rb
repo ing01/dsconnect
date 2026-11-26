@@ -22,7 +22,10 @@ module Whatsapp::Providers::WhatsappCloudAttachmentSender
   def send_single_attachment(phone_number, message, attachment, caption:)
     normalize_opus_content_type(attachment)
     type = %w[image audio video].include?(attachment.file_type) ? attachment.file_type : 'document'
-    type_content = build_attachment_content(type, attachment, message, caption: caption)
+    media_id = upload_media(attachment, message)
+    return if media_id.blank?
+
+    type_content = build_attachment_content(type, attachment, message, media_id, caption: caption)
     response = HTTParty.post(
       "#{phone_id_path('v24.0')}/messages",
       headers: api_headers,
@@ -36,6 +39,30 @@ module Whatsapp::Providers::WhatsappCloudAttachmentSender
     )
 
     process_response(response, message)
+  end
+
+  # Sobe o arquivo para a Meta (POST /{phone_number_id}/media) e envia pelo id,
+  # em vez de mandar um link para a Meta baixar. O link do anexo exige login
+  # (ActiveStorageAttachmentAccess), entao a Meta recebia 401: aceitava o envio
+  # com 200 e a mensagem falhava depois, sem o cliente receber o arquivo. O
+  # upload tambem nao depende de o servidor estar acessivel de fora nem do
+  # link expirar.
+  def upload_media(attachment, message)
+    response = attachment.file.blob.open do |file|
+      HTTParty.post(
+        "#{phone_id_path('v24.0')}/media",
+        headers: { 'Authorization' => "Bearer #{whatsapp_channel.provider_config['api_key']}" },
+        multipart: true,
+        body: { messaging_product: 'whatsapp', type: attachment.file.content_type, file: file },
+        timeout: 120
+      )
+    end
+
+    media_id = response.parsed_response['id'] if response.success? && response.parsed_response.is_a?(Hash)
+    return media_id if media_id.present?
+
+    handle_error(response, message)
+    nil
   end
 
   def voice_message?(type, attachment)
@@ -60,9 +87,9 @@ module Whatsapp::Providers::WhatsappCloudAttachmentSender
   # `caption:` so' vai true no PRIMEIRO anexo de uma mensagem com varios -
   # repetir `message.outgoing_content` em cada um faria o texto chegar
   # duplicado uma vez por arquivo no WhatsApp do cliente.
-  def build_attachment_content(type, attachment, message, caption: true)
-    type_content = { 'link' => attachment.download_url }
-    type_content['caption'] = message.outgoing_content if caption && %w[audio sticker].exclude?(type)
+  def build_attachment_content(type, attachment, message, media_id, caption: true)
+    type_content = { 'id' => media_id }
+    type_content['caption'] = outgoing_content_with_agent_name(message) if caption && %w[audio sticker].exclude?(type)
     type_content['filename'] = attachment.file.filename if type == 'document'
     type_content['voice'] = true if voice_message?(type, attachment)
     type_content

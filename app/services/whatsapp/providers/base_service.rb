@@ -117,6 +117,34 @@ class Whatsapp::Providers::BaseService
     json_hash = { :button => I18n.t('conversations.messages.whatsapp.list_button_label'), 'sections' => sections }
     create_payload('list', message.outgoing_content, JSON.generate(json_hash))
   end
+
+  private
+
+  # Prefixa o nome de quem enviou na mensagem que sai pro cliente ("*Joao:*" em
+  # negrito na primeira linha) - vale para todos os provedores de WhatsApp, oficial
+  # (Meta) e nao oficiais. Sem isso a resposta parece vir de um numero anonimo.
+  # Nao prefixa quando:
+  #   - nao tem sender pessoa (mensagem de automacao/regra grava sender nil;
+  #     `AgentBot` nunca e' `is_a?(User)`)
+  #   - o nome ja esta no inicio (evita "*Joao:* *Joao:* oi")
+  # `SuperAdmin` herda de `User` via STI e e' prefixado de proposito: continua
+  # sendo uma pessoa escrevendo (ex: suporte ajudando na conta).
+  def outgoing_content_with_agent_name(message)
+    content = message.outgoing_content.to_s
+    agent_name = agent_name_for(message)
+
+    return content if agent_name.blank?
+    return content if content.start_with?("*#{agent_name}:*")
+
+    "*#{agent_name}:*\n#{content}"
+  end
+
+  def agent_name_for(message)
+    sender = message.sender
+    return nil unless sender.is_a?(User)
+
+    sender.name.presence
+  end
 end
 
 Whatsapp::Providers::BaseService.prepend_mod_with('Whatsapp::Providers::BaseService')

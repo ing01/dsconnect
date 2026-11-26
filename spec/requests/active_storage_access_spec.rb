@@ -4,7 +4,9 @@ require 'rails_helper'
 # link de disco do ActiveStorage) baixava o arquivo de QUALQUER pessoa, de aba
 # anonima, sem login. O link "permanente" nem expira. Agora baixar pede a mesma
 # credencial do resto do sistema - agente, cliente do Portal ou a chave da API de
-# Integracao -, e so' o logo do Portal (pagina publica) continua aberto.
+# Integracao -, e so' o logo do Portal (pagina publica) continua aberto. O link de
+# disco temporario (5 minutos) fica aberto para os servicos externos que recebem
+# os anexos enviados.
 RSpec.describe 'Acesso aos anexos', type: :request do
   let(:account) { create(:account) }
   let(:agent) { create(:user, account: account, role: :agent) }
@@ -79,12 +81,28 @@ RSpec.describe 'Acesso aos anexos', type: :request do
       expect(response).to redirect_to('/app/login')
     end
 
-    it 'recusa tambem o link de disco que o redirecionamento devolveria' do
+    # O link TEMPORARIO de disco e' por onde Meta, Telegram, Twilio, a IA etc.
+    # buscam o arquivo que a DSConnect envia - eles nao tem login. Vale so'
+    # enquanto a assinatura vale (5 minutos).
+    it 'entrega o link de disco temporario a quem nao tem login (servico externo)' do
       ActiveStorage::Current.url_options = { host: 'www.example.com', protocol: 'http' }
 
       get URI(blob.url).request_uri, headers: plain
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to eq('conteudo secreto')
+    end
+
+    it 'recusa o link de disco depois que a assinatura vence' do
+      ActiveStorage::Current.url_options = { host: 'www.example.com', protocol: 'http' }
+      path = URI(blob.url).request_uri
+
+      travel_to((ActiveStorage.service_urls_expire_in + 1.minute).from_now) do
+        get path, headers: plain
+      end
+
+      expect(response).not_to have_http_status(:ok)
+      expect(response.body).not_to include('conteudo secreto')
     end
 
     it 'recusa um token que nao existe' do

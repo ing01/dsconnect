@@ -169,32 +169,6 @@ class Whatsapp::Providers::WhatsappAsterezapService < Whatsapp::Providers::BaseS
     end
   end
 
-  # Prefixa o nome de quem enviou na mensagem que sai pro cliente.
-  # Nao prefixa quando:
-  #   - nao tem sender (mensagem de automacao/regra, que grava sender_id nil -
-  #     `AgentBot` tambem cai aqui, nunca e' `is_a?(User)`)
-  #   - o nome ja esta no inicio (evita "*Joao:* *Joao:* oi")
-  # `SuperAdmin` herda de `User` via STI e por isso E' prefixado aqui, de
-  # proposito: quando alguem responde autenticado como super admin (ex:
-  # suporte tecnico ajudando na conta), continua sendo uma pessoa de
-  # verdade escrevendo, nao uma automacao.
-  def outgoing_content_with_agent_name(message)
-    content = message.outgoing_content.to_s
-    agent_name = agent_name_for(message)
-
-    return content if agent_name.blank?
-    return content if content.start_with?("*#{agent_name}:*")
-
-    "*#{agent_name}:*\n#{content}"
-  end
-
-  def agent_name_for(message)
-    sender = message.sender
-    return nil unless sender.is_a?(User)
-
-    sender.name.presence
-  end
-
   # Corpo de erro varia por status: 400 traz {statusCode, message: [...], error},
   # 403/404/502/503 trazem {error: "CODIGO", value: ...}. Tenta os formatos
   # conhecidos em vez de assumir um so.
