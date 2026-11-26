@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-reaction-names-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Chat Interno: veja quem reagiu',
+    description:
+      'Passe o mouse sobre uma reação para ver o nome de quem reagiu. Quando mais de uma pessoa reagiu com o mesmo emoji, todos os nomes aparecem.',
+  },
+  {
     id: 'snoozed-chat-offline-agent-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

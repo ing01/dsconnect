@@ -38,6 +38,11 @@
     "MESSAGE": {
       "REPLY": "Responder",
       "REACT": "Reagir",
+      "YOU": "Você",
+      "UNKNOWN_USER": "Usuário removido",
+      "NAMES_LIST": "{first} e {last}",
+      "REACTED_ONE": "{names} reagiu com {emoji}",
+      "REACTED_MANY": "{names} reagiram com {emoji}",
       "PIN": "Fixar mensagem",
       "UNPIN": "Desafixar mensagem",
       "PINNED": "Fixada",

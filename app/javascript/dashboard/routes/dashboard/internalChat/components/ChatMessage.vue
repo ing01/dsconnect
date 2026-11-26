@@ -41,6 +41,30 @@ const isPinned = computed(() => !!props.message.pinnedAt);
 
 const hasReacted = reaction => reaction.userIds.includes(props.currentUserId);
 
+// Quem reagiu, para a dica ao passar o mouse. A propria pessoa vem primeiro, como
+// "Você"; quem ja saiu da empresa continua contado, sem nome.
+const reactionTitle = reaction => {
+  const names = reaction.userIds
+    .filter(id => id !== props.currentUserId)
+    .map(
+      id =>
+        props.users.find(user => user.id === id)?.name ||
+        t('INTERNAL_CHAT.MESSAGE.UNKNOWN_USER')
+    );
+  if (hasReacted(reaction)) names.unshift(t('INTERNAL_CHAT.MESSAGE.YOU'));
+
+  const last = names.pop();
+  const list = names.length
+    ? t('INTERNAL_CHAT.MESSAGE.NAMES_LIST', { first: names.join(', '), last })
+    : last;
+  return t(
+    names.length
+      ? 'INTERNAL_CHAT.MESSAGE.REACTED_MANY'
+      : 'INTERNAL_CHAT.MESSAGE.REACTED_ONE',
+    { names: list, emoji: reaction.emoji }
+  );
+};
+
 // O autor apaga a propria mensagem; o administrador apaga qualquer uma. A regra
 // de verdade esta no servidor - isto so evita oferecer um botao que seria
 // recusado.
@@ -266,7 +290,11 @@ const versionLabel = (version, index) =>
         <button
           v-for="reaction in reactions"
           :key="reaction.emoji"
+          v-tooltip.top="reactionTitle(reaction)"
           type="button"
+          data-testid="reaction"
+          :aria-label="reactionTitle(reaction)"
+          :aria-pressed="hasReacted(reaction)"
           class="flex items-center gap-1 px-1.5 py-0.5 text-xs rounded-full border"
           :class="
             hasReacted(reaction)
