@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'inbox-default-queue-wins-automation-2026-11-26',
+    date: '26 de novembro de 2026',
+    isoDate: '2026-11-26',
+    platform: 'web',
+    type: 'fix',
+    title: 'Conversas respeitam a Fila padrão da caixa de entrada',
+    description:
+      'Quando a caixa de entrada tem uma Fila padrão, a conversa agora continua nela (e no time dela) mesmo depois de passar pela automação. Antes, a triagem e o "Transferir para humano" sem fila escolhida mandavam tudo para a fila geral da conta. Se a etapa da automação tiver uma fila escolhida, essa continua valendo.',
+  },
+  {
     id: 'whatsapp-meta-agent-name-and-media-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',
