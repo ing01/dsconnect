@@ -199,7 +199,10 @@ const closeDeleteConversationModal = () => {
 
 const confirmDeleteConversation = async () => {
   try {
-    await store.dispatch('conversations/deleteConversation', props.source.id);
+    // Sem prefixo: o modulo de conversas nao e' `namespaced`. Com
+    // "conversations/..." o Vuex ignorava a acao em silencio - o modal fechava
+    // e nada era enviado (relato da Ingrid, 2026-11-27).
+    await store.dispatch('deleteConversation', props.source.id);
   } catch (error) {
     useAlert(t('CONVERSATION.DELETE_CONVERSATION.ERROR'));
   } finally {

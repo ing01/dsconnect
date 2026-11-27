@@ -15,7 +15,7 @@ export const CHANGELOG_ENTRIES = [
     type: 'fix',
     title: 'Excluir e-mail: agora exclui de verdade',
     description:
-      'Na aba E-mails, confirmar "Excluir e-mail" fechava a confirmação sem excluir nada. Agora o e-mail é excluído. O problema era um ícone que não existia no menu do botão direito.',
+      'Na aba E-mails, confirmar "Excluir e-mail" fechava a confirmação sem excluir nada. Agora o e-mail é excluído de verdade.',
   },
   {
     id: 'ticket-close-team-first-2026-11-27',
