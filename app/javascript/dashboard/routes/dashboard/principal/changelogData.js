@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'email-delete-menu-icon-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'fix',
+    title: 'Excluir e-mail: agora exclui de verdade',
+    description:
+      'Na aba E-mails, confirmar "Excluir e-mail" fechava a confirmação sem excluir nada. Agora o e-mail é excluído. O problema era um ícone que não existia no menu do botão direito.',
+  },
+  {
     id: 'ticket-close-team-first-2026-11-27',
     date: '27 de novembro de 2026',
     isoDate: '2026-11-27',
