@@ -1,6 +1,9 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import { ref } from 'vue';
 import ConversationItem from '../ConversationItem.vue';
+import conversations from 'dashboard/store/modules/conversations';
+
+const DELETE_ACTION = 'deleteConversation';
 
 const { dispatch } = vi.hoisted(() => ({ dispatch: vi.fn() }));
 
@@ -95,10 +98,15 @@ describe('ConversationItem - excluir e-mail', () => {
     document.body.querySelector('.confirm-delete').click();
     await flushPromises();
 
-    expect(dispatch).toHaveBeenCalledWith(
-      'conversations/deleteConversation',
-      77
-    );
+    expect(dispatch).toHaveBeenCalledWith(DELETE_ACTION, 77);
     wrapper.unmount();
+  });
+
+  // O nome acima tem que existir na loja de verdade: um nome errado o Vuex
+  // ignora sem erro nenhum, e foi assim que o "Excluir e-mail" passou semanas
+  // sem enviar nada.
+  it('uses an action the real store actually has', () => {
+    expect(conversations.namespaced).toBeFalsy();
+    expect(conversations.actions[DELETE_ACTION]).toBeInstanceOf(Function);
   });
 });
