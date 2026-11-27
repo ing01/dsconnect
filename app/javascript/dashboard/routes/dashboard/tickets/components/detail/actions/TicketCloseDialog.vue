@@ -134,6 +134,9 @@ const resolution = ref('');
 // ve o texto na Area do Cliente -, e serve para quando a equipe ja avisou por
 // telefone ou WhatsApp.
 const notificarCliente = ref(true);
+// O encerramento ja saiu nesta janela e so' o fechamento falhou: a nova
+// tentativa nao manda o e-mail de novo (o servidor tambem barra a repeticao).
+const communicationSent = ref(false);
 // Assunto e descricao editaveis (so' com `allowEditDetails`); partem do que o
 // ticket ja tem e so' sao gravados se mudaram.
 const title = ref('');
@@ -227,6 +230,7 @@ const open = () => {
   body.value = '';
   resolution.value = '';
   notificarCliente.value = true;
+  communicationSent.value = false;
   finalizarFilhos.value = false;
   title.value = props.ticket.title || '';
   description.value = props.ticket.description || '';
@@ -327,13 +331,14 @@ const submit = async () => {
       });
     }
 
-    if (needsCommunication.value) {
+    if (needsCommunication.value && !communicationSent.value) {
       await store.dispatch('tickets/sendCustomerCommunication', {
         ticketId: props.ticket.id,
         body: body.value,
         closing: true,
         notifyCustomer: notificarCliente.value,
       });
+      communicationSent.value = true;
     }
 
     // A Resolucao vai no proprio fechamento: o servidor so' a grava se o ticket

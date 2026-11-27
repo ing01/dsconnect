@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-close-no-duplicate-email-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'fix',
+    title: 'Finalizar ticket: sem e-mail repetido e com erro explicado',
+    description:
+      'Se o e-mail de encerramento já foi enviado e só o fechamento do ticket falhou, tentar de novo não manda o mesmo e-mail ao cliente outra vez. E, quando o fechamento falha por um motivo inesperado, a tela agora mostra o que aconteceu, em vez de "Internal Server Error".',
+  },
+  {
     id: 'internal-chat-clickable-links-2026-11-27',
     date: '27 de novembro de 2026',
     isoDate: '2026-11-27',

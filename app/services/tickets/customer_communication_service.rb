@@ -19,7 +19,17 @@ class Tickets::CustomerCommunicationService
 
   pattr_initialize [:ticket!, :user!, :body!, :closing!, :notify_customer, :attachments]
 
+  # Janela em que o MESMO encerramento, ja enviado, nao sai de novo.
+  RESEND_GUARD_WINDOW = 30.minutes
+
   def perform
+    # Nova tentativa de finalizar depois de o e-mail ja ter saido (so' o
+    # fechamento tinha falhado): devolve o envio anterior em vez de mandar o
+    # mesmo e-mail outra vez - o cliente do ticket #38169 recebeu 3 iguais
+    # (2026-11-26).
+    already_sent = recent_identical_closing
+    return already_sent if already_sent
+
     communication = build_communication
     attach_files!(communication)
     notify_customer? ? deliver(communication) : register_only(communication)
@@ -36,6 +46,17 @@ class Tickets::CustomerCommunicationService
 
   def contact
     @contact ||= ticket.requester_contact
+  end
+
+  # So' o encerramento com e-mail, com o mesmo texto, para o mesmo endereco, ja'
+  # entregue e recente. Mensagem comum repetida e' intencao de quem escreve.
+  def recent_identical_closing
+    return unless closing && notify_customer?
+
+    ticket.ticket_customer_communications
+          .where(closing: true, status: 'sent', to_email: ticket.customer_email, body: body)
+          .where('created_at > ?', RESEND_GUARD_WINDOW.ago)
+          .order(created_at: :desc).first
   end
 
   def build_communication

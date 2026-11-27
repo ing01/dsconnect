@@ -105,6 +105,10 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   rescue TicketClosing::NotAllowed => e
     render json: { error: I18n.t('tickets.close.blocked'), code: 'close_requirements_missing', missing: e.missing },
            status: :unprocessable_entity
+  rescue ActiveRecord::RecordInvalid
+    raise
+  rescue StandardError => e
+    render_close_failure(e)
   end
 
   # Finaliza os filhos de um pai ja fechado, com os dados dele (ver o servico).
@@ -157,6 +161,10 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   rescue TicketClosing::NotAllowed => e
     render json: { error: I18n.t('tickets.close.blocked'), code: 'close_requirements_missing', missing: e.missing },
            status: :unprocessable_entity
+  rescue ActiveRecord::RecordInvalid
+    raise
+  rescue StandardError => e
+    render_close_failure(e)
   end
 
   def create_child
@@ -236,6 +244,18 @@ class Api::V1::Accounts::TicketsController < Api::V1::Accounts::BaseController
   end
 
   private
+
+  # Erro inesperado ao finalizar (fora "falta requisito" e validacao, que ja tem
+  # resposta propria): antes vazava como "Internal Server Error" cru, sem nada no
+  # log que explicasse - so' a mensagem da tela (relato do ticket #38169,
+  # 2026-11-26). Agora fica registrado com o backtrace e a tela diz o que houve.
+  def render_close_failure(exception)
+    backtrace = Array(exception.backtrace).first(15).join("\n")
+    Rails.logger.error("[TicketsController#close] ticket=#{@ticket&.id} #{exception.class}: #{exception.message}\n#{backtrace}")
+    ChatwootExceptionTracker.new(exception, account: Current.account).capture_exception
+    render json: { error: I18n.t('tickets.close.failed', reason: exception.message), code: 'close_failed' },
+           status: :unprocessable_entity
+  end
 
   def sla_kind_param
     kind = params[:sla_kind].to_s
