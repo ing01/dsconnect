@@ -36,6 +36,10 @@ export function ticketMatchesFilters(ticket, filters = {}) {
   if (filters.sprintId !== undefined && ticket.sprint_id !== filters.sprintId) {
     return false;
   }
+  // Filtro do Backlog: o ticket aberto direto na Mesa, sem ticket pai.
+  if (filters.hideWithoutParent && !ticket.parent_id) {
+    return false;
+  }
   // Estagio - usado pelo filtro do Backlog/Sprint do Modulo de
   // Desenvolvimento, do mesmo jeito que os demais campos aqui.
   if (filters.columnId && ticket.ticket_column_id !== filters.columnId) {

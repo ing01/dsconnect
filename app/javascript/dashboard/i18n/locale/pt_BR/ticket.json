@@ -1828,6 +1828,8 @@
       "SPRINT_STARTS_ON": "Início",
       "SPRINT_ENDS_ON": "Fim",
       "BACKLOG_BUCKET": "Backlog (sem sprint)",
+      "NO_PARENT": "Sem ticket pai",
+      "FILTER_HIDE_NO_PARENT": "Esconder sem ticket pai",
       "NO_DEV_MESA": "Nenhuma Mesa com o Módulo de Desenvolvimento ligado. Ative em Configurações > Times.",
       "VIEW_BACKLOG": "Backlog",
       "VIEW_BOARD": "Sprint ativo",

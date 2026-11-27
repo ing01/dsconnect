@@ -22,6 +22,7 @@ export default {
     fullSubject: { type: Boolean, default: false },
     // Colunas mais estreitas e cartoes enxutos - ver TicketCard.
     compact: { type: Boolean, default: false },
+    markWithoutParent: { type: Boolean, default: false },
   },
   emits: [
     'addTicket',
@@ -194,6 +195,7 @@ export default {
             :read-only="readOnly"
             :full-subject="fullSubject"
             :compact="compact"
+            :mark-without-parent="markWithoutParent"
             :is-completed="column.kind === 'completed'"
             @click="(ticket, event) => $emit('openTicket', element, event)"
             @menu-action="$emit('menuAction', $event)"

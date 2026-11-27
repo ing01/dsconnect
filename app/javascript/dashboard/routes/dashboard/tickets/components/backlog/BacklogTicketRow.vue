@@ -92,6 +92,15 @@ const onColumnAction = ({ value }) => {
       {{ ticketSubject(ticket) }}
     </p>
 
+    <WootLabel
+      v-if="!ticket.parent_id"
+      :label="t('TICKET.BACKLOG.NO_PARENT')"
+      color="amber"
+      compact
+      class="flex-shrink-0"
+      data-testid="no-parent"
+    />
+
     <!-- Estagio - pilula pequena, igual o seletor de status do Jira. So'
          vira menu quando a lista de Estagios da Mesa chegou. -->
     <OnClickOutside

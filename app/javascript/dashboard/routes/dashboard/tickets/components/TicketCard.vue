@@ -54,6 +54,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Quadro do Sprint ativo: marca o ticket que nao tem ticket pai.
+    markWithoutParent: {
+      type: Boolean,
+      default: false,
+    },
   },
   // The menu now carries its intent in one event: the card names the action,
   // the page decides how to run it.
@@ -88,6 +93,9 @@ export default {
     },
     statusColor() {
       return statusColor(this.ticket.status);
+    },
+    showWithoutParent() {
+      return this.markWithoutParent && !this.ticket.parent_id;
     },
     // O selo so faz sentido enquanto o pai segue aberto.
     hasChildCompleted() {
@@ -372,6 +380,7 @@ export default {
         !compact ||
         ticket.blocked ||
         hasChildCompleted ||
+        showWithoutParent ||
         (ticket.status && ticket.status !== 'open')
       "
       class="flex items-center flex-wrap gap-1.5"
@@ -397,6 +406,13 @@ export default {
         :label="$t('TICKET.IMPEDIMENT.LABEL')"
         color="amber"
         compact
+      />
+      <WootLabel
+        v-if="showWithoutParent"
+        :label="$t('TICKET.BACKLOG.NO_PARENT')"
+        color="amber"
+        compact
+        data-testid="no-parent"
       />
       <!-- Um ticket FILHO de desenvolvimento foi concluido: quem acompanha o
            quadro ve aqui, sem abrir nada. Clicar da o visto e tira o selo. -->

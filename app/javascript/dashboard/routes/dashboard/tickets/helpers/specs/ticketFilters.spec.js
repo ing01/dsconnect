@@ -1,5 +1,24 @@
 import { ticketMatchesFilters, UNASSIGNED_AGENT_ID } from '../ticketFilters';
 
+describe('ticketMatchesFilters - sem ticket pai', () => {
+  const solto = { id: 1, parent_id: null };
+  const filho = { id: 2, parent_id: 9 };
+
+  it('mostra os dois por padrao', () => {
+    expect(ticketMatchesFilters(solto, {})).toBe(true);
+    expect(ticketMatchesFilters(solto, { hideWithoutParent: false })).toBe(
+      true
+    );
+  });
+
+  it('esconde so quem nao tem pai quando pedido', () => {
+    expect(ticketMatchesFilters(solto, { hideWithoutParent: true })).toBe(
+      false
+    );
+    expect(ticketMatchesFilters(filho, { hideWithoutParent: true })).toBe(true);
+  });
+});
+
 describe('ticketMatchesFilters - categoria', () => {
   const ticket = { id: 1, ticket_category_id: 4 };
 

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-backlog-without-parent-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'fix',
+    title: 'Backlog mostra todos os tickets da Mesa',
+    description:
+      'Os tickets sem ticket pai voltaram a aparecer no Backlog e nos Sprints, com o selo "Sem ticket pai" e a opção de escondê-los. As listas também deixaram de parar nos 25 tickets mais recentes.',
+  },
+  {
     id: 'text-drafts-chat-tickets-2026-11-27',
     date: '27 de novembro de 2026',
     isoDate: '2026-11-27',

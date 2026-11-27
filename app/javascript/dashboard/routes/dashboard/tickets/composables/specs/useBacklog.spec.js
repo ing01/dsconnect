@@ -38,6 +38,98 @@ const montar = async () => {
   return backlog;
 };
 
+describe('useBacklog > carregamento dos baldes', () => {
+  const lote = (de, quantos) =>
+    Array.from({ length: quantos }, (_, index) => ({ id: de + index }));
+  const doBacklog = () =>
+    api.get.mock.calls.map(([params]) => params).filter(p => p.without_sprint);
+  const responder = paginas => {
+    const total = new Set(paginas.flat().map(ticket => ticket.id)).size;
+    api.get.mockImplementation(params =>
+      Promise.resolve({
+        data: {
+          payload: params.without_sprint ? paginas[params.page - 1] || [] : [],
+          meta: { count: params.without_sprint ? total : 0 },
+        },
+      })
+    );
+  };
+  const carregar = async () => {
+    api.get.mockClear();
+    const backlog = useBacklog();
+    backlog.selectTeam(5);
+    await flushPromises();
+    return backlog;
+  };
+
+  it('pede tambem os tickets sem pai', async () => {
+    responder([[{ id: 1, parent_id: null }]]);
+
+    const backlog = await carregar();
+
+    expect(backlog.state.backlogTickets).toEqual([{ id: 1, parent_id: null }]);
+    expect(api.get.mock.calls.every(([p]) => !('with_parent' in p))).toBe(true);
+    expect(doBacklog()[0]).toMatchObject({
+      team_id: 5,
+      status: 'open',
+      exclude_finalized_stage: true,
+    });
+  });
+
+  it('busca todas as paginas, em ordem estavel', async () => {
+    responder([lote(1, 100), lote(101, 100), lote(201, 30)]);
+
+    const backlog = await carregar();
+
+    expect(backlog.state.backlogTickets).toHaveLength(230);
+    expect(doBacklog().map(p => p.page)).toEqual([1, 2, 3]);
+    expect(doBacklog()[0]).toMatchObject({
+      per_page: 100,
+      sort_by: 'created_at',
+      sort_order: 'desc',
+    });
+  });
+
+  it('pagina cheia e sem resto nao pede outra', async () => {
+    responder([lote(1, 100)]);
+
+    await carregar();
+
+    expect(doBacklog()).toHaveLength(1);
+  });
+
+  it('o ticket repetido na virada da pagina aparece uma vez', async () => {
+    responder([lote(1, 100), lote(100, 3)]);
+
+    const backlog = await carregar();
+
+    expect(backlog.state.backlogTickets).toHaveLength(102);
+  });
+
+  it('resposta atrasada de outra Mesa nao troca a lista', async () => {
+    let soltar;
+    api.get.mockImplementation(params => {
+      if (params.team_id === 5) {
+        return new Promise(resolve => {
+          soltar = () => resolve({ data: { payload: [{ id: 5 }] } });
+        });
+      }
+      return Promise.resolve({
+        data: { payload: params.team_id === 6 ? [{ id: 6 }] : [] },
+      });
+    });
+    const backlog = await carregar();
+
+    // O watch da troca de Mesa e' o proprio composable.
+    backlog.selectTeam(6);
+    await flushPromises();
+    soltar();
+    await flushPromises();
+
+    expect(backlog.state.backlogTickets).toEqual([{ id: 6 }]);
+  });
+});
+
 describe('useBacklog > moveTicketToSprint', () => {
   it('dando certo, nao recarrega os baldes nem liga o carregando', async () => {
     const backlog = await montar();

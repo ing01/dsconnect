@@ -97,17 +97,30 @@ RSpec.describe 'Tickets API - Modulo de Desenvolvimento', type: :request do
       expect(response.parsed_body['payload'].pluck('sprint_id')).to eq([nil])
     end
 
-    it 'com with_parent, so mostra ticket filho (criado a partir da aba Desenvolvimento)' do
+    it 'o Backlog lista o ticket com pai e o sem pai' do
       criar_ticket
       pai = Ticket.find(response.parsed_body['id'])
       criar_ticket(parent_id: pai.id)
-      criar_ticket # sem pai - ticket comum, nao veio desse fluxo
 
       get "/api/v1/accounts/#{account.id}/tickets",
-          params: { team_id: team.id, with_parent: true },
-          headers: agent.create_new_auth_token, as: :json
+          params: { team_id: team.id, without_sprint: true, status: 'open', exclude_finalized_stage: true },
+          headers: agent.create_new_auth_token
 
-      expect(response.parsed_body['payload'].pluck('parent_id')).to eq([pai.id])
+      expect(response.parsed_body['payload'].pluck('parent_id')).to contain_exactly(nil, pai.id)
+    end
+
+    it 'entrega o resto do Backlog nas paginas seguintes, sem repetir' do
+      3.times { criar_ticket }
+      busca = { team_id: team.id, without_sprint: true, sort_by: 'created_at', sort_order: 'desc', per_page: 2 }
+
+      ids = [1, 2].flat_map do |page|
+        get "/api/v1/accounts/#{account.id}/tickets",
+            params: busca.merge(page: page), headers: agent.create_new_auth_token
+        expect(response.parsed_body['meta']['count']).to eq(3)
+        response.parsed_body['payload'].pluck('id')
+      end
+
+      expect(ids).to match_array(Ticket.where(team_id: team.id).pluck(:id))
     end
 
     it 'com exclude_finalized_stage, esconde ticket cujo Estagio e o Concluido (kind: completed) da Mesa' do

@@ -45,6 +45,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    markWithoutParent: {
+      type: Boolean,
+      default: false,
+    },
     // Colunas e cartoes enxutos para telas pequenas - ver TicketCard.
     compact: {
       type: Boolean,
@@ -174,6 +178,7 @@ export default {
         :read-only="readOnly"
         :full-subject="fullSubject"
         :compact="compact"
+        :mark-without-parent="markWithoutParent"
         @toggle-collapse="toggleColumn"
         @drag-start="onDragStart"
         @drag-end="onDragEnd"

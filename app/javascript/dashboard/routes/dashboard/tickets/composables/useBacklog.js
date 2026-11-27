@@ -6,6 +6,27 @@ import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import TicketsAPI from 'dashboard/api/tickets';
 
 const LAST_TEAM_STORAGE_KEY = 'ticket-backlog-last-team-id';
+const PAGE_SIZE = 100;
+
+// Todas as paginas da busca: sem isso o balde mostrava so' os 25 tickets mais
+// recentes. A ordem explicita desempata por id no servidor, para a virada de
+// pagina nao pular ninguem; o repetido (ticket criado no meio da busca) sai.
+const fetchAllTickets = async (params, page = 1, found = new Map()) => {
+  const { data } = await TicketsAPI.get({
+    ...params,
+    sort_by: 'created_at',
+    sort_order: 'desc',
+    page,
+    per_page: PAGE_SIZE,
+  });
+  data.payload.forEach(ticket => found.set(ticket.id, ticket));
+
+  const total = data.meta?.count ?? 0;
+  if (data.payload.length && page * PAGE_SIZE < total) {
+    return fetchAllTickets(params, page + 1, found);
+  }
+  return [...found.values()];
+};
 
 // O Backlog do Modulo de Desenvolvimento: uma Mesa com a flag ligada organiza
 // seus tickets em Sprints (mais o proprio Backlog, para o que ainda nao tem
@@ -102,40 +123,38 @@ export function useBacklog() {
   // sumir com os baldes e mostrar o carregando (que parece uma pagina recarregada e ainda
   // fecha os baldes abertos). Usado depois de arrastar um ticket.
   const loadBucketTickets = async ({ silent = false } = {}) => {
-    if (!state.selectedTeamId) return;
+    const teamId = state.selectedTeamId;
+    if (!teamId) return;
 
     if (!silent) state.isLoading = true;
     try {
       // `status: 'open'` pelo mesmo motivo do Kanban: um ticket resolvido,
       // fechado ou cancelado sai do fluxo operacional - aqui tambem, nao so'
       // nas colunas do quadro.
-      // `with_parent`/`exclude_finalized_stage`: o Backlog so' lista o ticket
-      // FILHO que o suporte manda pra aba Desenvolvimento - um ticket sem pai
-      // nao veio desse fluxo, e um ja' concluido so' ocupa espaco ali.
-      const [backlogResponse, ...sprintResponses] = await Promise.all([
-        TicketsAPI.get({
-          team_id: state.selectedTeamId,
+      // `exclude_finalized_stage`: o ticket ja' concluido so' ocuparia espaco.
+      // O ticket sem pai tambem entra, marcado na linha.
+      const loadedSprints = sprints.value;
+      const [backlog, ...bySprint] = await Promise.all([
+        fetchAllTickets({
+          team_id: teamId,
           without_sprint: true,
           status: 'open',
-          with_parent: true,
           exclude_finalized_stage: true,
         }),
-        ...sprints.value.map(sprint =>
-          TicketsAPI.get({
+        ...loadedSprints.map(sprint =>
+          fetchAllTickets({
             sprint_id: sprint.id,
             status: 'open',
-            with_parent: true,
             exclude_finalized_stage: true,
           })
         ),
       ]);
+      // A Mesa mudou enquanto as paginas chegavam: estas sao da anterior.
+      if (teamId !== state.selectedTeamId) return;
 
-      state.backlogTickets = backlogResponse.data.payload;
+      state.backlogTickets = backlog;
       state.ticketsBySprint = Object.fromEntries(
-        sprints.value.map((sprint, index) => [
-          sprint.id,
-          sprintResponses[index].data.payload,
-        ])
+        loadedSprints.map((sprint, index) => [sprint.id, bySprint[index]])
       );
     } finally {
       if (!silent) state.isLoading = false;

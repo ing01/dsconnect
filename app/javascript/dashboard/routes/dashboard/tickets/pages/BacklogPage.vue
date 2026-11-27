@@ -10,6 +10,7 @@ import TicketMesaSelector from '../components/TicketMesaSelector.vue';
 import TicketAvatarFilterRow from '../components/TicketAvatarFilterRow.vue';
 import TicketSelect from '../components/TicketSelect.vue';
 import TicketBoard from '../components/TicketBoard.vue';
+import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import TicketCreateDialog from '../components/create/TicketCreateDialog.vue';
 import BacklogBucket from '../components/backlog/BacklogBucket.vue';
 import BacklogBulkActionsBar from '../components/backlog/BacklogBulkActionsBar.vue';
@@ -127,6 +128,7 @@ const filters = ref({
   priority: '',
   columnId: null,
   categoryId: null,
+  hideWithoutParent: false,
 });
 
 // Estagios e Categorias pertencem a uma Mesa: o escolhido na Mesa anterior nao
@@ -415,6 +417,13 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
         :aria-label="t('TICKET.CREATE.CATEGORY')"
         class="!w-48 flex-shrink-0 [&>button]:!h-8"
       />
+      <label
+        class="flex items-center gap-2 text-sm cursor-pointer text-n-slate-11 flex-shrink-0"
+        data-testid="hide-without-parent"
+      >
+        <Checkbox v-model="filters.hideWithoutParent" />
+        {{ t('TICKET.BACKLOG.FILTER_HIDE_NO_PARENT') }}
+      </label>
       <template v-if="viewMode === 'board'">
         <ConfirmButton
           v-if="boardSprint"
@@ -507,6 +516,7 @@ const onTicketCreated = ({ ticket, keepOpen } = {}) => {
           :agents="mesaAgents"
           :filters="boardFilters"
           full-subject
+          mark-without-parent
           :compact="isCompact"
           @add-ticket="onAddTicket"
           @open-ticket="openTicket"
