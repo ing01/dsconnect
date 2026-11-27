@@ -37,20 +37,17 @@ const getters = useStoreGetters();
 const dialogRef = ref(null);
 const isWorking = ref(false);
 
-// Categoria/Mesa/Estagio para onde o ticket vai ser encaminhado ao fechar -
-// parte confirmando/trocando a Categoria, escolher uma de outra Mesa
-// preenche Mesa e Estagio automaticamente (o padrao configurado em
-// Configuracoes > Tickets > Categorias), mas os tres continuam editaveis
-// de forma independente antes de confirmar. Pedido da Ingrid, 2026-11-16.
+// Mesa/Categoria/Estagio para onde o ticket vai ser encaminhado ao fechar. A
+// Mesa vem primeiro: Categoria e Estagio sao os dela e ficam bloqueados
+// enquanto nao houver Mesa. Pedidos de 2026-11-16 e 2026-11-27.
 const categoryId = ref(null);
 const teamId = ref(null);
 const columnId = ref(null);
 
 const teams = useMapGetter('teams/getTeams');
 
-// Categorias de TODAS as Mesas, agrupadas por Mesa no select - precisa ser
-// assim (e nao so' as da Mesa atual) porque escolher uma categoria de outra
-// Mesa e' o jeito de encaminhar o ticket pra ela nesta tela.
+// As categorias de todas as Mesas sao carregadas na abertura, para a troca de
+// Mesa ja encontrar as dela.
 const categoriesByTeam = computed(() =>
   teams.value.map(team => ({
     team,
@@ -60,23 +57,37 @@ const categoriesByTeam = computed(() =>
 const allCategories = computed(() =>
   categoriesByTeam.value.flatMap(group => group.categories)
 );
+const teamCategories = computed(
+  () =>
+    categoriesByTeam.value.find(group => group.team.id === Number(teamId.value))
+      ?.categories || []
+);
+// Um ticket antigo pode ter uma Categoria de outra Mesa: ela continua aparecendo
+// enquanto estiver escolhida, em vez de o campo ficar em branco.
+const categoryOptions = computed(() => {
+  const own = teamCategories.value;
+  const selected = allCategories.value.find(
+    category => category.id === Number(categoryId.value)
+  );
+  if (!selected || own.some(category => category.id === selected.id))
+    return own;
+  return [...own, selected];
+});
 const stageOptions = computed(
   () => getters['ticketColumns/getColumns'].value(teamId.value) || []
 );
 
+// A Categoria traz o Estagio padrao configurado nela.
 const onCategorySelect = () => {
   const category = allCategories.value.find(
     candidate => candidate.id === Number(categoryId.value)
   );
-  if (!category) return;
-
-  teamId.value = category.team_id;
-  if (category.default_ticket_column_id) {
+  if (category?.default_ticket_column_id) {
     columnId.value = category.default_ticket_column_id;
   }
 };
 
-// Trocar a Mesa a mao leva junto Categoria e Estagio que sejam dela: sem isso o
+// Trocar a Mesa leva junto Categoria e Estagio que sejam dela: sem isso o
 // pedido saia com a combinacao de duas Mesas e o servidor recusava o fechamento.
 // A Categoria de mesmo nome e' mantida; sem ela, a pessoa escolhe.
 const onTeamSelect = () => {
@@ -84,9 +95,7 @@ const onTeamSelect = () => {
   const current = allCategories.value.find(
     candidate => candidate.id === Number(categoryId.value)
   );
-  const categories =
-    categoriesByTeam.value.find(group => group.team.id === target)
-      ?.categories || [];
+  const categories = teamCategories.value;
   if (current && current.team_id !== target) {
     categoryId.value =
       categories.find(candidate => candidate.name === current.name)?.id || null;
@@ -498,11 +507,8 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
         <div class="h-px bg-n-weak" />
       </template>
 
-      <!-- Categoria, Mesa e Estagio para onde o ticket vai ser encaminhado -
-           confirma ou troca a Categoria; trocar pra uma de outra Mesa ja'
-           preenche Mesa e Estagio com o padrao configurado nela, mas os tres
-           continuam editaveis de forma independente. Pedido da Ingrid,
-           2026-11-16. -->
+      <!-- Mesa, Categoria e Estagio para onde o ticket vai ser encaminhado.
+           Categoria e Estagio dependem da Mesa escolhida. -->
       <section class="flex flex-col gap-3 min-w-0">
         <h3 class="flex items-center gap-2 text-sm font-medium text-n-slate-12">
           <Icon
@@ -517,34 +523,6 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <label class="flex flex-col gap-1 min-w-0">
             <span class="text-sm font-medium text-n-slate-12">
-              {{ t('TICKET.CLOSE.ROUTING_CATEGORY')
-              }}<span v-if="needsCategory" class="text-n-ruby-11">*</span>
-            </span>
-            <select
-              v-model="categoryId"
-              class="w-full mb-0 text-sm"
-              @change="onCategorySelect"
-            >
-              <option :value="null">
-                {{ t('TICKET.CLOSE.ROUTING_CATEGORY_NONE') }}
-              </option>
-              <optgroup
-                v-for="group in categoriesByTeam"
-                :key="group.team.id"
-                :label="group.team.name"
-              >
-                <option
-                  v-for="category in group.categories"
-                  :key="category.id"
-                  :value="category.id"
-                >
-                  {{ category.name }}
-                </option>
-              </optgroup>
-            </select>
-          </label>
-          <label class="flex flex-col gap-1 min-w-0">
-            <span class="text-sm font-medium text-n-slate-12">
               {{ t('TICKET.CLOSE.ROUTING_TEAM') }}
             </span>
             <select
@@ -552,6 +530,9 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
               class="routing-team w-full mb-0 text-sm"
               @change="onTeamSelect"
             >
+              <option :value="null" disabled>
+                {{ t('TICKET.CLOSE.ROUTING_TEAM_NONE') }}
+              </option>
               <option v-for="team in teams" :key="team.id" :value="team.id">
                 {{ team.name }}
               </option>
@@ -559,11 +540,46 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           </label>
           <label class="flex flex-col gap-1 min-w-0">
             <span class="text-sm font-medium text-n-slate-12">
+              {{ t('TICKET.CLOSE.ROUTING_CATEGORY')
+              }}<span v-if="needsCategory" class="text-n-ruby-11">*</span>
+            </span>
+            <select
+              v-model="categoryId"
+              class="routing-category w-full mb-0 text-sm"
+              :disabled="!teamId"
+              @change="onCategorySelect"
+            >
+              <option :value="null">
+                {{
+                  teamId
+                    ? t('TICKET.CLOSE.ROUTING_CATEGORY_NONE')
+                    : t('TICKET.CLOSE.ROUTING_TEAM_FIRST')
+                }}
+              </option>
+              <option
+                v-for="category in categoryOptions"
+                :key="category.id"
+                :value="category.id"
+              >
+                {{ category.name }}
+              </option>
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 min-w-0">
+            <span class="text-sm font-medium text-n-slate-12">
               {{ t('TICKET.CLOSE.ROUTING_STAGE') }}
             </span>
-            <select v-model="columnId" class="w-full mb-0 text-sm">
+            <select
+              v-model="columnId"
+              class="routing-stage w-full mb-0 text-sm"
+              :disabled="!teamId"
+            >
               <option :value="null">
-                {{ t('TICKET.CLOSE.ROUTING_STAGE_NONE') }}
+                {{
+                  teamId
+                    ? t('TICKET.CLOSE.ROUTING_STAGE_NONE')
+                    : t('TICKET.CLOSE.ROUTING_TEAM_FIRST')
+                }}
               </option>
               <option
                 v-for="stage in stageOptions"

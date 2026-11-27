@@ -1714,6 +1714,8 @@
       "STEP_ROUTING": "Categorização e encaminhamento",
       "ROUTING_CATEGORY": "Categoria",
       "ROUTING_CATEGORY_NONE": "Sem categoria",
+      "ROUTING_TEAM_NONE": "Selecione a mesa",
+      "ROUTING_TEAM_FIRST": "Selecione a mesa primeiro",
       "ROUTING_TEAM": "Mesa",
       "ROUTING_STAGE": "Estágio",
       "ROUTING_STAGE_NONE": "Nenhum",

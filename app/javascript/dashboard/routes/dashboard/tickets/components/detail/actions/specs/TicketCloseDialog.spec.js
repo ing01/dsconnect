@@ -15,6 +15,8 @@ import { useAlert } from 'dashboard/composables';
 // REGISTRADA - o cliente ve o texto na Area do Cliente e nenhum e-mail sai -, e
 // o que a pessoa desmarcou tem de chegar ao servidor.
 const dispatch = vi.fn(() => Promise.resolve());
+// Mesas, categorias e estagios que o dialogo enxerga; vazios por padrao.
+const cadastro = { teams: [], categories: {}, columns: {} };
 
 vi.mock('dashboard/api/tickets', () => ({
   default: { summarizeConversation: vi.fn() },
@@ -22,15 +24,22 @@ vi.mock('dashboard/api/tickets', () => ({
 
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
 vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
-vi.mock('dashboard/composables/store', () => ({
-  useStore: () => ({ dispatch: (...a) => dispatch(...a) }),
-  useMapGetter: () => ({ value: [] }),
-  // O dialogo le categorias e colunas da Mesa por getters que recebem o id.
-  useStoreGetters: () => ({
-    'ticketColumns/getCategories': { value: () => [] },
-    'ticketColumns/getColumns': { value: () => [] },
-  }),
-}));
+vi.mock('dashboard/composables/store', async () => {
+  const { computed } = await import('vue');
+  return {
+    useStore: () => ({ dispatch: (...a) => dispatch(...a) }),
+    // Um ref, como o getter real: o template depende de ele ser desembrulhado.
+    useMapGetter: name =>
+      computed(() => (name === 'teams/getTeams' ? cadastro.teams : [])),
+    // O dialogo le categorias e colunas da Mesa por getters que recebem o id.
+    useStoreGetters: () => ({
+      'ticketColumns/getCategories': {
+        value: id => cadastro.categories[id] || [],
+      },
+      'ticketColumns/getColumns': { value: id => cadastro.columns[id] || [] },
+    }),
+  };
+});
 
 const ticket = (overrides = {}) => ({
   id: 1,
@@ -89,7 +98,10 @@ const mensagemEnviada = () =>
     ([acao]) => acao === 'tickets/sendCustomerCommunication'
   )?.[1];
 
-beforeEach(() => dispatch.mockClear());
+beforeEach(() => {
+  dispatch.mockClear();
+  Object.assign(cadastro, { teams: [], categories: {}, columns: {} });
+});
 
 describe('TicketCloseDialog', () => {
   // Fechando pela conversa (Resolver), o assunto e a descricao se ajustam ali; o
@@ -298,6 +310,148 @@ describe('TicketCloseDialog', () => {
     await fechar(wrapper);
 
     expect(useAlert).toHaveBeenCalledWith('Categoria não é válida');
+  });
+
+  describe('Mesa, Categoria e Estagio', () => {
+    beforeEach(() => {
+      Object.assign(cadastro, {
+        teams: [
+          { id: 10, name: 'Suporte' },
+          { id: 20, name: 'Especialista' },
+        ],
+        categories: {
+          10: [
+            { id: 101, team_id: 10, name: 'Duvida' },
+            { id: 102, team_id: 10, name: 'Erro' },
+          ],
+          20: [
+            {
+              id: 201,
+              team_id: 20,
+              name: 'Erro',
+              default_ticket_column_id: 2002,
+            },
+          ],
+        },
+        columns: {
+          10: [{ id: 1001, name: 'Triagem' }],
+          20: [
+            { id: 2001, name: 'Suporte' },
+            { id: 2002, name: 'Analise' },
+          ],
+        },
+      });
+    });
+
+    const mesa = w => w.find('select.routing-team');
+    const categoria = w => w.find('select.routing-category');
+    const estagio = w => w.find('select.routing-stage');
+    const nomes = select =>
+      select
+        .findAll('option')
+        .slice(1)
+        .map(option => option.text());
+    const escolhido = select =>
+      select.element.options[select.element.selectedIndex]?.textContent.trim();
+    const noSuporte = (extra = {}) =>
+      montar({
+        ticket: ticket({
+          team_id: 10,
+          ticket_category_id: 101,
+          ticket_column_id: 1001,
+          ...extra,
+        }),
+      });
+
+    it('mostra a Mesa primeiro, depois Categoria e Estagio', async () => {
+      const wrapper = await noSuporte();
+
+      expect(
+        wrapper.findAll('select').map(select => select.classes()[0])
+      ).toEqual(['routing-team', 'routing-category', 'routing-stage']);
+    });
+
+    it('sem Mesa, bloqueia Categoria e Estagio', async () => {
+      const wrapper = await montar();
+
+      expect(escolhido(mesa(wrapper))).toBe('TICKET.CLOSE.ROUTING_TEAM_NONE');
+      expect(categoria(wrapper).element.disabled).toBe(true);
+      expect(estagio(wrapper).element.disabled).toBe(true);
+      expect(escolhido(categoria(wrapper))).toBe(
+        'TICKET.CLOSE.ROUTING_TEAM_FIRST'
+      );
+      expect(escolhido(estagio(wrapper))).toBe(
+        'TICKET.CLOSE.ROUTING_TEAM_FIRST'
+      );
+    });
+
+    it('ao escolher a Mesa, libera os campos com o que e dela', async () => {
+      const wrapper = await montar();
+
+      await mesa(wrapper).setValue('20');
+
+      expect(categoria(wrapper).element.disabled).toBe(false);
+      expect(estagio(wrapper).element.disabled).toBe(false);
+      expect(nomes(categoria(wrapper))).toEqual(['Erro']);
+      expect(nomes(estagio(wrapper))).toEqual(['Suporte', 'Analise']);
+      expect(escolhido(estagio(wrapper))).toBe('Suporte');
+    });
+
+    it('trocando a Mesa, mantem a Categoria de mesmo nome e o estagio padrao', async () => {
+      const wrapper = await noSuporte({ ticket_category_id: 102 });
+
+      await mesa(wrapper).setValue('20');
+
+      expect(escolhido(categoria(wrapper))).toBe('Erro');
+      expect(escolhido(estagio(wrapper))).toBe('Analise');
+    });
+
+    it('sem Categoria de mesmo nome, deixa para a pessoa escolher', async () => {
+      const wrapper = await noSuporte();
+
+      await mesa(wrapper).setValue('20');
+
+      expect(escolhido(categoria(wrapper))).toBe(
+        'TICKET.CLOSE.ROUTING_CATEGORY_NONE'
+      );
+      expect(nomes(categoria(wrapper))).toEqual(['Erro']);
+    });
+
+    it('envia a combinacao escolhida junto com o fechamento', async () => {
+      const wrapper = await montar();
+
+      await mesa(wrapper).setValue('20');
+      await categoria(wrapper).setValue('201');
+      await fechar(wrapper);
+
+      expect(dispatch).toHaveBeenCalledWith('tickets/transferTicket', {
+        id: 1,
+        team_id: 20,
+        ticket_column_id: 2002,
+        ticket_category_id: 201,
+        status: 'closed',
+        resolution: undefined,
+      });
+    });
+
+    it('sem mexer em nada, fecha sem transferir', async () => {
+      await fechar(await noSuporte());
+
+      const acoes = dispatch.mock.calls.map(([acao]) => acao);
+      expect(acoes).toContain('tickets/closeTicket');
+      expect(acoes).not.toContain('tickets/transferTicket');
+    });
+
+    it('mostra a Categoria antiga de outra Mesa ate a Mesa ser trocada', async () => {
+      const wrapper = await noSuporte({ ticket_category_id: 201 });
+
+      expect(escolhido(categoria(wrapper))).toBe('Erro');
+      expect(nomes(categoria(wrapper))).toEqual(['Duvida', 'Erro', 'Erro']);
+
+      await mesa(wrapper).setValue('20');
+
+      expect(nomes(categoria(wrapper))).toEqual(['Erro']);
+    });
   });
 
   describe('o flag de e-mail', () => {

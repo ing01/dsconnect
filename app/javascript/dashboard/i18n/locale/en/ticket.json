@@ -1611,6 +1611,8 @@
       "STEP_ROUTING": "Categorization and routing",
       "ROUTING_CATEGORY": "Category",
       "ROUTING_CATEGORY_NONE": "No category",
+      "ROUTING_TEAM_NONE": "Select a team",
+      "ROUTING_TEAM_FIRST": "Select a team first",
       "ROUTING_TEAM": "Mesa",
       "ROUTING_STAGE": "Stage",
       "ROUTING_STAGE_NONE": "None",

@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'ticket-close-team-first-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Fechar ticket: a Mesa agora vem primeiro',
+    description:
+      'Na janela de fechar o ticket, a Mesa passou para o primeiro campo, e a Categoria e o Estágio mostram só o que é da Mesa escolhida. Sem Mesa selecionada, os dois ficam bloqueados.',
+  },
+  {
     id: 'email-delete-confirmation-visible-2026-11-27',
     date: '27 de novembro de 2026',
     isoDate: '2026-11-27',
