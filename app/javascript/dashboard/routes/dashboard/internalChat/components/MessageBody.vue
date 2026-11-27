@@ -29,6 +29,19 @@ const ticketFor = id => ticketPreview(id);
         {{ part.value }}
       </span>
 
+      <!-- v-text: dentro de um bloco pre-wrap, as quebras de linha do
+           template virariam espacos em volta do endereco. -->
+      <!-- eslint-disable vue/no-v-text -->
+      <a
+        v-else-if="part.type === 'link'"
+        :href="part.href"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="break-all underline text-n-blue-11 hover:text-n-blue-12"
+        v-text="part.value"
+      />
+      <!-- eslint-enable vue/no-v-text -->
+
       <!-- Já a referência a um Ticket leva mesmo ao Ticket. -->
       <button
         v-else-if="part.type === 'ticket'"

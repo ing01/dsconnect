@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'internal-chat-clickable-links-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Chat Interno: links clicáveis',
+    description:
+      'Os endereços enviados nas mensagens (começando com http, https ou www) agora são clicáveis e abrem em uma nova aba.',
+  },
+  {
     id: 'queue-badge-and-inbox-ticket-mesa-2026-11-26',
     date: '26 de novembro de 2026',
     isoDate: '2026-11-26',

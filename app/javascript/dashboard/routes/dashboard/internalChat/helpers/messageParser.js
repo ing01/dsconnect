@@ -1,12 +1,27 @@
 /**
  * Quebra o texto de uma mensagem nos pedaços que a tela sabe desenhar:
- * texto comum, menção a um colega e referência a um Ticket.
+ * texto comum, link, menção a um colega e referência a um Ticket.
  *
  * Feito por partes, e não por HTML montado à mão, porque nada aqui precisa
  * passar por `v-html` - cada pedaço vira um elemento próprio no template.
  */
 
 const TICKET_PATTERN = /#(\d{3,})/g;
+
+// So' http(s) e "www." viram link: nada de `javascript:` e afins.
+const LINK_PATTERN = /((?:\b[Hh]ttps?:\/\/|\bwww\.)[^\s<>"]+)/g;
+
+// A pontuacao que vem depois do endereco e' da frase, nao dele. O parentese
+// final so' sai quando nao abre dentro do proprio endereco (caso da Wikipedia).
+const trimLink = link => {
+  let url = link.replace(/[.,;:!?'\]}]+$/, '');
+  while (url.endsWith(')') && url.split(')').length > url.split('(').length) {
+    url = url.slice(0, -1).replace(/[.,;:!?'\]}]+$/, '');
+  }
+  return url;
+};
+
+const linkHref = url => (/^www\./i.test(url) ? `https://${url}` : url);
 
 /**
  * @param {string} body texto cru da mensagem
@@ -24,8 +39,12 @@ export const parseMessage = (body, users = []) => {
     .map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 
   const mentionPattern = names.length ? `@(${names.join('|')})` : null;
+  // O link vem primeiro: um "#1234" ou "@nome" dentro do endereco e' parte
+  // dele.
   const pattern = new RegExp(
-    [mentionPattern, TICKET_PATTERN.source].filter(Boolean).join('|'),
+    [LINK_PATTERN.source, mentionPattern, TICKET_PATTERN.source]
+      .filter(Boolean)
+      .join('|'),
     'g'
   );
 
@@ -38,8 +57,16 @@ export const parseMessage = (body, users = []) => {
       parts.push({ type: 'text', value: body.slice(cursor, match.index) });
     }
 
-    const [full, mentionName, ticketId] = match;
-    if (mentionName) {
+    // Sem ninguem para mencionar, o grupo da mencao nao existe no padrao.
+    const [matched, link, ...groups] = match;
+    const [mentionName, ticketId] = mentionPattern
+      ? groups
+      : [undefined, ...groups];
+    const full = link ? trimLink(link) : matched;
+
+    if (link) {
+      parts.push({ type: 'link', value: full, href: linkHref(full) });
+    } else if (mentionName) {
       const user = users.find(item => item.name === mentionName);
       parts.push({ type: 'mention', value: full, id: user?.id });
     } else {
