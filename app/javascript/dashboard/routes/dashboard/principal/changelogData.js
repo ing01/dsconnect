@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'email-delete-confirmation-visible-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'fix',
+    title: 'Excluir e-mail voltou a funcionar',
+    description:
+      'Na aba E-mails, clicar com o botão direito no e-mail e escolher "Excluir e-mail" agora mostra a confirmação no centro da tela. Antes ela abria escondida atrás da lista, e o e-mail não era excluído.',
+  },
+  {
     id: 'conversation-customer-briefing-ai-2026-11-27',
     date: '27 de novembro de 2026',
     isoDate: '2026-11-27',

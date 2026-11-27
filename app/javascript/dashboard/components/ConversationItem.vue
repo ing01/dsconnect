@@ -8,6 +8,7 @@ import { frontendURL, conversationUrl } from 'dashboard/helper/URLHelper';
 import ConversationCard from './widgets/conversation/ConversationCard.vue';
 import ConversationCardExpanded from 'dashboard/components-next/Conversation/ConversationCard/ConversationCardExpanded.vue';
 import ContextMenu from 'dashboard/components/ui/ContextMenu.vue';
+import TeleportWithDirection from 'dashboard/components-next/TeleportWithDirection.vue';
 import ConversationContextMenu from './widgets/conversation/contextMenu/Index.vue';
 
 const props = defineProps({
@@ -272,18 +273,23 @@ const confirmDeleteConversation = async () => {
     />
   </ContextMenu>
 
-  <woot-delete-modal
-    v-if="showDeleteConversationModal"
-    v-model:show="showDeleteConversationModal"
-    :on-close="closeDeleteConversationModal"
-    :on-confirm="confirmDeleteConversation"
-    :title="
-      t('CONVERSATION.DELETE_CONVERSATION.TITLE', {
-        conversationId: source.id,
-      })
-    "
-    :message="t('CONVERSATION.DELETE_CONVERSATION.DESCRIPTION')"
-    :confirm-text="t('CONVERSATION.DELETE_CONVERSATION.CONFIRM')"
-    :reject-text="t('CONVERSATION.DELETE_CONVERSATION.CANCEL')"
-  />
+  <!-- Levado para o <body>, como o menu acima: cada linha da lista virtual tem
+       `contain: layout`, que prende um `position: fixed` dentro da propria
+       linha - a confirmacao nascia escondida atras das outras conversas e o
+       "Excluir e-mail" nunca chegava ao servidor (relato da Ingrid, 2026-11-27). -->
+  <TeleportWithDirection v-if="showDeleteConversationModal" to="body">
+    <woot-delete-modal
+      v-model:show="showDeleteConversationModal"
+      :on-close="closeDeleteConversationModal"
+      :on-confirm="confirmDeleteConversation"
+      :title="
+        t('CONVERSATION.DELETE_CONVERSATION.TITLE', {
+          conversationId: source.id,
+        })
+      "
+      :message="t('CONVERSATION.DELETE_CONVERSATION.DESCRIPTION')"
+      :confirm-text="t('CONVERSATION.DELETE_CONVERSATION.CONFIRM')"
+      :reject-text="t('CONVERSATION.DELETE_CONVERSATION.CANCEL')"
+    />
+  </TeleportWithDirection>
 </template>
