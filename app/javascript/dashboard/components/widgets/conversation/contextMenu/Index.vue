@@ -173,7 +173,11 @@ export default {
       },
       deleteEmailOption: {
         key: MENU.DELETE,
-        icon: 'delete-outline',
+        // So' o nome: o fluent-icon acrescenta "-outline" sozinho.
+        // "delete-outline" virava "delete-outline-outline", que nao existe -
+        // o menu quebrava ao desenhar e o "Excluir e-mail" nunca enviava nada
+        // (relato da Ingrid, 2026-11-27).
+        icon: 'delete',
         label: this.$t('CONVERSATION.CARD_CONTEXT_MENU.DELETE_EMAIL'),
       },
     };
