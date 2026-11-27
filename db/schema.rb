@@ -1382,6 +1382,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_13_162016) do
     t.index ["review_notes_updated_by_id"], name: "index_csat_survey_responses_on_review_notes_updated_by_id"
   end
 
+  create_table "customer_briefing_summaries", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "contact_id", null: false
+    t.bigint "company_id"
+    t.string "fingerprint", null: false
+    t.jsonb "content", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "fingerprint"], name: "index_customer_briefing_summaries_on_fingerprint", unique: true
+    t.index ["company_id"], name: "index_customer_briefing_summaries_on_company_id"
+    t.index ["contact_id"], name: "index_customer_briefing_summaries_on_contact_id"
+  end
+
   create_table "custom_attribute_definitions", force: :cascade do |t|
     t.string "attribute_display_name"
     t.string "attribute_key"
@@ -2762,6 +2775,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_13_162016) do
   add_foreign_key "conversation_flow_states", "flow_steps", column: "current_step_id", on_delete: :nullify
   add_foreign_key "conversation_flows", "accounts"
   add_foreign_key "conversations", "queues"
+  add_foreign_key "customer_briefing_summaries", "companies", on_delete: :cascade
+  add_foreign_key "customer_briefing_summaries", "contacts", on_delete: :cascade
   add_foreign_key "flow_steps", "accounts"
   add_foreign_key "flow_steps", "conversation_flows"
   add_foreign_key "flow_steps", "flow_steps", column: "next_step_id", on_delete: :nullify

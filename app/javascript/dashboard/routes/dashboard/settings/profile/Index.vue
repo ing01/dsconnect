@@ -18,6 +18,7 @@ import ChangePassword from './ChangePassword.vue';
 import NotificationPreferences from './NotificationPreferences.vue';
 import AudioNotifications from './AudioNotifications.vue';
 import SectionLayout from '../account/components/SectionLayout.vue';
+import CustomerBriefingPreference from './CustomerBriefingPreference.vue';
 import AppearanceSetting from './AppearanceSetting.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import AccessToken from './AccessToken.vue';
@@ -29,6 +30,7 @@ export default {
   components: {
     MessageSignature,
     SectionLayout,
+    CustomerBriefingPreference,
     FontSize,
     AgendaColor,
     UserLanguageSelect,
@@ -308,6 +310,13 @@ export default {
         :message-signature="messageSignature"
         @update-signature="updateSignature"
       />
+    </SectionLayout>
+    <SectionLayout
+      with-border
+      :title="$t('PROFILE_SETTINGS.FORM.CUSTOMER_BRIEFING.TITLE')"
+      :description="$t('PROFILE_SETTINGS.FORM.CUSTOMER_BRIEFING.NOTE')"
+    >
+      <CustomerBriefingPreference />
     </SectionLayout>
     <SectionLayout
       with-border

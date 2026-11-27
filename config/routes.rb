@@ -299,6 +299,12 @@ Rails.application.routes.draw do
               # Mensagens das conversas anteriores do mesmo cliente (historico
               # dentro da conversa nova).
               resource :contact_history, only: [:show]
+              # "Resumo do cliente": contato, empresa, tickets e conversas anteriores.
+              if ChatwootApp.enterprise?
+                resource :customer_briefing, only: [:show] do
+                  post :summary
+                end
+              end
               resource :direct_uploads, only: [:create]
               resource :draft_messages, only: [:show, :update, :destroy]
               # "Abrir ticket automaticamente": a IA le a conversa e sugere

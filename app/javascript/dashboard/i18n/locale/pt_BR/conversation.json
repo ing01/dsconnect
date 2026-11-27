@@ -1,4 +1,53 @@
 {
+  "CUSTOMER_BRIEFING": {
+    "BUTTON": "Resumo do cliente",
+    "AUTO_OPEN": "Abrir automaticamente ao assumir uma conversa",
+    "AI": {
+      "TITLE": "Resumo da IA",
+      "LOADING": "A IA está lendo o histórico...",
+      "REFRESH": "Atualizar",
+      "ERROR": "Não foi possível gerar o resumo com a IA agora. Tente novamente em instantes.",
+      "EMPTY": "Ainda não há histórico para resumir.",
+      "RECENT_TOPICS": "Últimas conversas",
+      "PENDING": "Pendências",
+      "ATTENTION": "Pontos de atenção",
+      "DISCLAIMER": "Texto gerado por IA em {time}. Confira nos tickets e conversas abaixo."
+    },
+    "TITLE": "Resumo do cliente",
+    "CLOSE": "Fechar",
+    "LOADING": "Carregando o resumo...",
+    "ERROR": "Não foi possível carregar o resumo do cliente.",
+    "RETRY": "Tentar novamente",
+    "COMPANY": "Empresa",
+    "NO_COMPANY": "Este contato não está vinculado a nenhuma empresa.",
+    "BLOCKED": "Bloqueada",
+    "TICKET_TOTALS": "Tickets abertos: {open} de {total}",
+    "STATUS": {
+      "ACTIVE": "Ativa",
+      "INACTIVE": "Inativa"
+    },
+    "FACTS": {
+      "LEVEL": "Nível",
+      "CATEGORY": "Categoria",
+      "SPECIALIST": "Especialista",
+      "SINCE": "Usa o sistema desde",
+      "MODULES": "Módulos"
+    },
+    "CONTACT": "Contato",
+    "PREVIOUS_COUNT": "Conversas anteriores: {count}",
+    "TICKETS": "Últimos tickets",
+    "NO_TICKETS": "Nenhum ticket encontrado.",
+    "CONTACT_CONVERSATIONS": "Últimas conversas deste contato",
+    "COMPANY_CONVERSATIONS": "Conversas de outros contatos da empresa",
+    "NO_CONVERSATIONS": "Nenhuma conversa anterior.",
+    "NO_MESSAGE": "Sem mensagem de texto",
+    "CONVERSATION_STATUS": {
+      "OPEN": "Aberta",
+      "RESOLVED": "Resolvida",
+      "PENDING": "Pendente",
+      "SNOOZED": "Pausada"
+    }
+  },
   "CONVERSATION": {
     "CONTACT_HISTORY": {
       "PREVIOUS": "Conversa anterior #{id}",

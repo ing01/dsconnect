@@ -847,6 +847,8 @@ pt_BR:
     api_key_missing: 'A chave de API do Capitão IA não está configurada.'
     ticket_summary:
       no_conversation: 'Este ticket não tem conversa vinculada para resumir.'
+    customer_briefing:
+      failed: 'Não foi possível gerar o resumo com a IA agora. Tente novamente em instantes.'
     copilot:
       using_tool: 'Usando a ferramenta %{function_name}'
       completed_tool_call: 'Uso da ferramenta %{function_name} concluída'

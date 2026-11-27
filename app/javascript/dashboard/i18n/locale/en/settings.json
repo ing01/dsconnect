@@ -15,6 +15,11 @@
     "PASSWORD_UPDATE_SUCCESS": "Your password has been changed successfully",
     "AFTER_EMAIL_CHANGED": "Profile updated. We sent a confirmation link to the new email address - your login email only changes once you click that link.",
     "FORM": {
+      "CUSTOMER_BRIEFING": {
+        "TITLE": "Customer summary",
+        "NOTE": "The summary with the company, the contact and what was discussed before, on the conversation screen.",
+        "LABEL": "Open automatically when I take a conversation"
+      },
       "PICTURE": "Profile Picture",
       "AVATAR": "Profile Image",
       "ERROR": "Please fix form errors",

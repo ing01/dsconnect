@@ -8,6 +8,26 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'conversation-customer-briefing-ai-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'feature',
+    title: 'Resumo do cliente agora com texto da IA',
+    description:
+      'O "Resumo do cliente" ganhou um texto da IA com o que foi conversado, as pendências e os pontos de atenção, considerando também as notas internas. Ele abre sozinho na primeira vez em que você vê uma conversa sua; dá para desligar no próprio resumo ou nas Configurações do Perfil.',
+  },
+  {
+    id: 'conversation-customer-briefing-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'feature',
+    title: 'Resumo do cliente dentro da conversa',
+    description:
+      'O botão "Resumo do cliente", no topo da conversa, mostra os dados da empresa e do contato, as notas, os últimos tickets e as conversas anteriores, tanto do contato quanto de colegas da mesma empresa. Clique em um item para abri-lo. Feche pelo X, clicando fora ou com Esc.',
+  },
+  {
     id: 'ticket-close-no-duplicate-email-2026-11-27',
     date: '27 de novembro de 2026',
     isoDate: '2026-11-27',

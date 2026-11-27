@@ -824,6 +824,8 @@ en:
     api_key_missing: 'Captain AI API key is not configured.'
     ticket_summary:
       no_conversation: 'This ticket has no linked conversation to summarize.'
+    customer_briefing:
+      failed: 'Could not generate the summary with AI right now. Try again in a moment.'
     copilot:
       using_tool: 'Using tool %{function_name}'
       completed_tool_call: 'Completed %{function_name} tool call'

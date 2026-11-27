@@ -15,6 +15,11 @@
     "PASSWORD_UPDATE_SUCCESS": "A sua senha foi alterada com sucesso",
     "AFTER_EMAIL_CHANGED": "Perfil atualizado. Enviamos um link de confirmação para o novo e-mail - seu e-mail de login só muda depois que você clicar nesse link.",
     "FORM": {
+      "CUSTOMER_BRIEFING": {
+        "TITLE": "Resumo do cliente",
+        "NOTE": "O resumo com os dados da empresa, do contato e o que foi conversado antes, na tela da conversa.",
+        "LABEL": "Abrir automaticamente ao assumir uma conversa"
+      },
       "PICTURE": "Foto do perfil",
       "AVATAR": "Imagem de Perfil",
       "ERROR": "Por favor, corrija os erros",

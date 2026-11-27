@@ -10,6 +10,7 @@ import ExtendPauseModal from './ExtendPauseModal.vue';
 import Avatar from 'next/avatar/Avatar.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import ConversationCallButton from './ConversationCallButton.vue';
+import CustomerBriefingButton from './briefing/CustomerBriefingButton.vue';
 import wootConstants from 'dashboard/constants/globals';
 import { conversationListPageURL } from 'dashboard/helper/URLHelper';
 import { snoozedReopenTime } from 'dashboard/helper/snoozeHelpers';
@@ -218,6 +219,11 @@ const copyConversationId = async () => {
         show-extended-info
         :parent-width="width"
         class="hidden md:flex"
+      />
+      <CustomerBriefingButton
+        :conversation-id="currentChat.id"
+        :assignee-id="currentChat.meta?.assignee?.id"
+        :status="currentChat.status"
       />
       <template v-if="!isReadOnlyConversation">
         <ConversationCallButton :inbox="inbox" :chat="currentChat" />
