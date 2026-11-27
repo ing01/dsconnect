@@ -271,4 +271,30 @@ RSpec.describe Tickets::CustomerCommunicationService do
       expect(ActionMailer::Base.deliveries.last.to).to eq(['renan@empresa.com'])
     end
   end
+
+  # Nova tentativa de finalizar depois de o e-mail ja ter saido (so' o
+  # fechamento falhou): o cliente nao recebe o mesmo encerramento de novo.
+  describe 'when the same closing notice was just sent' do
+    it 'returns the earlier delivery instead of e-mailing again' do
+      first = with_smtp { perform }
+
+      expect { with_smtp { perform } }.not_to(change { ActionMailer::Base.deliveries.count })
+      expect(with_smtp { perform }).to eq(first)
+      expect(ticket.ticket_customer_communications.count).to eq(1)
+    end
+
+    it 'sends again once the guard window is over' do
+      with_smtp { perform }
+
+      travel_to(described_class::RESEND_GUARD_WINDOW.from_now + 1.minute) do
+        expect { with_smtp { perform } }.to change { ActionMailer::Base.deliveries.count }.by(1)
+      end
+    end
+
+    it 'never holds back ordinary correspondence' do
+      with_smtp { perform(closing: false) }
+
+      expect { with_smtp { perform(closing: false) } }.to change { ActionMailer::Base.deliveries.count }.by(1)
+    end
+  end
 end
