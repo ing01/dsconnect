@@ -103,13 +103,18 @@ const onDrop = target => {
               :class="result.id === selectedArticleId ? 'bg-n-blue-3' : ''"
               @click="emit('selectResult', result)"
             >
-              <span class="flex items-center gap-1.5 text-sm text-n-slate-12">
-                <Icon icon="i-lucide-file-text" class="flex-shrink-0 size-4" />
-                <span class="truncate">{{ result.title }}</span>
+              <span class="flex items-start gap-1.5 text-sm text-n-slate-12">
+                <Icon
+                  icon="i-lucide-file-text"
+                  class="flex-shrink-0 mt-0.5 size-4"
+                />
+                <span class="min-w-0 leading-5 break-words">
+                  {{ result.title }}
+                </span>
               </span>
               <span
                 v-if="result.folder"
-                class="ps-5 text-xs truncate text-n-slate-11"
+                class="ps-5 text-xs break-words text-n-slate-11"
               >
                 {{ result.folder }}
               </span>

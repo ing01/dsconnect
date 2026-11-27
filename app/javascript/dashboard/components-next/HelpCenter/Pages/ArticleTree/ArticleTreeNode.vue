@@ -155,7 +155,7 @@ const onDrop = event => {
       :aria-expanded="hasChildren ? isExpanded : undefined"
       :aria-selected="isSelected"
       :draggable="canDrag"
-      class="group relative flex items-center gap-1.5 py-1.5 pe-1.5 rounded-lg cursor-pointer select-none text-sm"
+      class="group relative flex items-start gap-1.5 py-1.5 pe-1.5 rounded-lg cursor-pointer select-none text-sm"
       :class="[
         isSelected
           ? 'bg-n-blue-3 text-n-blue-11 font-medium'
@@ -192,25 +192,25 @@ const onDrop = event => {
       <span v-else class="flex-shrink-0 size-5" />
       <Icon
         :icon="icon"
-        class="flex-shrink-0 size-4"
+        class="flex-shrink-0 mt-0.5 size-4"
         :class="isFolder ? 'text-n-amber-10' : 'text-n-slate-11'"
       />
       <span
-        class="min-w-0 truncate"
+        class="min-w-0 leading-5 break-words"
         :class="[isFolder ? 'font-medium' : '', isDraft ? 'opacity-70' : '']"
       >
         {{ node.title }}
       </span>
       <span
         v-if="isDraft"
-        class="flex-shrink-0 px-1.5 text-[10px] rounded bg-n-alpha-2 text-n-slate-11"
+        class="flex-shrink-0 mt-0.5 px-1.5 text-[10px] rounded bg-n-alpha-2 text-n-slate-11"
       >
         {{ t('HELP_CENTER.KB_TREE.STATUS.DRAFT') }}
       </span>
 
       <div
         v-if="canManage && menuItems.length"
-        class="relative flex-shrink-0 ms-auto"
+        class="relative flex-shrink-0 -my-0.5 ms-auto"
         @click.stop
       >
         <OnClickOutside @trigger="menuOpen = false">

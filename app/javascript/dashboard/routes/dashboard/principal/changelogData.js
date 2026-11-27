@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'kb-tree-full-title-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Artigos: título completo na árvore',
+    description:
+      'Na árvore e na busca da Base de Conhecimento, o nome do artigo e da pasta aparece inteiro, em mais de uma linha quando precisar, sem as reticências.',
+  },
+  {
     id: 'ticket-backlog-without-parent-2026-11-27',
     date: '27 de novembro de 2026',
     isoDate: '2026-11-27',
