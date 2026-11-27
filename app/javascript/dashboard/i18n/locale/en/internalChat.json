@@ -2,6 +2,7 @@
   "INTERNAL_CHAT": {
     "LOADING": "Loading the internal chat...",
     "SIDEBAR": {
+      "DRAFT": "Draft",
       "MARK_UNREAD": "Marcar como não lida",
       "SEARCH": "Search conversations",
       "DIRECTS": "Conversations",
@@ -79,6 +80,7 @@
       "ERROR": "Could not update the members."
     },
     "COMPOSER": {
+      "SEND_FAILED": "The message was not sent. Your text is back in the field: try again.",
       "PLACEHOLDER": "Type a message...",
       "PLACEHOLDER_CHANNEL": "Message #{name}",
       "PLACEHOLDER_DIRECT": "Message {name}",

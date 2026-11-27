@@ -4,6 +4,7 @@ import InternalChatPage from '../pages/InternalChatPage.vue';
 import internalChat from 'dashboard/store/modules/internalChat';
 import InternalChatAPI from 'dashboard/api/internalChat';
 import TicketsAPI from 'dashboard/api/tickets';
+import { emitter } from 'shared/helpers/mitt';
 
 vi.mock('dashboard/api/tickets', () => ({ default: { get: vi.fn() } }));
 
@@ -267,6 +268,25 @@ describe('InternalChatPage', () => {
       expect(
         store.getters['internalChat/getRoomById'](5).messages.at(-1)
       ).toEqual(sent);
+    });
+
+    it('puts the text back and explains when the send fails', async () => {
+      InternalChatAPI.sendMessage.mockRejectedValueOnce(new Error('offline'));
+      const alerts = vi.spyOn(emitter, 'emit');
+
+      const { wrapper } = await mountPage();
+      await wrapper.find('textarea').setValue('Vou verificar.');
+      await wrapper.find('textarea').trigger('keydown', { key: 'Enter' });
+      await flushPromises();
+
+      expect(wrapper.find('textarea').element.value).toBe('Vou verificar.');
+      expect(alerts).toHaveBeenCalledWith(
+        'newToastMessage',
+        expect.objectContaining({
+          message: 'INTERNAL_CHAT.COMPOSER.SEND_FAILED',
+        })
+      );
+      alerts.mockRestore();
     });
 
     it('tells the server the room was read', async () => {

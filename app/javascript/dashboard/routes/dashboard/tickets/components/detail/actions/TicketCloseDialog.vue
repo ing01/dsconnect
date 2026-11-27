@@ -7,6 +7,8 @@ import {
   useStoreGetters,
 } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { useTextDraft } from 'dashboard/composables/useTextDraft';
+import DraftNotice from 'dashboard/components-next/draft/DraftNotice.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
@@ -134,10 +136,16 @@ const openChildren = computed(() =>
 const catalogId = ref(null);
 const areaId = ref(null);
 const itemId = ref(null);
-const body = ref('');
+// Mensagem e Resolucao ficam em rascunho: fechar a janela nao perde o texto.
+const bodyDraft = useTextDraft('ticket-close-message', () => props.ticket.id);
+const { text: body, isRestored: isBodyRestored } = bodyDraft;
 // O que foi feito para resolver. Alimenta o DueRules e a documentacao - por isso
 // e' obrigatoria, e nao um campo opcional de observacao.
-const resolution = ref('');
+const resolutionDraft = useTextDraft(
+  'ticket-close-resolution',
+  () => props.ticket.id
+);
+const { text: resolution, isRestored: isResolutionRestored } = resolutionDraft;
 // Mesma escolha da aba Comunicacao: desmarcado, a mensagem de encerramento e
 // REGISTRADA sem e-mail. Ela continua valendo para fechar o ticket - o cliente
 // ve o texto na Area do Cliente -, e serve para quando a equipe ja avisou por
@@ -211,7 +219,8 @@ const resolutionReady = computed(
 const subject = computed(() => props.ticket.display_subject);
 
 const communicationReady = computed(
-  () => !needsCommunication.value || !!body.value.trim()
+  () =>
+    !needsCommunication.value || communicationSent.value || !!body.value.trim()
 );
 const detailsReady = computed(
   () => !props.allowEditDetails || !!title.value.trim()
@@ -236,8 +245,8 @@ const open = () => {
   catalogId.value = null;
   areaId.value = null;
   itemId.value = null;
-  body.value = '';
-  resolution.value = '';
+  bodyDraft.refresh();
+  resolutionDraft.refresh();
   notificarCliente.value = true;
   communicationSent.value = false;
   finalizarFilhos.value = false;
@@ -341,13 +350,16 @@ const submit = async () => {
     }
 
     if (needsCommunication.value && !communicationSent.value) {
+      const sent = bodyDraft.snapshot();
       await store.dispatch('tickets/sendCustomerCommunication', {
         ticketId: props.ticket.id,
-        body: body.value,
+        body: sent.text,
         closing: true,
         notifyCustomer: notificarCliente.value,
       });
       communicationSent.value = true;
+      // Ja saiu: nao pode voltar como rascunho e ser enviada outra vez.
+      bodyDraft.clear(sent);
     }
 
     // A Resolucao vai no proprio fechamento: o servidor so' a grava se o ticket
@@ -377,6 +389,8 @@ const submit = async () => {
     }
     // Avisa a decisao ANTES de fechar o dialogo: fechar dispara `cancel`, e quem
     // escuta (ResolveAction) so' ignora esse `cancel` se ja' soube da decisao.
+    bodyDraft.discard();
+    resolutionDraft.discard();
     emit('closed');
     dialogRef.value?.close();
   } catch (error) {
@@ -409,7 +423,7 @@ watch(
     catalogId.value = null;
     areaId.value = null;
     itemId.value = null;
-    resolution.value = '';
+    communicationSent.value = false;
     finalizarFilhos.value = false;
     categoryId.value = props.ticket.ticket_category_id || null;
     teamId.value = props.ticket.team_id || null;
@@ -648,7 +662,13 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           {{ ticket.resolution }}
         </p>
 
-        <label v-else class="flex flex-col gap-1 min-w-0">
+        <DraftNotice
+          v-if="needsResolution && isResolutionRestored"
+          data-field="resolution"
+          @discard="resolutionDraft.discard"
+        />
+
+        <label v-if="needsResolution" class="flex flex-col gap-1 min-w-0">
           <span class="text-sm font-medium text-n-slate-12">
             {{ t('TICKET.CLOSE.RESOLUTION')
             }}<span class="text-n-ruby-11">*</span>
@@ -709,7 +729,10 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
           {{ t('TICKET.CLOSE.NO_EMAIL_CAN_CLOSE') }}
         </p>
 
-        <p v-else-if="!needsCommunication" class="text-sm text-n-slate-11">
+        <p
+          v-else-if="!needsCommunication || communicationSent"
+          class="text-sm text-n-slate-11"
+        >
           {{ t('TICKET.CLOSE.COMMUNICATION_DONE') }}
         </p>
 
@@ -735,6 +758,12 @@ defineExpose({ open, close: () => dialogRef.value?.close() });
                mensagem ativava esse input e abria a tela de enviar arquivo do
                sistema - ninguem pediu anexo aqui. O editor nao e um campo
                nativo, entao o `label` tambem nao dava foco a nada. -->
+          <DraftNotice
+            v-if="isBodyRestored"
+            data-field="message"
+            @discard="bodyDraft.discard"
+          />
+
           <div class="flex flex-col gap-1 min-w-0">
             <span class="text-sm font-medium text-n-slate-12">
               {{ t('TICKET.CLOSE.MESSAGE')

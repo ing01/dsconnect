@@ -1,14 +1,16 @@
 <script setup>
-import { computed, defineAsyncComponent, nextTick, ref } from 'vue';
+import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OnClickOutside } from '@vueuse/components';
 import { DirectUpload } from 'activestorage';
 import { useAlert } from 'dashboard/composables';
+import { useTextDraft } from 'dashboard/composables/useTextDraft';
 import { setDirectUploadAuthHeaders } from 'dashboard/helper/directUploadsHelper';
 import InternalChatAPI from 'dashboard/api/internalChat';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import ImageLightbox from './ImageLightbox.vue';
+import DraftNotice from 'dashboard/components-next/draft/DraftNotice.vue';
 
 const props = defineProps({
   // O upload e autorizado por sala, entao o composer precisa saber em qual esta.
@@ -34,14 +36,33 @@ const EmojiIconPicker = defineAsyncComponent(
 
 const { t } = useI18n();
 
-const body = ref('');
+// Texto e anexos sao de cada conversa: trocar de sala nao leva o que foi
+// digitado para outra pessoa.
+const draft = useTextDraft('chat', () => props.channelId);
+const { text: body, isRestored } = draft;
 const textareaRef = ref(null);
 const attachMenuOpen = ref(false);
 const emojiOpen = ref(false);
-const pendingAttachments = ref([]);
+// Os anexos ficam so' na memoria: sobrevivem a troca de sala, nao ao F5.
+const attachmentsByRoom = ref({});
+const pendingAttachments = computed(
+  () => attachmentsByRoom.value[props.channelId] || []
+);
+const setAttachments = (room, items) => {
+  attachmentsByRoom.value = { ...attachmentsByRoom.value, [room]: items };
+};
 // Imagem anexada aberta em tamanho grande (zoom, arrastar e girar), antes de enviar.
 const previewImage = ref(null);
-const isUploading = ref(false);
+const uploadsByRoom = ref({});
+const isUploading = computed(
+  () => (uploadsByRoom.value[props.channelId] || 0) > 0
+);
+const countUpload = (room, step) => {
+  uploadsByRoom.value = {
+    ...uploadsByRoom.value,
+    [room]: (uploadsByRoom.value[room] || 0) + step,
+  };
+};
 const fileInput = ref(null);
 const acceptedTypes = ref('');
 
@@ -166,12 +187,18 @@ const attachFiles = async chosen => {
   const accepted = chosen.filter(withinSizeLimit);
   if (!accepted.length) return;
 
-  isUploading.value = true;
+  // A sala de agora: o arquivo continua dela mesmo que a pessoa troque de
+  // conversa antes de o envio terminar.
+  const room = props.channelId;
+  countUpload(room, 1);
   try {
     const uploaded = await Promise.all(accepted.map(uploadOne));
-    pendingAttachments.value.push(...uploaded.filter(Boolean));
+    setAttachments(room, [
+      ...(attachmentsByRoom.value[room] || []),
+      ...uploaded.filter(Boolean),
+    ]);
   } finally {
-    isUploading.value = false;
+    countUpload(room, -1);
   }
 };
 
@@ -197,17 +224,24 @@ const onPaste = event => {
   attachFiles(files);
 };
 
-const removeAttachment = index => {
-  const [removed] = pendingAttachments.value.splice(index, 1);
-  if (removed?.preview) URL.revokeObjectURL(removed.preview);
-};
-
-const clearAttachments = () => {
-  pendingAttachments.value.forEach(item => {
+const releasePreviews = items =>
+  items.forEach(item => {
     if (item.preview) URL.revokeObjectURL(item.preview);
   });
-  pendingAttachments.value = [];
+
+const removeAttachment = index => {
+  const items = [...pendingAttachments.value];
+  releasePreviews(items.splice(index, 1));
+  setAttachments(props.channelId, items);
 };
+
+watch(
+  () => props.channelId,
+  () => {
+    mentionQuery.value = null;
+    previewImage.value = null;
+  }
+);
 
 // Nao envia no meio de um upload: a mensagem sairia sem o arquivo que a pessoa
 // acabou de escolher.
@@ -229,15 +263,32 @@ const send = overrideBody => {
   if (isUploading.value) return;
   if (!outgoing.trim() && !pendingAttachments.value.length) return;
 
+  const room = props.channelId;
+  const items = pendingAttachments.value;
+  const sent = { key: draft.snapshot().key, text: outgoing };
+
+  // O campo ja fica livre para a proxima mensagem.
+  body.value = '';
+  setAttachments(room, []);
+  mentionQuery.value = null;
+
   emit('send', {
     body: outgoing,
-    attachments: pendingAttachments.value.map(item => item.signedId),
+    attachments: items.map(item => item.signedId),
     replyTo: props.replyTo?.id || null,
+    // Quem envia avisa como terminou: falhando, texto e anexos voltam.
+    onSettled: delivered => {
+      if (delivered) {
+        releasePreviews(items);
+        return;
+      }
+      draft.putBack(sent);
+      setAttachments(room, [
+        ...items,
+        ...(attachmentsByRoom.value[room] || []),
+      ]);
+    },
   });
-
-  body.value = '';
-  clearAttachments();
-  mentionQuery.value = null;
 };
 
 // Enter envia; Shift+Enter quebra linha sem enviar (comportamento nativo do
@@ -266,6 +317,8 @@ const onKeydown = event => {
   <div
     class="flex flex-col gap-2 px-4 py-3 border-t border-n-weak bg-n-solid-1"
   >
+    <DraftNotice v-if="isRestored" @discard="draft.discard" />
+
     <!-- Contexto da resposta, acima do campo -->
     <div
       v-if="replyTo"

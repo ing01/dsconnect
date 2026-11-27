@@ -257,11 +257,21 @@ const { isDragging, onDragEnter, onDragOver, onDragLeave, onDrop } =
     onFiles: files => composerRef.value?.attachFiles(files),
   });
 
-const send = async payload => {
-  await store.dispatch('internalChat/sendMessage', {
-    roomId: activeRoomId.value,
-    ...payload,
-  });
+const send = async ({ onSettled, ...message }) => {
+  const roomId = activeRoomId.value;
+  try {
+    await store.dispatch('internalChat/sendMessage', { roomId, ...message });
+  } catch (error) {
+    onSettled?.(false);
+    useAlert(
+      error?.response?.data?.error || t('INTERNAL_CHAT.COMPOSER.SEND_FAILED')
+    );
+    return;
+  }
+  onSettled?.(true);
+  // Trocou de sala enquanto enviava: o resto e' da que a pessoa deixou.
+  if (activeRoomId.value !== roomId) return;
+
   replyTo.value = null;
   unreadFrom.value = 0;
   scrollToBottom();

@@ -2,6 +2,7 @@ import fromUnixTime from 'date-fns/fromUnixTime';
 import differenceInDays from 'date-fns/differenceInDays';
 import Cookies from 'js-cookie';
 import { LOCAL_STORAGE_KEYS } from 'dashboard/constants/localStorage';
+import { clearAllDrafts } from 'dashboard/helper/textDrafts';
 import { SESSION_STORAGE_KEYS } from 'dashboard/constants/sessionStorage';
 import { LocalStorage } from 'shared/helpers/localStorage';
 import SessionStorage from 'shared/helpers/sessionStorage';
@@ -44,6 +45,7 @@ export const clearBrowserSessionCookies = () => {
 
 export const clearLocalStorageOnLogout = () => {
   LocalStorage.remove(LOCAL_STORAGE_KEYS.DRAFT_MESSAGES);
+  clearAllDrafts();
 };
 
 export const clearSessionStorageOnLogout = () => {

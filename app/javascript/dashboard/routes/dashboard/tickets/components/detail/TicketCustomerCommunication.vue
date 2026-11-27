@@ -1,9 +1,11 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OnClickOutside } from '@vueuse/components';
 import { useStore } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { useTextDraft } from 'dashboard/composables/useTextDraft';
+import DraftNotice from 'dashboard/components-next/draft/DraftNotice.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -19,7 +21,8 @@ const props = defineProps({
 const { t } = useI18n();
 const store = useStore();
 
-const body = ref('');
+const draft = useTextDraft('ticket-message', () => props.ticket.id);
+const { text: body, isRestored } = draft;
 const isSending = ref(false);
 // Enviar por e-mail e o caso comum, entao ja vem marcado. Desmarcado, a
 // mensagem e apenas REGISTRADA: ela continua aparecendo para o cliente na Area
@@ -27,6 +30,14 @@ const isSending = ref(false);
 // WhatsApp e quer deixar isso no chamado.
 const notificarCliente = ref(true);
 const attachments = ref([]);
+
+// Anexo escolhido para um ticket nao pode seguir para outro.
+watch(
+  () => props.ticket.id,
+  () => {
+    attachments.value = [];
+  }
+);
 
 // Messages that went TO the customer, kept apart from the internal thread.
 const communications = computed(
@@ -100,18 +111,20 @@ const send = async () => {
   if (!canSend.value || isSending.value) return;
 
   isSending.value = true;
+  const sent = draft.snapshot();
+  const ticketId = props.ticket.id;
   try {
     // Not a closing message: this is ordinary correspondence. Only the closing
     // flow marks one as such, and only that kind unlocks the close.
     await store.dispatch('tickets/sendCustomerCommunication', {
-      ticketId: props.ticket.id,
-      body: body.value,
+      ticketId,
+      body: sent.text,
       closing: false,
       notifyCustomer: notificarCliente.value,
       attachments: attachments.value,
     });
-    body.value = '';
-    attachments.value = [];
+    draft.clear(sent);
+    if (ticketId === props.ticket.id) attachments.value = [];
   } catch (error) {
     useAlert(error?.response?.data?.error || t('TICKET.API.ERROR_MESSAGE'));
   } finally {
@@ -173,6 +186,8 @@ const send = async () => {
             </template>
           </DropdownMenu>
         </OnClickOutside>
+
+        <DraftNotice v-if="isRestored" @discard="draft.discard" />
 
         <FullEditor
           v-model="body"

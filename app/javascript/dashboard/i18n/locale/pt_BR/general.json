@@ -15,6 +15,10 @@
     "DISCARD": "Descartar",
     "PREFERRED": "Preferido"
   },
+  "TEXT_DRAFT": {
+    "RESTORED": "Rascunho recuperado.",
+    "DISCARD": "Descartar"
+  },
   "CHOICE_TOGGLE": {
     "YES": "Sim",
     "NO": "Não"

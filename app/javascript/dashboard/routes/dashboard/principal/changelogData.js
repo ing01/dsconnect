@@ -8,6 +8,16 @@
 // `date` is only the pt-BR label shown on the card, so both must be kept in sync.
 export const CHANGELOG_ENTRIES = [
   {
+    id: 'text-drafts-chat-tickets-2026-11-27',
+    date: '27 de novembro de 2026',
+    isoDate: '2026-11-27',
+    platform: 'web',
+    type: 'improvement',
+    title: 'Rascunho automático no chat interno e nos tickets',
+    description:
+      'O que você digita no chat interno, nos comentários, nas mensagens ao cliente e na janela de fechar o ticket fica salvo no navegador por 7 dias. No chat, cada conversa tem o seu texto e os seus anexos, e a mensagem que falhar volta para o campo. Sair da conta apaga os rascunhos.',
+  },
+  {
     id: 'email-delete-menu-icon-2026-11-27',
     date: '27 de novembro de 2026',
     isoDate: '2026-11-27',

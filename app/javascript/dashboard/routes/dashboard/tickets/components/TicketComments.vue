@@ -1,8 +1,10 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
+import { useTextDraft } from 'dashboard/composables/useTextDraft';
+import DraftNotice from 'dashboard/components-next/draft/DraftNotice.vue';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -20,8 +22,17 @@ const { t } = useI18n();
 const store = useStore();
 const currentUserId = useMapGetter('getCurrentUserID');
 
-const newComment = ref('');
+const draft = useTextDraft('ticket-comment', () => props.ticketId);
+const { text: newComment, isRestored } = draft;
 const newAttachments = ref([]);
+
+// Anexo escolhido para um ticket nao pode seguir para outro.
+watch(
+  () => props.ticketId,
+  () => {
+    newAttachments.value = [];
+  }
+);
 
 const comments = computed(() =>
   store.getters['tickets/getComments'](props.ticketId)
@@ -32,14 +43,16 @@ const isSubmitting = computed(() => uiFlags.value.isCreatingComment);
 
 const submitComment = async () => {
   if (!newComment.value.trim()) return;
+  const sent = draft.snapshot();
+  const { ticketId } = props;
   try {
     await store.dispatch('tickets/createComment', {
-      ticketId: props.ticketId,
-      content: newComment.value.trim(),
+      ticketId,
+      content: sent.text.trim(),
       attachments: newAttachments.value,
     });
-    newComment.value = '';
-    newAttachments.value = [];
+    draft.clear(sent);
+    if (ticketId === props.ticketId) newAttachments.value = [];
   } catch (error) {
     useAlert(parseAPIErrorResponse(error) || t('TICKET.COMMENTS.ERROR'));
   }
@@ -101,10 +114,7 @@ onMounted(() => store.dispatch('tickets/fetchComments', props.ticketId));
         <p class="text-sm text-n-slate-12 whitespace-pre-wrap">
           {{ comment.content }}
         </p>
-        <ul
-          v-if="comment.attachments?.length"
-          class="flex flex-wrap gap-2 m-0"
-        >
+        <ul v-if="comment.attachments?.length" class="flex flex-wrap gap-2 m-0">
           <li v-for="anexo in comment.attachments" :key="anexo.id">
             <a
               :href="anexo.file_url"
@@ -121,6 +131,7 @@ onMounted(() => store.dispatch('tickets/fetchComments', props.ticketId));
     </ul>
 
     <div class="flex flex-col gap-2">
+      <DraftNotice v-if="isRestored" @discard="draft.discard" />
       <textarea
         v-model="newComment"
         rows="2"

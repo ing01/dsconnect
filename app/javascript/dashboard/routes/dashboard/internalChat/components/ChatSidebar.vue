@@ -6,6 +6,8 @@ import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import { shortTime } from '../helpers/messageParser';
 import { presenceDotClass } from '../helpers/presence';
+import { useDraftKey } from 'dashboard/composables/useTextDraft';
+import { readDraft } from 'dashboard/helper/textDrafts';
 
 const props = defineProps({
   directs: { type: Array, default: () => [] },
@@ -94,6 +96,13 @@ const deleteFromContextMenu = () => {
 };
 
 const userFor = userId => props.users.find(user => user.id === userId);
+
+// Mensagem comecada e nao enviada. Na conversa aberta ela ja esta no campo.
+const draftKeyFor = useDraftKey();
+const draftOf = room =>
+  room.id === props.activeRoomId
+    ? ''
+    : readDraft(draftKeyFor('chat', room.id)).trim();
 
 // A previa da lista.
 //
@@ -239,6 +248,13 @@ const channelsUnread = computed(() => unreadOf(props.channels));
             >
               {{ channel.name }}
             </span>
+            <Icon
+              v-if="draftOf(channel)"
+              icon="i-lucide-pencil-line"
+              class="flex-shrink-0 size-3.5 text-n-amber-11"
+              :title="t('INTERNAL_CHAT.SIDEBAR.DRAFT')"
+              data-testid="room-draft"
+            />
             <span
               v-if="channel.unread"
               class="flex-shrink-0 min-w-[1.25rem] px-1 py-0.5 text-xs font-semibold text-center rounded-full text-white bg-n-blue-9 tabular-nums"
@@ -322,7 +338,17 @@ const channelsUnread = computed(() => unreadOf(props.channels));
                   {{ shortTime(lastMessage(direct).createdAt) }}
                 </span>
               </span>
-              <span class="text-xs truncate text-n-slate-10">
+              <span
+                v-if="draftOf(direct)"
+                class="text-xs truncate text-n-slate-10"
+                data-testid="room-draft"
+              >
+                <span class="font-medium text-n-amber-11">
+                  {{ t('INTERNAL_CHAT.SIDEBAR.DRAFT') }}
+                </span>
+                {{ draftOf(direct) }}
+              </span>
+              <span v-else class="text-xs truncate text-n-slate-10">
                 {{ preview(direct) }}
               </span>
             </span>
